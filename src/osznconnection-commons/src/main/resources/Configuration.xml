@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <properties resource="config.properties">
+    </properties>
+
+    <typeAliases>
+        <typeAlias type="org.complitex.dictionaryfw.entity.StringCulture" alias="StringCulture"/>
+        <typeAlias type="org.complitex.dictionaryfw.entity.InsertParameter" alias="InsertParameter"/>
+        <typeAlias type="org.complitex.dictionaryfw.entity.DomainObject" alias="DomainObject"/>
+        <typeAlias type="org.complitex.dictionaryfw.entity.Attribute" alias="Attribute"/>
+        <typeAlias type="org.complitex.dictionaryfw.entity.example.DomainObjectExample" alias="DomainObjectExample"/>
+    </typeAliases>
+
+    <environments default="test">
+        <environment id="test">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="com.mysql.jdbc.Driver"/>
+                <!--<property name="driver" value="com.p6spy.engine.spy.P6SpyDriver"/>-->
+
+                <property name="url" value="jdbc:mysql://localhost:3306/${database}"/>
+                <property name="username" value="${username}"/>
+                <property name="password" value="${passpword}"/>
+            </dataSource>
+        </environment>
+        <environment id="development">
+            <transactionManager type="MANAGED"/>
+            <dataSource type="JNDI">
+                <property name="data_source" value="jdbc/osznconnectionPool"/>
+            </dataSource>
+        </environment>
+    </environments>
+    <mappers>
+        <mapper resource="org/complitex/dictionaryfw/entity/Locale.xml"/>
+        <mapper resource="org/complitex/dictionaryfw/entity/Sequence.xml"/>
+        <mapper resource="org/complitex/dictionaryfw/entity/StringCulture.xml"/>
+        <mapper resource="org/complitex/dictionaryfw/entity/description/Entity.xml"/>
+        <mapper resource="org/complitex/dictionaryfw/entity/Attribute.xml"/>
+        <mapper resource="org/complitex/dictionaryfw/entity/DomainObject.xml"/>
+
+        <mapper resource="org/complitex/osznconnection/information/strategy/building/Building.xml"/>
+        <mapper resource="org/complitex/osznconnection/information/strategy/street/Street.xml"/>
+
+        <mapper resource="org/complitex/osznconnection/admin/service/UserBean.xml"/>
+        <mapper resource="org/complitex/dictionaryfw/service/LogBean.xml"/>
+        <mapper resource="org/complitex/osznconnection/logging/service/LogListBean.xml"/>
+    </mappers>
+
+</configuration>

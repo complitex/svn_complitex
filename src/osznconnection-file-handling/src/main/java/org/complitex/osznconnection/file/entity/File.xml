@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.complitex.osznconnection.file.File">
+
+    <resultMap id="File" type="org.complitex.osznconnection.file.File">
+        <id column="id" property="id"/>
+        <result column="organization_id" property="organizationId"/>
+        <result column="name" property="name"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="org.complitex.osznconnection.file.File">
+        INSERT INTO `file` (`id`, `name`, `organization_id`) VALUES (#{id}, #{name}, #{organizationId})
+    </insert>
+
+    <select id="find" resultMap="org.complitex.osznconnection.file.File.File">
+        SELECT `id`, `name`, `organization_id`
+        FROM `file`
+        ORDER BY `name`
+    </select>
+
+</mapper>
