@@ -714,9 +714,9 @@ CREATE TABLE `file` (
     CONSTRAINT `FK_file_organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `request`;
+DROP TABLE IF EXISTS `file_request`;
 
-CREATE TABLE `request` (
+CREATE TABLE `file_request` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT,
     `person_id` varchar(30) NOT NULL,
     `first_name` varchar(30) NOT NULL,
@@ -733,24 +733,31 @@ CREATE TABLE `request` (
     `apartment_id` bigint(20) NOT NULL,
     `status` varchar(20) NOT NULL default 'UNRESOLVED',
     PRIMARY KEY (`id`),
-    KEY `FK_request_file` (`file_id`),
-    CONSTRAINT `FK_request_file` FOREIGN KEY (`file_id`) REFERENCES `file` (`id`),
-    KEY `FK_request_city` (`city_id`),
-    CONSTRAINT `FK_request_city` FOREIGN KEY (`city_id`) REFERENCES `city` (`id`),
-    KEY `FK_request_street` (`street_id`),
-    CONSTRAINT `FK_request_street` FOREIGN KEY (`street_id`) REFERENCES `street` (`id`),
-    KEY `FK_request_building` (`building_id`),
-    CONSTRAINT `FK_request_building` FOREIGN KEY (`building_id`) REFERENCES `building` (`id`),
-    KEY `FK_request_apartment` (`apartment_id`),
-    CONSTRAINT `FK_request_apartment` FOREIGN KEY (`apartment_id`) REFERENCES `apartment` (`id`)
+    KEY `FK_file_request_file` (`file_id`),
+    CONSTRAINT `FK_file_request_file` FOREIGN KEY (`file_id`) REFERENCES `file` (`id`),
+    KEY `FK_file_request_city` (`city_id`),
+    CONSTRAINT `FK_file_request_city` FOREIGN KEY (`city_id`) REFERENCES `city` (`id`),
+    KEY `FK_file_request_street` (`street_id`),
+    CONSTRAINT `FK_file_request_street` FOREIGN KEY (`street_id`) REFERENCES `street` (`id`),
+    KEY `FK_file_request_building` (`building_id`),
+    CONSTRAINT `FK_file_request_building` FOREIGN KEY (`building_id`) REFERENCES `building` (`id`),
+    KEY `FK_file_request_apartment` (`apartment_id`),
+    CONSTRAINT `FK_file_request_apartment` FOREIGN KEY (`apartment_id`) REFERENCES `apartment` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `person_account`;
 
 CREATE TABLE `person_account` (
-    `person_id` varchar(30) NOT NULL,
+    `id` bigint(20) NOT NULL AUTO_INCREMENT,
+    `first_name` varchar(30) NOT NULL,
+    `middle_name` varchar(30) NOT NULL,
+    `last_name` varchar(30) NOT NULL,
+    `city` varchar(30) NOT NULL,
+    `street` varchar(30) NOT NULL,
+    `building` varchar(7) NOT NULL,
+    `apartment` varchar(9) NOT NULL,
     `account_number` varchar(100) NOT NULL,
-    PRIMARY KEY (`person_id`)
+    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `address_correction`;
