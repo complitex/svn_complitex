@@ -718,7 +718,6 @@ DROP TABLE IF EXISTS `file_request`;
 
 CREATE TABLE `file_request` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT,
-    `person_id` varchar(30) NOT NULL,
     `first_name` varchar(30) NOT NULL,
     `middle_name` varchar(30) NOT NULL,
     `last_name` varchar(30) NOT NULL,
