@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<template xmlns="http://www.vetcontrol.org/web/template"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.vetcontrol.org/web/template http://www.vetcontrol.org/web/template/vetcontrol-template.xsd">
+    <sidebar>
+        <menu class="org.complitex.osznconnection.admin.web.AdminTemplateMenu"/>
+        <menu class="org.complitex.osznconnection.information.web.InformationTemplateMenu"/>
+        <menu class="org.complitex.osznconnection.information.web.InformationDescriptionTemplateMenu"/>
+    </sidebar>
+</template>

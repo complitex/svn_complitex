@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.complitex.osznconnection.admin.service.UserBean">
+    <resultMap id="userResultMap" type="org.complitex.dictionaryfw.entity.User">
+        <id column="user_id" property="id"/>
+        <result column="login" property="login"/>
+        <result column="password" property="password"/>        
+        <result column="user_info_object_id" property="userInfoObjectId"/>
+        <collection property="userGroups" ofType="org.complitex.dictionaryfw.entity.UserGroup">
+            <id column="user_group_id" property="id"/>
+            <result column="user_group_login" property="login"/>
+            <result column="group_name" property="groupName"/>
+        </collection>
+    </resultMap>
+
+    <!--User-->
+
+    <select id="isUniqueLogin" resultType="boolean" parameterType="string">
+        select count(*) = 0 from `user` u where u.`login` = #{login}
+    </select>
+
+    <select id="selectUser" resultMap="userResultMap" parameterType="long">
+        select
+            distinct u.id as user_id,
+            u.login as login,
+            u.password as password,
+            u.user_info_object_id as user_info_object_id,
+            g.id as user_group_id,
+            g.login as user_group_login,
+            g.group_name as group_name
+        from `user` u
+            left join `usergroup` g on u.`login` = g.`login`
+        where u.id = #{id}
+    </select>
+
+    <sql id="userFilter">
+        from `user` u
+            left join `usergroup` g on u.`login` = g.`login`
+            left join `user_info` ui on u.`user_info_object_id` = ui.`object_id`
+            <foreach collection="attributeExamples" item="item" index="index">
+                <if test="item.value != null">
+                    left join `user_info_attribute` uia_${index}
+                        on (ui.`object_id` = uia_${index}.`object_id`
+                            and uia_${index}.`attribute_type_id` = #{item.attributeTypeId})
+                    left join `user_info_string_culture` uis_${index} on uia_${index}.`value_id` = uis_${index}.`id`
+                </if>
+            </foreach>
+            <if test="sortAttributeTypeId != null">
+                left join `user_info_attribute` uia_sort on ui.`object_id` = uia_sort.`object_id`
+                left join `user_info_string_culture` uis_sort on (uia_sort.`value_id` = uis_sort.`id`
+                    and uia_sort.`attribute_type_id` = ${sortAttributeTypeId})
+            </if>
+        <where>
+            <if test="login != null">u.login like concat('%', #{login}, '%')</if>
+            <if test="groupName != null">and g.`group_name` = #{groupName}</if>
+            <foreach collection="attributeExamples" item="item" index="index">
+                <if test="item.value != null">
+                     and uis_${index}.`value` like concat('%', #{item.value}, '%')
+                </if>
+            </foreach>
+            <if test="sortAttributeTypeId != null">
+                and (uis_sort.`value` is not null or uia_sort.`attribute_type_id` is null)
+            </if>
+        </where>         
+        <if test="sortAttributeTypeId != null">
+            order by uis_sort.`value` <choose><when test="ascending">asc</when><otherwise>desc</otherwise></choose>
+        </if>
+        <if test="sortProperty == 'login'">
+            order by u.`login` <choose><when test="ascending">asc</when><otherwise>desc</otherwise></choose>
+        </if>        
+    </sql>
+
+    <select id="selectUsers" resultMap="userResultMap" parameterType="org.complitex.osznconnection.admin.service.UserFilter">
+        select
+            uc.*, gc.id as user_group_id, gc.login as user_group_login, gc.group_name as group_name
+        from
+        (select
+            distinct u.id as user_id,
+            u.login as login,
+            u.password as password,
+            u.user_info_object_id as user_info_object_id
+        <include refid="userFilter"/>
+        limit #{first}, #{count}
+        ) as uc left join `usergroup` gc on uc.`login` = gc.`login`
+    </select>
+
+    <select id="selectUsersCount" resultType="int" parameterType="org.complitex.osznconnection.admin.service.UserFilter">
+        select count(distinct u.id)
+        <include refid="userFilter"/>
+    </select>
+
+    <insert id="insertUser" parameterType="org.complitex.dictionaryfw.entity.User" keyProperty="id" useGeneratedKeys="true">
+        insert into `user` (`login`, `password`, `user_info_object_id`) values (#{login}, #{password}, #{userInfoObjectId})
+    </insert>
+
+    <update id="updateUser" parameterType="org.complitex.dictionaryfw.entity.User">
+        update `user`
+        <set>
+            <if test="password != null"> `password` = #{password},</if>
+            <if test="userInfoObjectId != null"> `user_info_object_id` = #{userInfoObjectId}</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--User Group-->
+    <insert id="insertUserGroup" parameterType="org.complitex.dictionaryfw.entity.UserGroup">
+        insert into `usergroup` (`login`, `group_name`) values (#{login}, #{groupName});
+    </insert>
+
+    <delete id="deleteUserGroup" parameterType="long">
+        delete from `usergroup` where id = #{id}
+    </delete>
+</mapper>

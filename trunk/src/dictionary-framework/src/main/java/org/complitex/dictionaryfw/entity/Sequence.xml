@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.complitex.dictionaryfw.entity.Sequence">
+
+    <select id="nextId" resultType="long" parameterType="string">
+        select s.`sequence_value` from `sequence` s where s.`sequence_name` = '${value}' for update
+    </select>
+    <update id="incrementId" parameterType="string">
+        update `sequence` s set s.`sequence_value` = s.`sequence_value` + 1 where s.`sequence_name` = '${value}'
+    </update>
+
+    <select id="nextStringId" resultType="long" parameterType="string">
+        select s.`sequence_value` from `sequence` s where s.`sequence_name` = '${value}_string_culture' for update
+    </select>
+
+    <update id="incrementStringId" parameterType="string">
+        update `sequence` s set s.`sequence_value` = s.`sequence_value` + 1 where s.`sequence_name` = '${value}_string_culture'
+    </update>
+
+    <select id="nextStringIdForDescriptionData" resultType="long">
+        select s.`sequence_value` from `sequence` s where s.`sequence_name` = 'string_culture' for update
+    </select>
+
+    <update id="incrementStringIdForDescriptionData">
+        update `sequence` s set s.`sequence_value` = s.`sequence_value` + 1 where s.`sequence_name` = 'string_culture'
+    </update>
+    
+</mapper>
