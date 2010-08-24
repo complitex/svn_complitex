@@ -714,9 +714,9 @@ CREATE TABLE `file` (
     CONSTRAINT `FK_file_organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `file_request`;
+DROP TABLE IF EXISTS `request_payment`;
 
-CREATE TABLE `file_request` (
+CREATE TABLE `request_payment` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT,
     `file_id` bigint(20) NULL,
     `account_number` varchar(100) NULL,
@@ -784,16 +784,47 @@ CREATE TABLE `file_request` (
 	`reserv1` int(10) COMMENT 'Резерв',
 	`reserv2` varchar(10) COMMENT 'Резер',
     PRIMARY KEY (`id`),
-    KEY `FK_file_request_file` (`file_id`),
-    CONSTRAINT `FK_file_request_file` FOREIGN KEY (`file_id`) REFERENCES `file` (`id`),
-    KEY `FK_file_request_city` (`city_id`),
-    CONSTRAINT `FK_file_request_city` FOREIGN KEY (`city_id`) REFERENCES `city` (`id`),
-    KEY `FK_file_request_street` (`street_id`),
-    CONSTRAINT `FK_file_request_street` FOREIGN KEY (`street_id`) REFERENCES `street` (`id`),
-    KEY `FK_file_request_building` (`building_id`),
-    CONSTRAINT `FK_file_request_building` FOREIGN KEY (`building_id`) REFERENCES `building` (`id`),
-    KEY `FK_file_request_apartment` (`apartment_id`),
-    CONSTRAINT `FK_file_request_apartment` FOREIGN KEY (`apartment_id`) REFERENCES `apartment` (`id`)
+    KEY `FK_request_payment_file` (`file_id`),
+    CONSTRAINT `FK_request_payment_file` FOREIGN KEY (`file_id`) REFERENCES `file` (`id`),
+    KEY `FK_request_payment_city` (`city_id`),
+    CONSTRAINT `FK_request_payment_city` FOREIGN KEY (`city_id`) REFERENCES `city` (`id`),
+    KEY `FK_request_payment_street` (`street_id`),
+    CONSTRAINT `FK_request_payment_street` FOREIGN KEY (`street_id`) REFERENCES `street` (`id`),
+    KEY `FK_request_payment_building` (`building_id`),
+    CONSTRAINT `FK_request_payment_building` FOREIGN KEY (`building_id`) REFERENCES `building` (`id`),
+    KEY `FK_request_payment_apartment` (`apartment_id`),
+    CONSTRAINT `FK_request_payment_apartment` FOREIGN KEY (`apartment_id`) REFERENCES `apartment` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `request_benefit`;
+
+CREATE TABLE `request_benefit` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT,
+    `file_id` bigint(20) NULL,
+    `account_number` varchar(100) NULL,
+
+	`own_num` varchar(15) COMMENT 'Номер дела',
+	`ree_num` int(2) COMMENT 'Номер реестра',
+	`own_num_sr` varchar(15) COMMENT 'Лицевой счет в обслуж. организации',
+	`fam_num` int(2) COMMENT 'Номер члена семьи',
+	`sur_nam` varchar(30) COMMENT 'Фамилия',
+	`f_nam` varchar(15) COMMENT 'Имя',
+	`m_nam` varchar(20) COMMENT 'Отчество',
+	`ind_cod` varchar(10) COMMENT 'Идентификационный номер',
+	`psp_ser` varchar(6) COMMENT 'Серия паспорта',
+	`psp_num` varchar(6) COMMENT 'Номер паспорта',
+	`ozn` int(1) COMMENT 'Признак владельца',
+	`cm_area` double(12,10) COMMENT 'Общая площадь',
+	`heat_ area` double(12,10) COMMENT 'Обогреваемая площадь',
+	`own_frm` int(6) COMMENT 'Форма собственности',
+	`hostel` int(2) COMMENT 'Количество комнат',
+	`priv_cat` int(3) COMMENT 'Категория льготы на платежи',
+	`ord_fam` int(2) COMMENT 'Порядок семьи льготников для расчета платежей',
+	`ozn_sq_add` int(1) COMMENT 'Признак учета дополнительной площади',
+	`ozn_abs` int(1) COMMENT 'Признак отсутствия данных в базе ЖЭО',
+	`reserv1` double(12,10) COMMENT 'Резерв',
+	`reserv2` varchar(10) COMMENT 'Резерв',
+	PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `person_account`;
