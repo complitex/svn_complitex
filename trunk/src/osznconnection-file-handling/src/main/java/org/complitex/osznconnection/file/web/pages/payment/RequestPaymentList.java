@@ -4,6 +4,7 @@
  */
 package org.complitex.osznconnection.file.web.pages.payment;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.Iterator;
 import javax.ejb.EJB;
@@ -17,6 +18,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.IModel;
@@ -148,6 +150,12 @@ public final class RequestPaymentList extends TemplatePage {
                 item.add(new Label("apartment", requestPayment.getInternalApartment()));
                 item.add(new Label("fileName", requestPayment.getFileName()));
                 item.add(new Label("status", StatusRenderer.displayValue(requestPayment.getStatus())));
+                BookmarkablePageLink correctionLink = new BookmarkablePageLink("correctionLink", PaymentCorrection.class,
+                        new PageParameters(ImmutableMap.of(PaymentCorrection.REQUEST_PAYMENT_ID, requestPayment.getId())));
+                boolean needCorrect = requestPayment.getInternalCity() == null || requestPayment.getInternalStreet() == null
+                        || requestPayment.getInternalBuilding() == null || requestPayment.getInternalApartment() == null;
+                correctionLink.setVisible(needCorrect);
+                item.add(correctionLink);
             }
         };
         filterForm.add(data);

@@ -6,9 +6,9 @@ package org.complitex.osznconnection.file.web.pages.payment;
 
 import javax.ejb.EJB;
 import org.apache.wicket.PageParameters;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.ResourceModel;
+import org.complitex.osznconnection.commons.web.template.TemplatePage;
 import org.complitex.osznconnection.file.entity.RequestPayment;
 import org.complitex.osznconnection.file.service.AddressResolver;
 import org.complitex.osznconnection.file.service.RequestPaymentBean;
@@ -18,7 +18,7 @@ import org.complitex.osznconnection.file.web.component.correction.CorrectionPane
  *
  * @author Artem
  */
-public final class PaymentCorrection extends WebPage {
+public final class PaymentCorrection extends TemplatePage {
 
     public static final String REQUEST_PAYMENT_ID = "request_payment_id";
 
@@ -50,7 +50,7 @@ public final class PaymentCorrection extends WebPage {
             @Override
             protected void correctAddress(long cityId, long streetId, long buildingId, long apartmentId) {
                 RequestPayment correctedRequestPayment = addressResolver.correctAddress(requestPayment, cityId, streetId, buildingId, apartmentId);
-                requestPaymentBean.update(correctedRequestPayment);
+                PaymentCorrection.this.update(correctedRequestPayment);
             }
 
             @Override
@@ -58,6 +58,10 @@ public final class PaymentCorrection extends WebPage {
                 setResponsePage(RequestPaymentList.class);
             }
         });
+    }
+
+    private void update(RequestPayment correctedRequestPayment) {
+        requestPaymentBean.update(correctedRequestPayment);
     }
 }
 
