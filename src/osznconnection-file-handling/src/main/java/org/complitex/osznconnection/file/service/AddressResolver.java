@@ -8,7 +8,6 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.entity.example.ComparisonType;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.service.AbstractBean;
@@ -160,13 +159,13 @@ public class AddressResolver extends AbstractBean {
         String building = requestPayment.getBldNum();
         String apartment = requestPayment.getFlat();
 
-        if (Strings.isEmpty(city)) {
-            addressCorrectionBean.insertCity(city, cityId, organizationId);
-        } else if (Strings.isEmpty(street)) {
-            addressCorrectionBean.insertStreet(city, street, streetId, organizationId);
-        } else if (Strings.isEmpty(building)) {
-            addressCorrectionBean.insertBuilding(city, street, building, streetId, organizationId);
-        } else if (Strings.isEmpty(apartment)) {
+        if (requestPayment.getCityId() == null) {
+            addressCorrectionBean.insertCity(city, street, building, apartment, cityId, organizationId);
+        } else if (requestPayment.getStreetId() == null) {
+            addressCorrectionBean.insertStreet(city, street, building, apartment, streetId, organizationId);
+        } else if (requestPayment.getBuildingId() == null) {
+            addressCorrectionBean.insertBuilding(city, street, building, apartment, streetId, organizationId);
+        } else if (requestPayment.getApartmentId() == null) {
             addressCorrectionBean.insertApartment(city, street, building, apartment, streetId, organizationId);
         }
 

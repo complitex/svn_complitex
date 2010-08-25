@@ -48,6 +48,10 @@
                 AND r.`apartment_id` IN (SELECT a.`object_id` FROM `apartment_attribute` a WHERE a.`attribute_type_id` = 100 AND a.`status` = 'ACTIVE' AND a.`value_id` IN
                 (SELECT sc.`id` FROM `apartment_string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`value` LIKE CONCAT('%',#{apartment},'%')))
             </if>
+
+            <if test="status != null">
+                AND r.`status` = #{status}
+            </if>
         </where>
     </sql>
 
@@ -58,7 +62,7 @@
 
     <select id="find" resultType="org.complitex.osznconnection.file.entity.RequestPayment"
             parameterType="org.complitex.osznconnection.file.web.pages.payment.RequestPaymentExample">
-        SELECT r.`status`, r.`file_id` fileId, r.`f_nam` fNam, r.`m_nam` mNam, r.`sur_nam` surNam,
+        SELECT r.`id`, r.`status`, r.`file_id` fileId, r.`f_nam` fNam, r.`m_nam` mNam, r.`sur_nam` surNam,
         (SELECT f.`organization_id` FROM `file` f WHERE f.`id` = r.`file_id`) organizationId,
         (SELECT f.`name` FROM `file` f WHERE f.`id` = r.`file_id`) fileName,
         (SELECT sc.`value` FROM `city_string_culture` sc WHERE sc.`locale` = #{locale} AND
@@ -95,12 +99,13 @@
     </select>
 
     <select id="findById" parameterType="long" resultType="org.complitex.osznconnection.file.entity.RequestPayment">
-        SELECT r.`status`, r.`file_id` fileId, r.`f_nam` fNam, r.`m_nam` mNam, r.`sur_nam` surNam,
+        SELECT r.`id`, r.`status`, r.`file_id` fileId, r.`f_nam` fNam, r.`m_nam` mNam, r.`sur_nam` surNam,
+        r.`n_name` nName, r.`vul_name` vulName, r.`bld_num` bldNum, r.`flat`,
         (SELECT f.`organization_id` FROM `file` f WHERE f.`id` = r.`file_id`) organizationId,
         r.`city_id` cityId,
         r.`street_id` streetId,
         r.`building_id` buildingId,
-        r.`apartment_id` apartmentId,
+        r.`apartment_id` apartmentId
         FROM `request_payment` r WHERE r.`id` = #{id}
     </select>
 

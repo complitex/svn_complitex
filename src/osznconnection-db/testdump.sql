@@ -117,6 +117,10 @@ insert into organization_string_culture(id, locale, value) values (1, 'ru', 'Ж�
 insert into organization_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
 (1,1,900,1,900), (1,1,901,2,901), (1,1,902,3,902);
 
+-- Files
+insert into `file`(id, organization_id, `name`) values (1,1,'A_123405.xml');
+
 -- Request payments
-insert into request_payment(f_nam, m_nam, sur_nam, city_id, street_id, building_id, apartment_id) values ('Иван', 'Иванович', 'Иванов', 1,1,1,1);
+insert into request_payment(f_nam, m_nam, sur_nam, n_name, vul_name, bld_num, flat, city_id, street_id, building_id, apartment_id, file_id)
+values ('Иван', 'Иванович', 'Иванов', 'Новосибирск', 'ул. Терешковой', 'д. 10', 'кв. 10', 1,null,null,null,1);
 

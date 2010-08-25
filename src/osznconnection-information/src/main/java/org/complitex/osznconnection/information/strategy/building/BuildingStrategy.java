@@ -67,7 +67,7 @@ public class BuildingStrategy extends Strategy {
 
     public static final long DISTRICT = 504;
 
-    private static final String BUILDING_NAMESPACE = "org.complitex.socialdefense.information.strategy.building.Building";
+    private static final String BUILDING_NAMESPACE = BuildingStrategy.class.getPackage().getName() + ".Building";
 
     @EJB
     private StringCultureBean stringBean;

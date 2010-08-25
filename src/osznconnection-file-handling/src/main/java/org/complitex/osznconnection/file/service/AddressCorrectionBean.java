@@ -61,15 +61,15 @@ public class AddressCorrectionBean extends AbstractBean {
         insert(city, street, building, apartment, objectId, 100, organizationId);
     }
 
-    public void insertBuilding(String city, String street, String building, long objectId, long organizationId) {
-        insert(city, street, building, null, objectId, 500, organizationId);
+    public void insertBuilding(String city, String street, String building, String apartment, long objectId, long organizationId) {
+        insert(city, street, building, apartment, objectId, 500, organizationId);
     }
 
-    public void insertStreet(String city, String street, long objectId, long organizationId) {
-        insert(city, street, null, null, objectId, 300, organizationId);
+    public void insertStreet(String city, String street, String building, String apartment, long objectId, long organizationId) {
+        insert(city, street, building, apartment, objectId, 300, organizationId);
     }
 
-    public void insertCity(String city, long objectId, long organizationId) {
-        insert(city, null, null, null, objectId, 400, organizationId);
+    public void insertCity(String city, String street, String building, String apartment, long objectId, long organizationId) {
+        insert(city, street, building, apartment, objectId, 400, organizationId);
     }
 }
