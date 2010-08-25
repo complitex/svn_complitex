@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.complitex.osznconnection.file.request.web;
+package org.complitex.osznconnection.file.web.pages.payment;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -23,12 +23,12 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
 import org.complitex.osznconnection.commons.web.template.TemplatePage;
 import org.complitex.osznconnection.file.entity.RequestPayment;
 import org.complitex.osznconnection.file.entity.Status;
-import org.complitex.osznconnection.file.request.RequestPaymentExample;
 import org.complitex.osznconnection.file.service.RequestPaymentBean;
 import org.complitex.osznconnection.file.web.component.StatusRenderer;
 
@@ -41,7 +41,7 @@ public final class RequestPaymentList extends TemplatePage {
     @EJB(name = "RequestPaymentBean")
     private RequestPaymentBean requestPaymentBean;
 
-    private RequestPaymentExample example;
+    private IModel<RequestPaymentExample> example;
 
     public RequestPaymentList() {
         super();
@@ -52,36 +52,40 @@ public final class RequestPaymentList extends TemplatePage {
         init();
     }
 
-    private static RequestPaymentExample newExample() {
-        return new RequestPaymentExample();
+    private void clearExample() {
+        example.setObject(new RequestPaymentExample());
     }
 
     private void init() {
         add(new Label("title", new ResourceModel("label")));
+        add(new Label("label", new ResourceModel("label")));
 
         final WebMarkupContainer content = new WebMarkupContainer("content");
+        content.setOutputMarkupId(true);
         add(content);
         final Form filterForm = new Form("filterForm");
         content.add(filterForm);
-        example = newExample();
+        example = new Model<RequestPaymentExample>(new RequestPaymentExample());
 
         final SortableDataProvider<RequestPayment> dataProvider = new SortableDataProvider<RequestPayment>() {
 
             @Override
             public Iterator<? extends RequestPayment> iterator(int first, int count) {
-                example.setAsc(getSort().isAscending());
-                example.setOrderByClause(getSort().getProperty());
-                example.setStart(first);
-                example.setSize(count);
-                example.setLocale(getLocale().getLanguage());
-                return requestPaymentBean.find(example).iterator();
+                example.getObject().setAsc(getSort().isAscending());
+                if (!Strings.isEmpty(getSort().getProperty())) {
+                    example.getObject().setOrderByClause(getSort().getProperty());
+                }
+                example.getObject().setStart(first);
+                example.getObject().setSize(count);
+                example.getObject().setLocale(getLocale().getLanguage());
+                return requestPaymentBean.find(example.getObject()).iterator();
 
             }
 
             @Override
             public int size() {
-                example.setAsc(getSort().isAscending());
-                return requestPaymentBean.count(example);
+                example.getObject().setAsc(getSort().isAscending());
+                return requestPaymentBean.count(example.getObject());
             }
 
             @Override
@@ -105,18 +109,19 @@ public final class RequestPaymentList extends TemplatePage {
         filterForm.add(buildingFilter);
         TextField<String> apartmentFilter = new TextField<String>("apartmentFilter", new PropertyModel<String>(example, "apartment"));
         filterForm.add(apartmentFilter);
-        TextField<String> fileFilter = new TextField<String>("fileFilter", new PropertyModel<String>(example, "file"));
-        filterForm.add(fileFilter);
+        TextField<String> fileNameFilter = new TextField<String>("fileNameFilter", new PropertyModel<String>(example, "fileName"));
+        filterForm.add(fileNameFilter);
         DropDownChoice<Status> statusFilter = new DropDownChoice<Status>("statusFilter", new PropertyModel<Status>(example, "status"),
                 Arrays.asList(Status.values()), new StatusRenderer());
-        fileFilter.add(statusFilter);
+        filterForm.add(statusFilter);
 
         AjaxLink reset = new AjaxLink("reset") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
                 filterForm.clearInput();
-                example = newExample();
+                clearExample();
+                target.addComponent(content);
             }
         };
         filterForm.add(reset);
@@ -141,13 +146,13 @@ public final class RequestPaymentList extends TemplatePage {
                 item.add(new Label("street", requestPayment.getInternalStreet()));
                 item.add(new Label("building", requestPayment.getInternalBuilding()));
                 item.add(new Label("apartment", requestPayment.getInternalApartment()));
-                item.add(new Label("file", requestPayment.getFileName()));
+                item.add(new Label("fileName", requestPayment.getFileName()));
                 item.add(new Label("status", StatusRenderer.displayValue(requestPayment.getStatus())));
             }
         };
         filterForm.add(data);
 
-        filterForm.add(new ArrowOrderByBorder("fisrtNameHeader", RequestPaymentBean.OrderBy.FIRST_NAME.getOrderBy(), dataProvider, data, content));
+        filterForm.add(new ArrowOrderByBorder("firstNameHeader", RequestPaymentBean.OrderBy.FIRST_NAME.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("middleNameHeader", RequestPaymentBean.OrderBy.MIDDLE_NAME.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("lastNameHeader", RequestPaymentBean.OrderBy.LAST_NAME.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("fileNameHeader", RequestPaymentBean.OrderBy.FILE_NAME.getOrderBy(), dataProvider, data, content));

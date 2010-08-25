@@ -2,15 +2,16 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.complitex.osznconnection.file.request;
+package org.complitex.osznconnection.file.web.pages.payment;
 
+import java.io.Serializable;
 import org.complitex.osznconnection.file.entity.Status;
 
 /**
  *
  * @author Artem
  */
-public class RequestPaymentExample {
+public class RequestPaymentExample implements Serializable {
 
     private String firstName;
 

@@ -4,7 +4,7 @@ import java.util.List;
 import javax.ejb.Stateless;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.entity.RequestPayment;
-import org.complitex.osznconnection.file.request.RequestPaymentExample;
+import org.complitex.osznconnection.file.web.pages.payment.RequestPaymentExample;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
