@@ -81,7 +81,6 @@ public final class RequestPaymentList extends TemplatePage {
                 example.getObject().setSize(count);
                 example.getObject().setLocale(getLocale().getLanguage());
                 return requestPaymentBean.find(example.getObject()).iterator();
-
             }
 
             @Override
