@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.complitex.osznconnection.file.service.RequestFileBean">
+    <resultMap id="requestFileResultMap" type="org.complitex.osznconnection.file.entity.RequestFile">
+        <id column="id" property="id"/>
+        <result column="organization_object_id" property="organizationObjectId"/>
+        <result column="name" property="name"/>
+        <result column="date" property="date"/>
+        <result column="length" property="length"/>
+        <result column="checkSum" property="checkSum"/>
+        <result column="status" property="status"/>
+    </resultMap>
+
+    <select id="selectAll" resultMap="requestFileResultMap">
+        select * from `request_file`;
+    </select>
+
+    <insert id="insertRequestFile" parameterType="org.complitex.osznconnection.file.entity.RequestFile">
+        insert into
+            `request_file` (`id`, `organization_object_id`, `name`, `date`, `length`, `check_sum`, `status`)
+        values
+            (#{id}, #{organizationObjectId}, #{name}, #{date}, #{length}, #{checkSum}, #{status});
+    </insert>
+
+    <update id="updateRequestFile" parameterType="org.complitex.osznconnection.file.entity.RequestFile">
+        update `request_file`
+        <set>
+            <if test="date != null">`date` = #{date},</if>
+            <if test="length != null">`length` = #{length},</if>
+            <if test="checkSum != null">`check_sum` = #{checkSum},</if>
+            <if test="status != null">`status` = #{status}</if>
+        </set>
+        where `id` = #{id}
+    </update>
+</mapper>

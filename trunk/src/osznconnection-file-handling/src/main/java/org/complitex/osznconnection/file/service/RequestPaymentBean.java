@@ -36,9 +36,9 @@ public class RequestPaymentBean extends AbstractBean {
         return (Integer) sqlSession.selectOne(MAPPING_NAMESPACE + ".count", example);
     }
 
+    @SuppressWarnings({"unchecked"})
     public List<RequestPayment> find(RequestPaymentExample example) {
-        List<RequestPayment> requests = sqlSession.selectList(MAPPING_NAMESPACE + ".find", example);
-        return requests;
+        return (List<RequestPayment>) sqlSession.selectList(MAPPING_NAMESPACE + ".find", example);
     }
 
     public void update(RequestPayment requestPayment) {

@@ -8,7 +8,6 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- *
  * @author Artem
  */
 public class RequestPayment implements Serializable {
@@ -16,6 +15,8 @@ public class RequestPayment implements Serializable {
     private Long id;
 
     private Long fileId;
+
+    private String accountNumber;
 
     private Long cityId;
 
@@ -26,8 +27,6 @@ public class RequestPayment implements Serializable {
     private Long apartmentId;
 
     private Status status;
-
-    private String accountNumber;
 
     private String ownNum;  //1	    OWN_NUM	    CHARACTER	15	0	Номер дела
 
