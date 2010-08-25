@@ -10,5 +10,5 @@ package org.complitex.osznconnection.file.entity;
  */
 public enum Status {
 
-    RESOLVED, UNRESOLVED
+    RESOLVED, ADDRESS_UNRESOLVED;
 }
