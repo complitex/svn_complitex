@@ -28,6 +28,8 @@ public class AddressCorrection implements Serializable {
 
     private Long internalObjectEntityId;
 
+    private String internalObjectEntity;
+
     public String getApartment() {
         return apartment;
     }
@@ -90,5 +92,13 @@ public class AddressCorrection implements Serializable {
 
     public void setOrganizationId(Long organizationId) {
         this.organizationId = organizationId;
+    }
+
+    public String getInternalObjectEntity() {
+        return internalObjectEntity;
+    }
+
+    public void setInternalObjectEntity(String internalObjectEntity) {
+        this.internalObjectEntity = internalObjectEntity;
     }
 }

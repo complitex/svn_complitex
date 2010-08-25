@@ -40,4 +40,12 @@ public class RequestPaymentBean extends AbstractBean {
         List<RequestPayment> requests = sqlSession.selectList(MAPPING_NAMESPACE + ".find", example);
         return requests;
     }
+
+    public void update(RequestPayment requestPayment) {
+        sqlSession.update(MAPPING_NAMESPACE + ".update", requestPayment);
+    }
+
+    public RequestPayment findById(long id) {
+        return (RequestPayment) sqlSession.selectOne(MAPPING_NAMESPACE + ".findById", id);
+    }
 }

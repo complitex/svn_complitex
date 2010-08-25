@@ -2,13 +2,13 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.complitex.osznconnection.file.entity;
+package org.complitex.dictionaryfw.entity.example;
 
 /**
  *
  * @author Artem
  */
-public enum Status {
+public enum ComparisonType {
 
-    RESOLVED, UNRESOLVED
+    LIKE, EQUALITY;
 }
