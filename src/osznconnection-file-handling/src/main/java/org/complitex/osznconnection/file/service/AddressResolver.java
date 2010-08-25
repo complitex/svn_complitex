@@ -67,9 +67,6 @@ public class AddressResolver extends AbstractBean {
     @EJB
     private AddressCorrectionBean addressCorrectionBean;
 
-    @EJB
-    private RequestPaymentBean requestPaymentBean;
-
     public InternalAddress resolveAddress(String city, String street, String building, String apartment, long organizationId) {
         Long cityId = null;
         Long streetId = null;
