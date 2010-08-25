@@ -16,6 +16,117 @@
         <result column="internalApartment" property="internalApartment"/>
     </resultMap>-->
 
+    <resultMap id="requestPaymentResultMap" type="org.complitex.osznconnection.file.entity.RequestPayment">
+        <id column="id" property="id"/>
+        <result column="file_id" property="fileId"/>
+        <result column="account_number" property="accountNumber"/>
+        <result column="city_id" property="cityId"/>
+        <result column="street_id" property="streetId"/>
+        <result column="building_id" property="buildingId"/>
+        <result column="apartment_id" property="apartmentId"/>
+        <result column="status" property="status"/>
+
+        <result column="own_num" property="ownNum"/>
+        <result column="ree_num" property="reeNum"/>
+        <result column="opp" property="opp"/>
+        <result column="numb" property="numb"/>
+        <result column="mark" property="mark"/>
+        <result column="сode" property="code"/>
+        <result column="ent_cod" property="entCod"/>
+        <result column="frog" property="frog"/>
+        <result column="fl_pay" property="flPay"/>
+        <result column="nm_pay" property="nmPay"/>
+        <result column="debt" property="debt"/>
+        <result column="code2_1" property="code21"/>
+        <result column="code2_2" property="code22"/>
+        <result column="code2_3" property="code23"/>
+        <result column="code2_4" property="code24"/>
+        <result column="code2_5" property="code25"/>
+        <result column="code2_6" property="code26"/>
+        <result column="code2_7" property="code27"/>
+        <result column="code2_8" property="code28"/>
+        <result column="norm_f_1" property="normF1"/>
+        <result column="norm_f_2" property="normF2"/>
+        <result column="norm_f_3" property="normF3"/>
+        <result column="norm_f_4" property="normF4"/>
+        <result column="norm_f_5" property="normF5"/>
+        <result column="norm_f_6" property="normF6"/>
+        <result column="norm_f_7" property="normF7"/>
+        <result column="norm_f_8" property="normF8"/>
+        <result column="own_num_sr" property="ownNumSr"/>
+        <result column="dat1" property="dat1"/>
+        <result column="dat2" property="dat2"/>
+        <result column="ozn_prz" property="oznPrz"/>
+        <result column="dat_f_1" property="datF1"/>
+        <result column="dat_f_2" property="datF2"/>
+        <result column="dat_fop_1" property="datFop1"/>
+        <result column="dat_fop_2" property="datFop2"/>
+        <result column="id_raj" property="idRaj"/>
+        <result column="sur_nam" property="surNam"/>
+        <result column="f_nam" property="fNam"/>
+        <result column="m_nam" property="mNam"/>
+        <result column="ind_cod" property="indCod"/>
+        <result column="indx" property="indx"/>
+        <result column="n_name" property="nName"/>
+        <result column="vul_name" property="vulName"/>
+        <result column="bld_num" property="bldNum"/>
+        <result column="corp_num" property="corpNum"/>
+        <result column="flat" property="flat"/>
+        <result column="code3_1" property="code31"/>
+        <result column="code3_2" property="code32"/>
+        <result column="code3_3" property="code33"/>
+        <result column="code3_4" property="code34"/>
+        <result column="code3_5" property="code35"/>
+        <result column="code3_6" property="code36"/>
+        <result column="code3_7" property="code37"/>
+        <result column="code3_8" property="code38"/>
+        <result column="opp_serv" property="oppServ"/>
+        <result column="reserv1" property="reserv1"/>
+        <result column="reserv2" property="reserv2"/>
+    </resultMap>
+
+    <insert id="insertRequestPayment" parameterType="org.complitex.osznconnection.file.entity.RequestPayment"
+            keyProperty="id" useGeneratedKeys="true">
+        insert into `request_payment`
+            (`file_id`, `account_number`, `city_id`, `street_id`, `building_id`, `apartment_id`, `status`,
+            `own_num`, `ree_num`, `opp`, `numb`, `mark`, `code`, `ent_cod`, `frog`, `fl_pay`, `nm_pay`, `debt`,
+            `code2_1`, `code2_2`, `code2_3`, `code2_4`, `code2_5`, `code2_6`, `code2_7`, `code2_8`, `norm_f_1`,
+            `norm_f_2`, `norm_f_3`, `norm_f_4`, `norm_f_5`, `norm_f_6`, `norm_f_7`, `norm_f_8`, `own_num_sr`, `dat1`,
+            `dat2`, `ozn_prz`, `dat_f_1`, `dat_f_2`, `dat_fop_1`, `dat_fop_2`, `id_raj`, `sur_nam`, `f_nam`, `m_nam`,
+            `ind_cod`, `indx`, `n_name`, `vul_name`, `bld_num`, `corp_num`, `flat`, `code3_1`, `code3_2`, `code3_3`,
+            `code3_4`, `code3_5`, `code3_6`, `code3_7`, `code3_8`, `opp_serv`, `reserv1`, `reserv2`)
+        values
+            (#{fileId}, #{accountNumber}, #{cityId}, #{streetId}, #{buildingId}, #{apartmentId}, #{status},
+             #{ownNum}, #{reeNum}, #{opp}, #{numb}, #{mark}, #{code}, #{entCod}, #{frog}, #{flPay}, #{nmPay}, #{debt},
+             #{code21}, #{code22}, #{code23}, #{code24}, #{code25}, #{code26}, #{code27}, #{code28}, #{normF1},
+             #{normF2}, #{normF3}, #{normF4}, #{normF5}, #{normF6}, #{normF7}, #{normF8}, #{ownNumSr}, #{dat1},
+             #{dat2}, #{oznPrz}, #{datF1}, #{datF2}, #{datFop1}, #{datFop2}, #{idRaj}, #{surNam}, #{fNam}, #{mNam},
+             #{indCod}, #{indx}, #{nName}, #{vulName}, #{bldNum}, #{corpNum}, #{flat}, #{code31}, #{code32}, #{code33},
+             #{code34}, #{code35}, #{code36}, #{code37}, #{code38}, #{oppServ}, #{reserv1}, #{reserv2})
+    </insert>
+
+    <update id="updateRequestPayment" parameterType="org.complitex.osznconnection.file.entity.RequestPayment">
+        update
+            `request_payment`
+        set
+           `file_id` = #{fileId}, `account_number` = #{accountNumber}, `city_id` = #{cityId}, `street_id` = #{streetId},
+            `building_id` = #{buildingId}, `apartment_id` = #{apartmentId}, `status` = #{status}, `own_num` = #{ownNum},
+            `ree_num` = #{reeNum}, `opp` = #{opp}, `numb` = #{numb}, `mark` = #{mark}, `code` = #{code},
+            `ent_cod` = #{entCod}, `frog` = #{frog}, `fl_pay` = #{flPay}, `nm_pay` = #{nmPay}, `debt` = #{debt},
+            `code2_1` = #{code21}, `code2_2` = #{code22}, `code2_3` = #{code23}, `code2_4` = #{code24},
+            `code2_5` = #{code25}, `code2_6` = #{code26}, `code2_7` = #{code27}, `code2_8` = #{code28},
+            `norm_f_1` = #{normF1}, `norm_f_2` = #{normF2}, `norm_f_3` = #{normF3},
+            `norm_f_4` = #{normF4}, `norm_f_5` = #{normF5}, `norm_f_6` = #{normF6}, `norm_f_7` = #{normF8}, `norm_f_8` = #{normF8},
+            `own_num_sr` = #{ownNumSr}, `dat1` = #{dat1}, `dat2` = #{dat2}, `ozn_prz` = #{oznPrz}, `dat_f_1` = #{datF1},
+            `dat_f_2` = #{datF2}, `dat_fop_1` = #{datFop1}, `dat_fop_2` = #{datFop2}, `id_raj` = #{idRaj}, `sur_nam` = #{surNam},
+            `f_nam` = #{fNam}, `m_nam` = #{mNam}, `ind_cod` = #{indCod}, `indx` = #{indx}, `n_name` = #{nName},
+            `vul_name` = #{vulName}, `bld_num` = #{bldNum}, `corp_num` = #{corpNum}, `flat` = #{flat}, `code3_1` = #{code31},
+            `code3_2` = #{code32}, `code3_3` = #{code33}, `code3_4` = #{code34}, `code3_5` = #{code36}, `code3_6` = #{code36},
+            `code3_7` = #{code37}, `code3_8` = #{code38}, `opp_serv` = #{oppServ}, `reserv1` = #{reserv1}, `reserv2`=  #{reserv2}         
+        where
+            `id ` = #{id}
+    </update>
+
     <sql id="filter">
         <where>
             <if test="firstName != null">

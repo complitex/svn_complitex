@@ -702,23 +702,24 @@ CREATE TABLE `log_change` (
     CONSTRAINT `fk_log` FOREIGN KEY (`log_id`) REFERENCES `log` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `file`;
+DROP TABLE IF EXISTS `request_file`;
 
-CREATE TABLE `file` (
+CREATE TABLE `request_file` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT,
+    `organization_object_id` bigint(20) NOT NULL,
     `name` varchar(20) NOT NULL,
---    `internal_file_name` varchar(100) NOT NULL,
-    `organization_id` bigint(20) NOT NULL,
-    PRIMARY KEY (`id`),
-    KEY `FK_file_organization` (`organization_id`),
-    CONSTRAINT `FK_file_organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`)
+    `date` datetime NOT NULL,
+    `length` bigint(20),
+    `check_sum` varchar(32),      
+    `status` varchar(20),
+    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `request_payment`;
 
 CREATE TABLE `request_payment` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT,
-    `file_id` bigint(20) NULL,
+    `request_file_id` bigint(20) NULL,
     `account_number` varchar(100) NULL,
     `city_id` bigint(20) NULL,
     `street_id` bigint(20) NULL,
@@ -731,7 +732,7 @@ CREATE TABLE `request_payment` (
     `opp` varchar(8) COMMENT 'Признаки наличия услуг',
 	`numb` int(2) COMMENT 'Общее число зарегистрированных',
 	`mark` int(2) COMMENT 'К-во людей, которые пользуются льготами',
-	`сode` int(4) COMMENT 'Код ЖЭО',
+	`code` int(4) COMMENT 'Код ЖЭО',
 	`ent_cod` int(10) COMMENT 'Код ЖЭО ОКПО',
 	`frog`  double(6,5) COMMENT 'Процент льгот',
     `fl_pay` int(2) COMMENT 'Общая плата',
@@ -784,8 +785,8 @@ CREATE TABLE `request_payment` (
 	`reserv1` int(10) COMMENT 'Резерв',
 	`reserv2` varchar(10) COMMENT 'Резер',
     PRIMARY KEY (`id`),
-    KEY `FK_request_payment_file` (`file_id`),
-    CONSTRAINT `FK_request_payment_file` FOREIGN KEY (`file_id`) REFERENCES `file` (`id`),
+    KEY `FK_request_payment_file` (`request_file_id`),
+    CONSTRAINT `FK_request_payment_file` FOREIGN KEY (`request_file_id`) REFERENCES `request_file` (`id`),
     KEY `FK_request_payment_city` (`city_id`),
     CONSTRAINT `FK_request_payment_city` FOREIGN KEY (`city_id`) REFERENCES `city` (`id`),
     KEY `FK_request_payment_street` (`street_id`),

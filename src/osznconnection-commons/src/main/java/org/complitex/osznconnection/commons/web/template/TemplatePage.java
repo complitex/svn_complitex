@@ -34,11 +34,11 @@ import java.util.*;
  * Суперкласс шаблон для отображения содержания страниц.
  * Для инициализации шаблона наследники должны вызывать метод super().
  */
-public class TemplatePage extends WebPage {
+public abstract class TemplatePage extends WebPage {
 
     private static final Logger log = LoggerFactory.getLogger(TemplatePage.class);
 
-    public TemplatePage() {
+    protected TemplatePage() {
         add(JavascriptPackageResource.getHeaderContribution(CoreJavaScriptResourceReference.get()));
         add(JavascriptPackageResource.getHeaderContribution(WebCommonResourceInitializer.COMMON_JS));
         add(JavascriptPackageResource.getHeaderContribution(TemplatePage.class, TemplatePage.class.getSimpleName() + ".js"));
