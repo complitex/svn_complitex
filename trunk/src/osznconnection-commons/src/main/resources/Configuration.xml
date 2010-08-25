@@ -46,6 +46,8 @@
         <mapper resource="org/complitex/osznconnection/admin/service/UserBean.xml"/>
         <mapper resource="org/complitex/dictionaryfw/service/LogBean.xml"/>
         <mapper resource="org/complitex/osznconnection/logging/service/LogListBean.xml"/>
+
+        <mapper resource="org/complitex/osznconnection/file/service/RequestPaymentBean.xml"/>
     </mappers>
 
 </configuration>

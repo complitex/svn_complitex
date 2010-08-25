@@ -117,3 +117,6 @@ insert into organization_string_culture(id, locale, value) values (1, 'ru', 'Ж�
 insert into organization_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
 (1,1,900,1,900), (1,1,901,2,901), (1,1,902,3,902);
 
+-- Request payments
+insert into request_payment(f_nam, m_nam, sur_nam, city_id, street_id, building_id, apartment_id) values ('Иван', 'Иванович', 'Иванов', 1,1,1,1);
+
