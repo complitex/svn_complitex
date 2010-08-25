@@ -64,6 +64,11 @@
                 <artifactId>osznconnection-resources-images</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.complitex.osznconnection</groupId>
+                <artifactId>osznconnection-file-handling</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <!--Wicket-->
             <dependency>

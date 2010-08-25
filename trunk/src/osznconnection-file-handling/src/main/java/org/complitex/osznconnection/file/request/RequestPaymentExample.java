@@ -34,6 +34,12 @@ public class RequestPaymentExample {
 
     private int size;
 
+    private String orderByClause;
+
+    private boolean asc;
+
+    private String locale;
+
     public String getFileName() {
         return fileName;
     }
@@ -120,5 +126,29 @@ public class RequestPaymentExample {
 
     public void setStart(int start) {
         this.start = start;
+    }
+
+    public boolean isAsc() {
+        return asc;
+    }
+
+    public void setAsc(boolean asc) {
+        this.asc = asc;
+    }
+
+    public String getOrderByClause() {
+        return orderByClause;
+    }
+
+    public void setOrderByClause(String orderByClause) {
+        this.orderByClause = orderByClause;
+    }
+
+    public String getLocale() {
+        return locale;
+    }
+
+    public void setLocale(String locale) {
+        this.locale = locale;
     }
 }

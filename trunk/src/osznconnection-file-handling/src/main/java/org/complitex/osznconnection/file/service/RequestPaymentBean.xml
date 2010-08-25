@@ -2,6 +2,96 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.complitex.osznconnection.file.service.RequestPaymentBean">
 
-    
+    <!--<resultMap id="RequestPaymentList" type="org.complitex.osznconnection.file.entity.RequestPayment">
+        <id column="id" property="id"/>
+        <result column="status" property="status"/>
+        <result column="file_id" property="fileId"/>
+        <result column="f_nam" property="fNam"/>
+        <result column="m_nam" property="mNam"/>
+        <result column="sur_nam" property="surNam"/>
+        <result column="fileName" property="fileName"/>
+        <result column="internalCity" property="internalCity"/>
+        <result column="internalStreet" property="internalStreet"/>
+        <result column="internalBuilding" property="internalBuilding"/>
+        <result column="internalApartment" property="internalApartment"/>
+    </resultMap>-->
+
+    <sql id="filter">
+        <where>
+            <if test="fisrtName != null">
+                r.`f_nam` LIKE CONCAT('%',#{fisrtName},'%')
+            </if>
+            <if test="middleName != null">
+                AND r.`m_nam` LIKE CONCAT('%',#{middleName},'%')
+            </if>
+            <if test="lastName != null">
+                AND r.`sur_nam` LIKE CONCAT('%',#{lastName},'%')
+            </if>
+
+            <if test="fileName != null">
+                AND r.`file_id` IN (SELECT f.`id` FROM `file` f WHERE f.`name` LIKE CONCAT('%',#{fileName},'%'))
+            </if>
+
+            <if test="city != null">
+                AND r.`city_id` IN (SELECT a.`object_id` FROM `city_attribute` a WHERE a.`attribute_type_id` = 400 AND a.`status` = 'ACTIVE' AND a.`value_id` IN
+                (SELECT FROM `city_string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`value` LIKE CONCAT('%',#{city},'%')))
+            </if>
+            <if test="street != null">
+                AND r.`street_id` IN (SELECT a.`object_id` FROM `street_attribute` a WHERE a.`attribute_type_id` = 300 AND a.`status` = 'ACTIVE' AND a.`value_id` IN
+                (SELECT FROM `street_string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`value` LIKE CONCAT('%',#{street},'%')))
+            </if>
+            <if test="building != null">
+                AND r.`building_id` IN (SELECT a.`object_id` FROM `building_attribute` a WHERE a.`attribute_type_id` = 500 AND a.`status` = 'ACTIVE' AND a.`value_id` IN
+                (SELECT FROM `building_string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`value` LIKE CONCAT('%',#{building},'%')))
+            </if>
+            <if test="apartment != null">
+                AND r.`apartment_id` IN (SELECT a.`object_id` FROM `apartment_attribute` a WHERE a.`attribute_type_id` = 100 AND a.`status` = 'ACTIVE' AND a.`value_id` IN
+                (SELECT FROM `apartment_string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`value` LIKE CONCAT('%',#{apartment},'%')))
+            </if>
+        </where>
+    </sql>
+
+    <select id="count" resultType="int">
+        SELECT COUNT(*) FROM `request_payment`
+        <include refid="org.complitex.osznconnection.file.service.RequestPaymentBean.filter"/>
+    </select>
+
+    <select id="find" resultType="org.complitex.osznconnection.file.entity.RequestPayment"
+            parameterType="org.complitex.osznconnection.file.request.RequestPaymentExample">
+        SELECT r.`status`, r.`file_id` fileId, r.`f_nam` fNam, r.`m_name` mNam, r.`sur_name` surName,
+        (SELECT f.`name` FROM `file` f WHERE f.`id` = r.`file_id`) fileName,
+        (SELECT sc.`value` FROM `city_string_culture` sc WHERE sc.`locale` = #{locale} AND
+        sc.`id` = (SELECT a.`value_id` FROM `city_attribute` a WHERE a.`attribute_type_id` = 400 AND a.`status` = 'ACTIVE' a.`object_id` = r.`city_id`)) internalCity,
+        (SELECT sc.`value` FROM `street_string_culture` sc WHERE sc.`locale` = #{locale} AND
+        sc.`id` = (SELECT a.`value_id` FROM `street_attribute` a WHERE a.`attribute_type_id` = 300 AND a.`status` = 'ACTIVE' a.`object_id` = r.`street_id`)) internalStreet,
+        (SELECT sc.`value` FROM `building_string_culture` sc WHERE sc.`locale` = #{locale} AND
+        sc.`id` =
+        (SELECT a1.`value_id` FROM `building_attribute` a1
+        JOIN `building_attribute` a2 ON (a1.`attribute_id` = a2.`attribute_id` AND a1.`object_id` = a2.`object_id`)
+        WHERE a1.`attribute_type_id` = 500 AND a1.`status` = 'ACTIVE' a1.`object_id` = r.`building_id` AND
+        a2.`attribute_type_id` = 503 AND a2.`status` = 'ACTIVE' a2.`object_id` = r.`building_id`
+        AND a2.`value_id` = r.`street_id`
+        )
+        ) internalBuilding,
+        (SELECT sc.`value` FROM `apartment_string_culture` sc WHERE sc.`locale` = #{locale} AND
+        sc.`id` = (SELECT a.`value_id` FROM `apartment_attribute` a WHERE a.`attribute_type_id` = 100 AND a.`status` = 'ACTIVE' a.`object_id` = r.`apartment_id`)) internalApartment,
+        FROM `request_payment` r
+        <include refid="org.complitex.osznconnection.file.service.RequestPaymentBean.filter"/>
+        <if test="orderByClause != null">
+            ORDER BY #{orderByClause}
+            <choose>
+                <when test="asc">
+                    ASC
+                </when>
+                <otherwise>
+                    DESC
+                </otherwise>
+            </choose>
+        </if>
+        <if test="size != 0">
+            limit #{start}, #{size}
+        </if>
+    </select>
+
 
 </mapper>
