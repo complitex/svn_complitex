@@ -4,78 +4,141 @@
  */
 package org.complitex.osznconnection.file.entity;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  *
  * @author Artem
  */
-public class RequestPayment {
+public class RequestPayment implements Serializable {
+
     private Long id;
+
     private Long fileId;
+
     private Long cityId;
+
     private Long streetId;
+
     private Long buildingId;
+
     private Long apartmentId;
 
     private Status status;
 
     private String ownNum;  //1	    OWN_NUM	    CHARACTER	15	0	Номер дела
+
     private int reeNum;     //2	    REE_NUM	    NUMERIC	    2	0	Номер реестра
+
     private String opp;     //3	    OPP	        CHARACTER	8		Признаки наличия услуг
+
     private int numb;       //4	    NUMB	    NUMERIC	    2	0  	Общее число зарегистрированных
+
     private int mark;       //5	    MARK	    NUMERIC 	2	0	К-во людей, которые пользуются льготами
+
     private int code;       //6	    СODE	    NUMERIC	    4	0	Код ЖЭО
+
     private int entCod;     //7	    ENT_COD	    NUMERIC 	10	0	Код ЖЭО ОКПО
+
     private double frog;    //8	    FROG	    NUMERIC	    1	5	Процент льгот
+
     private int flPay;      //9	    FL_PAY	    NUMERIC	    2	9	Общая плата
+
     private double nmPay;   //10    NM_PAY	    NUMERIC	    2	9	Плата в пределах норм потребления
+
     private double debt;    //11	DEBT	    NUMERIC	    2	9	Сумма долга
+
     private int code21;     //12	CODE2_1	    NUMERIC	    6	0	Оплата жилья
+
     private int code22;     //13	CODE2_2	    NUMERIC	    6	0	система
+
     private int code23;     //14	CODE2_3	    NUMERIC	    6	0	Горячее водоснабжение
+
     private int code24;     //15	CODE2_4	    NUMERIC	    6	0	Холодное водоснабжение
+
     private int code25;     //16	CODE2_5	    NUMERIC	    6	0	Газоснабжение
+
     private int code26;     //17	CODE2_6	    NUMERIC	    6	0	Электроэнергия
+
     private int code27;     //18	CODE2_7	    NUMERIC	    6	0	Вывоз мусора
+
     private int code28;     //19	CODE2_8	    NUMERIC	    6	0	Водоотведение
+
     private double normF1;  //20	NORM_F_1    NUMERIC	    4	10	Общая площадь (оплата жилья)
+
     private double normF2;  //21	NORM_F_2	NUMERIC	    4	10	Объемы потребления (отопление)
+
     private double normF3;  //22	NORM_F_3	NUMERIC	    4	10	Объемы потребления (горячего водо.)
+
     private double normF4;  //23	NORM_F_4	NUMERIC 	4	10	Объемы потребления (холодное водо.)
+
     private double normF5;  //24	NORM_F_5	NUMERIC	    4	10	Объемы потребления (газоснабжение)
+
     private double normF6;  //25	NORM_F_6	NUMERIC	    4	10	Объемы потребления (электроэнергия)
+
     private double normF7;  //26	NORM_F_7	NUMERIC	    4	10	Объемы потребления (вывоз мусора)
+
     private double normF8;  //27	NORM_F_8	NUMERIC	    4	10	Объемы потребления (водоотведение)
+
     private String ownNumSr;//28	OWN_NUM_SR	CHARACTER	15	    Лицевой счет в обслуж. организации
+
     private Date dat1;      //29	DAT1	    DATE	    8		Дата начала действия субсидии
+
     private Date dat2;      //30	DAT2	    DATE	    8		Дата формирования запроса
+
     private int oznPrz;     //31	OZN_PRZ	    NUMERIC	    1	0	Признак (0 - автоматическое назначение, 1-для ручного расчета)
+
     private Date datF1;     //32	DAT_F_1	    DATE	    8		Дата начала для факта
+
     private Date datF2;     //33	DAT_F_2	    DATE	    8		Дата конца для факта
+
     private Date datFop1;   //34	DAT_FOP_1	DATE	    8		Дата начала для факта отопления
+
     private Date datFop2;   //35	DAT_FOP_2	DATE	    8		Дата конца для факта отопления
+
     private String idRaj;   //36	ID_RAJ	    CHARACTER	5		Код района
+
     private String surNam;  //37	SUR_NAM	    CHARACTER	30		Фамилия
+
     private String fNam;    //38	F_NAM	    CHARACTER	15		Имя
+
     private String mNam;    //39	M_NAM	    CHARACTER	20		Отчество
+
     private String indCod;  //40	IND_COD	    CHARACTER	10		Идентификационный номер
+
     private String indx;    //41	INDX	    CHARACTER	6		Индекс почтового отделения
+
     private String nName;   //42	N_NAME	    CHARACTER	30		Название населенного пункта
+
     private String vulName; //43	VUL_NAME	CHARACTER	30		Название улицы
+
     private String bldNum;  //44	BLD_NUM	    CHARACTER	7		Номер дома
+
     private String corpNum; //45	CORP_NUM	CHARACTER	2		Номер корпуса
+
     private String flat;    //46	FLAT	    CHARACTER	9		Номер квартиры
+
     private int code31;     //47 	CODE3_1	    NUMERIC	    6	0	Код тарифа оплаты жилья
+
     private int code32;     //48 	CODE3_2	    NUMERIC	    6	0	Код тарифа отопления
+
     private int code33;     //49	CODE3_3	    NUMERIC	    6	0	Код тарифа горячего водоснабжения
+
     private int code34;     //50	CODE3_4	    NUMERIC	    6	0	Код тарифа холодного водоснабжения
+
     private int code35;     //51	CODE3_5	    NUMERIC	    6	0	Код тарифа - газоснабжение
+
     private int code36;     //52	CODE3_6	    NUMERIC	    6	0	Код тарифа-электроэнергии
+
     private int code37;     //53	CODE3_7	    NUMERIC	    6	0	Код тарифа - вывоз мусора
+
     private int code38;     //54	CODE3_8	    NUMERIC	    6	0	Код тарифа - водоотведение
+
     private String oppServ; //55	OPP_SERV	CHARACTER	8		Резерв
+
     private int reserv1;    //60	RESERV1	    NUMERIC	    10	0	Резерв
+
     private String reserv2; //61	RESERV2	    CHARACTER	10		Резерв
 
     public Long getId() {
@@ -588,5 +651,55 @@ public class RequestPayment {
 
     public void setReserv2(String reserv2) {
         this.reserv2 = reserv2;
+    }
+
+    private String fileName;
+
+    private String internalCity;
+
+    private String internalStreet;
+
+    private String internalBuilding;
+
+    private String internalApartment;
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public String getInternalApartment() {
+        return internalApartment;
+    }
+
+    public void setInternalApartment(String internalApartment) {
+        this.internalApartment = internalApartment;
+    }
+
+    public String getInternalBuilding() {
+        return internalBuilding;
+    }
+
+    public void setInternalBuilding(String internalBuilding) {
+        this.internalBuilding = internalBuilding;
+    }
+
+    public String getInternalCity() {
+        return internalCity;
+    }
+
+    public void setInternalCity(String internalCity) {
+        this.internalCity = internalCity;
+    }
+
+    public String getInternalStreet() {
+        return internalStreet;
+    }
+
+    public void setInternalStreet(String internalStreet) {
+        this.internalStreet = internalStreet;
     }
 }
