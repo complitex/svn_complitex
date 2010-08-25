@@ -109,20 +109,21 @@
         update
             `request_payment`
         set
-           `file_id` = #{fileId}, `account_number` = #{accountNumber}, `city_id` = #{cityId}, `street_id` = #{streetId},
+            `file_id` = #{fileId}, `account_number` = #{accountNumber}, `city_id` = #{cityId}, `street_id` = #{streetId},
             `building_id` = #{buildingId}, `apartment_id` = #{apartmentId}, `status` = #{status}, `own_num` = #{ownNum},
             `ree_num` = #{reeNum}, `opp` = #{opp}, `numb` = #{numb}, `mark` = #{mark}, `code` = #{code},
             `ent_cod` = #{entCod}, `frog` = #{frog}, `fl_pay` = #{flPay}, `nm_pay` = #{nmPay}, `debt` = #{debt},
             `code2_1` = #{code21}, `code2_2` = #{code22}, `code2_3` = #{code23}, `code2_4` = #{code24},
             `code2_5` = #{code25}, `code2_6` = #{code26}, `code2_7` = #{code27}, `code2_8` = #{code28},
-            `norm_f_1` = #{normF1}, `norm_f_2` = #{normF2}, `norm_f_3` = #{normF3},
-            `norm_f_4` = #{normF4}, `norm_f_5` = #{normF5}, `norm_f_6` = #{normF6}, `norm_f_7` = #{normF8}, `norm_f_8` = #{normF8},
+            `norm_f_1` = #{normF1}, `norm_f_2` = #{normF2}, `norm_f_3` = #{normF3}, `norm_f_4` = #{normF4},
+            `norm_f_5` = #{normF5}, `norm_f_6` = #{normF6}, `norm_f_7` = #{normF8}, `norm_f_8` = #{normF8},
             `own_num_sr` = #{ownNumSr}, `dat1` = #{dat1}, `dat2` = #{dat2}, `ozn_prz` = #{oznPrz}, `dat_f_1` = #{datF1},
-            `dat_f_2` = #{datF2}, `dat_fop_1` = #{datFop1}, `dat_fop_2` = #{datFop2}, `id_raj` = #{idRaj}, `sur_nam` = #{surNam},
-            `f_nam` = #{fNam}, `m_nam` = #{mNam}, `ind_cod` = #{indCod}, `indx` = #{indx}, `n_name` = #{nName},
-            `vul_name` = #{vulName}, `bld_num` = #{bldNum}, `corp_num` = #{corpNum}, `flat` = #{flat}, `code3_1` = #{code31},
-            `code3_2` = #{code32}, `code3_3` = #{code33}, `code3_4` = #{code34}, `code3_5` = #{code36}, `code3_6` = #{code36},
-            `code3_7` = #{code37}, `code3_8` = #{code38}, `opp_serv` = #{oppServ}, `reserv1` = #{reserv1}, `reserv2`=  #{reserv2}         
+            `dat_f_2` = #{datF2}, `dat_fop_1` = #{datFop1}, `dat_fop_2` = #{datFop2}, `id_raj` = #{idRaj}, 
+            `sur_nam` = #{surNam}, `f_nam` = #{fNam}, `m_nam` = #{mNam}, `ind_cod` = #{indCod}, `indx` = #{indx},
+            `n_name` = #{nName}, `vul_name` = #{vulName}, `bld_num` = #{bldNum}, `corp_num` = #{corpNum},
+            `flat` = #{flat}, `code3_1` = #{code31}, `code3_2` = #{code32}, `code3_3` = #{code33},
+            `code3_4` = #{code34}, `code3_5` = #{code36}, `code3_6` = #{code36}, `code3_7` = #{code37},
+            `code3_8` = #{code38}, `opp_serv` = #{oppServ}, `reserv1` = #{reserv1}, `reserv2`=  #{reserv2}
         where
             `id ` = #{id}
     </update>
