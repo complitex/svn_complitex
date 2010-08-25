@@ -40,6 +40,8 @@ public class DomainObjectExample implements Serializable {
 
     private Map<String, Object> additionalParams;
 
+    private String comparisonType = ComparisonType.LIKE.name();
+
     private List<AttributeExample> attributeExamples = new ArrayList<AttributeExample>();
 
     private String status = ShowMode.ALL.name();
@@ -157,5 +159,13 @@ public class DomainObjectExample implements Serializable {
 
     public void setStartDate(Date startDate) {
         this.startDate = startDate;
+    }
+
+    public String getComparisonType() {
+        return comparisonType;
+    }
+
+    public void setComparisonType(String comparisonType) {
+        this.comparisonType = comparisonType;
     }
 }

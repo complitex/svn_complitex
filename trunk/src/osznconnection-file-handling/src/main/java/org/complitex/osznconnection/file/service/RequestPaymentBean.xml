@@ -59,6 +59,7 @@
     <select id="find" resultType="org.complitex.osznconnection.file.entity.RequestPayment"
             parameterType="org.complitex.osznconnection.file.web.pages.payment.RequestPaymentExample">
         SELECT r.`status`, r.`file_id` fileId, r.`f_nam` fNam, r.`m_nam` mNam, r.`sur_nam` surNam,
+        (SELECT f.`organization_id` FROM `file` f WHERE f.`id` = r.`file_id`) organizationId,
         (SELECT f.`name` FROM `file` f WHERE f.`id` = r.`file_id`) fileName,
         (SELECT sc.`value` FROM `city_string_culture` sc WHERE sc.`locale` = #{locale} AND
         sc.`id` = (SELECT a.`value_id` FROM `city_attribute` a WHERE a.`attribute_type_id` = 400 AND a.`status` = 'ACTIVE' AND a.`object_id` = r.`city_id`)) internalCity,
@@ -92,6 +93,21 @@
             limit #{start},#{size}
         </if>
     </select>
+
+    <select id="findById" parameterType="long" resultType="org.complitex.osznconnection.file.entity.RequestPayment">
+        SELECT r.`status`, r.`file_id` fileId, r.`f_nam` fNam, r.`m_nam` mNam, r.`sur_nam` surNam,
+        (SELECT f.`organization_id` FROM `file` f WHERE f.`id` = r.`file_id`) organizationId,
+        r.`city_id` cityId,
+        r.`street_id` streetId,
+        r.`building_id` buildingId,
+        r.`apartment_id` apartmentId,
+        FROM `request_payment` r WHERE r.`id` = #{id}
+    </select>
+
+    <update id="update" parameterType="org.complitex.osznconnection.file.entity.RequestPayment">
+        UPDATE `request_payment` SET `city_id` = #{cityId}, `street_id` = #{streetId}, `building_id` = #{buildingId}, `apartment_id` = #{apartmentId}, 
+        `account_number` = #{accountNumber}, `status` = #{status} WHERE `id` = #{id}
+    </update>
 
 
 </mapper>

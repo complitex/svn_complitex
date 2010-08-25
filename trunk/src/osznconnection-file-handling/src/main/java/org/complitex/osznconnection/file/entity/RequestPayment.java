@@ -27,6 +27,8 @@ public class RequestPayment implements Serializable {
 
     private Status status;
 
+    private String accountNumber;
+
     private String ownNum;  //1	    OWN_NUM	    CHARACTER	15	0	Номер дела
 
     private int reeNum;     //2	    REE_NUM	    NUMERIC	    2	0	Номер реестра
@@ -653,6 +655,14 @@ public class RequestPayment implements Serializable {
         this.reserv2 = reserv2;
     }
 
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
+    }
+
     private String fileName;
 
     private String internalCity;
@@ -662,6 +672,8 @@ public class RequestPayment implements Serializable {
     private String internalBuilding;
 
     private String internalApartment;
+
+    private Long organizationId;
 
     public String getFileName() {
         return fileName;
@@ -701,5 +713,13 @@ public class RequestPayment implements Serializable {
 
     public void setInternalStreet(String internalStreet) {
         this.internalStreet = internalStreet;
+    }
+
+    public Long getOrganizationId() {
+        return organizationId;
+    }
+
+    public void setOrganizationId(Long organizationId) {
+        this.organizationId = organizationId;
     }
 }
