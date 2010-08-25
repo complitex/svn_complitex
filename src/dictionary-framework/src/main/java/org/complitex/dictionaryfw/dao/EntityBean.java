@@ -55,15 +55,18 @@ public class EntityBean {
         if (cacheEntity != null) {
             return cacheEntity;
         } else {
-            Entity dbEntity = (Entity) session.selectOne(ENTITY_NAMESPACE + ".load", ImmutableMap.of("entity", entity));
+            Entity dbEntity = loadFromDb(entity);
             metadataMap.put(entity, dbEntity);
             return dbEntity;
         }
     }
 
+    private Entity loadFromDb(String entity) {
+        return (Entity) session.selectOne(ENTITY_NAMESPACE + ".load", ImmutableMap.of("entity", entity));
+    }
+
     protected void invalidateCache(String entity) {
-        metadataMap.put(entity, null);
-        getEntity(entity);
+        metadataMap.put(entity, loadFromDb(entity));
     }
 
     public String getAttributeLabel(String entityTable, long attributeTypeId, Locale locale) {
