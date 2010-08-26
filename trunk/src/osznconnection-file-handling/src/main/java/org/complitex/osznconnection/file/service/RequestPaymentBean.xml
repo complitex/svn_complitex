@@ -2,23 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.complitex.osznconnection.file.service.RequestPaymentBean">
 
-    <!--<resultMap id="RequestPaymentList" type="org.complitex.osznconnection.file.entity.RequestPayment">
-        <id column="id" property="id"/>
-        <result column="status" property="status"/>
-        <result column="file_id" property="fileId"/>
-        <result column="f_nam" property="fNam"/>
-        <result column="m_nam" property="mNam"/>
-        <result column="sur_nam" property="surNam"/>
-        <result column="fileName" property="fileName"/>
-        <result column="internalCity" property="internalCity"/>
-        <result column="internalStreet" property="internalStreet"/>
-        <result column="internalBuilding" property="internalBuilding"/>
-        <result column="internalApartment" property="internalApartment"/>
-    </resultMap>-->
-
     <resultMap id="requestPaymentResultMap" type="org.complitex.osznconnection.file.entity.RequestPayment">
         <id column="id" property="id"/>
-        <result column="file_id" property="fileId"/>
+        <result column="request_file_id" property="fileId"/>
         <result column="account_number" property="accountNumber"/>
         <result column="city_id" property="cityId"/>
         <result column="street_id" property="streetId"/>
@@ -88,7 +74,7 @@
     <insert id="insertRequestPayment" parameterType="org.complitex.osznconnection.file.entity.RequestPayment"
             keyProperty="id" useGeneratedKeys="true">
         insert into `request_payment`
-            (`file_id`, `account_number`, `city_id`, `street_id`, `building_id`, `apartment_id`, `status`,
+            (`request_file_id`, `account_number`, `city_id`, `street_id`, `building_id`, `apartment_id`, `status`,
             `own_num`, `ree_num`, `opp`, `numb`, `mark`, `code`, `ent_cod`, `frog`, `fl_pay`, `nm_pay`, `debt`,
             `code2_1`, `code2_2`, `code2_3`, `code2_4`, `code2_5`, `code2_6`, `code2_7`, `code2_8`, `norm_f_1`,
             `norm_f_2`, `norm_f_3`, `norm_f_4`, `norm_f_5`, `norm_f_6`, `norm_f_7`, `norm_f_8`, `own_num_sr`, `dat1`,
@@ -109,7 +95,7 @@
         update
             `request_payment`
         set
-            `file_id` = #{fileId}, `account_number` = #{accountNumber}, `city_id` = #{cityId}, `street_id` = #{streetId},
+            `request_file_id` = #{fileId}, `account_number` = #{accountNumber}, `city_id` = #{cityId}, `street_id` = #{streetId},
             `building_id` = #{buildingId}, `apartment_id` = #{apartmentId}, `status` = #{status}, `own_num` = #{ownNum},
             `ree_num` = #{reeNum}, `opp` = #{opp}, `numb` = #{numb}, `mark` = #{mark}, `code` = #{code},
             `ent_cod` = #{entCod}, `frog` = #{frog}, `fl_pay` = #{flPay}, `nm_pay` = #{nmPay}, `debt` = #{debt},
@@ -125,7 +111,7 @@
             `code3_4` = #{code34}, `code3_5` = #{code36}, `code3_6` = #{code36}, `code3_7` = #{code37},
             `code3_8` = #{code38}, `opp_serv` = #{oppServ}, `reserv1` = #{reserv1}, `reserv2`=  #{reserv2}
         where
-            `id ` = #{id}
+            `id` = #{id}
     </update>
 
     <sql id="filter">
@@ -141,7 +127,7 @@
             </if>
 
             <if test="fileName != null">
-                AND r.`file_id` IN (SELECT f.`id` FROM `file` f WHERE f.`name` LIKE CONCAT('%',#{fileName},'%'))
+                AND r.`request_file_id` IN (SELECT f.`id` FROM `request_file` f WHERE f.`name` LIKE CONCAT('%',#{fileName},'%'))
             </if>
 
             <if test="city != null">
@@ -174,9 +160,9 @@
 
     <select id="find" resultType="org.complitex.osznconnection.file.entity.RequestPayment"
             parameterType="org.complitex.osznconnection.file.web.pages.payment.RequestPaymentExample">
-        SELECT r.`id`, r.`status`, r.`file_id` fileId, r.`f_nam` fNam, r.`m_nam` mNam, r.`sur_nam` surNam,
-        (SELECT f.`organization_id` FROM `file` f WHERE f.`id` = r.`file_id`) organizationId,
-        (SELECT f.`name` FROM `file` f WHERE f.`id` = r.`file_id`) fileName,
+        SELECT r.`id`, r.`status`, r.`request_file_id` fileId, r.`f_nam` fNam, r.`m_nam` mNam, r.`sur_nam` surNam,
+        (SELECT f.`organization_object_id` FROM `request_file` f WHERE f.`id` = r.`request_file_id`) organizationId,
+        (SELECT f.`name` FROM `request_file` f WHERE f.`id` = r.`request_file_id`) fileName,
         (SELECT sc.`value` FROM `city_string_culture` sc WHERE sc.`locale` = #{locale} AND
         sc.`id` = (SELECT a.`value_id` FROM `city_attribute` a WHERE a.`attribute_type_id` = 400 AND a.`status` = 'ACTIVE' AND a.`object_id` = r.`city_id`)) internalCity,
         (SELECT sc.`value` FROM `street_string_culture` sc WHERE sc.`locale` = #{locale} AND
@@ -211,9 +197,9 @@
     </select>
 
     <select id="findById" parameterType="long" resultType="org.complitex.osznconnection.file.entity.RequestPayment">
-        SELECT r.`id`, r.`status`, r.`file_id` fileId, r.`f_nam` fNam, r.`m_nam` mNam, r.`sur_nam` surNam,
+        SELECT r.`id`, r.`status`, r.`request_file_id` fileId, r.`f_nam` fNam, r.`m_nam` mNam, r.`sur_nam` surNam,
         r.`n_name` nName, r.`vul_name` vulName, r.`bld_num` bldNum, r.`flat`,
-        (SELECT f.`organization_id` FROM `file` f WHERE f.`id` = r.`file_id`) organizationId,
+        (SELECT f.`organization_object_id` FROM `request_file` f WHERE f.`id` = r.`request_file_id`) organizationId,
         r.`city_id` cityId,
         r.`street_id` streetId,
         r.`building_id` buildingId,
