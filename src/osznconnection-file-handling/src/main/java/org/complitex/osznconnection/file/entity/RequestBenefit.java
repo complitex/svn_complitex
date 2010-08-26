@@ -1,10 +1,12 @@
 package org.complitex.osznconnection.file.entity;
 
+import java.io.Serializable;
+
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 24.08.2010 18:22:55
  */
-public class RequestBenefit {
+public class RequestBenefit implements Serializable {
 
     private Long id;
 
@@ -244,5 +246,45 @@ public class RequestBenefit {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    private String internalCity;
+
+    private String internalStreet;
+
+    private String internalBuilding;
+
+    private String internalApartment;
+
+    public String getInternalApartment() {
+        return internalApartment;
+    }
+
+    public void setInternalApartment(String internalApartment) {
+        this.internalApartment = internalApartment;
+    }
+
+    public String getInternalBuilding() {
+        return internalBuilding;
+    }
+
+    public void setInternalBuilding(String internalBuilding) {
+        this.internalBuilding = internalBuilding;
+    }
+
+    public String getInternalCity() {
+        return internalCity;
+    }
+
+    public void setInternalCity(String internalCity) {
+        this.internalCity = internalCity;
+    }
+
+    public String getInternalStreet() {
+        return internalStreet;
+    }
+
+    public void setInternalStreet(String internalStreet) {
+        this.internalStreet = internalStreet;
     }
 }
