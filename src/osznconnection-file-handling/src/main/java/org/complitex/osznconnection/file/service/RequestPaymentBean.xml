@@ -115,19 +115,14 @@
     </update>
 
     <sql id="filter">
-        <where>
             <if test="firstName != null">
-                r.`f_nam` LIKE CONCAT('%',#{firstName},'%')
+                AND r.`f_nam` LIKE CONCAT('%',#{firstName},'%')
             </if>
             <if test="middleName != null">
                 AND r.`m_nam` LIKE CONCAT('%',#{middleName},'%')
             </if>
             <if test="lastName != null">
                 AND r.`sur_nam` LIKE CONCAT('%',#{lastName},'%')
-            </if>
-
-            <if test="fileName != null">
-                AND r.`request_file_id` IN (SELECT f.`id` FROM `request_file` f WHERE f.`name` LIKE CONCAT('%',#{fileName},'%'))
             </if>
 
             <if test="city != null">
@@ -150,11 +145,10 @@
             <if test="status != null">
                 AND r.`status` = #{status}
             </if>
-        </where>
     </sql>
 
     <select id="count" resultType="int" parameterType="org.complitex.osznconnection.file.web.pages.payment.RequestPaymentExample">
-        SELECT COUNT(*) FROM `request_payment` r
+        SELECT COUNT(*) FROM `request_payment` r WHERE r.`request_file_id` = #{fileId}
         <include refid="org.complitex.osznconnection.file.service.RequestPaymentBean.filter"/>
     </select>
 
@@ -162,7 +156,6 @@
             parameterType="org.complitex.osznconnection.file.web.pages.payment.RequestPaymentExample">
         SELECT r.`id`, r.`status`, r.`request_file_id` fileId, r.`f_nam` fNam, r.`m_nam` mNam, r.`sur_nam` surNam,
         (SELECT f.`organization_object_id` FROM `request_file` f WHERE f.`id` = r.`request_file_id`) organizationId,
-        (SELECT f.`name` FROM `request_file` f WHERE f.`id` = r.`request_file_id`) fileName,
         (SELECT sc.`value` FROM `city_string_culture` sc WHERE sc.`locale` = #{locale} AND
         sc.`id` = (SELECT a.`value_id` FROM `city_attribute` a WHERE a.`attribute_type_id` = 400 AND a.`status` = 'ACTIVE' AND a.`object_id` = r.`city_id`)) internalCity,
         (SELECT sc.`value` FROM `street_string_culture` sc WHERE sc.`locale` = #{locale} AND
@@ -178,7 +171,7 @@
         ) internalBuilding,
         (SELECT sc.`value` FROM `apartment_string_culture` sc WHERE sc.`locale` = #{locale} AND
         sc.`id` = (SELECT a.`value_id` FROM `apartment_attribute` a WHERE a.`attribute_type_id` = 100 AND a.`status` = 'ACTIVE' AND a.`object_id` = r.`apartment_id`)) internalApartment
-        FROM `request_payment` r
+        FROM `request_payment` r WHERE r.`request_file_id` = #{fileId}
         <include refid="org.complitex.osznconnection.file.service.RequestPaymentBean.filter"/>
         <if test="orderByClause != null">
             ORDER BY #{orderByClause}

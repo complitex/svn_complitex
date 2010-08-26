@@ -118,7 +118,7 @@ insert into organization_attribute(attribute_id, object_id, attribute_type_id, v
 (1,1,900,1,900), (1,1,901,2,901), (1,1,902,3,902);
 
 -- Files
-insert into `request_file`(id, organization_object_id, `name`) values (1,1,'A_123405.xml');
+insert into `request_file`(id, organization_object_id, `name`, `date`) values (1,1,'A_123405.xml', CURRENT_TIMESTAMP);
 
 -- Request payments
 insert into request_payment(f_nam, m_nam, sur_nam, n_name, vul_name, bld_num, flat, city_id, street_id, building_id, apartment_id, request_file_id)

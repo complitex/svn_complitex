@@ -17,7 +17,7 @@ public class RequestPaymentBean extends AbstractBean {
 
     public enum OrderBy {
 
-        FIRST_NAME("fNam"), MIDDLE_NAME("mName"), LAST_NAME("surNam"), FILE_NAME("fileName"),
+        FIRST_NAME("fNam"), MIDDLE_NAME("mName"), LAST_NAME("surNam"),
         CITY("internalCity"), STREET("internalStreet"), BUILDING("internalBuilding"), APARTMENT("internalApartment"),
         STATUS("status");
 
