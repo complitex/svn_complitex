@@ -11,6 +11,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.ResourceModel;
 import org.complitex.osznconnection.commons.web.template.TemplatePage;
 import org.complitex.osznconnection.file.entity.RequestPayment;
+import org.complitex.osznconnection.file.entity.RequestPaymentDBF;
 import org.complitex.osznconnection.file.service.AddressResolver;
 import org.complitex.osznconnection.file.service.RequestPaymentBean;
 import org.complitex.osznconnection.file.web.component.correction.CorrectionPanel;
@@ -42,8 +43,13 @@ public final class PaymentCorrection extends TemplatePage {
         add(new Label("title", new ResourceModel("label")));
         add(new Label("label", new ResourceModel("label")));
 
-        String name = requestPayment.getSurNam() + " " + requestPayment.getfNam() + " " + requestPayment.getmNam();
-        String address = requestPayment.getnName() + ", " + requestPayment.getVulName() + ", " + requestPayment.getBldNum() + ", " + requestPayment.getFlat();
+        String name = requestPayment.getField(RequestPaymentDBF.SUR_NAM) + " " +
+                requestPayment.getField(RequestPaymentDBF.F_NAM) + " " +
+                requestPayment.getField(RequestPaymentDBF.M_NAM);
+        String address = requestPayment.getField(RequestPaymentDBF.N_NAME) + ", " +
+                requestPayment.getField(RequestPaymentDBF.VUL_NAME) + ", " +
+                requestPayment.getField(RequestPaymentDBF.BLD_NUM) + ", " +
+                requestPayment.getField(RequestPaymentDBF.FLAT);
 
         add(new CorrectionPanel("correntionPanel", name, address, requestPayment.getCityId(), requestPayment.getStreetId(),
                 requestPayment.getBuildingId(), requestPayment.getApartmentId()) {
@@ -56,7 +62,7 @@ public final class PaymentCorrection extends TemplatePage {
 
             @Override
             public void back() {
-                setResponsePage(RequestPaymentList.class, new PageParameters(ImmutableMap.of(RequestPaymentList.FILE_ID, requestPayment.getFileId())));
+                setResponsePage(RequestPaymentList.class, new PageParameters(ImmutableMap.of(RequestPaymentList.FILE_ID, requestPayment.getRequestFileId())));
             }
         });
     }

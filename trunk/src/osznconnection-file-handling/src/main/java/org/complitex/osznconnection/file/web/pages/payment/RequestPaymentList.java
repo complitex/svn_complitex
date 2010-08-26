@@ -30,6 +30,7 @@ import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
 import org.complitex.osznconnection.commons.web.template.TemplatePage;
 import org.complitex.osznconnection.file.entity.RequestPayment;
+import org.complitex.osznconnection.file.entity.RequestPaymentDBF;
 import org.complitex.osznconnection.file.entity.Status;
 import org.complitex.osznconnection.file.service.RequestFileBean;
 import org.complitex.osznconnection.file.service.RequestPaymentBean;
@@ -150,9 +151,9 @@ public final class RequestPaymentList extends TemplatePage {
             @Override
             protected void populateItem(Item<RequestPayment> item) {
                 RequestPayment requestPayment = item.getModelObject();
-                item.add(new Label("firstName", requestPayment.getfNam()));
-                item.add(new Label("middleName", requestPayment.getmNam()));
-                item.add(new Label("lastName", requestPayment.getSurNam()));
+                item.add(new Label("firstName", (String) requestPayment.getField(RequestPaymentDBF.F_NAM)));
+                item.add(new Label("middleName", (String) requestPayment.getField(RequestPaymentDBF.M_NAM)));
+                item.add(new Label("lastName", (String) requestPayment.getField(RequestPaymentDBF.SUR_NAM)));
                 item.add(new Label("city", requestPayment.getInternalCity()));
                 item.add(new Label("street", requestPayment.getInternalStreet()));
                 item.add(new Label("building", requestPayment.getInternalBuilding()));

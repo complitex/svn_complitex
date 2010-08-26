@@ -28,6 +28,7 @@ import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
 import org.complitex.osznconnection.commons.web.template.TemplatePage;
 import org.complitex.osznconnection.file.entity.RequestBenefit;
+import org.complitex.osznconnection.file.entity.RequestBenefitDBF;
 import org.complitex.osznconnection.file.entity.Status;
 import org.complitex.osznconnection.file.service.RequestBenefitBean;
 import org.complitex.osznconnection.file.service.RequestFileBean;
@@ -148,9 +149,9 @@ public final class RequestBenefitList extends TemplatePage {
             @Override
             protected void populateItem(Item<RequestBenefit> item) {
                 RequestBenefit requestBenefit = item.getModelObject();
-                item.add(new Label("firstName", requestBenefit.getfNam()));
-                item.add(new Label("middleName", requestBenefit.getmNam()));
-                item.add(new Label("lastName", requestBenefit.getSurNam()));
+                item.add(new Label("firstName", (String) requestBenefit.getField(RequestBenefitDBF.F_NAM)));
+                item.add(new Label("middleName", (String) requestBenefit.getField(RequestBenefitDBF.M_NAM)));
+                item.add(new Label("lastName", (String) requestBenefit.getField(RequestBenefitDBF.SUR_NAM)));
                 item.add(new Label("city", requestBenefit.getInternalCity()));
                 item.add(new Label("street", requestBenefit.getInternalStreet()));
                 item.add(new Label("building", requestBenefit.getInternalBuilding()));

@@ -20,7 +20,7 @@ import java.util.Calendar;
  */
 public class RequestFileLoad extends FormTemplatePage{
     @EJB(name = "RequestFileBean")
-    private RequestFileBean fileBean;
+    private RequestFileBean requestFileBean;
 
     public RequestFileLoad() {
         super();
@@ -63,8 +63,7 @@ public class RequestFileLoad extends FormTemplatePage{
                     return;
                 }
 
-
-
+//                requestFileBean.test();
             }
         };
         form.add(load);
