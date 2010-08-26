@@ -40,6 +40,8 @@ public class DomainObjectExample implements Serializable {
 
     private Map<String, Object> additionalParams;
 
+    private Long entityTypeId;
+
     private String comparisonType = ComparisonType.LIKE.name();
 
     private List<AttributeExample> attributeExamples = new ArrayList<AttributeExample>();
@@ -167,5 +169,13 @@ public class DomainObjectExample implements Serializable {
 
     public void setComparisonType(String comparisonType) {
         this.comparisonType = comparisonType;
+    }
+
+    public Long getEntityTypeId() {
+        return entityTypeId;
+    }
+
+    public void setEntityTypeId(Long entityTypeId) {
+        this.entityTypeId = entityTypeId;
     }
 }

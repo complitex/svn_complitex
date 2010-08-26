@@ -6,5 +6,7 @@
         <menu class="org.complitex.osznconnection.admin.web.AdminTemplateMenu"/>
         <menu class="org.complitex.osznconnection.information.web.InformationTemplateMenu"/>
         <menu class="org.complitex.osznconnection.information.web.InformationDescriptionTemplateMenu"/>
+        <menu class="org.complitex.osznconnection.organization.web.OrganizationTemplateMenu"/>
+        <menu class="org.complitex.osznconnection.organization.web.OrganizationDescriptionTemplateMenu"/>
     </sidebar>
 </template>
