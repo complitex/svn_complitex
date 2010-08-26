@@ -12,33 +12,19 @@ import org.complitex.osznconnection.file.entity.Status;
  * @author Artem
  */
 public class RequestPaymentExample implements Serializable {
-
     private String firstName;
-
     private String middleName;
-
     private String lastName;
-
     private String city;
-
     private String street;
-
     private String building;
-
     private String apartment;
-
     private Status status;
-
-    private Long fileId;
-
+    private Long requestFileId;
     private int start;
-
     private int size;
-
     private String orderByClause;
-
     private boolean asc;
-
     private String locale;
 
     public String getApartment() {
@@ -145,11 +131,11 @@ public class RequestPaymentExample implements Serializable {
         this.locale = locale;
     }
 
-    public Long getFileId() {
-        return fileId;
+    public Long getRequestFileId() {
+        return requestFileId;
     }
 
-    public void setFileId(Long fileId) {
-        this.fileId = fileId;
+    public void setRequestFileId(Long requestFileId) {
+        this.requestFileId = requestFileId;
     }
 }

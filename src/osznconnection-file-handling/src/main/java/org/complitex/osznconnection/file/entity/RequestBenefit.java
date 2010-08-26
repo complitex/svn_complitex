@@ -10,7 +10,7 @@ import java.util.Map;
  */
 public class RequestBenefit implements Serializable {
     private Long id;
-    private Long fileId;
+    private Long requestFileId;
     private Status status;
 
     private Map<String, Object> dbfFields= new HashMap<String, Object>();
@@ -36,12 +36,12 @@ public class RequestBenefit implements Serializable {
         this.id = id;
     }
 
-    public Long getFileId() {
-        return fileId;
+    public Long getRequestFileId() {
+        return requestFileId;
     }
 
-    public void setFileId(Long fileId) {
-        this.fileId = fileId;
+    public void setRequestFileId(Long requestFileId) {
+        this.requestFileId = requestFileId;
     }
 
     public Status getStatus() {
