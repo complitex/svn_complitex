@@ -12,6 +12,7 @@ import org.xBaseJ.fields.Field;
 import org.xBaseJ.fields.NumField;
 import org.xBaseJ.xBaseJException;
 
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -27,12 +28,15 @@ public class RequestFileBean extends AbstractBean {
     private static Logger log = LoggerFactory.getLogger(RequestFileBean.class);
 
     private static final String MAPPING_NAMESPACE = RequestFileBean.class.getName();
-
     public final static String REQUEST_PAYMENT_FILES_PREFIX = "A_";
-
     public final static String REQUEST_BENEFIT_FILES_PREFIX = "AF";
-
     public final static String REQUEST_FILES_POSTFIX = ".dbf";
+
+    @EJB(name = "RequestPaymentBean")
+    private RequestPaymentBean requestPaymentBean;
+
+    @EJB
+    private RequestBenefitBean requestBenefitBean;
 
     private List<File> getRequestFiles(final String filePrefix, final String districtDir,
             final String[] osznCode, final String[] months) {

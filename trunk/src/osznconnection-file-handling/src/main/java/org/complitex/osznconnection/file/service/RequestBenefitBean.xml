@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.complitex.osznconnection.file.service.RequestBenefitBean">
-        <resultMap id="requestBenefitResultMap" type="org.complitex.osznconnection.file.entity.RequestBenefit">
+    <resultMap id="requestBenefitResultMap" type="org.complitex.osznconnection.file.entity.RequestBenefit">
         <id column="id" property="id"/>
         <result column="request_file_id" property="requestFileId"/>
         <result column="account_number" property="accountNumber"/>
@@ -28,6 +28,22 @@
             <result column="OZN_ABS" property="OZN_ABS"/>
             <result column="RESERV1" property="RESERV1"/>
             <result column="RESERV2" property="RESERV2"/>
+        </association>
+    </resultMap>
+
+    <resultMap id="internalRequestBenefitResultMap" type="org.complitex.osznconnection.file.entity.RequestBenefit">
+        <id column="id" property="id"/>
+        <result column="requestFileId" property="requestFileId"/>
+        <result column="status" property="status"/>
+        <result column="internalCity" property="internalCity"/>
+        <result column="internalStreet" property="internalStreet"/>
+        <result column="internalBuilding" property="internalBuilding"/>
+        <result column="internalApartment" property="internalApartment"/>
+
+        <association property="dbfFields" javaType="map">
+            <result column="fNam" property="F_NAM"/>
+            <result column="mNam" property="M_NAM"/>
+            <result column="surNam" property="SUR_NAM"/>
         </association>
     </resultMap>
 
@@ -68,13 +84,13 @@
     
     <sql id="filter">
             <if test="firstName != null">
-                AND r.`f_nam` LIKE CONCAT('%',#{firstName},'%')
+                AND r.`F_NAM` LIKE CONCAT('%',#{firstName},'%')
             </if>
             <if test="middleName != null">
-                AND r.`m_nam` LIKE CONCAT('%',#{middleName},'%')
+                AND r.`M_NAM` LIKE CONCAT('%',#{middleName},'%')
             </if>
             <if test="lastName != null">
-                AND r.`sur_nam` LIKE CONCAT('%',#{lastName},'%')
+                AND r.`SUR_NAM` LIKE CONCAT('%',#{lastName},'%')
             </if>
 
             <if test="city != null">
@@ -102,16 +118,16 @@
     <select id="count" resultType="int" parameterType="org.complitex.osznconnection.file.web.pages.benefit.RequestBenefitExample">
         SELECT COUNT(*) FROM `request_benefit` r
         JOIN `request_file` rf ON r.`request_file_id` = rf.`id`
-        LEFT JOIN `request_payment` p ON r.`own_num_sr` = p.`own_num_sr`
+        LEFT JOIN `request_payment` p ON r.`OWN_NUM_SR` = p.`OWN_NUM_SR`
         LEFT JOIN `request_file` pf ON p.`request_file_id` = pf.`id`
 	WHERE rf.`organization_object_id` = pf.`organization_object_id` AND EXTRACT(YEAR_MONTH FROM rf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`)
-	AND r.`request_file_id` = #{fileId}
+	AND r.`request_file_id` = #{requestFileId}
         <include refid="org.complitex.osznconnection.file.service.RequestBenefitBean.filter"/>
     </select>
 
-    <select id="find" resultType="org.complitex.osznconnection.file.entity.RequestBenefit"
+    <select id="find" resultMap="internalRequestBenefitResultMap"
             parameterType="org.complitex.osznconnection.file.web.pages.benefit.RequestBenefitExample">
-        SELECT DISTINCT r.`id`, r.`request_file_id` fileId, r.`f_nam` fNam, r.`m_nam` mNam, r.`sur_nam` surNam,
+        SELECT DISTINCT r.`id` id, r.`request_file_id` requestFileId, r.`F_NAM` fNam, r.`M_NAM` mNam, r.`SUR_NAM` surNam,
         p.`status` as status,
         (SELECT sc.`value` FROM `city_string_culture` sc WHERE sc.`locale` = #{locale} AND
         sc.`id` = (SELECT a.`value_id` FROM `city_attribute` a WHERE a.`attribute_type_id` = 400 AND a.`status` = 'ACTIVE' AND a.`object_id` = p.`city_id`)) internalCity,
@@ -131,10 +147,10 @@
         sc.`id` = (SELECT a.`value_id` FROM `apartment_attribute` a WHERE a.`attribute_type_id` = 100 AND a.`status` = 'ACTIVE' AND a.`object_id` = p.`apartment_id`)) internalApartment
         FROM `request_benefit` r
         JOIN `request_file` rf ON r.`request_file_id` = rf.`id`
-        LEFT JOIN `request_payment` p ON r.`own_num_sr` = p.`own_num_sr`
+        LEFT JOIN `request_payment` p ON r.`OWN_NUM_SR` = p.`OWN_NUM_SR`
         LEFT JOIN `request_file` pf ON p.`request_file_id` = pf.`id`
 	WHERE rf.`organization_object_id` = pf.`organization_object_id` AND EXTRACT(YEAR_MONTH FROM rf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`)
-	AND r.`request_file_id` = #{fileId}
+	AND r.`request_file_id` = #{requestFileId}
         <include refid="org.complitex.osznconnection.file.service.RequestBenefitBean.filter"/>
         <if test="orderByClause != null">
             ORDER BY ${orderByClause}
