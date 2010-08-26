@@ -1,20 +1,30 @@
 package org.complitex.osznconnection.file.service;
 
 import org.complitex.dictionaryfw.service.AbstractBean;
-import org.complitex.osznconnection.file.entity.RequestFile;
+import org.complitex.osznconnection.file.entity.*;
 import org.complitex.osznconnection.file.storage.RequestFileStorage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xBaseJ.DBF;
+import org.xBaseJ.fields.CharField;
+import org.xBaseJ.fields.DateField;
+import org.xBaseJ.fields.Field;
+import org.xBaseJ.fields.NumField;
+import org.xBaseJ.xBaseJException;
 
 import javax.ejb.Stateless;
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.List;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 25.08.2010 12:15:53
  */
-@Stateless(name = "FileBean")
+@Stateless(name = "RequestFileBean")
 public class RequestFileBean extends AbstractBean {
+    private static Logger log = LoggerFactory.getLogger(RequestFileBean.class);
 
     private static final String MAPPING_NAMESPACE = RequestFileBean.class.getName();
 
@@ -72,7 +82,24 @@ public class RequestFileBean extends AbstractBean {
 
     }
 
-    public void save(RequestFile requestFile) {
+    private List<DBF> loadDBFs(List<File> files){
+        List<DBF> list = new ArrayList<DBF>();
+
+        for (File file : files){
+            try {
+                list.add(new DBF(file.getAbsolutePath(), DBF.READ_ONLY));
+            } catch (xBaseJException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return list;
+    }
+   
+
+    private void save(RequestFile requestFile) {
         if (requestFile.getId() == null) {
             sqlSession.insert(MAPPING_NAMESPACE + ".insertRequestFile", requestFile);
         } else {

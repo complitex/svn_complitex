@@ -14,6 +14,7 @@ import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
 import org.complitex.osznconnection.file.entity.RequestPayment;
+import org.complitex.osznconnection.file.entity.RequestPaymentDBF;
 import org.complitex.osznconnection.file.entity.Status;
 
 /**
@@ -151,10 +152,10 @@ public class AddressResolver extends AbstractBean {
     public RequestPayment correctAddress(RequestPayment requestPayment, long cityId, long streetId, long buildingId, long apartmentId) {
         long organizationId = requestPayment.getOrganizationId();
 
-        String city = requestPayment.getnName();
-        String street = requestPayment.getVulName();
-        String building = requestPayment.getBldNum();
-        String apartment = requestPayment.getFlat();
+        String city = (String) requestPayment.getField(RequestPaymentDBF.N_NAME);
+        String street = (String) requestPayment.getField(RequestPaymentDBF.VUL_NAME);
+        String building = (String) requestPayment.getField(RequestPaymentDBF.BLD_NUM);
+        String apartment = (String) requestPayment.getField(RequestPaymentDBF.FLAT);
 
         if (requestPayment.getCityId() == null) {
             addressCorrectionBean.insertCity(city, street, building, apartment, cityId, organizationId);
