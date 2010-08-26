@@ -803,7 +803,6 @@ CREATE TABLE `request_benefit` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT,
     `request_file_id` bigint(20) NULL,
     `account_number` varchar(100) NULL,
-    `status` varchar(20) NOT NULL default 'ADDRESS_UNRESOLVED',
 
 	`own_num` varchar(15) COMMENT 'Номер дела',
 	`ree_num` int(2) COMMENT 'Номер реестра',

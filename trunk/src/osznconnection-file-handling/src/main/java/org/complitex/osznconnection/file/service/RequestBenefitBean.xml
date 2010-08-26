@@ -14,69 +14,66 @@
             </if>
 
             <if test="city != null">
-                AND r.`own_num_sr` IN (
-                SELECT p.`own_num_sr` FROM `request_payment` p JOIN `request_file` f ON p.`request_file_id` = f.`id`
-                WHERE f.`date` = rf.`date` AND f.`organization_id` = rf.`organization_id`
                 AND p.`city_id` IN (SELECT a.`object_id` FROM `city_attribute` a WHERE a.`attribute_type_id` = 400 AND a.`status` = 'ACTIVE' AND a.`value_id` IN
-                (SELECT sc.`id` FROM `city_string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`value` LIKE CONCAT('%',#{city},'%'))))
+                (SELECT sc.`id` FROM `city_string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`value` LIKE CONCAT('%',#{city},'%')))
             </if>
             <if test="street != null">
-                AND r.`own_num_sr` IN (
-                SELECT p.`own_num_sr` FROM `request_payment` p JOIN `request_file` f ON p.`request_file_id` = f.`id`
-                WHERE f.`date` = rf.`date` AND f.`organization_id` = rf.`organization_id`
                 AND p.`street_id` IN (SELECT a.`object_id` FROM `street_attribute` a WHERE a.`attribute_type_id` = 300 AND a.`status` = 'ACTIVE' AND a.`value_id` IN
-                (SELECT sc.`id` FROM `street_string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`value` LIKE CONCAT('%',#{street},'%'))))
+                (SELECT sc.`id` FROM `street_string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`value` LIKE CONCAT('%',#{street},'%')))
             </if>
             <if test="building != null">
-                AND r.`own_num_sr` IN (
-                SELECT p.`own_num_sr` FROM `request_payment` p JOIN `request_file` f ON p.`request_file_id` = f.`id`
-                WHERE f.`date` = rf.`date` AND f.`organization_id` = rf.`organization_id`
                 AND p.`building_id` IN (SELECT a.`object_id` FROM `building_attribute` a WHERE a.`attribute_type_id` = 500 AND a.`status` = 'ACTIVE' AND a.`value_id` IN
-                (SELECT sc.`id` FROM `building_string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`value` LIKE CONCAT('%',#{building},'%'))))
+                (SELECT sc.`id` FROM `building_string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`value` LIKE CONCAT('%',#{building},'%')))
             </if>
             <if test="apartment != null">
-                AND r.`own_num_sr` IN (
-                SELECT p.`own_num_sr` FROM `request_payment` p JOIN `request_file` f ON p.`request_file_id` = f.`id`
-                WHERE f.`date` = rf.`date` AND f.`organization_id` = rf.`organization_id`
                 AND p.`apartment_id` IN (SELECT a.`object_id` FROM `apartment_attribute` a WHERE a.`attribute_type_id` = 100 AND a.`status` = 'ACTIVE' AND a.`value_id` IN
-                (SELECT sc.`id` FROM `apartment_string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`value` LIKE CONCAT('%',#{apartment},'%'))))
+                (SELECT sc.`id` FROM `apartment_string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`value` LIKE CONCAT('%',#{apartment},'%')))
             </if>
 
             <if test="status != null">
-                AND r.`status` = #{status}
+                AND p.`status` = #{status}
             </if>
     </sql>
 
-    <select id="count" resultType="int" parameterType="org.complitex.osznconnection.file.web.pages.payment.RequestBenefitExample">
-        SELECT COUNT(*) FROM `request_benefit` r WHERE r.`request_file_id` = #{fileId}
-        <include refid="org.complitex.osznconnection.file.service.RequestPaymentBean.filter"/>
+    <select id="count" resultType="int" parameterType="org.complitex.osznconnection.file.web.pages.benefit.RequestBenefitExample">
+        SELECT COUNT(*) FROM `request_benefit` r
+        JOIN `request_file` rf ON r.`request_file_id` = rf.`id`
+        LEFT JOIN `request_payment` p ON r.`own_num_sr` = p.`own_num_sr`
+        LEFT JOIN `request_file` pf ON p.`request_file_id` = pf.`id`
+	WHERE rf.`organization_object_id` = pf.`organization_object_id` AND EXTRACT(YEAR_MONTH FROM rf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`)
+	AND r.`request_file_id` = #{fileId}
+        <include refid="org.complitex.osznconnection.file.service.RequestBenefitBean.filter"/>
     </select>
 
-    <select id="find" resultType="org.complitex.osznconnection.file.entity.RequestPayment"
-            parameterType="org.complitex.osznconnection.file.web.pages.payment.RequestPaymentExample">
-        SELECT r.`id`, r.`status`, r.`request_file_id` fileId, r.`f_nam` fNam, r.`m_nam` mNam, r.`sur_nam` surNam,
-        rf.`organization_id` organizationId,
+    <select id="find" resultType="org.complitex.osznconnection.file.entity.RequestBenefit"
+            parameterType="org.complitex.osznconnection.file.web.pages.benefit.RequestBenefitExample">
+        SELECT DISTINCT r.`id`, r.`request_file_id` fileId, r.`f_nam` fNam, r.`m_nam` mNam, r.`sur_nam` surNam,
+        p.`status` as status,
         (SELECT sc.`value` FROM `city_string_culture` sc WHERE sc.`locale` = #{locale} AND
-        sc.`id` = (SELECT a.`value_id` FROM `city_attribute` a WHERE a.`attribute_type_id` = 400 AND a.`status` = 'ACTIVE' AND a.`object_id` = r.`city_id`)) internalCity,
+        sc.`id` = (SELECT a.`value_id` FROM `city_attribute` a WHERE a.`attribute_type_id` = 400 AND a.`status` = 'ACTIVE' AND a.`object_id` = p.`city_id`)) internalCity,
         (SELECT sc.`value` FROM `street_string_culture` sc WHERE sc.`locale` = #{locale} AND
-        sc.`id` = (SELECT a.`value_id` FROM `street_attribute` a WHERE a.`attribute_type_id` = 300 AND a.`status` = 'ACTIVE' AND a.`object_id` = r.`street_id`)) internalStreet,
+        sc.`id` = (SELECT a.`value_id` FROM `street_attribute` a WHERE a.`attribute_type_id` = 300 AND a.`status` = 'ACTIVE' AND a.`object_id` = p.`street_id`)) internalStreet,
         (SELECT sc.`value` FROM `building_string_culture` sc WHERE sc.`locale` = #{locale} AND
         sc.`id` =
         (SELECT a1.`value_id` FROM `building_attribute` a1
         JOIN `building_attribute` a2 ON (a1.`attribute_id` = a2.`attribute_id` AND a1.`object_id` = a2.`object_id`)
-        WHERE a1.`attribute_type_id` = 500 AND a1.`status` = 'ACTIVE' AND a1.`object_id` = r.`building_id` AND
-        a2.`attribute_type_id` = 503 AND a2.`status` = 'ACTIVE' AND a2.`object_id` = r.`building_id`
-        AND a2.`value_id` = r.`street_id`
+        WHERE a1.`attribute_type_id` = 500 AND a1.`status` = 'ACTIVE' AND
+        a2.`attribute_type_id` = 503 AND a2.`status` = 'ACTIVE'
+        AND a2.`value_id` = p.`street_id`
+        AND a1.`object_id` = p.`building_id` AND a2.`object_id` = p.`building_id`
         )
         ) internalBuilding,
         (SELECT sc.`value` FROM `apartment_string_culture` sc WHERE sc.`locale` = #{locale} AND
-        sc.`id` = (SELECT a.`value_id` FROM `apartment_attribute` a WHERE a.`attribute_type_id` = 100 AND a.`status` = 'ACTIVE' AND a.`object_id` = r.`apartment_id`)) internalApartment
+        sc.`id` = (SELECT a.`value_id` FROM `apartment_attribute` a WHERE a.`attribute_type_id` = 100 AND a.`status` = 'ACTIVE' AND a.`object_id` = p.`apartment_id`)) internalApartment
         FROM `request_benefit` r
         JOIN `request_file` rf ON r.`request_file_id` = rf.`id`
-        WHERE r.`request_file_id` = #{fileId}
-        <include refid="org.complitex.osznconnection.file.service.RequestPaymentBean.filter"/>
+        LEFT JOIN `request_payment` p ON r.`own_num_sr` = p.`own_num_sr`
+        LEFT JOIN `request_file` pf ON p.`request_file_id` = pf.`id`
+	WHERE rf.`organization_object_id` = pf.`organization_object_id` AND EXTRACT(YEAR_MONTH FROM rf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`)
+	AND r.`request_file_id` = #{fileId}
+        <include refid="org.complitex.osznconnection.file.service.RequestBenefitBean.filter"/>
         <if test="orderByClause != null">
-            ORDER BY #{orderByClause}
+            ORDER BY ${orderByClause}
             <choose>
                 <when test="asc">
                     ASC
@@ -90,22 +87,5 @@
             limit #{start},#{size}
         </if>
     </select>
-
-    <select id="findById" parameterType="long" resultType="org.complitex.osznconnection.file.entity.RequestPayment">
-        SELECT r.`id`, r.`status`, r.`request_file_id` fileId, r.`f_nam` fNam, r.`m_nam` mNam, r.`sur_nam` surNam,
-        r.`n_name` nName, r.`vul_name` vulName, r.`bld_num` bldNum, r.`flat`,
-        (SELECT f.`organization_object_id` FROM `request_file` f WHERE f.`id` = r.`request_file_id`) organizationId,
-        r.`city_id` cityId,
-        r.`street_id` streetId,
-        r.`building_id` buildingId,
-        r.`apartment_id` apartmentId
-        FROM `request_payment` r WHERE r.`id` = #{id}
-    </select>
-
-    <update id="update" parameterType="org.complitex.osznconnection.file.entity.RequestPayment">
-        UPDATE `request_payment` SET `city_id` = #{cityId}, `street_id` = #{streetId}, `building_id` = #{buildingId}, `apartment_id` = #{apartmentId}, 
-        `account_number` = #{accountNumber}, `status` = #{status} WHERE `id` = #{id}
-    </update>
-
 
 </mapper>

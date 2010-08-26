@@ -174,7 +174,7 @@
         FROM `request_payment` r WHERE r.`request_file_id` = #{fileId}
         <include refid="org.complitex.osznconnection.file.service.RequestPaymentBean.filter"/>
         <if test="orderByClause != null">
-            ORDER BY #{orderByClause}
+            ORDER BY ${orderByClause}
             <choose>
                 <when test="asc">
                     ASC
