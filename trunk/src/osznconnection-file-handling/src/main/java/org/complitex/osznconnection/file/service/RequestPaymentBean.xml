@@ -81,6 +81,11 @@
         <result column="internalStreet" property="internalStreet"/>
         <result column="internalBuilding" property="internalBuilding"/>
         <result column="internalApartment" property="internalApartment"/>
+        <result column="city_id" property="cityId"/>
+        <result column="street_id" property="streetId"/>
+        <result column="building_id" property="buildingId"/>
+        <result column="apartment_id" property="apartmentId"/>
+        <result column="organizationId" property="organizationId"/>
 
         <association property="dbfFields" javaType="map">
             <result column="fNam" property="F_NAM"/>
@@ -211,10 +216,10 @@
         SELECT r.`id`, r.`status`, r.`request_file_id` requestFileId, r.`F_NAM` fNam, r.`M_NAM` mNam, r.`SUR_NAM` surNam,
         r.`N_NAME` nName, r.`VUL_NAME` vulName, r.`BLD_NUM` bldNum, r.`FLAT` flat,
         (SELECT f.`organization_object_id` FROM `request_file` f WHERE f.`id` = r.`request_file_id`) organizationId,
-        r.`city_id` cityId,
-        r.`street_id` streetId,
-        r.`building_id` buildingId,
-        r.`apartment_id` apartmentId
+        r.`city_id`,
+        r.`street_id`,
+        r.`building_id`,
+        r.`apartment_id`
         FROM `request_payment` r WHERE r.`id` = #{id}
     </select>
 
