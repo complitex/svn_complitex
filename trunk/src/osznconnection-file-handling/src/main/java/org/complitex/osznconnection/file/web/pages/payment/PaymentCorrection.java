@@ -4,6 +4,7 @@
  */
 package org.complitex.osznconnection.file.web.pages.payment;
 
+import com.google.common.collect.ImmutableMap;
 import javax.ejb.EJB;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
@@ -55,7 +56,7 @@ public final class PaymentCorrection extends TemplatePage {
 
             @Override
             public void back() {
-                setResponsePage(RequestPaymentList.class);
+                setResponsePage(RequestPaymentList.class, new PageParameters(ImmutableMap.of(RequestPaymentList.FILE_ID, requestPayment.getFileId())));
             }
         });
     }

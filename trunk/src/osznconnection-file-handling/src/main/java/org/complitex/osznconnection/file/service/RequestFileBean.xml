@@ -32,4 +32,8 @@
         </set>
         where `id` = #{id}
     </update>
+
+    <select id="findById" parameterType="long" resultMap="org.complitex.osznconnection.file.service.RequestFileBean.requestFileResultMap">
+        SELECT * FROM `request_file` WHERE `id` = #{id}
+    </select>
 </mapper>

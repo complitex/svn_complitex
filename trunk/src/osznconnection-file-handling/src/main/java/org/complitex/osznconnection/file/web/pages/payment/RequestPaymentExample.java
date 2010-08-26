@@ -27,9 +27,9 @@ public class RequestPaymentExample implements Serializable {
 
     private String apartment;
 
-    private String fileName;
-
     private Status status;
+
+    private Long fileId;
 
     private int start;
 
@@ -40,14 +40,6 @@ public class RequestPaymentExample implements Serializable {
     private boolean asc;
 
     private String locale;
-
-    public String getFileName() {
-        return fileName;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
 
     public String getApartment() {
         return apartment;
@@ -151,5 +143,13 @@ public class RequestPaymentExample implements Serializable {
 
     public void setLocale(String locale) {
         this.locale = locale;
+    }
+
+    public Long getFileId() {
+        return fileId;
+    }
+
+    public void setFileId(Long fileId) {
+        this.fileId = fileId;
     }
 }

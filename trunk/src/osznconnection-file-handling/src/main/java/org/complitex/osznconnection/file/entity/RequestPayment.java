@@ -662,8 +662,6 @@ public class RequestPayment implements Serializable {
         this.accountNumber = accountNumber;
     }
 
-    private String fileName;
-
     private String internalCity;
 
     private String internalStreet;
@@ -673,14 +671,6 @@ public class RequestPayment implements Serializable {
     private String internalApartment;
 
     private Long organizationId;
-
-    public String getFileName() {
-        return fileName;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
 
     public String getInternalApartment() {
         return internalApartment;

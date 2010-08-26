@@ -24,13 +24,14 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
 import org.complitex.osznconnection.commons.web.template.TemplatePage;
 import org.complitex.osznconnection.file.entity.RequestPayment;
 import org.complitex.osznconnection.file.entity.Status;
+import org.complitex.osznconnection.file.service.RequestFileBean;
 import org.complitex.osznconnection.file.service.RequestPaymentBean;
 import org.complitex.osznconnection.file.web.component.StatusRenderer;
 
@@ -40,34 +41,45 @@ import org.complitex.osznconnection.file.web.component.StatusRenderer;
  */
 public final class RequestPaymentList extends TemplatePage {
 
+    public static final String FILE_ID = "file_id";
+
     @EJB(name = "RequestPaymentBean")
     private RequestPaymentBean requestPaymentBean;
 
+    @EJB(name = "RequestFileBean")
+    private RequestFileBean requestFileBean;
+
     private IModel<RequestPaymentExample> example;
 
-    public RequestPaymentList() {
-        super();
-        init();
-    }
+    private long fileId;
 
     public RequestPaymentList(PageParameters params) {
+        this.fileId = params.getAsLong(FILE_ID);
         init();
     }
 
     private void clearExample() {
-        example.setObject(new RequestPaymentExample());
+        example.setObject(newExample());
+    }
+
+    private RequestPaymentExample newExample() {
+        RequestPaymentExample requestPaymentExample = new RequestPaymentExample();
+        requestPaymentExample.setFileId(fileId);
+        return requestPaymentExample;
     }
 
     private void init() {
-        add(new Label("title", new ResourceModel("label")));
-        add(new Label("label", new ResourceModel("label")));
+        String fileName = requestFileBean.findById(fileId).getName();
+        IModel<String> labelModel = new StringResourceModel("label", this, null, new Object[]{fileName});
+        add(new Label("title", labelModel));
+        add(new Label("label", labelModel));
 
         final WebMarkupContainer content = new WebMarkupContainer("content");
         content.setOutputMarkupId(true);
         add(content);
         final Form filterForm = new Form("filterForm");
         content.add(filterForm);
-        example = new Model<RequestPaymentExample>(new RequestPaymentExample());
+        example = new Model<RequestPaymentExample>(newExample());
 
         final SortableDataProvider<RequestPayment> dataProvider = new SortableDataProvider<RequestPayment>() {
 
@@ -110,8 +122,6 @@ public final class RequestPaymentList extends TemplatePage {
         filterForm.add(buildingFilter);
         TextField<String> apartmentFilter = new TextField<String>("apartmentFilter", new PropertyModel<String>(example, "apartment"));
         filterForm.add(apartmentFilter);
-        TextField<String> fileNameFilter = new TextField<String>("fileNameFilter", new PropertyModel<String>(example, "fileName"));
-        filterForm.add(fileNameFilter);
         DropDownChoice<Status> statusFilter = new DropDownChoice<Status>("statusFilter", new PropertyModel<Status>(example, "status"),
                 Arrays.asList(Status.values()), new StatusRenderer());
         filterForm.add(statusFilter);
@@ -147,7 +157,6 @@ public final class RequestPaymentList extends TemplatePage {
                 item.add(new Label("street", requestPayment.getInternalStreet()));
                 item.add(new Label("building", requestPayment.getInternalBuilding()));
                 item.add(new Label("apartment", requestPayment.getInternalApartment()));
-                item.add(new Label("fileName", requestPayment.getFileName()));
                 item.add(new Label("status", StatusRenderer.displayValue(requestPayment.getStatus())));
                 BookmarkablePageLink correctionLink = new BookmarkablePageLink("correctionLink", PaymentCorrection.class,
                         new PageParameters(ImmutableMap.of(PaymentCorrection.REQUEST_PAYMENT_ID, requestPayment.getId())));
@@ -162,7 +171,6 @@ public final class RequestPaymentList extends TemplatePage {
         filterForm.add(new ArrowOrderByBorder("firstNameHeader", RequestPaymentBean.OrderBy.FIRST_NAME.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("middleNameHeader", RequestPaymentBean.OrderBy.MIDDLE_NAME.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("lastNameHeader", RequestPaymentBean.OrderBy.LAST_NAME.getOrderBy(), dataProvider, data, content));
-        filterForm.add(new ArrowOrderByBorder("fileNameHeader", RequestPaymentBean.OrderBy.FILE_NAME.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("cityHeader", RequestPaymentBean.OrderBy.CITY.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("streetHeader", RequestPaymentBean.OrderBy.STREET.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("buildingHeader", RequestPaymentBean.OrderBy.BUILDING.getOrderBy(), dataProvider, data, content));
