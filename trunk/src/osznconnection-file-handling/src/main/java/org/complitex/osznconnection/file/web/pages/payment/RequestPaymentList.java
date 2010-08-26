@@ -65,7 +65,7 @@ public final class RequestPaymentList extends TemplatePage {
 
     private RequestPaymentExample newExample() {
         RequestPaymentExample requestPaymentExample = new RequestPaymentExample();
-        requestPaymentExample.setFileId(fileId);
+        requestPaymentExample.setRequestFileId(fileId);
         return requestPaymentExample;
     }
 
