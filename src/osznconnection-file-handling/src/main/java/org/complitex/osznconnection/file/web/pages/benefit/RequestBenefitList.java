@@ -63,7 +63,7 @@ public final class RequestBenefitList extends TemplatePage {
 
     private RequestBenefitExample newExample() {
         RequestBenefitExample requestBenefitExample = new RequestBenefitExample();
-        requestBenefitExample.setFileId(fileId);
+        requestBenefitExample.setRequestFileId(fileId);
         return requestBenefitExample;
     }
 

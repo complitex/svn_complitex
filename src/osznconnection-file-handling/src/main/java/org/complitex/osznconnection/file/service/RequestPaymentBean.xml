@@ -73,6 +73,27 @@
         </association>
     </resultMap>
 
+    <resultMap id="internalRequestPaymentResultMap" type="org.complitex.osznconnection.file.entity.RequestPayment">
+        <id property="id" column="id"/>
+        <result column="requestFileId" property="requestFileId"/>
+        <result column="status" property="status"/>
+        <result column="internalCity" property="internalCity"/>
+        <result column="internalStreet" property="internalStreet"/>
+        <result column="internalBuilding" property="internalBuilding"/>
+        <result column="internalApartment" property="internalApartment"/>
+
+        <association property="dbfFields" javaType="map">
+            <result column="fNam" property="F_NAM"/>
+            <result column="mNam" property="M_NAM"/>
+            <result column="surNam" property="SUR_NAM"/>
+            <result column="nName" property="N_NAME"/>
+            <result column="vulName" property="VUL_NAME"/>
+            <result column="bldNum" property="BLD_NUM"/>
+            <result column="flat" property="FLAT"/>
+        </association>
+
+    </resultMap>
+
     <select id="selectRequestPayments" resultMap="requestPaymentResultMap">
         select * from `request_payment`
     </select>
@@ -113,13 +134,13 @@
 
     <sql id="filter">
         <if test="firstName != null">
-            AND r.`f_nam` LIKE CONCAT('%',#{firstName},'%')
+            AND r.`F_NAM` LIKE CONCAT('%',#{firstName},'%')
         </if>
         <if test="middleName != null">
-            AND r.`m_nam` LIKE CONCAT('%',#{middleName},'%')
+            AND r.`M_NAM` LIKE CONCAT('%',#{middleName},'%')
         </if>
         <if test="lastName != null">
-            AND r.`sur_nam` LIKE CONCAT('%',#{lastName},'%')
+            AND r.`SUR_NAM` LIKE CONCAT('%',#{lastName},'%')
         </if>
 
         <if test="city != null">
@@ -149,9 +170,9 @@
         <include refid="org.complitex.osznconnection.file.service.RequestPaymentBean.filter"/>
     </select>
 
-    <select id="find" resultType="org.complitex.osznconnection.file.entity.RequestPayment"
-            parameterType="org.complitex.osznconnection.file.web.pages.payment.RequestPaymentExample">
-        SELECT r.`id`, r.`status`, r.`request_file_id` requestFileId, r.`f_nam` fNam, r.`m_nam` mNam, r.`sur_nam` surNam,
+    <select id="find" parameterType="org.complitex.osznconnection.file.web.pages.payment.RequestPaymentExample"
+            resultMap="internalRequestPaymentResultMap">
+        SELECT r.`id`, r.`status`, r.`request_file_id` requestFileId, r.`F_NAM` fNam, r.`M_NAM` mNam, r.`SUR_NAM` surNam,
         (SELECT f.`organization_object_id` FROM `request_file` f WHERE f.`id` = r.`request_file_id`) organizationId,
         (SELECT sc.`value` FROM `city_string_culture` sc WHERE sc.`locale` = #{locale} AND
         sc.`id` = (SELECT a.`value_id` FROM `city_attribute` a WHERE a.`attribute_type_id` = 400 AND a.`status` = 'ACTIVE' AND a.`object_id` = r.`city_id`)) internalCity,
@@ -186,9 +207,9 @@
         </if>
     </select>
 
-    <select id="findById" parameterType="long" resultType="org.complitex.osznconnection.file.entity.RequestPayment">
-        SELECT r.`id`, r.`status`, r.`request_file_id` requestFileId, r.`f_nam` fNam, r.`m_nam` mNam, r.`sur_nam` surNam,
-        r.`n_name` nName, r.`vul_name` vulName, r.`bld_num` bldNum, r.`flat`,
+    <select id="findById" parameterType="long" resultMap="internalRequestPaymentResultMap">
+        SELECT r.`id`, r.`status`, r.`request_file_id` requestFileId, r.`F_NAM` fNam, r.`M_NAM` mNam, r.`SUR_NAM` surNam,
+        r.`N_NAME` nName, r.`VUL_NAME` vulName, r.`BLD_NUM` bldNum, r.`FLAT` flat,
         (SELECT f.`organization_object_id` FROM `request_file` f WHERE f.`id` = r.`request_file_id`) organizationId,
         r.`city_id` cityId,
         r.`street_id` streetId,
