@@ -15,6 +15,17 @@ public abstract class AbstractComplexAttributesPanel extends Panel {
 
     private boolean disabled;
 
+    private boolean firstRendering = true;
+
+    @Override
+    protected void onBeforeRender() {
+        super.onBeforeRender();
+        if (firstRendering) {
+            firstRendering = false;
+            init();
+        }
+    }
+
     public AbstractComplexAttributesPanel(String id, boolean disabled) {
         super(id);
         this.disabled = disabled;
@@ -27,4 +38,6 @@ public abstract class AbstractComplexAttributesPanel extends Panel {
     protected DomainObjectInputPanel getInputPanel() {
         return this.findParent(DomainObjectInputPanel.class);
     }
+
+    protected abstract void init();
 }

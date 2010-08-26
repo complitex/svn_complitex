@@ -60,19 +60,8 @@ public class BuildingEditComponent extends AbstractComplexAttributesPanel {
     @EJB(name = "DistrictStrategy")
     private DistrictStrategy districtStrategy;
 
-    private boolean firstRendering = true;
-
     public BuildingEditComponent(String id, boolean disabled) {
         super(id, disabled);
-    }
-
-    @Override
-    protected void onBeforeRender() {
-        super.onBeforeRender();
-        if (firstRendering) {
-            firstRendering = false;
-            init();
-        }
     }
 
     private class SynchronizedSearchComponentState extends SearchComponentState {
@@ -173,7 +162,8 @@ public class BuildingEditComponent extends AbstractComplexAttributesPanel {
 
     private Attribute districtAttribute;
 
-    public void init() {
+    @Override
+    protected void init() {
         final WebMarkupContainer attributesContainer = new WebMarkupContainer("attributesContainer");
         attributesContainer.setOutputMarkupId(true);
         add(attributesContainer);

@@ -104,6 +104,9 @@
                 <if test="parentId != null and parentEntity != null">
                     AND e.`parent_entity_id` = (SELECT ent.`id` FROM `entity` ent WHERE ent.`entity_table` = #{parentEntity}) AND e.`parent_id` = #{parentId}
                 </if>
+                <if test="entityTypeId != null">
+                    AND e.`entity_type_id` = #{entityTypeId}
+                </if>
             </otherwise>
         </choose>
     </sql>

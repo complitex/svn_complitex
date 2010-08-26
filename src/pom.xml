@@ -19,6 +19,7 @@
         <module>osznconnection-logging</module>
         <module>dictionary-framework</module>
         <module>osznconnection-file-handling</module>
+        <module>osznconnection-organization</module>
     </modules>
 
     <dependencyManagement>
@@ -69,6 +70,12 @@
                 <artifactId>osznconnection-file-handling</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.complitex.osznconnection</groupId>
+                <artifactId>osznconnection-organization</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
 
             <!--Wicket-->
             <dependency>

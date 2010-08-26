@@ -84,15 +84,15 @@ insert into `entity`(`id`, `entity_table`, `entity_name_id`, `strategy_factory`)
 insert into `string_culture`(`id`, `locale`, `value`) values (901, 'ru', 'Наименование'), (901, 'en', 'Name');
 insert into `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) values (900, 900, 1, 901, 1);
 insert into `string_culture`(`id`, `locale`, `value`) values (902, 'ru', 'Короткий код района, в котором расположена организация'), (902, 'en', 'Short name of organization''s district');
-insert into `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) values (901, 900, 1, 902, 1);
+insert into `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) values (901, 900, 0, 902, 1);
 insert into `string_culture`(`id`, `locale`, `value`) values (903, 'ru', 'Уникальный код организации'), (903, 'en', 'Unique organization code');
 insert into `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) values (902, 900, 1, 903, 1);
 
 insert into `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) values (900, 900, 'string_culture');
-insert into `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) values (901, 900, 'string');
-insert into `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) values (902, 900, 'string');
+insert into `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) values (901, 901, 'string');
+insert into `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) values (902, 902, 'integer');
 insert into `string_culture`(`id`, `locale`, `value`) values
-(904, 'ru', 'Отдел субсидий ОСЗН'), (904, 'en', 'Отдел субсидий ОСЗН'),
+(904, 'ru', 'ОСЗН'), (904, 'en', 'ОСЗН'),
 (905, 'ru', 'ПУ'), (905, 'en', 'ПУ'),
 (906, 'ru', 'Обслуживающая организация'), (906, 'en', 'Обслуживающая организация');
 insert into `entity_type`(`id`, `entity_id`, `entity_type_name_id`) values (900, 900, 904), (901, 900, 905), (902, 900, 906);

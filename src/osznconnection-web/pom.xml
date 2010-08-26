@@ -43,6 +43,10 @@
             <groupId>org.complitex.osznconnection</groupId>
             <artifactId>osznconnection-file-handling</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.complitex.osznconnection</groupId>
+            <artifactId>osznconnection-organization</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.mybatis</groupId>

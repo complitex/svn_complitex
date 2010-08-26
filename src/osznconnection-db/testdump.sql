@@ -111,11 +111,15 @@ insert into usergroup value (1, 'admin', 'ADMINISTRATORS');
 insert into user value (2, 'ANONYMOUS', 'ANONYMOUS', null);
 
 -- Organizations
-insert into organization(object_id) values (1);
-insert into organization_string_culture(id, locale, value) values (1, 'ru', 'Жэу 1'), (1,'en','Жэу 1'),
-                                                            (2, 'ru', 'LE'), (3, 'ru', '1234');
+insert into organization(object_id, parent_id, parent_entity_id, entity_type_id) values (1,null,null,900), (2,1,900,901);
+insert into organization_string_culture(id, locale, value) values (1, 'ru', 'ОСЗН 1'), (1,'en','ОСЗН 1'),
+                                                            (2, 'ru', 'LE'), (3, 'ru', '1234'), (4, 'ru', 'ПУ 1'), (4,'en','ПУ 1'), (5, 'ru', '3456');
 insert into organization_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
-(1,1,900,1,900), (1,1,901,2,901), (1,1,902,3,902);
+(1,1,900,1,900), (1,1,901,2,901), (1,1,902,3,902),
+(1,2,900,4,900), (1,2,902,5,902);
+
+update sequence set sequence_value = 6 where sequence_name = 'organization_string_culture';
+update sequence set sequence_value = 3 where sequence_name = 'organization';
 
 -- Files
 insert into `request_file`(id, organization_object_id, `name`, `date`) values (1,1,'A_123405.xml', CURRENT_TIMESTAMP),
