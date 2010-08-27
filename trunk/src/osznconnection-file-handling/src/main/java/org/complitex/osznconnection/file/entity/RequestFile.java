@@ -1,23 +1,26 @@
 package org.complitex.osznconnection.file.entity;
 
+import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 25.08.2010 17:35:35
  */
-public class RequestFile {
-    public static enum STATUS{LOADED, ERROR}
+public class RequestFile implements Serializable{
+    public static enum STATUS {LOADED, ERROR}
 
     private Long id;
-    private Long organizationObjectId;
+    private Date loaded;
     private String name;
+    private Long organizationObjectId;
     private Date date;
     private Integer dbfRecordCount;
     private Long length;
     private String checkSum;
-    private String status;
+    private STATUS status;
+
+    private Integer loadedRecordCount;
 
     public Long getId() {
         return id;
@@ -27,12 +30,12 @@ public class RequestFile {
         this.id = id;
     }
 
-    public Long getOrganizationObjectId() {
-        return organizationObjectId;
+    public Date getLoaded() {
+        return loaded;
     }
 
-    public void setOrganizationObjectId(Long organizationObjectId) {
-        this.organizationObjectId = organizationObjectId;
+    public void setLoaded(Date loaded) {
+        this.loaded = loaded;
     }
 
     public String getName() {
@@ -41,6 +44,14 @@ public class RequestFile {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Long getOrganizationObjectId() {
+        return organizationObjectId;
+    }
+
+    public void setOrganizationObjectId(Long organizationObjectId) {
+        this.organizationObjectId = organizationObjectId;
     }
 
     public Date getDate() {
@@ -75,11 +86,19 @@ public class RequestFile {
         this.checkSum = checkSum;
     }
 
-    public String getStatus() {
+    public STATUS getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(STATUS status) {
         this.status = status;
+    }
+
+    public Integer getLoadedRecordCount() {
+        return loadedRecordCount;
+    }
+
+    public void setLoadedRecordCount(Integer loadedRecordCount) {
+        this.loadedRecordCount = loadedRecordCount;
     }
 }
