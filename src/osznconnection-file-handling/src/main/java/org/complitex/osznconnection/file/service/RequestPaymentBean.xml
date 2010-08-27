@@ -109,7 +109,7 @@
             (`request_file_id`, `account_number`, `city_id`, `street_id`, `building_id`, `apartment_id`, `status`,
             <trim suffixOverrides=",">
                 <foreach collection="dbfFields.keys" item="key">
-                    `${key}`
+                    `${key}`,
                 </foreach>
             </trim>
             )
@@ -117,7 +117,7 @@
             <trim suffixOverrides=",">
                 (#{requestFileId}, #{accountNumber}, #{cityId}, #{streetId}, #{buildingId}, #{apartmentId}, #{status},
                 <foreach collection="dbfFields.keys" item="key">
-                    #{dbfFields[key]}
+                    #{dbfFields.${key}},
                 </foreach>
             </trim>
             )

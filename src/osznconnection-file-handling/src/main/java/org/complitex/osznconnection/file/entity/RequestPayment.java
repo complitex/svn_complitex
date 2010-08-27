@@ -1,22 +1,12 @@
 package org.complitex.osznconnection.file.entity;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-
-
 /**
  * @author Artem
  * @author Anatoly A. Ivanov java@inheaven.ru
  */
 
-public class RequestPayment implements Serializable {
-    private Long id;
-    private Long requestFileId;
+public class RequestPayment extends AbstractRequest{
     private String accountNumber;
-    private Status status;
-
-    private Map<String, Object> dbfFields = new HashMap<String, Object>();
 
     private Long cityId;
     private Long streetId;
@@ -32,24 +22,8 @@ public class RequestPayment implements Serializable {
         return dbfFields.get(requestPaymentDBF.name());
     }
 
-    public void setField(RequestPaymentDBF requestPaymentDBF, Object value){
-        dbfFields.put(requestPaymentDBF.name(), value);
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getRequestFileId() {
-        return requestFileId;
-    }
-
-    public void setRequestFileId(Long requestFileId) {
-        this.requestFileId = requestFileId;
+    public void setField(RequestPaymentDBF requestPaymentDBF, Object object){
+        dbfFields.put(requestPaymentDBF.name(), object);
     }
 
     public String getAccountNumber() {
@@ -58,22 +32,6 @@ public class RequestPayment implements Serializable {
 
     public void setAccountNumber(String accountNumber) {
         this.accountNumber = accountNumber;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    public Map<String, Object> getDbfFields() {
-        return dbfFields;
-    }
-
-    public void setDbfFields(Map<String, Object> dbfFields) {
-        this.dbfFields = dbfFields;
     }
 
     public Long getCityId() {

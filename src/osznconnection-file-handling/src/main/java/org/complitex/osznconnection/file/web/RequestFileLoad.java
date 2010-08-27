@@ -63,7 +63,7 @@ public class RequestFileLoad extends FormTemplatePage{
                     return;
                 }
 
-//                requestFileBean.test();
+                requestFileBean.load(from.getModelObject(), to.getModelObject());
             }
         };
         form.add(load);

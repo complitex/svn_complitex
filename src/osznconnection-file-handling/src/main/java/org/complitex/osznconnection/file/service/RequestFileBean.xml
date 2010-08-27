@@ -15,11 +15,12 @@
         select * from `request_file`;
     </select>
 
-    <insert id="insertRequestFile" parameterType="org.complitex.osznconnection.file.entity.RequestFile">
+    <insert id="insertRequestFile" parameterType="org.complitex.osznconnection.file.entity.RequestFile"
+            keyProperty="id" useGeneratedKeys="true">
         insert into
-            `request_file` (`id`, `organization_object_id`, `name`, `date`, `length`, `check_sum`, `status`)
+            `request_file` (`organization_object_id`, `name`, `date`, `length`, `check_sum`, `status`)
         values
-            (#{id}, #{organizationObjectId}, #{name}, #{date}, #{length}, #{checkSum}, #{status});
+            (#{organizationObjectId}, #{name}, #{date}, #{length}, #{checkSum}, #{status});
     </insert>
 
     <update id="updateRequestFile" parameterType="org.complitex.osznconnection.file.entity.RequestFile">

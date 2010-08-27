@@ -42,9 +42,9 @@ public class RequestFileStorage {
     }
 
     /**
-     * @param child дочерная директория
+     * @param child дочерняя директория
      * @param filter фильтр
-     * @return Список файлов в дочерней директроии корневой директории файлового хранилища
+     * @return Список файлов в дочерней директории корневой директории файлового хранилища
      */
     public List<File> getFiles(String child, FilenameFilter filter){
         List<File> files = new ArrayList<File>();

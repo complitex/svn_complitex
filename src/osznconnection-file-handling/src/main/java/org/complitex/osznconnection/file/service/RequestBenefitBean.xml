@@ -56,7 +56,7 @@
             (`request_file_id`, `account_number`, `status`,
             <trim suffixOverrides=",">
                 <foreach collection="dbfFields.keys" item="key">
-                     `${key}
+                     `${key},
                 </foreach>
             </trim>
             )
@@ -64,7 +64,7 @@
             <trim suffixOverrides=",">
                 (#{requestFileId}, #{accountNumber}, #{status},
                 <foreach collection="dbfFields.keys" item="key">
-                    #{dbfFields[key]}
+                    #{dbfFields.${key}},
                 </foreach>
             </trim>
             )
