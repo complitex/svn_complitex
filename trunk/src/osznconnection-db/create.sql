@@ -746,7 +746,7 @@ CREATE TABLE `request_payment` (
     `street_id` bigint(20) NULL,
     `building_id` bigint(20) NULL,
     `apartment_id` bigint(20) NULL,
-    `status` varchar(20) NOT NULL default 'ADDRESS_UNRESOLVED',
+    `status` varchar(50) NOT NULL default 'ADDRESS_UNRESOLVED',
 
     `OWN_NUM` varchar (15) NOT NULL COMMENT 'Номер дела',
     `REE_NUM` int(2) COMMENT 'Номер реестра',

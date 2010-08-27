@@ -28,7 +28,11 @@ public class BindingRequestBean extends AbstractBean {
     @EJB
     private RequestPaymentBean requestPaymentBean;
 
-    public boolean resolveAddress(RequestPayment requestPayment) {
+    public boolean resolveAddress(RequestPayment requestPayment, boolean modified) {
+        if (requestPayment.getStatus() != null && requestPayment.getStatus() != Status.ADDRESS_UNRESOLVED) {
+            return true;
+        }
+
         AddressResolver.InternalAddress address = addressResolver.resolveAddress((String) requestPayment.getField(RequestPaymentDBF.N_NAME),
                 (String) requestPayment.getField(RequestPaymentDBF.VUL_NAME),
                 (String) requestPayment.getField(RequestPaymentDBF.BLD_NUM), (String) requestPayment.getField(RequestPaymentDBF.FLAT),
@@ -37,15 +41,25 @@ public class BindingRequestBean extends AbstractBean {
         requestPayment.setStreetId(address.getStreet());
         requestPayment.setBuildingId(address.getBuilding());
         requestPayment.setApartmentId(address.getApartment());
+        modified = true;
+        if (address.isCorrect()) {
+            requestPayment.setStatus(Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY);
+        }
         return address.isCorrect();
     }
 
-    public boolean resolveLocalAccountNumber(RequestPayment requestPayment) {
+    public boolean resolveLocalAccountNumber(RequestPayment requestPayment, boolean modified) {
+        if (requestPayment.getStatus() == Status.RESOLVED) {
+            return true;
+        }
+
         String accountNumber = personAccountBean.findLocalAccountNumber((String) requestPayment.getField(RequestPaymentDBF.F_NAM),
                 (String) requestPayment.getField(RequestPaymentDBF.M_NAM), (String) requestPayment.getField(RequestPaymentDBF.SUR_NAM),
                 requestPayment.getCityId(), requestPayment.getStreetId(), requestPayment.getBuildingId(), requestPayment.getApartmentId());
         if (!Strings.isEmpty(accountNumber)) {
             requestPayment.setAccountNumber(accountNumber);
+            requestPayment.setStatus(Status.RESOLVED);
+            modified = true;
             return true;
         } else {
             return false;
@@ -53,15 +67,18 @@ public class BindingRequestBean extends AbstractBean {
     }
 
     public void bind(RequestPayment requestPayment) {
-        if (resolveAddress(requestPayment)) {
-            requestPayment.setStatus(Status.RESOLVED);
-            if (resolveLocalAccountNumber(requestPayment)) {
+        boolean modified = false;
+        if (resolveAddress(requestPayment, modified)) {
+            if (resolveLocalAccountNumber(requestPayment, modified)) {
                 //binding successful
             } else {
                 resolveRemoteAccountNumber(requestPayment);
             }
         }
-        requestPaymentBean.update(requestPayment);
+
+        if (modified) {
+            requestPaymentBean.update(requestPayment);
+        }
     }
 
     public void resolveRemoteAccountNumber(RequestPayment requestPayment) {
