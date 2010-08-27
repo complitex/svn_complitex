@@ -127,9 +127,11 @@ insert into `request_file`(id, organization_object_id, `name`, `date`) values (1
 
 -- Request payments
 insert into request_payment(own_num_sr, f_nam, m_nam, sur_nam, n_name, vul_name, bld_num, flat, city_id, street_id, building_id, apartment_id, request_file_id)
-values (1,'Иван', 'Иванович', 'Иванов', 'Новосибирск', 'ул. Терешковой', 'д. 10', 'кв. 10', 1,null,null,null,1);
+values
+(1,'Иван', 'Иванович', 'Иванов', 'Новосибирск', 'ул. Терешковой', 'д. 10', 'кв. 10', 1,null,null,null,1),
+(2,'Сидор', 'Сидорович', 'Сидоров', 'Новосибирск', 'ул. Терешковой', 'д. 11', 'кв. 11', 1,1,null,null,1);
 
 -- Requset benefit
 insert into request_benefit(own_num_sr, f_nam, m_nam, sur_nam, request_file_id)
-values (1,'Иван1', 'Иванович1', 'Иванов1',2), (1,'Иван2', 'Иванович2', 'Иванов2',2);
+values (1,'Иван1', 'Иванович1', 'Иванов1',2), (1,'Иван2', 'Иванович2', 'Иванов2',2), (3,'Петр','Петрович','Петров',2);
 

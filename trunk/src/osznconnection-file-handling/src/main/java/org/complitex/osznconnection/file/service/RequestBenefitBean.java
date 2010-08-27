@@ -53,6 +53,10 @@ public class RequestBenefitBean extends AbstractBean {
         return (List<RequestBenefit>) sqlSession.selectList(MAPPING_NAMESPACE + ".find", example);
     }
 
+    public int countByFile(long fileId) {
+        return (Integer) sqlSession.selectOne(MAPPING_NAMESPACE + ".countByFile", fileId);
+    }
+
      private List<RequestBenefit> readRequestBenefit(DBF dbf) throws xBaseJException, IOException {
         Map<RequestBenefitDBF, Field> fields = new HashMap<RequestBenefitDBF, Field>();
 

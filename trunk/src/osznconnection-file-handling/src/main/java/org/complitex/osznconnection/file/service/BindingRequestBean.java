@@ -31,6 +31,9 @@ public class BindingRequestBean extends AbstractBean {
     @EJB
     private RequestPaymentBean requestPaymentBean;
 
+    @EJB
+    private RequestBenefitBean requestBenefitBean;
+
     private boolean resolveAddress(RequestPayment requestPayment, boolean modified) {
         if (requestPayment.getStatus() != Status.ADDRESS_UNRESOLVED) {
             return true;
@@ -107,6 +110,6 @@ public class BindingRequestBean extends AbstractBean {
     }
 
     public boolean bindRequestBenefitFile(long requestBenefitFileId) {
-        return true;
+        return requestBenefitBean.countByFile(requestBenefitFileId) == 0;
     }
 }
