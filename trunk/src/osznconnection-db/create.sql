@@ -35,10 +35,12 @@ CREATE TABLE `locales` (
 DROP TABLE IF EXISTS `string_culture`;
 
 CREATE TABLE `string_culture` (
+  `pk_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `id` bigint(20) NOT NULL,
   `locale` varchar(2) NOT NULL,
   `value` varchar(1000) default NULL,
-  PRIMARY KEY  (`id`,`locale`),
+  PRIMARY KEY (`pk_id`),
+  UNIQUE KEY  (`id`,`locale`),
   KEY `FK_string_culture_locale` (`locale`),
   CONSTRAINT `FK_string_culture_locale` FOREIGN KEY (`locale`) REFERENCES `locales` (`locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -146,10 +148,12 @@ CREATE TABLE `apartment_attribute` (
 DROP TABLE IF EXISTS `apartment_string_culture`;
 
 CREATE TABLE `apartment_string_culture` (
+  `pk_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `id` bigint(20) NOT NULL,
   `locale` varchar(2) NOT NULL,
   `value` varchar(1000) default NULL,
-  PRIMARY KEY  (`id`,`locale`),
+  PRIMARY KEY (`pk_id`),
+  UNIQUE KEY  (`id`,`locale`),
   KEY `FK_apartment_string_culture_locale` (`locale`),
   CONSTRAINT `FK_apartment_string_culture_locale` FOREIGN KEY (`locale`) REFERENCES `locales` (`locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -199,10 +203,12 @@ CREATE TABLE `room_attribute` (
 DROP TABLE IF EXISTS `room_string_culture`;
 
 CREATE TABLE `room_string_culture` (
+  `pk_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `id` bigint(20) NOT NULL,
   `locale` varchar(2) NOT NULL,
   `value` varchar(1000) default NULL,
-  PRIMARY KEY  (`id`,`locale`),
+  PRIMARY KEY (`pk_id`),
+  UNIQUE KEY  (`id`,`locale`),
   KEY `FK_room_string_culture_locale` (`locale`),
   CONSTRAINT `FK_room_string_culture_locale` FOREIGN KEY (`locale`) REFERENCES `locales` (`locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -252,10 +258,12 @@ CREATE TABLE `street_attribute` (
 DROP TABLE IF EXISTS `street_string_culture`;
 
 CREATE TABLE `street_string_culture` (
+  `pk_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `id` bigint(20) NOT NULL,
   `locale` varchar(2) NOT NULL,
   `value` varchar(1000) default NULL,
-  PRIMARY KEY  (`id`,`locale`),
+  PRIMARY KEY (`pk_id`),
+  UNIQUE KEY  (`id`,`locale`),
   KEY `FK_street_string_culture_locale` (`locale`),
   CONSTRAINT `FK_street_string_culture_locale` FOREIGN KEY (`locale`) REFERENCES `locales` (`locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -305,10 +313,12 @@ CREATE TABLE `city_attribute` (
 DROP TABLE IF EXISTS `city_string_culture`;
 
 CREATE TABLE `city_string_culture` (
+  `pk_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `id` bigint(20) NOT NULL,
   `locale` varchar(2) NOT NULL,
   `value` varchar(1000) default NULL,
-  PRIMARY KEY  (`id`,`locale`),
+  PRIMARY KEY (`pk_id`),
+  UNIQUE KEY  (`id`,`locale`),
   KEY `FK_city_string_culture_locale` (`locale`),
   CONSTRAINT `FK_city_string_culture_locale` FOREIGN KEY (`locale`) REFERENCES `locales` (`locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -358,10 +368,12 @@ CREATE TABLE `building_attribute` (
 DROP TABLE IF EXISTS `building_string_culture`;
 
 CREATE TABLE `building_string_culture` (
+  `pk_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `id` bigint(20) NOT NULL,
   `locale` varchar(2) NOT NULL,
   `value` varchar(1000) default NULL,
-  PRIMARY KEY  (`id`,`locale`),
+  PRIMARY KEY (`pk_id`),
+  UNIQUE KEY  (`id`,`locale`),
   KEY `FK_building_string_culture_locale` (`locale`),
   CONSTRAINT `FK_building_string_culture_locale` FOREIGN KEY (`locale`) REFERENCES `locales` (`locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -411,10 +423,12 @@ CREATE TABLE `district_attribute` (
 DROP TABLE IF EXISTS `district_string_culture`;
 
 CREATE TABLE `district_string_culture` (
+  `pk_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `id` bigint(20) NOT NULL,
   `locale` varchar(2) NOT NULL,
   `value` varchar(1000) default NULL,
-  PRIMARY KEY  (`id`,`locale`),
+  PRIMARY KEY (`pk_id`),
+  UNIQUE KEY  (`id`,`locale`),
   KEY `FK_district_string_culture_locale` (`locale`),
   CONSTRAINT `FK_district_string_culture_locale` FOREIGN KEY (`locale`) REFERENCES `locales` (`locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -464,10 +478,12 @@ CREATE TABLE `region_attribute` (
 DROP TABLE IF EXISTS `region_string_culture`;
 
 CREATE TABLE `region_string_culture` (
+  `pk_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `id` bigint(20) NOT NULL,
   `locale` varchar(2) NOT NULL,
   `value` varchar(1000) default NULL,
-  PRIMARY KEY  (`id`,`locale`),
+  PRIMARY KEY (`pk_id`),
+  UNIQUE KEY  (`id`,`locale`),
   KEY `FK_region_string_culture_locale` (`locale`),
   CONSTRAINT `FK_region_string_culture_locale` FOREIGN KEY (`locale`) REFERENCES `locales` (`locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -517,11 +533,12 @@ CREATE TABLE `country_attribute` (
 DROP TABLE IF EXISTS `country_string_culture`;
 
 CREATE TABLE `country_string_culture` (
+  `pk_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `id` bigint(20) NOT NULL,
   `locale` varchar(2) NOT NULL,
   `value` varchar(1000) default NULL,
-  PRIMARY KEY  (`id`,`locale`),
-  KEY `FK_country_string_culture_locale` (`locale`),
+  PRIMARY KEY (`pk_id`),
+  UNIQUE KEY  (`id`,`locale`),
   CONSTRAINT `FK_country_string_culture_locale` FOREIGN KEY (`locale`) REFERENCES `locales` (`locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -570,10 +587,12 @@ CREATE TABLE `organization_attribute` (
 DROP TABLE IF EXISTS `organization_string_culture`;
 
 CREATE TABLE `organization_string_culture` (
+  `pk_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `id` bigint(20) NOT NULL,
   `locale` varchar(2) NOT NULL,
   `value` varchar(1000) default NULL,
-  PRIMARY KEY  (`id`,`locale`),
+  PRIMARY KEY (`pk_id`),
+  UNIQUE KEY  (`id`,`locale`),
   KEY `FK_organization_string_culture_locale` (`locale`),
   CONSTRAINT `FK_organization_string_culture_locale` FOREIGN KEY (`locale`) REFERENCES `locales` (`locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -623,10 +642,12 @@ CREATE TABLE `user_info_attribute` (
 DROP TABLE IF EXISTS `user_info_string_culture`;
 
 CREATE TABLE `user_info_string_culture` (
+  `pk_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `id` bigint(20) NOT NULL,
   `locale` varchar(2) NOT NULL,
   `value` varchar(1000) default NULL,
-  PRIMARY KEY  (`id`,`locale`),
+  PRIMARY KEY (`pk_id`),
+  UNIQUE KEY  (`id`,`locale`),
   KEY `FK_user_info_string_culture_locale` (`locale`),
   CONSTRAINT `FK_user_info_string_culture_locale` FOREIGN KEY (`locale`) REFERENCES `locales` (`locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
