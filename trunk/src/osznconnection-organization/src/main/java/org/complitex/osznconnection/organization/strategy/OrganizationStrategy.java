@@ -199,7 +199,7 @@ public class OrganizationStrategy extends Strategy {
 
     public List<DomainObject> getAllOSZNs() {
         DomainObjectExample example = new DomainObjectExample();
-        example.setEntityTypeId(900L);
+        example.setEntityTypeId(OSZN);
         example.setOrderByAttribureTypeId(OrganizationStrategy.NAME);
         configureExample(example, ImmutableMap.<String, Long>of(), null);
         return find(example);

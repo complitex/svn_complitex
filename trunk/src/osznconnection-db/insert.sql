@@ -83,7 +83,7 @@ insert into `string_culture`(`id`, `locale`, `value`) values (900, 'ru', 'Орг
 insert into `entity`(`id`, `entity_table`, `entity_name_id`, `strategy_factory`) values (900, 'organization', 900, '');
 insert into `string_culture`(`id`, `locale`, `value`) values (901, 'ru', 'Наименование'), (901, 'en', 'Name');
 insert into `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) values (900, 900, 1, 901, 1);
-insert into `string_culture`(`id`, `locale`, `value`) values (902, 'ru', 'Короткий код района, в котором расположена организация'), (902, 'en', 'Short name of organization''s district');
+insert into `string_culture`(`id`, `locale`, `value`) values (902, 'ru', 'Код района'), (902, 'en', 'District''s code');
 insert into `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) values (901, 900, 0, 902, 1);
 insert into `string_culture`(`id`, `locale`, `value`) values (903, 'ru', 'Уникальный код организации'), (903, 'en', 'Unique organization code');
 insert into `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) values (902, 900, 1, 903, 1);
