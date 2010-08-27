@@ -85,7 +85,7 @@ public class BindingRequestBean extends AbstractBean {
                 //binding successful
                 bindingSuccess = true;
             } else {
-                bindingSuccess = resolveRemoteAccountNumber(requestPayment);
+                bindingSuccess = resolveRemoteAccountNumber(requestPayment, modifyStatus);
             }
         }
 
@@ -96,7 +96,7 @@ public class BindingRequestBean extends AbstractBean {
         return bindingSuccess;
     }
 
-    private boolean resolveRemoteAccountNumber(RequestPayment requestPayment) {
+    private boolean resolveRemoteAccountNumber(RequestPayment requestPayment, ModifyStatus modifyStatus) {
         return false;
     }
 
