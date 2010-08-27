@@ -32,7 +32,7 @@ public class BindingRequestBean extends AbstractBean {
     private RequestPaymentBean requestPaymentBean;
 
     private boolean resolveAddress(RequestPayment requestPayment, boolean modified) {
-        if (requestPayment.getStatus() != null && requestPayment.getStatus() != Status.ADDRESS_UNRESOLVED) {
+        if (requestPayment.getStatus() != Status.ADDRESS_UNRESOLVED) {
             return true;
         }
 
@@ -69,32 +69,44 @@ public class BindingRequestBean extends AbstractBean {
         }
     }
 
-    private void bind(RequestPayment requestPayment) {
+    private boolean bind(RequestPayment requestPayment) {
+        boolean bindingSuccess = false;
         boolean modified = false;
         if (resolveAddress(requestPayment, modified)) {
             if (resolveLocalAccountNumber(requestPayment, modified)) {
                 //binding successful
+                bindingSuccess = true;
             } else {
-                resolveRemoteAccountNumber(requestPayment);
+                bindingSuccess = resolveRemoteAccountNumber(requestPayment);
             }
         }
 
         if (modified) {
             requestPaymentBean.update(requestPayment);
         }
+
+        return bindingSuccess;
     }
 
-    private void resolveRemoteAccountNumber(RequestPayment requestPayment) {
+    private boolean resolveRemoteAccountNumber(RequestPayment requestPayment) {
+        return false;
     }
 
-    public void bindRequestPaymentFile(long requestPaymentFileId) {
+    public boolean bindRequestPaymentFile(long requestPaymentFileId) {
+        boolean bindingSuccess = true;
         int count = requestPaymentBean.countByFile(requestPaymentFileId);
         while (count > 0) {
             List<RequestPayment> requestPayments = requestPaymentBean.findByFile(requestPaymentFileId, 0, BATCH_SIZE);
             for (RequestPayment requestPayment : requestPayments) {
-                bind(requestPayment);
+                bindingSuccess &= bind(requestPayment);
             }
             count = requestPaymentBean.countByFile(requestPaymentFileId);
         }
+
+        return bindingSuccess;
+    }
+
+    public boolean bindRequestBenefitFile(long requestBenefitFileId) {
+        return true;
     }
 }
