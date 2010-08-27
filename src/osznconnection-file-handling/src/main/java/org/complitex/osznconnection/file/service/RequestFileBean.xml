@@ -3,9 +3,11 @@
 <mapper namespace="org.complitex.osznconnection.file.service.RequestFileBean">
     <resultMap id="requestFileResultMap" type="org.complitex.osznconnection.file.entity.RequestFile">
         <id column="id" property="id"/>
-        <result column="organization_object_id" property="organizationObjectId"/>
+        <result column="loaded" property="loaded"/>
         <result column="name" property="name"/>
+        <result column="organization_object_id" property="organizationObjectId"/>
         <result column="date" property="date"/>
+        <result column="dbf_record_count" property="dbfRecordCount"/>
         <result column="length" property="length"/>
         <result column="checkSum" property="checkSum"/>
         <result column="status" property="status"/>
@@ -18,14 +20,15 @@
     <insert id="insertRequestFile" parameterType="org.complitex.osznconnection.file.entity.RequestFile"
             keyProperty="id" useGeneratedKeys="true">
         insert into
-            `request_file` (`organization_object_id`, `name`, `date`, `length`, `check_sum`, `status`)
+            `request_file` (`organization_object_id`, `name`, `date`, `dbf_record_count`, `length`, `check_sum`, `status`)
         values
-            (#{organizationObjectId}, #{name}, #{date}, #{length}, #{checkSum}, #{status});
+            (#{organizationObjectId}, #{name}, #{date}, #{dbfRecordCount}, #{length}, #{checkSum}, #{status});
     </insert>
 
     <update id="updateRequestFile" parameterType="org.complitex.osznconnection.file.entity.RequestFile">
         update `request_file`
         <set>
+            <if test="dbfRecordCount != null">`dbf_record_count` = #{dbfRecordCount},</if>
             <if test="date != null">`date` = #{date},</if>
             <if test="length != null">`length` = #{length},</if>
             <if test="checkSum != null">`check_sum` = #{checkSum},</if>
@@ -34,7 +37,30 @@
         where `id` = #{id}
     </update>
 
-    <select id="findById" parameterType="long" resultMap="org.complitex.osznconnection.file.service.RequestFileBean.requestFileResultMap">
+    <select id="findById" parameterType="long" resultMap="requestFileResultMap">
         SELECT * FROM `request_file` WHERE `id` = #{id}
+    </select>
+
+    <sql id="requestFilesFilterWhere">
+        <where>
+            <if test="loaded != null">YEAR(`loaded`) = YEAR(#{loaded}) and DAY(`loaded`) = DAY(#{loaded})</if>
+            <if test="name != null">and `name` like CONCAT('%',#{name},'%')</if>
+            <if test="organizationObjectId != null">and `organization_object_id` = #{organizationObjectId}</if>
+            <if test="year != null">YEAR(`date`) = #{year}</if>
+            <if test="month != null">MONTH(`date`) = #{month}</if>
+            <if test="dbfRecordCount != null">`dbf_record_count` like CONCAT('%',#{dbfRecordCount},'%')</if>
+            <if test="loadedRecordCount != null">
+                <!--todo-->
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectRequestFiles" parameterType="org.complitex.osznconnection.file.service.RequestFileFilter"
+            resultMap="requestFileResultMap">
+        select
+            *
+        from
+            `request_file`
+        <include refid="requestFilesFilterWhere"/>        
     </select>
 </mapper>

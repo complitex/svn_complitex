@@ -139,4 +139,13 @@ public class RequestFileBean extends AbstractBean {
     public RequestFile findById(long fileId) {
         return (RequestFile) sqlSession.selectOne(MAPPING_NAMESPACE + ".findById", fileId);
     }
+
+    @SuppressWarnings({"unchecked"})
+    public List<RequestFile> getRequestFiles(RequestFileFilter filter){
+        return sqlSession.selectList(MAPPING_NAMESPACE + ".selectRequestFiles", filter);        
+    }
+
+    public int size(RequestFileFilter filter){
+        return (Integer) sqlSession.selectOne(MAPPING_NAMESPACE + ".selectRequestFilesCount", filter);
+    }
 }

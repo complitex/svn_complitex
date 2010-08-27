@@ -727,9 +727,11 @@ DROP TABLE IF EXISTS `request_file`;
 
 CREATE TABLE `request_file` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT,
-    `organization_object_id` bigint(20) NOT NULL,
+    `loaded` datetime NOT NULL,
     `name` varchar(20) NOT NULL,
-    `date` datetime NOT NULL,
+    `organization_object_id` bigint(20) NOT NULL,
+    `date` date NOT NULL,
+    `dbf_record_count` bigint(20) NOT NULL, 
     `length` bigint(20),
     `check_sum` varchar(32),      
     `status` varchar(20),
