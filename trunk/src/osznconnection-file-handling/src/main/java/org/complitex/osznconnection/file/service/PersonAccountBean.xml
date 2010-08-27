@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.complitex.osznconnection.file.service.PersonAccountBean">
+
+    <select id="find" parameterType="org.complitex.osznconnection.file.entity.PersonAccount" resultType="string">
+        SELECT pa.`account_number`
+        FROM `person_account` pa
+        WHERE
+            pa.`first_name` = #{firstName} AND pa.`middle_name` = #{middleName} AND pa.`last_name` = #{lastName}
+            AND pa.`city_id` = #{cityId} AND pa.`street_id` = #{streetId} AND pa.`building_id` = #{buildingId} AND pa.`apartment_id` = #{apartmentId}
+        LIMIT 0,1
+    </select>
+
+    <select id="count" parameterType="org.complitex.osznconnection.file.entity.PersonAccount" resultType="long">
+        SELECT COUNT(*)
+        FROM `person_account` pa
+        WHERE
+            pa.`first_name` = #{firstName} AND pa.`middle_name` = #{middleName} AND pa.`last_name` = #{lastName}
+            AND pa.`city_id` = #{cityId} AND pa.`street_id` = #{streetId} AND pa.`building_id` = #{buildingId} AND pa.`apartment_id` = #{apartmentId}
+    </select>
+
+</mapper>
