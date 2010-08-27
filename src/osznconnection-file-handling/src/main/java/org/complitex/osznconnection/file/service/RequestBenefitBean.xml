@@ -120,7 +120,7 @@
         JOIN `request_file` rf ON r.`request_file_id` = rf.`id`
         LEFT JOIN `request_payment` p ON r.`OWN_NUM_SR` = p.`OWN_NUM_SR`
         LEFT JOIN `request_file` pf ON p.`request_file_id` = pf.`id`
-	WHERE rf.`organization_object_id` = pf.`organization_object_id` AND EXTRACT(YEAR_MONTH FROM rf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`)
+	WHERE (pf.`organization_object_id` IS NULL OR rf.`organization_object_id` = pf.`organization_object_id`) AND (pf.`date` IS NULL OR EXTRACT(YEAR_MONTH FROM rf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`))
 	AND r.`request_file_id` = #{requestFileId}
         <include refid="org.complitex.osznconnection.file.service.RequestBenefitBean.filter"/>
     </select>
@@ -128,7 +128,7 @@
     <select id="find" resultMap="internalRequestBenefitResultMap"
             parameterType="org.complitex.osznconnection.file.web.pages.benefit.RequestBenefitExample">
         SELECT DISTINCT r.`id` id, r.`request_file_id` requestFileId, r.`F_NAM` fNam, r.`M_NAM` mNam, r.`SUR_NAM` surNam,
-        p.`status` as status,
+        IFNULL(p.`status`, 'ADDRESS_UNRESOLVED') as status,
         (SELECT sc.`value` FROM `city_string_culture` sc WHERE sc.`locale` = #{locale} AND
         sc.`id` = (SELECT a.`value_id` FROM `city_attribute` a WHERE a.`attribute_type_id` = 400 AND a.`status` = 'ACTIVE' AND a.`object_id` = p.`city_id`)) internalCity,
         (SELECT sc.`value` FROM `street_string_culture` sc WHERE sc.`locale` = #{locale} AND
@@ -149,7 +149,7 @@
         JOIN `request_file` rf ON r.`request_file_id` = rf.`id`
         LEFT JOIN `request_payment` p ON r.`OWN_NUM_SR` = p.`OWN_NUM_SR`
         LEFT JOIN `request_file` pf ON p.`request_file_id` = pf.`id`
-	WHERE rf.`organization_object_id` = pf.`organization_object_id` AND EXTRACT(YEAR_MONTH FROM rf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`)
+	WHERE (pf.`organization_object_id` IS NULL OR rf.`organization_object_id` = pf.`organization_object_id`) AND (pf.`date` IS NULL OR EXTRACT(YEAR_MONTH FROM rf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`))
 	AND r.`request_file_id` = #{requestFileId}
         <include refid="org.complitex.osznconnection.file.service.RequestBenefitBean.filter"/>
         <if test="orderByClause != null">
@@ -166,6 +166,15 @@
         <if test="size != 0">
             limit #{start},#{size}
         </if>
+    </select>
+
+    <select id="countByFile" resultType="int" parameterType="long">
+        SELECT COUNT(*) FROM `request_benefit` r
+        JOIN `request_file` rf ON r.`request_file_id` = rf.`id`
+        LEFT JOIN `request_payment` p ON r.`OWN_NUM_SR` = p.`OWN_NUM_SR`
+        LEFT JOIN `request_file` pf ON p.`request_file_id` = pf.`id`
+	WHERE (pf.`organization_object_id` IS NULL OR rf.`organization_object_id` = pf.`organization_object_id`) AND (pf.`date` IS NULL OR EXTRACT(YEAR_MONTH FROM rf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`))
+	AND r.`request_file_id` = #{requestFileId} AND (p.`status` IS NULL OR p.`status` != 'RESOLVED')
     </select>
 
 </mapper>
