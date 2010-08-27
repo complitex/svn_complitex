@@ -12,10 +12,6 @@ public class RequestPayment extends AbstractRequest{
     private Long streetId;
     private Long buildingId;
     private Long apartmentId;
-    private String internalCity;
-    private String internalStreet;
-    private String internalBuilding;
-    private String internalApartment;
     private Long organizationId;
 
     public Object getField(RequestPaymentDBF requestPaymentDBF){
@@ -64,38 +60,6 @@ public class RequestPayment extends AbstractRequest{
 
     public void setApartmentId(Long apartmentId) {
         this.apartmentId = apartmentId;
-    }
-
-    public String getInternalCity() {
-        return internalCity;
-    }
-
-    public void setInternalCity(String internalCity) {
-        this.internalCity = internalCity;
-    }
-
-    public String getInternalStreet() {
-        return internalStreet;
-    }
-
-    public void setInternalStreet(String internalStreet) {
-        this.internalStreet = internalStreet;
-    }
-
-    public String getInternalBuilding() {
-        return internalBuilding;
-    }
-
-    public void setInternalBuilding(String internalBuilding) {
-        this.internalBuilding = internalBuilding;
-    }
-
-    public String getInternalApartment() {
-        return internalApartment;
-    }
-
-    public void setInternalApartment(String internalApartment) {
-        this.internalApartment = internalApartment;
     }
 
     public Long getOrganizationId() {
