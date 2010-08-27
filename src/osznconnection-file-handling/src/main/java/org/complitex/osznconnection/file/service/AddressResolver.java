@@ -171,7 +171,7 @@ public class AddressResolver extends AbstractBean {
         requestPayment.setStreetId(streetId);
         requestPayment.setBuildingId(buildingId);
         requestPayment.setApartmentId(apartmentId);
-        requestPayment.setStatus(Status.RESOLVED);
+        requestPayment.setStatus(Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY);
         return requestPayment;
     }
 }
