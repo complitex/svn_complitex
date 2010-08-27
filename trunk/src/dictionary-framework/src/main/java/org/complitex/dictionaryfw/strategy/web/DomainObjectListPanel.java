@@ -112,7 +112,7 @@ public class DomainObjectListPanel extends Panel {
             searchComponent = new EmptyPanel("searchComponent");
             content.setVisible(true);
         } else {
-            SearchComponentState componentState = getSearchComponentState();
+            SearchComponentState componentState = getSearchComponentStateFromSession();
             searchComponent = new SearchComponent("searchComponent", componentState, searchFilters, getStrategy().getSearchCallback(), true);
             content.setVisible(false);
         }
@@ -399,7 +399,7 @@ public class DomainObjectListPanel extends Panel {
         return (DictionaryFwSession) getSession();
     }
 
-    protected SearchComponentState getSearchComponentState() {
+    protected SearchComponentState getSearchComponentStateFromSession() {
         SearchComponentSessionState searchComponentSessionState = getDictionaryFwSession().getSearchComponentSessionState();
         SearchComponentState componentState = searchComponentSessionState.get(entity);
         if (componentState == null) {

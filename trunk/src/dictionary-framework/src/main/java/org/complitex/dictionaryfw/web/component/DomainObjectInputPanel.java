@@ -46,8 +46,10 @@ import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
 import org.complitex.dictionaryfw.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionaryfw.strategy.web.CanEditUtil;
+import org.complitex.dictionaryfw.web.DictionaryFwSession;
 import org.complitex.dictionaryfw.web.component.search.ISearchCallback;
 import org.complitex.dictionaryfw.web.component.search.SearchComponent;
+import org.complitex.dictionaryfw.web.component.search.SearchComponentSessionState;
 import org.complitex.dictionaryfw.web.component.search.SearchComponentState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -338,7 +340,7 @@ public class DomainObjectInputPanel extends Panel {
         //parent search
         if (object.getId() == null) {
             if (!fromParent()) {
-                searchComponentState = new SearchComponentState();
+                searchComponentState = getSearchComponentStateFromSession();
             } else {
                 searchComponentState = getStrategy().getSearchComponentStateForParent(parentId, parentEntity, null);
             }
@@ -394,5 +396,19 @@ public class DomainObjectInputPanel extends Panel {
 
     public SearchComponentState getParentSearchComponentState() {
         return searchComponentState;
+    }
+
+    protected DictionaryFwSession getDictionaryFwSession() {
+        return (DictionaryFwSession) getSession();
+    }
+
+    protected SearchComponentState getSearchComponentStateFromSession() {
+        SearchComponentSessionState searchComponentSessionState = getDictionaryFwSession().getSearchComponentSessionState();
+        SearchComponentState componentState = searchComponentSessionState.get(entity);
+        if (componentState == null) {
+            componentState = new SearchComponentState();
+            searchComponentSessionState.put(entity, componentState);
+        }
+        return componentState;
     }
 }
