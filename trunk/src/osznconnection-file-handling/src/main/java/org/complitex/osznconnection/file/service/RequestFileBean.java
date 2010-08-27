@@ -1,15 +1,13 @@
 package org.complitex.osznconnection.file.service;
 
 import org.complitex.dictionaryfw.service.AbstractBean;
+import org.complitex.dictionaryfw.util.DateUtil;
 import org.complitex.osznconnection.file.entity.*;
+import org.complitex.osznconnection.file.service.exception.WrongFieldTypeException;
 import org.complitex.osznconnection.file.storage.RequestFileStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xBaseJ.DBF;
-import org.xBaseJ.fields.CharField;
-import org.xBaseJ.fields.DateField;
-import org.xBaseJ.fields.Field;
-import org.xBaseJ.fields.NumField;
 import org.xBaseJ.xBaseJException;
 
 import javax.ejb.EJB;
@@ -24,18 +22,19 @@ import java.util.*;
  *         Date: 25.08.2010 12:15:53
  */
 @Stateless(name = "RequestFileBean")
+@SuppressWarnings({"EjbProhibitedPackageUsageInspection"})
 public class RequestFileBean extends AbstractBean {
-    private static Logger log = LoggerFactory.getLogger(RequestFileBean.class);
+    private static final Logger log = LoggerFactory.getLogger(RequestFileBean.class);
 
     private static final String MAPPING_NAMESPACE = RequestFileBean.class.getName();
     public final static String REQUEST_PAYMENT_FILES_PREFIX = "A_";
     public final static String REQUEST_BENEFIT_FILES_PREFIX = "AF";
     public final static String REQUEST_FILES_POSTFIX = ".dbf";
 
-    @EJB(name = "RequestPaymentBean")
+    @EJB(beanName = "RequestPaymentBean")
     private RequestPaymentBean requestPaymentBean;
 
-    @EJB
+    @EJB(beanName = "RequestBenefitBean")
     private RequestBenefitBean requestBenefitBean;
 
     private List<File> getRequestFiles(final String filePrefix, final String districtDir,
@@ -73,42 +72,67 @@ public class RequestFileBean extends AbstractBean {
 
         int index = 0;
         for (int m = monthFrom; m <= monthTo; ++m, ++index) {
-            months[index] = (m < 10 ? "0" + m : "") + m;
+            months[index] = (m < 9 ? "0" + (m + 1) : "" + (m + 1));
         }
 
         return months;
     }
 
-    public void load(int monthFrom, int monthTo) {
+    private void loadRequestPayment(int monthFrom, int monthTo){
         List<File> requestPaymentFiles = getRequestPaymentFiles("LE", new String[]{"1760"}, getMonth(monthFrom, monthTo));
-        List<File> requestBenefitFiles = getRequestBenefitFiles("LE", new String[]{"1760"}, getMonth(monthFrom, monthTo));
 
-
-    }
-
-    private List<DBF> loadDBFs(List<File> files){
-        List<DBF> list = new ArrayList<DBF>();
-
-        for (File file : files){
+        for (File file : requestPaymentFiles){
             try {
-                list.add(new DBF(file.getAbsolutePath(), DBF.READ_ONLY));
+                DBF dbf = new DBF(file.getAbsolutePath(), DBF.READ_ONLY, "Cp866");
+
+                RequestFile requestFile = new RequestFile();
+                requestFile.setName(file.getName());
+                requestFile.setDate(DateUtil.getCurrentDate());
+                requestFile.setLength(file.length());
+                requestFile.setDbfRecordCount(dbf.getRecordCount());
+                requestFile.setOrganizationObjectId(1L); //todo
+
+                sqlSession.insert(MAPPING_NAMESPACE + ".insertRequestFile", requestFile);
+
+                requestPaymentBean.load(requestFile, dbf);
             } catch (xBaseJException e) {
-                e.printStackTrace();
+                log.error("Ошибка чтения DFB файла", e);
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Ошибка чтения DFB файла", e);
+            } catch (WrongFieldTypeException e) {
+                log.error("Неверные типы полей файла запроса начислений", e);
             }
         }
-
-        return list;
     }
-   
 
-    private void save(RequestFile requestFile) {
-        if (requestFile.getId() == null) {
-            sqlSession.insert(MAPPING_NAMESPACE + ".insertRequestFile", requestFile);
-        } else {
-            sqlSession.update(MAPPING_NAMESPACE + ".updateRequestFile", requestFile);
+    private void loadRequestBenefit(int monthFrom, int monthTo){
+        List<File> requestBenefitFiles = getRequestBenefitFiles("LE", new String[]{"1760"}, getMonth(monthFrom, monthTo));
+        for (File file : requestBenefitFiles){
+            try {
+                DBF dbf = new DBF(file.getAbsolutePath(), DBF.READ_ONLY);
+
+                RequestFile requestFile = new RequestFile();
+                requestFile.setName(file.getName());
+                requestFile.setDate(DateUtil.getCurrentDate());
+                requestFile.setLength(file.length());
+                requestFile.setDbfRecordCount(dbf.getRecordCount());
+
+                sqlSession.insert(MAPPING_NAMESPACE + ".insertRequestFile", requestFile);
+
+                requestBenefitBean.load(requestFile, dbf);
+            } catch (xBaseJException e) {
+                log.error("Ошибка чтения DFB файла", e);
+            } catch (IOException e) {
+                log.error("Ошибка чтения DFB файла", e);
+            } catch (WrongFieldTypeException e) {
+                log.error("Неверные типы полей файл запроса возмещения по льготам", e);
+            }
         }
+    }
+
+    public void load(int monthFrom, int monthTo) {
+        loadRequestPayment(monthFrom, monthTo);
+        loadRequestBenefit(monthFrom, monthTo);
     }
 
     public RequestFile findById(long fileId) {

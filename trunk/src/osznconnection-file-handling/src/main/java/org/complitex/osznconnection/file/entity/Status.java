@@ -9,6 +9,5 @@ package org.complitex.osznconnection.file.entity;
  * @author Artem
  */
 public enum Status {
-
-    RESOLVED, ADDRESS_UNRESOLVED, ACCOUNT_NUMBER_UNRESOLVED_LOCALLY;
+    RESOLVED, ADDRESS_UNRESOLVED, ACCOUNT_NUMBER_UNRESOLVED_LOCALLY
 }

@@ -4,8 +4,12 @@ import java.io.IOException;
 import java.util.*;
 import javax.ejb.Stateless;
 import org.complitex.dictionaryfw.service.AbstractBean;
+import org.complitex.dictionaryfw.util.StringUtil;
+import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.entity.RequestPayment;
 import org.complitex.osznconnection.file.entity.RequestPaymentDBF;
+import org.complitex.osznconnection.file.entity.Status;
+import org.complitex.osznconnection.file.service.exception.WrongFieldTypeException;
 import org.complitex.osznconnection.file.web.pages.payment.RequestPaymentExample;
 import org.xBaseJ.DBF;
 import org.xBaseJ.fields.CharField;
@@ -57,7 +61,7 @@ public class RequestPaymentBean extends AbstractBean {
         return (RequestPayment) sqlSession.selectOne(MAPPING_NAMESPACE + ".findById", id);
     }
 
-    public List<RequestPayment> findByFile(long fileId, int start, int size) {
+     public List<RequestPayment> findByFile(long fileId, int start, int size) {
         RequestPaymentExample example = new RequestPaymentExample();
         example.setStart(start);
         example.setSize(size);
@@ -69,49 +73,51 @@ public class RequestPaymentBean extends AbstractBean {
         return (Integer) sqlSession.selectOne(MAPPING_NAMESPACE + ".countByFile", fileId);
     }
 
-    public List<RequestPayment> readRequestPayment(DBF dbf) throws xBaseJException, IOException {
+    public void load(RequestFile requestFile, DBF dbf)
+            throws xBaseJException, IOException, WrongFieldTypeException {
         Map<RequestPaymentDBF, Field> fields = new HashMap<RequestPaymentDBF, Field>();
 
         for (RequestPaymentDBF requestPaymentDBF : RequestPaymentDBF.values()){
             Field field = dbf.getField(requestPaymentDBF.name());
 
-            //проверка соответствия типов полей
             Class fieldClass = field.getClass();
             if ((requestPaymentDBF.getType().equals(String.class) && !fieldClass.equals(CharField.class))
                     || (requestPaymentDBF.getType().equals(Integer.class) && !fieldClass.equals(NumField.class))
                     || (requestPaymentDBF.getType().equals(Double.class) && !fieldClass.equals(NumField.class))
                     || (requestPaymentDBF.getType().equals(Date.class) && !fieldClass.equals(DateField.class))){
-                //todo
-                throw new RuntimeException("TODO: wrong type");
+                throw new WrongFieldTypeException();
             }
 
             fields.put(requestPaymentDBF, field);
         }
 
-        List<RequestPayment> list = new ArrayList<RequestPayment>();
-
         for (int i=0; i< dbf.getRecordCount(); ++i){
             dbf.read();
 
             RequestPayment requestPayment = new RequestPayment();
+            requestPayment.setRequestFileId(requestFile.getId());
+            requestPayment.setOrganizationId(requestFile.getOrganizationObjectId());//todo
+            requestPayment.setStatus(Status.ADDRESS_UNRESOLVED);
 
             for (RequestPaymentDBF requestPaymentDBF : RequestPaymentDBF.values()){
                 Field field = fields.get(requestPaymentDBF);
 
+                String value = field.get().trim();
+
+                if (value.isEmpty()) continue;
+
                 if (requestPaymentDBF.getType().equals(String.class)){
-                    requestPayment.setField(requestPaymentDBF, field.get());
+                    requestPayment.setField(requestPaymentDBF, value);
                 }else if (requestPaymentDBF.getType().equals(Integer.class)){
-                    requestPayment.setField(requestPaymentDBF, Integer.parseInt(field.get()));
+                    requestPayment.setField(requestPaymentDBF, Integer.parseInt(value));
                 }else if (requestPaymentDBF.getType().equals(Double.class)){
-                    requestPayment.setField(requestPaymentDBF, Double.parseDouble(field.get()));
+                    requestPayment.setField(requestPaymentDBF, Double.parseDouble(value));
                 }else if (requestPaymentDBF.getType().equals(Date.class)){
                     requestPayment.setField(requestPaymentDBF, ((DateField)field).getCalendar().getTime());
                 }
-
-                list.add(requestPayment);
             }
-        }
 
-        return list;
+            sqlSession.insert(MAPPING_NAMESPACE + ".insertRequestPayment", requestPayment);
+        }
     }
 }

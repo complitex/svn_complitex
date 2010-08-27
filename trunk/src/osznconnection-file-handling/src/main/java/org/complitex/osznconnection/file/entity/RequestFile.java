@@ -1,6 +1,7 @@
 package org.complitex.osznconnection.file.entity;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -13,6 +14,7 @@ public class RequestFile {
     private Long organizationObjectId;
     private String name;
     private Date date;
+    private Integer dbfRecordCount;
     private Long length;
     private String checkSum;
     private String status;
@@ -47,6 +49,14 @@ public class RequestFile {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public Integer getDbfRecordCount() {
+        return dbfRecordCount;
+    }
+
+    public void setDbfRecordCount(Integer dbfRecordCount) {
+        this.dbfRecordCount = dbfRecordCount;
     }
 
     public Long getLength() {
