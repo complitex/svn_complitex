@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           targetNamespace="http://www.vetcontrol.org/web/template"
-           xmlns="http://www.vetcontrol.org/web/template">
+           targetNamespace="http://www.complitex.org/web/template"
+           xmlns="http://www.complitex.org/web/template">
 
     <xs:element name="template">
         <xs:complexType>
