@@ -51,6 +51,7 @@
         <mapper resource="org/complitex/osznconnection/file/service/AddressCorrectionBean.xml"/>
         <mapper resource="org/complitex/osznconnection/file/service/RequestFileBean.xml"/>
         <mapper resource="org/complitex/osznconnection/file/service/RequestBenefitBean.xml"/>
+        <mapper resource="org/complitex/osznconnection/file/service/PersonAccountBean.xml"/>
     </mappers>
 
 </configuration>
