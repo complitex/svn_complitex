@@ -57,6 +57,18 @@ public class RequestPaymentBean extends AbstractBean {
         return (RequestPayment) sqlSession.selectOne(MAPPING_NAMESPACE + ".findById", id);
     }
 
+    public List<RequestPayment> findByFile(long fileId, int start, int size) {
+        RequestPaymentExample example = new RequestPaymentExample();
+        example.setStart(start);
+        example.setSize(size);
+        example.setRequestFileId(fileId);
+        return sqlSession.selectList(MAPPING_NAMESPACE + ".findByFile", example);
+    }
+
+    public int countByFile(long fileId) {
+        return (Integer) sqlSession.selectOne(MAPPING_NAMESPACE + ".countByFile", fileId);
+    }
+
     public List<RequestPayment> readRequestPayment(DBF dbf) throws xBaseJException, IOException {
         Map<RequestPaymentDBF, Field> fields = new HashMap<RequestPaymentDBF, Field>();
 
