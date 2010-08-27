@@ -13,8 +13,8 @@ public class AbstractRequest implements Serializable {
     private Long requestFileId;
     private Long organizationId;
     private String accountNumber;
-
     private Status status;
+    
     protected Map<String, Object> dbfFields= new HashMap<String, Object>();
 
     private Long cityId;
