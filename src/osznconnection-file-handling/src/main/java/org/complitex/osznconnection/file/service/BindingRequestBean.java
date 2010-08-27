@@ -4,6 +4,7 @@
  */
 package org.complitex.osznconnection.file.service;
 
+import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import org.apache.wicket.util.string.Strings;
@@ -19,6 +20,8 @@ import org.complitex.osznconnection.file.entity.Status;
 @Stateless
 public class BindingRequestBean extends AbstractBean {
 
+    private static final int BATCH_SIZE = 100;
+
     @EJB
     private AddressResolver addressResolver;
 
@@ -28,7 +31,7 @@ public class BindingRequestBean extends AbstractBean {
     @EJB
     private RequestPaymentBean requestPaymentBean;
 
-    public boolean resolveAddress(RequestPayment requestPayment, boolean modified) {
+    private boolean resolveAddress(RequestPayment requestPayment, boolean modified) {
         if (requestPayment.getStatus() != null && requestPayment.getStatus() != Status.ADDRESS_UNRESOLVED) {
             return true;
         }
@@ -48,7 +51,7 @@ public class BindingRequestBean extends AbstractBean {
         return address.isCorrect();
     }
 
-    public boolean resolveLocalAccountNumber(RequestPayment requestPayment, boolean modified) {
+    private boolean resolveLocalAccountNumber(RequestPayment requestPayment, boolean modified) {
         if (requestPayment.getStatus() == Status.RESOLVED) {
             return true;
         }
@@ -66,7 +69,7 @@ public class BindingRequestBean extends AbstractBean {
         }
     }
 
-    public void bind(RequestPayment requestPayment) {
+    private void bind(RequestPayment requestPayment) {
         boolean modified = false;
         if (resolveAddress(requestPayment, modified)) {
             if (resolveLocalAccountNumber(requestPayment, modified)) {
@@ -81,6 +84,17 @@ public class BindingRequestBean extends AbstractBean {
         }
     }
 
-    public void resolveRemoteAccountNumber(RequestPayment requestPayment) {
+    private void resolveRemoteAccountNumber(RequestPayment requestPayment) {
+    }
+
+    public void bindRequestPaymentFile(long requestPaymentFileId) {
+        int count = requestPaymentBean.countByFile(requestPaymentFileId);
+        while (count > 0) {
+            List<RequestPayment> requestPayments = requestPaymentBean.findByFile(requestPaymentFileId, 0, BATCH_SIZE);
+            for (RequestPayment requestPayment : requestPayments) {
+                bind(requestPayment);
+            }
+            count = requestPaymentBean.countByFile(requestPaymentFileId);
+        }
     }
 }

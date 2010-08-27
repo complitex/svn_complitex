@@ -228,5 +228,19 @@
         `account_number` = #{accountNumber}, `status` = #{status} WHERE `id` = #{id}
     </update>
 
+    <select id="findByFile" parameterType="org.complitex.osznconnection.file.web.pages.payment.RequestPaymentExample" resultMap="internalRequestPaymentResultMap">
+        SELECT r.`id`, r.`status`, r.`request_file_id` requestFileId, r.`F_NAM` fNam, r.`M_NAM` mNam, r.`SUR_NAM` surNam,
+        r.`N_NAME` nName, r.`VUL_NAME` vulName, r.`BLD_NUM` bldNum, r.`FLAT` flat,
+        rf.`organization_object_id` organizationId
+        FROM `request_payment` r
+        JOIN `request_file` rf ON r.`request_file_id` = rf.`id`
+        WHERE r.`request_file_id` = #{requestFileId} AND r.`status` != 'RESOLVED'
+        LIMIT #{start},#{size}
+    </select>
+
+    <select id="countByFile" resultType="int" parameterType="long">
+        SELECT COUNT(*) FROM `request_payment` r WHERE r.`request_file_id` = #{requestFileId} AND r.`status` != 'RESOLVED'
+    </select>
+
 
 </mapper>
