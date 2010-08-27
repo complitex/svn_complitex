@@ -106,16 +106,18 @@
     <insert id="insertRequestPayment" parameterType="org.complitex.osznconnection.file.entity.RequestPayment"
             keyProperty="id" useGeneratedKeys="true">
         insert into `request_payment`
-            (`request_file_id`, `account_number`, `city_id`, `street_id`, `building_id`, `apartment_id`, `status`,
+            (
             <trim suffixOverrides=",">
+                `request_file_id`, `account_number`, `city_id`, `street_id`, `building_id`, `apartment_id`, `status`,
                 <foreach collection="dbfFields.keys" item="key">
                     `${key}`,
                 </foreach>
             </trim>
             )
         values
+            (
             <trim suffixOverrides=",">
-                (#{requestFileId}, #{accountNumber}, #{cityId}, #{streetId}, #{buildingId}, #{apartmentId}, #{status},
+                #{requestFileId}, #{accountNumber}, #{cityId}, #{streetId}, #{buildingId}, #{apartmentId}, #{status},
                 <foreach collection="dbfFields.keys" item="key">
                     #{dbfFields.${key}},
                 </foreach>

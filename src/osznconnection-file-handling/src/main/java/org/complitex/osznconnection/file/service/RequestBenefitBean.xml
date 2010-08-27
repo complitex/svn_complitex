@@ -51,18 +51,21 @@
         select * from `request_benefit`
     </select>
 
-    <insert id="insertRequestBenefits" parameterType="org.complitex.osznconnection.file.entity.RequestBenefit">
+    <insert id="insertRequestBenefit" parameterType="org.complitex.osznconnection.file.entity.RequestBenefit"
+            keyProperty="id" useGeneratedKeys="true">
         insert into `request_benefit`
-            (`request_file_id`, `account_number`, `status`,
+            (
             <trim suffixOverrides=",">
+                `request_file_id`, `account_number`, `status`,
                 <foreach collection="dbfFields.keys" item="key">
-                     `${key},
+                     `${key}`,
                 </foreach>
             </trim>
             )
         values
+            (
             <trim suffixOverrides=",">
-                (#{requestFileId}, #{accountNumber}, #{status},
+                #{requestFileId}, #{accountNumber}, #{status},
                 <foreach collection="dbfFields.keys" item="key">
                     #{dbfFields.${key}},
                 </foreach>
@@ -70,12 +73,12 @@
             )
     </insert>
 
-    <update id="updateRequestBenefits" parameterType="org.complitex.osznconnection.file.entity.RequestBenefit">
+    <update id="updateRequestBenefit" parameterType="org.complitex.osznconnection.file.entity.RequestBenefit">
         update `request_benefit`
         <set>
             `request_file_id` = #{requestFileId}, `account_number` = #{accountNumber},  `status` = #{status},
             <foreach collection="dbfFields.keys" item="key">
-                `${key}` = #{dbfFields[key]}
+                `${key}` = #{dbfFields[key]},
             </foreach>
         </set>
         where

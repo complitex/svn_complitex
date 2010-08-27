@@ -116,6 +116,7 @@ public class RequestFileBean extends AbstractBean {
                 requestFile.setDate(DateUtil.getCurrentDate());
                 requestFile.setLength(file.length());
                 requestFile.setDbfRecordCount(dbf.getRecordCount());
+                requestFile.setOrganizationObjectId(1L); //todo
 
                 sqlSession.insert(MAPPING_NAMESPACE + ".insertRequestFile", requestFile);
 
