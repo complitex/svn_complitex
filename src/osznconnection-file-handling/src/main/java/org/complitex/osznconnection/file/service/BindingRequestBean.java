@@ -34,7 +34,12 @@ public class BindingRequestBean extends AbstractBean {
     @EJB
     private RequestBenefitBean requestBenefitBean;
 
-    private boolean resolveAddress(RequestPayment requestPayment, boolean modified) {
+    private static class ModifyStatus {
+
+        boolean modified;
+    }
+
+    private boolean resolveAddress(RequestPayment requestPayment, ModifyStatus modifyStatus) {
         if (requestPayment.getStatus() != Status.ADDRESS_UNRESOLVED) {
             return true;
         }
@@ -47,14 +52,14 @@ public class BindingRequestBean extends AbstractBean {
         requestPayment.setStreetId(address.getStreet());
         requestPayment.setBuildingId(address.getBuilding());
         requestPayment.setApartmentId(address.getApartment());
-        modified = true;
+        modifyStatus.modified = true;
         if (address.isCorrect()) {
             requestPayment.setStatus(Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY);
         }
         return address.isCorrect();
     }
 
-    private boolean resolveLocalAccountNumber(RequestPayment requestPayment, boolean modified) {
+    private boolean resolveLocalAccountNumber(RequestPayment requestPayment, ModifyStatus modifyStatus) {
         if (requestPayment.getStatus() == Status.RESOLVED) {
             return true;
         }
@@ -65,7 +70,7 @@ public class BindingRequestBean extends AbstractBean {
         if (!Strings.isEmpty(accountNumber)) {
             requestPayment.setAccountNumber(accountNumber);
             requestPayment.setStatus(Status.RESOLVED);
-            modified = true;
+            modifyStatus.modified = true;
             return true;
         } else {
             return false;
@@ -74,9 +79,9 @@ public class BindingRequestBean extends AbstractBean {
 
     private boolean bind(RequestPayment requestPayment) {
         boolean bindingSuccess = false;
-        boolean modified = false;
-        if (resolveAddress(requestPayment, modified)) {
-            if (resolveLocalAccountNumber(requestPayment, modified)) {
+        ModifyStatus modifyStatus = new ModifyStatus();
+        if (resolveAddress(requestPayment, modifyStatus)) {
+            if (resolveLocalAccountNumber(requestPayment, modifyStatus)) {
                 //binding successful
                 bindingSuccess = true;
             } else {
@@ -84,7 +89,7 @@ public class BindingRequestBean extends AbstractBean {
             }
         }
 
-        if (modified) {
+        if (modifyStatus.modified) {
             requestPaymentBean.update(requestPayment);
         }
 
