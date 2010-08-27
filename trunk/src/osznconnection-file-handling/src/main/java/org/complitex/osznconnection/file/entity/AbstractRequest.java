@@ -11,8 +11,16 @@ import java.util.Map;
 public class AbstractRequest implements Serializable {
     private Long id;
     private Long requestFileId;
+    private Long organizationId;
+    private String accountNumber;
+
     private Status status;
     protected Map<String, Object> dbfFields= new HashMap<String, Object>();
+
+    private Long cityId;
+    private Long streetId;
+    private Long buildingId;
+    private Long apartmentId;
     private String internalCity;
     private String internalStreet;
     private String internalBuilding;
@@ -34,6 +42,22 @@ public class AbstractRequest implements Serializable {
         this.requestFileId = requestFileId;
     }
 
+    public Long getOrganizationId() {
+        return organizationId;
+    }
+
+    public void setOrganizationId(Long organizationId) {
+        this.organizationId = organizationId;
+    }
+
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
+    }
+
     public Status getStatus() {
         return status;
     }
@@ -48,6 +72,38 @@ public class AbstractRequest implements Serializable {
 
     public void setDbfFields(Map<String, Object> dbfFields) {
         this.dbfFields = dbfFields;
+    }
+
+    public Long getCityId() {
+        return cityId;
+    }
+
+    public void setCityId(Long cityId) {
+        this.cityId = cityId;
+    }
+
+    public Long getStreetId() {
+        return streetId;
+    }
+
+    public void setStreetId(Long streetId) {
+        this.streetId = streetId;
+    }
+
+    public Long getBuildingId() {
+        return buildingId;
+    }
+
+    public void setBuildingId(Long buildingId) {
+        this.buildingId = buildingId;
+    }
+
+    public Long getApartmentId() {
+        return apartmentId;
+    }
+
+    public void setApartmentId(Long apartmentId) {
+        this.apartmentId = apartmentId;
     }
 
     public String getInternalCity() {
