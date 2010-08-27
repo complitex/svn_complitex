@@ -194,7 +194,7 @@ public class OrganizationStrategy extends Strategy {
 
     @Override
     public IValidator getValidator() {
-        return new OrganizationValidator();
+        return new OrganizationValidator(this);
     }
 
     public List<DomainObject> getAllOSZNs() {
