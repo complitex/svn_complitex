@@ -5,17 +5,18 @@
 package org.complitex.osznconnection.file.service;
 
 import com.google.common.collect.Maps;
-import java.util.Map;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
 import org.complitex.dictionaryfw.entity.example.ComparisonType;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
-import org.complitex.osznconnection.file.entity.RequestPayment;
-import org.complitex.osznconnection.file.entity.RequestPaymentDBF;
+import org.complitex.osznconnection.file.entity.Payment;
+import org.complitex.osznconnection.file.entity.PaymentDBF;
 import org.complitex.osznconnection.file.entity.Status;
+
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
+import java.util.Map;
 
 /**
  *
@@ -62,10 +63,10 @@ public class AddressResolver extends AbstractBean {
         }
     }
 
-    @EJB
+    @EJB(beanName = "StrategyFactory")
     private StrategyFactory strategyFactory;
 
-    @EJB
+    @EJB(beanName = "AddressCorrectionBean")
     private AddressCorrectionBean addressCorrectionBean;
 
     public InternalAddress resolveAddress(String city, String street, String building, String apartment, long organizationId) {
@@ -149,29 +150,29 @@ public class AddressResolver extends AbstractBean {
         return new InternalAddress(cityId, apartmentId, buildingId, apartmentId);
     }
 
-    public RequestPayment correctAddress(RequestPayment requestPayment, long cityId, long streetId, long buildingId, long apartmentId) {
-        long organizationId = requestPayment.getOrganizationId();
+    public Payment correctAddress(Payment payment, long cityId, long streetId, long buildingId, long apartmentId) {
+        long organizationId = payment.getOrganizationId();
 
-        String city = (String) requestPayment.getField(RequestPaymentDBF.N_NAME);
-        String street = (String) requestPayment.getField(RequestPaymentDBF.VUL_NAME);
-        String building = (String) requestPayment.getField(RequestPaymentDBF.BLD_NUM);
-        String apartment = (String) requestPayment.getField(RequestPaymentDBF.FLAT);
+        String city = (String) payment.getField(PaymentDBF.N_NAME);
+        String street = (String) payment.getField(PaymentDBF.VUL_NAME);
+        String building = (String) payment.getField(PaymentDBF.BLD_NUM);
+        String apartment = (String) payment.getField(PaymentDBF.FLAT);
 
-        if (requestPayment.getCityId() == null) {
+        if (payment.getCityId() == null) {
             addressCorrectionBean.insertCity(city, street, building, apartment, cityId, organizationId);
-        } else if (requestPayment.getStreetId() == null) {
+        } else if (payment.getStreetId() == null) {
             addressCorrectionBean.insertStreet(city, street, building, apartment, streetId, organizationId);
-        } else if (requestPayment.getBuildingId() == null) {
+        } else if (payment.getBuildingId() == null) {
             addressCorrectionBean.insertBuilding(city, street, building, apartment, streetId, organizationId);
-        } else if (requestPayment.getApartmentId() == null) {
+        } else if (payment.getApartmentId() == null) {
             addressCorrectionBean.insertApartment(city, street, building, apartment, streetId, organizationId);
         }
 
-        requestPayment.setCityId(cityId);
-        requestPayment.setStreetId(streetId);
-        requestPayment.setBuildingId(buildingId);
-        requestPayment.setApartmentId(apartmentId);
-        requestPayment.setStatus(Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY);
-        return requestPayment;
+        payment.setCityId(cityId);
+        payment.setStreetId(streetId);
+        payment.setBuildingId(buildingId);
+        payment.setApartmentId(apartmentId);
+        payment.setStatus(Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY);
+        return payment;
     }
 }

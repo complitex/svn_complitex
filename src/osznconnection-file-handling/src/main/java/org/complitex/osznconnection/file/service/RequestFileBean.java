@@ -2,7 +2,7 @@ package org.complitex.osznconnection.file.service;
 
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.dictionaryfw.util.DateUtil;
-import org.complitex.osznconnection.file.entity.*;
+import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.service.exception.WrongFieldTypeException;
 import org.complitex.osznconnection.file.storage.RequestFileStorage;
 import org.slf4j.Logger;
@@ -15,7 +15,7 @@ import javax.ejb.Stateless;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -27,15 +27,15 @@ public class RequestFileBean extends AbstractBean {
     private static final Logger log = LoggerFactory.getLogger(RequestFileBean.class);
 
     private static final String MAPPING_NAMESPACE = RequestFileBean.class.getName();
-    public final static String REQUEST_PAYMENT_FILES_PREFIX = "A_";
-    public final static String REQUEST_BENEFIT_FILES_PREFIX = "AF";
+    public final static String PAYMENT_FILES_PREFIX = "A_";
+    public final static String BENEFIT_FILES_PREFIX = "AF";
     public final static String REQUEST_FILES_POSTFIX = ".dbf";
 
-    @EJB(beanName = "RequestPaymentBean")
-    private RequestPaymentBean requestPaymentBean;
+    @EJB(beanName = "PaymentBean")
+    private PaymentBean paymentBean;
 
-    @EJB(beanName = "RequestBenefitBean")
-    private RequestBenefitBean requestBenefitBean;
+    @EJB(beanName = "BenefitBean")
+    private BenefitBean benefitBean;
 
     private List<File> getRequestFiles(final String filePrefix, final String districtDir,
             final String[] osznCode, final String[] months) {
@@ -59,12 +59,12 @@ public class RequestFileBean extends AbstractBean {
         });
     }
 
-    public List<File> getRequestPaymentFiles(String districtDir, String[] osznCode, String[] months) {
-        return getRequestFiles(REQUEST_PAYMENT_FILES_PREFIX, districtDir, osznCode, months);
+    public List<File> getPaymentFiles(String districtDir, String[] osznCode, String[] months) {
+        return getRequestFiles(PAYMENT_FILES_PREFIX, districtDir, osznCode, months);
     }
 
-    public List<File> getRequestBenefitFiles(String districtDir, String[] osznCode, String[] months) {
-        return getRequestFiles(REQUEST_BENEFIT_FILES_PREFIX, districtDir, osznCode, months);
+    public List<File> getBenefitFiles(String districtDir, String[] osznCode, String[] months) {
+        return getRequestFiles(BENEFIT_FILES_PREFIX, districtDir, osznCode, months);
     }
 
     private String[] getMonth(int monthFrom, int monthTo) {
@@ -78,10 +78,10 @@ public class RequestFileBean extends AbstractBean {
         return months;
     }
 
-    private void loadRequestPayment(int monthFrom, int monthTo){
-        List<File> requestPaymentFiles = getRequestPaymentFiles("LE", new String[]{"1760"}, getMonth(monthFrom, monthTo));
+    private void loadPayment(int monthFrom, int monthTo){
+        List<File> paymentFiles = getPaymentFiles("LE", new String[]{"1760"}, getMonth(monthFrom, monthTo));
 
-        for (File file : requestPaymentFiles){
+        for (File file : paymentFiles){
             try {
                 DBF dbf = new DBF(file.getAbsolutePath(), DBF.READ_ONLY, "Cp866");
 
@@ -94,7 +94,7 @@ public class RequestFileBean extends AbstractBean {
 
                 sqlSession.insert(MAPPING_NAMESPACE + ".insertRequestFile", requestFile);
 
-                requestPaymentBean.load(requestFile, dbf);
+                paymentBean.load(requestFile, dbf);
             } catch (xBaseJException e) {
                 log.error("Ошибка чтения DFB файла", e);
             } catch (IOException e) {
@@ -105,9 +105,9 @@ public class RequestFileBean extends AbstractBean {
         }
     }
 
-    private void loadRequestBenefit(int monthFrom, int monthTo){
-        List<File> requestBenefitFiles = getRequestBenefitFiles("LE", new String[]{"1760"}, getMonth(monthFrom, monthTo));
-        for (File file : requestBenefitFiles){
+    private void loadBenefit(int monthFrom, int monthTo){
+        List<File> benefitFiles = getBenefitFiles("LE", new String[]{"1760"}, getMonth(monthFrom, monthTo));
+        for (File file : benefitFiles){
             try {
                 DBF dbf = new DBF(file.getAbsolutePath(), DBF.READ_ONLY);
 
@@ -120,7 +120,7 @@ public class RequestFileBean extends AbstractBean {
 
                 sqlSession.insert(MAPPING_NAMESPACE + ".insertRequestFile", requestFile);
 
-                requestBenefitBean.load(requestFile, dbf);
+                benefitBean.load(requestFile, dbf);
             } catch (xBaseJException e) {
                 log.error("Ошибка чтения DFB файла", e);
             } catch (IOException e) {
@@ -132,8 +132,8 @@ public class RequestFileBean extends AbstractBean {
     }
 
     public void load(int monthFrom, int monthTo) {
-        loadRequestPayment(monthFrom, monthTo);
-        loadRequestBenefit(monthFrom, monthTo);
+        loadPayment(monthFrom, monthTo);
+        loadBenefit(monthFrom, monthTo);
     }
 
     public RequestFile findById(long fileId) {

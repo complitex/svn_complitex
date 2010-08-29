@@ -2,7 +2,7 @@ package org.complitex.osznconnection.file.entity;
 
 import java.util.Date;
 
-public enum RequestPaymentDBF {
+public enum PaymentDBF {
     OWN_NUM(String.class),      //1	    OWN_NUM	    CHARACTER	15	0	Номер дела
     REE_NUM(Integer.class),     //2	    REE_NUM	    NUMERIC	    2	0	Номер реестра
     OPP(String.class),          //3	    OPP	        CHARACTER	8		Признаки наличия услуг
@@ -63,7 +63,7 @@ public enum RequestPaymentDBF {
 
     private Class type;
 
-    RequestPaymentDBF(Class type) {
+    PaymentDBF(Class type) {
         this.type = type;
     }
 

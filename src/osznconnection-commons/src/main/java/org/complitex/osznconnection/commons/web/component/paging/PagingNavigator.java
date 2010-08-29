@@ -89,6 +89,7 @@ public class PagingNavigator extends Panel {
         //navigation before
         IModel navigationBeforeModel = new AbstractReadOnlyModel<List<? extends Integer>>() {
 
+            @SuppressWarnings({"unchecked"})
             @Override
             public List<? extends Integer> getObject() {
                 List result = new ArrayList();

@@ -738,9 +738,9 @@ CREATE TABLE `request_file` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `request_payment`;
+DROP TABLE IF EXISTS `payment`;
 
-CREATE TABLE `request_payment` (
+CREATE TABLE `payment` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT,
     `request_file_id` bigint(20) NULL,
     `account_number` varchar(100) NULL,
@@ -808,21 +808,21 @@ CREATE TABLE `request_payment` (
 	`RESERV1` int(10) COMMENT 'Резерв',
 	`RESERV2` varchar(10) COMMENT 'Резер',
     PRIMARY KEY (`id`),
-    KEY `FK_request_payment_file` (`request_file_id`),
-    CONSTRAINT `FK_request_payment_file` FOREIGN KEY (`request_file_id`) REFERENCES `request_file` (`id`),
-    KEY `FK_request_payment_city` (`city_id`),
-    CONSTRAINT `FK_request_payment_city` FOREIGN KEY (`city_id`) REFERENCES `city` (`id`),
-    KEY `FK_request_payment_street` (`street_id`),
-    CONSTRAINT `FK_request_payment_street` FOREIGN KEY (`street_id`) REFERENCES `street` (`id`),
-    KEY `FK_request_payment_building` (`building_id`),
-    CONSTRAINT `FK_request_payment_building` FOREIGN KEY (`building_id`) REFERENCES `building` (`id`),
-    KEY `FK_request_payment_apartment` (`apartment_id`),
-    CONSTRAINT `FK_request_payment_apartment` FOREIGN KEY (`apartment_id`) REFERENCES `apartment` (`id`)
+    KEY `FK_payment_file` (`request_file_id`),
+    CONSTRAINT `FK_payment_file` FOREIGN KEY (`request_file_id`) REFERENCES `request_file` (`id`),
+    KEY `FK_payment_city` (`city_id`),
+    CONSTRAINT `FK_payment_city` FOREIGN KEY (`city_id`) REFERENCES `city` (`id`),
+    KEY `FK_payment_street` (`street_id`),
+    CONSTRAINT `FK_payment_street` FOREIGN KEY (`street_id`) REFERENCES `street` (`id`),
+    KEY `FK_payment_building` (`building_id`),
+    CONSTRAINT `FK_payment_building` FOREIGN KEY (`building_id`) REFERENCES `building` (`id`),
+    KEY `FK_payment_apartment` (`apartment_id`),
+    CONSTRAINT `FK_payment_apartment` FOREIGN KEY (`apartment_id`) REFERENCES `apartment` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `request_benefit`;
+DROP TABLE IF EXISTS `benefit`;
 
-CREATE TABLE `request_benefit` (
+CREATE TABLE `benefit` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT,
     `request_file_id` bigint(20) NULL,
     `account_number` varchar(100) NULL,

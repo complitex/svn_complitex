@@ -4,7 +4,7 @@ package org.complitex.osznconnection.file.entity;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 26.08.2010 16:17:13
  */
-public enum RequestBenefitDBF{
+public enum BenefitDBF {
     OWN_NUM(String.class),      //1     OWN_NUM	    CHARACTER 	15	0	Номер дела
     REE_NUM(Integer.class),	    //2     REE_NUM	    NUMERIC 	2	0	Номер реестра
     OWN_NUM_SR(String.class),   //3     OWN_NUM_SR	CHARACTER	15		Лицевой счет в обслуж. организации
@@ -29,7 +29,7 @@ public enum RequestBenefitDBF{
 
     private Class type;
 
-    RequestBenefitDBF(Class type) {
+    BenefitDBF(Class type) {
         this.type = type;
     }
 
