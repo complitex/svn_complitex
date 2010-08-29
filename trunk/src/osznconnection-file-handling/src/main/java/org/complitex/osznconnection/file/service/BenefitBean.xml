@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.complitex.osznconnection.file.service.RequestBenefitBean">
-    <resultMap id="requestBenefitResultMap" type="org.complitex.osznconnection.file.entity.RequestBenefit">
+<mapper namespace="org.complitex.osznconnection.file.service.BenefitBean">
+    <resultMap id="benefitResultMap" type="org.complitex.osznconnection.file.entity.Benefit">
         <id column="id" property="id"/>
         <result column="request_file_id" property="requestFileId"/>
         <result column="account_number" property="accountNumber"/>
@@ -31,7 +31,7 @@
         </association>
     </resultMap>
 
-    <resultMap id="internalRequestBenefitResultMap" type="org.complitex.osznconnection.file.entity.RequestBenefit">
+    <resultMap id="internalBenefitResultMap" type="org.complitex.osznconnection.file.entity.Benefit">
         <id column="id" property="id"/>
         <result column="requestFileId" property="requestFileId"/>
         <result column="status" property="status"/>
@@ -47,13 +47,13 @@
         </association>
     </resultMap>
 
-    <select id="selectRequestBenefits" resultMap="requestBenefitResultMap">
-        select * from `request_benefit`
+    <select id="selectBenefits" resultMap="benefitResultMap">
+        select * from `benefit`
     </select>
 
-    <insert id="insertRequestBenefit" parameterType="org.complitex.osznconnection.file.entity.RequestBenefit"
+    <insert id="insertBenefit" parameterType="org.complitex.osznconnection.file.entity.Benefit"
             keyProperty="id" useGeneratedKeys="true">
-        insert into `request_benefit`
+        insert into `benefit`
             (
             <trim suffixOverrides=",">
                 `request_file_id`, `account_number`, `status`,
@@ -73,8 +73,8 @@
             )
     </insert>
 
-    <update id="updateRequestBenefit" parameterType="org.complitex.osznconnection.file.entity.RequestBenefit">
-        update `request_benefit`
+    <update id="updateBenefit" parameterType="org.complitex.osznconnection.file.entity.Benefit">
+        update `benefit`
         <set>
             `request_file_id` = #{requestFileId}, `account_number` = #{accountNumber},  `status` = #{status},
             <foreach collection="dbfFields.keys" item="key">
@@ -118,18 +118,18 @@
             </if>
     </sql>
 
-    <select id="count" resultType="int" parameterType="org.complitex.osznconnection.file.web.pages.benefit.RequestBenefitExample">
-        SELECT COUNT(*) FROM `request_benefit` r
+    <select id="count" resultType="int" parameterType="org.complitex.osznconnection.file.web.pages.benefit.BenefitExample">
+        SELECT COUNT(*) FROM `benefit` r
         JOIN `request_file` rf ON r.`request_file_id` = rf.`id`
-        LEFT JOIN `request_payment` p ON r.`OWN_NUM_SR` = p.`OWN_NUM_SR`
+        LEFT JOIN `payment` p ON r.`OWN_NUM_SR` = p.`OWN_NUM_SR`
         LEFT JOIN `request_file` pf ON p.`request_file_id` = pf.`id`
 	WHERE (pf.`organization_object_id` IS NULL OR rf.`organization_object_id` = pf.`organization_object_id`) AND (pf.`date` IS NULL OR EXTRACT(YEAR_MONTH FROM rf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`))
 	AND r.`request_file_id` = #{requestFileId}
-        <include refid="org.complitex.osznconnection.file.service.RequestBenefitBean.filter"/>
+        <include refid="org.complitex.osznconnection.file.service.BenefitBean.filter"/>
     </select>
 
-    <select id="find" resultMap="internalRequestBenefitResultMap"
-            parameterType="org.complitex.osznconnection.file.web.pages.benefit.RequestBenefitExample">
+    <select id="find" resultMap="internalBenefitResultMap"
+            parameterType="org.complitex.osznconnection.file.web.pages.benefit.BenefitExample">
         SELECT DISTINCT r.`id` id, r.`request_file_id` requestFileId, r.`F_NAM` fNam, r.`M_NAM` mNam, r.`SUR_NAM` surNam,
         IFNULL(p.`status`, 'ADDRESS_UNRESOLVED') as status,
         (SELECT sc.`value` FROM `city_string_culture` sc WHERE sc.`locale` = #{locale} AND
@@ -148,13 +148,13 @@
         ) internalBuilding,
         (SELECT sc.`value` FROM `apartment_string_culture` sc WHERE sc.`locale` = #{locale} AND
         sc.`id` = (SELECT a.`value_id` FROM `apartment_attribute` a WHERE a.`attribute_type_id` = 100 AND a.`status` = 'ACTIVE' AND a.`object_id` = p.`apartment_id`)) internalApartment
-        FROM `request_benefit` r
+        FROM `benefit` r
         JOIN `request_file` rf ON r.`request_file_id` = rf.`id`
-        LEFT JOIN `request_payment` p ON r.`OWN_NUM_SR` = p.`OWN_NUM_SR`
+        LEFT JOIN `payment` p ON r.`OWN_NUM_SR` = p.`OWN_NUM_SR`
         LEFT JOIN `request_file` pf ON p.`request_file_id` = pf.`id`
 	WHERE (pf.`organization_object_id` IS NULL OR rf.`organization_object_id` = pf.`organization_object_id`) AND (pf.`date` IS NULL OR EXTRACT(YEAR_MONTH FROM rf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`))
 	AND r.`request_file_id` = #{requestFileId}
-        <include refid="org.complitex.osznconnection.file.service.RequestBenefitBean.filter"/>
+        <include refid="org.complitex.osznconnection.file.service.BenefitBean.filter"/>
         <if test="orderByClause != null">
             ORDER BY ${orderByClause}
             <choose>
@@ -172,9 +172,9 @@
     </select>
 
     <select id="countByFile" resultType="int" parameterType="long">
-        SELECT COUNT(*) FROM `request_benefit` r
+        SELECT COUNT(*) FROM `benefit` r
         JOIN `request_file` rf ON r.`request_file_id` = rf.`id`
-        LEFT JOIN `request_payment` p ON r.`OWN_NUM_SR` = p.`OWN_NUM_SR`
+        LEFT JOIN `payment` p ON r.`OWN_NUM_SR` = p.`OWN_NUM_SR`
         LEFT JOIN `request_file` pf ON p.`request_file_id` = pf.`id`
 	WHERE (pf.`organization_object_id` IS NULL OR rf.`organization_object_id` = pf.`organization_object_id`) AND (pf.`date` IS NULL OR EXTRACT(YEAR_MONTH FROM rf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`))
 	AND r.`request_file_id` = #{requestFileId} AND (p.`status` IS NULL OR p.`status` != 'RESOLVED')

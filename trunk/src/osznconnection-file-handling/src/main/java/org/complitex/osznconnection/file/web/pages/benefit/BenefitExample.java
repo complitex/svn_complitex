@@ -2,16 +2,17 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.complitex.osznconnection.file.web.pages.payment;
+package org.complitex.osznconnection.file.web.pages.benefit;
+
+import org.complitex.osznconnection.file.entity.Status;
 
 import java.io.Serializable;
-import org.complitex.osznconnection.file.entity.Status;
 
 /**
  *
  * @author Artem
  */
-public class RequestPaymentExample implements Serializable {
+public class BenefitExample implements Serializable {
     private String firstName;
     private String middleName;
     private String lastName;
@@ -35,6 +36,14 @@ public class RequestPaymentExample implements Serializable {
         this.apartment = apartment;
     }
 
+    public boolean isAsc() {
+        return asc;
+    }
+
+    public void setAsc(boolean asc) {
+        this.asc = asc;
+    }
+
     public String getBuilding() {
         return building;
     }
@@ -49,6 +58,14 @@ public class RequestPaymentExample implements Serializable {
 
     public void setCity(String city) {
         this.city = city;
+    }
+
+    public Long getRequestFileId() {
+        return requestFileId;
+    }
+
+    public void setRequestFileId(Long requestFileId) {
+        this.requestFileId = requestFileId;
     }
 
     public String getFirstName() {
@@ -67,12 +84,12 @@ public class RequestPaymentExample implements Serializable {
         this.lastName = lastName;
     }
 
-    public Status getStatus() {
-        return status;
+    public String getLocale() {
+        return locale;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
+    public void setLocale(String locale) {
+        this.locale = locale;
     }
 
     public String getMiddleName() {
@@ -83,12 +100,12 @@ public class RequestPaymentExample implements Serializable {
         this.middleName = middleName;
     }
 
-    public String getStreet() {
-        return street;
+    public String getOrderByClause() {
+        return orderByClause;
     }
 
-    public void setStreet(String street) {
-        this.street = street;
+    public void setOrderByClause(String orderByClause) {
+        this.orderByClause = orderByClause;
     }
 
     public int getSize() {
@@ -107,35 +124,19 @@ public class RequestPaymentExample implements Serializable {
         this.start = start;
     }
 
-    public boolean isAsc() {
-        return asc;
+    public Status getStatus() {
+        return status;
     }
 
-    public void setAsc(boolean asc) {
-        this.asc = asc;
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
-    public String getOrderByClause() {
-        return orderByClause;
+    public String getStreet() {
+        return street;
     }
 
-    public void setOrderByClause(String orderByClause) {
-        this.orderByClause = orderByClause;
-    }
-
-    public String getLocale() {
-        return locale;
-    }
-
-    public void setLocale(String locale) {
-        this.locale = locale;
-    }
-
-    public Long getRequestFileId() {
-        return requestFileId;
-    }
-
-    public void setRequestFileId(Long requestFileId) {
-        this.requestFileId = requestFileId;
+    public void setStreet(String street) {
+        this.street = street;
     }
 }

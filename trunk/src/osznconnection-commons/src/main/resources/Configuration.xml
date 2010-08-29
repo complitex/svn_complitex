@@ -47,10 +47,10 @@
         <mapper resource="org/complitex/dictionaryfw/service/LogBean.xml"/>
         <mapper resource="org/complitex/osznconnection/logging/service/LogListBean.xml"/>
 
-        <mapper resource="org/complitex/osznconnection/file/service/RequestPaymentBean.xml"/>
+        <mapper resource="org/complitex/osznconnection/file/service/PaymentBean.xml"/>
         <mapper resource="org/complitex/osznconnection/file/service/AddressCorrectionBean.xml"/>
         <mapper resource="org/complitex/osznconnection/file/service/RequestFileBean.xml"/>
-        <mapper resource="org/complitex/osznconnection/file/service/RequestBenefitBean.xml"/>
+        <mapper resource="org/complitex/osznconnection/file/service/BenefitBean.xml"/>
         <mapper resource="org/complitex/osznconnection/file/service/PersonAccountBean.xml"/>
     </mappers>
 

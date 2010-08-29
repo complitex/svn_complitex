@@ -4,14 +4,15 @@
  */
 package org.complitex.osznconnection.file.service;
 
-import java.util.List;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.service.AbstractBean;
-import org.complitex.osznconnection.file.entity.RequestPayment;
-import org.complitex.osznconnection.file.entity.RequestPaymentDBF;
+import org.complitex.osznconnection.file.entity.Payment;
+import org.complitex.osznconnection.file.entity.PaymentDBF;
 import org.complitex.osznconnection.file.entity.Status;
+
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
+import java.util.List;
 
 /**
  *
@@ -22,54 +23,54 @@ public class BindingRequestBean extends AbstractBean {
 
     private static final int BATCH_SIZE = 100;
 
-    @EJB
+    @EJB(beanName = "AddressResolver")
     private AddressResolver addressResolver;
 
-    @EJB
+    @EJB(beanName = "PersonAccountBean")
     private PersonAccountBean personAccountBean;
 
-    @EJB
-    private RequestPaymentBean requestPaymentBean;
+    @EJB(beanName = "PaymentBean")
+    private PaymentBean paymentBean;
 
-    @EJB
-    private RequestBenefitBean requestBenefitBean;
+    @EJB(beanName = "BenefitBean")
+    private BenefitBean benefitBean;
 
     private static class ModifyStatus {
 
         boolean modified;
     }
 
-    private boolean resolveAddress(RequestPayment requestPayment, ModifyStatus modifyStatus) {
-        if (requestPayment.getStatus() != Status.ADDRESS_UNRESOLVED) {
+    private boolean resolveAddress(Payment payment, ModifyStatus modifyStatus) {
+        if (payment.getStatus() != Status.ADDRESS_UNRESOLVED) {
             return true;
         }
 
-        AddressResolver.InternalAddress address = addressResolver.resolveAddress((String) requestPayment.getField(RequestPaymentDBF.N_NAME),
-                (String) requestPayment.getField(RequestPaymentDBF.VUL_NAME),
-                (String) requestPayment.getField(RequestPaymentDBF.BLD_NUM), (String) requestPayment.getField(RequestPaymentDBF.FLAT),
-                requestPayment.getOrganizationId());
-        requestPayment.setCityId(address.getCity());
-        requestPayment.setStreetId(address.getStreet());
-        requestPayment.setBuildingId(address.getBuilding());
-        requestPayment.setApartmentId(address.getApartment());
+        AddressResolver.InternalAddress address = addressResolver.resolveAddress((String) payment.getField(PaymentDBF.N_NAME),
+                (String) payment.getField(PaymentDBF.VUL_NAME),
+                (String) payment.getField(PaymentDBF.BLD_NUM), (String) payment.getField(PaymentDBF.FLAT),
+                payment.getOrganizationId());
+        payment.setCityId(address.getCity());
+        payment.setStreetId(address.getStreet());
+        payment.setBuildingId(address.getBuilding());
+        payment.setApartmentId(address.getApartment());
         modifyStatus.modified = true;
         if (address.isCorrect()) {
-            requestPayment.setStatus(Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY);
+            payment.setStatus(Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY);
         }
         return address.isCorrect();
     }
 
-    private boolean resolveLocalAccountNumber(RequestPayment requestPayment, ModifyStatus modifyStatus) {
-        if (requestPayment.getStatus() == Status.RESOLVED) {
+    private boolean resolveLocalAccountNumber(Payment payment, ModifyStatus modifyStatus) {
+        if (payment.getStatus() == Status.RESOLVED) {
             return true;
         }
 
-        String accountNumber = personAccountBean.findLocalAccountNumber((String) requestPayment.getField(RequestPaymentDBF.F_NAM),
-                (String) requestPayment.getField(RequestPaymentDBF.M_NAM), (String) requestPayment.getField(RequestPaymentDBF.SUR_NAM),
-                requestPayment.getCityId(), requestPayment.getStreetId(), requestPayment.getBuildingId(), requestPayment.getApartmentId());
+        String accountNumber = personAccountBean.findLocalAccountNumber((String) payment.getField(PaymentDBF.F_NAM),
+                (String) payment.getField(PaymentDBF.M_NAM), (String) payment.getField(PaymentDBF.SUR_NAM),
+                payment.getCityId(), payment.getStreetId(), payment.getBuildingId(), payment.getApartmentId());
         if (!Strings.isEmpty(accountNumber)) {
-            requestPayment.setAccountNumber(accountNumber);
-            requestPayment.setStatus(Status.RESOLVED);
+            payment.setAccountNumber(accountNumber);
+            payment.setStatus(Status.RESOLVED);
             modifyStatus.modified = true;
             return true;
         } else {
@@ -77,44 +78,44 @@ public class BindingRequestBean extends AbstractBean {
         }
     }
 
-    private boolean bind(RequestPayment requestPayment) {
+    private boolean bind(Payment payment) {
         boolean bindingSuccess = false;
         ModifyStatus modifyStatus = new ModifyStatus();
-        if (resolveAddress(requestPayment, modifyStatus)) {
-            if (resolveLocalAccountNumber(requestPayment, modifyStatus)) {
+        if (resolveAddress(payment, modifyStatus)) {
+            if (resolveLocalAccountNumber(payment, modifyStatus)) {
                 //binding successful
                 bindingSuccess = true;
             } else {
-                bindingSuccess = resolveRemoteAccountNumber(requestPayment, modifyStatus);
+                bindingSuccess = resolveRemoteAccountNumber(payment, modifyStatus);
             }
         }
 
         if (modifyStatus.modified) {
-            requestPaymentBean.update(requestPayment);
+            paymentBean.update(payment);
         }
 
         return bindingSuccess;
     }
 
-    private boolean resolveRemoteAccountNumber(RequestPayment requestPayment, ModifyStatus modifyStatus) {
+    private boolean resolveRemoteAccountNumber(Payment payment, ModifyStatus modifyStatus) {
         return false;
     }
 
-    public boolean bindRequestPaymentFile(long requestPaymentFileId) {
+    public boolean bindPaymentFile(long paymentFileId) {
         boolean bindingSuccess = true;
-        int count = requestPaymentBean.countByFile(requestPaymentFileId);
+        int count = paymentBean.countByFile(paymentFileId);
         while (count > 0) {
-            List<RequestPayment> requestPayments = requestPaymentBean.findByFile(requestPaymentFileId, 0, BATCH_SIZE);
-            for (RequestPayment requestPayment : requestPayments) {
-                bindingSuccess &= bind(requestPayment);
+            List<Payment> payments = paymentBean.findByFile(paymentFileId, 0, BATCH_SIZE);
+            for (Payment payment : payments) {
+                bindingSuccess &= bind(payment);
             }
-            count = requestPaymentBean.countByFile(requestPaymentFileId);
+            count = paymentBean.countByFile(paymentFileId);
         }
 
         return bindingSuccess;
     }
 
-    public boolean bindRequestBenefitFile(long requestBenefitFileId) {
-        return requestBenefitBean.countByFile(requestBenefitFileId) == 0;
+    public boolean bindBenefit(long benefitFileId) {
+        return benefitBean.countByFile(benefitFileId) == 0;
     }
 }

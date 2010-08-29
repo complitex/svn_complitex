@@ -2,12 +2,8 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.complitex.osznconnection.file.web.pages.payment;
+package org.complitex.osznconnection.file.web.pages.benefit;
 
-import com.google.common.collect.ImmutableMap;
-import java.util.Arrays;
-import java.util.Iterator;
-import javax.ejb.EJB;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -18,7 +14,6 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.IModel;
@@ -29,32 +24,36 @@ import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
 import org.complitex.osznconnection.commons.web.template.TemplatePage;
-import org.complitex.osznconnection.file.entity.RequestPayment;
-import org.complitex.osznconnection.file.entity.RequestPaymentDBF;
+import org.complitex.osznconnection.file.entity.Benefit;
+import org.complitex.osznconnection.file.entity.BenefitDBF;
 import org.complitex.osznconnection.file.entity.Status;
+import org.complitex.osznconnection.file.service.BenefitBean;
 import org.complitex.osznconnection.file.service.RequestFileBean;
-import org.complitex.osznconnection.file.service.RequestPaymentBean;
 import org.complitex.osznconnection.file.web.component.StatusRenderer;
+
+import javax.ejb.EJB;
+import java.util.Arrays;
+import java.util.Iterator;
 
 /**
  *
  * @author Artem
  */
-public final class RequestPaymentList extends TemplatePage {
+public final class BenefitList extends TemplatePage {
 
     public static final String FILE_ID = "file_id";
 
-    @EJB(name = "RequestPaymentBean")
-    private RequestPaymentBean requestPaymentBean;
+    @EJB(name = "BenefitBean")
+    private BenefitBean benefitBean;
 
     @EJB(name = "RequestFileBean")
     private RequestFileBean requestFileBean;
 
-    private IModel<RequestPaymentExample> example;
+    private IModel<BenefitExample> example;
 
     private long fileId;
 
-    public RequestPaymentList(PageParameters params) {
+    public BenefitList(PageParameters params) {
         this.fileId = params.getAsLong(FILE_ID);
         init();
     }
@@ -63,10 +62,10 @@ public final class RequestPaymentList extends TemplatePage {
         example.setObject(newExample());
     }
 
-    private RequestPaymentExample newExample() {
-        RequestPaymentExample requestPaymentExample = new RequestPaymentExample();
-        requestPaymentExample.setRequestFileId(fileId);
-        return requestPaymentExample;
+    private BenefitExample newExample() {
+        BenefitExample benefitExample = new BenefitExample();
+        benefitExample.setRequestFileId(fileId);
+        return benefitExample;
     }
 
     private void init() {
@@ -80,12 +79,12 @@ public final class RequestPaymentList extends TemplatePage {
         add(content);
         final Form filterForm = new Form("filterForm");
         content.add(filterForm);
-        example = new Model<RequestPaymentExample>(newExample());
+        example = new Model<BenefitExample>(newExample());
 
-        final SortableDataProvider<RequestPayment> dataProvider = new SortableDataProvider<RequestPayment>() {
+        final SortableDataProvider<Benefit> dataProvider = new SortableDataProvider<Benefit>() {
 
             @Override
-            public Iterator<? extends RequestPayment> iterator(int first, int count) {
+            public Iterator<? extends Benefit> iterator(int first, int count) {
                 example.getObject().setAsc(getSort().isAscending());
                 if (!Strings.isEmpty(getSort().getProperty())) {
                     example.getObject().setOrderByClause(getSort().getProperty());
@@ -93,18 +92,18 @@ public final class RequestPaymentList extends TemplatePage {
                 example.getObject().setStart(first);
                 example.getObject().setSize(count);
                 example.getObject().setLocale(getLocale().getLanguage());
-                return requestPaymentBean.find(example.getObject()).iterator();
+                return benefitBean.find(example.getObject()).iterator();
             }
 
             @Override
             public int size() {
                 example.getObject().setAsc(getSort().isAscending());
-                return requestPaymentBean.count(example.getObject());
+                return benefitBean.count(example.getObject());
             }
 
             @Override
-            public IModel<RequestPayment> model(RequestPayment object) {
-                return new Model<RequestPayment>(object);
+            public IModel<Benefit> model(Benefit object) {
+                return new Model<Benefit>(object);
             }
         };
         dataProvider.setSort("", true);
@@ -146,37 +145,31 @@ public final class RequestPaymentList extends TemplatePage {
         };
         filterForm.add(submit);
 
-        DataView<RequestPayment> data = new DataView<RequestPayment>("data", dataProvider, 1) {
+        DataView<Benefit> data = new DataView<Benefit>("data", dataProvider, 1) {
 
             @Override
-            protected void populateItem(Item<RequestPayment> item) {
-                RequestPayment requestPayment = item.getModelObject();
-                item.add(new Label("firstName", (String) requestPayment.getField(RequestPaymentDBF.F_NAM)));
-                item.add(new Label("middleName", (String) requestPayment.getField(RequestPaymentDBF.M_NAM)));
-                item.add(new Label("lastName", (String) requestPayment.getField(RequestPaymentDBF.SUR_NAM)));
-                item.add(new Label("city", requestPayment.getInternalCity()));
-                item.add(new Label("street", requestPayment.getInternalStreet()));
-                item.add(new Label("building", requestPayment.getInternalBuilding()));
-                item.add(new Label("apartment", requestPayment.getInternalApartment()));
-                item.add(new Label("status", StatusRenderer.displayValue(requestPayment.getStatus())));
-                BookmarkablePageLink correctionLink = new BookmarkablePageLink("correctionLink", PaymentCorrection.class,
-                        new PageParameters(ImmutableMap.of(PaymentCorrection.REQUEST_PAYMENT_ID, requestPayment.getId())));
-                boolean needCorrect = requestPayment.getInternalCity() == null || requestPayment.getInternalStreet() == null
-                        || requestPayment.getInternalBuilding() == null || requestPayment.getInternalApartment() == null;
-                correctionLink.setVisible(needCorrect);
-                item.add(correctionLink);
+            protected void populateItem(Item<Benefit> item) {
+                Benefit benefit = item.getModelObject();
+                item.add(new Label("firstName", (String) benefit.getField(BenefitDBF.F_NAM)));
+                item.add(new Label("middleName", (String) benefit.getField(BenefitDBF.M_NAM)));
+                item.add(new Label("lastName", (String) benefit.getField(BenefitDBF.SUR_NAM)));
+                item.add(new Label("city", benefit.getInternalCity()));
+                item.add(new Label("street", benefit.getInternalStreet()));
+                item.add(new Label("building", benefit.getInternalBuilding()));
+                item.add(new Label("apartment", benefit.getInternalApartment()));
+                item.add(new Label("status", StatusRenderer.displayValue(benefit.getStatus())));
             }
         };
         filterForm.add(data);
 
-        filterForm.add(new ArrowOrderByBorder("firstNameHeader", RequestPaymentBean.OrderBy.FIRST_NAME.getOrderBy(), dataProvider, data, content));
-        filterForm.add(new ArrowOrderByBorder("middleNameHeader", RequestPaymentBean.OrderBy.MIDDLE_NAME.getOrderBy(), dataProvider, data, content));
-        filterForm.add(new ArrowOrderByBorder("lastNameHeader", RequestPaymentBean.OrderBy.LAST_NAME.getOrderBy(), dataProvider, data, content));
-        filterForm.add(new ArrowOrderByBorder("cityHeader", RequestPaymentBean.OrderBy.CITY.getOrderBy(), dataProvider, data, content));
-        filterForm.add(new ArrowOrderByBorder("streetHeader", RequestPaymentBean.OrderBy.STREET.getOrderBy(), dataProvider, data, content));
-        filterForm.add(new ArrowOrderByBorder("buildingHeader", RequestPaymentBean.OrderBy.BUILDING.getOrderBy(), dataProvider, data, content));
-        filterForm.add(new ArrowOrderByBorder("apartmentHeader", RequestPaymentBean.OrderBy.APARTMENT.getOrderBy(), dataProvider, data, content));
-        filterForm.add(new ArrowOrderByBorder("statusHeader", RequestPaymentBean.OrderBy.STATUS.getOrderBy(), dataProvider, data, content));
+        filterForm.add(new ArrowOrderByBorder("firstNameHeader", BenefitBean.OrderBy.FIRST_NAME.getOrderBy(), dataProvider, data, content));
+        filterForm.add(new ArrowOrderByBorder("middleNameHeader", BenefitBean.OrderBy.MIDDLE_NAME.getOrderBy(), dataProvider, data, content));
+        filterForm.add(new ArrowOrderByBorder("lastNameHeader", BenefitBean.OrderBy.LAST_NAME.getOrderBy(), dataProvider, data, content));
+        filterForm.add(new ArrowOrderByBorder("cityHeader", BenefitBean.OrderBy.CITY.getOrderBy(), dataProvider, data, content));
+        filterForm.add(new ArrowOrderByBorder("streetHeader", BenefitBean.OrderBy.STREET.getOrderBy(), dataProvider, data, content));
+        filterForm.add(new ArrowOrderByBorder("buildingHeader", BenefitBean.OrderBy.BUILDING.getOrderBy(), dataProvider, data, content));
+        filterForm.add(new ArrowOrderByBorder("apartmentHeader", BenefitBean.OrderBy.APARTMENT.getOrderBy(), dataProvider, data, content));
+        filterForm.add(new ArrowOrderByBorder("statusHeader", BenefitBean.OrderBy.STATUS.getOrderBy(), dataProvider, data, content));
 
         content.add(new PagingNavigator("navigator", data, content));
 

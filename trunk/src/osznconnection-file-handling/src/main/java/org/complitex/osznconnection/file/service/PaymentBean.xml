@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.complitex.osznconnection.file.service.RequestPaymentBean">
+<mapper namespace="org.complitex.osznconnection.file.service.PaymentBean">
 
-    <resultMap id="requestPaymentResultMap" type="org.complitex.osznconnection.file.entity.RequestPayment">
+    <resultMap id="paymentResultMap" type="org.complitex.osznconnection.file.entity.Payment">
         <id column="id" property="id"/>
         <result column="request_file_id" property="requestFileId"/>
         <result column="account_number" property="accountNumber"/>
@@ -73,7 +73,7 @@
         </association>
     </resultMap>
 
-    <resultMap id="internalRequestPaymentResultMap" type="org.complitex.osznconnection.file.entity.RequestPayment">
+    <resultMap id="internalPaymentResultMap" type="org.complitex.osznconnection.file.entity.Payment">
         <id property="id" column="id"/>
         <result column="requestFileId" property="requestFileId"/>
         <result column="status" property="status"/>
@@ -99,13 +99,13 @@
 
     </resultMap>
 
-    <select id="selectRequestPayments" resultMap="requestPaymentResultMap">
-        select * from `request_payment`
+    <select id="selectPayments" resultMap="paymentResultMap">
+        select * from `payment`
     </select>
 
-    <insert id="insertRequestPayment" parameterType="org.complitex.osznconnection.file.entity.RequestPayment"
+    <insert id="insertPayment" parameterType="org.complitex.osznconnection.file.entity.Payment"
             keyProperty="id" useGeneratedKeys="true">
-        insert into `request_payment`
+        insert into `payment`
             (
             <trim suffixOverrides=",">
                 `request_file_id`, `account_number`, `city_id`, `street_id`, `building_id`, `apartment_id`, `status`,
@@ -125,8 +125,8 @@
             )
     </insert>
 
-    <update id="updateRequestPayment" parameterType="org.complitex.osznconnection.file.entity.RequestPayment">
-        update `request_payment`
+    <update id="updatePayment" parameterType="org.complitex.osznconnection.file.entity.Payment">
+        update `payment`
         <set>
             `request_file_id` = #{requestFileId}, `account_number` = #{accountNumber}, `city_id` = #{cityId},
             `street_id` = #{streetId}, `building_id` = #{buildingId}, `apartment_id` = #{apartmentId},
@@ -172,13 +172,13 @@
         </if>
     </sql>
 
-    <select id="count" resultType="int" parameterType="org.complitex.osznconnection.file.web.pages.payment.RequestPaymentExample">
-        SELECT COUNT(*) FROM `request_payment` r WHERE r.`request_file_id` = #{requestFileId}
-        <include refid="org.complitex.osznconnection.file.service.RequestPaymentBean.filter"/>
+    <select id="count" resultType="int" parameterType="org.complitex.osznconnection.file.web.pages.payment.PaymentExample">
+        SELECT COUNT(*) FROM `payment` r WHERE r.`request_file_id` = #{requestFileId}
+        <include refid="org.complitex.osznconnection.file.service.PaymentBean.filter"/>
     </select>
 
-    <select id="find" parameterType="org.complitex.osznconnection.file.web.pages.payment.RequestPaymentExample"
-            resultMap="internalRequestPaymentResultMap">
+    <select id="find" parameterType="org.complitex.osznconnection.file.web.pages.payment.PaymentExample"
+            resultMap="internalPaymentResultMap">
         SELECT r.`id`, r.`status`, r.`request_file_id` requestFileId, r.`F_NAM` fNam, r.`M_NAM` mNam, r.`SUR_NAM` surNam,
         (SELECT f.`organization_object_id` FROM `request_file` f WHERE f.`id` = r.`request_file_id`) organizationId,
         (SELECT sc.`value` FROM `city_string_culture` sc WHERE sc.`locale` = #{locale} AND
@@ -196,8 +196,8 @@
         ) internalBuilding,
         (SELECT sc.`value` FROM `apartment_string_culture` sc WHERE sc.`locale` = #{locale} AND
         sc.`id` = (SELECT a.`value_id` FROM `apartment_attribute` a WHERE a.`attribute_type_id` = 100 AND a.`status` = 'ACTIVE' AND a.`object_id` = r.`apartment_id`)) internalApartment
-        FROM `request_payment` r WHERE r.`request_file_id` = #{requestFileId}
-        <include refid="org.complitex.osznconnection.file.service.RequestPaymentBean.filter"/>
+        FROM `payment` r WHERE r.`request_file_id` = #{requestFileId}
+        <include refid="org.complitex.osznconnection.file.service.PaymentBean.filter"/>
         <if test="orderByClause != null">
             ORDER BY ${orderByClause}
             <choose>
@@ -214,7 +214,7 @@
         </if>
     </select>
 
-    <select id="findById" parameterType="long" resultMap="internalRequestPaymentResultMap">
+    <select id="findById" parameterType="long" resultMap="internalPaymentResultMap">
         SELECT r.`id`, r.`status`, r.`request_file_id` requestFileId, r.`F_NAM` fNam, r.`M_NAM` mNam, r.`SUR_NAM` surNam,
         r.`N_NAME` nName, r.`VUL_NAME` vulName, r.`BLD_NUM` bldNum, r.`FLAT` flat,
         (SELECT f.`organization_object_id` FROM `request_file` f WHERE f.`id` = r.`request_file_id`) organizationId,
@@ -222,26 +222,27 @@
         r.`street_id`,
         r.`building_id`,
         r.`apartment_id`
-        FROM `request_payment` r WHERE r.`id` = #{id}
+        FROM `payment` r WHERE r.`id` = #{id}
     </select>
 
-    <update id="update" parameterType="org.complitex.osznconnection.file.entity.RequestPayment">
-        UPDATE `request_payment` SET `city_id` = #{cityId}, `street_id` = #{streetId}, `building_id` = #{buildingId}, `apartment_id` = #{apartmentId},
+    <update id="update" parameterType="org.complitex.osznconnection.file.entity.Payment">
+        UPDATE `payment` SET `city_id` = #{cityId}, `street_id` = #{streetId}, `building_id` = #{buildingId}, `apartment_id` = #{apartmentId},
         `account_number` = #{accountNumber}, `status` = #{status} WHERE `id` = #{id}
     </update>
 
-    <select id="findByFile" parameterType="org.complitex.osznconnection.file.web.pages.payment.RequestPaymentExample" resultMap="internalRequestPaymentResultMap">
+    <select id="findByFile" parameterType="org.complitex.osznconnection.file.web.pages.payment.PaymentExample"
+            resultMap="internalPaymentResultMap">
         SELECT r.`id`, r.`status`, r.`request_file_id` requestFileId, r.`F_NAM` fNam, r.`M_NAM` mNam, r.`SUR_NAM` surNam,
         r.`N_NAME` nName, r.`VUL_NAME` vulName, r.`BLD_NUM` bldNum, r.`FLAT` flat,
         rf.`organization_object_id` organizationId
-        FROM `request_payment` r
+        FROM `payment` r
         JOIN `request_file` rf ON r.`request_file_id` = rf.`id`
         WHERE r.`request_file_id` = #{requestFileId} AND r.`status` != 'RESOLVED'
         LIMIT #{start},#{size}
     </select>
 
     <select id="countByFile" resultType="int" parameterType="long">
-        SELECT COUNT(*) FROM `request_payment` r WHERE r.`request_file_id` = #{requestFileId} AND r.`status` != 'RESOLVED'
+        SELECT COUNT(*) FROM `payment` r WHERE r.`request_file_id` = #{requestFileId} AND r.`status` != 'RESOLVED'
     </select>
 
 

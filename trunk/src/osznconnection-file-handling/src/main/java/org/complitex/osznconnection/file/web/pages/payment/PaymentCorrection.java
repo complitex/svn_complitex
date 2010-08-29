@@ -5,16 +5,17 @@
 package org.complitex.osznconnection.file.web.pages.payment;
 
 import com.google.common.collect.ImmutableMap;
-import javax.ejb.EJB;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.ResourceModel;
 import org.complitex.osznconnection.commons.web.template.TemplatePage;
-import org.complitex.osznconnection.file.entity.RequestPayment;
-import org.complitex.osznconnection.file.entity.RequestPaymentDBF;
+import org.complitex.osznconnection.file.entity.Payment;
+import org.complitex.osznconnection.file.entity.PaymentDBF;
 import org.complitex.osznconnection.file.service.AddressResolver;
-import org.complitex.osznconnection.file.service.RequestPaymentBean;
+import org.complitex.osznconnection.file.service.PaymentBean;
 import org.complitex.osznconnection.file.web.component.correction.CorrectionPanel;
+
+import javax.ejb.EJB;
 
 /**
  *
@@ -22,53 +23,53 @@ import org.complitex.osznconnection.file.web.component.correction.CorrectionPane
  */
 public final class PaymentCorrection extends TemplatePage {
 
-    public static final String REQUEST_PAYMENT_ID = "request_payment_id";
+    public static final String PAYMENT_ID = "payment_id";
 
-    @EJB(name = "RequestPaymentBean")
-    private RequestPaymentBean requestPaymentBean;
+    @EJB(name = "PaymentBean")
+    private PaymentBean paymentBean;
 
     @EJB(name = "AddressResolver")
     private AddressResolver addressResolver;
 
-    private RequestPayment requestPayment;
+    private Payment payment;
 
     public PaymentCorrection(PageParameters params) {
-        long requestPaymentId = params.getAsLong(REQUEST_PAYMENT_ID);
-        init(requestPaymentId);
+        long paymentId = params.getAsLong(PAYMENT_ID);
+        init(paymentId);
     }
 
     private void init(long id) {
-        requestPayment = requestPaymentBean.findById(id);
+        payment = paymentBean.findById(id);
 
         add(new Label("title", new ResourceModel("label")));
         add(new Label("label", new ResourceModel("label")));
 
-        String name = requestPayment.getField(RequestPaymentDBF.SUR_NAM) + " " +
-                requestPayment.getField(RequestPaymentDBF.F_NAM) + " " +
-                requestPayment.getField(RequestPaymentDBF.M_NAM);
-        String address = requestPayment.getField(RequestPaymentDBF.N_NAME) + ", " +
-                requestPayment.getField(RequestPaymentDBF.VUL_NAME) + ", " +
-                requestPayment.getField(RequestPaymentDBF.BLD_NUM) + ", " +
-                requestPayment.getField(RequestPaymentDBF.FLAT);
+        String name = payment.getField(PaymentDBF.SUR_NAM) + " " +
+                payment.getField(PaymentDBF.F_NAM) + " " +
+                payment.getField(PaymentDBF.M_NAM);
+        String address = payment.getField(PaymentDBF.N_NAME) + ", " +
+                payment.getField(PaymentDBF.VUL_NAME) + ", " +
+                payment.getField(PaymentDBF.BLD_NUM) + ", " +
+                payment.getField(PaymentDBF.FLAT);
 
-        add(new CorrectionPanel("correntionPanel", name, address, requestPayment.getCityId(), requestPayment.getStreetId(),
-                requestPayment.getBuildingId(), requestPayment.getApartmentId()) {
+        add(new CorrectionPanel("correntionPanel", name, address, payment.getCityId(), payment.getStreetId(),
+                payment.getBuildingId(), payment.getApartmentId()) {
 
             @Override
             protected void correctAddress(long cityId, long streetId, long buildingId, long apartmentId) {
-                RequestPayment correctedRequestPayment = addressResolver.correctAddress(requestPayment, cityId, streetId, buildingId, apartmentId);
-                PaymentCorrection.this.update(correctedRequestPayment);
+                Payment correctedPayment = addressResolver.correctAddress(payment, cityId, streetId, buildingId, apartmentId);
+                PaymentCorrection.this.update(correctedPayment);
             }
 
             @Override
             public void back() {
-                setResponsePage(RequestPaymentList.class, new PageParameters(ImmutableMap.of(RequestPaymentList.FILE_ID, requestPayment.getRequestFileId())));
+                setResponsePage(PaymentList.class, new PageParameters(ImmutableMap.of(PaymentList.FILE_ID, payment.getRequestFileId())));
             }
         });
     }
 
-    private void update(RequestPayment correctedRequestPayment) {
-        requestPaymentBean.update(correctedRequestPayment);
+    private void update(Payment correctedPayment) {
+        paymentBean.update(correctedPayment);
     }
 }
 
