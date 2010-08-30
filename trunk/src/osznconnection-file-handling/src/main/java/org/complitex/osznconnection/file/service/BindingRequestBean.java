@@ -4,6 +4,8 @@
  */
 package org.complitex.osznconnection.file.service;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.entity.Payment;
@@ -14,12 +16,22 @@ import org.complitex.osznconnection.file.entity.Status;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.concurrent.ConcurrentHashMap;
+import javax.ejb.Asynchronous;
+import javax.ejb.ConcurrencyManagement;
+import javax.ejb.ConcurrencyManagementType;
+import javax.ejb.Singleton;
+import org.complitex.osznconnection.file.entity.AsyncOperationStatus;
+import org.complitex.osznconnection.file.entity.RequestFile;
 
 /**
  *
  * @author Artem
  */
-@Stateless
+@Singleton
+@ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 public class BindingRequestBean extends AbstractBean {
 
     private static final int BATCH_SIZE = 100;
@@ -35,6 +47,8 @@ public class BindingRequestBean extends AbstractBean {
 
     @EJB(beanName = "BenefitBean")
     private BenefitBean benefitBean;
+
+    private Map<Long, AsyncOperationStatus> fileToProcessStatusMap;
 
     private static class ModifyStatus {
 
@@ -102,25 +116,77 @@ public class BindingRequestBean extends AbstractBean {
         return false;
     }
 
-    public boolean bindPaymentFile(long paymentFileId) {
-        boolean bindingSuccess = true;
+    public void bindPaymentFile(long paymentFileId) {
         int count = paymentBean.countByFile(paymentFileId);
         while (count > 0) {
             List<Payment> payments = paymentBean.findByFile(paymentFileId, 0, BATCH_SIZE);
             for (Payment payment : payments) {
-                bindingSuccess &= bind(payment);
+                boolean bindingSuccess = bind(payment);
+                if(bindingSuccess){
+                    incrementProcessedRecords(paymentFileId);
+                } else {
+                    incrementFailedRecords(paymentFileId);
+                }
             }
             count = paymentBean.countByFile(paymentFileId);
         }
-
-        return bindingSuccess;
     }
 
     public boolean bindBenefitFile(long benefitFileId) {
         return benefitBean.countByFile(benefitFileId) == 0;
     }
 
-    public void bind(List<RequestFile> requestFiles){
-        //todo async
+    public Map<Long, AsyncOperationStatus> getFileToProcessStatusMap() {
+        return fileToProcessStatusMap;
+    }
+
+    @Asynchronous
+    public void bind(List<RequestFile> requestFiles) {
+        fileToProcessStatusMap = new ConcurrentHashMap<Long, AsyncOperationStatus>();
+
+        for (RequestFile file : requestFiles) {
+            if (file.getType() == RequestFile.TYPE.PAYMENT) {
+                AsyncOperationStatus operationStatus = new AsyncOperationStatus();
+                operationStatus.setRequestFile(file);
+                fileToProcessStatusMap.put(file.getId(), operationStatus);
+                bindPaymentFile(file.getId());
+
+                //find associated benefit file
+//                RequestFile benefitFile = null;
+//                try {
+//                    benefitFile = Iterables.find(requestFiles, new Predicate<RequestFile>() {
+//
+//                        @Override
+//                        public boolean apply(RequestFile file) {
+//                            return file.getType() == RequestFile.TYPE.BENEFIT && file.getName().sub
+//                        }
+//                    });
+//                } catch (NoSuchElementException e) {
+//                }
+
+            }
+        }
+    }
+
+//    private void updateFileProcessStatus(long fileId, int all, int processed, int failed) {
+//        AsyncOperationStatus operationStatus = fileToProcessStatusMap.get(fileId);
+//        if (operationStatus == null) {
+//            operationStatus = new AsyncOperationStatus();
+//            fileToProcessStatusMap.put(fileId, operationStatus);
+//        }
+//
+//        operationStatus.setAll(all);
+//        operationStatus.setProcessed(processed);
+//        operationStatus.setFailed(failed);
+//    }
+
+    private void incrementFailedRecords(long fileId) {
+        AsyncOperationStatus operationStatus = fileToProcessStatusMap.get(fileId);
+        operationStatus.setFailed(operationStatus.getFailed());
+    }
+
+    private void incrementProcessedRecords(long fileId) {
+        AsyncOperationStatus operationStatus = fileToProcessStatusMap.get(fileId);
+        operationStatus.setProcessed(operationStatus.getProcessed());
     }
 }
