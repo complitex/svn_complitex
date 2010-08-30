@@ -11,8 +11,10 @@ import org.complitex.osznconnection.commons.web.template.FormTemplatePage;
 import org.complitex.osznconnection.file.service.RequestFileBean;
 
 import javax.ejb.EJB;
-import java.util.Arrays;
 import java.util.Calendar;
+import org.apache.wicket.model.IModel;
+import org.complitex.dictionaryfw.entity.DomainObject;
+import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -21,6 +23,9 @@ import java.util.Calendar;
 public class RequestFileLoad extends FormTemplatePage{
     @EJB(name = "RequestFileBean")
     private RequestFileBean requestFileBean;
+
+    @EJB(name = "OrganizationStrategy")
+    private OrganizationStrategy organizationStrategy;
 
     public RequestFileLoad() {
         super();
@@ -33,7 +38,23 @@ public class RequestFileLoad extends FormTemplatePage{
         add(form);
 
         //Организация
-        DropDownChoice organization = new DropDownChoice<String>("organization", new Model<String>(), Arrays.asList("XXXX"));
+        final IModel<DomainObject> organizationModel = new Model<DomainObject>();
+        IChoiceRenderer<DomainObject> renderer = new IChoiceRenderer<DomainObject>() {
+
+            @Override
+            public Object getDisplayValue(DomainObject object) {
+                return organizationStrategy.displayDomainObject(object, getLocale());
+            }
+
+            @Override
+            public String getIdValue(DomainObject object, int index) {
+                return String.valueOf(object.getId());
+            }
+        };
+
+        DropDownChoice<DomainObject> organization = new DropDownChoice<DomainObject>("organization", organizationModel,
+                organizationStrategy.getAllOSZNs(), renderer);
+        organization.setRequired(true);
         form.add(organization);
 
         //Период
@@ -63,7 +84,9 @@ public class RequestFileLoad extends FormTemplatePage{
                     return;
                 }
 
-                requestFileBean.load(from.getModelObject(), to.getModelObject());
+                DomainObject oszn = organizationModel.getObject();
+                requestFileBean.load(oszn.getId(), organizationStrategy.getDistrictCode(oszn), organizationStrategy.getUniqueCode(oszn),
+                        from.getModelObject(), to.getModelObject());
             }
         };
         form.add(load);
