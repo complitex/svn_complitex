@@ -64,6 +64,7 @@ public class PaymentBean extends AbstractBean {
         return (Payment) sqlSession.selectOne(MAPPING_NAMESPACE + ".findById", id);
     }
 
+     @SuppressWarnings({"unchecked"})
      public List<Payment> findByFile(long fileId, int start, int size) {
         PaymentExample example = new PaymentExample();
         example.setStart(start);
