@@ -8,6 +8,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
@@ -21,12 +22,14 @@ import org.complitex.dictionaryfw.strategy.StrategyFactory;
 import org.complitex.dictionaryfw.util.StringUtil;
 import org.complitex.dictionaryfw.web.component.DatePicker;
 import org.complitex.dictionaryfw.web.component.MonthDropDownChoice;
+import org.complitex.dictionaryfw.web.component.YearDropDownChoice;
 import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
 import org.complitex.osznconnection.commons.web.template.TemplatePage;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.service.RequestFileBean;
 import org.complitex.osznconnection.file.service.RequestFileFilter;
+import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 
 import javax.ejb.EJB;
 import java.util.Arrays;
@@ -42,8 +45,8 @@ public class RequestFileList extends TemplatePage{
     @EJB(name = "RequestFileBean")
     private RequestFileBean requestFileBean;
 
-    @EJB(name = "StrategyFactory")
-    private StrategyFactory strategyFactory;
+    @EJB(name = "OrganizationStrategy")
+    private OrganizationStrategy organizationStrategy;
 
     public RequestFileList() {
         super();
@@ -77,13 +80,25 @@ public class RequestFileList extends TemplatePage{
         filterForm.add(new TextField<String>("name"));
 
         //Организация
-        filterForm.add(new DropDownChoice<DomainObject>("organization", new ListModel<DomainObject>()));
+        filterForm.add(new DropDownChoice<DomainObject>("organization",
+                organizationStrategy.getAllOSZNs(), new IChoiceRenderer<DomainObject>() {
+
+            @Override
+            public Object getDisplayValue(DomainObject object) {
+                return organizationStrategy.displayDomainObject(object, getLocale());
+            }
+
+            @Override
+            public String getIdValue(DomainObject object, int index) {
+                return String.valueOf(object.getId());
+            }
+        }));
 
         //Месяц
         filterForm.add(new MonthDropDownChoice("month"));
 
         //Год
-        filterForm.add(new TextField<Integer>("year", new Model<Integer>(), Integer.class));
+        filterForm.add(new YearDropDownChoice("year"));
 
         //Количество записей
         filterForm.add(new TextField<Integer>("dbfRecordCount", new Model<Integer>(), Integer.class));
@@ -141,8 +156,13 @@ public class RequestFileList extends TemplatePage{
             protected void populateItem(Item<RequestFile> item) {
                 RequestFile rf = item.getModelObject();
 
-                item.add(DateLabel.forDatePattern("date", new Model<Date>(rf.getLoaded()), "dd.MM.yy HH:mm:ss"));
+                item.add(DateLabel.forDatePattern("loaded", new Model<Date>(rf.getLoaded()), "dd.MM.yy HH:mm:ss"));
                 item.add(new Label("name", rf.getName()));
+                
+                DomainObject domainObject = organizationStrategy.findById(rf.getOrganizationObjectId());
+                String organization = organizationStrategy.displayDomainObject(domainObject, getLocale());
+                item.add(new Label("organization", organization));
+
                 item.add(DateLabel.forDatePattern("month", new Model<Date>(rf.getDate()), "MMMM"));
                 item.add(DateLabel.forDatePattern("year", new Model<Date>(rf.getDate()), "yyyy"));
                 item.add(new Label("dbf_record_count", StringUtil.valueOf(rf.getDbfRecordCount())));
@@ -150,6 +170,7 @@ public class RequestFileList extends TemplatePage{
                 item.add(new Label("status", getStringOrKey(rf.getStatus().name())));
             }
         };
+        filterForm.add(dataView);
 
         //Сортировка
         filterForm.add(new ArrowOrderByBorder("header.loaded", "loaded", dataProvider, dataView, filterForm));

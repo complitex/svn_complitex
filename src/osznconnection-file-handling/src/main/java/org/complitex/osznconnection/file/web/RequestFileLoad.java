@@ -6,6 +6,7 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.validation.validator.RangeValidator;
 import org.complitex.dictionaryfw.web.component.MonthDropDownChoice;
+import org.complitex.dictionaryfw.web.component.YearDropDownChoice;
 import org.complitex.osznconnection.commons.web.pages.welcome.WelcomePage;
 import org.complitex.osznconnection.commons.web.template.FormTemplatePage;
 import org.complitex.osznconnection.file.service.RequestFileBean;
@@ -66,8 +67,7 @@ public class RequestFileLoad extends FormTemplatePage{
         to.setRequired(true);
         form.add(to);
 
-        final TextField<Integer> year = new TextField<Integer>("year", new Model<Integer>(), Integer.class);
-        year.add(new RangeValidator<Integer>(1991, Calendar.getInstance().get(Calendar.YEAR)));
+        final DropDownChoice<Integer> year = new YearDropDownChoice("year");        
         year.setRequired(true);
         form.add(year);
 
@@ -85,8 +85,8 @@ public class RequestFileLoad extends FormTemplatePage{
                 }
 
                 DomainObject oszn = organizationModel.getObject();
-                requestFileBean.load(oszn.getId(), organizationStrategy.getDistrictCode(oszn), organizationStrategy.getUniqueCode(oszn),
-                        from.getModelObject(), to.getModelObject());
+                requestFileBean.load(oszn.getId(), organizationStrategy.getDistrictCode(oszn),
+                        organizationStrategy.getUniqueCode(oszn), from.getModelObject(), to.getModelObject());
             }
         };
         form.add(load);

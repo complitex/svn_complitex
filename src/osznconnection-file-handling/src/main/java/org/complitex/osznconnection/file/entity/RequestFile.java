@@ -8,7 +8,7 @@ import java.util.Date;
  *         Date: 25.08.2010 17:35:35
  */
 public class RequestFile implements Serializable{
-    public static enum STATUS {LOADED, ERROR}
+    public static enum STATUS {LOADED, ERROR, DEV}
 
     private Long id;
     private Date loaded;
@@ -18,7 +18,7 @@ public class RequestFile implements Serializable{
     private Integer dbfRecordCount;
     private Long length;
     private String checkSum;
-    private STATUS status;
+    private STATUS status = STATUS.DEV;
 
     private Integer loadedRecordCount;
 
