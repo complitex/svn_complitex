@@ -31,4 +31,9 @@ public class MonthDropDownChoice extends DropDownChoice<Integer>{
             }
         });
     }
+
+     public MonthDropDownChoice(String id, IModel<Integer> model) {
+        this(id);
+        setModel(model);
+    }
 }
