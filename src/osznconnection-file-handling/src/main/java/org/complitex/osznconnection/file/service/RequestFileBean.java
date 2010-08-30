@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.List;
+import org.complitex.dictionaryfw.entity.DomainObject;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -78,8 +79,8 @@ public class RequestFileBean extends AbstractBean {
         return months;
     }
 
-    private void loadPayment(int monthFrom, int monthTo){
-        List<File> paymentFiles = getPaymentFiles("LE", new String[]{"1760"}, getMonth(monthFrom, monthTo));
+    private void loadPayment(long organizationId, String organizationDistrictCode, Integer organizationCode, int monthFrom, int monthTo){
+        List<File> paymentFiles = getPaymentFiles(organizationDistrictCode, new String[]{String.valueOf(organizationCode)}, getMonth(monthFrom, monthTo));
 
         for (File file : paymentFiles){
             try {
@@ -90,7 +91,7 @@ public class RequestFileBean extends AbstractBean {
                 requestFile.setDate(DateUtil.getCurrentDate());
                 requestFile.setLength(file.length());
                 requestFile.setDbfRecordCount(dbf.getRecordCount());
-                requestFile.setOrganizationObjectId(1L); //todo
+                requestFile.setOrganizationObjectId(organizationId);
 
                 sqlSession.insert(MAPPING_NAMESPACE + ".insertRequestFile", requestFile);
 
@@ -105,8 +106,8 @@ public class RequestFileBean extends AbstractBean {
         }
     }
 
-    private void loadBenefit(int monthFrom, int monthTo){
-        List<File> benefitFiles = getBenefitFiles("LE", new String[]{"1760"}, getMonth(monthFrom, monthTo));
+    private void loadBenefit(long organizationId, String organizationDistrictCode, Integer organizationCode, int monthFrom, int monthTo){
+        List<File> benefitFiles = getBenefitFiles(organizationDistrictCode, new String[]{String.valueOf(organizationCode)}, getMonth(monthFrom, monthTo));
         for (File file : benefitFiles){
             try {
                 DBF dbf = new DBF(file.getAbsolutePath(), DBF.READ_ONLY);
@@ -116,7 +117,7 @@ public class RequestFileBean extends AbstractBean {
                 requestFile.setDate(DateUtil.getCurrentDate());
                 requestFile.setLength(file.length());
                 requestFile.setDbfRecordCount(dbf.getRecordCount());
-                requestFile.setOrganizationObjectId(1L); //todo
+                requestFile.setOrganizationObjectId(organizationId);
 
                 sqlSession.insert(MAPPING_NAMESPACE + ".insertRequestFile", requestFile);
 
@@ -131,9 +132,9 @@ public class RequestFileBean extends AbstractBean {
         }
     }
 
-    public void load(int monthFrom, int monthTo) {
-        loadPayment(monthFrom, monthTo);
-        loadBenefit(monthFrom, monthTo);
+    public void load(long organizationId, String organizationDistrictCode, Integer organizationCode, int monthFrom, int monthTo) {
+        loadPayment(organizationId, organizationDistrictCode, organizationCode, monthFrom, monthTo);
+        loadBenefit(organizationId, organizationDistrictCode, organizationCode, monthFrom, monthTo);
     }
 
     public RequestFile findById(long fileId) {

@@ -218,4 +218,14 @@ public class OrganizationStrategy extends Strategy {
         }
         return null;
     }
+
+    public Integer getUniqueCode(DomainObject organization) {
+        return Integer.valueOf(stringBean.getSystemStringCulture(Iterables.find(organization.getAttributes(), new Predicate<Attribute>() {
+
+            @Override
+            public boolean apply(Attribute attr) {
+                return attr.getAttributeTypeId().equals(UNIQUE_CODE);
+            }
+        }).getLocalizedValues()).getValue());
+    }
 }
