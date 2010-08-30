@@ -44,6 +44,11 @@ public class RequestFileBean extends AbstractBean {
     }
 
     public void save(RequestFile requestFile){
-        sqlSession.insert(MAPPING_NAMESPACE + ".insertRequestFile", requestFile);
+        if (requestFile.getId() == null){
+            sqlSession.insert(MAPPING_NAMESPACE + ".insertRequestFile", requestFile);
+        }else{
+            sqlSession.insert(MAPPING_NAMESPACE + ".updateRequestFile", requestFile);
+        }
+
     }
 }

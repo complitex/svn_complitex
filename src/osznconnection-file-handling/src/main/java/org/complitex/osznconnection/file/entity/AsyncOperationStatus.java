@@ -21,6 +21,10 @@ public class AsyncOperationStatus implements Serializable {
     public AsyncOperationStatus() {
     }
 
+    public AsyncOperationStatus(RequestFile requestFile) {
+        this.requestFile = requestFile;
+    }
+
     public int getFailed() {
         return failed;
     }

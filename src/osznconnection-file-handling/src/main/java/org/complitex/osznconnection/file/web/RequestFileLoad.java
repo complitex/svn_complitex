@@ -77,8 +77,9 @@ public class RequestFileLoad extends FormTemplatePage{
             @Override
             public void onSubmit() {
                 DomainObject oszn = organizationModel.getObject();
-                loadRequestBean.load(oszn.getId(), organizationStrategy.getDistrictCode(oszn),
-                        organizationStrategy.getUniqueCode(oszn), from.getModelObject(), to.getModelObject());
+                loadRequestBean.load(oszn.getId(), 
+                        organizationStrategy.getDistrictCode(oszn), organizationStrategy.getUniqueCode(oszn),
+                        from.getModelObject(), to.getModelObject(), year.getModelObject());
             }
         };
         form.add(load);

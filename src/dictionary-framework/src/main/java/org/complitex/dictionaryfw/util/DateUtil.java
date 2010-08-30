@@ -1,6 +1,8 @@
 package org.complitex.dictionaryfw.util;
 
 import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -106,5 +108,13 @@ public class DateUtil {
         Calendar c = Calendar.getInstance();
         c.setTime(date);
         return c.get(Calendar.YEAR);
+    }
+
+    public static Date parseDate(String month, int year){
+        try {
+            return new SimpleDateFormat("MMyyyy").parse(month+year);
+        } catch (ParseException e) {
+            return null;
+        }
     }
 }
