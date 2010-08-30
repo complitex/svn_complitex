@@ -120,7 +120,7 @@ public class BindingRequestBean extends AbstractBean {
         return benefitBean.countByFile(benefitFileId) == 0;
     }
 
-    public void bind(List<RequestFile> requestFileIds){
+    public void bind(List<RequestFile> requestFiles){
         //todo async
     }
 }
