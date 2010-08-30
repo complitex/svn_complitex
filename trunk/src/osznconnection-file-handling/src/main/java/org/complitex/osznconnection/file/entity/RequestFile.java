@@ -8,7 +8,12 @@ import java.util.Date;
  *         Date: 25.08.2010 17:35:35
  */
 public class RequestFile implements Serializable{
-    public static enum STATUS {LOADED, ERROR, DEV}
+    public static enum STATUS {LOADING, LOADED, ERROR, DEV}
+
+    public static enum TYPE {NONE, PAYMENT, BENEFIT}
+    public final static String PAYMENT_FILES_PREFIX = "A_";
+    public final static String BENEFIT_FILES_PREFIX = "AF";
+    public final static String REQUEST_FILES_POSTFIX = ".dbf";
 
     private Long id;
     private Date loaded;
@@ -21,6 +26,28 @@ public class RequestFile implements Serializable{
     private STATUS status = STATUS.DEV;
 
     private Integer loadedRecordCount;
+
+    public boolean isPayment(){
+        return getType().equals(TYPE.PAYMENT);
+    }
+
+    public boolean isBenefit(){
+        return getType().equals(TYPE.BENEFIT);
+    }
+
+    public TYPE getType(){
+        if (name != null && name.length() > 2){
+            String prefix  = name.substring(0,2);
+
+            if (prefix.equalsIgnoreCase(PAYMENT_FILES_PREFIX)){
+                return TYPE.PAYMENT;
+            }else if (prefix.equalsIgnoreCase(BENEFIT_FILES_PREFIX)){
+                return  TYPE.BENEFIT;
+            }
+        }
+
+        return TYPE.NONE;
+    }
 
     public Long getId() {
         return id;
