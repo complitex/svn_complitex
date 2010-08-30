@@ -6,20 +6,13 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvid
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.*;
 import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.util.ListModel;
-import org.apache.wicket.model.util.MapModel;
-import org.apache.wicket.validation.validator.RangeValidator;
 import org.complitex.dictionaryfw.entity.DomainObject;
-import org.complitex.dictionaryfw.entity.User;
-import org.complitex.dictionaryfw.strategy.StrategyFactory;
 import org.complitex.dictionaryfw.util.StringUtil;
 import org.complitex.dictionaryfw.web.component.BookmarkablePageLinkPanel;
 import org.complitex.dictionaryfw.web.component.DatePicker;
@@ -155,7 +148,7 @@ public class RequestFileList extends TemplatePage{
         dataProvider.setSort("loaded", false);
 
         //todo paging debug
-        final Map<Long, IModel<Boolean>> selectModels = new HashMap<Long, IModel<Boolean>>();
+        final Map<RequestFile, IModel<Boolean>> selectModels = new HashMap<RequestFile, IModel<Boolean>>();
 
         //Таблица файлов запросов
         final DataView<RequestFile> dataView = new DataView<RequestFile>("request_files", dataProvider, 1){
@@ -165,7 +158,7 @@ public class RequestFileList extends TemplatePage{
                 RequestFile rf = item.getModelObject();
 
                 IModel<Boolean> checkModel = new Model<Boolean>(false);
-                selectModels.put(rf.getId(), checkModel);
+                selectModels.put(rf, checkModel);
                 item.add(new CheckBox("selected", checkModel));
 
                 item.add(DateLabel.forDatePattern("loaded", new Model<Date>(rf.getLoaded()), "dd.MM.yy HH:mm:ss"));
@@ -211,15 +204,15 @@ public class RequestFileList extends TemplatePage{
         Button process = new Button("bind"){
             @Override
             public void onSubmit() {
-                List<Long> ids = new ArrayList<Long>();
+                List<RequestFile> requestFiles = new ArrayList<RequestFile>();
 
-                for (Long id : selectModels.keySet()){
-                    if (selectModels.get(id).getObject()){
-                        ids.add(id);
+                for (RequestFile requestFile : selectModels.keySet()){
+                    if (selectModels.get(requestFile).getObject()){
+                        requestFiles.add(requestFile);
                     }
                 }
 
-                bindingRequestBean.bindRequestFiles(ids);
+                bindingRequestBean.bind(requestFiles);
             }
         };
         filterForm.add(process);
