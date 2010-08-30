@@ -11,6 +11,7 @@ import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
@@ -29,6 +30,7 @@ import org.complitex.osznconnection.file.entity.BenefitDBF;
 import org.complitex.osznconnection.file.entity.Status;
 import org.complitex.osznconnection.file.service.BenefitBean;
 import org.complitex.osznconnection.file.service.RequestFileBean;
+import org.complitex.osznconnection.file.web.RequestFileList;
 import org.complitex.osznconnection.file.web.component.StatusRenderer;
 
 import javax.ejb.EJB;
@@ -41,7 +43,7 @@ import java.util.Iterator;
  */
 public final class BenefitList extends TemplatePage {
 
-    public static final String FILE_ID = "file_id";
+    public static final String FILE_ID = "request_file_id";
 
     @EJB(name = "BenefitBean")
     private BenefitBean benefitBean;
@@ -108,23 +110,16 @@ public final class BenefitList extends TemplatePage {
         };
         dataProvider.setSort("", true);
 
-        TextField<String> firstNameFilter = new TextField<String>("firstNameFilter", new PropertyModel<String>(example, "firstName"));
-        filterForm.add(firstNameFilter);
-        TextField<String> middleNameFilter = new TextField<String>("middleNameFilter", new PropertyModel<String>(example, "middleName"));
-        filterForm.add(middleNameFilter);
-        TextField<String> lastNameFilter = new TextField<String>("lastNameFilter", new PropertyModel<String>(example, "lastName"));
-        filterForm.add(lastNameFilter);
-        TextField<String> cityFilter = new TextField<String>("cityFilter", new PropertyModel<String>(example, "city"));
-        filterForm.add(cityFilter);
-        TextField<String> streetFilter = new TextField<String>("streetFilter", new PropertyModel<String>(example, "street"));
-        filterForm.add(streetFilter);
-        TextField<String> buildingFilter = new TextField<String>("buildingFilter", new PropertyModel<String>(example, "building"));
-        filterForm.add(buildingFilter);
-        TextField<String> apartmentFilter = new TextField<String>("apartmentFilter", new PropertyModel<String>(example, "apartment"));
-        filterForm.add(apartmentFilter);
-        DropDownChoice<Status> statusFilter = new DropDownChoice<Status>("statusFilter", new PropertyModel<Status>(example, "status"),
-                Arrays.asList(Status.values()), new StatusRenderer());
-        filterForm.add(statusFilter);
+
+        filterForm.add(new TextField<String>("firstNameFilter", new PropertyModel<String>(example, "firstName")));
+        filterForm.add(new TextField<String>("middleNameFilter", new PropertyModel<String>(example, "middleName")));
+        filterForm.add(new TextField<String>("lastNameFilter", new PropertyModel<String>(example, "lastName")));
+        filterForm.add(new TextField<String>("cityFilter", new PropertyModel<String>(example, "city")));
+        filterForm.add(new TextField<String>("streetFilter", new PropertyModel<String>(example, "street")));
+        filterForm.add(new TextField<String>("buildingFilter", new PropertyModel<String>(example, "building")));
+        filterForm.add(new TextField<String>("apartmentFilter", new PropertyModel<String>(example, "apartment")));
+        filterForm.add(new DropDownChoice<Status>("statusFilter", new PropertyModel<Status>(example, "status"),
+                Arrays.asList(Status.values()), new StatusRenderer()));
 
         AjaxLink reset = new AjaxLink("reset") {
 
@@ -171,8 +166,16 @@ public final class BenefitList extends TemplatePage {
         filterForm.add(new ArrowOrderByBorder("apartmentHeader", BenefitBean.OrderBy.APARTMENT.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("statusHeader", BenefitBean.OrderBy.STATUS.getOrderBy(), dataProvider, data, content));
 
-        content.add(new PagingNavigator("navigator", data, content));
+        Button back =  new Button("back"){
+            @Override
+            public void onSubmit() {
+                setResponsePage(RequestFileList.class);
+            }
+        };
+        back.setDefaultFormProcessing(false);
+        filterForm.add(back);
 
+        content.add(new PagingNavigator("navigator", data, content));
     }
 }
 

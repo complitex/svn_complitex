@@ -5,6 +5,21 @@
 <head>
     <wicket:head>
         <title wicket:id="title"></title>
+        <script type="text/javascript">
+            function selectAll(){
+                var cb=this.form['select'];
+                if (cb!=null) {
+                    if (!isNaN(cb.length)) {
+                        for(var i=0;i&lt;cb.length;i++) {
+                            if (cb[i].checked != this.checked) {
+                                cb[i].click();}
+                        }
+                    } else {
+                        if (cb.checked != this.checked) {cb.click();}
+                    }
+                }
+            }
+        </script>
     </wicket:head>
 </head>
 
@@ -31,7 +46,7 @@
                     </th>
                 </tr>
                 <tr>
-                    <th></th>
+                    <th><input type="checkbox" name="select" onclick="selectAll()"></th>
                     <th class="center">
                         <div style="width:102px">
                             <input type="text" wicket:id="loaded" style="width: 80px"/>
@@ -50,22 +65,26 @@
                 </tr>
                 </thead>
                 <tbody>
-                    <tr wicket:id="request_files">
-                        <td></td>
-                        <td><span wicket:id="loaded"></span></td>                              
-                        <td><span wicket:id="name"></span></td>
-                        <td><span wicket:id="organization"></span></td>
-                        <td><span wicket:id="month"></span></td>
-                        <td><span wicket:id="year"></span></td>
-                        <td><span wicket:id="dbf_record_count"></span></td>
-                        <td><span wicket:id="loaded_record_count"></span></td>
-                        <td><span wicket:id="status"></span></td>
-                        <td>
-                            <span>[action]</span>
-                        </td>
-                    </tr>
+                <tr wicket:id="request_files">
+                    <td><input type="checkbox" wicket:id="selected"/></td>
+                    <td><span wicket:id="loaded"></span></td>
+                    <td><span wicket:id="name"></span></td>
+                    <td><span wicket:id="organization"></span></td>
+                    <td><span wicket:id="month"></span></td>
+                    <td><span wicket:id="year"></span></td>
+                    <td><span wicket:id="dbf_record_count"></span></td>
+                    <td><span wicket:id="loaded_record_count"></span></td>
+                    <td><span wicket:id="status"></span></td>
+                    <td>
+                        <span wicket:id="action_list"></span>                        
+                    </td>
+                </tr>
                 </tbody>
             </table>
+
+            <div align="right" style="margin-top:10px">
+                <input type="submit" class="btnBig" wicket:id="bind" wicket:message="value:bind"/>
+            </div>
 
             <div>
                 <span wicket:id="paging"></span>

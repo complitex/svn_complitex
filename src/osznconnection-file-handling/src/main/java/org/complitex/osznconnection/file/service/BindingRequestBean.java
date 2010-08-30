@@ -115,7 +115,13 @@ public class BindingRequestBean extends AbstractBean {
         return bindingSuccess;
     }
 
-    public boolean bindBenefit(long benefitFileId) {
+    public boolean bindBenefitFile(long benefitFileId) {
         return benefitBean.countByFile(benefitFileId) == 0;
+    }
+
+    public void bindRequestFiles(List<Long> requestFileIds){
+        for (Long id : requestFileIds){
+            //bindPaymentFile(id); todo
+        }
     }
 }

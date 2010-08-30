@@ -12,6 +12,7 @@ import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
@@ -31,6 +32,7 @@ import org.complitex.osznconnection.file.entity.PaymentDBF;
 import org.complitex.osznconnection.file.entity.Status;
 import org.complitex.osznconnection.file.service.PaymentBean;
 import org.complitex.osznconnection.file.service.RequestFileBean;
+import org.complitex.osznconnection.file.web.RequestFileList;
 import org.complitex.osznconnection.file.web.component.StatusRenderer;
 
 import javax.ejb.EJB;
@@ -42,7 +44,7 @@ import java.util.Iterator;
  * @author Artem
  */
 public final class PaymentList extends TemplatePage {
-    public static final String FILE_ID = "file_id";
+    public static final String FILE_ID = "request_file_id";
 
     @EJB(name = "PaymentBean")
     private PaymentBean paymentBean;
@@ -151,8 +153,8 @@ public final class PaymentList extends TemplatePage {
                 item.add(new Label("building", payment.getInternalBuilding()));
                 item.add(new Label("apartment", payment.getInternalApartment()));
                 item.add(new Label("status", StatusRenderer.displayValue(payment.getStatus())));
-                BookmarkablePageLink correctionLink = new BookmarkablePageLink("correctionLink", PaymentCorrection.class,
-                        new PageParameters(ImmutableMap.of(PaymentCorrection.PAYMENT_ID, payment.getId())));
+                BookmarkablePageLink correctionLink = new BookmarkablePageLink<PaymentCorrection>("correctionLink",
+                        PaymentCorrection.class, new PageParameters(ImmutableMap.of(PaymentCorrection.PAYMENT_ID, payment.getId())));
                 boolean needCorrect = payment.getInternalCity() == null || payment.getInternalStreet() == null
                         || payment.getInternalBuilding() == null || payment.getInternalApartment() == null;
                 correctionLink.setVisible(needCorrect);
@@ -169,6 +171,15 @@ public final class PaymentList extends TemplatePage {
         filterForm.add(new ArrowOrderByBorder("buildingHeader", PaymentBean.OrderBy.BUILDING.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("apartmentHeader", PaymentBean.OrderBy.APARTMENT.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("statusHeader", PaymentBean.OrderBy.STATUS.getOrderBy(), dataProvider, data, content));
+
+        Button back =  new Button("back"){
+            @Override
+            public void onSubmit() {
+                setResponsePage(RequestFileList.class);
+            }
+        };
+        back.setDefaultFormProcessing(false);
+        filterForm.add(back);
 
         content.add(new PagingNavigator("navigator", data, content));
     }
