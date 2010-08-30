@@ -22,7 +22,7 @@ public class MonthDropDownChoice extends DropDownChoice<Integer>{
     public MonthDropDownChoice(String id, IModel<Integer> model) {
         super(id);
         setModel(model != null ? model : new Model<Integer>());
-        setChoices(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12));
+        setChoices(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11));
         setChoiceRenderer(new IChoiceRenderer<Integer>(){
 
             @Override
