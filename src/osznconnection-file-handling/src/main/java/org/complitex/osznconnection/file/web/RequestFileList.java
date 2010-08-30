@@ -1,5 +1,6 @@
 package org.complitex.osznconnection.file.web;
 
+import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.datetime.markup.html.basic.DateLabel;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
@@ -101,8 +102,8 @@ public class RequestFileList extends TemplatePage{
         //Количество записей
         filterForm.add(new TextField<Integer>("dbfRecordCount", new Model<Integer>(), Integer.class));
 
-        //Количество загруженных записей
-        filterForm.add(new TextField<Integer>("loadedRecordCount", new Model<Integer>(), Integer.class));
+        //Количество ошибок
+        filterForm.add(new TextField<Integer>("errorsCount", new Model<Integer>(), Integer.class));
 
         //Статус
         filterForm.add(new DropDownChoice<RequestFile.STATUS>("status",
@@ -171,13 +172,13 @@ public class RequestFileList extends TemplatePage{
                 item.add(DateLabel.forDatePattern("month", new Model<Date>(rf.getDate()), "MMMM"));
                 item.add(DateLabel.forDatePattern("year", new Model<Date>(rf.getDate()), "yyyy"));
                 item.add(new Label("dbf_record_count", StringUtil.valueOf(rf.getDbfRecordCount())));
-                item.add(new Label("loaded_record_count", StringUtil.valueOf(rf.getLoadedRecordCount())));
+                item.add(new Label("errors_count", "[errors_count]"));
                 item.add(new Label("status", getStringOrKey(rf.getStatus().name())));
 
-                Class page = null;
-                if (requestFileBean.getType(rf).equals(RequestFileBean.TYPE.PAYMENT)){
+                Class<? extends Page> page = null;
+                if (rf.isPayment()){
                     page = PaymentList.class;
-                }else if (requestFileBean.getType(rf).equals(RequestFileBean.TYPE.BENEFIT)){
+                }else if (rf.isBenefit()){
                     page = BenefitList.class;
                 }
 
@@ -194,7 +195,7 @@ public class RequestFileList extends TemplatePage{
         filterForm.add(new ArrowOrderByBorder("header.month", "month", dataProvider, dataView, filterForm));
         filterForm.add(new ArrowOrderByBorder("header.year", "year", dataProvider, dataView, filterForm));
         filterForm.add(new ArrowOrderByBorder("header.dbf_record_count", "dbf_record_count", dataProvider, dataView, filterForm));
-        filterForm.add(new ArrowOrderByBorder("header.loaded_record_count", "loaded_record_count", dataProvider, dataView, filterForm));
+        filterForm.add(new ArrowOrderByBorder("header.errors_count", "errors_count", dataProvider, dataView, filterForm));
         filterForm.add(new ArrowOrderByBorder("header.status", "status", dataProvider, dataView, filterForm));
 
         //Постраничная навигация

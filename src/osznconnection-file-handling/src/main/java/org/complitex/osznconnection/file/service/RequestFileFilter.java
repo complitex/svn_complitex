@@ -18,6 +18,7 @@ public class RequestFileFilter extends AbstractFilter{
     private Integer month;
     private Integer dbfRecordCount;
     private Integer loadedRecordCount;
+    private Integer errorsCount;
     private Long length;
     private String checkSum;
     private String status;
@@ -79,6 +80,22 @@ public class RequestFileFilter extends AbstractFilter{
         this.dbfRecordCount = dbfRecordCount;
     }
 
+    public Integer getLoadedRecordCount() {
+        return loadedRecordCount;
+    }
+
+    public void setLoadedRecordCount(Integer loadedRecordCount) {
+        this.loadedRecordCount = loadedRecordCount;
+    }
+
+    public Integer getErrorsCount() {
+        return errorsCount;
+    }
+
+    public void setErrorsCount(Integer errorsCount) {
+        this.errorsCount = errorsCount;
+    }
+
     public Long getLength() {
         return length;
     }
@@ -101,14 +118,6 @@ public class RequestFileFilter extends AbstractFilter{
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public Integer getLoadedRecordCount() {
-        return loadedRecordCount;
-    }
-
-    public void setLoadedRecordCount(Integer loadedRecordCount) {
-        this.loadedRecordCount = loadedRecordCount;
     }
 
     public DomainObject getOrganization() {

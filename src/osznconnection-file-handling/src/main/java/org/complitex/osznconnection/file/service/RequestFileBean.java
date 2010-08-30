@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.util.List;
 import org.complitex.dictionaryfw.entity.DomainObject;
 
+import static org.complitex.osznconnection.file.entity.RequestFile.*;
+
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 25.08.2010 12:15:53
@@ -28,30 +30,11 @@ public class RequestFileBean extends AbstractBean {
     private static final Logger log = LoggerFactory.getLogger(RequestFileBean.class);
     private static final String MAPPING_NAMESPACE = RequestFileBean.class.getName();
 
-    public static enum TYPE {NONE, PAYMENT, BENEFIT}
-    public final static String PAYMENT_FILES_PREFIX = "A_";
-    public final static String BENEFIT_FILES_PREFIX = "AF";
-    public final static String REQUEST_FILES_POSTFIX = ".dbf";
-
     @EJB(beanName = "PaymentBean")
     private PaymentBean paymentBean;
 
     @EJB(beanName = "BenefitBean")
     private BenefitBean benefitBean;
-
-    public TYPE getType(RequestFile requestFile){
-        if (requestFile != null && requestFile.getName() != null && requestFile.getName().length() > 2){
-            String prefix  = requestFile.getName().substring(0,2);
-
-            if (prefix.equalsIgnoreCase(PAYMENT_FILES_PREFIX)){
-                return TYPE.PAYMENT;
-            }else if (prefix.equalsIgnoreCase(BENEFIT_FILES_PREFIX)){
-                return  TYPE.BENEFIT;               
-            }
-        }
-
-        return TYPE.NONE;
-    }
 
     private List<File> getRequestFiles(final String filePrefix, final String districtDir,
             final String[] osznCode, final String[] months) {
