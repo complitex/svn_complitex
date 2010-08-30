@@ -1,12 +1,10 @@
 package org.complitex.osznconnection.file.web;
 
+import org.apache.wicket.PageParameters;
 import org.apache.wicket.datetime.markup.html.basic.DateLabel;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.DropDownChoice;
-import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.IChoiceRenderer;
-import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.form.*;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
@@ -15,11 +13,15 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.model.util.MapModel;
 import org.apache.wicket.validation.validator.RangeValidator;
 import org.complitex.dictionaryfw.entity.DomainObject;
+import org.complitex.dictionaryfw.entity.User;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
 import org.complitex.dictionaryfw.util.StringUtil;
+import org.complitex.dictionaryfw.web.component.BookmarkablePageLinkPanel;
 import org.complitex.dictionaryfw.web.component.DatePicker;
 import org.complitex.dictionaryfw.web.component.MonthDropDownChoice;
 import org.complitex.dictionaryfw.web.component.YearDropDownChoice;
@@ -27,15 +29,15 @@ import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
 import org.complitex.osznconnection.commons.web.template.TemplatePage;
 import org.complitex.osznconnection.file.entity.RequestFile;
+import org.complitex.osznconnection.file.service.BindingRequestBean;
 import org.complitex.osznconnection.file.service.RequestFileBean;
 import org.complitex.osznconnection.file.service.RequestFileFilter;
+import org.complitex.osznconnection.file.web.pages.benefit.BenefitList;
+import org.complitex.osznconnection.file.web.pages.payment.PaymentList;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 
 import javax.ejb.EJB;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
+import java.util.*;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -47,6 +49,9 @@ public class RequestFileList extends TemplatePage{
 
     @EJB(name = "OrganizationStrategy")
     private OrganizationStrategy organizationStrategy;
+
+    @EJB(name = "BindingRequestBean")
+    private BindingRequestBean bindingRequestBean;
 
     public RequestFileList() {
         super();
@@ -63,7 +68,7 @@ public class RequestFileList extends TemplatePage{
         filterForm.setOutputMarkupId(true);
         add(filterForm);
 
-         Link filter_reset = new Link("filter_reset") {
+        Link filter_reset = new Link("filter_reset") {
 
             @Override
             public void onClick() {
@@ -149,12 +154,19 @@ public class RequestFileList extends TemplatePage{
         };
         dataProvider.setSort("loaded", false);
 
+        //todo paging debug
+        final Map<Long, IModel<Boolean>> selectModels = new HashMap<Long, IModel<Boolean>>();
+
         //Таблица файлов запросов
-        DataView<RequestFile> dataView = new DataView<RequestFile>("request_files", dataProvider, 1){
+        final DataView<RequestFile> dataView = new DataView<RequestFile>("request_files", dataProvider, 1){
 
             @Override
             protected void populateItem(Item<RequestFile> item) {
                 RequestFile rf = item.getModelObject();
+
+                IModel<Boolean> checkModel = new Model<Boolean>(false);
+                selectModels.put(rf.getId(), checkModel);
+                item.add(new CheckBox("selected", checkModel));
 
                 item.add(DateLabel.forDatePattern("loaded", new Model<Date>(rf.getLoaded()), "dd.MM.yy HH:mm:ss"));
                 item.add(new Label("name", rf.getName()));
@@ -168,6 +180,16 @@ public class RequestFileList extends TemplatePage{
                 item.add(new Label("dbf_record_count", StringUtil.valueOf(rf.getDbfRecordCount())));
                 item.add(new Label("loaded_record_count", StringUtil.valueOf(rf.getLoadedRecordCount())));
                 item.add(new Label("status", getStringOrKey(rf.getStatus().name())));
+
+                Class page = null;
+                if (requestFileBean.getType(rf).equals(RequestFileBean.TYPE.PAYMENT)){
+                    page = PaymentList.class;
+                }else if (requestFileBean.getType(rf).equals(RequestFileBean.TYPE.BENEFIT)){
+                    page = BenefitList.class;
+                }
+
+                item.add(new BookmarkablePageLinkPanel<RequestFile>("action_list", getString("action_list"),
+                        page, new PageParameters("request_file_id=" + rf.getId())));
             }
         };
         filterForm.add(dataView);
@@ -184,5 +206,22 @@ public class RequestFileList extends TemplatePage{
 
         //Постраничная навигация
         filterForm.add(new PagingNavigator("paging", dataView, filterForm));
+
+        //Связать
+        Button process = new Button("bind"){
+            @Override
+            public void onSubmit() {
+                List<Long> ids = new ArrayList<Long>();
+
+                for (Long id : selectModels.keySet()){
+                    if (selectModels.get(id).getObject()){
+                        ids.add(id);
+                    }
+                }
+
+                bindingRequestBean.bindRequestFiles(ids);
+            }
+        };
+        filterForm.add(process);
     }
 }
