@@ -1,6 +1,7 @@
 package org.complitex.dictionaryfw.web.component;
 
 import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.model.IModel;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -24,5 +25,10 @@ public class YearDropDownChoice extends DropDownChoice<Integer> {
         }
 
         setChoices(years);
+    }
+
+    public YearDropDownChoice(String id, IModel<Integer> model) {        
+        this(id);
+        setModel(model);
     }
 }

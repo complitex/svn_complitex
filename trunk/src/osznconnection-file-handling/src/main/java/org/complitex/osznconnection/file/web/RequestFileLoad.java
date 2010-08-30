@@ -9,6 +9,7 @@ import org.complitex.dictionaryfw.web.component.MonthDropDownChoice;
 import org.complitex.dictionaryfw.web.component.YearDropDownChoice;
 import org.complitex.osznconnection.commons.web.pages.welcome.WelcomePage;
 import org.complitex.osznconnection.commons.web.template.FormTemplatePage;
+import org.complitex.osznconnection.file.service.LoadRequestBean;
 import org.complitex.osznconnection.file.service.RequestFileBean;
 
 import javax.ejb.EJB;
@@ -22,8 +23,8 @@ import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
  *         Date: 25.08.2010 15:43:27
  */
 public class RequestFileLoad extends FormTemplatePage{
-    @EJB(name = "RequestFileBean")
-    private RequestFileBean requestFileBean;
+    @EJB(name = "LoadRequestBean")
+    private LoadRequestBean loadRequestBean;
 
     @EJB(name = "OrganizationStrategy")
     private OrganizationStrategy organizationStrategy;
@@ -59,15 +60,15 @@ public class RequestFileLoad extends FormTemplatePage{
         form.add(organization);
 
         //Период
-        final DropDownChoice<Integer> from = new MonthDropDownChoice("from");
+        final DropDownChoice<Integer> from = new MonthDropDownChoice("from", new Model<Integer>());
         from.setRequired(true);
         form.add(from);
 
-        final DropDownChoice<Integer> to = new MonthDropDownChoice("to");
+        final DropDownChoice<Integer> to = new MonthDropDownChoice("to", new Model<Integer>());
         to.setRequired(true);
         form.add(to);
 
-        final DropDownChoice<Integer> year = new YearDropDownChoice("year");        
+        final DropDownChoice<Integer> year = new YearDropDownChoice("year", new Model<Integer>());        
         year.setRequired(true);
         form.add(year);
 
@@ -75,17 +76,8 @@ public class RequestFileLoad extends FormTemplatePage{
         Button load = new Button("load"){
             @Override
             public void onSubmit() {
-                super.onSubmit();
-
-                //validation to > from
-                if (from.getModelObject() > to.getModelObject()){
-
-                    error("to > from");
-                    return;
-                }
-
                 DomainObject oszn = organizationModel.getObject();
-                requestFileBean.load(oszn.getId(), organizationStrategy.getDistrictCode(oszn),
+                loadRequestBean.load(oszn.getId(), organizationStrategy.getDistrictCode(oszn),
                         organizationStrategy.getUniqueCode(oszn), from.getModelObject(), to.getModelObject());
             }
         };
