@@ -45,10 +45,10 @@
         <where>
             <if test="loaded != null">YEAR(`loaded`) = YEAR(#{loaded}) and DAY(`loaded`) = DAY(#{loaded})</if>
             <if test="name != null">and `name` like CONCAT('%',#{name},'%')</if>
-            <if test="organizationObjectId != null">and `organization_object_id` = #{organizationObjectId}</if>
-            <if test="year != null">year = #{year}</if>
-            <if test="month != null">month = #{month}</if>
-            <if test="dbfRecordCount != null">`dbf_record_count` like CONCAT('%',#{dbfRecordCount},'%')</if>
+            <if test="organization != null">and `organization_object_id` = #{organization.id}</if>            
+            <if test="year != null">and YEAR(`date`) = #{year}</if>
+            <if test="month != null">and MONTH(`date`)-1 = #{month}</if>
+            <if test="dbfRecordCount != null">and `dbf_record_count` like CONCAT('%',#{dbfRecordCount},'%')</if>
             <if test="loadedRecordCount != null">
                 <!--todo-->
             </if>
@@ -58,27 +58,27 @@
     <select id="selectRequestFiles" parameterType="org.complitex.osznconnection.file.service.RequestFileFilter"
             resultMap="requestFileResultMap">
         select
-            `loaded`,
-            `name`,
-            `organization_object_id`,
-            `date`,
-            MONTH(`date`) as month,
-            YEAR(`date`) as year,
-            `dbf_record_count`,
-            `length`,
-            <!--loaded_record_count-->
-            `status`
+            *
         from
             `request_file`
         <include refid="requestFilesFilterWhere"/>
         <if test="sortProperty != null">
-            order by `${sortProperty}` <choose><when test="ascending">asc</when><otherwise>desc</otherwise></choose>
+            order by
+            <choose>
+                <when test="sortProperty == 'month'">MONTH(`date`)</when>
+                <when test="sortProperty == 'year'">YEAR(`date`)</when>
+                <otherwise>`${sortProperty}`</otherwise>
+            </choose>
+            <choose>
+                <when test="ascending">asc</when>
+                <otherwise>desc</otherwise>
+            </choose>
         </if>
         limit #{first}, #{count}
     </select>
 
     <select id="selectRequestFilesCount" parameterType="org.complitex.osznconnection.file.service.RequestFileFilter"
             resultType="int">
-        select count(*)from `request_file` <include refid="requestFilesFilterWhere"/>
+        select count(*) from `request_file` <include refid="requestFilesFilterWhere"/>
     </select>               
 </mapper>

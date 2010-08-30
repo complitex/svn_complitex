@@ -16,12 +16,7 @@ public class MonthDropDownChoice extends DropDownChoice<Integer>{
     private final String[] MONTHS = DateFormatSymbols.getInstance(getLocale()).getMonths();
 
     public MonthDropDownChoice(String id){
-        this(id, null);
-    }
-
-    public MonthDropDownChoice(String id, IModel<Integer> model) {
-        super(id);
-        setModel(model != null ? model : new Model<Integer>());
+        super(id);        
         setChoices(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11));
         setChoiceRenderer(new IChoiceRenderer<Integer>(){
 
