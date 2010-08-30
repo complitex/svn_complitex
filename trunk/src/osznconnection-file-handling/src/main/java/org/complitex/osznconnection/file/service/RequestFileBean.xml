@@ -20,9 +20,9 @@
     <insert id="insertRequestFile" parameterType="org.complitex.osznconnection.file.entity.RequestFile"
             keyProperty="id" useGeneratedKeys="true">
         insert into
-            `request_file` (`organization_object_id`, `name`, `date`, `dbf_record_count`, `length`, `check_sum`, `status`)
+            `request_file` (`organization_object_id`, `name`, `date`, `dbf_record_count`, `length`, `check_sum`, `status`, `loaded`)
         values
-            (#{organizationObjectId}, #{name}, #{date}, #{dbfRecordCount}, #{length}, #{checkSum}, #{status});
+            (#{organizationObjectId}, #{name}, #{date}, #{dbfRecordCount}, #{length}, #{checkSum}, #{status}, #{loaded});
     </insert>
 
     <update id="updateRequestFile" parameterType="org.complitex.osznconnection.file.entity.RequestFile">
