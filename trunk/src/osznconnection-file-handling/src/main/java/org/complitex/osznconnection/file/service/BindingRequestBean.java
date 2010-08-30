@@ -8,6 +8,7 @@ import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.entity.Payment;
 import org.complitex.osznconnection.file.entity.PaymentDBF;
+import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.entity.Status;
 
 import javax.ejb.EJB;
@@ -119,9 +120,7 @@ public class BindingRequestBean extends AbstractBean {
         return benefitBean.countByFile(benefitFileId) == 0;
     }
 
-    public void bindRequestFiles(List<Long> requestFileIds){
-        for (Long id : requestFileIds){
-            //bindPaymentFile(id); todo
-        }
+    public void bind(List<RequestFile> requestFileIds){
+        //todo async
     }
 }
