@@ -4,8 +4,9 @@
  */
 package org.complitex.osznconnection.information.strategy.building.web.edit;
 
-import java.io.Serializable;
 import org.complitex.dictionaryfw.entity.Attribute;
+
+import java.io.Serializable;
 
 /**
  *

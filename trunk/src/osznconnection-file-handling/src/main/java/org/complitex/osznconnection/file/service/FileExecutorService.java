@@ -6,18 +6,19 @@ package org.complitex.osznconnection.file.service;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import org.complitex.osznconnection.file.entity.AsyncOperationStatus;
+import org.complitex.osznconnection.file.entity.RequestFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import org.complitex.osznconnection.file.entity.AsyncOperationStatus;
-import org.complitex.osznconnection.file.entity.RequestFile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *

@@ -5,9 +5,10 @@
 package org.complitex.dictionaryfw.web.component.search;
 
 import com.google.common.collect.Maps;
+import org.complitex.dictionaryfw.entity.DomainObject;
+
 import java.io.Serializable;
 import java.util.Map;
-import org.complitex.dictionaryfw.entity.DomainObject;
 
 /**
  *

@@ -5,14 +5,14 @@
 package org.complitex.dictionaryfw.web.component;
 
 import com.google.common.collect.ImmutableList;
-import java.lang.String;
-import javax.ejb.EJB;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
+
+import javax.ejb.EJB;
 
 /**
  *

@@ -1,36 +1,23 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.osznconnection.information.strategy.building;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-import javax.interceptor.Interceptors;
 import org.apache.wicket.Component.IVisitor;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.util.string.Strings;
-import org.complitex.dictionaryfw.dao.LocaleBean;
-import org.complitex.dictionaryfw.dao.StringCultureBean;
-import org.complitex.dictionaryfw.dao.aop.SqlSessionInterceptor;
-import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.entity.Attribute;
+import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.entity.StringCulture;
 import org.complitex.dictionaryfw.entity.description.EntityAttributeType;
 import org.complitex.dictionaryfw.entity.example.AttributeExample;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
+import org.complitex.dictionaryfw.mybatis.Transactional;
+import org.complitex.dictionaryfw.service.LocaleBean;
+import org.complitex.dictionaryfw.service.StringCultureBean;
 import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionaryfw.strategy.web.DomainObjectListPanel;
@@ -40,39 +27,38 @@ import org.complitex.dictionaryfw.util.ResourceUtil;
 import org.complitex.dictionaryfw.web.component.DomainObjectInputPanel;
 import org.complitex.dictionaryfw.web.component.search.ISearchCallback;
 import org.complitex.dictionaryfw.web.component.search.SearchComponent;
-import org.complitex.osznconnection.information.strategy.building.web.edit.BuildingEditComponent;
-import org.complitex.osznconnection.information.strategy.building.web.edit.BuildingValidator;
 import org.complitex.osznconnection.commons.web.pages.DomainObjectEdit;
 import org.complitex.osznconnection.commons.web.pages.DomainObjectList;
 import org.complitex.osznconnection.commons.web.pages.HistoryPage;
 import org.complitex.osznconnection.information.resource.CommonResources;
+import org.complitex.osznconnection.information.strategy.building.web.edit.BuildingEditComponent;
+import org.complitex.osznconnection.information.strategy.building.web.edit.BuildingValidator;
+
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
+import java.io.Serializable;
+import java.util.*;
 
 /**
  *
  * @author Artem
  */
-@Stateless
-@Interceptors({SqlSessionInterceptor.class})
+@Stateless(name = "BuildingStrategy")
 public class BuildingStrategy extends Strategy {
-
     public static final String RESOURCE_BUNDLE = BuildingStrategy.class.getName();
 
     public static final long NUMBER = 500;
-
     public static final long CORP = 501;
-
     public static final long STRUCTURE = 502;
-
     public static final long STREET = 503;
-
     public static final long DISTRICT = 504;
 
     private static final String BUILDING_NAMESPACE = BuildingStrategy.class.getPackage().getName() + ".Building";
 
-    @EJB
+    @EJB(beanName = "StringCultureBean")
     private StringCultureBean stringBean;
 
-    @EJB
+    @EJB(beanName = "LocaleBean")
     private LocaleBean localeBean;
 
     @Override
@@ -85,27 +71,30 @@ public class BuildingStrategy extends Strategy {
         return attributeDescription.getId() > DISTRICT;
     }
 
+    @SuppressWarnings({"unchecked"})
     @Override
+    @Transactional
     public List<DomainObject> find(DomainObjectExample example) {
         example.setTable(getEntityTable());
-        List<DomainObject> buildings = session.selectList(BUILDING_NAMESPACE + "." + FIND_OPERATION, example);
+        List<DomainObject> buildings = sqlSession().selectList(BUILDING_NAMESPACE + "." + FIND_OPERATION, example);
         for (DomainObject building : buildings) {
             DomainObjectExample loadAttrsExample = CloneUtil.cloneObject(example);
             loadAttrsExample.setId(building.getId());
-            building.setAttributes(session.selectList(BUILDING_NAMESPACE + ".loadSimpleAttributes", loadAttrsExample));
+            building.setAttributes(sqlSession().selectList(BUILDING_NAMESPACE + ".loadSimpleAttributes", loadAttrsExample));
             super.updateStringsForNewLocales(building);
         }
         return buildings;
     }
 
     @Override
+    @Transactional
     public DomainObject findById(Long id) {
         DomainObjectExample example = new DomainObjectExample();
         example.setId(id);
         example.setTable(getEntityTable());
-        DomainObject object = (DomainObject) session.selectOne(BUILDING_NAMESPACE + "." + FIND_BY_ID_OPERATION, example);
-        object.setAttributes(session.selectList(BUILDING_NAMESPACE + ".loadSimpleAttributes", example));
-        for (Attribute complexAttr : (List<Attribute>) session.selectList(BUILDING_NAMESPACE + ".loadComplexAttributes", example)) {
+        DomainObject object = (DomainObject) sqlSession().selectOne(BUILDING_NAMESPACE + "." + FIND_BY_ID_OPERATION, example);
+        object.setAttributes(sqlSession().selectList(BUILDING_NAMESPACE + ".loadSimpleAttributes", example));
+        for (Attribute complexAttr : (List<Attribute>) sqlSession().selectList(BUILDING_NAMESPACE + ".loadComplexAttributes", example)) {
             object.addAttribute(complexAttr);
         }
         super.updateForNewAttributeTypes(object);
@@ -114,9 +103,10 @@ public class BuildingStrategy extends Strategy {
     }
 
     @Override
+    @Transactional
     public int count(DomainObjectExample example) {
         example.setTable(getEntityTable());
-        return (Integer) session.selectOne(BUILDING_NAMESPACE + "." + COUNT_OPERATION, example);
+        return (Integer) sqlSession().selectOne(BUILDING_NAMESPACE + "." + COUNT_OPERATION, example);
     }
 
     @Override
@@ -143,7 +133,7 @@ public class BuildingStrategy extends Strategy {
         return object;
     }
 
-    public static Attribute newEntityAttribute(DomainObject object, long attributeId, long attributeTypeId, long attributeValueId, List<String> locales) {
+    public Attribute newEntityAttribute(DomainObject object, long attributeId, long attributeTypeId, long attributeValueId, List<String> locales) {
         Attribute attribute = new Attribute();
         attribute.setObjectId(object.getId());
         attribute.setAttributeTypeId(attributeTypeId);
@@ -158,7 +148,7 @@ public class BuildingStrategy extends Strategy {
         return attribute;
     }
 
-    public static Attribute newStreetAttribute(DomainObject object, long attributeId) {
+    public Attribute newStreetAttribute(DomainObject object, long attributeId) {
         Attribute attribute = new Attribute();
         attribute.setObjectId(object.getId());
         attribute.setAttributeTypeId(BuildingStrategy.STREET);
@@ -168,7 +158,7 @@ public class BuildingStrategy extends Strategy {
         return attribute;
     }
 
-    private static void newDistrictAttribute(DomainObject object) {
+    private void newDistrictAttribute(DomainObject object) {
         Attribute districtAttr = new Attribute();
         districtAttr.setAttributeId(1L);
         districtAttr.setAttributeTypeId(DISTRICT);
@@ -190,7 +180,7 @@ public class BuildingStrategy extends Strategy {
 
     @Override
     public ISearchCallback getSearchCallback() {
-        return new SearchCallback();
+        return new SearchCallback(this);
     }
 
     @Override
@@ -203,7 +193,7 @@ public class BuildingStrategy extends Strategy {
         return ImmutableList.of("country", "region", "city", "street");
     }
 
-    private static void configureExampleImpl(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
+    public void configureExampleImpl(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
         if (!Strings.isEmpty(searchTextInput)) {
             AttributeExample number = null;
             try {
@@ -244,12 +234,17 @@ public class BuildingStrategy extends Strategy {
     }
 
     private static class SearchCallback implements ISearchCallback, Serializable {
+        private Strategy strategy;
+
+        private SearchCallback(Strategy strategy) {
+            this.strategy = strategy;
+        }
 
         @Override
         public void found(SearchComponent component, Map<String, Long> ids, AjaxRequestTarget target) {
             DomainObjectListPanel list = component.findParent(DomainObjectListPanel.class);
             DomainObjectExample example = list.getExample();
-            configureExampleImpl(example, ids, null);
+            strategy.configureExampleImpl(example, ids, null);
             list.refreshContent(target);
         }
     }
@@ -302,11 +297,12 @@ public class BuildingStrategy extends Strategy {
     }
 
     @Override
+    @Transactional
     public RestrictedObjectInfo findParentInSearchComponent(long id, Date startDate) {
         DomainObjectExample example = new DomainObjectExample();
         example.setTable(getEntityTable());
         example.setId(id);
-        Long streetId = (Long) session.selectOne(BUILDING_NAMESPACE + ".findStreetInSearchComponent", example);
+        Long streetId = (Long) sqlSession().selectOne(BUILDING_NAMESPACE + ".findStreetInSearchComponent", example);
         if (streetId != null) {
             return new RestrictedObjectInfo("street", streetId);
         } else {

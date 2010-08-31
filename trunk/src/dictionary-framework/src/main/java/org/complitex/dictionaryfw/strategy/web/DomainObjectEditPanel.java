@@ -4,7 +4,6 @@
  */
 package org.complitex.dictionaryfw.strategy.web;
 
-import javax.ejb.EJB;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -18,10 +17,10 @@ import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.Module;
-import org.complitex.dictionaryfw.dao.StringCultureBean;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.entity.Log;
 import org.complitex.dictionaryfw.service.LogBean;
+import org.complitex.dictionaryfw.service.StringCultureBean;
 import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
 import org.complitex.dictionaryfw.util.CloneUtil;
@@ -30,6 +29,8 @@ import org.complitex.dictionaryfw.web.component.DomainObjectInputPanel;
 import org.complitex.dictionaryfw.web.component.search.SearchComponentState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.ejb.EJB;
 
 /**
  *

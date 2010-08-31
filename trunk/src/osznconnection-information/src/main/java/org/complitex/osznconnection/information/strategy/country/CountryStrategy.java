@@ -1,29 +1,17 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.osznconnection.information.strategy.country;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-import javax.interceptor.Interceptors;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.util.string.Strings;
-import org.complitex.dictionaryfw.dao.StringCultureBean;
-import org.complitex.dictionaryfw.dao.aop.SqlSessionInterceptor;
-import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.entity.Attribute;
+import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.entity.description.EntityAttributeType;
 import org.complitex.dictionaryfw.entity.example.AttributeExample;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
+import org.complitex.dictionaryfw.service.StringCultureBean;
 import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.util.ResourceUtil;
 import org.complitex.dictionaryfw.web.component.search.ISearchCallback;
@@ -32,15 +20,21 @@ import org.complitex.osznconnection.commons.web.pages.DomainObjectList;
 import org.complitex.osznconnection.commons.web.pages.HistoryPage;
 import org.complitex.osznconnection.information.resource.CommonResources;
 
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.NoSuchElementException;
+
 /**
  *
  * @author Artem
  */
 @Stateless
-@Interceptors({SqlSessionInterceptor.class})
 public class CountryStrategy extends Strategy {
 
-    @EJB
+    @EJB(beanName = "StringCultureBean")
     private StringCultureBean stringBean;
 
     private static final long NAME_ATTRIBUTE_TYPE_ID = 800L;
@@ -87,7 +81,7 @@ public class CountryStrategy extends Strategy {
         configureExampleImpl(example, ids, searchTextInput);
     }
 
-    private static void configureExampleImpl(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
+    public void configureExampleImpl(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
         if (!Strings.isEmpty(searchTextInput)) {
             AttributeExample attrExample = null;
             try {

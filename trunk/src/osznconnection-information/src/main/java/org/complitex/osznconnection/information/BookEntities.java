@@ -5,6 +5,7 @@
 package org.complitex.osznconnection.information;
 
 import com.google.common.collect.ImmutableList;
+
 import java.util.Collection;
 
 /**

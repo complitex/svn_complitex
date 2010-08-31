@@ -8,23 +8,15 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-import javax.interceptor.Interceptors;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.util.string.Strings;
-import org.complitex.dictionaryfw.dao.StringCultureBean;
-import org.complitex.dictionaryfw.dao.aop.SqlSessionInterceptor;
 import org.complitex.dictionaryfw.entity.Attribute;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.entity.description.EntityAttributeType;
 import org.complitex.dictionaryfw.entity.example.AttributeExample;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
+import org.complitex.dictionaryfw.service.StringCultureBean;
 import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionaryfw.strategy.web.IValidator;
@@ -36,12 +28,18 @@ import org.complitex.osznconnection.commons.web.pages.HistoryPage;
 import org.complitex.osznconnection.organization.strategy.web.OrganizationEditComponent;
 import org.complitex.osznconnection.organization.strategy.web.OrganizationValidator;
 
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.NoSuchElementException;
+
 /**
  *
  * @author Artem
  */
 @Stateless
-@Interceptors({SqlSessionInterceptor.class})
 public class OrganizationStrategy extends Strategy {
 
     public static final String RESOURCE_BUNDLE = OrganizationStrategy.class.getName();
@@ -50,19 +48,16 @@ public class OrganizationStrategy extends Strategy {
      * Attribute type ids
      */
     public static final long NAME = 900;
-
     public static final long DISTRICT_CODE = 901;
-
     public static final long UNIQUE_CODE = 902;
 
     /**
      * Entity type ids
      */
     public static final long OSZN = 900;
-
     public static final long PU = 901;
 
-    @EJB
+    @EJB(beanName = "StringCultureBean")
     private StringCultureBean stringBean;
 
     @Override

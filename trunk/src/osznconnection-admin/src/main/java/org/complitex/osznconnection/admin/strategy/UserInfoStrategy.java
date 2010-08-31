@@ -2,7 +2,6 @@ package org.complitex.osznconnection.admin.strategy;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
-import org.complitex.dictionaryfw.dao.aop.SqlSessionInterceptor;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.entity.description.EntityAttributeType;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
@@ -10,7 +9,6 @@ import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.web.component.search.ISearchCallback;
 
 import javax.ejb.Stateless;
-import javax.interceptor.Interceptors;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -20,7 +18,6 @@ import java.util.Map;
  *         Date: 10.08.2010 14:43:55
  */
 @Stateless(name = "User_infoStrategy")
-@Interceptors({SqlSessionInterceptor.class})
 public class UserInfoStrategy extends Strategy {
 
     @Override

@@ -1,23 +1,27 @@
 package org.complitex.dictionaryfw.service;
 
 import org.apache.ibatis.session.SqlSession;
-import org.complitex.dictionaryfw.dao.aop.SqlSessionInterceptor;
+import org.apache.ibatis.session.SqlSessionManager;
+import org.complitex.dictionaryfw.mybatis.SqlSessionFactoryBean;
+import org.complitex.dictionaryfw.mybatis.TransactionalMethodInterceptor;
 
+import javax.ejb.EJB;
 import javax.interceptor.Interceptors;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 09.08.2010 15:29:48
  */
-@Interceptors({SqlSessionInterceptor.class})
+@Interceptors(TransactionalMethodInterceptor.class)
 public abstract class AbstractBean {
-    protected SqlSession sqlSession;
+    @EJB(beanName = "SqlSessionFactoryBean")
+    private SqlSessionFactoryBean sqlSessionFactoryBean;
 
-    public SqlSession getSqlSession() {
-        return sqlSession;
+    public SqlSessionManager getSqlSessionManager() {
+        return sqlSessionFactoryBean.getSqlSessionManager();
     }
 
-    public void setSqlSession(SqlSession sqlSession) {
-        this.sqlSession = sqlSession;
+    public SqlSession sqlSession(){
+        return sqlSessionFactoryBean.getSqlSessionManager();
     }
 }

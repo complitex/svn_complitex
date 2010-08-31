@@ -20,9 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.complitex.osznconnection.file.entity.RequestFile.BENEFIT_FILES_PREFIX;
-import static org.complitex.osznconnection.file.entity.RequestFile.PAYMENT_FILES_PREFIX;
-import static org.complitex.osznconnection.file.entity.RequestFile.REQUEST_FILES_POSTFIX;
+import static org.complitex.osznconnection.file.entity.RequestFile.*;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru

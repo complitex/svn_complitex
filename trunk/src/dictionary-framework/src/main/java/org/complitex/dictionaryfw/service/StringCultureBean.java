@@ -2,38 +2,34 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.complitex.dictionaryfw.dao;
+package org.complitex.dictionaryfw.service;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import org.apache.wicket.util.string.Strings;
+import org.complitex.dictionaryfw.entity.InsertParameter;
+import org.complitex.dictionaryfw.entity.StringCulture;
+import org.complitex.dictionaryfw.mybatis.Transactional;
+
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
 import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-import javax.interceptor.Interceptors;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.wicket.util.string.Strings;
-import org.complitex.dictionaryfw.dao.aop.SqlSessionInterceptor;
-import org.complitex.dictionaryfw.entity.InsertParameter;
-import org.complitex.dictionaryfw.entity.StringCulture;
 
 /**
  *
  * @author Artem
  */
 @Stateless
-@Interceptors({SqlSessionInterceptor.class})
-public class StringCultureBean {
+public class StringCultureBean extends AbstractBean{
 
-    @EJB
+    @EJB(beanName = "SequenceBean")
     private SequenceBean sequenceBean;
 
-    @EJB
+    @EJB(beanName = "LocaleBean")
     private LocaleBean localeBean;
-
-    private SqlSession session;
 
     public Long insertStrings(List<StringCulture> strings, String entityTable) {
         if (strings != null && !strings.isEmpty()) {
@@ -49,11 +45,12 @@ public class StringCultureBean {
         return null;
     }
 
+    @Transactional
     public void insert(StringCulture stringCulture, String entityTable) {
         if (Strings.isEmpty(entityTable)) {
-            session.insert("org.complitex.dictionaryfw.entity.StringCulture.insertDescriptionData", stringCulture);
+            sqlSession().insert("org.complitex.dictionaryfw.entity.StringCulture.insertDescriptionData", stringCulture);
         } else {
-            session.insert("org.complitex.dictionaryfw.entity.StringCulture.insert", new InsertParameter(entityTable, stringCulture));
+            sqlSession().insert("org.complitex.dictionaryfw.entity.StringCulture.insert", new InsertParameter(entityTable, stringCulture));
         }
     }
 

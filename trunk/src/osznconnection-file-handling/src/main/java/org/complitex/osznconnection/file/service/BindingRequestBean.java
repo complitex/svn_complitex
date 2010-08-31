@@ -1,52 +1,39 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.osznconnection.file.service;
 
 import com.google.common.collect.Lists;
-import org.apache.wicket.util.string.Strings;
-import org.complitex.osznconnection.file.entity.Payment;
-import org.complitex.osznconnection.file.entity.PaymentDBF;
-import org.complitex.osznconnection.file.entity.Status;
-
-import javax.ejb.EJB;
-import java.util.List;
-import javax.ejb.Stateless;
 import org.apache.ibatis.session.SqlSession;
-import org.complitex.dictionaryfw.dao.SqlSessionFactory;
-import org.complitex.osznconnection.file.entity.AsyncOperationStatus;
-import org.complitex.osznconnection.file.entity.RequestFile;
+import org.apache.wicket.util.string.Strings;
+import org.complitex.dictionaryfw.service.AbstractBean;
+import org.complitex.osznconnection.file.entity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
+import java.util.List;
 
 /**
  *
  * @author Artem
  */
 @Stateless
-//@Interceptors({SqlSessionInterceptor.class})
-public class BindingRequestBean {
+public class BindingRequestBean extends AbstractBean{
 
     private static final Logger log = LoggerFactory.getLogger(BindingRequestBean.class);
 
     private static final int BATCH_SIZE = 100;
 
-//    private SqlSession sqlSession;
-    @EJB
+    @EJB(beanName = "AddressResolver")
     private AddressResolver addressResolver;
 
-    @EJB
+    @EJB(beanName = "PersonAccountBean")
     private PersonAccountBean personAccountBean;
 
-    @EJB
+    @EJB(beanName = "PaymentBean")
     private PaymentBean paymentBean;
 
-    @EJB
+    @EJB(beanName = "BenefitBean")
     private BenefitBean benefitBean;
-
-    @EJB
-    private SqlSessionFactory sqlSessionFactory;
 
     private static class ModifyStatus {
 
@@ -127,7 +114,7 @@ public class BindingRequestBean {
 
             SqlSession session = null;
             try {
-                session = sqlSessionFactory.getCurrentSession();
+                session = sqlSession();
                 List<Payment> payments = paymentBean.findByFile(paymentFileId, batch);
                 for (Payment payment : payments) {
                     boolean bindingSuccess = bind(payment);
@@ -144,7 +131,7 @@ public class BindingRequestBean {
                 }
                 log.error("", e);
             } finally {
-                sqlSessionFactory.removeCurrentSession();
+                getSqlSessionManager().close();
             }
         }
     }

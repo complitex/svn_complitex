@@ -4,8 +4,9 @@
  */
 package org.complitex.dictionaryfw.web.component.search;
 
-import java.util.Map;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+
+import java.util.Map;
 
 /**
  *

@@ -5,7 +5,6 @@
 package org.complitex.osznconnection.commons.web.pages;
 
 import com.google.common.collect.ImmutableList;
-import java.util.List;
 import org.apache.wicket.PageParameters;
 import org.complitex.dictionaryfw.strategy.web.CanEditUtil;
 import org.complitex.dictionaryfw.strategy.web.DomainObjectEditPanel;
@@ -15,6 +14,8 @@ import org.complitex.osznconnection.commons.web.component.toolbar.ToolbarButton;
 import org.complitex.osznconnection.commons.web.template.FormTemplatePage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * @author Artem

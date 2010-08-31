@@ -5,6 +5,7 @@
 package org.complitex.dictionaryfw.web.component.search;
 
 import com.google.common.collect.Maps;
+
 import java.io.Serializable;
 import java.util.Map;
 

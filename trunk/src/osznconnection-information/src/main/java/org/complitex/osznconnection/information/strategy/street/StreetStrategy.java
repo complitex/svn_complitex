@@ -1,32 +1,20 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.osznconnection.information.strategy.street;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-import javax.interceptor.Interceptors;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.util.string.Strings;
-import org.complitex.dictionaryfw.dao.StringCultureBean;
-import org.complitex.dictionaryfw.dao.aop.SqlSessionInterceptor;
-import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.entity.Attribute;
+import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.entity.description.EntityAttributeType;
 import org.complitex.dictionaryfw.entity.example.AttributeExample;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
+import org.complitex.dictionaryfw.mybatis.Transactional;
+import org.complitex.dictionaryfw.service.StringCultureBean;
 import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.strategy.web.DomainObjectListPanel;
 import org.complitex.dictionaryfw.util.ResourceUtil;
@@ -38,15 +26,22 @@ import org.complitex.osznconnection.commons.web.pages.DomainObjectList;
 import org.complitex.osznconnection.commons.web.pages.HistoryPage;
 import org.complitex.osznconnection.information.resource.CommonResources;
 
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.NoSuchElementException;
+
 /**
  *
  * @author Artem
  */
 @Stateless
-@Interceptors({SqlSessionInterceptor.class})
 public class StreetStrategy extends Strategy {
 
-    @EJB
+    @EJB(beanName = "StringCultureBean")
     private StringCultureBean stringBean;
 
     private static final long NAME_ATTRIBUTE_TYPE_ID = 300L;
@@ -57,9 +52,10 @@ public class StreetStrategy extends Strategy {
     }
 
     @Override
+    @Transactional
     public List<DomainObject> find(DomainObjectExample example) {
         example.setTable(getEntityTable());
-        return session.selectList("org.complitex.pspoffice.information.strategy.street.Street." + FIND_OPERATION, example);
+        return sqlSession().selectList("org.complitex.pspoffice.information.strategy.street.Street." + FIND_OPERATION, example);
     }
 
     @Override
@@ -94,7 +90,7 @@ public class StreetStrategy extends Strategy {
         return ImmutableList.of("country", "region", "city");
     }
 
-    private static void configureExampleImpl(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
+    public void configureExampleImpl(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
         if (!Strings.isEmpty(searchTextInput)) {
             AttributeExample attrExample = null;
             try {
@@ -127,15 +123,20 @@ public class StreetStrategy extends Strategy {
 
     @Override
     public ISearchCallback getSearchCallback() {
-        return new SearchCallback();
+        return new SearchCallback(this);
     }
 
     private static class SearchCallback implements ISearchCallback, Serializable {
+        private Strategy strategy;
+
+        private SearchCallback(Strategy strategy) {
+            this.strategy = strategy;
+        }
 
         @Override
         public void found(SearchComponent component, Map<String, Long> ids, AjaxRequestTarget target) {
             DomainObjectListPanel list = component.findParent(DomainObjectListPanel.class);
-            configureExampleImpl(list.getExample(), ids, null);
+            strategy.configureExampleImpl(list.getExample(), ids, null);
             list.refreshContent(target);
         }
     }

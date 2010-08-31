@@ -1,29 +1,19 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package org.complitex.dictionaryfw.dao;
+package org.complitex.dictionaryfw.service;
 
 import com.google.common.collect.ImmutableList;
-import java.util.List;
+import org.complitex.dictionaryfw.mybatis.Transactional;
+
 import javax.ejb.ConcurrencyManagement;
 import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.Singleton;
-import javax.interceptor.Interceptors;
-import org.apache.ibatis.session.SqlSession;
-import org.complitex.dictionaryfw.dao.aop.SqlSessionInterceptor;
-
+import java.util.List;
 /**
  *
  * @author Artem
  */
-@Singleton
-@Interceptors({SqlSessionInterceptor.class})
+@Singleton(name = "LocaleBean")
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
-public class LocaleBean {
-
-    private SqlSession session;
-
+public class LocaleBean extends AbstractBean{        
     /*
      * Cache for locales.
      */
@@ -31,18 +21,21 @@ public class LocaleBean {
 
     private String systemLocale;
 
+    @SuppressWarnings({"unchecked"})
+    @Transactional
     public List<String> getAllLocales() {
         if (allLocales == null) {
             allLocales = ImmutableList.<String>builder().
-                    addAll(session.selectList("org.complitex.dictionaryfw.entity.Locale.getAll")).
+                    addAll(sqlSession().selectList("org.complitex.dictionaryfw.entity.Locale.getAll")).
                     build();
         }
         return allLocales;
     }
 
+    @Transactional
     public String getSystemLocale() {
         if (systemLocale == null) {
-            systemLocale = (String) session.selectOne("org.complitex.dictionaryfw.entity.Locale.getSystem");
+            systemLocale = (String) sqlSession().selectOne("org.complitex.dictionaryfw.entity.Locale.getSystem");
         }
         return systemLocale;
     }

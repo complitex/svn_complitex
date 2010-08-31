@@ -5,8 +5,6 @@
 package org.complitex.dictionaryfw.web.component;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.List;
-import javax.ejb.EJB;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -24,6 +22,9 @@ import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
 import org.complitex.dictionaryfw.strategy.web.CanEditUtil;
+
+import javax.ejb.EJB;
+import java.util.List;
 
 /**
  *

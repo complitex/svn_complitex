@@ -5,12 +5,13 @@
 package org.complitex.dictionaryfw.entity.example;
 
 import com.google.common.collect.Maps;
+import org.complitex.dictionaryfw.web.component.ShowMode;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import org.complitex.dictionaryfw.web.component.ShowMode;
 
 /**
  *

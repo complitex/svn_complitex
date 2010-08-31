@@ -1,22 +1,22 @@
 package org.complitex.osznconnection.file.web;
 
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.*;
+import org.apache.wicket.markup.html.form.Button;
+import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.validation.validator.RangeValidator;
+import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.web.component.MonthDropDownChoice;
 import org.complitex.dictionaryfw.web.component.YearDropDownChoice;
 import org.complitex.osznconnection.commons.web.pages.welcome.WelcomePage;
 import org.complitex.osznconnection.commons.web.template.FormTemplatePage;
 import org.complitex.osznconnection.file.service.LoadRequestBean;
-import org.complitex.osznconnection.file.service.RequestFileBean;
+import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 
 import javax.ejb.EJB;
-import java.util.Calendar;
-import org.apache.wicket.model.IModel;
-import org.complitex.dictionaryfw.entity.DomainObject;
-import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru

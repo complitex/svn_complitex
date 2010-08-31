@@ -8,7 +8,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
-import org.complitex.dictionaryfw.dao.StringCultureBean;
+import org.complitex.dictionaryfw.service.StringCultureBean;
 import org.complitex.dictionaryfw.strategy.StrategyFactoryStatic;
 import org.complitex.osznconnection.commons.web.pages.EntityDescription;
 import org.complitex.osznconnection.commons.web.template.ITemplateLink;

@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.osznconnection.information.strategy.building.web.edit;
 
 import com.google.common.base.Predicate;
@@ -9,10 +5,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-import javax.ejb.EJB;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -21,24 +13,29 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.complitex.dictionaryfw.dao.LocaleBean;
-import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.entity.Attribute;
+import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.entity.StringCulture;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
+import org.complitex.dictionaryfw.service.LocaleBean;
 import org.complitex.dictionaryfw.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionaryfw.strategy.web.CanEditUtil;
 import org.complitex.dictionaryfw.web.component.DomainObjectInputPanel;
 import org.complitex.dictionaryfw.web.component.StringCulturePanel;
+import org.complitex.dictionaryfw.web.component.list.AjaxRemovableListView;
 import org.complitex.dictionaryfw.web.component.search.ISearchCallback;
 import org.complitex.dictionaryfw.web.component.search.SearchComponent;
 import org.complitex.dictionaryfw.web.component.search.SearchComponentState;
 import org.complitex.osznconnection.information.strategy.building.BuildingStrategy;
 import org.complitex.osznconnection.information.strategy.district.DistrictStrategy;
 import org.complitex.osznconnection.information.strategy.street.StreetStrategy;
-import org.complitex.dictionaryfw.web.component.list.AjaxRemovableListView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.ejb.EJB;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -48,7 +45,7 @@ public class BuildingEditComponent extends AbstractComplexAttributesPanel {
 
     private static final Logger log = LoggerFactory.getLogger(BuildingEditComponent.class);
 
-    @EJB(name = "LocaleDao")
+    @EJB(name = "LocaleBean")
     private LocaleBean localeBean;
 
     @EJB(name = "BuildingStrategy")
@@ -173,7 +170,7 @@ public class BuildingEditComponent extends AbstractComplexAttributesPanel {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
-                list.addNew();
+                list.addNew(buildingStrategy);
                 target.addComponent(attributesContainer);
             }
         };

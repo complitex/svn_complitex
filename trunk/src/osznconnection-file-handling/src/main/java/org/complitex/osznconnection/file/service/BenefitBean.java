@@ -4,6 +4,7 @@
  */
 package org.complitex.osznconnection.file.service;
 
+import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.entity.Benefit;
 import org.complitex.osznconnection.file.entity.BenefitDBF;
@@ -29,7 +30,7 @@ import java.util.Map;
  *
  * @author Artem
  */
-@Stateless
+@Stateless(name = "BenefitBean")
 public class BenefitBean extends AbstractBean {
 
     private static final String MAPPING_NAMESPACE = BenefitBean.class.getName();
@@ -51,19 +52,23 @@ public class BenefitBean extends AbstractBean {
         }
     }
 
+    @Transactional
     public int count(BenefitExample example) {
-        return (Integer) sqlSession.selectOne(MAPPING_NAMESPACE + ".count", example);
+        return (Integer) sqlSession().selectOne(MAPPING_NAMESPACE + ".count", example);
     }
 
+    @Transactional
     public int countByFile(long fileId) {
-        return (Integer) sqlSession.selectOne(MAPPING_NAMESPACE + ".countByFile", fileId);
+        return (Integer) sqlSession().selectOne(MAPPING_NAMESPACE + ".countByFile", fileId);
     }
 
     @SuppressWarnings({"unchecked"})
+    @Transactional
     public List<Benefit> find(BenefitExample example) {
-        return (List<Benefit>) sqlSession.selectList(MAPPING_NAMESPACE + ".find", example);
+        return (List<Benefit>) sqlSession().selectList(MAPPING_NAMESPACE + ".find", example);
     }
 
+    @Transactional
     public void load(RequestFile requestFile, DBF dbf) throws xBaseJException, IOException, WrongFieldTypeException {
         Map<BenefitDBF, Field> fields = new HashMap<BenefitDBF, Field>();
 
@@ -106,7 +111,7 @@ public class BenefitBean extends AbstractBean {
                 }
             }
 
-            sqlSession.insert(MAPPING_NAMESPACE + ".insertBenefit", benefit);
+            sqlSession().insert(MAPPING_NAMESPACE + ".insertBenefit", benefit);
         }
     }
 }

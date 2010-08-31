@@ -5,15 +5,15 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
+import org.complitex.dictionaryfw.service.LocaleBean;
 
+import javax.ejb.EJB;
 import java.util.List;
 import java.util.Locale;
-import javax.ejb.EJB;
-import org.apache.wicket.markup.html.form.IChoiceRenderer;
-import org.apache.wicket.model.Model;
-import org.complitex.dictionaryfw.dao.LocaleBean;
 
 /**
  *

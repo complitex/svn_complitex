@@ -6,10 +6,6 @@ package org.complitex.osznconnection.file.web.component.correction;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-import javax.ejb.EJB;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
@@ -22,6 +18,11 @@ import org.complitex.dictionaryfw.strategy.StrategyFactory;
 import org.complitex.dictionaryfw.web.component.search.ISearchCallback;
 import org.complitex.dictionaryfw.web.component.search.SearchComponent;
 import org.complitex.dictionaryfw.web.component.search.SearchComponentState;
+
+import javax.ejb.EJB;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 /**
  *

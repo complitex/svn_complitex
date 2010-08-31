@@ -8,13 +8,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import javax.ejb.EJB;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -22,19 +15,9 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.AbstractReadOnlyModel;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
-import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.*;
 import org.apache.wicket.util.string.Strings;
-import org.complitex.dictionaryfw.converter.BooleanConverter;
-import org.complitex.dictionaryfw.converter.DateConverter;
-import org.complitex.dictionaryfw.converter.DoubleConverter;
-import org.complitex.dictionaryfw.converter.IConverter;
-import org.complitex.dictionaryfw.converter.IntegerConverter;
-import org.complitex.dictionaryfw.dao.EntityBean;
-import org.complitex.dictionaryfw.dao.StringCultureBean;
+import org.complitex.dictionaryfw.converter.*;
 import org.complitex.dictionaryfw.entity.Attribute;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.entity.SimpleTypes;
@@ -42,6 +25,8 @@ import org.complitex.dictionaryfw.entity.StringCulture;
 import org.complitex.dictionaryfw.entity.description.Entity;
 import org.complitex.dictionaryfw.entity.description.EntityAttributeType;
 import org.complitex.dictionaryfw.entity.description.EntityType;
+import org.complitex.dictionaryfw.service.EntityBean;
+import org.complitex.dictionaryfw.service.StringCultureBean;
 import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
 import org.complitex.dictionaryfw.strategy.web.AbstractComplexAttributesPanel;
@@ -53,6 +38,10 @@ import org.complitex.dictionaryfw.web.component.search.SearchComponentSessionSta
 import org.complitex.dictionaryfw.web.component.search.SearchComponentState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.ejb.EJB;
+import java.io.Serializable;
+import java.util.*;
 
 /**
  *
