@@ -230,20 +230,33 @@
         `account_number` = #{accountNumber}, `status` = #{status} WHERE `id` = #{id}
     </update>
 
-    <select id="findByFile" parameterType="org.complitex.osznconnection.file.web.pages.payment.PaymentExample"
-            resultMap="internalPaymentResultMap">
+    <select id="findByFile" parameterType="hashmap" resultMap="internalPaymentResultMap">
         SELECT r.`id`, r.`status`, r.`request_file_id` requestFileId, r.`F_NAM` fNam, r.`M_NAM` mNam, r.`SUR_NAM` surNam,
         r.`N_NAME` nName, r.`VUL_NAME` vulName, r.`BLD_NUM` bldNum, r.`FLAT` flat,
-        rf.`organization_object_id` organizationId
+        rf.`organization_object_id` organizationId,
+        r.`city_id`,
+        r.`street_id`,
+        r.`building_id`,
+        r.`apartment_id`
+        FROM `payment` r
+        JOIN `request_file` rf ON r.`request_file_id` = rf.`id`
+        WHERE r.`request_file_id` = #{requestFileId} AND r.`id` IN
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="findIdsByFile" parameterType="long"
+            resultType="long">
+        SELECT r.`id`
         FROM `payment` r
         JOIN `request_file` rf ON r.`request_file_id` = rf.`id`
         WHERE r.`request_file_id` = #{requestFileId} AND r.`status` != 'RESOLVED'
-        LIMIT #{start},#{size}
     </select>
 
-    <select id="countByFile" resultType="int" parameterType="long">
+   <!-- <select id="countByFile" resultType="int" parameterType="">
         SELECT COUNT(*) FROM `payment` r WHERE r.`request_file_id` = #{requestFileId} AND r.`status` != 'RESOLVED'
-    </select>
+    </select>-->
 
 
 </mapper>

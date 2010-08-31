@@ -23,7 +23,6 @@ import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
 import org.complitex.osznconnection.commons.web.template.TemplatePage;
 import org.complitex.osznconnection.file.entity.RequestFile;
-import org.complitex.osznconnection.file.service.BindingRequestBean;
 import org.complitex.osznconnection.file.service.RequestFileBean;
 import org.complitex.osznconnection.file.service.RequestFileFilter;
 import org.complitex.osznconnection.file.web.pages.benefit.BenefitList;
@@ -32,6 +31,7 @@ import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 
 import javax.ejb.EJB;
 import java.util.*;
+import org.complitex.osznconnection.file.service.FileExecutorService;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -43,9 +43,6 @@ public class RequestFileList extends TemplatePage{
 
     @EJB(name = "OrganizationStrategy")
     private OrganizationStrategy organizationStrategy;
-
-    @EJB(name = "BindingRequestBean")
-    private BindingRequestBean bindingRequestBean;
 
     public RequestFileList() {
         super();
@@ -213,7 +210,7 @@ public class RequestFileList extends TemplatePage{
                     }
                 }
 
-                bindingRequestBean.bind(requestFiles);
+                FileExecutorService.get().bind(requestFiles);
             }
         };
         filterForm.add(process);
