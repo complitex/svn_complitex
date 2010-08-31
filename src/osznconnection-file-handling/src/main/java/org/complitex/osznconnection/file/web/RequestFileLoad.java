@@ -76,10 +76,17 @@ public class RequestFileLoad extends FormTemplatePage{
         Button load = new Button("load"){
             @Override
             public void onSubmit() {
-                DomainObject oszn = organizationModel.getObject();
-                loadRequestBean.load(oszn.getId(), 
-                        organizationStrategy.getDistrictCode(oszn), organizationStrategy.getUniqueCode(oszn),
-                        from.getModelObject(), to.getModelObject(), year.getModelObject());
+                if (!loadRequestBean.isLoading()){
+                    DomainObject oszn = organizationModel.getObject();
+                    loadRequestBean.load(oszn.getId(),
+                            organizationStrategy.getDistrictCode(oszn), organizationStrategy.getUniqueCode(oszn),
+                            from.getModelObject(), to.getModelObject(), year.getModelObject());
+                    getSession().info(getString("info.start_loading"));
+                }else{
+                    getSession().error(getString("error.loading_in_progress"));
+                }
+
+                setResponsePage(RequestFileList.class);
             }
         };
         form.add(load);

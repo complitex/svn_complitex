@@ -1,6 +1,8 @@
 package org.complitex.osznconnection.file.service;
 
 import com.google.common.collect.Maps;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSessionManager;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.entity.Payment;
@@ -30,6 +32,8 @@ import java.util.Map;
 @Stateless(name = "PaymentBean")
 public class PaymentBean extends AbstractBean {
     private static final String MAPPING_NAMESPACE = PaymentBean.class.getName();
+
+    private static final int BATCH_SIZE = 100;
 
     public enum OrderBy {
 
@@ -78,12 +82,12 @@ public class PaymentBean extends AbstractBean {
         return sqlSession().selectList(MAPPING_NAMESPACE + ".findByFile", params);
     }
 
+    @SuppressWarnings({"unchecked"})
     @Transactional
     public List<Long> findIdsByFile(long fileId) {
         return sqlSession().selectList(MAPPING_NAMESPACE + ".findIdsByFile", fileId);
     }
 
-    @Transactional
     public void load(RequestFile requestFile, DBF dbf)
             throws xBaseJException, IOException, WrongFieldTypeException {
         Map<PaymentDBF, Field> fields = new HashMap<PaymentDBF, Field>();
@@ -102,12 +106,14 @@ public class PaymentBean extends AbstractBean {
             fields.put(paymentDBF, field);
         }
 
+        SqlSessionManager sm = getSqlSessionManager();
+
         for (int i = 0; i < dbf.getRecordCount(); ++i) {
             dbf.read();
 
             Payment payment = new Payment();
             payment.setRequestFileId(requestFile.getId());
-            payment.setOrganizationId(requestFile.getOrganizationObjectId());//todo
+            payment.setOrganizationId(requestFile.getOrganizationObjectId());
             payment.setStatus(Status.ADDRESS_UNRESOLVED);
 
             for (PaymentDBF paymentDBF : PaymentDBF.values()) {
@@ -130,7 +136,16 @@ public class PaymentBean extends AbstractBean {
                 }
             }
 
+            if (!sm.isManagedSessionStarted()){
+                sm.startManagedSession(ExecutorType.BATCH);
+            }
+
             sqlSession().insert(MAPPING_NAMESPACE + ".insertPayment", payment);
+
+            if (i % BATCH_SIZE == 0){
+                sm.commit();
+                sm.close();
+            }
         }
     }
 }
