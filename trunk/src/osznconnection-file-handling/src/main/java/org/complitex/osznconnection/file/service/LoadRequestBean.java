@@ -1,7 +1,8 @@
 package org.complitex.osznconnection.file.service;
 
+import org.apache.ibatis.session.SqlSessionManager;
+import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.dictionaryfw.util.DateUtil;
-import org.complitex.osznconnection.file.entity.AsyncOperationStatus;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.service.exception.WrongFieldTypeException;
 import org.complitex.osznconnection.file.storage.RequestFileStorage;
@@ -10,15 +11,14 @@ import org.slf4j.LoggerFactory;
 import org.xBaseJ.DBF;
 import org.xBaseJ.xBaseJException;
 
+import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.complitex.osznconnection.file.entity.RequestFile.*;
 
@@ -28,7 +28,7 @@ import static org.complitex.osznconnection.file.entity.RequestFile.*;
  */
 @Singleton
 @SuppressWarnings({"EjbProhibitedPackageUsageInspection"})
-public class LoadRequestBean{
+public class LoadRequestBean extends AbstractBean{
     private static final Logger log = LoggerFactory.getLogger(RequestFileBean.class);
 
     @EJB(beanName = "PaymentBean")
@@ -40,7 +40,7 @@ public class LoadRequestBean{
     @EJB(beanName = "RequestFileBean")
     private RequestFileBean requestFileBean;
 
-    private Map<Long, AsyncOperationStatus> statusMap = new HashMap<Long, AsyncOperationStatus>();
+    private boolean loading = false;
 
     private List<File> getRequestFiles(final String filePrefix, final String districtDir, final String[] osznCode,
                                        final String[] months) {
@@ -87,78 +87,88 @@ public class LoadRequestBean{
         return DateUtil.parseDate(name.substring(6,8), year);
     }
 
-    private void loadPayment(long organizationId, String organizationDistrictCode, Integer organizationCode,
-                             int monthFrom, int monthTo, int year){
-        List<File> paymentFiles = getPaymentFiles(organizationDistrictCode, new String[]{String.valueOf(organizationCode)},
-                getMonth(monthFrom, monthTo));
+    private void load(List<File> files, long organizationId,  int year){
+        SqlSessionManager sm = getSqlSessionManager();
 
-        for (File file : paymentFiles){
+        for (File file : files){
+            DBF dbf;
             try {
-                DBF dbf = new DBF(file.getAbsolutePath(), DBF.READ_ONLY, "Cp866");
-
-                RequestFile requestFile = new RequestFile();
-                requestFile.setName(file.getName());
-                requestFile.setDate(parseDate(file.getName(), year));
-                requestFile.setLength(file.length());
-                requestFile.setDbfRecordCount(dbf.getRecordCount());
-                requestFile.setOrganizationObjectId(organizationId);
-                requestFile.setStatus(RequestFile.STATUS.LOADING);
-
-                requestFileBean.save(requestFile);
-
-                //Статус
-                statusMap.put(requestFile.getId(), new AsyncOperationStatus(requestFile));
-
-                //Загрузка
-                paymentBean.load(requestFile, dbf);
-
-                //Загрузка завершена
-                requestFile.setLoaded(DateUtil.getCurrentDate());
-                requestFile.setStatus(RequestFile.STATUS.LOADED);
-                requestFileBean.save(requestFile);
+                dbf = new DBF(file.getAbsolutePath(), DBF.READ_ONLY, "Cp866");
             } catch (xBaseJException e) {
-                log.error("Ошибка чтения DFB файла", e);
+                //todo logBean
+                log.error("Ошибка чтения DBF файла", e);
+                continue;
             } catch (IOException e) {
-                log.error("Ошибка чтения DFB файла", e);
+                log.error("Ошибка чтения DBF файла", e);
+                continue;
+            }
+
+            //Начало загрузки
+            RequestFile requestFile = new RequestFile();
+            requestFile.setName(file.getName());
+            requestFile.setDate(parseDate(file.getName(), year));
+            requestFile.setLength(file.length());
+            requestFile.setDbfRecordCount(dbf.getRecordCount());
+            requestFile.setOrganizationObjectId(organizationId);
+            requestFile.setStatus(RequestFile.STATUS.LOADING);
+
+            requestFileBean.save(requestFile);
+            if (sm.isManagedSessionStarted()){
+                sm.commit();
+                sm.close();
+            }
+
+            //Загрузка записей
+            RequestFile.STATUS status = RequestFile.STATUS.LOADED;
+
+            try {
+                paymentBean.load(requestFile, dbf);
+            } catch (xBaseJException e) {
+                //todo logBean
+                status = RequestFile.STATUS.ERROR_XBASEJ;
+                log.error("Ошибка чтения записи", e);
+            } catch (IOException e) {
+                status = RequestFile.STATUS.ERROR_IO;
+                log.error("Ошибка чтения записи", e);
             } catch (WrongFieldTypeException e) {
+                status = RequestFile.STATUS.ERROR_FIELD_TYPE;
                 log.error("Неверные типы полей файла запроса начислений", e);
             }
-        }
-    }
 
-    private void loadBenefit(long organizationId, String organizationDistrictCode, Integer organizationCode,
-                             int monthFrom, int monthTo, int year){
-        List<File> benefitFiles = getBenefitFiles(organizationDistrictCode, new String[]{String.valueOf(organizationCode)},
-                getMonth(monthFrom, monthTo));
-        for (File file : benefitFiles){
-            try {
-                DBF dbf = new DBF(file.getAbsolutePath(), DBF.READ_ONLY);
+            //Загрузка завершена
+            requestFile.setLoaded(DateUtil.getCurrentDate());
+            requestFile.setStatus(status);
 
-                RequestFile requestFile = new RequestFile();
-                requestFile.setName(file.getName());
-                requestFile.setDate(parseDate(file.getName(), year));
-                requestFile.setLength(file.length());
-                requestFile.setDbfRecordCount(dbf.getRecordCount());
-                requestFile.setOrganizationObjectId(organizationId);
-                requestFile.setLoaded(DateUtil.getCurrentDate());
-
-                requestFileBean.save(requestFile);
-
-                benefitBean.load(requestFile, dbf);
-            } catch (xBaseJException e) {
-                log.error("Ошибка чтения DFB файла", e);
-            } catch (IOException e) {
-                log.error("Ошибка чтения DFB файла", e);
-            } catch (WrongFieldTypeException e) {
-                log.error("Неверные типы полей файл запроса возмещения по льготам", e);
+            requestFileBean.save(requestFile);
+            if (sm.isManagedSessionStarted()){
+                sm.commit();
+                sm.close();
             }
         }
     }
 
-    public void load(long organizationId, String organizationDistrictCode, Integer organizationCode,
-                     int monthFrom, int monthTo, int year) {
-        loadPayment(organizationId, organizationDistrictCode, organizationCode, monthFrom, monthTo, year);
-        loadBenefit(organizationId, organizationDistrictCode, organizationCode, monthFrom, monthTo, year);
+    public boolean isLoading() {
+        return loading;
     }
 
+    @Asynchronous
+    public void load(long organizationId, String districtCode, Integer organizationCode, int monthFrom, int monthTo, int year) {
+        if (!loading) {
+            loading = true;
+
+            List<File> paymentFiles = getPaymentFiles(
+                    districtCode,
+                    new String[]{String.valueOf(organizationCode)},
+                    getMonth(monthFrom, monthTo));
+            load(paymentFiles, organizationId, year);
+
+            List<File> benefitFiles = getBenefitFiles(
+                    districtCode,
+                    new String[]{String.valueOf(organizationCode)},
+                    getMonth(monthFrom, monthTo));
+            load(benefitFiles, organizationId, year);
+
+            loading = false;
+        }
+    }
 }

@@ -8,7 +8,10 @@ import java.util.Date;
  *         Date: 25.08.2010 17:35:35
  */
 public class RequestFile implements Serializable{
-    public static enum STATUS {LOADING, LOADED, BINDING, BINDED, ERROR, DEV}
+    public static enum STATUS {
+        LOADING, LOADED, BINDING, BINDED, DEV,
+        ERROR, ERROR_XBASEJ, ERROR_IO, ERROR_FIELD_TYPE
+    }
 
     public static enum TYPE {NONE, PAYMENT, BENEFIT}
     public final static String PAYMENT_FILES_PREFIX = "A_";
