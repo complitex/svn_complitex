@@ -47,9 +47,6 @@ public class BindingRequestBean {
     @EJB
     private BenefitBean benefitBean;
 
-//    @EJB
-//    private SqlSessionFactory sqlSessionFactory;
-//    private Map<Long, AsyncOperationStatus> fileToProcessStatusMap;
     private static class ModifyStatus {
 
         boolean modified;
@@ -120,20 +117,6 @@ public class BindingRequestBean {
     private void bindPaymentFile(long paymentFileId, AsyncOperationStatus paymentStatus) {
         List<Long> notResolvedPaymentIds = paymentBean.findIdsByFile(paymentFileId);
 
-//        int count = paymentBean.countByFile(paymentFileId);
-//        while (count > 0) {
-//            List<Payment> payments = paymentBean.findByFile(paymentFileId, 0, BATCH_SIZE);
-//            for (Payment payment : payments) {
-//                boolean bindingSuccess = bind(payment);
-//                if (bindingSuccess) {
-//                    incrementProcessedRecords(paymentStatus);
-//                } else {
-//                    incrementFailedRecords(paymentStatus);
-//                }
-//            }
-//            count = paymentBean.countByFile(paymentFileId);
-//        }
-
         List<Long> batch = Lists.newArrayList();
         while (notResolvedPaymentIds.size() > 0) {
             batch.clear();
@@ -168,9 +151,6 @@ public class BindingRequestBean {
         bindBenefitFile(benefitFile, benefitStatus);
     }
 
-//    public Map<Long, AsyncOperationStatus> getFileToProcessStatusMap() {
-//        return fileToProcessStatusMap;
-//    }
 //    @Asynchronous
 //    public Future<String> bind(List<RequestFile> requestFiles) {
 //        try {

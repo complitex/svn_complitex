@@ -254,9 +254,4 @@
         WHERE r.`request_file_id` = #{requestFileId} AND r.`status` != 'RESOLVED'
     </select>
 
-   <!-- <select id="countByFile" resultType="int" parameterType="">
-        SELECT COUNT(*) FROM `payment` r WHERE r.`request_file_id` = #{requestFileId} AND r.`status` != 'RESOLVED'
-    </select>-->
-
-
 </mapper>
