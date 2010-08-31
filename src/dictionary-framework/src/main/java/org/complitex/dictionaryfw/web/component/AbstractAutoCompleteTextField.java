@@ -4,8 +4,6 @@
  */
 package org.complitex.dictionaryfw.web.component;
 
-import java.util.Iterator;
-import java.util.List;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteBehavior;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
@@ -15,6 +13,9 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.IModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Auto-Complete text field that allows capture of choice selections (rather than just strings). Replacement for

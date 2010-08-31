@@ -4,10 +4,11 @@
  */
 package org.complitex.dictionaryfw.entity.description;
 
+import org.complitex.dictionaryfw.entity.StringCulture;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-import org.complitex.dictionaryfw.entity.StringCulture;
 
 /**
  *

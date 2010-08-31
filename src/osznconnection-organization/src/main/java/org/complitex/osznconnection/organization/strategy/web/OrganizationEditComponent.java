@@ -5,8 +5,6 @@
 package org.complitex.osznconnection.organization.strategy.web;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.List;
-import javax.ejb.EJB;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
@@ -15,6 +13,9 @@ import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
+
+import javax.ejb.EJB;
+import java.util.List;
 
 /**
  *

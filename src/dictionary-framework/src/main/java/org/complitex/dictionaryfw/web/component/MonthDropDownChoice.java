@@ -3,7 +3,6 @@ package org.complitex.dictionaryfw.web.component;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 
 import java.text.DateFormatSymbols;
 import java.util.Arrays;

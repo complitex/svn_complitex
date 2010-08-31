@@ -4,9 +4,6 @@
  */
 package org.complitex.dictionaryfw.web.component;
 
-import java.util.List;
-import java.util.Locale;
-import javax.ejb.EJB;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -15,8 +12,12 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
-import org.complitex.dictionaryfw.dao.LocaleBean;
 import org.complitex.dictionaryfw.entity.StringCulture;
+import org.complitex.dictionaryfw.service.LocaleBean;
+
+import javax.ejb.EJB;
+import java.util.List;
+import java.util.Locale;
 
 /**
  *

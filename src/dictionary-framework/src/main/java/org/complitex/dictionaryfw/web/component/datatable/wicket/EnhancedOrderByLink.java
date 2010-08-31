@@ -4,10 +4,6 @@
  */
 package org.complitex.dictionaryfw.web.component.datatable.wicket;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.IClusterable;
@@ -21,6 +17,11 @@ import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.util.lang.Objects;
 import org.apache.wicket.util.string.Strings;
 import org.apache.wicket.version.undo.Change;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  *

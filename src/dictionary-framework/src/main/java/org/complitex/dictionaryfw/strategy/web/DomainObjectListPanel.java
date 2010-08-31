@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.dictionaryfw.strategy.web;
 
 import com.google.common.base.Predicate;
@@ -30,19 +26,19 @@ import org.complitex.dictionaryfw.converter.BooleanConverter;
 import org.complitex.dictionaryfw.converter.DateConverter;
 import org.complitex.dictionaryfw.converter.DoubleConverter;
 import org.complitex.dictionaryfw.converter.IntegerConverter;
-import org.complitex.dictionaryfw.dao.StringCultureBean;
 import org.complitex.dictionaryfw.entity.Attribute;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.entity.SimpleTypes;
 import org.complitex.dictionaryfw.entity.description.EntityAttributeType;
 import org.complitex.dictionaryfw.entity.example.AttributeExample;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
+import org.complitex.dictionaryfw.service.StringCultureBean;
 import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
 import org.complitex.dictionaryfw.web.DictionaryFwSession;
-import org.complitex.dictionaryfw.web.component.ShowMode;
-import org.complitex.dictionaryfw.web.component.ShowModePanel;
+import org.complitex.dictionaryfw.web.component.*;
 import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
+import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
 import org.complitex.dictionaryfw.web.component.search.SearchComponent;
 import org.complitex.dictionaryfw.web.component.search.SearchComponentSessionState;
 import org.complitex.dictionaryfw.web.component.search.SearchComponentState;
@@ -54,10 +50,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import org.complitex.dictionaryfw.web.component.BooleanPanel;
-import org.complitex.dictionaryfw.web.component.DatePanel;
-import org.complitex.dictionaryfw.web.component.StringPanel;
-import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
 
 /**
  *
@@ -107,7 +99,7 @@ public class DomainObjectListPanel extends Panel {
 
         content = new WebMarkupContainer("content");
         content.setOutputMarkupPlaceholderTag(true);
-        Component searchComponent = null;
+        Component searchComponent;
         if (searchFilters == null || searchFilters.isEmpty()) {
             searchComponent = new EmptyPanel("searchComponent");
             content.setVisible(true);

@@ -6,12 +6,17 @@ import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInst
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.*;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
-import org.apache.wicket.model.*;
-import org.complitex.dictionaryfw.dao.StringCultureBean;
-import org.complitex.dictionaryfw.entity.*;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
+import org.complitex.dictionaryfw.entity.Log;
+import org.complitex.dictionaryfw.entity.LogChange;
+import org.complitex.dictionaryfw.entity.User;
+import org.complitex.dictionaryfw.entity.UserGroup;
 import org.complitex.dictionaryfw.service.LogBean;
+import org.complitex.dictionaryfw.service.StringCultureBean;
 import org.complitex.dictionaryfw.util.CloneUtil;
-import org.complitex.dictionaryfw.util.StringUtil;
 import org.complitex.dictionaryfw.web.component.DomainObjectInputPanel;
 import org.complitex.osznconnection.admin.Module;
 import org.complitex.osznconnection.admin.service.UserBean;
@@ -24,9 +29,9 @@ import javax.ejb.EJB;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 
-import static org.complitex.dictionaryfw.entity.UserGroup.GROUP_NAME.*;
+import static org.complitex.dictionaryfw.entity.UserGroup.GROUP_NAME.ADMINISTRATORS;
+import static org.complitex.dictionaryfw.entity.UserGroup.GROUP_NAME.EMPLOYEES;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru

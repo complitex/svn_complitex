@@ -1,8 +1,5 @@
 package org.complitex.dictionaryfw.web.component.paging;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ResourceReference;
@@ -32,6 +29,10 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.util.string.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  *

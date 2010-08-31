@@ -1,6 +1,7 @@
 package org.complitex.osznconnection.file.service;
 
 import com.google.common.collect.Maps;
+import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.entity.Payment;
 import org.complitex.osznconnection.file.entity.PaymentDBF;
@@ -26,9 +27,8 @@ import java.util.Map;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 24.08.2010 18:57:00
  */
-@Stateless
+@Stateless(name = "PaymentBean")
 public class PaymentBean extends AbstractBean {
-
     private static final String MAPPING_NAMESPACE = PaymentBean.class.getName();
 
     public enum OrderBy {
@@ -48,35 +48,42 @@ public class PaymentBean extends AbstractBean {
         }
     }
 
+    @Transactional
     public int count(PaymentExample example) {
-        return (Integer) sqlSession.selectOne(MAPPING_NAMESPACE + ".count", example);
+        return (Integer) sqlSession().selectOne(MAPPING_NAMESPACE + ".count", example);
     }
 
     @SuppressWarnings({"unchecked"})
+    @Transactional
     public List<Payment> find(PaymentExample example) {
-        return (List<Payment>) sqlSession.selectList(MAPPING_NAMESPACE + ".find", example);
+        return (List<Payment>) sqlSession().selectList(MAPPING_NAMESPACE + ".find", example);
     }
 
+    @Transactional
     public void update(Payment payment) {
-        sqlSession.update(MAPPING_NAMESPACE + ".update", payment);
+        sqlSession().update(MAPPING_NAMESPACE + ".update", payment);
     }
 
+    @Transactional
     public Payment findById(long id) {
-        return (Payment) sqlSession.selectOne(MAPPING_NAMESPACE + ".findById", id);
+        return (Payment) sqlSession().selectOne(MAPPING_NAMESPACE + ".findById", id);
     }
 
     @SuppressWarnings({"unchecked"})
+    @Transactional
     public List<Payment> findByFile(long fileId, List<Long> ids) {
         Map<String, Object> params = Maps.newHashMap();
         params.put("requestFileId", fileId);
         params.put("ids", ids);
-        return sqlSession.selectList(MAPPING_NAMESPACE + ".findByFile", params);
+        return sqlSession().selectList(MAPPING_NAMESPACE + ".findByFile", params);
     }
 
+    @Transactional
     public List<Long> findIdsByFile(long fileId) {
-        return sqlSession.selectList(MAPPING_NAMESPACE + ".findIdsByFile", fileId);
+        return sqlSession().selectList(MAPPING_NAMESPACE + ".findIdsByFile", fileId);
     }
 
+    @Transactional
     public void load(RequestFile requestFile, DBF dbf)
             throws xBaseJException, IOException, WrongFieldTypeException {
         Map<PaymentDBF, Field> fields = new HashMap<PaymentDBF, Field>();
@@ -123,7 +130,7 @@ public class PaymentBean extends AbstractBean {
                 }
             }
 
-            sqlSession.insert(MAPPING_NAMESPACE + ".insertPayment", payment);
+            sqlSession().insert(MAPPING_NAMESPACE + ".insertPayment", payment);
         }
     }
 }

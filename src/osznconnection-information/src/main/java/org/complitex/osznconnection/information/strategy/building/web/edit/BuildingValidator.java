@@ -7,13 +7,14 @@ package org.complitex.osznconnection.information.strategy.building.web.edit;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import java.util.List;
 import org.apache.wicket.Component;
-import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.entity.Attribute;
+import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.strategy.web.IValidator;
 import org.complitex.dictionaryfw.util.ResourceUtil;
 import org.complitex.osznconnection.information.strategy.building.BuildingStrategy;
+
+import java.util.List;
 
 /**
  *

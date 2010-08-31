@@ -1,15 +1,14 @@
 package org.complitex.dictionaryfw.service;
 
 import org.complitex.dictionaryfw.entity.*;
+import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.strategy.Strategy;
-import org.complitex.dictionaryfw.strategy.StrategyFactory;
 import org.complitex.dictionaryfw.util.DateUtil;
 import org.complitex.dictionaryfw.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Resource;
-import javax.ejb.EJB;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import java.text.MessageFormat;
@@ -78,6 +77,7 @@ public class LogBean extends AbstractBean{
         log(module, controller, model, objectId, event, Log.STATUS.ERROR, changes, descriptionPattern, descriptionArguments);
     }
 
+    @Transactional
     private void log(String module, String controller, String model, Long objectId,
                      Log.EVENT event, Log.STATUS status, List<LogChange> logChanges,
                      String descriptionPattern,  Object... descriptionArguments){
@@ -97,7 +97,7 @@ public class LogBean extends AbstractBean{
                 : descriptionPattern);
 
         try {
-            sqlSession.insert(STATEMENT_PREFIX + ".insertLog", log);
+            sqlSession().insert(STATEMENT_PREFIX + ".insertLog", log);
         } catch (Exception e) {
             LogBean.log.error("Ошибка записи события в базу данных");
         }
@@ -107,7 +107,7 @@ public class LogBean extends AbstractBean{
                 logChange.setLogId(log.getId());
             }
 
-            sqlSession.insert(STATEMENT_PREFIX + ".insertLogChanges", log.getLogChanges());
+            sqlSession().insert(STATEMENT_PREFIX + ".insertLogChanges", log.getLogChanges());
         }
     }
 

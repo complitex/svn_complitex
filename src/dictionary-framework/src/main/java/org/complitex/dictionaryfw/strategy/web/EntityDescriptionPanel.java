@@ -7,10 +7,6 @@ package org.complitex.dictionaryfw.strategy.web;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.List;
-import javax.ejb.EJB;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -27,24 +23,25 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.RepeatingView;
-import org.apache.wicket.model.AbstractReadOnlyModel;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.model.StringResourceModel;
-import org.complitex.dictionaryfw.dao.EntityBean;
-import org.complitex.dictionaryfw.dao.StringCultureBean;
+import org.apache.wicket.model.*;
 import org.complitex.dictionaryfw.entity.SimpleTypes;
 import org.complitex.dictionaryfw.entity.StringCulture;
 import org.complitex.dictionaryfw.entity.description.Entity;
 import org.complitex.dictionaryfw.entity.description.EntityAttributeType;
 import org.complitex.dictionaryfw.entity.description.EntityAttributeValueType;
 import org.complitex.dictionaryfw.entity.description.EntityType;
+import org.complitex.dictionaryfw.service.EntityBean;
+import org.complitex.dictionaryfw.service.StringCultureBean;
 import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
 import org.complitex.dictionaryfw.util.CloneUtil;
 import org.complitex.dictionaryfw.web.component.StringCulturePanel;
 import org.complitex.dictionaryfw.web.component.list.AjaxRemovableListView;
+
+import javax.ejb.EJB;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  *

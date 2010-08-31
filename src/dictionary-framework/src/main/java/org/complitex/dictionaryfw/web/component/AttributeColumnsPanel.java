@@ -4,8 +4,8 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.complitex.dictionaryfw.dao.StringCultureBean;
 import org.complitex.dictionaryfw.entity.Attribute;
+import org.complitex.dictionaryfw.service.StringCultureBean;
 
 import javax.ejb.EJB;
 import java.util.List;

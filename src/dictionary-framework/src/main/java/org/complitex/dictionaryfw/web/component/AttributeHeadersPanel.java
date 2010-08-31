@@ -7,8 +7,8 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.data.DataView;
-import org.complitex.dictionaryfw.dao.StringCultureBean;
 import org.complitex.dictionaryfw.entity.description.EntityAttributeType;
+import org.complitex.dictionaryfw.service.StringCultureBean;
 import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
 
 import javax.ejb.EJB;

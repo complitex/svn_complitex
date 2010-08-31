@@ -1,14 +1,10 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.osznconnection.information.web;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
-import org.complitex.dictionaryfw.dao.StringCultureBean;
+import org.complitex.dictionaryfw.service.StringCultureBean;
 import org.complitex.dictionaryfw.strategy.StrategyFactoryStatic;
 import org.complitex.osznconnection.commons.web.pages.EntityDescription;
 import org.complitex.osznconnection.commons.web.template.ITemplateLink;

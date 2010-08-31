@@ -10,15 +10,12 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import java.io.Serializable;
-import java.util.AbstractList;
-import java.util.Collections;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.entity.Attribute;
+import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.osznconnection.information.strategy.building.BuildingStrategy;
+
+import java.io.Serializable;
+import java.util.*;
 
 /**
  *
@@ -73,17 +70,17 @@ public class BuildingAttributeList extends AbstractList<BuildingAttribute> imple
         });
     }
 
-    public void addNew() {
-        add(newBuildingAttribute());
+    public void addNew(BuildingStrategy buildingStrategy) {
+        add(newBuildingAttribute(buildingStrategy));
     }
 
-    private BuildingAttribute newBuildingAttribute() {
+    private BuildingAttribute newBuildingAttribute(BuildingStrategy buildingStrategy) {
         long attributeId = calculateMaxAttributeId() + 1;
         BuildingAttribute buildingAttribute = new BuildingAttribute(attributeId,
-                BuildingStrategy.newEntityAttribute(object, attributeId, BuildingStrategy.NUMBER, BuildingStrategy.NUMBER, locales),
-                BuildingStrategy.newEntityAttribute(object, attributeId, BuildingStrategy.CORP, BuildingStrategy.CORP, locales),
-                BuildingStrategy.newEntityAttribute(object, attributeId, BuildingStrategy.STRUCTURE, BuildingStrategy.STRUCTURE, locales),
-                BuildingStrategy.newStreetAttribute(object, attributeId));
+                buildingStrategy.newEntityAttribute(object, attributeId, BuildingStrategy.NUMBER, BuildingStrategy.NUMBER, locales),
+                buildingStrategy.newEntityAttribute(object, attributeId, BuildingStrategy.CORP, BuildingStrategy.CORP, locales),
+                buildingStrategy.newEntityAttribute(object, attributeId, BuildingStrategy.STRUCTURE, BuildingStrategy.STRUCTURE, locales),
+                buildingStrategy.newStreetAttribute(object, attributeId));
         return buildingAttribute;
     }
 
