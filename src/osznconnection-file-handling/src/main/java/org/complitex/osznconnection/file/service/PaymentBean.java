@@ -1,5 +1,6 @@
 package org.complitex.osznconnection.file.service;
 
+import com.google.common.collect.Maps;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.entity.Payment;
 import org.complitex.osznconnection.file.entity.PaymentDBF;
@@ -64,38 +65,41 @@ public class PaymentBean extends AbstractBean {
         return (Payment) sqlSession.selectOne(MAPPING_NAMESPACE + ".findById", id);
     }
 
-     @SuppressWarnings({"unchecked"})
-     public List<Payment> findByFile(long fileId, int start, int size) {
-        PaymentExample example = new PaymentExample();
-        example.setStart(start);
-        example.setSize(size);
-        example.setRequestFileId(fileId);
-        return sqlSession.selectList(MAPPING_NAMESPACE + ".findByFile", example);
+    @SuppressWarnings({"unchecked"})
+    public List<Payment> findByFile(long fileId, List<Long> ids) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("requestFileId", fileId);
+        params.put("ids", ids);
+        return sqlSession.selectList(MAPPING_NAMESPACE + ".findByFile", params);
     }
 
-    public int countByFile(long fileId) {
-        return (Integer) sqlSession.selectOne(MAPPING_NAMESPACE + ".countByFile", fileId);
+//    public int countByFile(long fileId) {
+//        return (Integer) sqlSession.selectOne(MAPPING_NAMESPACE + ".countByFile", fileId);
+//    }
+    
+    public List<Long> findIdsByFile(long fileId) {
+        return sqlSession.selectList(MAPPING_NAMESPACE + ".findIdsByFile", fileId);
     }
 
     public void load(RequestFile requestFile, DBF dbf)
             throws xBaseJException, IOException, WrongFieldTypeException {
         Map<PaymentDBF, Field> fields = new HashMap<PaymentDBF, Field>();
 
-        for (PaymentDBF paymentDBF : PaymentDBF.values()){
+        for (PaymentDBF paymentDBF : PaymentDBF.values()) {
             Field field = dbf.getField(paymentDBF.name());
 
             Class fieldClass = field.getClass();
             if ((paymentDBF.getType().equals(String.class) && !fieldClass.equals(CharField.class))
                     || (paymentDBF.getType().equals(Integer.class) && !fieldClass.equals(NumField.class))
                     || (paymentDBF.getType().equals(Double.class) && !fieldClass.equals(NumField.class))
-                    || (paymentDBF.getType().equals(Date.class) && !fieldClass.equals(DateField.class))){
+                    || (paymentDBF.getType().equals(Date.class) && !fieldClass.equals(DateField.class))) {
                 throw new WrongFieldTypeException();
             }
 
             fields.put(paymentDBF, field);
         }
 
-        for (int i=0; i< dbf.getRecordCount(); ++i){
+        for (int i = 0; i < dbf.getRecordCount(); ++i) {
             dbf.read();
 
             Payment payment = new Payment();
@@ -103,21 +107,23 @@ public class PaymentBean extends AbstractBean {
             payment.setOrganizationId(requestFile.getOrganizationObjectId());//todo
             payment.setStatus(Status.ADDRESS_UNRESOLVED);
 
-            for (PaymentDBF paymentDBF : PaymentDBF.values()){
+            for (PaymentDBF paymentDBF : PaymentDBF.values()) {
                 Field field = fields.get(paymentDBF);
 
                 String value = field.get().trim();
 
-                if (value.isEmpty()) continue;
+                if (value.isEmpty()) {
+                    continue;
+                }
 
-                if (paymentDBF.getType().equals(String.class)){
+                if (paymentDBF.getType().equals(String.class)) {
                     payment.setField(paymentDBF, value);
-                }else if (paymentDBF.getType().equals(Integer.class)){
+                } else if (paymentDBF.getType().equals(Integer.class)) {
                     payment.setField(paymentDBF, Integer.parseInt(value));
-                }else if (paymentDBF.getType().equals(Double.class)){
+                } else if (paymentDBF.getType().equals(Double.class)) {
                     payment.setField(paymentDBF, Double.parseDouble(value));
-                }else if (paymentDBF.getType().equals(Date.class)){
-                    payment.setField(paymentDBF, ((DateField)field).getCalendar().getTime());
+                } else if (paymentDBF.getType().equals(Date.class)) {
+                    payment.setField(paymentDBF, ((DateField) field).getCalendar().getTime());
                 }
             }
 
