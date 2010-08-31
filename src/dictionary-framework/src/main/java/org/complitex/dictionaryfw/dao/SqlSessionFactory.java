@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
  * @author Artem
  */
 @Singleton
+@ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 @Startup
 public class SqlSessionFactory {
 

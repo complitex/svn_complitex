@@ -49,6 +49,14 @@ public class SqlSessionInterceptor {
         currentSession = (SqlSession) ReflectionUtils.getField(sqlSessionField, beanInstance);
         try {
             result = invocationCtx.proceed();
+            if (!currentSessionExists) {
+                currentSession.commit();
+            }
+        } catch (Exception e) {
+            if (!currentSessionExists) {
+                currentSession.rollback();
+            }
+            throw e;
         } finally {
             if (!currentSessionExists) {
                 sqlSessionFactory.removeCurrentSession();

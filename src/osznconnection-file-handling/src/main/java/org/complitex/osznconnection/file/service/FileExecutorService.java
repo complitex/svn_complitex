@@ -86,8 +86,8 @@ public class FileExecutorService {
 
     public void bind(List<RequestFile> requestFiles) {
         for (final RequestFile file : requestFiles) {
-            log.info("File : {}", file.getName());
             if (file.getType() == RequestFile.TYPE.PAYMENT) {
+                log.info("Payment file : {}", file.getName());
                 AsyncOperationStatus paymentStatus = new AsyncOperationStatus(file);
                 fileToProcessStatusMap.put(file.getId(), paymentStatus);
 
@@ -109,13 +109,14 @@ public class FileExecutorService {
 
                 AsyncOperationStatus benefitStatus = null;
                 if (benefitFile != null) {
+                    log.info("Benefit file : {}", benefitFile.getName());
                     benefitStatus = new AsyncOperationStatus(benefitFile);
                     fileToProcessStatusMap.put(benefitFile.getId(), benefitStatus);
                 }
 
-//                threadPool.submit(new BindTask(file, paymentStatus, benefitFile, benefitStatus));
+                threadPool.submit(new BindTask(file, paymentStatus, benefitFile, benefitStatus));
 //                new BindTask(file, paymentStatus, benefitFile, benefitStatus).run();
-               new Thread(new BindTask(file, paymentStatus, benefitFile, benefitStatus));
+//               new Thread(new BindTask(file, paymentStatus, benefitFile, benefitStatus));
             }
         }
     }
