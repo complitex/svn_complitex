@@ -73,10 +73,6 @@ public class PaymentBean extends AbstractBean {
         return sqlSession.selectList(MAPPING_NAMESPACE + ".findByFile", params);
     }
 
-//    public int countByFile(long fileId) {
-//        return (Integer) sqlSession.selectOne(MAPPING_NAMESPACE + ".countByFile", fileId);
-//    }
-    
     public List<Long> findIdsByFile(long fileId) {
         return sqlSession.selectList(MAPPING_NAMESPACE + ".findIdsByFile", fileId);
     }
