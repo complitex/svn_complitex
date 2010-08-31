@@ -13,9 +13,8 @@ import org.complitex.osznconnection.file.entity.Status;
 import javax.ejb.EJB;
 import java.util.List;
 import javax.ejb.Stateless;
-import javax.interceptor.Interceptors;
 import org.apache.ibatis.session.SqlSession;
-import org.complitex.dictionaryfw.dao.aop.SqlSessionInterceptor;
+import org.complitex.dictionaryfw.dao.SqlSessionFactory;
 import org.complitex.osznconnection.file.entity.AsyncOperationStatus;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.slf4j.Logger;
@@ -26,15 +25,14 @@ import org.slf4j.LoggerFactory;
  * @author Artem
  */
 @Stateless
-@Interceptors({SqlSessionInterceptor.class})
+//@Interceptors({SqlSessionInterceptor.class})
 public class BindingRequestBean {
 
     private static final Logger log = LoggerFactory.getLogger(BindingRequestBean.class);
 
     private static final int BATCH_SIZE = 100;
 
-    private SqlSession sqlSession;
-
+//    private SqlSession sqlSession;
     @EJB
     private AddressResolver addressResolver;
 
@@ -46,6 +44,9 @@ public class BindingRequestBean {
 
     @EJB
     private BenefitBean benefitBean;
+
+    @EJB
+    private SqlSessionFactory sqlSessionFactory;
 
     private static class ModifyStatus {
 
@@ -124,14 +125,26 @@ public class BindingRequestBean {
                 batch.add(notResolvedPaymentIds.remove(i));
             }
 
-            List<Payment> payments = paymentBean.findByFile(paymentFileId, batch);
-            for (Payment payment : payments) {
-                boolean bindingSuccess = bind(payment);
-                if (bindingSuccess) {
-                    incrementProcessedRecords(paymentStatus);
-                } else {
-                    incrementFailedRecords(paymentStatus);
+            SqlSession session = null;
+            try {
+                session = sqlSessionFactory.getCurrentSession();
+                List<Payment> payments = paymentBean.findByFile(paymentFileId, batch);
+                for (Payment payment : payments) {
+                    boolean bindingSuccess = bind(payment);
+                    if (bindingSuccess) {
+                        incrementProcessedRecords(paymentStatus);
+                    } else {
+                        incrementFailedRecords(paymentStatus);
+                    }
                 }
+                session.commit();
+            } catch (Exception e) {
+                if (session != null) {
+                    session.rollback();
+                }
+                log.error("", e);
+            } finally {
+                sqlSessionFactory.removeCurrentSession();
             }
         }
     }
