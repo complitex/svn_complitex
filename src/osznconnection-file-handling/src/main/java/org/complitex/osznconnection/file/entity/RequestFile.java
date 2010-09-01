@@ -16,7 +16,7 @@ public class RequestFile implements Serializable{
     public static enum TYPE {NONE, PAYMENT, BENEFIT}
     public final static String PAYMENT_FILES_PREFIX = "A_";
     public final static String BENEFIT_FILES_PREFIX = "AF";
-    public final static String REQUEST_FILES_POSTFIX = ".dbf";
+    public final static String REQUEST_FILES_EXT = ".dbf";
 
     private Long id;
     private Date loaded;
@@ -29,6 +29,7 @@ public class RequestFile implements Serializable{
     private STATUS status = STATUS.DEV;
 
     private Integer loadedRecordCount;
+    private Integer bindedRecordCount;    
 
     public boolean isPayment(){
         return getType().equals(TYPE.PAYMENT);
@@ -50,6 +51,10 @@ public class RequestFile implements Serializable{
         }
 
         return TYPE.NONE;
+    }
+
+    public boolean isProcessing(){
+        return status.equals(STATUS.LOADING) || status.equals(STATUS.BINDING);
     }
 
     public Long getId() {
@@ -130,5 +135,13 @@ public class RequestFile implements Serializable{
 
     public void setLoadedRecordCount(Integer loadedRecordCount) {
         this.loadedRecordCount = loadedRecordCount;
+    }
+
+    public Integer getBindedRecordCount() {
+        return bindedRecordCount;
+    }
+
+    public void setBindedRecordCount(Integer bindedRecordCount) {
+        this.bindedRecordCount = bindedRecordCount;
     }
 }

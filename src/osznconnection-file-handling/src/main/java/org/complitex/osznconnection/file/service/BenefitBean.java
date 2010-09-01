@@ -4,6 +4,8 @@
  */
 package org.complitex.osznconnection.file.service;
 
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSessionManager;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.entity.Benefit;
@@ -32,8 +34,9 @@ import java.util.Map;
  */
 @Stateless(name = "BenefitBean")
 public class BenefitBean extends AbstractBean {
-
     private static final String MAPPING_NAMESPACE = BenefitBean.class.getName();
+
+    private static final int BATCH_SIZE = 10;
 
     public enum OrderBy {
 
@@ -67,8 +70,7 @@ public class BenefitBean extends AbstractBean {
     public List<Benefit> find(BenefitExample example) {
         return (List<Benefit>) sqlSession().selectList(MAPPING_NAMESPACE + ".find", example);
     }
-
-    @Transactional
+        
     public void load(RequestFile requestFile, DBF dbf) throws xBaseJException, IOException, WrongFieldTypeException {
         Map<BenefitDBF, Field> fields = new HashMap<BenefitDBF, Field>();
 
@@ -85,6 +87,8 @@ public class BenefitBean extends AbstractBean {
 
             fields.put(benefitDBF, field);
         }
+
+        SqlSessionManager sm = getSqlSessionManager();
 
         for (int i=0; i< dbf.getRecordCount(); ++i){
             dbf.read();
@@ -111,7 +115,28 @@ public class BenefitBean extends AbstractBean {
                 }
             }
 
+            if (!sm.isManagedSessionStarted()){
+                sm.startManagedSession(ExecutorType.BATCH);
+            }
+
+            //todo test
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
             sqlSession().insert(MAPPING_NAMESPACE + ".insertBenefit", benefit);
+
+            if ((i+1) % BATCH_SIZE == 0){
+                sm.commit();
+                sm.close();
+            }
+        }
+
+        if (sm.isManagedSessionStarted()){
+            sm.commit();
+            sm.close();
         }
     }
 }
