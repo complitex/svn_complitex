@@ -17,6 +17,7 @@ import org.complitex.osznconnection.file.entity.Status;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.util.Map;
+import org.complitex.dictionaryfw.mybatis.Transactional;
 
 /**
  *
@@ -69,6 +70,7 @@ public class AddressResolver extends AbstractBean {
     @EJB(beanName = "AddressCorrectionBean")
     private AddressCorrectionBean addressCorrectionBean;
 
+    @Transactional
     public InternalAddress resolveAddress(String city, String street, String building, String apartment, long organizationId) {
         Long cityId = null;
         Long streetId = null;
@@ -150,6 +152,7 @@ public class AddressResolver extends AbstractBean {
         return new InternalAddress(cityId, apartmentId, buildingId, apartmentId);
     }
 
+    @Transactional
     public Payment correctAddress(Payment payment, long cityId, long streetId, long buildingId, long apartmentId) {
         long organizationId = payment.getOrganizationId();
 

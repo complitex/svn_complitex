@@ -1,7 +1,6 @@
 package org.complitex.osznconnection.file.service;
 
 import com.google.common.collect.Lists;
-import org.apache.ibatis.session.SqlSession;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.entity.*;
@@ -11,13 +10,14 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.util.List;
+import org.apache.ibatis.session.SqlSessionException;
 
 /**
  *
  * @author Artem
  */
 @Stateless
-public class BindingRequestBean extends AbstractBean{
+public class BindingRequestBean extends AbstractBean {
 
     private static final Logger log = LoggerFactory.getLogger(BindingRequestBean.class);
 
@@ -112,9 +112,9 @@ public class BindingRequestBean extends AbstractBean{
                 batch.add(notResolvedPaymentIds.remove(i));
             }
 
-            SqlSession session = null;
+//            SqlSession session = null;
             try {
-                session = sqlSession();
+                getSqlSessionManager().startManagedSession(false);
                 List<Payment> payments = paymentBean.findByFile(paymentFileId, batch);
                 for (Payment payment : payments) {
                     boolean bindingSuccess = bind(payment);
@@ -124,14 +124,20 @@ public class BindingRequestBean extends AbstractBean{
                         incrementFailedRecords(paymentStatus);
                     }
                 }
-                session.commit();
+                getSqlSessionManager().commit();
             } catch (Exception e) {
-                if (session != null) {
-                    session.rollback();
+                try {
+                    getSqlSessionManager().rollback();
+                } catch (SqlSessionException exc) {
+                    log.error("", exc);
                 }
                 log.error("", e);
             } finally {
-                getSqlSessionManager().close();
+                try {
+                    getSqlSessionManager().close();
+                } catch (Exception e) {
+                    log.error("", e);
+                }
             }
         }
     }
