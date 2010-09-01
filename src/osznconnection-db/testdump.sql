@@ -128,8 +128,8 @@ insert into `request_file`(id, organization_object_id, `name`, `date`, `loaded`)
 -- Payments
 insert into payment(own_num_sr, f_nam, m_nam, sur_nam, n_name, vul_name, bld_num, flat, city_id, street_id, building_id, apartment_id, request_file_id)
 values
-(1,'Иван', 'Иванович', 'Иванов', 'Новосибирск', 'ул. Терешковой', 'д. 10', 'кв. 10', 1,null,null,null,1),
-(2,'Сидор', 'Сидорович', 'Сидоров', 'Новосибирск', 'ул. Терешковой', 'д. 11', 'кв. 11', 1,1,null,null,1);
+(1,'Иван', 'Иванович', 'Иванов', 'Новосибирск', 'Терешковой', 'д. 10', 'кв. 10', null,null,null,null,1),
+(2,'Сидор', 'Сидорович', 'Сидоров', 'Новосибирск', 'ул. Терешковой', 'д. 11', 'кв. 11', null,null,null,null,1);
 
 -- Benefit
 insert into benefit(own_num_sr, f_nam, m_nam, sur_nam, request_file_id)

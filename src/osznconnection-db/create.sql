@@ -878,22 +878,52 @@ CREATE TABLE `person_account` (
     CONSTRAINT `FK_person_account_apartment` FOREIGN KEY (`apartment_id`) REFERENCES `apartment` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `address_correction`;
+DROP TABLE IF EXISTS `city_correction`;
 
-CREATE TABLE `address_correction` (
+CREATE TABLE `city_correction` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT,
     `organization_id` bigint(20) NOT NULL,
-    `city` varchar(30) NOT NULL,
-    `street` varchar(30) NOT NULL,
-    `building` varchar(7) NOT NULL,
-    `apartment` varchar(9) NOT NULL,
-    `internal_object_id` bigint(20) NOT NULL,
-    `internal_object_entity_id` bigint(20) NOT NULL,
+    `city` varchar(100) NOT NULL,
+    `city_id` bigint(20) NOT NULL,
     PRIMARY KEY (`id`),
-    KEY `FK_address_correction_organization` (`organization_id`),
-    CONSTRAINT `FK_address_correction_organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`),
-    KEY `FK_address_correction_internal_object_entity` (`internal_object_entity_id`),
-    CONSTRAINT `FK_address_correction_internal_object_entity` FOREIGN KEY (`internal_object_entity_id`) REFERENCES `entity` (`id`)
+    KEY `FK_city_correction_organization` (`organization_id`),
+    CONSTRAINT `FK_city_correction_organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `street_correction`;
+
+CREATE TABLE `street_correction` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT,
+    `organization_id` bigint(20) NOT NULL,
+    `street` varchar(100) NOT NULL,
+    `street_id` bigint(20) NOT NULL,
+    PRIMARY KEY (`id`),
+    KEY `FK_street_correction_organization` (`organization_id`),
+    CONSTRAINT `FK_street_correction_organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `building_correction`;
+
+CREATE TABLE `building_correction` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT,
+    `organization_id` bigint(20) NOT NULL,
+    `building` varchar(100) NOT NULL,
+    `building_id` bigint(20) NOT NULL,
+    PRIMARY KEY (`id`),
+    KEY `FK_building_correction_organization` (`organization_id`),
+    CONSTRAINT `FK_building_correction_organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `apartment_correction`;
+
+CREATE TABLE `apartment_correction` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT,
+    `organization_id` bigint(20) NOT NULL,
+    `apartment` varchar(100) NOT NULL,
+    `apartment_id` bigint(20) NOT NULL,
+    PRIMARY KEY (`id`),
+    KEY `FK_apartment_correction_organization` (`organization_id`),
+    CONSTRAINT `FK_apartment_correction_organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 

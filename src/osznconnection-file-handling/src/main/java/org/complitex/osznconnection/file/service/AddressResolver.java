@@ -102,14 +102,14 @@ public class AddressResolver extends AbstractBean {
         Strategy streetStrategy = strategyFactory.getStrategy("street");
         DomainObjectExample streetExample = new DomainObjectExample();
         streetExample.setComparisonType(ComparisonType.EQUALITY.name());
-        streetStrategy.configureExample(cityExample, ids, city);
+        streetStrategy.configureExample(streetExample, ids, street);
 
         count = streetStrategy.count(streetExample);
         if (count == 1) {
             streetId = streetStrategy.find(streetExample).get(0).getId();
             ids.put("street", streetId);
         } else {
-            streetId = addressCorrectionBean.findStreet(city, street, organizationId);
+            streetId = addressCorrectionBean.findStreet(cityId, street, organizationId);
             if (streetId != null) {
                 ids.put("street", streetId);
             }
@@ -121,35 +121,35 @@ public class AddressResolver extends AbstractBean {
         Strategy buildingStrategy = strategyFactory.getStrategy("building");
         DomainObjectExample buildingExample = new DomainObjectExample();
         buildingExample.setComparisonType(ComparisonType.EQUALITY.name());
-        buildingStrategy.configureExample(cityExample, ids, city);
+        buildingStrategy.configureExample(buildingExample, ids, building);
 
         count = buildingStrategy.count(buildingExample);
         if (count == 1) {
             buildingId = buildingStrategy.find(buildingExample).get(0).getId();
             ids.put("building", buildingId);
         } else {
-            buildingId = addressCorrectionBean.findBuilding(city, street, building, organizationId);
+            buildingId = addressCorrectionBean.findBuilding(streetId, building, organizationId);
             if (buildingId != null) {
                 ids.put("building", buildingId);
             }
         }
         if (buildingId == null) {
-            return new InternalAddress(cityId, buildingId, buildingId, apartmentId);
+            return new InternalAddress(cityId, streetId, buildingId, apartmentId);
         }
 
         Strategy apartmentStrategy = strategyFactory.getStrategy("apartment");
         DomainObjectExample apartmentExample = new DomainObjectExample();
         apartmentExample.setComparisonType(ComparisonType.EQUALITY.name());
-        apartmentStrategy.configureExample(cityExample, ids, city);
+        apartmentStrategy.configureExample(apartmentExample, ids, apartment);
 
         count = apartmentStrategy.count(apartmentExample);
         if (count == 1) {
             apartmentId = apartmentStrategy.find(apartmentExample).get(0).getId();
         } else {
-            apartmentId = addressCorrectionBean.findApartment(city, street, building, apartment, organizationId);
+            apartmentId = addressCorrectionBean.findApartment(buildingId, apartment, organizationId);
         }
 
-        return new InternalAddress(cityId, apartmentId, buildingId, apartmentId);
+        return new InternalAddress(cityId, streetId, buildingId, apartmentId);
     }
 
     @Transactional
@@ -162,13 +162,13 @@ public class AddressResolver extends AbstractBean {
         String apartment = (String) payment.getField(PaymentDBF.FLAT);
 
         if (payment.getCityId() == null) {
-            addressCorrectionBean.insertCity(city, street, building, apartment, cityId, organizationId);
+            addressCorrectionBean.insertCity(city, cityId, organizationId);
         } else if (payment.getStreetId() == null) {
-            addressCorrectionBean.insertStreet(city, street, building, apartment, streetId, organizationId);
+            addressCorrectionBean.insertStreet(street, streetId, organizationId);
         } else if (payment.getBuildingId() == null) {
-            addressCorrectionBean.insertBuilding(city, street, building, apartment, streetId, organizationId);
+            addressCorrectionBean.insertBuilding(building, buildingId, organizationId);
         } else if (payment.getApartmentId() == null) {
-            addressCorrectionBean.insertApartment(city, street, building, apartment, streetId, organizationId);
+            addressCorrectionBean.insertApartment(apartment, apartmentId, organizationId);
         }
 
         payment.setCityId(cityId);
