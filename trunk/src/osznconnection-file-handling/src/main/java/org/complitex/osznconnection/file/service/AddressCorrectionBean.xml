@@ -2,29 +2,17 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.complitex.osznconnection.file.service.AddressCorrectionBean">
 
-    <select id="find" parameterType="org.complitex.osznconnection.file.entity.AddressCorrection" resultType="long">
-        SELECT ac.`internal_object_id` internalObjectId FROM `address_correction` ac
-        WHERE ac.`organization_id` = #{organizationId}
-        <if test="city != null">
-            AND ac.`city` = #{city}
+    <select id="find" resultType="long" parameterType="hashmap">
+        SELECT c.`${entity}_id` FROM `${entity}_correction` c WHERE c.`organization_id` = #{organizationId} AND c.`${entity}` = #{_value}
+        <if test="parentId != null">
+            AND EXISTS(SELECT 1 FROM `${entity}` e WHERE e.`id` = c.`${entity}_id` AND e.`status` = 'ACTIVE' AND e.`parent_id` = #{parentId})
         </if>
-        <if test="street != null">
-            AND ac.`street` = #{street}
-        </if>
-        <if test="building != null">
-            AND ac.`building` = #{building}
-        </if>
-        <if test="apartment != null">
-            AND ac.`apartment` = #{apartment}
-        </if>
-        AND ac.`internal_object_entity_id` = (SELECT e.`id` FROM `entity` e WHERE e.`entity_table` = #{internalObjectEntity})
         LIMIT 0,1
     </select>
 
-    <insert id="insert" parameterType="org.complitex.osznconnection.file.entity.AddressCorrection">
-        INSERT INTO `address_correction`(`organization_id`, `city`, `street`, `building`, `apartment`, `internal_object_id`, `internal_object_entity_id`) VALUES
-                                        (#{organizationId}, #{city}, #{street}, #{building}, #{apartment}, #{internalObjectId}, #{internalObjectEntityId})
+    <insert id="insert" parameterType="hashmap">
+        INSERT INTO `${entity}_correction`(`organization_id`, `${entity}`, `${entity}_id`) VALUES
+        (#{organizationId}, #{_value}, #{objectId})
     </insert>
-
 
 </mapper>
