@@ -112,7 +112,6 @@ public class BindingRequestBean extends AbstractBean {
                 batch.add(notResolvedPaymentIds.remove(i));
             }
 
-//            SqlSession session = null;
             try {
                 getSqlSessionManager().startManagedSession(false);
                 List<Payment> payments = paymentBean.findByFile(paymentFileId, batch);
