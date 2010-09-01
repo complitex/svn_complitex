@@ -11,6 +11,8 @@
         <result column="length" property="length"/>
         <result column="checkSum" property="checkSum"/>
         <result column="status" property="status"/>
+        <association property="loadedRecordCount" column="id" select="selectLoadedRecordCount"/>
+        <association property="bindedRecordCount" column="id" select="selectBindedRecordCount"/>
     </resultMap>
 
     <select id="selectAll" resultMap="requestFileResultMap">
@@ -67,6 +69,10 @@
             <choose>
                 <when test="sortProperty == 'month'">MONTH(`date`)</when>
                 <when test="sortProperty == 'year'">YEAR(`date`)</when>
+                <!--todo-->
+                <when test="sortProperty == 'organization'">`loaded`</when>
+                <when test="sortProperty == 'loaded_record_count'">`loaded`</when>
+                <when test="sortProperty == 'binded_record_count'">`loaded`</when>
                 <otherwise>`${sortProperty}`</otherwise>
             </choose>
             <choose>
@@ -77,8 +83,28 @@
         limit #{first}, #{count}
     </select>
 
+    <select id="selectLoadedRecordCount" resultType="int" parameterType="long">
+        select
+            (select count(*) from `payment` where `request_file_id` = #{id})
+            +
+            (select count(*) from `benefit` where `request_file_id` = #{id})
+    </select>
+
+    <select id="selectBindedRecordCount" resultType="int" parameterType="long">
+        select
+            (select count(*) from `payment` where `request_file_id` = #{id} and `status` = 'RESOLVED')
+            +
+            (select count(*) from `benefit` where `request_file_id` = #{id} and `status` = 'RESOLVED')
+    </select>
+
+
     <select id="selectRequestFilesCount" parameterType="org.complitex.osznconnection.file.service.RequestFileFilter"
             resultType="int">
         select count(*) from `request_file` <include refid="requestFilesFilterWhere"/>
-    </select>               
+    </select>
+
+    <select id="selectIsLoaded" parameterType="org.complitex.osznconnection.file.entity.RequestFile"
+            resultType="boolean">
+        select count(*) > 0 from `request_file` where `name` = #{name} and `length` = #{length}        
+    </select>
 </mapper>

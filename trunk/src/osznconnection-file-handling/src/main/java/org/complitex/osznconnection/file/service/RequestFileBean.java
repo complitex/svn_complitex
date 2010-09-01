@@ -41,6 +41,9 @@ public class RequestFileBean extends AbstractBean {
         }else{
             sqlSession().insert(MAPPING_NAMESPACE + ".updateRequestFile", requestFile);
         }
+    }
 
+    public boolean isLoaded(RequestFile requestFile){
+        return (Boolean) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectIsLoaded", requestFile);
     }
 }

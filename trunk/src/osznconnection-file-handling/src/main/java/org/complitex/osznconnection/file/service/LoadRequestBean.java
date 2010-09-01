@@ -11,9 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.xBaseJ.DBF;
 import org.xBaseJ.xBaseJException;
 
-import javax.ejb.Asynchronous;
-import javax.ejb.EJB;
-import javax.ejb.Singleton;
+import javax.ejb.*;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -26,7 +24,9 @@ import static org.complitex.osznconnection.file.entity.RequestFile.*;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 30.08.2010 17:30:55
  */
+
 @Singleton
+@ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 @SuppressWarnings({"EjbProhibitedPackageUsageInspection"})
 public class LoadRequestBean extends AbstractBean{
     private static final Logger log = LoggerFactory.getLogger(RequestFileBean.class);
@@ -42,7 +42,7 @@ public class LoadRequestBean extends AbstractBean{
 
     private boolean loading = false;
 
-    private List<File> getRequestFiles(final String filePrefix, final String districtDir, final String[] osznCode,
+    private List<File> getRequestFiles(final String[] filePrefix, final String districtDir, final String[] osznCode,
                                        final String[] months) {
 
         return RequestFileStorage.getInstance().getFiles(districtDir, new FilenameFilter() {
@@ -52,8 +52,12 @@ public class LoadRequestBean extends AbstractBean{
                 if (dir.getName().equalsIgnoreCase(districtDir)) {
                     for (String oszn : osznCode) {
                         for (String month : months) {
-                            if (name.equalsIgnoreCase(filePrefix + oszn + month + REQUEST_FILES_POSTFIX)) {
-                                return true;
+                            String suffix = oszn + month + REQUEST_FILES_EXT;
+
+                            for (String prefix : filePrefix){
+                                if (name.equalsIgnoreCase(prefix + suffix)) {
+                                    return true;
+                                }
                             }
                         }
                     }
@@ -63,15 +67,7 @@ public class LoadRequestBean extends AbstractBean{
             }
         });
     }
-
-    public List<File> getPaymentFiles(String districtDir, String[] osznCode, String[] months) {
-        return getRequestFiles(PAYMENT_FILES_PREFIX, districtDir, osznCode, months);
-    }
-
-    public List<File> getBenefitFiles(String districtDir, String[] osznCode, String[] months) {
-        return getRequestFiles(BENEFIT_FILES_PREFIX, districtDir, osznCode, months);
-    }
-
+    
     private String[] getMonth(int monthFrom, int monthTo) {
         String[] months = new String[monthTo - monthFrom + 1];
 
@@ -91,6 +87,16 @@ public class LoadRequestBean extends AbstractBean{
         SqlSessionManager sm = getSqlSessionManager();
 
         for (File file : files){
+            RequestFile requestFile = new RequestFile();
+            requestFile.setLength(file.length());
+            requestFile.setName(file.getName());
+
+            //проверка загружен ли файл
+            if (requestFileBean.isLoaded(requestFile)){
+                //todo log
+                continue;
+            }
+
             DBF dbf;
             try {
                 dbf = new DBF(file.getAbsolutePath(), DBF.READ_ONLY, "Cp866");
@@ -104,10 +110,8 @@ public class LoadRequestBean extends AbstractBean{
             }
 
             //Начало загрузки
-            RequestFile requestFile = new RequestFile();
-            requestFile.setName(file.getName());
+            requestFile.setLoaded(DateUtil.getCurrentDate());
             requestFile.setDate(parseDate(file.getName(), year));
-            requestFile.setLength(file.length());
             requestFile.setDbfRecordCount(dbf.getRecordCount());
             requestFile.setOrganizationObjectId(organizationId);
             requestFile.setStatus(RequestFile.STATUS.LOADING);
@@ -122,17 +126,26 @@ public class LoadRequestBean extends AbstractBean{
             RequestFile.STATUS status = RequestFile.STATUS.LOADED;
 
             try {
-                paymentBean.load(requestFile, dbf);
+                if (requestFile.isPayment()){
+                    paymentBean.load(requestFile, dbf);
+                }else if (requestFile.isBenefit()){
+                    benefitBean.load(requestFile, dbf);
+                }
             } catch (xBaseJException e) {
                 //todo logBean
                 status = RequestFile.STATUS.ERROR_XBASEJ;
+                log.error("Ошибка чтения записи в файле {}", file.getAbsolutePath());
                 log.error("Ошибка чтения записи", e);
             } catch (IOException e) {
                 status = RequestFile.STATUS.ERROR_IO;
+                log.error("Ошибка чтения записи в файле {}", file.getAbsolutePath());
                 log.error("Ошибка чтения записи", e);
             } catch (WrongFieldTypeException e) {
                 status = RequestFile.STATUS.ERROR_FIELD_TYPE;
                 log.error("Неверные типы полей файла запроса начислений", e);
+            } catch (Exception e){
+                status = RequestFile.STATUS.ERROR;
+                log.error("Ошибка сохранения в базу", e);                
             }
 
             //Загрузка завершена
@@ -154,21 +167,15 @@ public class LoadRequestBean extends AbstractBean{
     @Asynchronous
     public void load(long organizationId, String districtCode, Integer organizationCode, int monthFrom, int monthTo, int year) {
         if (!loading) {
-            loading = true;
+            try {
+                loading = true;
 
-            List<File> paymentFiles = getPaymentFiles(
-                    districtCode,
-                    new String[]{String.valueOf(organizationCode)},
-                    getMonth(monthFrom, monthTo));
-            load(paymentFiles, organizationId, year);
-
-            List<File> benefitFiles = getBenefitFiles(
-                    districtCode,
-                    new String[]{String.valueOf(organizationCode)},
-                    getMonth(monthFrom, monthTo));
-            load(benefitFiles, organizationId, year);
-
-            loading = false;
+                load(getRequestFiles(new String[]{RequestFile.PAYMENT_FILES_PREFIX, RequestFile.BENEFIT_FILES_PREFIX},
+                        districtCode, new String[]{String.valueOf(organizationCode)}, getMonth(monthFrom, monthTo)),
+                        organizationId, year);
+            } finally {
+                loading = false;
+            }
         }
     }
 }

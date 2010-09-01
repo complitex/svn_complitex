@@ -139,7 +139,9 @@ public class TransactionalMethodInterceptor {
                             + " terminated his lyfe-cycle, closing it");
                 }
 
-                sqlSessionManager.close();
+                if (sqlSessionManager.isManagedSessionStarted()){
+                    sqlSessionManager.close();
+                }                
             } else if (log.isDebugEnabled()) {
                 log.debug(debugPrefix
                         + " - SqlSession of thread: "

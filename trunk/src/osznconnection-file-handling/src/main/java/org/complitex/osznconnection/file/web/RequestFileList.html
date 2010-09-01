@@ -6,16 +6,11 @@
     <wicket:head>
         <title wicket:id="title"></title>
         <script type="text/javascript">
-            function selectAll(){
-                var cb=this.form['select'];
-                if (cb!=null) {
-                    if (!isNaN(cb.length)) {
-                        for(var i=0;i&lt;cb.length;i++) {
-                            if (cb[i].checked != this.checked) {
-                                cb[i].click();}
-                        }
-                    } else {
-                        if (cb.checked != this.checked) {cb.click();}
+            function selectAll(cb){
+                var items = document.getElementsByTagName('input');
+                for (i=0; i< items.length; i++){
+                    if (items[i].type == 'checkbox'){
+                        items[i].checked = cb.checked;
                     }
                 }
             }
@@ -39,14 +34,15 @@
                     <th class="center" wicket:id="header.month"><wicket:message key="month"/></th>
                     <th class="center" wicket:id="header.year"><wicket:message key="year"/></th>
                     <th class="center" wicket:id="header.dbf_record_count"><wicket:message key="dbf_record_count"/></th>
-                    <th class="center" wicket:id="header.errors_count"><wicket:message key="errors_count"/></th>
+                    <th class="center" wicket:id="header.loaded_record_count"><wicket:message key="loaded_record_count"/></th>
+                    <th class="center" wicket:id="header.binded_record_count"><wicket:message key="binded_record_count"/></th>
                     <th class="center" wicket:id="header.status"><wicket:message key="status"/></th>
                     <th class="center">
                         <input class="btnSmall"  wicket:id="filter_reset" type="button" wicket:message="value:reset"/>
                     </th>
                 </tr>
                 <tr>
-                    <th><input type="checkbox" name="select" onclick="selectAll()"></th>
+                    <th><input id="select" type="checkbox" onclick="selectAll(this)"></th>
                     <th class="center">
                         <div style="width:102px">
                             <input type="text" wicket:id="loaded" style="width: 80px"/>
@@ -57,7 +53,8 @@
                     <th class="center"><select wicket:id="month"></select></th>
                     <th class="center"><select wicket:id="year"></select></th>
                     <th class="center"><input type="text" wicket:id="dbfRecordCount"/></th>
-                    <th class="center"><input type="text" wicket:id="errorsCount"/></th>
+                    <th class="center"><input type="text" wicket:id="loadedRecordCount"/></th>
+                    <th class="center"><input type="text" wicket:id="bindedRecordCount"/></th>
                     <th class="center"><select wicket:id="status"></select></th>
                     <th class="center">
                         <input class="btnSmall default" type="submit" wicket:message="value:filter" tabindex="0" />
@@ -66,15 +63,16 @@
                 </thead>
                 <tbody>
                 <tr wicket:id="request_files">
-                    <td><input type="checkbox" wicket:id="selected"/></td>
+                    <td><input class="select" type="checkbox" wicket:id="selected"/></td>
                     <td><span wicket:id="loaded"></span></td>
                     <td><span wicket:id="name"></span></td>
                     <td><span wicket:id="organization"></span></td>
                     <td><span wicket:id="month"></span></td>
                     <td><span wicket:id="year"></span></td>
                     <td><span wicket:id="dbf_record_count"></span></td>
-                    <td><span wicket:id="errors_count"></span></td>
-                    <td><span wicket:id="status"></span></td>
+                    <td><span wicket:id="loaded_record_count"></span></td>
+                    <td><span wicket:id="binded_record_count"></span></td>
+                    <td><span wicket:id="status"></span>&nbsp;<img wicket:id="processing"/></td>
                     <td>
                         <span wicket:id="action_list"></span>                        
                     </td>

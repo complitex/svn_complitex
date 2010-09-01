@@ -16,4 +16,13 @@ public class StringUtil {
     public static String valueOf(Object object){
         return object != null ? String.valueOf(object) : "";
     }
+
+    public static String valueOf(Integer sub, Integer all){
+        if (sub != null && all != null){
+            if (all == 0) return sub.toString();
+            return sub + " (" + (100*sub/all) +"%)";           
+        }
+
+        return "";
+    }
 }

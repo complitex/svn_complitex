@@ -2,10 +2,15 @@ package org.complitex.osznconnection.file.web;
 
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.ResourceReference;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.AjaxSelfUpdatingTimerBehavior;
+import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.datetime.markup.html.basic.DateLabel;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.*;
+import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.repeater.Item;
@@ -13,6 +18,7 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.util.time.Duration;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.util.StringUtil;
 import org.complitex.dictionaryfw.web.component.BookmarkablePageLinkPanel;
@@ -21,9 +27,11 @@ import org.complitex.dictionaryfw.web.component.MonthDropDownChoice;
 import org.complitex.dictionaryfw.web.component.YearDropDownChoice;
 import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
+import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.TemplatePage;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.service.FileExecutorService;
+import org.complitex.osznconnection.file.service.LoadRequestBean;
 import org.complitex.osznconnection.file.service.RequestFileBean;
 import org.complitex.osznconnection.file.service.RequestFileFilter;
 import org.complitex.osznconnection.file.web.pages.benefit.BenefitList;
@@ -37,12 +45,18 @@ import java.util.*;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 25.08.2010 13:35:35
  */
+@AuthorizeInstantiation(SecurityRole.AUTHORIZED)
 public class RequestFileList extends TemplatePage{
+    private final static String IMAGE_AJAX_LOADER = "images/ajax-loader1.gif";
+
     @EJB(name = "RequestFileBean")
     private RequestFileBean requestFileBean;
 
     @EJB(name = "OrganizationStrategy")
     private OrganizationStrategy organizationStrategy;
+
+    @EJB(name = "LoadRequestBean")
+    private LoadRequestBean loadRequestBean;
 
     public RequestFileList() {
         super();
@@ -96,11 +110,14 @@ public class RequestFileList extends TemplatePage{
         //Год
         filterForm.add(new YearDropDownChoice("year"));
 
-        //Количество записей
+        //Всего записей
         filterForm.add(new TextField<Integer>("dbfRecordCount", new Model<Integer>(), Integer.class));
 
-        //Количество ошибок
-        filterForm.add(new TextField<Integer>("errorsCount", new Model<Integer>(), Integer.class));
+        //Загружено записей
+        filterForm.add(new TextField<Integer>("loadedRecordCount", new Model<Integer>(), Integer.class));
+
+        //Связано записей
+        filterForm.add(new TextField<Integer>("bindedRecordCount", new Model<Integer>(), Integer.class));
 
         //Статус
         filterForm.add(new DropDownChoice<RequestFile.STATUS>("status",
@@ -169,8 +186,13 @@ public class RequestFileList extends TemplatePage{
                 item.add(DateLabel.forDatePattern("month", new Model<Date>(rf.getDate()), "MMMM"));
                 item.add(DateLabel.forDatePattern("year", new Model<Date>(rf.getDate()), "yyyy"));
                 item.add(new Label("dbf_record_count", StringUtil.valueOf(rf.getDbfRecordCount())));
-                item.add(new Label("errors_count", "[errors_count]"));
+                item.add(new Label("loaded_record_count", StringUtil.valueOf(rf.getLoadedRecordCount(), rf.getDbfRecordCount())));
+                item.add(new Label("binded_record_count", StringUtil.valueOf(rf.getBindedRecordCount(), rf.getDbfRecordCount())));
                 item.add(new Label("status", getStringOrKey(rf.getStatus().name())));
+
+                Image processing = new Image("processing", new ResourceReference(IMAGE_AJAX_LOADER));
+                processing.setVisible(rf.isProcessing());
+                item.add(processing);
 
                 Class<? extends Page> page = null;
                 if (rf.isPayment()){
@@ -184,7 +206,23 @@ public class RequestFileList extends TemplatePage{
             }
         };
         filterForm.add(dataView);
+                           
+        //Таймер
+        if (loadRequestBean.isLoading()){
+            filterForm.add(new AjaxSelfUpdatingTimerBehavior(Duration.seconds(1)){
+                @Override
+                protected void onPostProcessTarget(AjaxRequestTarget target) {
+                    target.addComponent(filterForm);
 
+                    if (!loadRequestBean.isLoading()){
+                        this.stop();
+                        setResponsePage(RequestFileList.class);
+                        info(getString("info.loaded"));
+                    }
+                }
+            });
+        }
+        
         //Сортировка
         filterForm.add(new ArrowOrderByBorder("header.loaded", "loaded", dataProvider, dataView, filterForm));
         filterForm.add(new ArrowOrderByBorder("header.name", "name", dataProvider, dataView, filterForm));
@@ -192,7 +230,8 @@ public class RequestFileList extends TemplatePage{
         filterForm.add(new ArrowOrderByBorder("header.month", "month", dataProvider, dataView, filterForm));
         filterForm.add(new ArrowOrderByBorder("header.year", "year", dataProvider, dataView, filterForm));
         filterForm.add(new ArrowOrderByBorder("header.dbf_record_count", "dbf_record_count", dataProvider, dataView, filterForm));
-        filterForm.add(new ArrowOrderByBorder("header.errors_count", "errors_count", dataProvider, dataView, filterForm));
+        filterForm.add(new ArrowOrderByBorder("header.loaded_record_count", "loaded_record_count", dataProvider, dataView, filterForm));
+        filterForm.add(new ArrowOrderByBorder("header.binded_record_count", "binded_record_count", dataProvider, dataView, filterForm));
         filterForm.add(new ArrowOrderByBorder("header.status", "status", dataProvider, dataView, filterForm));
 
         //Постраничная навигация

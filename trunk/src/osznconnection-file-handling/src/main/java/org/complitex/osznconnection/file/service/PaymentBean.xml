@@ -103,8 +103,7 @@
         select * from `payment`
     </select>
 
-    <insert id="insertPayment" parameterType="org.complitex.osznconnection.file.entity.Payment"
-            keyProperty="id" useGeneratedKeys="true">
+    <insert id="insertPayment" parameterType="org.complitex.osznconnection.file.entity.Payment">
         insert into `payment`
             (
             <trim suffixOverrides=",">

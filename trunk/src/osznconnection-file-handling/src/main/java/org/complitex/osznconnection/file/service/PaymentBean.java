@@ -33,7 +33,7 @@ import java.util.Map;
 public class PaymentBean extends AbstractBean {
     private static final String MAPPING_NAMESPACE = PaymentBean.class.getName();
 
-    private static final int BATCH_SIZE = 100;
+    private static final int BATCH_SIZE = 10;
 
     public enum OrderBy {
 
@@ -140,12 +140,24 @@ public class PaymentBean extends AbstractBean {
                 sm.startManagedSession(ExecutorType.BATCH);
             }
 
+            //todo test
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
             sqlSession().insert(MAPPING_NAMESPACE + ".insertPayment", payment);
 
-            if (i % BATCH_SIZE == 0){
+            if ((i+1) % BATCH_SIZE == 0){
                 sm.commit();
                 sm.close();
             }
+        }
+
+        if (sm.isManagedSessionStarted()){
+            sm.commit();
+            sm.close();
         }
     }
 }

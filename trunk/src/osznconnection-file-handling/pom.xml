@@ -79,5 +79,11 @@
             <artifactId>xbasej</artifactId>
             <version>20091203</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.linuxense.javadbf</groupId>
+            <artifactId>javadbf</artifactId>
+            <version>0.4.0</version>
+        </dependency>
     </dependencies>
 </project>

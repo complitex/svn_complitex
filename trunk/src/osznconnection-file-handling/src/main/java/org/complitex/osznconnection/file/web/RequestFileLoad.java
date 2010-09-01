@@ -1,5 +1,6 @@
 package org.complitex.osznconnection.file.web;
 
+import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -12,6 +13,7 @@ import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.web.component.MonthDropDownChoice;
 import org.complitex.dictionaryfw.web.component.YearDropDownChoice;
 import org.complitex.osznconnection.commons.web.pages.welcome.WelcomePage;
+import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.FormTemplatePage;
 import org.complitex.osznconnection.file.service.LoadRequestBean;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
@@ -22,6 +24,7 @@ import javax.ejb.EJB;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 25.08.2010 15:43:27
  */
+@AuthorizeInstantiation(SecurityRole.AUTHORIZED)
 public class RequestFileLoad extends FormTemplatePage{
     @EJB(name = "LoadRequestBean")
     private LoadRequestBean loadRequestBean;
@@ -81,7 +84,7 @@ public class RequestFileLoad extends FormTemplatePage{
                     loadRequestBean.load(oszn.getId(),
                             organizationStrategy.getDistrictCode(oszn), organizationStrategy.getUniqueCode(oszn),
                             from.getModelObject(), to.getModelObject(), year.getModelObject());
-                    getSession().info(getString("info.start_loading"));
+//                    getSession().info(getString("info.start_loading")); todo ajax messages
                 }else{
                     getSession().error(getString("error.loading_in_progress"));
                 }

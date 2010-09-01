@@ -51,8 +51,7 @@
         select * from `benefit`
     </select>
 
-    <insert id="insertBenefit" parameterType="org.complitex.osznconnection.file.entity.Benefit"
-            keyProperty="id" useGeneratedKeys="true">
+    <insert id="insertBenefit" parameterType="org.complitex.osznconnection.file.entity.Benefit">
         insert into `benefit`
             (
             <trim suffixOverrides=",">
