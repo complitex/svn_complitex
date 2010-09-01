@@ -180,7 +180,7 @@ public class BuildingStrategy extends Strategy {
 
     @Override
     public ISearchCallback getSearchCallback() {
-        return new SearchCallback(this);
+        return new SearchCallback();
     }
 
     @Override
@@ -193,7 +193,7 @@ public class BuildingStrategy extends Strategy {
         return ImmutableList.of("country", "region", "city", "street");
     }
 
-    public void configureExampleImpl(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
+    public static void configureExampleImpl(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
         if (!Strings.isEmpty(searchTextInput)) {
             AttributeExample number = null;
             try {
@@ -234,17 +234,12 @@ public class BuildingStrategy extends Strategy {
     }
 
     private static class SearchCallback implements ISearchCallback, Serializable {
-        private Strategy strategy;
-
-        private SearchCallback(Strategy strategy) {
-            this.strategy = strategy;
-        }
 
         @Override
         public void found(SearchComponent component, Map<String, Long> ids, AjaxRequestTarget target) {
             DomainObjectListPanel list = component.findParent(DomainObjectListPanel.class);
             DomainObjectExample example = list.getExample();
-            strategy.configureExampleImpl(example, ids, null);
+            configureExampleImpl(example, ids, null);
             list.refreshContent(target);
         }
     }

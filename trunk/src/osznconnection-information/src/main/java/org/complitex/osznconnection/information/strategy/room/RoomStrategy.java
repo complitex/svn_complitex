@@ -88,7 +88,7 @@ public class RoomStrategy extends Strategy {
 
     @Override
     public ISearchCallback getSearchCallback() {
-        return new SearchCallback(this);
+        return new SearchCallback();
     }
 
     @Override
@@ -96,7 +96,7 @@ public class RoomStrategy extends Strategy {
         configureExampleImpl(example, ids, searchTextInput);
     }
 
-    public void configureExampleImpl(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
+    public static void configureExampleImpl(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
         if (!Strings.isEmpty(searchTextInput)) {
             AttributeExample attrExample = null;
             try {
@@ -125,16 +125,11 @@ public class RoomStrategy extends Strategy {
     }
 
     private static class SearchCallback implements ISearchCallback, Serializable {
-        private Strategy strategy;
-
-        private SearchCallback(Strategy strategy) {
-            this.strategy = strategy;
-        }
 
         @Override
         public void found(SearchComponent component, Map<String, Long> ids, AjaxRequestTarget target) {
             DomainObjectListPanel list = component.findParent(DomainObjectListPanel.class);
-            strategy.configureExampleImpl(list.getExample(), ids, null);
+            configureExampleImpl(list.getExample(), ids, null);
             list.refreshContent(target);
         }
     }

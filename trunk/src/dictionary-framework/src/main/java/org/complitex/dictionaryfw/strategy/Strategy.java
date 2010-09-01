@@ -428,9 +428,6 @@ public abstract class Strategy extends AbstractBean{
 
     public abstract ISearchCallback getSearchCallback();
 
-    public void configureExampleImpl(DomainObjectExample example, Map<String, Long> ids, String searchTextInput){        
-    }
-
     public abstract String displayDomainObject(DomainObject object, Locale locale);
 
     public abstract void configureExample(DomainObjectExample example, Map<String, Long> ids, String searchTextInput);
