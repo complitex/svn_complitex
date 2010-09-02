@@ -337,10 +337,10 @@
             <url>http://wiquery.googlecode.com/svn/repo/</url>
             <layout>default</layout>
         </repository>
-        <repository>
+        <!--<repository>
             <id>maven2.samara.lanit.ru</id>
             <name>maven2.samara.lanit.ru</name>
             <url>maven2.samara.lanit.ru</url>
-        </repository>
+        </repository>-->
     </repositories>
 </project>
