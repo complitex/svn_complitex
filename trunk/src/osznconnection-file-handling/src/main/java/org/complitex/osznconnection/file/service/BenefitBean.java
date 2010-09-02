@@ -40,8 +40,8 @@ public class BenefitBean extends AbstractBean {
 
     public enum OrderBy {
 
-        FIRST_NAME("fNam"), MIDDLE_NAME("mNam"), LAST_NAME("surNam"),
-        CITY("internalCity"), STREET("internalStreet"), BUILDING("internalBuilding"), APARTMENT("internalApartment"),
+        FIRST_NAME("F_NAM"), MIDDLE_NAME("M_NAM"), LAST_NAME("SUR_NAM"),
+        CITY("city"), STREET("street"), BUILDING("building"), APARTMENT("apartment"),
         STATUS("status");
 
         private String orderBy;
@@ -95,7 +95,7 @@ public class BenefitBean extends AbstractBean {
 
             Benefit benefit = new Benefit();
             benefit.setRequestFileId(requestFile.getId());
-            benefit.setStatus(Status.ADDRESS_UNRESOLVED);
+            benefit.setStatus(Status.CITY_UNRESOLVED_LOCALLY);
             
             for (BenefitDBF benefitDBF : BenefitDBF.values()){
                 Field field = fields.get(benefitDBF);

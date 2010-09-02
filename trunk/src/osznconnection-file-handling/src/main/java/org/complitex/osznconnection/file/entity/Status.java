@@ -9,5 +9,21 @@ package org.complitex.osznconnection.file.entity;
  * @author Artem
  */
 public enum Status {
-    RESOLVED, ADDRESS_UNRESOLVED, ACCOUNT_NUMBER_UNRESOLVED_LOCALLY
+    CITY_UNRESOLVED_LOCALLY(true), STREET_UNRESOLVED_LOCALLY(true), BUILDING_UNRESOLVED_LOCALLY(true), APARTMENT_UNRESOLVED_LOCALLY(true),
+    ADDRESS_CORRECTED(false),
+    ACCOUNT_NUMBER_UNRESOLVED_LOCALLY(false), RESOLVED(false);
+
+    private boolean localAddressCorrection;
+
+    private Status(boolean localAddressCorrection) {
+        this.localAddressCorrection = localAddressCorrection;
+    }
+
+    public boolean isLocalAddressCorrection() {
+        return localAddressCorrection;
+    }
+
+
+
+
 }

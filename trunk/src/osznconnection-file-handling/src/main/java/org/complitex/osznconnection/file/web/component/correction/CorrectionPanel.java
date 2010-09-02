@@ -33,6 +33,8 @@ public abstract class CorrectionPanel extends Panel {
     @EJB(name = "StrategyFactory")
     private StrategyFactory strategyFactory;
 
+    private String searchAddressEntity;
+
     public CorrectionPanel(String id, String name, String address, Long cityId, Long streetId, Long buildingId, Long apartmentId) {
         super(id);
         init(name, address, cityId, streetId, buildingId, apartmentId);
@@ -82,6 +84,32 @@ public abstract class CorrectionPanel extends Panel {
         return object;
     }
 
+    private List<String> initFilters() {
+        if (searchAddressEntity.equalsIgnoreCase("city")) {
+            return ImmutableList.of("city");
+        }
+        if (searchAddressEntity.equalsIgnoreCase("street")) {
+            return ImmutableList.of("city", "street");
+        }
+        if (searchAddressEntity.equalsIgnoreCase("building")) {
+            return ImmutableList.of("city", "street", "building");
+        }
+        return ImmutableList.of("city", "street", "building", "apartment");
+    }
+
+    private String initSearchAddressEntity(Long cityId, Long streetId, Long buildingId, Long apartmentId) {
+        if (cityId == null) {
+            return "city";
+        }
+        if (streetId == null) {
+            return "street";
+        }
+        if (buildingId == null) {
+            return "building";
+        }
+        return "apartment";
+    }
+
     private static class FakeSearchCallback implements ISearchCallback, Serializable {
 
         @Override
@@ -97,10 +125,12 @@ public abstract class CorrectionPanel extends Panel {
         messages.setOutputMarkupId(true);
         add(messages);
 
-        final SearchComponentState componentState = initSearchComponentState(cityId, streetId, buildingId, apartmentId);
+        searchAddressEntity = initSearchAddressEntity(cityId, streetId, buildingId, apartmentId);
 
-        SearchComponent searchComponent = new SearchComponent("searchComponent", componentState,
-                ImmutableList.of("city", "street", "building", "apartment"), new FakeSearchCallback(), true);
+        final SearchComponentState componentState = initSearchComponentState(cityId, streetId, buildingId, apartmentId);
+        List<String> searchFilters = initFilters();
+
+        SearchComponent searchComponent = new SearchComponent("searchComponent", componentState, searchFilters, new FakeSearchCallback(), true);
         add(searchComponent);
 
         AjaxLink save = new AjaxLink("save") {
@@ -108,8 +138,9 @@ public abstract class CorrectionPanel extends Panel {
             @Override
             public void onClick(AjaxRequestTarget target) {
                 if (validate(componentState)) {
-                    correctAddress(componentState.get("city").getId(), componentState.get("street").getId(), componentState.get("building").getId(),
-                            componentState.get("apartment").getId());
+                    correctAddress(getObjectId(componentState.get("city")),
+                            getObjectId(componentState.get("street")), getObjectId(componentState.get("building")),
+                            getObjectId(componentState.get("apartment")));
                     back();
                 } else {
                     target.addComponent(messages);
@@ -127,13 +158,14 @@ public abstract class CorrectionPanel extends Panel {
         add(cancel);
     }
 
-    protected abstract void correctAddress(long cityId, long streetId, long buildingId, long apartmentId);
+    private static Long getObjectId(DomainObject object) {
+        return object == null ? null : object.getId();
+    }
+
+    protected abstract void correctAddress(Long cityId, Long streetId, Long buildingId, Long apartmentId);
 
     protected boolean validate(SearchComponentState componentState) {
-        boolean validated = componentState.get("city") != null && componentState.get("city").getId() > 0
-                && componentState.get("street") != null && componentState.get("street").getId() > 0
-                && componentState.get("building") != null && componentState.get("building").getId() > 0
-                && componentState.get("apartment") != null && componentState.get("apartment").getId() > 0;
+        boolean validated = componentState.get(searchAddressEntity) != null && componentState.get(searchAddressEntity).getId() > 0;
         if (!validated) {
             error(getString("address_mistake"));
         }

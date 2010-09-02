@@ -6,11 +6,19 @@
         <id column="id" property="id"/>
         <result column="request_file_id" property="requestFileId"/>
         <result column="account_number" property="accountNumber"/>
-        <result column="city_id" property="cityId"/>
-        <result column="street_id" property="streetId"/>
-        <result column="building_id" property="buildingId"/>
-        <result column="apartment_id" property="apartmentId"/>
+        
+        <result column="internal_city_id" property="internalCityId"/>
+        <result column="internal_street_id" property="internalStreetId"/>
+        <result column="internal_building_id" property="internalBuildingId"/>
+        <result column="internal_apartment_id" property="internalApartmentId"/>
+
+        <result column="outgoing_city" property="outgoingCity"/>
+        <result column="outgoing_street" property="outgoingStreet"/>
+        <result column="outgoing_building" property="outgoingBuilding"/>
+        <result column="outgoing_apartment" property="outgoingApartment"/>
+        
         <result column="status" property="status"/>
+        <result column="organization_id" property="organizationId"/>
 
         <association property="dbfFields" javaType="map">
             <result column="OWN_NUM" property="OWN_NUM"/>
@@ -73,32 +81,6 @@
         </association>
     </resultMap>
 
-    <resultMap id="internalPaymentResultMap" type="org.complitex.osznconnection.file.entity.Payment">
-        <id property="id" column="id"/>
-        <result column="requestFileId" property="requestFileId"/>
-        <result column="status" property="status"/>
-        <result column="internalCity" property="internalCity"/>
-        <result column="internalStreet" property="internalStreet"/>
-        <result column="internalBuilding" property="internalBuilding"/>
-        <result column="internalApartment" property="internalApartment"/>
-        <result column="city_id" property="cityId"/>
-        <result column="street_id" property="streetId"/>
-        <result column="building_id" property="buildingId"/>
-        <result column="apartment_id" property="apartmentId"/>
-        <result column="organizationId" property="organizationId"/>
-
-        <association property="dbfFields" javaType="map">
-            <result column="fNam" property="F_NAM"/>
-            <result column="mNam" property="M_NAM"/>
-            <result column="surNam" property="SUR_NAM"/>
-            <result column="nName" property="N_NAME"/>
-            <result column="vulName" property="VUL_NAME"/>
-            <result column="bldNum" property="BLD_NUM"/>
-            <result column="flat" property="FLAT"/>
-        </association>
-
-    </resultMap>
-
     <select id="selectPayments" resultMap="paymentResultMap">
         select * from `payment`
     </select>
@@ -107,7 +89,10 @@
         insert into `payment`
             (
             <trim suffixOverrides=",">
-                `request_file_id`, `account_number`, `city_id`, `street_id`, `building_id`, `apartment_id`, `status`,
+                `request_file_id`, `account_number`, 
+                `internal_city_id`, `internal_street_id`, `internal_building_id`, `internal_apartment_id`,
+                `outgoing_city`, `outgoing_street`, `outgoing_building`, `outgoing_apartment`,
+                `status`,
                 <foreach collection="dbfFields.keys" item="key">
                     `${key}`,
                 </foreach>
@@ -116,7 +101,10 @@
         values
             (
             <trim suffixOverrides=",">
-                #{requestFileId}, #{accountNumber}, #{cityId}, #{streetId}, #{buildingId}, #{apartmentId}, #{status},
+                #{requestFileId}, #{accountNumber},
+                #{internalCityId}, #{internalStreetId}, #{internalBuildingId}, #{internalApartmentId},
+                #{outgoingCity}, #{outgoingStreet}, #{outgoingBuilding}, #{outgoingApartment},
+                #{status},
                 <foreach collection="dbfFields.keys" item="key">
                     #{dbfFields.${key}},
                 </foreach>
@@ -127,8 +115,11 @@
     <update id="updatePayment" parameterType="org.complitex.osznconnection.file.entity.Payment">
         update `payment`
         <set>
-            `request_file_id` = #{requestFileId}, `account_number` = #{accountNumber}, `city_id` = #{cityId},
-            `street_id` = #{streetId}, `building_id` = #{buildingId}, `apartment_id` = #{apartmentId},
+            `request_file_id` = #{requestFileId}, `account_number` = #{accountNumber}, 
+            `internal_city_id` = #{internalCityId},
+            `internal_street_id` = #{internalStreetId}, `internal_building_id` = #{internalBuildingId}, `internal_apartment_id` = #{internalApartmentId},
+            `outgoing_city` = #{outgoingCity},
+            `outgoing_street` = #{outgoingStreet}, `outgoing_building` = #{outgoingBuilding}, `outgoing_apartment` = #{outgoingApartment},
             `status` = #{status},
             <foreach collection="dbfFields.keys" item="key">
                 `${key}` = #{dbfFields[key]}
@@ -150,20 +141,16 @@
         </if>
 
         <if test="city != null">
-            AND r.`city_id` IN (SELECT a.`object_id` FROM `city_attribute` a WHERE a.`attribute_type_id` = 400 AND a.`status` = 'ACTIVE' AND a.`value_id` IN
-            (SELECT sc.`id` FROM `city_string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`value` LIKE CONCAT('%',#{city},'%')))
+            AND r.`N_NAME` LIKE CONCAT('%', #{city}, '%')
         </if>
         <if test="street != null">
-            AND r.`street_id` IN (SELECT a.`object_id` FROM `street_attribute` a WHERE a.`attribute_type_id` = 300 AND a.`status` = 'ACTIVE' AND a.`value_id` IN
-            (SELECT sc.`id` FROM `street_string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`value` LIKE CONCAT('%',#{street},'%')))
+            AND r.`VUL_NAME` LIKE CONCAT('%', #{street}, '%')
         </if>
         <if test="building != null">
-            AND r.`building_id` IN (SELECT a.`object_id` FROM `building_attribute` a WHERE a.`attribute_type_id` = 500 AND a.`status` = 'ACTIVE' AND a.`value_id` IN
-            (SELECT sc.`id` FROM `building_string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`value` LIKE CONCAT('%',#{building},'%')))
+            AND r.`BLD_NUM` LIKE CONCAT('%', #{building}, '%')
         </if>
         <if test="apartment != null">
-            AND r.`apartment_id` IN (SELECT a.`object_id` FROM `apartment_attribute` a WHERE a.`attribute_type_id` = 100 AND a.`status` = 'ACTIVE' AND a.`value_id` IN
-            (SELECT sc.`id` FROM `apartment_string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`value` LIKE CONCAT('%',#{apartment},'%')))
+            AND r.`FLAT` LIKE CONCAT('%', #{apartment}, '%')
         </if>
 
         <if test="status != null">
@@ -177,24 +164,12 @@
     </select>
 
     <select id="find" parameterType="org.complitex.osznconnection.file.web.pages.payment.PaymentExample"
-            resultMap="internalPaymentResultMap">
-        SELECT r.`id`, r.`status`, r.`request_file_id` requestFileId, r.`F_NAM` fNam, r.`M_NAM` mNam, r.`SUR_NAM` surNam,
-        (SELECT f.`organization_object_id` FROM `request_file` f WHERE f.`id` = r.`request_file_id`) organizationId,
-        (SELECT sc.`value` FROM `city_string_culture` sc WHERE sc.`locale` = #{locale} AND
-        sc.`id` = (SELECT a.`value_id` FROM `city_attribute` a WHERE a.`attribute_type_id` = 400 AND a.`status` = 'ACTIVE' AND a.`object_id` = r.`city_id`)) internalCity,
-        (SELECT sc.`value` FROM `street_string_culture` sc WHERE sc.`locale` = #{locale} AND
-        sc.`id` = (SELECT a.`value_id` FROM `street_attribute` a WHERE a.`attribute_type_id` = 300 AND a.`status` = 'ACTIVE' AND a.`object_id` = r.`street_id`)) internalStreet,
-        (SELECT sc.`value` FROM `building_string_culture` sc WHERE sc.`locale` = #{locale} AND
-        sc.`id` =
-        (SELECT a1.`value_id` FROM `building_attribute` a1
-        JOIN `building_attribute` a2 ON (a1.`attribute_id` = a2.`attribute_id` AND a1.`object_id` = a2.`object_id`)
-        WHERE a1.`attribute_type_id` = 500 AND a1.`status` = 'ACTIVE' AND a1.`object_id` = r.`building_id` AND
-        a2.`attribute_type_id` = 503 AND a2.`status` = 'ACTIVE' AND a2.`object_id` = r.`building_id`
-        AND a2.`value_id` = r.`street_id`
-        )
-        ) internalBuilding,
-        (SELECT sc.`value` FROM `apartment_string_culture` sc WHERE sc.`locale` = #{locale} AND
-        sc.`id` = (SELECT a.`value_id` FROM `apartment_attribute` a WHERE a.`attribute_type_id` = 100 AND a.`status` = 'ACTIVE' AND a.`object_id` = r.`apartment_id`)) internalApartment
+            resultMap="paymentResultMap">
+        SELECT r.`id`, r.`status`, r.`request_file_id`, r.`F_NAM`, r.`M_NAM`, r.`SUR_NAM`,
+        r.`N_NAME`, r.`VUL_NAME`, r.`BLD_NUM`, r.`FLAT`,
+        (SELECT f.`organization_object_id` FROM `request_file` f WHERE f.`id` = r.`request_file_id`) organization_id,
+        r.`internal_city_id`, r.`internal_street_id`, r.`internal_building_id`, r.`internal_apartment_id`,
+        r.`outgoing_city`, r.`outgoing_street`, r.`outgoing_building`, r.`outgoing_apartment`
         FROM `payment` r WHERE r.`request_file_id` = #{requestFileId}
         <include refid="org.complitex.osznconnection.file.service.PaymentBean.filter"/>
         <if test="orderByClause != null">
@@ -213,30 +188,32 @@
         </if>
     </select>
 
-    <select id="findById" parameterType="long" resultMap="internalPaymentResultMap">
-        SELECT r.`id`, r.`status`, r.`request_file_id` requestFileId, r.`F_NAM` fNam, r.`M_NAM` mNam, r.`SUR_NAM` surNam,
-        r.`N_NAME` nName, r.`VUL_NAME` vulName, r.`BLD_NUM` bldNum, r.`FLAT` flat,
-        (SELECT f.`organization_object_id` FROM `request_file` f WHERE f.`id` = r.`request_file_id`) organizationId,
-        r.`city_id`,
-        r.`street_id`,
-        r.`building_id`,
-        r.`apartment_id`
+    <select id="findById" parameterType="long" resultMap="paymentResultMap">
+        SELECT r.`id`, r.`status`, r.`request_file_id`, r.`F_NAM`, r.`M_NAM`, r.`SUR_NAM`,
+        r.`N_NAME`, r.`VUL_NAME`, r.`BLD_NUM`, r.`FLAT`,
+        (SELECT f.`organization_object_id` FROM `request_file` f WHERE f.`id` = r.`request_file_id`) organization_id,
+        r.`internal_city_id`, r.`internal_street_id`, r.`internal_building_id`, r.`internal_apartment_id`,
+        r.`outgoing_city`, r.`outgoing_street`, r.`outgoing_building`, r.`outgoing_apartment`
         FROM `payment` r WHERE r.`id` = #{id}
     </select>
 
     <update id="update" parameterType="org.complitex.osznconnection.file.entity.Payment">
-        UPDATE `payment` SET `city_id` = #{cityId}, `street_id` = #{streetId}, `building_id` = #{buildingId}, `apartment_id` = #{apartmentId},
-        `account_number` = #{accountNumber}, `status` = #{status} WHERE `id` = #{id}
+        UPDATE `payment` SET 
+        `account_number` = #{accountNumber}, 
+        `internal_city_id` = #{internalCityId},
+        `internal_street_id` = #{internalStreetId}, `internal_building_id` = #{internalBuildingId}, `internal_apartment_id` = #{internalApartmentId},
+        `outgoing_city` = #{outgoingCity},
+        `outgoing_street` = #{outgoingStreet}, `outgoing_building` = #{outgoingBuilding}, `outgoing_apartment` = #{outgoingApartment},
+        `status` = #{status}
+        WHERE `id` = #{id}
     </update>
 
-    <select id="findByFile" parameterType="hashmap" resultMap="internalPaymentResultMap">
-        SELECT r.`id`, r.`status`, r.`request_file_id` requestFileId, r.`F_NAM` fNam, r.`M_NAM` mNam, r.`SUR_NAM` surNam,
-        r.`N_NAME` nName, r.`VUL_NAME` vulName, r.`BLD_NUM` bldNum, r.`FLAT` flat,
-        rf.`organization_object_id` organizationId,
-        r.`city_id`,
-        r.`street_id`,
-        r.`building_id`,
-        r.`apartment_id`
+    <select id="findByFile" parameterType="hashmap" resultMap="paymentResultMap">
+        SELECT r.`id`, r.`status`, r.`request_file_id`, r.`F_NAM`, r.`M_NAM`, r.`SUR_NAM`,
+        r.`N_NAME`, r.`VUL_NAME`, r.`BLD_NUM`, r.`FLAT`,
+        rf.`organization_object_id` organization_id,
+        r.`internal_city_id`, r.`internal_street_id`, r.`internal_building_id`, r.`internal_apartment_id`,
+        r.`outgoing_city`, r.`outgoing_street`, r.`outgoing_building`, r.`outgoing_apartment`
         FROM `payment` r
         JOIN `request_file` rf ON r.`request_file_id` = rf.`id`
         WHERE r.`request_file_id` = #{requestFileId} AND r.`id` IN
@@ -252,5 +229,36 @@
         JOIN `request_file` rf ON r.`request_file_id` = rf.`id`
         WHERE r.`request_file_id` = #{requestFileId} AND r.`status` != 'RESOLVED'
     </select>
+
+    <update id="correct" parameterType="hashmap">
+        update `payment`
+        SET
+            `internal_${addressEntity}_id` = #{objectId},
+            `status` = #{status}
+        where
+            `request_file_id` = #{requestFileId}
+            <if test="city != null">
+                AND `N_NAME` = #{city}
+            </if>
+            <if test="street != null">
+                AND `VUL_NAME` = #{street}
+            </if>
+            <if test="building != null">
+                AND `BLD_NUM` = #{building}
+            </if>
+            <if test="apartment != null">
+                AND `FLAT` = #{apartment}
+            </if>
+
+            <if test="cityId != null">
+                AND `internal_city_id` = #{cityId}
+            </if>
+            <if test="streetId != null">
+                AND `internal_street_id` = #{streetId}
+            </if>
+            <if test="buildingId != null">
+                AND `internal_building_id` = #{buildingId}
+            </if>
+    </update>
 
 </mapper>

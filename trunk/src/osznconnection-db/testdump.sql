@@ -126,10 +126,11 @@ insert into `request_file`(id, organization_object_id, `name`, `date`, `loaded`)
                                 (2,1,'AF123405.xml', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- Payments
-insert into payment(own_num_sr, f_nam, m_nam, sur_nam, n_name, vul_name, bld_num, flat, city_id, street_id, building_id, apartment_id, request_file_id)
+insert into payment(own_num_sr, f_nam, m_nam, sur_nam, n_name, vul_name, bld_num, flat,
+internal_city_id, internal_street_id, internal_building_id, internal_apartment_id, request_file_id, status)
 values
-(1,'Иван', 'Иванович', 'Иванов', 'Новосибирск', 'Терешковой', 'д. 10', 'кв. 10', null,null,null,null,1),
-(2,'Сидор', 'Сидорович', 'Сидоров', 'Новосибирск', 'ул. Терешковой', 'д. 11', 'кв. 11', null,null,null,null,1);
+(1,'Иван', 'Иванович', 'Иванов', 'Новосибирск', 'ул. Терешковой', 'д. 10', 'кв. 10', null,null,null,null,1, 'CITY_UNRESOLVED_LOCALLY'),
+(2,'Сидор', 'Сидорович', 'Сидоров', 'Новосибирск', 'ул. Терешковой', 'д. 11', 'кв. 11', null,null,null,null,1, 'CITY_UNRESOLVED_LOCALLY');
 
 -- Benefit
 insert into benefit(own_num_sr, f_nam, m_nam, sur_nam, request_file_id)

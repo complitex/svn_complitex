@@ -41,23 +41,13 @@ public class BindingRequestBean extends AbstractBean {
     }
 
     private boolean resolveAddress(Payment payment, ModifyStatus modifyStatus) {
-        if (payment.getStatus() != Status.ADDRESS_UNRESOLVED) {
+        if (!payment.getStatus().isLocalAddressCorrection() && payment.getStatus() != Status.ADDRESS_CORRECTED) {
             return true;
         }
-
-        AddressResolver.InternalAddress address = addressResolver.resolveAddress((String) payment.getField(PaymentDBF.N_NAME),
-                (String) payment.getField(PaymentDBF.VUL_NAME),
-                (String) payment.getField(PaymentDBF.BLD_NUM), (String) payment.getField(PaymentDBF.FLAT),
-                payment.getOrganizationId());
-        payment.setCityId(address.getCity());
-        payment.setStreetId(address.getStreet());
-        payment.setBuildingId(address.getBuilding());
-        payment.setApartmentId(address.getApartment());
-        modifyStatus.modified = true;
-        if (address.isCorrect()) {
-            payment.setStatus(Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY);
-        }
-        return address.isCorrect();
+        Status oldStatus = payment.getStatus();
+        addressResolver.resolveAddress(payment);
+        modifyStatus.modified = oldStatus != payment.getStatus();
+        return !payment.getStatus().isLocalAddressCorrection();
     }
 
     private boolean resolveLocalAccountNumber(Payment payment, ModifyStatus modifyStatus) {
@@ -68,7 +58,7 @@ public class BindingRequestBean extends AbstractBean {
         String accountNumber = personAccountBean.findLocalAccountNumber(
                 (String) payment.getField(PaymentDBF.F_NAM),
                 (String) payment.getField(PaymentDBF.M_NAM), (String) payment.getField(PaymentDBF.SUR_NAM),
-                payment.getCityId(), payment.getStreetId(), payment.getBuildingId(), payment.getApartmentId());
+                payment.getInternalCityId(), payment.getInternalStreetId(), payment.getInternalBuildingId(), payment.getInternalApartmentId());
         if (!Strings.isEmpty(accountNumber)) {
             payment.setAccountNumber(accountNumber);
             payment.setStatus(Status.RESOLVED);
@@ -156,51 +146,6 @@ public class BindingRequestBean extends AbstractBean {
         bindBenefitFile(benefitFile, benefitStatus);
     }
 
-//    @Asynchronous
-//    public Future<String> bind(List<RequestFile> requestFiles) {
-//        try {
-//            SqlSession currentSession = sqlSessionFactory.getCurrentSession();
-//
-//            fileToProcessStatusMap = new ConcurrentHashMap<Long, AsyncOperationStatus>();
-//
-//            for (final RequestFile file : requestFiles) {
-//                if (file.getType() == RequestFile.TYPE.PAYMENT) {
-//                    AsyncOperationStatus operationStatus = new AsyncOperationStatus();
-//                    operationStatus.setRequestFile(file);
-//                    fileToProcessStatusMap.put(file.getId(), operationStatus);
-//                    bindPaymentFile(file.getId());
-//
-//                    //find associated benefit file
-//                    RequestFile benefitFile = null;
-//                    try {
-//                        benefitFile = Iterables.find(requestFiles, new Predicate<RequestFile>() {
-//
-//                            @Override
-//                            public boolean apply(RequestFile benefitFile) {
-//                                return benefitFile.getType() == RequestFile.TYPE.BENEFIT
-//                                        && benefitFile.getName().substring(RequestFile.PAYMENT_FILES_PREFIX.length()).
-//                                        equalsIgnoreCase(file.getName().substring(RequestFile.BENEFIT_FILES_PREFIX.length()));
-//
-//                            }
-//                        });
-//                    } catch (NoSuchElementException e) {
-//                    }
-//
-//                    if (benefitFile != null) {
-//                        operationStatus = new AsyncOperationStatus();
-//                        operationStatus.setRequestFile(file);
-//                        fileToProcessStatusMap.put(file.getId(), operationStatus);
-//                        bindBenefitFile(benefitFile);
-//                    }
-//                }
-//            }
-//
-//        } finally {
-//            sqlSessionFactory.removeCurrentSession();
-//        }
-//
-//        return new AsyncResult<String>("COMPLETE");
-//    }
     private void incrementFailedRecords(AsyncOperationStatus operationStatus) {
         operationStatus.setFailed(operationStatus.getFailed());
     }
