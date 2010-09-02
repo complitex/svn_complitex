@@ -41,13 +41,13 @@ public class BindingRequestBean extends AbstractBean {
     }
 
     private boolean resolveAddress(Payment payment, ModifyStatus modifyStatus) {
-        if (!payment.getStatus().isLocalAddressCorrection() && payment.getStatus() != Status.ADDRESS_CORRECTED) {
+        if (addressResolver.isAddressResolved(payment)) {
             return true;
         }
         Status oldStatus = payment.getStatus();
         addressResolver.resolveAddress(payment);
         modifyStatus.modified = oldStatus != payment.getStatus();
-        return !payment.getStatus().isLocalAddressCorrection();
+        return addressResolver.isAddressResolved(payment);
     }
 
     private boolean resolveLocalAccountNumber(Payment payment, ModifyStatus modifyStatus) {

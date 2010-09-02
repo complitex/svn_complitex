@@ -892,6 +892,7 @@ CREATE TABLE `city_correction` (
     `organization_id` bigint(20) NOT NULL,
     `city` varchar(100) NOT NULL,
     `city_id` bigint(20) NOT NULL,
+    `organization_city_code` bigint(20) NULL,
     PRIMARY KEY (`id`),
     KEY `FK_city_correction_organization` (`organization_id`),
     CONSTRAINT `FK_city_correction_organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`)
@@ -904,6 +905,7 @@ CREATE TABLE `street_correction` (
     `organization_id` bigint(20) NOT NULL,
     `street` varchar(100) NOT NULL,
     `street_id` bigint(20) NOT NULL,
+    `organization_street_code` bigint(20) NULL,
     PRIMARY KEY (`id`),
     KEY `FK_street_correction_organization` (`organization_id`),
     CONSTRAINT `FK_street_correction_organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`)
@@ -916,6 +918,7 @@ CREATE TABLE `building_correction` (
     `organization_id` bigint(20) NOT NULL,
     `building` varchar(100) NOT NULL,
     `building_id` bigint(20) NOT NULL,
+    `organization_building_code` bigint(20) NULL,
     PRIMARY KEY (`id`),
     KEY `FK_building_correction_organization` (`organization_id`),
     CONSTRAINT `FK_building_correction_organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`)
@@ -928,9 +931,20 @@ CREATE TABLE `apartment_correction` (
     `organization_id` bigint(20) NOT NULL,
     `apartment` varchar(100) NOT NULL,
     `apartment_id` bigint(20) NOT NULL,
+    `organization_apartment_code` bigint(20) NULL,
     PRIMARY KEY (`id`),
     KEY `FK_apartment_correction_organization` (`organization_id`),
     CONSTRAINT `FK_apartment_correction_organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `calculation_center_preference`;
+
+CREATE TABLE `calculation_center_preference` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT,
+    `calculation_center_id` bigint(20) NOT NULL,
+    PRIMARY KEY (`id`),
+    KEY `FK_calculation_center_preference_organization` (`calculation_center_id`),
+    CONSTRAINT `FK_calculation_center_preference_organization` FOREIGN KEY (`calculation_center_id`) REFERENCES `organization` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 

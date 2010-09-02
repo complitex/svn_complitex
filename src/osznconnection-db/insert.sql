@@ -94,8 +94,9 @@ insert into `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_
 insert into `string_culture`(`id`, `locale`, `value`) values
 (904, 'ru', UPPER('ОСЗН')), (904, 'en', UPPER('ОСЗН')),
 (905, 'ru', UPPER('ПУ')), (905, 'en', UPPER('ПУ')),
-(906, 'ru', UPPER('Обслуживающая организация')), (906, 'en', UPPER('Обслуживающая организация'));
-insert into `entity_type`(`id`, `entity_id`, `entity_type_name_id`) values (900, 900, 904), (901, 900, 905), (902, 900, 906);
+(906, 'ru', UPPER('Обслуживающая организация')), (906, 'en', UPPER('Обслуживающая организация')),
+(907, 'ru', UPPER('Центр начислений')), (907, 'en', UPPER('Центр начислений'));
+insert into `entity_type`(`id`, `entity_id`, `entity_type_name_id`) values (900, 900, 904), (901, 900, 905), (902, 900, 906), (903, 900, 907);
 
 insert into `string_culture`(`id`, `locale`, `value`) values (1000, 'ru', 'Пользователь'), (1000, 'en', 'User');
 insert into `entity`(`id`, `entity_table`, `entity_name_id`, `strategy_factory`) values (1000, 'user_info', 1000, '');
@@ -108,6 +109,5 @@ insert into `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_
 insert into `string_culture`(`id`, `locale`, `value`) values (1003, 'ru', UPPER('Отчество')), (1003, 'en', UPPER('Middle name'));
 insert into `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) values (1002, 1000, 1, 1003, 1);
 insert into `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) values (1002, 1002, UPPER('string'));
-
 
 update `sequence` set `sequence_value` = 2000 where `sequence_name` = 'string_culture';

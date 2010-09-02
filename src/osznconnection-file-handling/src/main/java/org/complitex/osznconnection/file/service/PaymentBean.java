@@ -115,7 +115,7 @@ public class PaymentBean extends AbstractBean {
     @Transactional
     public void correctBuilding(long fileId, long cityId, long streetId, String building, long objectId) {
         Map<String, Object> params = Maps.newHashMap();
-        params.put("addressEntity", "street");
+        params.put("addressEntity", "building");
         params.put("objectId", objectId);
         params.put("cityId", cityId);
         params.put("streetId", streetId);
@@ -129,7 +129,7 @@ public class PaymentBean extends AbstractBean {
     @Transactional
     public void correctApartment(long fileId, long cityId, long streetId, long buildingId, String apartment, long objectId) {
         Map<String, Object> params = Maps.newHashMap();
-        params.put("addressEntity", "street");
+        params.put("addressEntity", "apartment");
         params.put("objectId", objectId);
         params.put("cityId", cityId);
         params.put("streetId", streetId);

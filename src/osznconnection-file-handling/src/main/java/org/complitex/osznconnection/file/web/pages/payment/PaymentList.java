@@ -155,7 +155,7 @@ public final class PaymentList extends TemplatePage {
                 item.add(new Label("status", StatusRenderer.displayValue(payment.getStatus())));
                 BookmarkablePageLink correctionLink = new BookmarkablePageLink<PaymentCorrection>("correctionLink",
                         PaymentCorrection.class, new PageParameters(ImmutableMap.of(PaymentCorrection.PAYMENT_ID, payment.getId())));
-                correctionLink.setVisible(payment.getStatus().isLocalAddressCorrection());
+                correctionLink.setVisible(payment.getStatus().isLocalAddressCorrected());
                 item.add(correctionLink);
             }
         };

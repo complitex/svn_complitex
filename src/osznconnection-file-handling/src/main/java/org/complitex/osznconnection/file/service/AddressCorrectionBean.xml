@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.complitex.osznconnection.file.service.AddressCorrectionBean">
 
-    <select id="find" resultType="long" parameterType="hashmap">
+    <select id="findInternalObject" resultType="long" parameterType="hashmap">
         SELECT c.`${entity}_id` FROM `${entity}_correction` c WHERE c.`organization_id` = #{organizationId} AND c.`${entity}` = #{_value}
         <if test="parentId != null">
             AND EXISTS(SELECT 1 FROM `${entity}` e WHERE e.`id` = c.`${entity}_id` AND e.`status` = 'ACTIVE' AND e.`parent_id` = #{parentId})
@@ -14,5 +14,12 @@
         INSERT INTO `${entity}_correction`(`organization_id`, `${entity}`, `${entity}_id`) VALUES
         (#{organizationId}, #{_value}, #{objectId})
     </insert>
+
+    <select id="findOutgoingObject" resultType="hashmap" parameterType="hashmap">
+        SELECT c.`${entity}` stringValue, c.`organization_${entity}_code` codeValue FROM `${entity}_correction` c
+        WHERE c.`organization_id` = #{calculationCenterId}
+        AND c.`${entity}_id` = #{objectId}
+        LIMIT 0,1
+    </select>
 
 </mapper>

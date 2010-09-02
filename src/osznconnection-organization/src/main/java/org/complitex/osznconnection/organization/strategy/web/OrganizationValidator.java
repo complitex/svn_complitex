@@ -49,8 +49,8 @@ public class OrganizationValidator implements IValidator {
 
     private boolean checkParent(DomainObject object, OrganizationEditComponent component) {
         long entityTypeId = object.getEntityTypeId();
-        if ((entityTypeId == OrganizationStrategy.OSZN) && component.getParentObject() != null) {
-            component.getPage().error(ResourceUtil.getString(OrganizationStrategy.RESOURCE_BUNDLE, "oszn_cannot_have_parent", component.getLocale()));
+        if ((entityTypeId == OrganizationStrategy.OSZN || entityTypeId == OrganizationStrategy.CALCULATION_CENTER) && component.getParentObject() != null) {
+            component.getPage().error(ResourceUtil.getString(OrganizationStrategy.RESOURCE_BUNDLE, "cannot_have_parent", component.getLocale()));
             return false;
         }
         if ((entityTypeId == OrganizationStrategy.PU) && (component.getParentObject() == null)) {
@@ -67,8 +67,8 @@ public class OrganizationValidator implements IValidator {
             component.getPage().error(ResourceUtil.getString(OrganizationStrategy.RESOURCE_BUNDLE, "oszn_must_have_district_code", component.getLocale()));
             return false;
         }
-        if ((entityTypeId == OrganizationStrategy.PU) && !Strings.isEmpty(districtCode)) {
-            component.getPage().error(ResourceUtil.getString(OrganizationStrategy.RESOURCE_BUNDLE, "pu_cant_have_district_code", component.getLocale()));
+        if ((entityTypeId == OrganizationStrategy.PU || entityTypeId == OrganizationStrategy.CALCULATION_CENTER) && !Strings.isEmpty(districtCode)) {
+            component.getPage().error(ResourceUtil.getString(OrganizationStrategy.RESOURCE_BUNDLE, "cant_have_district_code", component.getLocale()));
             return false;
         }
         return true;

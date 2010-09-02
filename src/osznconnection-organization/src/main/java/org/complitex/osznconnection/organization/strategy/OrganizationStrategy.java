@@ -56,6 +56,7 @@ public class OrganizationStrategy extends Strategy {
      */
     public static final long OSZN = 900;
     public static final long PU = 901;
+    public static final long CALCULATION_CENTER = 903;
 
     @EJB(beanName = "StringCultureBean")
     private StringCultureBean stringBean;

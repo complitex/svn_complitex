@@ -111,15 +111,18 @@ insert into usergroup value (1, 'admin', 'ADMINISTRATORS');
 insert into user value (2, 'ANONYMOUS', 'ANONYMOUS', null);
 
 -- Organizations
-insert into organization(object_id, parent_id, parent_entity_id, entity_type_id) values (1,null,null,900), (2,1,900,901);
+insert into organization(object_id, parent_id, parent_entity_id, entity_type_id) values (1,null,null,900), (2,1,900,901), (3,null,null,903);
 insert into organization_string_culture(id, locale, value) values (1, 'ru', UPPER('ОСЗН 1')), (1,'en',UPPER('ОСЗН 1')),
-                                                            (2, 'ru', UPPER('LE')), (3, 'ru', UPPER('1234')), (4, 'ru', UPPER('ПУ 1')), (4,'en',UPPER('ПУ 1')), (5, 'ru', UPPER('3456'));
+(2, 'ru', UPPER('LE')), (3, 'ru', UPPER('1234')), (4, 'ru', UPPER('ПУ 1')), (4,'en',UPPER('ПУ 1')), (5, 'ru', UPPER('3456')),
+(6, 'ru', UPPER('Центр начислений №1')), (6, 'en', UPPER('Центр начислений №1')), (7, 'ru', UPPER('1234'));
 insert into organization_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
 (1,1,900,1,900), (1,1,901,2,901), (1,1,902,3,902),
-(1,2,900,4,900), (1,2,902,5,902);
+(1,2,900,4,900), (1,2,902,5,902), (1,3,900,6,900), (1,3,902,7,902);
 
-update sequence set sequence_value = 6 where sequence_name = 'organization_string_culture';
-update sequence set sequence_value = 3 where sequence_name = 'organization';
+update sequence set sequence_value = 8 where sequence_name = 'organization_string_culture';
+update sequence set sequence_value = 4 where sequence_name = 'organization';
+
+insert into calculation_center_preference(calculation_center_id) values (3);
 
 -- Files
 insert into `request_file`(id, organization_object_id, `name`, `date`, `loaded`) values (1,1,'A_123405.xml', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
@@ -131,6 +134,12 @@ internal_city_id, internal_street_id, internal_building_id, internal_apartment_i
 values
 (1,'Иван', 'Иванович', 'Иванов', 'Новосибирск', 'ул. Терешковой', 'д. 10', 'кв. 10', null,null,null,null,1, 'CITY_UNRESOLVED_LOCALLY'),
 (2,'Сидор', 'Сидорович', 'Сидоров', 'Новосибирск', 'ул. Терешковой', 'д. 11', 'кв. 11', null,null,null,null,1, 'CITY_UNRESOLVED_LOCALLY');
+
+-- Address corrections
+insert into city_correction(organization_id, city, city_id, organization_city_code) values (3,'Новосибирск',1,1);
+insert into street_correction(organization_id, street, street_id, organization_street_code) values (3,'Ул. Терешковой В.',1,1);
+insert into building_correction(organization_id, building, building_id, organization_building_code) values (3,'10',1,1);
+insert into apartment_correction(organization_id, apartment, apartment_id, organization_apartment_code) values (3,'10',1,1);
 
 -- Benefit
 insert into benefit(own_num_sr, f_nam, m_nam, sur_nam, request_file_id)
