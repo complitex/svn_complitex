@@ -57,7 +57,7 @@ public final class PaymentCorrection extends TemplatePage {
 
             @Override
             protected void correctAddress(Long cityId, Long streetId, Long buildingId, Long apartmentId) {
-                addressResolver.correctAddress(payment, cityId, streetId, buildingId, apartmentId);
+                addressResolver.correctLocalAddress(payment, cityId, streetId, buildingId, apartmentId);
             }
 
             @Override
