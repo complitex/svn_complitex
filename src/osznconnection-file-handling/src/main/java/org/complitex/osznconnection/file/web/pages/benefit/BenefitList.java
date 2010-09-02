@@ -148,10 +148,10 @@ public final class BenefitList extends TemplatePage {
                 item.add(new Label("firstName", (String) benefit.getField(BenefitDBF.F_NAM)));
                 item.add(new Label("middleName", (String) benefit.getField(BenefitDBF.M_NAM)));
                 item.add(new Label("lastName", (String) benefit.getField(BenefitDBF.SUR_NAM)));
-                item.add(new Label("city", benefit.getInternalCity()));
-                item.add(new Label("street", benefit.getInternalStreet()));
-                item.add(new Label("building", benefit.getInternalBuilding()));
-                item.add(new Label("apartment", benefit.getInternalApartment()));
+                item.add(new Label("city", benefit.getCity()));
+                item.add(new Label("street", benefit.getStreet()));
+                item.add(new Label("building", benefit.getBuilding()));
+                item.add(new Label("apartment", benefit.getApartment()));
                 item.add(new Label("status", StatusRenderer.displayValue(benefit.getStatus())));
             }
         };

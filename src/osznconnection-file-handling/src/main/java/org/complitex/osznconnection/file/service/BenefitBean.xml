@@ -6,6 +6,12 @@
         <result column="request_file_id" property="requestFileId"/>
         <result column="account_number" property="accountNumber"/>
         <result column="status" property="status"/>
+
+        <result column="city" property="city"/>
+        <result column="street" property="street"/>
+        <result column="building" property="building"/>
+        <result column="apartment" property="apartment"/>
+
         <association property="dbfFields" javaType="map">
             <result column="OWN_NUM" property="OWN_NUM"/>
             <result column="REE_NUM" property="REE_NUM"/>
@@ -31,45 +37,29 @@
         </association>
     </resultMap>
 
-    <resultMap id="internalBenefitResultMap" type="org.complitex.osznconnection.file.entity.Benefit">
-        <id column="id" property="id"/>
-        <result column="requestFileId" property="requestFileId"/>
-        <result column="status" property="status"/>
-        <result column="internalCity" property="internalCity"/>
-        <result column="internalStreet" property="internalStreet"/>
-        <result column="internalBuilding" property="internalBuilding"/>
-        <result column="internalApartment" property="internalApartment"/>
-
-        <association property="dbfFields" javaType="map">
-            <result column="fNam" property="F_NAM"/>
-            <result column="mNam" property="M_NAM"/>
-            <result column="surNam" property="SUR_NAM"/>
-        </association>
-    </resultMap>
-
     <select id="selectBenefits" resultMap="benefitResultMap">
         select * from `benefit`
     </select>
 
     <insert id="insertBenefit" parameterType="org.complitex.osznconnection.file.entity.Benefit">
         insert into `benefit`
-            (
-            <trim suffixOverrides=",">
-                `request_file_id`, `account_number`, `status`,
-                <foreach collection="dbfFields.keys" item="key">
-                     `${key}`,
-                </foreach>
-            </trim>
-            )
+        (
+        <trim suffixOverrides=",">
+            `request_file_id`, `account_number`, `status`,
+            <foreach collection="dbfFields.keys" item="key">
+                `${key}`,
+            </foreach>
+        </trim>
+        )
         values
-            (
-            <trim suffixOverrides=",">
-                #{requestFileId}, #{accountNumber}, #{status},
-                <foreach collection="dbfFields.keys" item="key">
-                    #{dbfFields.${key}},
-                </foreach>
-            </trim>
-            )
+        (
+        <trim suffixOverrides=",">
+            #{requestFileId}, #{accountNumber}, #{status},
+            <foreach collection="dbfFields.keys" item="key">
+                #{dbfFields.${key}},
+            </foreach>
+        </trim>
+        )
     </insert>
 
     <update id="updateBenefit" parameterType="org.complitex.osznconnection.file.entity.Benefit">
@@ -81,78 +71,59 @@
             </foreach>
         </set>
         where
-            `id` = #{id}
+        `id` = #{id}
     </update>
-    
+
     <sql id="filter">
-            <if test="firstName != null">
-                AND r.`F_NAM` LIKE CONCAT('%',#{firstName},'%')
-            </if>
-            <if test="middleName != null">
-                AND r.`M_NAM` LIKE CONCAT('%',#{middleName},'%')
-            </if>
-            <if test="lastName != null">
-                AND r.`SUR_NAM` LIKE CONCAT('%',#{lastName},'%')
-            </if>
+        <if test="firstName != null">
+            AND r.`F_NAM` LIKE CONCAT('%',#{firstName},'%')
+        </if>
+        <if test="middleName != null">
+            AND r.`M_NAM` LIKE CONCAT('%',#{middleName},'%')
+        </if>
+        <if test="lastName != null">
+            AND r.`SUR_NAM` LIKE CONCAT('%',#{lastName},'%')
+        </if>
 
-            <if test="city != null">
-                AND p.`city_id` IN (SELECT a.`object_id` FROM `city_attribute` a WHERE a.`attribute_type_id` = 400 AND a.`status` = 'ACTIVE' AND a.`value_id` IN
-                (SELECT sc.`id` FROM `city_string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`value` LIKE CONCAT('%',#{city},'%')))
-            </if>
-            <if test="street != null">
-                AND p.`street_id` IN (SELECT a.`object_id` FROM `street_attribute` a WHERE a.`attribute_type_id` = 300 AND a.`status` = 'ACTIVE' AND a.`value_id` IN
-                (SELECT sc.`id` FROM `street_string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`value` LIKE CONCAT('%',#{street},'%')))
-            </if>
-            <if test="building != null">
-                AND p.`building_id` IN (SELECT a.`object_id` FROM `building_attribute` a WHERE a.`attribute_type_id` = 500 AND a.`status` = 'ACTIVE' AND a.`value_id` IN
-                (SELECT sc.`id` FROM `building_string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`value` LIKE CONCAT('%',#{building},'%')))
-            </if>
-            <if test="apartment != null">
-                AND p.`apartment_id` IN (SELECT a.`object_id` FROM `apartment_attribute` a WHERE a.`attribute_type_id` = 100 AND a.`status` = 'ACTIVE' AND a.`value_id` IN
-                (SELECT sc.`id` FROM `apartment_string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`value` LIKE CONCAT('%',#{apartment},'%')))
-            </if>
+        <if test="city != null">
+            AND p.`N_NAME` LIKE CONCAT('%', #{city}, '%')
+        </if>
+        <if test="street != null">
+            AND p.`VUL_NAME` LIKE CONCAT('%', #{street}, '%')
+        </if>
+        <if test="building != null">
+            AND p.`BLD_NUM` LIKE CONCAT('%', #{building}, '%')
+        </if>
+        <if test="apartment != null">
+            AND p.`FLAT` LIKE CONCAT('%', #{apartment}, '%')
+        </if>
 
-            <if test="status != null">
-                AND p.`status` = #{status}
-            </if>
+        <if test="status != null">
+            AND p.`status` = #{status}
+        </if>
     </sql>
 
     <select id="count" resultType="int" parameterType="org.complitex.osznconnection.file.web.pages.benefit.BenefitExample">
-        SELECT COUNT(*) FROM `benefit` r
+        SELECT COUNT(DISTINCT r.`id`) FROM `benefit` r
         JOIN `request_file` rf ON r.`request_file_id` = rf.`id`
         LEFT JOIN `payment` p ON r.`OWN_NUM_SR` = p.`OWN_NUM_SR`
         LEFT JOIN `request_file` pf ON p.`request_file_id` = pf.`id`
-	WHERE (pf.`organization_object_id` IS NULL OR rf.`organization_object_id` = pf.`organization_object_id`) AND (pf.`date` IS NULL OR EXTRACT(YEAR_MONTH FROM rf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`))
-	AND r.`request_file_id` = #{requestFileId}
+        WHERE (pf.`organization_object_id` IS NULL OR rf.`organization_object_id` = pf.`organization_object_id`) AND (pf.`date` IS NULL OR EXTRACT(YEAR_MONTH FROM rf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`))
+        AND r.`request_file_id` = #{requestFileId}
         <include refid="org.complitex.osznconnection.file.service.BenefitBean.filter"/>
     </select>
 
-    <select id="find" resultMap="internalBenefitResultMap"
+    <select id="find" resultMap="benefitResultMap"
             parameterType="org.complitex.osznconnection.file.web.pages.benefit.BenefitExample">
-        SELECT DISTINCT r.`id` id, r.`request_file_id` requestFileId, r.`F_NAM` fNam, r.`M_NAM` mNam, r.`SUR_NAM` surNam,
-        IFNULL(p.`status`, 'ADDRESS_UNRESOLVED') as status,
-        (SELECT sc.`value` FROM `city_string_culture` sc WHERE sc.`locale` = #{locale} AND
-        sc.`id` = (SELECT a.`value_id` FROM `city_attribute` a WHERE a.`attribute_type_id` = 400 AND a.`status` = 'ACTIVE' AND a.`object_id` = p.`city_id`)) internalCity,
-        (SELECT sc.`value` FROM `street_string_culture` sc WHERE sc.`locale` = #{locale} AND
-        sc.`id` = (SELECT a.`value_id` FROM `street_attribute` a WHERE a.`attribute_type_id` = 300 AND a.`status` = 'ACTIVE' AND a.`object_id` = p.`street_id`)) internalStreet,
-        (SELECT sc.`value` FROM `building_string_culture` sc WHERE sc.`locale` = #{locale} AND
-        sc.`id` =
-        (SELECT a1.`value_id` FROM `building_attribute` a1
-        JOIN `building_attribute` a2 ON (a1.`attribute_id` = a2.`attribute_id` AND a1.`object_id` = a2.`object_id`)
-        WHERE a1.`attribute_type_id` = 500 AND a1.`status` = 'ACTIVE' AND
-        a2.`attribute_type_id` = 503 AND a2.`status` = 'ACTIVE'
-        AND a2.`value_id` = p.`street_id`
-        AND a1.`object_id` = p.`building_id` AND a2.`object_id` = p.`building_id`
-        )
-        ) internalBuilding,
-        (SELECT sc.`value` FROM `apartment_string_culture` sc WHERE sc.`locale` = #{locale} AND
-        sc.`id` = (SELECT a.`value_id` FROM `apartment_attribute` a WHERE a.`attribute_type_id` = 100 AND a.`status` = 'ACTIVE' AND a.`object_id` = p.`apartment_id`)) internalApartment
+        SELECT DISTINCT r.`id` id, r.`request_file_id`, r.`F_NAM`, r.`M_NAM`, r.`SUR_NAM`,
+        IFNULL(p.`status`, 'CITY_UNRESOLVED_LOCALLY') status,
+        p.`N_NAME` city, p.`VUL_NAME` street, p.`BLD_NUM` building, p.`FLAT` apartment
         FROM `benefit` r
         JOIN `request_file` rf ON r.`request_file_id` = rf.`id`
         LEFT JOIN `payment` p ON r.`OWN_NUM_SR` = p.`OWN_NUM_SR`
         LEFT JOIN `request_file` pf ON p.`request_file_id` = pf.`id`
-	WHERE (pf.`organization_object_id` IS NULL OR rf.`organization_object_id` = pf.`organization_object_id`) AND (pf.`date` IS NULL OR EXTRACT(YEAR_MONTH FROM rf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`))
-	AND r.`request_file_id` = #{requestFileId}
+        WHERE (pf.`organization_object_id` IS NULL OR rf.`organization_object_id` = pf.`organization_object_id`) AND (pf.`date` IS NULL OR EXTRACT(YEAR_MONTH FROM rf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`))
+        AND r.`request_file_id` = #{requestFileId}
         <include refid="org.complitex.osznconnection.file.service.BenefitBean.filter"/>
         <if test="orderByClause != null">
             ORDER BY ${orderByClause}
@@ -171,12 +142,12 @@
     </select>
 
     <select id="countByFile" resultType="int" parameterType="long">
-        SELECT COUNT(*) FROM `benefit` r
+        SELECT COUNT(DISTINCT r.`id`) FROM `benefit` r
         JOIN `request_file` rf ON r.`request_file_id` = rf.`id`
         LEFT JOIN `payment` p ON r.`OWN_NUM_SR` = p.`OWN_NUM_SR`
         LEFT JOIN `request_file` pf ON p.`request_file_id` = pf.`id`
-	WHERE (pf.`organization_object_id` IS NULL OR rf.`organization_object_id` = pf.`organization_object_id`) AND (pf.`date` IS NULL OR EXTRACT(YEAR_MONTH FROM rf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`))
-	AND r.`request_file_id` = #{requestFileId} AND (p.`status` IS NULL OR p.`status` != 'RESOLVED')
+        WHERE (pf.`organization_object_id` IS NULL OR rf.`organization_object_id` = pf.`organization_object_id`) AND (pf.`date` IS NULL OR EXTRACT(YEAR_MONTH FROM rf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`))
+        AND r.`request_file_id` = #{requestFileId} AND (p.`status` IS NULL OR p.`status` != 'RESOLVED')
     </select>
 
 </mapper>

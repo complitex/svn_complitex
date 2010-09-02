@@ -744,11 +744,18 @@ CREATE TABLE `payment` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT,
     `request_file_id` bigint(20) NULL,
     `account_number` varchar(100) NULL,
-    `city_id` bigint(20) NULL,
-    `street_id` bigint(20) NULL,
-    `building_id` bigint(20) NULL,
-    `apartment_id` bigint(20) NULL,
-    `status` varchar(50) NOT NULL default 'ADDRESS_UNRESOLVED',
+
+    `internal_city_id` bigint(20) NULL,
+    `internal_street_id` bigint(20) NULL,
+    `internal_building_id` bigint(20) NULL,
+    `internal_apartment_id` bigint(20) NULL,
+
+    `outgoing_city` varchar(100) NULL,
+    `outgoing_street` varchar(100) NULL,
+    `outgoing_building` varchar(100) NULL,
+    `outgoing_apartment` varchar(100) NULL,
+
+    `status` varchar(50) NOT NULL default 'CITY_UNRESOLVED_LOCALLY',
 
     `OWN_NUM` varchar (15) NOT NULL COMMENT 'Номер дела',
     `REE_NUM` int(2) COMMENT 'Номер реестра',
@@ -810,14 +817,14 @@ CREATE TABLE `payment` (
     PRIMARY KEY (`id`),
     KEY `FK_payment_file` (`request_file_id`),
     CONSTRAINT `FK_payment_file` FOREIGN KEY (`request_file_id`) REFERENCES `request_file` (`id`),
-    KEY `FK_payment_city` (`city_id`),
-    CONSTRAINT `FK_payment_city` FOREIGN KEY (`city_id`) REFERENCES `city` (`id`),
-    KEY `FK_payment_street` (`street_id`),
-    CONSTRAINT `FK_payment_street` FOREIGN KEY (`street_id`) REFERENCES `street` (`id`),
-    KEY `FK_payment_building` (`building_id`),
-    CONSTRAINT `FK_payment_building` FOREIGN KEY (`building_id`) REFERENCES `building` (`id`),
-    KEY `FK_payment_apartment` (`apartment_id`),
-    CONSTRAINT `FK_payment_apartment` FOREIGN KEY (`apartment_id`) REFERENCES `apartment` (`id`)
+    KEY `FK_payment_city` (`internal_city_id`),
+    CONSTRAINT `FK_payment_city` FOREIGN KEY (`internal_city_id`) REFERENCES `city` (`id`),
+    KEY `FK_payment_street` (`internal_street_id`),
+    CONSTRAINT `FK_payment_street` FOREIGN KEY (`internal_street_id`) REFERENCES `street` (`id`),
+    KEY `FK_payment_building` (`internal_building_id`),
+    CONSTRAINT `FK_payment_building` FOREIGN KEY (`internal_building_id`) REFERENCES `building` (`id`),
+    KEY `FK_payment_apartment` (`internal_apartment_id`),
+    CONSTRAINT `FK_payment_apartment` FOREIGN KEY (`internal_apartment_id`) REFERENCES `apartment` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `benefit`;
@@ -830,7 +837,7 @@ CREATE TABLE `benefit` (
     `street_id` bigint(20) NULL,
     `building_id` bigint(20) NULL,
     `apartment_id` bigint(20) NULL,
-    `status` varchar(50) NOT NULL default 'ADDRESS_UNRESOLVED',
+    `status` varchar(50) NOT NULL default 'CITY_UNRESOLVED_LOCALLY',
 
 	`OWN_NUM` varchar(15) COMMENT 'Номер дела',
 	`REE_NUM` int(2) COMMENT 'Номер реестра',

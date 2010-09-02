@@ -148,16 +148,14 @@ public final class PaymentList extends TemplatePage {
                 item.add(new Label("firstName", (String) payment.getField(PaymentDBF.F_NAM)));
                 item.add(new Label("middleName", (String) payment.getField(PaymentDBF.M_NAM)));
                 item.add(new Label("lastName", (String) payment.getField(PaymentDBF.SUR_NAM)));
-                item.add(new Label("city", payment.getInternalCity()));
-                item.add(new Label("street", payment.getInternalStreet()));
-                item.add(new Label("building", payment.getInternalBuilding()));
-                item.add(new Label("apartment", payment.getInternalApartment()));
+                item.add(new Label("city", (String)payment.getField(PaymentDBF.N_NAME)));
+                item.add(new Label("street", (String)payment.getField(PaymentDBF.VUL_NAME)));
+                item.add(new Label("building", (String)payment.getField(PaymentDBF.BLD_NUM)));
+                item.add(new Label("apartment", (String)payment.getField(PaymentDBF.FLAT)));
                 item.add(new Label("status", StatusRenderer.displayValue(payment.getStatus())));
                 BookmarkablePageLink correctionLink = new BookmarkablePageLink<PaymentCorrection>("correctionLink",
                         PaymentCorrection.class, new PageParameters(ImmutableMap.of(PaymentCorrection.PAYMENT_ID, payment.getId())));
-                boolean needCorrect = payment.getInternalCity() == null || payment.getInternalStreet() == null
-                        || payment.getInternalBuilding() == null || payment.getInternalApartment() == null;
-                correctionLink.setVisible(needCorrect);
+                correctionLink.setVisible(payment.getStatus().isLocalAddressCorrection());
                 item.add(correctionLink);
             }
         };

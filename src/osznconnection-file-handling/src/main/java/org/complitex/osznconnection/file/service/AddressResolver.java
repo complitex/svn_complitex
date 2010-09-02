@@ -4,20 +4,14 @@
  */
 package org.complitex.osznconnection.file.service;
 
-import com.google.common.collect.Maps;
-import org.complitex.dictionaryfw.entity.example.ComparisonType;
-import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.service.AbstractBean;
-import org.complitex.dictionaryfw.strategy.Strategy;
-import org.complitex.dictionaryfw.strategy.StrategyFactory;
 import org.complitex.osznconnection.file.entity.Payment;
 import org.complitex.osznconnection.file.entity.PaymentDBF;
-import org.complitex.osznconnection.file.entity.Status;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import java.util.Map;
 import org.complitex.dictionaryfw.mybatis.Transactional;
+import org.complitex.osznconnection.file.entity.Status;
 
 /**
  *
@@ -26,156 +20,124 @@ import org.complitex.dictionaryfw.mybatis.Transactional;
 @Stateless
 public class AddressResolver extends AbstractBean {
 
-    public static class InternalAddress {
-
-        private Long city;
-
-        private Long street;
-
-        private Long building;
-
-        private Long apartment;
-
-        public InternalAddress(Long city, Long street, Long building, Long apartment) {
-            this.city = city;
-            this.street = street;
-            this.building = building;
-            this.apartment = apartment;
-        }
-
-        public Long getApartment() {
-            return apartment;
-        }
-
-        public Long getBuilding() {
-            return building;
-        }
-
-        public Long getCity() {
-            return city;
-        }
-
-        public Long getStreet() {
-            return street;
-        }
-
-        public boolean isCorrect() {
-            return city != null && street != null && building != null && apartment != null;
-        }
-    }
-
-    @EJB(beanName = "StrategyFactory")
-    private StrategyFactory strategyFactory;
+//    public static class InternalAddress {
+//
+//        private Long city;
+//
+//        private Long street;
+//
+//        private Long building;
+//
+//        private Long apartment;
+//
+//        public InternalAddress(Long city, Long street, Long building, Long apartment) {
+//            this.city = city;
+//            this.street = street;
+//            this.building = building;
+//            this.apartment = apartment;
+//        }
+//
+//        public Long getApartment() {
+//            return apartment;
+//        }
+//
+//        public Long getBuilding() {
+//            return building;
+//        }
+//
+//        public Long getCity() {
+//            return city;
+//        }
+//
+//        public Long getStreet() {
+//            return street;
+//        }
+//
+//        public boolean isCorrect() {
+//            return city != null && street != null && building != null && apartment != null;
+//        }
+//    }
 
     @EJB(beanName = "AddressCorrectionBean")
     private AddressCorrectionBean addressCorrectionBean;
 
+    @EJB
+    private PaymentBean paymentBean;
+
     @Transactional
-    public InternalAddress resolveAddress(String city, String street, String building, String apartment, long organizationId) {
+    public void resolveAddress(Payment payment) {
+        long organizationId = payment.getOrganizationId();
         Long cityId = null;
         Long streetId = null;
         Long buildingId = null;
         Long apartmentId = null;
 
-        Map<String, Long> ids = Maps.newHashMap();
-
-        Strategy cityStrategy = strategyFactory.getStrategy("city");
-        DomainObjectExample cityExample = new DomainObjectExample();
-        cityExample.setComparisonType(ComparisonType.EQUALITY.name());
-        cityStrategy.configureExample(cityExample, ids, city);
-        cityExample.setParentEntity(null);
-
-        int count = cityStrategy.count(cityExample);
-        if (count == 1) {
-            cityId = cityStrategy.find(cityExample).get(0).getId();
-            ids.put("city", cityId);
-        } else {
-            cityId = addressCorrectionBean.findCity(city, organizationId);
-            if (cityId != null) {
-                ids.put("city", cityId);
-            }
-        }
+        cityId = addressCorrectionBean.findCity((String) payment.getField(PaymentDBF.N_NAME), organizationId);
         if (cityId == null) {
-            return new InternalAddress(cityId, streetId, buildingId, apartmentId);
-        }
-
-        Strategy streetStrategy = strategyFactory.getStrategy("street");
-        DomainObjectExample streetExample = new DomainObjectExample();
-        streetExample.setComparisonType(ComparisonType.EQUALITY.name());
-        streetStrategy.configureExample(streetExample, ids, street);
-
-        count = streetStrategy.count(streetExample);
-        if (count == 1) {
-            streetId = streetStrategy.find(streetExample).get(0).getId();
-            ids.put("street", streetId);
+            payment.setStatus(Status.CITY_UNRESOLVED_LOCALLY);
+            return;
         } else {
-            streetId = addressCorrectionBean.findStreet(cityId, street, organizationId);
-            if (streetId != null) {
-                ids.put("street", streetId);
-            }
+            payment.setInternalCityId(cityId);
         }
+
+        streetId = addressCorrectionBean.findStreet(cityId, (String) payment.getField(PaymentDBF.VUL_NAME), organizationId);
         if (streetId == null) {
-            return new InternalAddress(cityId, streetId, buildingId, apartmentId);
-        }
-
-        Strategy buildingStrategy = strategyFactory.getStrategy("building");
-        DomainObjectExample buildingExample = new DomainObjectExample();
-        buildingExample.setComparisonType(ComparisonType.EQUALITY.name());
-        buildingStrategy.configureExample(buildingExample, ids, building);
-
-        count = buildingStrategy.count(buildingExample);
-        if (count == 1) {
-            buildingId = buildingStrategy.find(buildingExample).get(0).getId();
-            ids.put("building", buildingId);
+            payment.setStatus(Status.STREET_UNRESOLVED_LOCALLY);
+            return;
         } else {
-            buildingId = addressCorrectionBean.findBuilding(streetId, building, organizationId);
-            if (buildingId != null) {
-                ids.put("building", buildingId);
-            }
+            payment.setInternalStreetId(streetId);
         }
+
+        buildingId = addressCorrectionBean.findBuilding(streetId, (String) payment.getField(PaymentDBF.BLD_NUM), organizationId);
         if (buildingId == null) {
-            return new InternalAddress(cityId, streetId, buildingId, apartmentId);
-        }
-
-        Strategy apartmentStrategy = strategyFactory.getStrategy("apartment");
-        DomainObjectExample apartmentExample = new DomainObjectExample();
-        apartmentExample.setComparisonType(ComparisonType.EQUALITY.name());
-        apartmentStrategy.configureExample(apartmentExample, ids, apartment);
-
-        count = apartmentStrategy.count(apartmentExample);
-        if (count == 1) {
-            apartmentId = apartmentStrategy.find(apartmentExample).get(0).getId();
+            payment.setStatus(Status.BUILDING_UNRESOLVED_LOCALLY);
+            return;
         } else {
-            apartmentId = addressCorrectionBean.findApartment(buildingId, apartment, organizationId);
+            payment.setInternalBuildingId(buildingId);
         }
 
-        return new InternalAddress(cityId, streetId, buildingId, apartmentId);
+        apartmentId = addressCorrectionBean.findApartment(buildingId, (String) payment.getField(PaymentDBF.FLAT), organizationId);
+        if (apartmentId == null) {
+            payment.setStatus(Status.APARTMENT_UNRESOLVED_LOCALLY);
+            return;
+        } else {
+            payment.setStatus(Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY);
+            payment.setInternalApartmentId(apartmentId);
+        }
     }
 
     @Transactional
-    public Payment correctAddress(Payment payment, long cityId, long streetId, long buildingId, long apartmentId) {
+    public void correctAddress(Payment payment, Long cityId, Long streetId, Long buildingId, Long apartmentId) {
         long organizationId = payment.getOrganizationId();
+        long requestFileId = payment.getRequestFileId();
 
         String city = (String) payment.getField(PaymentDBF.N_NAME);
         String street = (String) payment.getField(PaymentDBF.VUL_NAME);
         String building = (String) payment.getField(PaymentDBF.BLD_NUM);
         String apartment = (String) payment.getField(PaymentDBF.FLAT);
 
-        if (payment.getCityId() == null) {
+        if ((payment.getInternalCityId() == null) && (cityId != null)) {
+//            payment.setInternalCityId(cityId);
+//            payment.setStatus(Status.CITY_UNRESOLVED_LOCALLY);
             addressCorrectionBean.insertCity(city, cityId, organizationId);
-        } else if (payment.getStreetId() == null) {
+            paymentBean.correctCity(requestFileId, city, cityId);
+        } else if ((payment.getInternalStreetId() == null) && (streetId != null)) {
+//            payment.setInternalStreetId(streetId);
+//            payment.setStatus(Status.BUILDING_UNRESOLVED_LOCALLY);
             addressCorrectionBean.insertStreet(street, streetId, organizationId);
-        } else if (payment.getBuildingId() == null) {
+            paymentBean.correctStreet(requestFileId, cityId, street, streetId);
+        } else if ((payment.getInternalBuildingId() == null) && (buildingId != null)) {
+//            payment.setInternalBuildingId(buildingId);
+//            payment.setStatus(Status.APARTMENT_UNRESOLVED_LOCALLY);
             addressCorrectionBean.insertBuilding(building, buildingId, organizationId);
-        } else if (payment.getApartmentId() == null) {
+            paymentBean.correctBuilding(requestFileId, cityId, streetId, building, buildingId);
+        } else if ((payment.getInternalApartmentId() == null) && (apartmentId != null)) {
+//            payment.setInternalApartmentId(apartmentId);
+//            payment.setStatus(Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY);
             addressCorrectionBean.insertApartment(apartment, apartmentId, organizationId);
+            paymentBean.correctApartment(requestFileId, cityId, streetId, buildingId, apartment, apartmentId);
         }
 
-        payment.setCityId(cityId);
-        payment.setStreetId(streetId);
-        payment.setBuildingId(buildingId);
-        payment.setApartmentId(apartmentId);
-        payment.setStatus(Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY);
-        return payment;
+//        paymentBean.update(payment);
     }
 }

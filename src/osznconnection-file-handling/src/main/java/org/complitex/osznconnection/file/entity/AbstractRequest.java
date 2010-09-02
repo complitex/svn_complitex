@@ -17,14 +17,15 @@ public class AbstractRequest implements Serializable {
     
     protected Map<String, Object> dbfFields= new HashMap<String, Object>();
 
-    private Long cityId;
-    private Long streetId;
-    private Long buildingId;
-    private Long apartmentId;
-    private String internalCity;
-    private String internalStreet;
-    private String internalBuilding;
-    private String internalApartment;
+    private Long internalCityId;
+    private Long internalStreetId;
+    private Long internalBuildingId;
+    private Long internalApartmentId;
+
+    private String outgoingCity;
+    private String outgoingStreet;
+    private String outgoingBuilding;
+    private String outgoingApartment;
 
     public Long getId() {
         return id;
@@ -74,67 +75,67 @@ public class AbstractRequest implements Serializable {
         this.dbfFields = dbfFields;
     }
 
-    public Long getCityId() {
-        return cityId;
+    public Long getInternalApartmentId() {
+        return internalApartmentId;
     }
 
-    public void setCityId(Long cityId) {
-        this.cityId = cityId;
+    public void setInternalApartmentId(Long internalApartmentId) {
+        this.internalApartmentId = internalApartmentId;
     }
 
-    public Long getStreetId() {
-        return streetId;
+    public Long getInternalBuildingId() {
+        return internalBuildingId;
     }
 
-    public void setStreetId(Long streetId) {
-        this.streetId = streetId;
+    public void setInternalBuildingId(Long internalBuildingId) {
+        this.internalBuildingId = internalBuildingId;
     }
 
-    public Long getBuildingId() {
-        return buildingId;
+    public Long getInternalCityId() {
+        return internalCityId;
     }
 
-    public void setBuildingId(Long buildingId) {
-        this.buildingId = buildingId;
+    public void setInternalCityId(Long internalCityId) {
+        this.internalCityId = internalCityId;
     }
 
-    public Long getApartmentId() {
-        return apartmentId;
+    public Long getInternalStreetId() {
+        return internalStreetId;
     }
 
-    public void setApartmentId(Long apartmentId) {
-        this.apartmentId = apartmentId;
+    public void setInternalStreetId(Long internalStreetId) {
+        this.internalStreetId = internalStreetId;
     }
 
-    public String getInternalCity() {
-        return internalCity;
+    public String getOutgoingApartment() {
+        return outgoingApartment;
     }
 
-    public void setInternalCity(String internalCity) {
-        this.internalCity = internalCity;
+    public void setOutgoingApartment(String outgoingApartment) {
+        this.outgoingApartment = outgoingApartment;
     }
 
-    public String getInternalStreet() {
-        return internalStreet;
+    public String getOutgoingBuilding() {
+        return outgoingBuilding;
     }
 
-    public void setInternalStreet(String internalStreet) {
-        this.internalStreet = internalStreet;
+    public void setOutgoingBuilding(String outgoingBuilding) {
+        this.outgoingBuilding = outgoingBuilding;
     }
 
-    public String getInternalBuilding() {
-        return internalBuilding;
+    public String getOutgoingCity() {
+        return outgoingCity;
     }
 
-    public void setInternalBuilding(String internalBuilding) {
-        this.internalBuilding = internalBuilding;
+    public void setOutgoingCity(String outgoingCity) {
+        this.outgoingCity = outgoingCity;
     }
 
-    public String getInternalApartment() {
-        return internalApartment;
+    public String getOutgoingStreet() {
+        return outgoingStreet;
     }
 
-    public void setInternalApartment(String internalApartment) {
-        this.internalApartment = internalApartment;
+    public void setOutgoingStreet(String outgoingStreet) {
+        this.outgoingStreet = outgoingStreet;
     }
 }

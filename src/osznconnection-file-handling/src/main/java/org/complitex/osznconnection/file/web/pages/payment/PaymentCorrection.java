@@ -52,13 +52,12 @@ public final class PaymentCorrection extends TemplatePage {
                 payment.getField(PaymentDBF.BLD_NUM) + ", " +
                 payment.getField(PaymentDBF.FLAT);
 
-        add(new CorrectionPanel("correntionPanel", name, address, payment.getCityId(), payment.getStreetId(),
-                payment.getBuildingId(), payment.getApartmentId()) {
+        add(new CorrectionPanel("correntionPanel", name, address, payment.getInternalCityId(), payment.getInternalStreetId(),
+                payment.getInternalBuildingId(), payment.getInternalApartmentId()) {
 
             @Override
-            protected void correctAddress(long cityId, long streetId, long buildingId, long apartmentId) {
-                Payment correctedPayment = addressResolver.correctAddress(payment, cityId, streetId, buildingId, apartmentId);
-                PaymentCorrection.this.update(correctedPayment);
+            protected void correctAddress(Long cityId, Long streetId, Long buildingId, Long apartmentId) {
+                addressResolver.correctAddress(payment, cityId, streetId, buildingId, apartmentId);
             }
 
             @Override
@@ -66,10 +65,6 @@ public final class PaymentCorrection extends TemplatePage {
                 setResponsePage(PaymentList.class, new PageParameters(ImmutableMap.of(PaymentList.FILE_ID, payment.getRequestFileId())));
             }
         });
-    }
-
-    private void update(Payment correctedPayment) {
-        paymentBean.update(correctedPayment);
     }
 }
 

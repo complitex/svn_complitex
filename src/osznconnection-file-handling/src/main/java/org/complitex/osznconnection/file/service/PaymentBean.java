@@ -31,14 +31,15 @@ import java.util.Map;
  */
 @Stateless(name = "PaymentBean")
 public class PaymentBean extends AbstractBean {
+
     private static final String MAPPING_NAMESPACE = PaymentBean.class.getName();
 
     private static final int BATCH_SIZE = 10;
 
     public enum OrderBy {
 
-        FIRST_NAME("fNam"), MIDDLE_NAME("mNam"), LAST_NAME("surNam"),
-        CITY("internalCity"), STREET("internalStreet"), BUILDING("internalBuilding"), APARTMENT("internalApartment"),
+        FIRST_NAME("F_NAM"), MIDDLE_NAME("M_NAM"), LAST_NAME("SUR_NAM"),
+        CITY("N_NAME"), STREET("VUL_NAME"), BUILDING("BLD_NUM"), APARTMENT("FLAT"),
         STATUS("status");
 
         private String orderBy;
@@ -57,7 +58,6 @@ public class PaymentBean extends AbstractBean {
         return (Integer) sqlSession().selectOne(MAPPING_NAMESPACE + ".count", example);
     }
 
-    @SuppressWarnings({"unchecked"})
     @Transactional
     public List<Payment> find(PaymentExample example) {
         return (List<Payment>) sqlSession().selectList(MAPPING_NAMESPACE + ".find", example);
@@ -73,7 +73,6 @@ public class PaymentBean extends AbstractBean {
         return (Payment) sqlSession().selectOne(MAPPING_NAMESPACE + ".findById", id);
     }
 
-    @SuppressWarnings({"unchecked"})
     @Transactional
     public List<Payment> findByFile(long fileId, List<Long> ids) {
         Map<String, Object> params = Maps.newHashMap();
@@ -86,6 +85,60 @@ public class PaymentBean extends AbstractBean {
     @Transactional
     public List<Long> findIdsByFile(long fileId) {
         return sqlSession().selectList(MAPPING_NAMESPACE + ".findIdsByFile", fileId);
+    }
+
+    @Transactional
+    public void correctCity(long fileId, String city, long objectId) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("addressEntity", "city");
+        params.put("objectId", objectId);
+        params.put("city", city);
+
+        params.put("requestFileId", fileId);
+        params.put("status", Status.ADDRESS_CORRECTED);
+        sqlSession().update(MAPPING_NAMESPACE + ".correct", params);
+    }
+
+    @Transactional
+    public void correctStreet(long fileId, long cityId, String street, long objectId) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("addressEntity", "street");
+        params.put("objectId", objectId);
+        params.put("cityId", cityId);
+        params.put("street", street);
+
+        params.put("requestFileId", fileId);
+        params.put("status", Status.ADDRESS_CORRECTED);
+        sqlSession().update(MAPPING_NAMESPACE + ".correct", params);
+    }
+
+    @Transactional
+    public void correctBuilding(long fileId, long cityId, long streetId, String building, long objectId) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("addressEntity", "street");
+        params.put("objectId", objectId);
+        params.put("cityId", cityId);
+        params.put("streetId", streetId);
+        params.put("building", building);
+
+        params.put("requestFileId", fileId);
+        params.put("status", Status.ADDRESS_CORRECTED);
+        sqlSession().update(MAPPING_NAMESPACE + ".correct", params);
+    }
+
+    @Transactional
+    public void correctApartment(long fileId, long cityId, long streetId, long buildingId, String apartment, long objectId) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("addressEntity", "street");
+        params.put("objectId", objectId);
+        params.put("cityId", cityId);
+        params.put("streetId", streetId);
+        params.put("buildingId", buildingId);
+        params.put("apartment", apartment);
+
+        params.put("requestFileId", fileId);
+        params.put("status", Status.ADDRESS_CORRECTED);
+        sqlSession().update(MAPPING_NAMESPACE + ".correct", params);
     }
 
     public void load(RequestFile requestFile, DBF dbf)
@@ -114,7 +167,7 @@ public class PaymentBean extends AbstractBean {
             Payment payment = new Payment();
             payment.setRequestFileId(requestFile.getId());
             payment.setOrganizationId(requestFile.getOrganizationObjectId());
-            payment.setStatus(Status.ADDRESS_UNRESOLVED);
+            payment.setStatus(Status.CITY_UNRESOLVED_LOCALLY);
 
             for (PaymentDBF paymentDBF : PaymentDBF.values()) {
                 Field field = fields.get(paymentDBF);
@@ -136,7 +189,7 @@ public class PaymentBean extends AbstractBean {
                 }
             }
 
-            if (!sm.isManagedSessionStarted()){
+            if (!sm.isManagedSessionStarted()) {
                 sm.startManagedSession(ExecutorType.BATCH);
             }
 
