@@ -57,7 +57,7 @@ update sequence set sequence_value = 6 where sequence_name = 'building';
 insert into street_string_culture(id, locale, value) values (1, 'ru', UPPER('Терешковой')), (1,'en',UPPER('Tereshkovoy')),
                                                             (2, 'ru', UPPER('Ленина')), (2,'en',UPPER('Lenina')),
                                                             (3, 'ru', UPPER('Морской')), (3,'en', UPPER('Morskoy'));
-insert into street(object_id, parent_id, parent_entity_id) values (1,1,400), (2,2,400), (3,1,400);
+insert into street(object_id, parent_id, parent_entity_id, entity_type_id) values (1,1,400,302), (2,2,400,302), (3,1,400,302);
 insert into street_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
 (1,1,300,1,300),
 (1,2,300,2,300),
@@ -136,9 +136,10 @@ values
 (2,'Сидор', 'Сидорович', 'Сидоров', 'Новосибирск', 'ул. Терешковой', 'д. 11', 'кв. 11', null,null,null,null,1, 'CITY_UNRESOLVED_LOCALLY');
 
 -- Address corrections
+insert into entity_type_correction(organization_id, `type`, entity_type_id, organization_type_code) values (3,'ул.',302,1);
 insert into city_correction(organization_id, city, city_id, organization_city_code) values (3,'Новосибирск',1,1);
-insert into street_correction(organization_id, street, street_id, organization_street_code) values (3,'Ул. Терешковой В.',1,1);
-insert into building_correction(organization_id, building, building_id, organization_building_code) values (3,'10',1,1);
+insert into street_correction(organization_id, street, street_id, organization_street_code) values (3,'Терешковой В.',1,1);
+insert into building_correction(organization_id, building_num, building_corp, building_id, organization_building_code) values (3,'10','1',1,1);
 insert into apartment_correction(organization_id, apartment, apartment_id, organization_apartment_code) values (3,'10',1,1);
 
 -- Benefit

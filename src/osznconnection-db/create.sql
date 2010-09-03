@@ -747,12 +747,15 @@ CREATE TABLE `payment` (
 
     `internal_city_id` bigint(20) NULL,
     `internal_street_id` bigint(20) NULL,
+    `internal_street_type_id` bigint(20) NULL,
     `internal_building_id` bigint(20) NULL,
     `internal_apartment_id` bigint(20) NULL,
 
     `outgoing_city` varchar(100) NULL,
     `outgoing_street` varchar(100) NULL,
-    `outgoing_building` varchar(100) NULL,
+    `outgoing_street_type` varchar(100) NULL,
+    `outgoing_building_number` varchar(100) NULL,
+    `outgoing_building_corp` varchar(100) NULL,
     `outgoing_apartment` varchar(100) NULL,
 
     `status` varchar(50) NOT NULL default 'CITY_UNRESOLVED_LOCALLY',
@@ -885,6 +888,21 @@ CREATE TABLE `person_account` (
     CONSTRAINT `FK_person_account_apartment` FOREIGN KEY (`apartment_id`) REFERENCES `apartment` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `entity_type_correction`;
+
+CREATE TABLE `entity_type_correction` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT,
+    `organization_id` bigint(20) NOT NULL,
+    `type` varchar(100) NOT NULL,
+    `entity_type_id` bigint(20) NOT NULL,
+    `organization_type_code` bigint(20) NULL,
+    PRIMARY KEY (`id`),
+    KEY `FK_entity_type_correction_organization` (`organization_id`),
+    CONSTRAINT `FK_entity_type_correction_organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`),
+    KEY `FK_entity_type_correction_type` (`entity_type_id`),
+    CONSTRAINT `FK_entity_type_correction_type` FOREIGN KEY (`entity_type_id`) REFERENCES `entity_type` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 DROP TABLE IF EXISTS `city_correction`;
 
 CREATE TABLE `city_correction` (
@@ -916,7 +934,8 @@ DROP TABLE IF EXISTS `building_correction`;
 CREATE TABLE `building_correction` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT,
     `organization_id` bigint(20) NOT NULL,
-    `building` varchar(100) NOT NULL,
+    `building_num` varchar(100) NOT NULL,
+    `building_corp` varchar(100) NULL,
     `building_id` bigint(20) NOT NULL,
     `organization_building_code` bigint(20) NULL,
     PRIMARY KEY (`id`),
