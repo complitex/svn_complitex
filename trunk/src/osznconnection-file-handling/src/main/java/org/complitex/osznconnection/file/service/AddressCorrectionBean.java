@@ -10,6 +10,7 @@ import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
 
 import javax.ejb.Stateless;
+import org.apache.wicket.util.string.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,8 +43,16 @@ public class AddressCorrectionBean extends AbstractBean {
         return findInternalObject("street", street, organizationId, cityId);
     }
 
-    public Long findInternalBuilding(long streetId, String building, long organizationId) {
-        return findInternalObject("building", building, organizationId, streetId);
+    @Transactional
+    public Long findInternalBuilding(long streetId, String buildingNumber, String buildingCorp, long organizationId) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("organizationId", organizationId);
+        params.put("buildingNumber", buildingNumber);
+        if (!Strings.isEmpty(buildingCorp)) {
+            params.put("buildingCorp", buildingCorp);
+        }
+        params.put("parentId", streetId);
+        return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".findInternalBuilding", params);
     }
 
     public Long findInternalApartment(long buildingId, String apartment, long organizationId) {
@@ -67,6 +76,33 @@ public class AddressCorrectionBean extends AbstractBean {
 
         public String getValue() {
             return value;
+        }
+    }
+
+    public static class OutgoingBuildingObject {
+
+        private String buildingNumber;
+
+        private String buildingCorp;
+
+        private Long code;
+
+        public OutgoingBuildingObject(String buildingNumber, String buildingCorp, Long code) {
+            this.buildingNumber = buildingNumber;
+            this.buildingCorp = buildingCorp;
+            this.code = code;
+        }
+
+        public String getBuildingCorp() {
+            return buildingCorp;
+        }
+
+        public String getBuildingNumber() {
+            return buildingNumber;
+        }
+
+        public Long getCode() {
+            return code;
         }
     }
 
@@ -95,12 +131,45 @@ public class AddressCorrectionBean extends AbstractBean {
         return findOutgoingObject("street", calculationCenterId, internalStreetId);
     }
 
-    public OutgoingAddressObject findOutgoingBuilding(long calculationCenterId, long internalBuildingId) {
-        return findOutgoingObject("building", calculationCenterId, internalBuildingId);
+    @Transactional
+    public OutgoingBuildingObject findOutgoingBuilding(long calculationCenterId, long internalBuildingId) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("calculationCenterId", calculationCenterId);
+        params.put("objectId", internalBuildingId);
+        Map<String, Object> result = (Map<String, Object>) sqlSession().selectOne(MAPPING_NAMESPACE + ".findOutgoingBuilding", params);
+        if (result != null) {
+            String buildingNumber = (String) result.get("buildingNumber");
+            String buildingCorp = (String) result.get("buildingCorp");
+            Long code = (Long) result.get("codeValue");
+            if (buildingNumber != null && code != null) {
+                return new OutgoingBuildingObject(buildingNumber, buildingCorp, code);
+            }
+        }
+        return null;
     }
 
     public OutgoingAddressObject findOutgoingApartment(long calculationCenterId, long internalApartmentId) {
         return findOutgoingObject("apartment", calculationCenterId, internalApartmentId);
+    }
+
+    @Transactional
+    private OutgoingAddressObject findOutgoingObjectType(long entityTypeId, long calculationCenterId) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("entityTypeId", entityTypeId);
+        params.put("calculationCenterId", calculationCenterId);
+        Map<String, Object> result = (Map<String, Object>) sqlSession().selectOne(MAPPING_NAMESPACE + ".findOutgoingObjectType", params);
+        if (result != null) {
+            String value = (String) result.get("type");
+            Long code = (Long) result.get("typeCode");
+            if (value != null && code != null) {
+                return new OutgoingAddressObject(value, code);
+            }
+        }
+        return null;
+    }
+
+    public OutgoingAddressObject findOutgoingStreetType(long calculationCenterId, long internalStreetTypeId) {
+        return findOutgoingObjectType(internalStreetTypeId, calculationCenterId);
     }
 
     @Transactional
@@ -118,8 +187,15 @@ public class AddressCorrectionBean extends AbstractBean {
         insert("apartment", apartment, objectId, organizationId);
     }
 
-    public void insertInternalBuilding(String building, long objectId, long organizationId) {
-        insert("building", building, objectId, organizationId);
+    @Transactional
+    public void insertInternalBuilding(String buildingNumber, String buildingCorp, long objectId, long organizationId) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("organizationId", organizationId);
+        params.put("buildingNumber", buildingNumber);
+        params.put("buildingCorp", Strings.isEmpty(buildingCorp) ? null : buildingCorp);
+        params.put("objectId", objectId);
+
+        sqlSession().insert(MAPPING_NAMESPACE + ".insertBuilding", params);
     }
 
     public void insertInternalStreet(String street, long objectId, long organizationId) {

@@ -9,22 +9,39 @@ import java.util.Map;
  *         Date: 27.08.2010 13:15:40
  */
 public class AbstractRequest implements Serializable {
+
     private Long id;
+
     private Long requestFileId;
+
     private Long organizationId;
+
     private String accountNumber;
+
     private Status status;
-    
-    protected Map<String, Object> dbfFields= new HashMap<String, Object>();
+
+    protected Map<String, Object> dbfFields = new HashMap<String, Object>();
 
     private Long internalCityId;
+
     private Long internalStreetId;
+
+    private Long internalStreetTypeId;
+
     private Long internalBuildingId;
+
     private Long internalApartmentId;
 
     private String outgoingCity;
+
     private String outgoingStreet;
-    private String outgoingBuilding;
+
+    private String outgoingStreetType;
+
+    private String outgoingBuildingNumber;
+
+    private String outgoingBuildingCorp;
+
     private String outgoingApartment;
 
     public Long getId() {
@@ -115,12 +132,20 @@ public class AbstractRequest implements Serializable {
         this.outgoingApartment = outgoingApartment;
     }
 
-    public String getOutgoingBuilding() {
-        return outgoingBuilding;
+    public String getOutgoingBuildingCorp() {
+        return outgoingBuildingCorp;
     }
 
-    public void setOutgoingBuilding(String outgoingBuilding) {
-        this.outgoingBuilding = outgoingBuilding;
+    public void setOutgoingBuildingCorp(String outgoingBuildingCorp) {
+        this.outgoingBuildingCorp = outgoingBuildingCorp;
+    }
+
+    public String getOutgoingBuildingNumber() {
+        return outgoingBuildingNumber;
+    }
+
+    public void setOutgoingBuildingNumber(String outgoingBuildingNumber) {
+        this.outgoingBuildingNumber = outgoingBuildingNumber;
     }
 
     public String getOutgoingCity() {
@@ -137,5 +162,21 @@ public class AbstractRequest implements Serializable {
 
     public void setOutgoingStreet(String outgoingStreet) {
         this.outgoingStreet = outgoingStreet;
+    }
+
+    public String getOutgoingStreetType() {
+        return outgoingStreetType;
+    }
+
+    public void setOutgoingStreetType(String outgoingStreetType) {
+        this.outgoingStreetType = outgoingStreetType;
+    }
+
+    public Long getInternalStreetTypeId() {
+        return internalStreetTypeId;
+    }
+
+    public void setInternalStreetTypeId(Long internalStreetTypeId) {
+        this.internalStreetTypeId = internalStreetTypeId;
     }
 }

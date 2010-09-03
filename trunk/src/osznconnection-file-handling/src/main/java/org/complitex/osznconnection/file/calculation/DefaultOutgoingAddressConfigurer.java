@@ -23,12 +23,18 @@ public class DefaultOutgoingAddressConfigurer implements IOutgoingAddressConfigu
     }
 
     @Override
-    public void prepareBuilding(Payment payment, String building, Long buildingId) {
-        payment.setOutgoingBuilding(building);
+    public void prepareBuilding(Payment payment, String buildingNumber, String buildingCorp, Long buildingId) {
+        payment.setOutgoingBuildingNumber(buildingNumber);
+        payment.setOutgoingBuildingCorp(buildingCorp);
     }
 
     @Override
     public void prepareApartment(Payment payment, String apartment, Long apartmentId) {
         payment.setOutgoingApartment(apartment);
+    }
+
+    @Override
+    public void prepareStreetType(Payment payment, String streetType, Long streetTypeId) {
+        payment.setOutgoingStreetType(streetType);
     }
 }

@@ -100,12 +100,15 @@ public class PaymentBean extends AbstractBean {
     }
 
     @Transactional
-    public void correctStreet(long fileId, long cityId, String street, long objectId) {
+    public void correctStreet(long fileId, long cityId, String street, long objectId, Long streetTypeId) {
         Map<String, Object> params = Maps.newHashMap();
         params.put("addressEntity", "street");
         params.put("objectId", objectId);
         params.put("cityId", cityId);
         params.put("street", street);
+        if (streetTypeId != null) {
+            params.put("entityTypeId", streetTypeId);
+        }
 
         params.put("requestFileId", fileId);
         params.put("status", Status.ADDRESS_CORRECTED);
@@ -113,13 +116,16 @@ public class PaymentBean extends AbstractBean {
     }
 
     @Transactional
-    public void correctBuilding(long fileId, long cityId, long streetId, String building, long objectId) {
+    public void correctBuilding(long fileId, long cityId, long streetId, String buildingNumber, String buildingCorp, long objectId) {
         Map<String, Object> params = Maps.newHashMap();
         params.put("addressEntity", "building");
         params.put("objectId", objectId);
         params.put("cityId", cityId);
         params.put("streetId", streetId);
-        params.put("building", building);
+        params.put("buildingNumber", buildingNumber);
+        if (buildingCorp != null) {
+            params.put("buildingCorp", buildingCorp);
+        }
 
         params.put("requestFileId", fileId);
         params.put("status", Status.ADDRESS_CORRECTED);
@@ -202,13 +208,13 @@ public class PaymentBean extends AbstractBean {
 
             sqlSession().insert(MAPPING_NAMESPACE + ".insertPayment", payment);
 
-            if ((i+1) % BATCH_SIZE == 0){
+            if ((i + 1) % BATCH_SIZE == 0) {
                 sm.commit();
                 sm.close();
             }
         }
 
-        if (sm.isManagedSessionStarted()){
+        if (sm.isManagedSessionStarted()) {
             sm.commit();
             sm.close();
         }
