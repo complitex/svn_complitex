@@ -11,8 +11,8 @@
         <result column="length" property="length"/>
         <result column="checkSum" property="checkSum"/>
         <result column="status" property="status"/>
-        <association property="loadedRecordCount" column="id" select="selectLoadedRecordCount"/>
-        <association property="bindedRecordCount" column="id" select="selectBindedRecordCount"/>
+        <result column="loaded_record_count" property="loadedRecordCount"/>
+        <result column="binded_record_count" property="bindedRecordCount"/>
     </resultMap>
 
     <select id="selectAll" resultMap="requestFileResultMap">
@@ -39,6 +39,10 @@
         where `id` = #{id}
     </update>
 
+    <delete id="deleteRequestFile" parameterType="long">
+        delete from `request_file` where `id` = #{id};
+    </delete>
+
     <select id="findById" parameterType="long" resultMap="requestFileResultMap">
         SELECT * FROM `request_file` WHERE `id` = #{id}
     </select>
@@ -51,8 +55,12 @@
             <if test="year != null">and YEAR(`date`) = #{year}</if>
             <if test="month != null">and MONTH(`date`)-1 = #{month}</if>
             <if test="dbfRecordCount != null">and `dbf_record_count` like CONCAT('%',#{dbfRecordCount},'%')</if>
+            <if test="status != null">and `status` = #{status}</if>
             <if test="loadedRecordCount != null">
-                <!--todo-->
+                loaded_record_count = #{loadedRecordCount}
+            </if>
+            <if test="bindedRecordCount != null">
+                binded_record_count = #{bindedRecordCount}
             </if>
         </where>
     </sql>
@@ -60,19 +68,21 @@
     <select id="selectRequestFiles" parameterType="org.complitex.osznconnection.file.service.RequestFileFilter"
             resultMap="requestFileResultMap">
         select
-            *
+            *,
+            (select (select count(*) from `payment` where `request_file_id` = rf.`id`)
+            + (select count(*) from `benefit` where `request_file_id` = rf.`id`))
+                as loaded_record_count,
+            (select (select count(*) from `payment` where `request_file_id` = rf.`id` and `status` = 'RESOLVED')
+            + (select count(*) from `benefit` where `request_file_id` = rf.`id` and `status` = 'RESOLVED'))
+                as binded_record_count
         from
-            `request_file`
+            `request_file` rf        
         <include refid="requestFilesFilterWhere"/>
         <if test="sortProperty != null">
             order by
             <choose>
                 <when test="sortProperty == 'month'">MONTH(`date`)</when>
-                <when test="sortProperty == 'year'">YEAR(`date`)</when>
-                <!--todo-->
-                <when test="sortProperty == 'organization'">`loaded`</when>
-                <when test="sortProperty == 'loaded_record_count'">`loaded`</when>
-                <when test="sortProperty == 'binded_record_count'">`loaded`</when>
+                <when test="sortProperty == 'year'">YEAR(`date`)</when>                              
                 <otherwise>`${sortProperty}`</otherwise>
             </choose>
             <choose>
@@ -81,16 +91,6 @@
             </choose>
         </if>
         limit #{first}, #{count}
-    </select>
-
-    <select id="selectLoadedRecordCount" resultType="int" parameterType="long">
-        select (select count(*) from `payment` where `request_file_id` = #{id})
-            + (select count(*) from `benefit` where `request_file_id` = #{id})
-    </select>
-
-    <select id="selectBindedRecordCount" resultType="int" parameterType="long">
-        select (select count(*) from `payment` where `request_file_id` = #{id} and `status` = 'RESOLVED')
-                + (select count(*) from `benefit` where `request_file_id` = #{id} and `status` = 'RESOLVED')
     </select>
 
     <select id="selectRequestFilesCount" parameterType="org.complitex.osznconnection.file.service.RequestFileFilter"

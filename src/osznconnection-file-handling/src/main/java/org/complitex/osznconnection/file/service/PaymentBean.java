@@ -70,6 +70,10 @@ public class PaymentBean extends AbstractBean {
         sqlSession().update(MAPPING_NAMESPACE + ".update", payment);
     }
 
+    public void delete(RequestFile requestFile){
+        sqlSession().delete(MAPPING_NAMESPACE + ".deletePayments", requestFile.getId());
+    }
+
     @Transactional
     public Payment findById(long id) {
         return (Payment) sqlSession().selectOne(MAPPING_NAMESPACE + ".findById", id);

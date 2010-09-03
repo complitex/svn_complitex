@@ -45,6 +45,13 @@ public class RequestFileBean extends AbstractBean {
         }
     }
 
+    @Transactional
+    public void delete(RequestFile requestFile){
+        sqlSession().delete(BenefitBean.class.getName() + ".deleteBenefits", requestFile.getId());
+        sqlSession().delete(PaymentBean.class.getName() + ".deletePayments", requestFile.getId());        
+        sqlSession().delete(MAPPING_NAMESPACE + ".deleteRequestFile", requestFile);        
+    }
+
     public boolean isLoaded(RequestFile requestFile){
         return (Boolean) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectIsLoaded", requestFile);
     }

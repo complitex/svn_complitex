@@ -72,6 +72,11 @@ public class BenefitBean extends AbstractBean {
     public List<Benefit> find(BenefitExample example) {
         return (List<Benefit>) sqlSession().selectList(MAPPING_NAMESPACE + ".find", example);
     }
+
+    @Transactional
+    public void delete(RequestFile requestFile){
+        sqlSession().delete(MAPPING_NAMESPACE + ".deleteBenefits", requestFile.getId());
+    }
         
     public void load(RequestFile requestFile, DBF dbf) throws xBaseJException, IOException, WrongFieldTypeException, SqlSessionException {
         Map<BenefitDBF, Field> fields = new HashMap<BenefitDBF, Field>();

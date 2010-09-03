@@ -185,6 +185,7 @@ input.btnCenter{
     margin-left: 5px;
     margin-right: 5px;
     margin-bottom: 5px;
+    height:30px;
 }
 .pageBar { float:left}
 .pageBar td.off { background:url('../images/pageNavOff.gif') no-repeat #EBEEF0; width:23px; height:23px; text-align: center; font-size: 12px; }

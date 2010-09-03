@@ -74,6 +74,10 @@
         `id` = #{id}
     </update>
 
+    <delete id="deleteBenefits" parameterType="long">
+        delete from `benefit` where `request_file_id` = #{id};
+    </delete>
+
     <sql id="filter">
         <if test="firstName != null">
             AND r.`F_NAM` LIKE CONCAT('%',#{firstName},'%')

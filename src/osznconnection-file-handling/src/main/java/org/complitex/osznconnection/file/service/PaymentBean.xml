@@ -135,6 +135,10 @@
             `id` = #{id}
     </update>
 
+      <delete id="deletePayments" parameterType="long">
+          delete from `payment` where `request_file_id` = #{id};
+      </delete>
+
     <sql id="filter">
         <if test="firstName != null">
             AND r.`F_NAM` LIKE CONCAT('%',#{firstName},'%')

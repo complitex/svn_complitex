@@ -13,6 +13,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.*;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -137,6 +138,9 @@ public class RequestFileList extends TemplatePage{
                     }
                 }));
 
+        //Модель выбранных элементов списка
+        final Map<RequestFile, IModel<Boolean>> selectModels = new HashMap<RequestFile, IModel<Boolean>>();
+
         //Модель данных списка
         final SortableDataProvider<RequestFile> dataProvider = new SortableDataProvider<RequestFile>(){
 
@@ -149,7 +153,14 @@ public class RequestFileList extends TemplatePage{
                 filter.setSortProperty(getSort().getProperty());
                 filter.setAscending(getSort().isAscending());
 
-                return requestFileBean.getRequestFiles(filter).iterator();
+                List<RequestFile> requestFiles = requestFileBean.getRequestFiles(filter);
+
+                selectModels.clear();
+                for (RequestFile rf : requestFiles){
+                    selectModels.put(rf, new Model<Boolean>(false));
+                }
+
+                return requestFiles.iterator();
             }
 
             @Override
@@ -164,9 +175,6 @@ public class RequestFileList extends TemplatePage{
         };
         dataProvider.setSort("loaded", false);
 
-        //todo paging debug
-        final Map<RequestFile, IModel<Boolean>> selectModels = new HashMap<RequestFile, IModel<Boolean>>();
-
         //Контейнер для ajax
         final WebMarkupContainer dataViewContainer = new WebMarkupContainer("request_files_container");
         dataViewContainer.setOutputMarkupId(true);
@@ -179,10 +187,7 @@ public class RequestFileList extends TemplatePage{
             protected void populateItem(Item<RequestFile> item) {
                 RequestFile rf = item.getModelObject();
 
-                IModel<Boolean> checkModel = new Model<Boolean>(false);
-                selectModels.put(rf, checkModel);
-
-                CheckBox checkBox = new CheckBox("selected", checkModel);
+                CheckBox checkBox = new CheckBox("selected", selectModels.get(rf));
                 checkBox.setVisible(!rf.isProcessing());
                 checkBox.setEnabled(!isProcessing());
                 item.add(checkBox);
@@ -239,7 +244,7 @@ public class RequestFileList extends TemplatePage{
         //Сортировка
         filterForm.add(new ArrowOrderByBorder("header.loaded", "loaded", dataProvider, dataView, filterForm));
         filterForm.add(new ArrowOrderByBorder("header.name", "name", dataProvider, dataView, filterForm));
-        filterForm.add(new ArrowOrderByBorder("header.organization", "organization", dataProvider, dataView, filterForm));
+        filterForm.add(new ArrowOrderByBorder("header.organization", "organization_object_id", dataProvider, dataView, filterForm));
         filterForm.add(new ArrowOrderByBorder("header.month", "month", dataProvider, dataView, filterForm));
         filterForm.add(new ArrowOrderByBorder("header.year", "year", dataProvider, dataView, filterForm));
         filterForm.add(new ArrowOrderByBorder("header.dbf_record_count", "dbf_record_count", dataProvider, dataView, filterForm));
@@ -248,7 +253,22 @@ public class RequestFileList extends TemplatePage{
         filterForm.add(new ArrowOrderByBorder("header.status", "status", dataProvider, dataView, filterForm));
 
         //Постраничная навигация
-        filterForm.add(new PagingNavigator("paging", dataView, filterForm));
+        filterForm.add(new PagingNavigator("paging", dataView, filterForm));        
+
+        //Удалить
+        Button delete = new Button("delete"){
+            @Override
+            public void onSubmit() {
+                for (RequestFile requestFile : selectModels.keySet()){
+                    if (selectModels.get(requestFile).getObject()){
+                        requestFileBean.delete(requestFile);
+                        info(getStringFormat("info.deleted", requestFile.getName()));
+                    }
+                }
+            }
+        };
+        delete.setVisible(!isProcessing());
+        filterForm.add(delete);
 
         //Связать
         Button bind = new Button("bind"){
