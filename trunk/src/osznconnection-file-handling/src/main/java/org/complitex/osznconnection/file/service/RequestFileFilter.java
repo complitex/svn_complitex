@@ -2,6 +2,7 @@ package org.complitex.osznconnection.file.service;
 
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.service.AbstractFilter;
+import org.complitex.osznconnection.file.entity.RequestFile;
 
 import java.util.Date;
 
@@ -21,7 +22,7 @@ public class RequestFileFilter extends AbstractFilter{
     private Integer bindedRecordCount;
     private Long length;
     private String checkSum;
-    private String status;
+    private RequestFile.STATUS status;
     private DomainObject organization;
 
     public Long getId() {
@@ -112,11 +113,11 @@ public class RequestFileFilter extends AbstractFilter{
         this.checkSum = checkSum;
     }
 
-    public String getStatus() {
+    public RequestFile.STATUS getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(RequestFile.STATUS status) {
         this.status = status;
     }
 
