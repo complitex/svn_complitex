@@ -35,7 +35,7 @@ public abstract class CorrectionPanel extends Panel {
 
     private String searchAddressEntity;
 
-    public CorrectionPanel(String id, String name, String address, Long cityId, Long streetId, Long buildingId, Long apartmentId) {
+    public CorrectionPanel(String id, String name, String address, Long cityId, Long streetId, Long streetTypeId, Long buildingId, Long apartmentId) {
         super(id);
         init(name, address, cityId, streetId, buildingId, apartmentId);
     }
@@ -139,7 +139,9 @@ public abstract class CorrectionPanel extends Panel {
             public void onClick(AjaxRequestTarget target) {
                 if (validate(componentState)) {
                     correctAddress(getObjectId(componentState.get("city")),
-                            getObjectId(componentState.get("street")), getObjectId(componentState.get("building")),
+                            getObjectId(componentState.get("street")),
+                            getObjectTypeId(componentState.get("street")),
+                            getObjectId(componentState.get("building")),
                             getObjectId(componentState.get("apartment")));
                     back();
                 } else {
@@ -162,7 +164,11 @@ public abstract class CorrectionPanel extends Panel {
         return object == null ? null : object.getId();
     }
 
-    protected abstract void correctAddress(Long cityId, Long streetId, Long buildingId, Long apartmentId);
+    private static Long getObjectTypeId(DomainObject object){
+        return object == null ? null : object.getEntityTypeId();
+    }
+
+    protected abstract void correctAddress(Long cityId, Long streetId, Long streetTypeId, Long buildingId, Long apartmentId);
 
     protected boolean validate(SearchComponentState componentState) {
         boolean validated = componentState.get(searchAddressEntity) != null && componentState.get(searchAddressEntity).getId() > 0;

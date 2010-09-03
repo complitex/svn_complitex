@@ -44,20 +44,21 @@ public final class PaymentCorrection extends TemplatePage {
         add(new Label("title", new ResourceModel("label")));
         add(new Label("label", new ResourceModel("label")));
 
-        String name = payment.getField(PaymentDBF.SUR_NAM) + " " +
-                payment.getField(PaymentDBF.F_NAM) + " " +
-                payment.getField(PaymentDBF.M_NAM);
-        String address = payment.getField(PaymentDBF.N_NAME) + ", " +
-                payment.getField(PaymentDBF.VUL_NAME) + ", " +
-                payment.getField(PaymentDBF.BLD_NUM) + ", " +
-                payment.getField(PaymentDBF.FLAT);
+        String name = payment.getField(PaymentDBF.SUR_NAM) + " "
+                + payment.getField(PaymentDBF.F_NAM) + " "
+                + payment.getField(PaymentDBF.M_NAM);
+        String address = payment.getField(PaymentDBF.N_NAME) + ", "
+                + payment.getField(PaymentDBF.VUL_NAME) + ", "
+                + payment.getField(PaymentDBF.BLD_NUM) + ", "
+                + payment.getField(PaymentDBF.FLAT);
 
         add(new CorrectionPanel("correntionPanel", name, address, payment.getInternalCityId(), payment.getInternalStreetId(),
+                payment.getInternalStreetTypeId(),
                 payment.getInternalBuildingId(), payment.getInternalApartmentId()) {
 
             @Override
-            protected void correctAddress(Long cityId, Long streetId, Long buildingId, Long apartmentId) {
-                addressResolver.correctLocalAddress(payment, cityId, streetId, buildingId, apartmentId);
+            protected void correctAddress(Long cityId, Long streetId, Long streetTypeId, Long buildingId, Long apartmentId) {
+                addressResolver.correctLocalAddress(payment, cityId, streetId, streetTypeId, buildingId, apartmentId);
             }
 
             @Override
