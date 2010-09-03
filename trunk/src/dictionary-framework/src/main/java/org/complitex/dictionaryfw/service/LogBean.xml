@@ -9,7 +9,7 @@
             (#{id}, #{date}, #{login}, #{module}, #{controller}, #{model}, #{objectId}, #{event}, #{status}, #{description});
     </insert>
 
-    <insert id="insertLogChanges" parameterType="list" keyProperty="id" useGeneratedKeys="true">
+    <insert id="insertLogChanges" parameterType="list">
         insert into `log_change`
             (`id`, `log_id`, `attribute_id`, `collection`, `property`, `old_value`, `new_value`, `locale`)
         values

@@ -84,7 +84,7 @@ public class RequestFileLoad extends FormTemplatePage{
                     loadRequestBean.load(oszn.getId(),
                             organizationStrategy.getDistrictCode(oszn), organizationStrategy.getUniqueCode(oszn),
                             from.getModelObject(), to.getModelObject(), year.getModelObject());
-//                    getSession().info(getString("info.start_loading")); todo ajax messages
+                    getSession().info(getString("info.start_loading"));
                 }else{
                     getSession().error(getString("error.loading_in_progress"));
                 }

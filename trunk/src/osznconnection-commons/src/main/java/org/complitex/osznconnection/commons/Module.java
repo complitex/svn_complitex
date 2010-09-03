@@ -5,5 +5,5 @@ package org.complitex.osznconnection.commons;
  *         Date: 17.08.2010 18:41:01
  */
 public class Module {
-    public static final String NAME = "org.complitex.pspoffice.commons";
+    public static final String NAME = "org.complitex.osznconnection.commons";
 }

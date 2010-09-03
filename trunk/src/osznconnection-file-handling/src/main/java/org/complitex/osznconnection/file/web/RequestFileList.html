@@ -9,7 +9,7 @@
             function selectAll(cb){
                 var items = document.getElementsByTagName('input');
                 for (i=0; i< items.length; i++){
-                    if (items[i].type == 'checkbox'){
+                    if (items[i].type == 'checkbox' && !items[i].disabled){
                         items[i].checked = cb.checked;
                     }
                 }
@@ -61,9 +61,12 @@
                     </th>
                 </tr>
                 </thead>
-                <tbody>
+                <tbody wicket:id="request_files_container">
                 <tr wicket:id="request_files">
-                    <td><input class="select" type="checkbox" wicket:id="selected"/></td>
+                    <td>
+                        <input class="select" type="checkbox" wicket:id="selected"/>
+                        <img wicket:id="processing" align="top"/>
+                    </td>
                     <td><span wicket:id="loaded"></span></td>
                     <td><span wicket:id="name"></span></td>
                     <td><span wicket:id="organization"></span></td>
@@ -72,9 +75,9 @@
                     <td><span wicket:id="dbf_record_count"></span></td>
                     <td><span wicket:id="loaded_record_count"></span></td>
                     <td><span wicket:id="binded_record_count"></span></td>
-                    <td><span wicket:id="status"></span>&nbsp;<img wicket:id="processing"/></td>
+                    <td><span wicket:id="status"></span></td>
                     <td>
-                        <span wicket:id="action_list"></span>                        
+                        <span wicket:id="action_list"></span>
                     </td>
                 </tr>
                 </tbody>
