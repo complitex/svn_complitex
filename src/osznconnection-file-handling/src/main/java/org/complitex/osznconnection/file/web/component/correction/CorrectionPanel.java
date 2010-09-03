@@ -84,20 +84,26 @@ public abstract class CorrectionPanel extends Panel {
         return object;
     }
 
-    private List<String> initFilters() {
+    private List<SearchComponent.SearchFilterSettings> initFilters() {
         if (searchAddressEntity.equalsIgnoreCase("city")) {
-            return ImmutableList.of("city");
+            return ImmutableList.of(new SearchComponent.SearchFilterSettings("city", true));
         }
         if (searchAddressEntity.equalsIgnoreCase("street")) {
-            return ImmutableList.of("city", "street");
+            return ImmutableList.of(new SearchComponent.SearchFilterSettings("city", false),
+                    new SearchComponent.SearchFilterSettings("street", true));
         }
         if (searchAddressEntity.equalsIgnoreCase("building")) {
-            return ImmutableList.of("city", "street", "building");
+            return ImmutableList.of(new SearchComponent.SearchFilterSettings("city", false),
+                    new SearchComponent.SearchFilterSettings("street", false),
+                    new SearchComponent.SearchFilterSettings("building", true));
         }
-        return ImmutableList.of("city", "street", "building", "apartment");
+        return ImmutableList.of(new SearchComponent.SearchFilterSettings("city", false),
+                new SearchComponent.SearchFilterSettings("street", false),
+                new SearchComponent.SearchFilterSettings("building", false),
+                new SearchComponent.SearchFilterSettings("apartment", true));
     }
 
-    private String initSearchAddressEntity(Long cityId, Long streetId, Long buildingId, Long apartmentId) {
+    private String initSearchAddressEntity(Long cityId, Long streetId, Long buildingId) {
         if (cityId == null) {
             return "city";
         }
@@ -125,12 +131,12 @@ public abstract class CorrectionPanel extends Panel {
         messages.setOutputMarkupId(true);
         add(messages);
 
-        searchAddressEntity = initSearchAddressEntity(cityId, streetId, buildingId, apartmentId);
+        searchAddressEntity = initSearchAddressEntity(cityId, streetId, buildingId);
 
         final SearchComponentState componentState = initSearchComponentState(cityId, streetId, buildingId, apartmentId);
-        List<String> searchFilters = initFilters();
+        List<SearchComponent.SearchFilterSettings> searchFilterSettings = initFilters();
 
-        SearchComponent searchComponent = new SearchComponent("searchComponent", componentState, searchFilters, new FakeSearchCallback(), true);
+        SearchComponent searchComponent = new SearchComponent("searchComponent", componentState, searchFilterSettings, new FakeSearchCallback());
         add(searchComponent);
 
         AjaxLink save = new AjaxLink("save") {
@@ -164,7 +170,7 @@ public abstract class CorrectionPanel extends Panel {
         return object == null ? null : object.getId();
     }
 
-    private static Long getObjectTypeId(DomainObject object){
+    private static Long getObjectTypeId(DomainObject object) {
         return object == null ? null : object.getEntityTypeId();
     }
 

@@ -45,12 +45,17 @@ import java.util.*;
  */
 @Stateless(name = "BuildingStrategy")
 public class BuildingStrategy extends Strategy {
+
     public static final String RESOURCE_BUNDLE = BuildingStrategy.class.getName();
 
     public static final long NUMBER = 500;
+
     public static final long CORP = 501;
+
     public static final long STRUCTURE = 502;
+
     public static final long STREET = 503;
+
     public static final long DISTRICT = 504;
 
     private static final String BUILDING_NAMESPACE = BuildingStrategy.class.getPackage().getName() + ".Building";
@@ -175,7 +180,42 @@ public class BuildingStrategy extends Strategy {
                 return attr.getAttributeTypeId().equals(NUMBER);
             }
         }));
-        return stringBean.displayValue(numbers.get(0).getLocalizedValues(), locale);
+        List<Attribute> corps = Lists.newArrayList(Iterables.filter(object.getAttributes(), new Predicate<Attribute>() {
+
+            @Override
+            public boolean apply(Attribute attr) {
+                return attr.getAttributeTypeId().equals(CORP);
+            }
+        }));
+        List<Attribute> structures = Lists.newArrayList(Iterables.filter(object.getAttributes(), new Predicate<Attribute>() {
+
+            @Override
+            public boolean apply(Attribute attr) {
+                return attr.getAttributeTypeId().equals(STRUCTURE);
+            }
+        }));
+
+        String number = stringBean.displayValue(numbers.get(0).getLocalizedValues(), locale);
+        String corp = (corps != null && !corps.isEmpty()) ? stringBean.displayValue(corps.get(0).getLocalizedValues(), locale) : null;
+        String structure = (structures != null && !structures.isEmpty()) ? stringBean.displayValue(structures.get(0).getLocalizedValues(), locale) : null;
+
+        return displayBuilding(number, corp, structure, locale);
+    }
+
+    private String displayBuilding(String number, String corp, String structure, Locale locale) {
+        if (Strings.isEmpty(corp)) {
+            if (Strings.isEmpty(structure)) {
+                return number;
+            } else {
+                return ResourceUtil.getString(RESOURCE_BUNDLE, "number_structure", locale);
+            }
+        } else {
+            if (Strings.isEmpty(structure)) {
+                return ResourceUtil.getString(RESOURCE_BUNDLE, "number_corp", locale);
+            } else {
+                return ResourceUtil.getString(RESOURCE_BUNDLE, "number_corp_structure", locale);
+            }
+        }
     }
 
     @Override

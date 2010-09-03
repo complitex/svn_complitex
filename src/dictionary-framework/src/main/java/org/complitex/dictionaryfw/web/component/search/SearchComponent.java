@@ -1,9 +1,11 @@
 package org.complitex.dictionaryfw.web.component.search;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.io.Serializable;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AbstractAutoCompleteTextRenderer;
@@ -34,6 +36,26 @@ import java.util.Map;
  */
 public final class SearchComponent extends Panel {
 
+    public static class SearchFilterSettings implements Serializable {
+
+        private String searchFilter;
+
+        private boolean enabled;
+
+        public SearchFilterSettings(String searchFilter, boolean enabled) {
+            this.searchFilter = searchFilter;
+            this.enabled = enabled;
+        }
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public String getSearchFilter() {
+            return searchFilter;
+        }
+    }
+
     private static final String NOT_SPECIFIED_KEY = "not_specified";
 
     private static final Logger log = LoggerFactory.getLogger(SearchComponent.class);
@@ -48,6 +70,8 @@ public final class SearchComponent extends Panel {
 
     private List<String> searchFilters;
 
+    private List<SearchFilterSettings> filterSettings;
+
     private ISearchCallback callback;
 
     private SearchComponentState componentState;
@@ -61,6 +85,31 @@ public final class SearchComponent extends Panel {
         this.searchFilters = searchFilters;
         this.callback = callback;
         this.enabled = enabled;
+        init();
+    }
+
+    /**
+     * Used where some filters must have distinct from others settings. For example, some filters must be disabled but others not.
+     * @param id
+     * @param componentState
+     * @param searchFilterSettigses
+     * @param callback
+     */
+    public SearchComponent(String id, SearchComponentState componentState, List<SearchFilterSettings> searchFilterSettigses,
+            ISearchCallback callback) {
+        super(id);
+        setOutputMarkupId(true);
+        this.componentState = componentState;
+
+        this.filterSettings = searchFilterSettigses;
+        this.searchFilters = Lists.newArrayList(Iterables.transform(filterSettings, new Function<SearchFilterSettings, String>() {
+
+            @Override
+            public String apply(SearchFilterSettings settings) {
+                return settings.getSearchFilter();
+            }
+        }));
+        this.callback = callback;
         init();
     }
 
@@ -167,7 +216,8 @@ public final class SearchComponent extends Panel {
                         return list;
                     }
                 };
-                filter.setEnabled(enabled);
+
+                setEnable(entity, filter);
                 filter.setOutputMarkupId(true);
                 if (index == searchFilters.size() - 1) {
                     invokeCallbackIfNecessary(index, filterModels, null);
@@ -264,5 +314,20 @@ public final class SearchComponent extends Panel {
                 return from != null ? from.getId() : null;
             }
         });
+    }
+
+    private void setEnable(final String entityFilter, AutoCompleteTextField textField) {
+        if (filterSettings != null) {
+            boolean isEnabled = Iterables.find(filterSettings, new Predicate<SearchFilterSettings>() {
+
+                @Override
+                public boolean apply(SearchFilterSettings settings) {
+                    return settings.getSearchFilter().equals(entityFilter);
+                }
+            }).isEnabled();
+            textField.setEnabled(isEnabled);
+        } else {
+            textField.setEnabled(enabled);
+        }
     }
 }
