@@ -7,6 +7,8 @@ import org.complitex.dictionaryfw.mybatis.TransactionalMethodInterceptor;
 
 import javax.ejb.EJB;
 import javax.interceptor.Interceptors;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru

@@ -5,6 +5,7 @@
 package org.complitex.osznconnection.file.service;
 
 import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionManager;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
@@ -12,6 +13,7 @@ import org.complitex.osznconnection.file.entity.Benefit;
 import org.complitex.osznconnection.file.entity.BenefitDBF;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.entity.Status;
+import org.complitex.osznconnection.file.service.exception.SqlSessionException;
 import org.complitex.osznconnection.file.service.exception.WrongFieldTypeException;
 import org.complitex.osznconnection.file.web.pages.benefit.BenefitExample;
 import org.xBaseJ.DBF;
@@ -71,7 +73,7 @@ public class BenefitBean extends AbstractBean {
         return (List<Benefit>) sqlSession().selectList(MAPPING_NAMESPACE + ".find", example);
     }
         
-    public void load(RequestFile requestFile, DBF dbf) throws xBaseJException, IOException, WrongFieldTypeException {
+    public void load(RequestFile requestFile, DBF dbf) throws xBaseJException, IOException, WrongFieldTypeException, SqlSessionException {
         Map<BenefitDBF, Field> fields = new HashMap<BenefitDBF, Field>();
 
         for (BenefitDBF benefitDBF : BenefitDBF.values()){
@@ -88,7 +90,7 @@ public class BenefitBean extends AbstractBean {
             fields.put(benefitDBF, field);
         }
 
-        SqlSessionManager sm = getSqlSessionManager();
+        SqlSession sqlSession = null;
 
         for (int i=0; i< dbf.getRecordCount(); ++i){
             dbf.read();
@@ -115,28 +117,37 @@ public class BenefitBean extends AbstractBean {
                 }
             }
 
-            if (!sm.isManagedSessionStarted()){
-                sm.startManagedSession(ExecutorType.BATCH);
+            if (sqlSession == null){
+                sqlSession = getSqlSessionManager().openSession(ExecutorType.BATCH);
             }
 
             //todo test
             try {
-                Thread.sleep(200);
+                Thread.sleep(2000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
-            sqlSession().insert(MAPPING_NAMESPACE + ".insertBenefit", benefit);
+            try {
+                sqlSession().insert(MAPPING_NAMESPACE + ".insertBenefit", benefit);
 
-            if ((i+1) % BATCH_SIZE == 0){
-                sm.commit();
-                sm.close();
+                if (i % BATCH_SIZE == 0){
+                    sqlSession.commit();
+                    sqlSession.close();
+                    sqlSession = null;
+                }
+            } catch (Exception e) {
+                throw new SqlSessionException(e);
             }
         }
 
-        if (sm.isManagedSessionStarted()){
-            sm.commit();
-            sm.close();
+        try {
+            if (sqlSession != null){
+                sqlSession.commit();
+                sqlSession.close();
+            }
+        } catch (Exception e) {
+            throw new SqlSessionException(e);
         }
     }
 }

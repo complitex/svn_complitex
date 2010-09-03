@@ -2,6 +2,7 @@ package org.complitex.osznconnection.file.service;
 
 import com.google.common.collect.Maps;
 import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionManager;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
@@ -9,6 +10,7 @@ import org.complitex.osznconnection.file.entity.Payment;
 import org.complitex.osznconnection.file.entity.PaymentDBF;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.entity.Status;
+import org.complitex.osznconnection.file.service.exception.SqlSessionException;
 import org.complitex.osznconnection.file.service.exception.WrongFieldTypeException;
 import org.complitex.osznconnection.file.web.pages.payment.PaymentExample;
 import org.xBaseJ.DBF;
@@ -148,7 +150,7 @@ public class PaymentBean extends AbstractBean {
     }
 
     public void load(RequestFile requestFile, DBF dbf)
-            throws xBaseJException, IOException, WrongFieldTypeException {
+            throws xBaseJException, IOException, WrongFieldTypeException, SqlSessionException {
         Map<PaymentDBF, Field> fields = new HashMap<PaymentDBF, Field>();
 
         for (PaymentDBF paymentDBF : PaymentDBF.values()) {
@@ -165,7 +167,7 @@ public class PaymentBean extends AbstractBean {
             fields.put(paymentDBF, field);
         }
 
-        SqlSessionManager sm = getSqlSessionManager();
+        SqlSession sqlSession = null;
 
         for (int i = 0; i < dbf.getRecordCount(); ++i) {
             dbf.read();
@@ -195,28 +197,38 @@ public class PaymentBean extends AbstractBean {
                 }
             }
 
-            if (!sm.isManagedSessionStarted()) {
-                sm.startManagedSession(ExecutorType.BATCH);
+            //open new sql session
+            if (sqlSession == null) {
+                sqlSession = getSqlSessionManager().openSession(ExecutorType.BATCH);
             }
 
             //todo test
             try {
-                Thread.sleep(200);
+                Thread.sleep(2000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
-            sqlSession().insert(MAPPING_NAMESPACE + ".insertPayment", payment);
+            try {
+                sqlSession().insert(MAPPING_NAMESPACE + ".insertPayment", payment);
 
-            if ((i + 1) % BATCH_SIZE == 0) {
-                sm.commit();
-                sm.close();
+                if (i % BATCH_SIZE == 0){
+                    sqlSession.commit();
+                    sqlSession.close();
+                    sqlSession = null;
+                }
+            } catch (Exception e) {
+                throw new SqlSessionException(e);
             }
         }
 
-        if (sm.isManagedSessionStarted()) {
-            sm.commit();
-            sm.close();
+        try {
+            if (sqlSession != null){
+                sqlSession.commit();
+                sqlSession.close();
+            }
+        } catch (Exception e) {
+            throw new SqlSessionException(e);
         }
     }
 }

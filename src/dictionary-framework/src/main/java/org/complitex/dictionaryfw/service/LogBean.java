@@ -1,5 +1,8 @@
 package org.complitex.dictionaryfw.service;
 
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionManager;
 import org.complitex.dictionaryfw.entity.*;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.strategy.Strategy;
@@ -11,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Resource;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
+import javax.lang.model.type.ExecutableType;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +30,8 @@ public class LogBean extends AbstractBean{
 
     public static final String STATEMENT_PREFIX = LogBean.class.getCanonicalName();
 
+    public static final int MAX_DESCRIPTION_LENGTH = 255;
+
     @Resource
     private SessionContext sessionContext;
 
@@ -39,12 +45,18 @@ public class LogBean extends AbstractBean{
     }
 
     public void error(String module, Class controllerClass, Class modelClass, Long objectId, Log.EVENT event,
-                     String descriptionPattern,  Object... descriptionArguments){
+                      String descriptionPattern,  Object... descriptionArguments){
 
         String controller = controllerClass != null ? controllerClass.getName() : null;
         String model = modelClass != null ? modelClass.getName() : null;
 
         log(module, controller, model, objectId, event, Log.STATUS.ERROR, null, descriptionPattern, descriptionArguments);
+    }
+
+    public void info(String module, Class controllerClass, Class modelClass, String entityName, Long objectId,
+                     Log.EVENT event, LogChangeList logChangeList, String descriptionPattern, Object... descriptionArguments){
+        info(module, controllerClass, modelClass, entityName, objectId, event, logChangeList.getLogChanges(),
+                descriptionPattern, descriptionArguments);
     }
 
     public void info(String module, Class controllerClass, Class modelClass, String entityName, Long objectId,
@@ -57,8 +69,8 @@ public class LogBean extends AbstractBean{
     }
 
     public void log(Log.STATUS status, String module, Class controllerClass, Log.EVENT event,
-                     Strategy strategy, DomainObject oldDomainObject, DomainObject newDomainObject,
-                     Locale locale, String descriptionPattern, Object... descriptionArguments){
+                    Strategy strategy, DomainObject oldDomainObject, DomainObject newDomainObject,
+                    Locale locale, String descriptionPattern, Object... descriptionArguments){
 
         String controller = controllerClass != null ? controllerClass.getName() : null;
         String model = DomainObject.class.getName() + "#" + strategy.getEntityTable();
@@ -69,15 +81,20 @@ public class LogBean extends AbstractBean{
     }
 
     public void error(String module, Class controllerClass, Class modelClass, String entityName, Long objectId,
-                     Log.EVENT event, List<LogChange> changes, String descriptionPattern, Object... descriptionArguments){
+                      Log.EVENT event, LogChangeList logChangeList, String descriptionPattern, Object... descriptionArguments){
+        error(module, controllerClass, modelClass, entityName, objectId, event, logChangeList.getLogChanges(),
+                descriptionPattern, descriptionArguments);
+    }
+
+    public void error(String module, Class controllerClass, Class modelClass, String entityName, Long objectId,
+                      Log.EVENT event, List<LogChange> changes, String descriptionPattern, Object... descriptionArguments){
 
         String controller = controllerClass != null ? controllerClass.getName() : null;
-        String model = modelClass != null ? modelClass.getName() + (entityName != null ? ":" + entityName : "") : null;        
+        String model = modelClass != null ? modelClass.getName() + (entityName != null ? ":" + entityName : "") : null;
 
         log(module, controller, model, objectId, event, Log.STATUS.ERROR, changes, descriptionPattern, descriptionArguments);
     }
 
-    @Transactional
     private void log(String module, String controller, String model, Long objectId,
                      Log.EVENT event, Log.STATUS status, List<LogChange> logChanges,
                      String descriptionPattern,  Object... descriptionArguments){
@@ -96,18 +113,28 @@ public class LogBean extends AbstractBean{
                 ? MessageFormat.format(descriptionPattern, descriptionArguments )
                 : descriptionPattern);
 
-        try {
-            sqlSession().insert(STATEMENT_PREFIX + ".insertLog", log);
-        } catch (Exception e) {
-            LogBean.log.error("Ошибка записи события в базу данных");
+        if (log.getDescription() != null && log.getDescription().length() > MAX_DESCRIPTION_LENGTH){
+            log.setDescription(log.getDescription().substring(0, MAX_DESCRIPTION_LENGTH));            
         }
+
+        //open new session
+        SqlSession session = getSqlSessionManager().openSession();
+
+        session.insert(STATEMENT_PREFIX + ".insertLog", log);
 
         if (log.getLogChanges() != null && !log.getLogChanges().isEmpty()){
             for (LogChange logChange : log.getLogChanges()){
                 logChange.setLogId(log.getId());
             }
 
-            sqlSession().insert(STATEMENT_PREFIX + ".insertLogChanges", log.getLogChanges());
+            session.insert(STATEMENT_PREFIX + ".insertLogChanges", log.getLogChanges());
+        }
+
+        try {
+            session.commit();
+            session.close();
+        } catch (Exception e) {
+            LogBean.log.error("Ошибка записи журнала событий в базу данных", e);
         }
     }
 

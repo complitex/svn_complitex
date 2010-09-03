@@ -8,11 +8,11 @@ import org.apache.wicket.ajax.AjaxSelfUpdatingTimerBehavior;
 import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.datetime.markup.html.basic.DateLabel;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.*;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -21,10 +21,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.util.time.Duration;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.util.StringUtil;
-import org.complitex.dictionaryfw.web.component.BookmarkablePageLinkPanel;
-import org.complitex.dictionaryfw.web.component.DatePicker;
-import org.complitex.dictionaryfw.web.component.MonthDropDownChoice;
-import org.complitex.dictionaryfw.web.component.YearDropDownChoice;
+import org.complitex.dictionaryfw.web.component.*;
 import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
 import org.complitex.osznconnection.commons.web.security.SecurityRole;
@@ -39,6 +36,7 @@ import org.complitex.osznconnection.file.web.pages.payment.PaymentList;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 
 import javax.ejb.EJB;
+import java.text.DateFormat;
 import java.util.*;
 
 /**
@@ -47,7 +45,7 @@ import java.util.*;
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)
 public class RequestFileList extends TemplatePage{
-    private final static String IMAGE_AJAX_LOADER = "images/ajax-loader1.gif";
+    private final static String IMAGE_AJAX_LOADER = "images/ajax-loader2.gif";
 
     @EJB(name = "RequestFileBean")
     private RequestFileBean requestFileBean;
@@ -58,11 +56,16 @@ public class RequestFileList extends TemplatePage{
     @EJB(name = "LoadRequestBean")
     private LoadRequestBean loadRequestBean;
 
+    private boolean stopTimer;
+
     public RequestFileList() {
         super();
 
         add(new Label("title", getString("title")));
-        add(new FeedbackPanel("messages"));
+
+        final AjaxFeedbackPanel messages = new AjaxFeedbackPanel("messages");
+        messages.setOutputMarkupId(true);
+        add(messages);
 
         //Фильтр модель
         RequestFileFilter filterObject = new RequestFileFilter();
@@ -70,7 +73,6 @@ public class RequestFileList extends TemplatePage{
 
         //Фильтр форма
         final Form<RequestFileFilter> filterForm = new Form<RequestFileFilter>("filter_form", filterModel);
-        filterForm.setOutputMarkupId(true);
         add(filterForm);
 
         Link filter_reset = new Link("filter_reset") {
@@ -165,6 +167,11 @@ public class RequestFileList extends TemplatePage{
         //todo paging debug
         final Map<RequestFile, IModel<Boolean>> selectModels = new HashMap<RequestFile, IModel<Boolean>>();
 
+        //Контейнер для ajax
+        final WebMarkupContainer dataViewContainer = new WebMarkupContainer("request_files_container");
+        dataViewContainer.setOutputMarkupId(true);
+        filterForm.add(dataViewContainer);
+
         //Таблица файлов запросов
         final DataView<RequestFile> dataView = new DataView<RequestFile>("request_files", dataProvider, 1){
 
@@ -174,7 +181,15 @@ public class RequestFileList extends TemplatePage{
 
                 IModel<Boolean> checkModel = new Model<Boolean>(false);
                 selectModels.put(rf, checkModel);
-                item.add(new CheckBox("selected", checkModel));
+
+                CheckBox checkBox = new CheckBox("selected", checkModel);
+                checkBox.setVisible(!rf.isProcessing());
+                checkBox.setEnabled(!isProcessing());
+                item.add(checkBox);
+
+                Image processing = new Image("processing", new ResourceReference(IMAGE_AJAX_LOADER));
+                processing.setVisible(rf.isProcessing());
+                item.add(processing);
 
                 item.add(DateLabel.forDatePattern("loaded", new Model<Date>(rf.getLoaded()), "dd.MM.yy HH:mm:ss"));
                 item.add(new Label("name", rf.getName()));
@@ -190,10 +205,6 @@ public class RequestFileList extends TemplatePage{
                 item.add(new Label("binded_record_count", StringUtil.valueOf(rf.getBindedRecordCount(), rf.getDbfRecordCount())));
                 item.add(new Label("status", getStringOrKey(rf.getStatus().name())));
 
-                Image processing = new Image("processing", new ResourceReference(IMAGE_AJAX_LOADER));
-                processing.setVisible(rf.isProcessing());
-                item.add(processing);
-
                 Class<? extends Page> page = null;
                 if (rf.isPayment()){
                     page = PaymentList.class;
@@ -205,19 +216,21 @@ public class RequestFileList extends TemplatePage{
                         page, new PageParameters("request_file_id=" + rf.getId())));
             }
         };
-        filterForm.add(dataView);
-                           
+        dataViewContainer.add(dataView);
+
+        showMessages();
+
         //Таймер
         if (loadRequestBean.isLoading()){
-            filterForm.add(new AjaxSelfUpdatingTimerBehavior(Duration.seconds(1)){
+            dataViewContainer.add(new AjaxSelfUpdatingTimerBehavior(Duration.seconds(1)){
                 @Override
                 protected void onPostProcessTarget(AjaxRequestTarget target) {
-                    target.addComponent(filterForm);
+                    showMessages();
+                    target.addComponent(messages);
 
                     if (!loadRequestBean.isLoading()){
                         this.stop();
-                        setResponsePage(RequestFileList.class);
-                        info(getString("info.loaded"));
+                        target.addComponent(filterForm);
                     }
                 }
             });
@@ -238,7 +251,7 @@ public class RequestFileList extends TemplatePage{
         filterForm.add(new PagingNavigator("paging", dataView, filterForm));
 
         //Связать
-        Button process = new Button("bind"){
+        Button bind = new Button("bind"){
             @Override
             public void onSubmit() {
                 List<RequestFile> requestFiles = new ArrayList<RequestFile>();
@@ -250,8 +263,56 @@ public class RequestFileList extends TemplatePage{
                 }
 
                 FileExecutorService.get().bind(requestFiles);
+                selectModels.clear();
             }
         };
-        filterForm.add(process);
+        bind.setVisible(!isProcessing());
+        filterForm.add(bind);
+    }
+
+    private boolean isProcessing(){
+        return  loadRequestBean.isLoading(); //todo bind
+    }
+
+    private int renderedIndex = 0;
+
+    private void showMessages(){
+        List<RequestFile> processed = loadRequestBean.getProcessed();
+
+        for (int i = renderedIndex; i < processed.size(); ++i){
+            RequestFile rf = processed.get(i);
+
+            switch (rf.getStatus()){
+                case ERROR_ALREADY_LOADED:
+                    Calendar year = Calendar.getInstance();
+                    year.setTime(rf.getDate());
+
+                    error(getStringFormat("error.already_loaded", rf.getName(), year.get(Calendar.YEAR)));
+                    break;
+                case ERROR_SQL_SESSION:
+                case ERROR_FIELD_TYPE:
+                case ERROR_XBASEJ:
+                case ERROR:
+                    error(getStringFormat("error.common", rf.getName()));                   
+            }
+
+        }
+
+        if (!loadRequestBean.isLoading() && processed.size() > 0){
+            int loaded = 0;
+            int error = 0;
+
+            for (RequestFile rf : processed){
+                if (rf.getStatus() == RequestFile.STATUS.LOADED){
+                   loaded++;
+                }else{
+                    error++;
+                }
+            }
+
+            info(getStringFormat("info.loaded", loaded, error));
+        }
+
+        renderedIndex = processed.size();        
     }
 }

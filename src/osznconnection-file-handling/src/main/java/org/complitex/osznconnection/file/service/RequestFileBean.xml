@@ -84,19 +84,14 @@
     </select>
 
     <select id="selectLoadedRecordCount" resultType="int" parameterType="long">
-        select
-            (select count(*) from `payment` where `request_file_id` = #{id})
-            +
-            (select count(*) from `benefit` where `request_file_id` = #{id})
+        select (select count(*) from `payment` where `request_file_id` = #{id})
+            + (select count(*) from `benefit` where `request_file_id` = #{id})
     </select>
 
     <select id="selectBindedRecordCount" resultType="int" parameterType="long">
-        select
-            (select count(*) from `payment` where `request_file_id` = #{id} and `status` = 'RESOLVED')
-            +
-            (select count(*) from `benefit` where `request_file_id` = #{id} and `status` = 'RESOLVED')
+        select (select count(*) from `payment` where `request_file_id` = #{id} and `status` = 'RESOLVED')
+                + (select count(*) from `benefit` where `request_file_id` = #{id} and `status` = 'RESOLVED')
     </select>
-
 
     <select id="selectRequestFilesCount" parameterType="org.complitex.osznconnection.file.service.RequestFileFilter"
             resultType="int">
@@ -105,6 +100,15 @@
 
     <select id="selectIsLoaded" parameterType="org.complitex.osznconnection.file.entity.RequestFile"
             resultType="boolean">
-        select count(*) > 0 from `request_file` where `name` = #{name} and `length` = #{length}        
+        select
+            count(*) > 0
+        from
+            `request_file`
+        where 
+            `name` = #{name} and `length` = #{length} and YEAR(`date`) = YEAR(#{date}) and `status` not like 'ERROR%'
     </select>
+
+    <update id="cancelLoading">
+        update `request_file` set `status` = 'ERROR_CANCEL_LOADING' where `status` = 'LOADING'
+    </update>
 </mapper>

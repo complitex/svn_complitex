@@ -25,6 +25,7 @@ import org.odlabs.wiquery.core.commons.CoreJavaScriptResourceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -210,6 +211,10 @@ public abstract class TemplatePage extends WebPage {
 
     public Locale getSystemLocale() {
         return getLocale();
+    }
+
+    protected String getStringFormat(String key, Object... args){
+        return MessageFormat.format(getString(key), args);       
     }
 }
 
