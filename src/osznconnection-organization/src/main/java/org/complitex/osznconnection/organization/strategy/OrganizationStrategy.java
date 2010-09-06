@@ -48,14 +48,20 @@ public class OrganizationStrategy extends Strategy {
      * Attribute type ids
      */
     public static final long NAME = 900;
+
     public static final long DISTRICT_CODE = 901;
+
     public static final long UNIQUE_CODE = 902;
+
+    public static final long DISTRICT_NAME = 903;
 
     /**
      * Entity type ids
      */
     public static final long OSZN = 900;
+
     public static final long PU = 901;
+
     public static final long CALCULATION_CENTER = 903;
 
     @EJB(beanName = "StringCultureBean")
@@ -208,6 +214,20 @@ public class OrganizationStrategy extends Strategy {
                 @Override
                 public boolean apply(Attribute attr) {
                     return attr.getAttributeTypeId().equals(DISTRICT_CODE);
+                }
+            }).getLocalizedValues()).getValue();
+        } catch (NoSuchElementException e) {
+        }
+        return null;
+    }
+
+    public String getDistrictName(DomainObject organization) {
+        try {
+            return stringBean.getSystemStringCulture(Iterables.find(organization.getAttributes(), new Predicate<Attribute>() {
+
+                @Override
+                public boolean apply(Attribute attr) {
+                    return attr.getAttributeTypeId().equals(DISTRICT_NAME);
                 }
             }).getLocalizedValues()).getValue();
         } catch (NoSuchElementException e) {

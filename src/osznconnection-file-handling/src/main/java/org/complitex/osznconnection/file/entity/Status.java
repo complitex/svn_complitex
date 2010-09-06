@@ -13,9 +13,13 @@ public enum Status {
     CITY_UNRESOLVED_LOCALLY(true, false), STREET_UNRESOLVED_LOCALLY(true, false), BUILDING_UNRESOLVED_LOCALLY(true, false),
     APARTMENT_UNRESOLVED_LOCALLY(true, false),
     ADDRESS_CORRECTED(false, false),
-    CITY_UNRESOLVED(false, true), STREET_TYPE_UNRESOLVED(false, true), STREET_UNRESOLVED(false, true), BUILDING_UNRESOLVED(false, true),
+    CITY_UNRESOLVED(false, true), STREET_TYPE_UNRESOLVED(false, true), STREET_UNRESOLVED(false, true), 
+    BUILDING_UNRESOLVED(false, true), BUILDING_CORP_UNRESOLVED(false, true),
     APARTMENT_UNRESOLVED(false, true),
-    ACCOUNT_NUMBER_UNRESOLVED_LOCALLY(false, false), RESOLVED(false, false);
+    ACCOUNT_NUMBER_UNRESOLVED_LOCALLY(false, false), ACCOUNT_NUMBER_NOT_FOUND(false, false),
+    MORE_ONE_ACCOUNTS(false, false),
+    DISTRICT_NOT_FOUND(false, false),
+    ACCOUNT_NUMBER_RESOLVED(false, false);
 
     private boolean localAddressCorrected;
 

@@ -243,7 +243,7 @@
         SELECT r.`id`
         FROM `payment` r
         JOIN `request_file` rf ON r.`request_file_id` = rf.`id`
-        WHERE r.`request_file_id` = #{requestFileId} AND r.`status` != 'RESOLVED'
+        WHERE r.`request_file_id` = #{requestFileId} AND r.`status` != 'ACCOUNT_NUMBER_RESOLVED'
     </select>
 
     <update id="correct" parameterType="hashmap">

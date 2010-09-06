@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.complitex.osznconnection.file.calculation.adapter.DefaultCalculationCenterAdapter">
+
+    <select id="acquirePersonAccount" parameterType="hashmap" resultType="string">
+        select getMNCodeByAddress(
+            #{pDistrName, javaType=string, jdbcType=VARCHAR},
+            #{pStSortName, javaType=string, jdbcType=VARCHAR},
+            #{pStreetName, javaType=string, jdbcType=VARCHAR},
+            #{pHouseNum, javaType=string, jdbcType=VARCHAR},
+            #{pHousePart, javaType=string, jdbcType=VARCHAR},
+            #{pFlatNum, javaType=string, jdbcType=VARCHAR})
+            as account_number from dual
+    </select>
+
+</mapper>

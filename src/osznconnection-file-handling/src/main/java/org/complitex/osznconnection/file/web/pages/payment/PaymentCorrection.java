@@ -11,7 +11,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.complitex.osznconnection.commons.web.template.TemplatePage;
 import org.complitex.osznconnection.file.entity.Payment;
 import org.complitex.osznconnection.file.entity.PaymentDBF;
-import org.complitex.osznconnection.file.service.AddressResolver;
+import org.complitex.osznconnection.file.service.AddressService;
 import org.complitex.osznconnection.file.service.PaymentBean;
 import org.complitex.osznconnection.file.web.component.correction.CorrectionPanel;
 
@@ -28,8 +28,8 @@ public final class PaymentCorrection extends TemplatePage {
     @EJB(name = "PaymentBean")
     private PaymentBean paymentBean;
 
-    @EJB(name = "AddressResolver")
-    private AddressResolver addressResolver;
+    @EJB(name = "AddressService")
+    private AddressService addressService;
 
     private Payment payment;
 
@@ -58,7 +58,7 @@ public final class PaymentCorrection extends TemplatePage {
 
             @Override
             protected void correctAddress(Long cityId, Long streetId, Long streetTypeId, Long buildingId, Long apartmentId) {
-                addressResolver.correctLocalAddress(payment, cityId, streetId, streetTypeId, buildingId, apartmentId);
+                addressService.correctLocalAddress(payment, cityId, streetId, streetTypeId, buildingId, apartmentId);
             }
 
             @Override
