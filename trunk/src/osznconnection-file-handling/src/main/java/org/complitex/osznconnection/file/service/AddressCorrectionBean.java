@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Artem
  */
-@Stateless(name = "AddressCorrectionBean")
+@Stateless
 public class AddressCorrectionBean extends AbstractBean {
 
     private static final Logger log = LoggerFactory.getLogger(AddressCorrectionBean.class);

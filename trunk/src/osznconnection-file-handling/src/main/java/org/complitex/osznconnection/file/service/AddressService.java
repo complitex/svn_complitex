@@ -14,19 +14,23 @@ import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
-import org.complitex.osznconnection.file.calculation.DefaultOutgoingAddressConfigurer;
-import org.complitex.osznconnection.file.calculation.IOutgoingAddressConfigurer;
+import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
 import org.complitex.osznconnection.file.entity.Status;
-import org.complitex.osznconnection.organization.service.CalculationCenterBean;
+import org.complitex.osznconnection.file.entity.CalculationCenterInfo;
+import org.complitex.osznconnection.file.calculation.service.CalculationCenterBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author Artem
  */
 @Stateless
-public class AddressResolver extends AbstractBean {
+public class AddressService extends AbstractBean {
 
-    @EJB(beanName = "AddressCorrectionBean")
+    private static final Logger log = LoggerFactory.getLogger(AddressService.class);
+
+    @EJB
     private AddressCorrectionBean addressCorrectionBean;
 
     @EJB
@@ -40,62 +44,70 @@ public class AddressResolver extends AbstractBean {
 
     private void resolveLocalAddress(Payment payment) {
         long organizationId = payment.getOrganizationId();
-        Long cityId = null;
-        Long streetId = null;
-        Long buildingId = null;
-        Long apartmentId = null;
+        Long cityId = payment.getInternalCityId();
+        Long streetId = payment.getInternalStreetId();
+        Long buildingId = payment.getInternalBuildingId();
+        Long apartmentId = payment.getInternalApartmentId();
 
-        cityId = addressCorrectionBean.findInternalCity((String) payment.getField(PaymentDBF.N_NAME), organizationId);
         if (cityId == null) {
-            payment.setStatus(Status.CITY_UNRESOLVED_LOCALLY);
-            return;
-        } else {
-            payment.setInternalCityId(cityId);
+            cityId = addressCorrectionBean.findInternalCity((String) payment.getField(PaymentDBF.N_NAME), organizationId);
+            if (cityId == null) {
+                payment.setStatus(Status.CITY_UNRESOLVED_LOCALLY);
+                return;
+            } else {
+                payment.setInternalCityId(cityId);
+            }
         }
 
-        streetId = addressCorrectionBean.findInternalStreet(cityId, (String) payment.getField(PaymentDBF.VUL_NAME), organizationId);
         if (streetId == null) {
-            payment.setStatus(Status.STREET_UNRESOLVED_LOCALLY);
-            return;
-        } else {
-            payment.setInternalStreetId(streetId);
+            streetId = addressCorrectionBean.findInternalStreet(cityId, (String) payment.getField(PaymentDBF.VUL_NAME), organizationId);
+            if (streetId == null) {
+                payment.setStatus(Status.STREET_UNRESOLVED_LOCALLY);
+                return;
+            } else {
+                payment.setInternalStreetId(streetId);
 
-            Strategy streetStrategy = strategyFactory.getStrategy("street");
-            DomainObject streetObject = streetStrategy.findById(streetId);
-            payment.setInternalStreetTypeId(streetObject.getEntityTypeId());
+                Strategy streetStrategy = strategyFactory.getStrategy("street");
+                DomainObject streetObject = streetStrategy.findById(streetId);
+                payment.setInternalStreetTypeId(streetObject.getEntityTypeId());
+            }
         }
 
-        buildingId = addressCorrectionBean.findInternalBuilding(streetId, (String) payment.getField(PaymentDBF.BLD_NUM),
-                (String) payment.getField(PaymentDBF.CORP_NUM), organizationId);
         if (buildingId == null) {
-            payment.setStatus(Status.BUILDING_UNRESOLVED_LOCALLY);
-            return;
-        } else {
-            payment.setInternalBuildingId(buildingId);
+            buildingId = addressCorrectionBean.findInternalBuilding(streetId, (String) payment.getField(PaymentDBF.BLD_NUM),
+                    (String) payment.getField(PaymentDBF.CORP_NUM), organizationId);
+            if (buildingId == null) {
+                payment.setStatus(Status.BUILDING_UNRESOLVED_LOCALLY);
+                return;
+            } else {
+                payment.setInternalBuildingId(buildingId);
+            }
         }
 
-        apartmentId = addressCorrectionBean.findInternalApartment(buildingId, (String) payment.getField(PaymentDBF.FLAT), organizationId);
         if (apartmentId == null) {
-            payment.setStatus(Status.APARTMENT_UNRESOLVED_LOCALLY);
-            return;
-        } else {
-            payment.setStatus(Status.CITY_UNRESOLVED);
-            payment.setInternalApartmentId(apartmentId);
+            apartmentId = addressCorrectionBean.findInternalApartment(buildingId, (String) payment.getField(PaymentDBF.FLAT), organizationId);
+            if (apartmentId == null) {
+                payment.setStatus(Status.APARTMENT_UNRESOLVED_LOCALLY);
+                return;
+            } else {
+                payment.setStatus(Status.CITY_UNRESOLVED);
+                payment.setInternalApartmentId(apartmentId);
+            }
         }
     }
 
     private void resolveOutgoingAddress(Payment payment) {
-        long calculationCenterId = calculationCenterBean.getCurrentCalculationCenterId();
-        IOutgoingAddressConfigurer addressConfigurer = new DefaultOutgoingAddressConfigurer();
+        CalculationCenterInfo calculationCenterInfo = calculationCenterBean.getCurrentCalculationCenterInfo();
+        long calculationCenterId = calculationCenterInfo.getId();
+        ICalculationCenterAdapter adapter = calculationCenterInfo.getAdapterInstance();
 
         AddressCorrectionBean.OutgoingAddressObject cityData = addressCorrectionBean.findOutgoingCity(calculationCenterId, payment.getInternalCityId());
         if (cityData == null) {
             payment.setStatus(Status.CITY_UNRESOLVED);
             return;
         }
-        addressConfigurer.prepareCity(payment, cityData.getValue(), cityData.getCode());
+        adapter.prepareCity(payment, cityData.getValue(), cityData.getCode());
 
-        //TODO : fix that
         if (payment.getInternalStreetTypeId() != null) {
             AddressCorrectionBean.OutgoingAddressObject streetTypeData = addressCorrectionBean.findOutgoingStreetType(calculationCenterId,
                     payment.getInternalStreetTypeId());
@@ -103,7 +115,7 @@ public class AddressResolver extends AbstractBean {
                 payment.setStatus(Status.STREET_TYPE_UNRESOLVED);
                 return;
             }
-            addressConfigurer.prepareStreetType(payment, streetTypeData.getValue(), streetTypeData.getCode());
+            adapter.prepareStreetType(payment, streetTypeData.getValue(), streetTypeData.getCode());
         }
 
         AddressCorrectionBean.OutgoingAddressObject streetData = addressCorrectionBean.findOutgoingStreet(calculationCenterId,
@@ -112,7 +124,7 @@ public class AddressResolver extends AbstractBean {
             payment.setStatus(Status.STREET_UNRESOLVED);
             return;
         }
-        addressConfigurer.prepareStreet(payment, streetData.getValue(), streetData.getCode());
+        adapter.prepareStreet(payment, streetData.getValue(), streetData.getCode());
 
         AddressCorrectionBean.OutgoingBuildingObject buildingData = addressCorrectionBean.findOutgoingBuilding(calculationCenterId,
                 payment.getInternalBuildingId());
@@ -120,7 +132,7 @@ public class AddressResolver extends AbstractBean {
             payment.setStatus(Status.BUILDING_UNRESOLVED);
             return;
         }
-        addressConfigurer.prepareBuilding(payment, buildingData.getBuildingNumber(), buildingData.getBuildingCorp(), buildingData.getCode());
+        adapter.prepareBuilding(payment, buildingData.getBuildingNumber(), buildingData.getBuildingCorp(), buildingData.getCode());
 
         AddressCorrectionBean.OutgoingAddressObject apartmentData = addressCorrectionBean.findOutgoingApartment(calculationCenterId,
                 payment.getInternalApartmentId());
@@ -128,13 +140,13 @@ public class AddressResolver extends AbstractBean {
             payment.setStatus(Status.APARTMENT_UNRESOLVED);
             return;
         }
-        addressConfigurer.prepareApartment(payment, apartmentData.getValue(), apartmentData.getCode());
+        adapter.prepareApartment(payment, apartmentData.getValue(), apartmentData.getCode());
         payment.setStatus(Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY);
     }
 
     public boolean isAddressResolved(Payment payment) {
         return !payment.getStatus().isLocalAddressCorrected() && !payment.getStatus().isOutgoingAddressCorrected()
-                && payment.getStatus() != Status.ADDRESS_CORRECTED;
+                && (payment.getStatus() != Status.ADDRESS_CORRECTED);
     }
 
     @Transactional

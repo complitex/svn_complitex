@@ -1,7 +1,6 @@
 package org.complitex.osznconnection.file.service;
 
 import com.google.common.collect.Lists;
-import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.entity.*;
 import org.slf4j.Logger;
@@ -23,73 +22,71 @@ public class BindingRequestBean extends AbstractBean {
 
     private static final int BATCH_SIZE = 100;
 
-    @EJB(beanName = "AddressResolver")
-    private AddressResolver addressResolver;
+    @EJB
+    private AddressService addressService;
 
-    @EJB(beanName = "PersonAccountBean")
-    private PersonAccountBean personAccountBean;
+    @EJB
+    private PersonAccountService personAccountService;
 
-    @EJB(beanName = "PaymentBean")
+    @EJB
     private PaymentBean paymentBean;
 
-    @EJB(beanName = "BenefitBean")
+    @EJB
     private BenefitBean benefitBean;
 
     private static class ModifyStatus {
 
-        boolean modified;
+        private boolean modified;
+
+        private void markModified() {
+            modified = true;
+        }
+
+        public boolean isModified() {
+            return modified;
+        }
     }
 
     private boolean resolveAddress(Payment payment, ModifyStatus modifyStatus) {
-        if (addressResolver.isAddressResolved(payment)) {
+        if (addressService.isAddressResolved(payment)) {
             return true;
         }
         Status oldStatus = payment.getStatus();
-        addressResolver.resolveAddress(payment);
-        modifyStatus.modified = oldStatus != payment.getStatus();
-        return addressResolver.isAddressResolved(payment);
+        addressService.resolveAddress(payment);
+        if (oldStatus != payment.getStatus()) {
+            modifyStatus.markModified();
+        }
+        return addressService.isAddressResolved(payment);
     }
 
-    private boolean resolveLocalAccountNumber(Payment payment, ModifyStatus modifyStatus) {
-        if (payment.getStatus() == Status.RESOLVED) {
+    private boolean resolveAccountNumber(Payment payment, ModifyStatus modifyStatus) {
+        if (payment.getStatus() == Status.ACCOUNT_NUMBER_RESOLVED) {
             return true;
         }
 
-        String accountNumber = personAccountBean.findLocalAccountNumber(
-                (String) payment.getField(PaymentDBF.F_NAM),
-                (String) payment.getField(PaymentDBF.M_NAM), (String) payment.getField(PaymentDBF.SUR_NAM),
-                payment.getInternalCityId(), payment.getInternalStreetId(), payment.getInternalBuildingId(), payment.getInternalApartmentId());
-        if (!Strings.isEmpty(accountNumber)) {
-            payment.setAccountNumber(accountNumber);
-            payment.setStatus(Status.RESOLVED);
-            modifyStatus.modified = true;
-            return true;
-        } else {
-            return false;
+        Status oldStatus = payment.getStatus();
+        personAccountService.resolveAccountNumber(payment);
+        if (oldStatus != payment.getStatus()) {
+            modifyStatus.markModified();
         }
+        return payment.getStatus() == Status.ACCOUNT_NUMBER_RESOLVED;
     }
 
     private boolean bind(Payment payment) {
         boolean bindingSuccess = false;
         ModifyStatus modifyStatus = new ModifyStatus();
         if (resolveAddress(payment, modifyStatus)) {
-            if (resolveLocalAccountNumber(payment, modifyStatus)) {
+            if (resolveAccountNumber(payment, modifyStatus)) {
                 //binding successful
                 bindingSuccess = true;
-            } else {
-                bindingSuccess = resolveRemoteAccountNumber(payment, modifyStatus);
             }
         }
 
-        if (modifyStatus.modified) {
+        if (modifyStatus.isModified()) {
             paymentBean.update(payment);
         }
 
         return bindingSuccess;
-    }
-
-    private boolean resolveRemoteAccountNumber(Payment payment, ModifyStatus modifyStatus) {
-        return false;
     }
 
     private void bindPaymentFile(long paymentFileId, AsyncOperationStatus paymentStatus) {

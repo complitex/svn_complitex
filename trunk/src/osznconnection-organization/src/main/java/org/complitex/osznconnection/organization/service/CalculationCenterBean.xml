@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.complitex.osznconnection.organization.service.CalculationCenterBean">
-    <select id="getCurrentCenter" resultType="long">
-        SELECT ccp.`calculation_center_id` FROM `calculation_center_preference` ccp LIMIT 0,1
-    </select>
-</mapper>

@@ -32,7 +32,7 @@ public class SqlSessionFactoryBean {
         Reader reader = null;
         try {
             reader = Resources.getResourceAsReader(CONFIGURATION_FILE);
-            sqlSessionManager = SqlSessionManager.newInstance(reader, "development");
+            sqlSessionManager = SqlSessionManager.newInstance(reader, "local");
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {

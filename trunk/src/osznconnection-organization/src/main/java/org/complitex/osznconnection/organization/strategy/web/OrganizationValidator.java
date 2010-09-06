@@ -29,7 +29,7 @@ public class OrganizationValidator implements IValidator {
     @Override
     public boolean validate(DomainObject object, Component component) {
         boolean valid = checkParent(object, getParentEditComponent((DomainObjectEditPanel) component));
-        valid &= checkDistrictCode(object, component);
+        valid &= checkDistrictData(object, component);
         return valid;
     }
 
@@ -60,17 +60,29 @@ public class OrganizationValidator implements IValidator {
         return true;
     }
 
-    private boolean checkDistrictCode(DomainObject object, Component component) {
+    private boolean checkDistrictData(DomainObject object, Component component) {
+        boolean validated = true;
         long entityTypeId = object.getEntityTypeId();
         String districtCode = organizationStrategy.getDistrictCode(object);
+
         if ((entityTypeId == OrganizationStrategy.OSZN) && Strings.isEmpty(districtCode)) {
             component.getPage().error(ResourceUtil.getString(OrganizationStrategy.RESOURCE_BUNDLE, "oszn_must_have_district_code", component.getLocale()));
-            return false;
+            validated = false;
         }
         if ((entityTypeId == OrganizationStrategy.PU || entityTypeId == OrganizationStrategy.CALCULATION_CENTER) && !Strings.isEmpty(districtCode)) {
             component.getPage().error(ResourceUtil.getString(OrganizationStrategy.RESOURCE_BUNDLE, "cant_have_district_code", component.getLocale()));
-            return false;
+            validated = false;
         }
-        return true;
+
+        String districtName = organizationStrategy.getDistrictName(object);
+        if ((entityTypeId == OrganizationStrategy.OSZN) && Strings.isEmpty(districtName)) {
+            component.getPage().error(ResourceUtil.getString(OrganizationStrategy.RESOURCE_BUNDLE, "oszn_must_have_district_name", component.getLocale()));
+            validated = false;
+        }
+        if ((entityTypeId == OrganizationStrategy.PU || entityTypeId == OrganizationStrategy.CALCULATION_CENTER) && !Strings.isEmpty(districtName)) {
+            component.getPage().error(ResourceUtil.getString(OrganizationStrategy.RESOURCE_BUNDLE, "cant_have_district_name", component.getLocale()));
+            validated = false;
+        }
+        return validated;
     }
 }

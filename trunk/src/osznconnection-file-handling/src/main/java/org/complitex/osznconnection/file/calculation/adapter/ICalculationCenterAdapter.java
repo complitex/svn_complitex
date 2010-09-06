@@ -2,7 +2,8 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.complitex.osznconnection.file.calculation;
+
+package org.complitex.osznconnection.file.calculation.adapter;
 
 import org.complitex.osznconnection.file.entity.Payment;
 
@@ -10,7 +11,7 @@ import org.complitex.osznconnection.file.entity.Payment;
  *
  * @author Artem
  */
-public interface IOutgoingAddressConfigurer {
+public interface ICalculationCenterAdapter {
 
     void prepareCity(Payment payment, String city, Long cityId);
 
@@ -21,4 +22,7 @@ public interface IOutgoingAddressConfigurer {
     void prepareBuilding(Payment payment, String buildingNumber, String buildingCorp, Long buildingId);
 
     void prepareApartment(Payment payment, String apartment, Long apartmentId);
+
+    void acquirePersonAccount(Payment payment);
+
 }

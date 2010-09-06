@@ -166,23 +166,6 @@
                 <version>0.9.18</version>
             </dependency>
 
-            <!-- hibernate -->
-            <!--<dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-entitymanager</artifactId>
-                <version>3.5.1-Final</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>hsqldb</groupId>
-                        <artifactId>hsqldb</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.transaction</groupId>
-                        <artifactId>jta</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>-->
-
             <!-- mysql connector -->
             <dependency>
                 <groupId>mysql</groupId>
@@ -204,13 +187,6 @@
                 <version>3.1.0</version>
             </dependency>
 
-            <!-- JPA API -->
-            <!--<dependency>
-                <groupId>org.hibernate.javax.persistence</groupId>
-                <artifactId>hibernate-jpa-2.0-api</artifactId>
-                <version>1.0.0.Final</version>
-            </dependency>-->
-
             <!-- commons codec -->
             <dependency>
                 <groupId>commons-codec</groupId>
@@ -230,6 +206,24 @@
                 <artifactId>google-collections</artifactId>
                 <version>1.0</version>
             </dependency>
+
+            <!-- Oracle driver -->
+            <dependency>
+                <groupId>oracle</groupId>
+                <artifactId>ojdbc14</artifactId>
+                <version>10</version>
+                <scope>system</scope>
+                <systemPath>${project.basedir}/../lib/ojdbc14_g.jar</systemPath>
+            </dependency>
+
+            <dependency>
+                <groupId>oracle</groupId>
+                <artifactId>orai18n</artifactId>
+                <version>10</version>
+                <scope>system</scope>
+                <systemPath>${project.basedir}/../lib/orai18n.jar</systemPath>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

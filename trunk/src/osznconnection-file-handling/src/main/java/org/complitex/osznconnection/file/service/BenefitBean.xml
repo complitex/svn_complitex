@@ -151,7 +151,7 @@
         LEFT JOIN `payment` p ON r.`OWN_NUM_SR` = p.`OWN_NUM_SR`
         LEFT JOIN `request_file` pf ON p.`request_file_id` = pf.`id`
         WHERE (pf.`organization_object_id` IS NULL OR rf.`organization_object_id` = pf.`organization_object_id`) AND (pf.`date` IS NULL OR EXTRACT(YEAR_MONTH FROM rf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`))
-        AND r.`request_file_id` = #{requestFileId} AND (p.`status` IS NULL OR p.`status` != 'RESOLVED')
+        AND r.`request_file_id` = #{requestFileId} AND (p.`status` IS NULL OR p.`status` != 'ACCOUNT_NUMBER_RESOLVED')
     </select>
 
 </mapper>

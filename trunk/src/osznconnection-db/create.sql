@@ -870,18 +870,16 @@ DROP TABLE IF EXISTS `person_account`;
 
 CREATE TABLE `person_account` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT,
-    `first_name` varchar(30) NOT NULL,
-    `middle_name` varchar(30) NOT NULL,
-    `last_name` varchar(30) NOT NULL,
     `city_id` bigint(20) NOT NULL,
     `street_id` bigint(20) NOT NULL,
     `building_id` bigint(20) NOT NULL,
     `apartment_id` bigint(20) NOT NULL,
     `account_number` varchar(100) NOT NULL,
     PRIMARY KEY (`id`),
+    KEY `FK_person_account_city` (`city_id`),
     CONSTRAINT `FK_person_account_city` FOREIGN KEY (`city_id`) REFERENCES `city` (`id`),
     KEY `FK_person_account_street` (`street_id`),
-    CONSTRAINT `FK_fileperson_account_street` FOREIGN KEY (`street_id`) REFERENCES `street` (`id`),
+    CONSTRAINT `FK_person_account_street` FOREIGN KEY (`street_id`) REFERENCES `street` (`id`),
     KEY `FK_person_account_building` (`building_id`),
     CONSTRAINT `FK_person_account_building` FOREIGN KEY (`building_id`) REFERENCES `building` (`id`),
     KEY `FK_person_account_apartment` (`apartment_id`),
@@ -961,6 +959,7 @@ DROP TABLE IF EXISTS `calculation_center_preference`;
 CREATE TABLE `calculation_center_preference` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT,
     `calculation_center_id` bigint(20) NOT NULL,
+    `adapter_class` varchar(100) NOT NULL,
     PRIMARY KEY (`id`),
     KEY `FK_calculation_center_preference_organization` (`calculation_center_id`),
     CONSTRAINT `FK_calculation_center_preference_organization` FOREIGN KEY (`calculation_center_id`) REFERENCES `organization` (`id`)

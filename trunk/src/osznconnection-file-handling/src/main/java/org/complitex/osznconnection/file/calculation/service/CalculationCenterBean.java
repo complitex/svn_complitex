@@ -2,12 +2,12 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
-package org.complitex.osznconnection.organization.service;
+package org.complitex.osznconnection.file.calculation.service;
 
 import javax.ejb.Stateless;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
+import org.complitex.osznconnection.file.entity.CalculationCenterInfo;
 
 /**
  *
@@ -15,13 +15,11 @@ import org.complitex.dictionaryfw.service.AbstractBean;
  */
 @Stateless
 public class CalculationCenterBean extends AbstractBean {
-    
+
     private static final String MAPPING_NAMESPACE = CalculationCenterBean.class.getName();
 
     @Transactional
-    public long getCurrentCalculationCenterId(){
-        return (Long)sqlSession().selectOne(MAPPING_NAMESPACE+".getCurrentCenter");
+    public CalculationCenterInfo getCurrentCalculationCenterInfo() {
+        return (CalculationCenterInfo) sqlSession().selectOne(MAPPING_NAMESPACE + ".getCurrentCenterInfo");
     }
-
-
 }

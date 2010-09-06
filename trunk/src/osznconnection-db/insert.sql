@@ -87,10 +87,12 @@ insert into `string_culture`(`id`, `locale`, `value`) values (902, 'ru', UPPER('
 insert into `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) values (901, 900, 0, 902, 1);
 insert into `string_culture`(`id`, `locale`, `value`) values (903, 'ru', UPPER('Уникальный код организации')), (903, 'en', UPPER('Unique organization code'));
 insert into `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) values (902, 900, 1, 903, 1);
-
+insert into `string_culture`(`id`, `locale`, `value`) values (908, 'ru', UPPER('Наименование района')), (908, 'en', UPPER('District''s name'));
+insert into `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) values (903, 900, 0, 908, 1);
 insert into `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) values (900, 900, UPPER('string_culture'));
 insert into `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) values (901, 901, UPPER('string'));
 insert into `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) values (902, 902, UPPER('integer'));
+insert into `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) values (903, 903, UPPER('string'));
 insert into `string_culture`(`id`, `locale`, `value`) values
 (904, 'ru', UPPER('ОСЗН')), (904, 'en', UPPER('ОСЗН')),
 (905, 'ru', UPPER('ПУ')), (905, 'en', UPPER('ПУ')),

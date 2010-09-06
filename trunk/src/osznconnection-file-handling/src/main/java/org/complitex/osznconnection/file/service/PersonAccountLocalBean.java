@@ -15,16 +15,13 @@ import javax.ejb.Stateless;
  * @author Artem
  */
 @Stateless(name = "PersonAccountBean")
-public class PersonAccountBean extends AbstractBean {
+public class PersonAccountLocalBean extends AbstractBean {
 
-    private static final String MAPPING_NAMESPACE = PersonAccountBean.class.getName();
+    private static final String MAPPING_NAMESPACE = PersonAccountLocalBean.class.getName();
 
     @Transactional
-    public String findLocalAccountNumber(String fisrtName, String middleName, String lastName, long cityId, long streetId, long buildingId, long apartmentId) {
+    public String findLocalAccountNumber(long cityId, long streetId, long buildingId, long apartmentId) {
         PersonAccount example = new PersonAccount();
-        example.setFirstName(fisrtName);
-        example.setMiddleName(middleName);
-        example.setLastName(lastName);
         example.setCityId(cityId);
         example.setStreetId(streetId);
         example.setBuildingId(buildingId);
@@ -35,5 +32,17 @@ public class PersonAccountBean extends AbstractBean {
             return (String) sqlSession().selectOne(MAPPING_NAMESPACE + ".find", example);
         }
         return null;
+    }
+
+    @Transactional
+    public void saveAccountNumber(long cityId, long streetId, long buildingId, long apartmentId, String personAccount) {
+        PersonAccount param = new PersonAccount();
+        param.setCityId(cityId);
+        param.setStreetId(streetId);
+        param.setBuildingId(buildingId);
+        param.setApartmentId(apartmentId);
+        param.setAccountNumber(personAccount);
+
+        sqlSession().insert(MAPPING_NAMESPACE + ".insert", param);
     }
 }
