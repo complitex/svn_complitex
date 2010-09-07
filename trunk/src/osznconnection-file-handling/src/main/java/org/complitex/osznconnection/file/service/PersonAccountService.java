@@ -10,8 +10,6 @@ import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
-import org.complitex.osznconnection.file.calculation.service.CalculationCenterBean;
-import org.complitex.osznconnection.file.entity.CalculationCenterInfo;
 import org.complitex.osznconnection.file.entity.Payment;
 import org.complitex.osznconnection.file.entity.Status;
 
@@ -25,9 +23,6 @@ public class PersonAccountService extends AbstractBean {
     @EJB
     private PersonAccountLocalBean personAccountLocalBean;
 
-    @EJB
-    private CalculationCenterBean calculationCenterBean;
-
     private void resolveLocalAccount(Payment payment) {
         String accountNumber = personAccountLocalBean.findLocalAccountNumber(payment.getInternalCityId(), payment.getInternalStreetId(),
                 payment.getInternalBuildingId(), payment.getInternalApartmentId());
@@ -40,10 +35,7 @@ public class PersonAccountService extends AbstractBean {
         }
     }
 
-    private void resolveRemoteAccount(Payment payment) {
-        CalculationCenterInfo calculationCenterInfo = calculationCenterBean.getCurrentCalculationCenterInfo();
-        ICalculationCenterAdapter adapter = calculationCenterInfo.getAdapterInstance();
-
+    private void resolveRemoteAccount(Payment payment, ICalculationCenterAdapter adapter) {
         adapter.acquirePersonAccount(payment);
         if (payment.getStatus() == Status.ACCOUNT_NUMBER_RESOLVED) {
             personAccountLocalBean.saveAccountNumber(payment.getInternalCityId(), payment.getInternalStreetId(),
@@ -52,10 +44,13 @@ public class PersonAccountService extends AbstractBean {
     }
 
     @Transactional
-    public void resolveAccountNumber(Payment payment) {
-        resolveLocalAccount(payment);
+    public void resolveAccountNumber(Payment payment, ICalculationCenterAdapter adapter) {
         if (payment.getStatus() == Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY) {
-            resolveRemoteAccount(payment);
+            resolveLocalAccount(payment);
+        }
+        if (payment.getStatus() == Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY || payment.getStatus() == Status.ACCOUNT_NUMBER_NOT_FOUND
+                || payment.getStatus() == Status.DISTRICT_NOT_FOUND || payment.getStatus() == Status.MORE_ONE_ACCOUNTS) {
+            resolveRemoteAccount(payment, adapter);
         }
     }
 }

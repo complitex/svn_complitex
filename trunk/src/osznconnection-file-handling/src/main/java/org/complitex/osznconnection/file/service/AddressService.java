@@ -16,8 +16,6 @@ import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
 import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
 import org.complitex.osznconnection.file.entity.Status;
-import org.complitex.osznconnection.file.entity.CalculationCenterInfo;
-import org.complitex.osznconnection.file.calculation.service.CalculationCenterBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,9 +33,6 @@ public class AddressService extends AbstractBean {
 
     @EJB
     private PaymentBean paymentBean;
-
-    @EJB
-    private CalculationCenterBean calculationCenterBean;
 
     @EJB
     private StrategyFactory strategyFactory;
@@ -96,11 +91,7 @@ public class AddressService extends AbstractBean {
         }
     }
 
-    private void resolveOutgoingAddress(Payment payment) {
-        CalculationCenterInfo calculationCenterInfo = calculationCenterBean.getCurrentCalculationCenterInfo();
-        long calculationCenterId = calculationCenterInfo.getId();
-        ICalculationCenterAdapter adapter = calculationCenterInfo.getAdapterInstance();
-
+    private void resolveOutgoingAddress(Payment payment, long calculationCenterId, ICalculationCenterAdapter adapter) {
         AddressCorrectionBean.OutgoingAddressObject cityData = addressCorrectionBean.findOutgoingCity(calculationCenterId, payment.getInternalCityId());
         if (cityData == null) {
             payment.setStatus(Status.CITY_UNRESOLVED);
@@ -150,10 +141,12 @@ public class AddressService extends AbstractBean {
     }
 
     @Transactional
-    public void resolveAddress(Payment payment) {
-        resolveLocalAddress(payment);
-        if (!payment.getStatus().isLocalAddressCorrected()) {
-            resolveOutgoingAddress(payment);
+    public void resolveAddress(Payment payment, long calculationCenterId, ICalculationCenterAdapter adapter) {
+        if (!isAddressResolved(payment)) {
+            resolveLocalAddress(payment);
+            if (!payment.getStatus().isLocalAddressCorrected()) {
+                resolveOutgoingAddress(payment, calculationCenterId, adapter);
+            }
         }
     }
 
