@@ -1,6 +1,5 @@
 package org.complitex.osznconnection.file.service;
 
-import com.google.common.collect.Maps;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.complitex.dictionaryfw.mybatis.Transactional;
@@ -84,7 +83,7 @@ public class BenefitBean extends AbstractBean {
 
     @Transactional
     public void updateAccountNumber(long paymentId, String accountNumber) {
-        Map<String, Object> params = Maps.newHashMap();
+        Map<String, Object> params = new HashMap<String, Object>();
         params.put("paymentId", paymentId);
         params.put("accountNumber", accountNumber);
         sqlSession().update(MAPPING_NAMESPACE + ".updateAccountNumber", params);
