@@ -14,8 +14,6 @@ public class Payment extends AbstractRequest {
         dbfFields.put(paymentDBF.name(), object);
     }
 
-    private String accountNumber;
-
     private Long internalCityId;
 
     private Long internalStreetId;
@@ -37,14 +35,6 @@ public class Payment extends AbstractRequest {
     private String outgoingBuildingCorp;
 
     private String outgoingApartment;
-
-    public String getAccountNumber() {
-        return accountNumber;
-    }
-
-    public void setAccountNumber(String accountNumber) {
-        this.accountNumber = accountNumber;
-    }
 
     public Long getInternalApartmentId() {
         return internalApartmentId;
