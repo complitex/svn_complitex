@@ -1,15 +1,13 @@
 package org.complitex.osznconnection.file.storage;
 
+import org.complitex.osznconnection.file.service.FileHandlingConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -17,21 +15,8 @@ import java.util.Properties;
  */
 public class RequestFileStorage {
     private static final Logger log = LoggerFactory.getLogger(RequestFileStorage.class);
-    public final static String PROCESSING_CONFIG = "file-handling.properties";
 
     private static RequestFileStorage instance;
-    private String rootDir;
-
-    private RequestFileStorage() {
-        InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(PROCESSING_CONFIG);
-        Properties properties = new Properties();
-        try {
-            properties.load(inputStream);
-            rootDir = properties.getProperty("oszn_request_dir");
-        } catch (IOException e) {
-            log.error("Файл настроек " + PROCESSING_CONFIG + " не найден", e);
-        }
-    }
 
     public static RequestFileStorage getInstance() {
         if (instance == null){
@@ -49,7 +34,7 @@ public class RequestFileStorage {
     public List<File> getFiles(String child, FilenameFilter filter){
         List<File> files = new ArrayList<File>();
 
-        addFiles(files, new File(rootDir, child), filter);
+        addFiles(files, new File(FileHandlingConfig.LOAD_FILE_STORAGE_DIR.getString(), child), filter);
 
         return files;
     }
