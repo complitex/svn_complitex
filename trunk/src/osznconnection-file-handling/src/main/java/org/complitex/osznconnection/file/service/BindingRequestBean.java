@@ -88,7 +88,7 @@ public class BindingRequestBean extends AbstractBean {
     }
 
     private void bindPaymentFile(long paymentFileId, long calculationCenterId, ICalculationCenterAdapter adapter, AsyncOperationStatus paymentStatus) {
-        List<Long> notResolvedPaymentIds = paymentBean.findIdsByFile(paymentFileId);
+        List<Long> notResolvedPaymentIds = paymentBean.findIdsForBinding(paymentFileId);
 
         List<Long> batch = Lists.newArrayList();
         while (notResolvedPaymentIds.size() > 0) {
@@ -99,7 +99,7 @@ public class BindingRequestBean extends AbstractBean {
 
             try {
                 getSqlSessionManager().startManagedSession(false);
-                List<Payment> payments = paymentBean.findByFile(paymentFileId, batch);
+                List<Payment> payments = paymentBean.findForOperation(paymentFileId, batch);
                 for (Payment payment : payments) {
                     boolean bindingSuccess = bind(payment, calculationCenterId, adapter);
                     if (bindingSuccess) {

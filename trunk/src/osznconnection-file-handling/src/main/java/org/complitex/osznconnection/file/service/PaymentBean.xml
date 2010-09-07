@@ -223,7 +223,7 @@
         WHERE `id` = #{id}
     </update>
 
-    <select id="findByFile" parameterType="hashmap" resultMap="paymentResultMap">
+    <select id="findForOperation" parameterType="hashmap" resultMap="paymentResultMap">
         SELECT r.`id`, r.`status`, r.`request_file_id`, r.`F_NAM`, r.`M_NAM`, r.`SUR_NAM`,
         r.`N_NAME`, r.`VUL_NAME`, r.`BLD_NUM`, r.`FLAT`,
         rf.`organization_object_id` organization_id,
@@ -238,12 +238,17 @@
         </foreach>
     </select>
 
-    <select id="findIdsByFile" parameterType="long"
+    <select id="findIdsForOperation" parameterType="hashmap"
             resultType="long">
         SELECT r.`id`
         FROM `payment` r
         JOIN `request_file` rf ON r.`request_file_id` = rf.`id`
-        WHERE r.`request_file_id` = #{requestFileId} AND r.`status` != 'ACCOUNT_NUMBER_RESOLVED'
+        WHERE r.`request_file_id` = #{requestFileId} AND r.`status` IN
+        <foreach collection="statuses" item="status" open="(" close=")" separator=",">
+            #{status}
+        </foreach>
+
+        != 'ACCOUNT_NUMBER_RESOLVED'
     </select>
 
     <update id="correct" parameterType="hashmap">
