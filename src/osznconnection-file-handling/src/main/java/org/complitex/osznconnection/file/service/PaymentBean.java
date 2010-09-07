@@ -1,9 +1,9 @@
 package org.complitex.osznconnection.file.service;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionManager;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.entity.Payment;
@@ -70,7 +70,7 @@ public class PaymentBean extends AbstractBean {
         sqlSession().update(MAPPING_NAMESPACE + ".update", payment);
     }
 
-    public void delete(RequestFile requestFile){
+    public void delete(RequestFile requestFile) {
         sqlSession().delete(MAPPING_NAMESPACE + ".deletePayments", requestFile.getId());
     }
 
@@ -80,17 +80,27 @@ public class PaymentBean extends AbstractBean {
     }
 
     @Transactional
-    public List<Payment> findByFile(long fileId, List<Long> ids) {
+    public List<Payment> findForOperation(long fileId, List<Long> ids) {
         Map<String, Object> params = Maps.newHashMap();
         params.put("requestFileId", fileId);
         params.put("ids", ids);
-        return sqlSession().selectList(MAPPING_NAMESPACE + ".findByFile", params);
+        return sqlSession().selectList(MAPPING_NAMESPACE + ".findForOperation", params);
     }
 
-    @SuppressWarnings({"unchecked"})
     @Transactional
-    public List<Long> findIdsByFile(long fileId) {
-        return sqlSession().selectList(MAPPING_NAMESPACE + ".findIdsByFile", fileId);
+    private List<Long> findIdsForOperation(long fileId, List<Status> statuses) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("requestFileId", fileId);
+        params.put("statuses", statuses);
+        return sqlSession().selectList(MAPPING_NAMESPACE + ".findIdsForOperation", params);
+    }
+
+    public List<Long> findIdsForBinding(long fileId) {
+        return findIdsForOperation(fileId, Lists.newArrayList(Status.ACCOUNT_NUMBER_NOT_FOUND, Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY,
+                Status.ADDRESS_CORRECTED, Status.APARTMENT_UNRESOLVED, Status.APARTMENT_UNRESOLVED_LOCALLY, Status.BUILDING_CORP_UNRESOLVED,
+                Status.BUILDING_UNRESOLVED, Status.BUILDING_UNRESOLVED_LOCALLY, Status.CITY_UNRESOLVED, Status.CITY_UNRESOLVED_LOCALLY,
+                Status.DISTRICT_NOT_FOUND, Status.MORE_ONE_ACCOUNTS, Status.STREET_TYPE_UNRESOLVED, Status.STREET_UNRESOLVED,
+                Status.STREET_UNRESOLVED_LOCALLY));
     }
 
     @Transactional
@@ -216,7 +226,7 @@ public class PaymentBean extends AbstractBean {
             try {
                 sqlSession().insert(MAPPING_NAMESPACE + ".insertPayment", payment);
 
-                if (i % BATCH_SIZE == 0){
+                if (i % BATCH_SIZE == 0) {
                     sqlSession.commit();
                     sqlSession.close();
                     sqlSession = null;
@@ -227,7 +237,7 @@ public class PaymentBean extends AbstractBean {
         }
 
         try {
-            if (sqlSession != null){
+            if (sqlSession != null) {
                 sqlSession.commit();
                 sqlSession.close();
             }
