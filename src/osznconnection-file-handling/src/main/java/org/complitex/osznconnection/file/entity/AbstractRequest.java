@@ -18,6 +18,8 @@ public class AbstractRequest implements Serializable {
 
     private Status status;
 
+    private String accountNumber;
+
     protected Map<String, Object> dbfFields = new HashMap<String, Object>();
 
     public Long getId() {
@@ -50,6 +52,14 @@ public class AbstractRequest implements Serializable {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
     }
 
     public Map<String, Object> getDbfFields() {

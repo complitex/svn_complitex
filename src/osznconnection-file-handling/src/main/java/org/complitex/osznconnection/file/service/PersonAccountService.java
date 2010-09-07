@@ -23,6 +23,9 @@ public class PersonAccountService extends AbstractBean {
     @EJB
     private PersonAccountLocalBean personAccountLocalBean;
 
+    @EJB
+    private BenefitBean benefitBean;
+
     private void resolveLocalAccount(Payment payment) {
         String accountNumber = personAccountLocalBean.findLocalAccountNumber(payment.getInternalCityId(), payment.getInternalStreetId(),
                 payment.getInternalBuildingId(), payment.getInternalApartmentId());
@@ -30,6 +33,7 @@ public class PersonAccountService extends AbstractBean {
         if (!Strings.isEmpty(accountNumber)) {
             payment.setAccountNumber(accountNumber);
             payment.setStatus(Status.ACCOUNT_NUMBER_RESOLVED);
+            benefitBean.updateAccountNumber(payment.getId(), accountNumber);
         } else {
             payment.setStatus(Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY);
         }
@@ -38,6 +42,7 @@ public class PersonAccountService extends AbstractBean {
     private void resolveRemoteAccount(Payment payment, ICalculationCenterAdapter adapter) {
         adapter.acquirePersonAccount(payment);
         if (payment.getStatus() == Status.ACCOUNT_NUMBER_RESOLVED) {
+            benefitBean.updateAccountNumber(payment.getId(), payment.getAccountNumber());
             personAccountLocalBean.saveAccountNumber(payment.getInternalCityId(), payment.getInternalStreetId(),
                     payment.getInternalBuildingId(), payment.getInternalApartmentId(), payment.getAccountNumber());
         }

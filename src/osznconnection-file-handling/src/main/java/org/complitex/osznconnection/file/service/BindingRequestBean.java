@@ -128,6 +128,7 @@ public class BindingRequestBean extends AbstractBean {
 
     private void bindBenefitFile(RequestFile benefitFile, AsyncOperationStatus benefitStatus) {
         if (benefitFile != null && benefitStatus != null) {
+            benefitBean.updateStatusForFile(benefitFile.getId());
             int errors = benefitBean.countByFile(benefitFile.getId());
             benefitStatus.setFailed(errors);
             benefitStatus.setProcessed(benefitFile.getDbfRecordCount() - errors);

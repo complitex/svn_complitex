@@ -35,6 +35,9 @@ public class AddressService extends AbstractBean {
     private PaymentBean paymentBean;
 
     @EJB
+    private BenefitBean benefitBean;
+
+    @EJB
     private StrategyFactory strategyFactory;
 
     private void resolveLocalAddress(Payment payment) {
@@ -161,18 +164,26 @@ public class AddressService extends AbstractBean {
         String buildingCorp = (String) payment.getField(PaymentDBF.CORP_NUM);
         String apartment = (String) payment.getField(PaymentDBF.FLAT);
 
+        boolean corrected = false;
         if ((payment.getInternalCityId() == null) && (cityId != null)) {
             addressCorrectionBean.insertInternalCity(city, cityId, organizationId);
             paymentBean.correctCity(requestFileId, city, cityId);
+            corrected = true;
         } else if ((payment.getInternalStreetId() == null) && (streetId != null)) {
             addressCorrectionBean.insertInternalStreet(street, streetId, organizationId);
             paymentBean.correctStreet(requestFileId, cityId, street, streetId, streetTypeId);
+            corrected = true;
         } else if ((payment.getInternalBuildingId() == null) && (buildingId != null)) {
             addressCorrectionBean.insertInternalBuilding(buildingNumber, buildingCorp, buildingId, organizationId);
             paymentBean.correctBuilding(requestFileId, cityId, streetId, buildingNumber, buildingCorp, buildingId);
+            corrected = true;
         } else if ((payment.getInternalApartmentId() == null) && (apartmentId != null)) {
             addressCorrectionBean.insertInternalApartment(apartment, apartmentId, organizationId);
             paymentBean.correctApartment(requestFileId, cityId, streetId, buildingId, apartment, apartmentId);
+            corrected = true;
+        }
+        if (corrected) {
+            benefitBean.addressCorrected(payment.getId());
         }
     }
 }

@@ -45,7 +45,7 @@
         insert into `benefit`
         (
         <trim suffixOverrides=",">
-            `request_file_id`, `status`,
+            `request_file_id`, `account_number`, `status`,
             <foreach collection="dbfFields.keys" item="key">
                 `${key}`,
             </foreach>
@@ -54,7 +54,7 @@
         values
         (
         <trim suffixOverrides=",">
-            #{requestFileId}, #{status},
+            #{requestFileId}, #{accountNumber}, #{status},
             <foreach collection="dbfFields.keys" item="key">
                 #{dbfFields.${key}},
             </foreach>
@@ -65,7 +65,7 @@
     <update id="updateBenefit" parameterType="org.complitex.osznconnection.file.entity.Benefit">
         update `benefit`
         <set>
-            `request_file_id` = #{requestFileId}, `status` = #{status},
+            `request_file_id` = #{requestFileId}, `account_number` = #{accountNumber}, `status` = #{status},
             <foreach collection="dbfFields.keys" item="key">
                 `${key}` = #{dbfFields[key]},
             </foreach>
@@ -103,7 +103,7 @@
         </if>
 
         <if test="status != null">
-            AND p.`status` = #{status}
+            AND r.`status` = #{status}
         </if>
     </sql>
 
@@ -120,7 +120,7 @@
     <select id="find" resultMap="benefitResultMap"
             parameterType="org.complitex.osznconnection.file.web.pages.benefit.BenefitExample">
         SELECT DISTINCT r.`id` id, r.`request_file_id`, r.`F_NAM`, r.`M_NAM`, r.`SUR_NAM`,
-        IFNULL(p.`status`, 'CITY_UNRESOLVED_LOCALLY') status,
+        r.`status`,
         p.`N_NAME` city, p.`VUL_NAME` street, p.`BLD_NUM` building, p.`FLAT` apartment
         FROM `benefit` r
         JOIN `request_file` rf ON r.`request_file_id` = rf.`id`
@@ -146,12 +146,36 @@
     </select>
 
     <select id="countByFile" resultType="int" parameterType="long">
-        SELECT COUNT(DISTINCT r.`id`) FROM `benefit` r
-        JOIN `request_file` rf ON r.`request_file_id` = rf.`id`
-        LEFT JOIN `payment` p ON r.`OWN_NUM_SR` = p.`OWN_NUM_SR`
-        LEFT JOIN `request_file` pf ON p.`request_file_id` = pf.`id`
-        WHERE (pf.`organization_object_id` IS NULL OR rf.`organization_object_id` = pf.`organization_object_id`) AND (pf.`date` IS NULL OR EXTRACT(YEAR_MONTH FROM rf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`))
-        AND r.`request_file_id` = #{requestFileId} AND (p.`status` IS NULL OR p.`status` != 'ACCOUNT_NUMBER_RESOLVED')
+        SELECT COUNT(*) FROM `benefit` r
+        WHERE r.`request_file_id` = #{requestFileId} AND (r.`status` != 'ACCOUNT_NUMBER_RESOLVED')
     </select>
+
+    <update id="updateStatusForFile" parameterType="_long">
+        UPDATE `benefit` b SET b.`status` =
+        (SELECT p.`status` FROM `payment` p, `request_file` bf, `request_file` pf
+            WHERE (b.`OWN_NUM_SR` = p.`OWN_NUM_SR`) AND (bf.`id` = b.request_file_id) AND (pf.`id` = p.`request_file_id`) AND
+            (bf.`organization_object_id` = pf.`organization_object_id`) AND (EXTRACT(YEAR_MONTH FROM bf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`)))
+        WHERE b.`request_file_id` = #{requestFileId}
+    </update>
+
+    <update id="addressCorrected" parameterType="_long">
+        UPDATE `benefit` b SET b.`status` = 'ADDRESS_CORRECTED'
+        WHERE b.`OWN_NUM_SR` = (SELECT p.`OWN_NUM_SR`
+                                FROM `payment` p, `request_file` pf, `request_file` bf
+                                WHERE (p.`request_file_id` = pf.`id`) AND (b.`request_file_id` = bf.`id`) AND (p.`id` = #{paymentId}) AND
+                                (bf.`organization_object_id` = pf.`organization_object_id`) AND (EXTRACT(YEAR_MONTH FROM bf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`))
+                               )
+           
+    </update>
+
+    <update id="updateAccountNumber" parameterType="hashmap">
+        UPDATE `benefit` b SET b.`account_number` = #{accountNumber}
+        WHERE b.`OWN_NUM_SR` = (SELECT p.`OWN_NUM_SR`
+                                FROM `payment` p, `request_file` pf, `request_file` bf
+                                WHERE (p.`request_file_id` = pf.`id`) AND (b.`request_file_id` = bf.`id`) AND (p.`id` = #{paymentId}) AND
+                                (bf.`organization_object_id` = pf.`organization_object_id`) AND (EXTRACT(YEAR_MONTH FROM bf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`))
+                               )
+
+    </update>
 
 </mapper>

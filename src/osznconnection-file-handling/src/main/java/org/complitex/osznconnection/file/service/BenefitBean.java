@@ -4,9 +4,9 @@
  */
 package org.complitex.osznconnection.file.service;
 
+import com.google.common.collect.Maps;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionManager;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.entity.Benefit;
@@ -36,6 +36,7 @@ import java.util.Map;
  */
 @Stateless(name = "BenefitBean")
 public class BenefitBean extends AbstractBean {
+
     private static final String MAPPING_NAMESPACE = BenefitBean.class.getName();
 
     private static final int BATCH_SIZE = 10;
@@ -74,21 +75,39 @@ public class BenefitBean extends AbstractBean {
     }
 
     @Transactional
-    public void delete(RequestFile requestFile){
+    public void delete(RequestFile requestFile) {
         sqlSession().delete(MAPPING_NAMESPACE + ".deleteBenefits", requestFile.getId());
     }
-        
+
+    @Transactional
+    public void addressCorrected(long paymentId) {
+        sqlSession().update(MAPPING_NAMESPACE + ".addressCorrected", paymentId);
+    }
+
+    @Transactional
+    public void updateAccountNumber(long paymentId, String accountNumber) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("paymentId", paymentId);
+        params.put("accountNumber", accountNumber);
+        sqlSession().update(MAPPING_NAMESPACE + ".updateAccountNumber", params);
+    }
+
+    @Transactional
+    public void updateStatusForFile(long requestFileId) {
+        sqlSession().update(MAPPING_NAMESPACE + ".updateStatusForFile", requestFileId);
+    }
+
     public void load(RequestFile requestFile, DBF dbf) throws xBaseJException, IOException, WrongFieldTypeException, SqlSessionException {
         Map<BenefitDBF, Field> fields = new HashMap<BenefitDBF, Field>();
 
-        for (BenefitDBF benefitDBF : BenefitDBF.values()){
+        for (BenefitDBF benefitDBF : BenefitDBF.values()) {
             Field field = dbf.getField(benefitDBF.name());
 
             Class fieldClass = field.getClass();
             if ((benefitDBF.getType().equals(String.class) && !fieldClass.equals(CharField.class))
                     || (benefitDBF.getType().equals(Integer.class) && !fieldClass.equals(NumField.class))
                     || (benefitDBF.getType().equals(Double.class) && !fieldClass.equals(NumField.class))
-                    || (benefitDBF.getType().equals(Date.class) && !fieldClass.equals(DateField.class))){
+                    || (benefitDBF.getType().equals(Date.class) && !fieldClass.equals(DateField.class))) {
                 throw new WrongFieldTypeException();
             }
 
@@ -97,32 +116,34 @@ public class BenefitBean extends AbstractBean {
 
         SqlSession sqlSession = null;
 
-        for (int i=0; i< dbf.getRecordCount(); ++i){
+        for (int i = 0; i < dbf.getRecordCount(); ++i) {
             dbf.read();
 
             Benefit benefit = new Benefit();
             benefit.setRequestFileId(requestFile.getId());
             benefit.setStatus(Status.CITY_UNRESOLVED_LOCALLY);
-            
-            for (BenefitDBF benefitDBF : BenefitDBF.values()){
+
+            for (BenefitDBF benefitDBF : BenefitDBF.values()) {
                 Field field = fields.get(benefitDBF);
 
                 String value = field.get().trim();
 
-                if (value.isEmpty()) continue;
+                if (value.isEmpty()) {
+                    continue;
+                }
 
-                if (benefitDBF.getType().equals(String.class)){
+                if (benefitDBF.getType().equals(String.class)) {
                     benefit.setField(benefitDBF, value);
-                }else if (benefitDBF.getType().equals(Integer.class)){
+                } else if (benefitDBF.getType().equals(Integer.class)) {
                     benefit.setField(benefitDBF, Integer.parseInt(value));
-                }else if (benefitDBF.getType().equals(Double.class)){
+                } else if (benefitDBF.getType().equals(Double.class)) {
                     benefit.setField(benefitDBF, Double.parseDouble(value));
-                }else if (benefitDBF.getType().equals(Date.class)){
-                    benefit.setField(benefitDBF, ((DateField)field).getCalendar().getTime());
+                } else if (benefitDBF.getType().equals(Date.class)) {
+                    benefit.setField(benefitDBF, ((DateField) field).getCalendar().getTime());
                 }
             }
 
-            if (sqlSession == null){
+            if (sqlSession == null) {
                 sqlSession = getSqlSessionManager().openSession(ExecutorType.BATCH);
             }
 
@@ -136,7 +157,7 @@ public class BenefitBean extends AbstractBean {
             try {
                 sqlSession().insert(MAPPING_NAMESPACE + ".insertBenefit", benefit);
 
-                if (i % BATCH_SIZE == 0){
+                if (i % BATCH_SIZE == 0) {
                     sqlSession.commit();
                     sqlSession.close();
                     sqlSession = null;
@@ -147,7 +168,7 @@ public class BenefitBean extends AbstractBean {
         }
 
         try {
-            if (sqlSession != null){
+            if (sqlSession != null) {
                 sqlSession.commit();
                 sqlSession.close();
             }
