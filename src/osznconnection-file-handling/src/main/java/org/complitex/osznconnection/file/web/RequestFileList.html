@@ -75,7 +75,7 @@
                     <td><span wicket:id="dbf_record_count"></span></td>
                     <td><span wicket:id="loaded_record_count"></span></td>
                     <td><span wicket:id="binded_record_count"></span></td>
-                    <td><span wicket:id="status"></span></td>
+                    <td><span wicket:id="status" style="white-space:nowrap"></span></td>
                     <td>
                         <span wicket:id="action_list"></span>
                     </td>
@@ -83,12 +83,12 @@
                 </tbody>
             </table>
 
-            <div wicket:id="paging"></div>            
+            <div wicket:id="paging"></div>
 
             <div align="right" style="margin-top:10px;">
                 <input type="submit" class="btnBig" wicket:id="bind" wicket:message="value:bind"/>
                 <input type="submit" class="btnMiddle" wicket:id="delete" wicket:message="value:delete"
-                        onclick="return confirm('Удалить выбранные файлы?');"/>
+                       onclick="return confirm('Удалить выбранные файлы?');"/>
             </div>
         </form>
     </div>

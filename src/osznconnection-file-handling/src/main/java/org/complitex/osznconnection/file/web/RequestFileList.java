@@ -8,12 +8,12 @@ import org.apache.wicket.ajax.AjaxSelfUpdatingTimerBehavior;
 import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.datetime.markup.html.basic.DateLabel;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
+import org.apache.wicket.markup.html.JavascriptPackageResource;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.*;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -35,9 +35,10 @@ import org.complitex.osznconnection.file.service.RequestFileFilter;
 import org.complitex.osznconnection.file.web.pages.benefit.BenefitList;
 import org.complitex.osznconnection.file.web.pages.payment.PaymentList;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
+import org.complitex.osznconnection.web.resource.WebCommonResourceInitializer;
+import org.odlabs.wiquery.core.commons.CoreJavaScriptResourceReference;
 
 import javax.ejb.EJB;
-import java.text.DateFormat;
 import java.util.*;
 
 /**
@@ -57,10 +58,14 @@ public class RequestFileList extends TemplatePage{
     @EJB(name = "LoadRequestBean")
     private LoadRequestBean loadRequestBean;
 
-    private boolean stopTimer;
+    private int waitForStopTimer;
+
+    private final static String ITEM_ID_PREFIX = "item";
 
     public RequestFileList() {
         super();
+
+        add(JavascriptPackageResource.getHeaderContribution(WebCommonResourceInitializer.HIGHLIGHT_JS));
 
         add(new Label("title", getString("title")));
 
@@ -96,16 +101,16 @@ public class RequestFileList extends TemplatePage{
         filterForm.add(new DropDownChoice<DomainObject>("organization",
                 organizationStrategy.getAllOSZNs(), new IChoiceRenderer<DomainObject>() {
 
-            @Override
-            public Object getDisplayValue(DomainObject object) {
-                return organizationStrategy.displayDomainObject(object, getLocale());
-            }
+                    @Override
+                    public Object getDisplayValue(DomainObject object) {
+                        return organizationStrategy.displayDomainObject(object, getLocale());
+                    }
 
-            @Override
-            public String getIdValue(DomainObject object, int index) {
-                return String.valueOf(object.getId());
-            }
-        }));
+                    @Override
+                    public String getIdValue(DomainObject object, int index) {
+                        return String.valueOf(object.getId());
+                    }
+                }));
 
         //Месяц
         filterForm.add(new MonthDropDownChoice("month"));
@@ -187,6 +192,9 @@ public class RequestFileList extends TemplatePage{
             protected void populateItem(Item<RequestFile> item) {
                 RequestFile rf = item.getModelObject();
 
+                item.setOutputMarkupId(true);
+                item.setMarkupId(ITEM_ID_PREFIX + rf.getId());
+
                 CheckBox checkBox = new CheckBox("selected", selectModels.get(rf));
                 checkBox.setVisible(!rf.isProcessing());
                 checkBox.setEnabled(!isProcessing());
@@ -198,7 +206,7 @@ public class RequestFileList extends TemplatePage{
 
                 item.add(DateLabel.forDatePattern("loaded", new Model<Date>(rf.getLoaded()), "dd.MM.yy HH:mm:ss"));
                 item.add(new Label("name", rf.getName()));
-                
+
                 DomainObject domainObject = organizationStrategy.findById(rf.getOrganizationObjectId());
                 String organization = organizationStrategy.displayDomainObject(domainObject, getLocale());
                 item.add(new Label("organization", organization));
@@ -226,21 +234,25 @@ public class RequestFileList extends TemplatePage{
         showMessages();
 
         //Таймер
-        if (loadRequestBean.isLoading()){
+        if (isProcessing()){
+            waitForStopTimer = 0;
+
             dataViewContainer.add(new AjaxSelfUpdatingTimerBehavior(Duration.seconds(1)){
                 @Override
                 protected void onPostProcessTarget(AjaxRequestTarget target) {
-                    showMessages();
-                    target.addComponent(messages);
+                    showMessages(target);
 
-                    if (!loadRequestBean.isLoading()){
+                    if (!isProcessing() && ++waitForStopTimer > 2){
                         this.stop();
                         target.addComponent(filterForm);
+                    }else{
+                        //update feedback messages panel
+                        target.addComponent(messages);
                     }
                 }
             });
         }
-        
+
         //Сортировка
         filterForm.add(new ArrowOrderByBorder("header.loaded", "loaded", dataProvider, dataView, filterForm));
         filterForm.add(new ArrowOrderByBorder("header.name", "name", dataProvider, dataView, filterForm));
@@ -253,7 +265,7 @@ public class RequestFileList extends TemplatePage{
         filterForm.add(new ArrowOrderByBorder("header.status", "status", dataProvider, dataView, filterForm));
 
         //Постраничная навигация
-        filterForm.add(new PagingNavigator("paging", dataView, filterForm));        
+        filterForm.add(new PagingNavigator("paging", dataView, filterForm));
 
         //Удалить
         Button delete = new Button("delete"){
@@ -266,8 +278,12 @@ public class RequestFileList extends TemplatePage{
                     }
                 }
             }
+
+            @Override
+            public boolean isVisible() {
+                return !isProcessing();
+            }
         };
-        delete.setVisible(!isProcessing());
         filterForm.add(delete);
 
         //Связать
@@ -285,8 +301,12 @@ public class RequestFileList extends TemplatePage{
                 FileExecutorService.get().bind(requestFiles);
                 selectModels.clear();
             }
+
+            @Override
+            public boolean isVisible() {
+                return !isProcessing();
+            }
         };
-        bind.setVisible(!isProcessing());
         filterForm.add(bind);
     }
 
@@ -295,14 +315,26 @@ public class RequestFileList extends TemplatePage{
     }
 
     private int renderedIndex = 0;
+    private boolean showLoaded = false;
 
     private void showMessages(){
+        showMessages(null);        
+    }
+
+    private void showMessages(AjaxRequestTarget target){
         List<RequestFile> processed = loadRequestBean.getProcessed();
 
         for (int i = renderedIndex; i < processed.size(); ++i){
             RequestFile rf = processed.get(i);
 
-            switch (rf.getStatus()){
+            switch (rf.getStatus()){                               
+                case LOADED:
+                    if (target != null) { //highlight loaded
+                        target.appendJavascript("$('#" + ITEM_ID_PREFIX + rf.getId() + "')" +
+                                ".animate({ backgroundColor: 'lightgreen' }, 300)" +
+                                ".animate({ backgroundColor: '#E0E4E9' }, 700)");
+                    }
+                    break;
                 case ERROR_ALREADY_LOADED:
                     Calendar year = Calendar.getInstance();
                     year.setTime(rf.getDate());
@@ -313,12 +345,16 @@ public class RequestFileList extends TemplatePage{
                 case ERROR_FIELD_TYPE:
                 case ERROR_XBASEJ:
                 case ERROR:
-                    error(getStringFormat("error.common", rf.getName()));                   
+                    if (target != null) { //highlight error
+                        target.appendJavascript("$('#" + ITEM_ID_PREFIX + rf.getId() + "')" +
+                                ".animate({ backgroundColor: 'darksalmon' }, 300)" +
+                                ".animate({ backgroundColor: '#E0E4E9' }, 700)");
+                    }
+                    error(getStringFormat("error.common", rf.getName()));
             }
-
         }
 
-        if (!loadRequestBean.isLoading() && processed.size() > 0){
+        if (!isProcessing() && processed.size() > 0 && !showLoaded){
             int loaded = 0;
             int error = 0;
 
@@ -331,8 +367,9 @@ public class RequestFileList extends TemplatePage{
             }
 
             info(getStringFormat("info.loaded", loaded, error));
+            showLoaded = true;
         }
 
-        renderedIndex = processed.size();        
+        renderedIndex = processed.size();
     }
 }
