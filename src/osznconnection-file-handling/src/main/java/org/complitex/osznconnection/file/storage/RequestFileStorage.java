@@ -34,7 +34,7 @@ public class RequestFileStorage {
     public List<File> getFiles(String child, FilenameFilter filter){
         List<File> files = new ArrayList<File>();
 
-        addFiles(files, new File(FileHandlingConfig.LOAD_FILE_STORAGE_DIR.getString(), child), filter);
+        addFiles(files, new File(FileHandlingConfig.LOAD_INPUT_FILE_STORAGE_DIR.getString(), child), filter);
 
         return files;
     }

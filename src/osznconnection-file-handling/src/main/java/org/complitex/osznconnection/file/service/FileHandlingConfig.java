@@ -7,13 +7,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Настройки модуля модуля взаимодействия с отделами соц. защиты населения
+ *
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 03.09.2010 18:35:55
  */
 public enum FileHandlingConfig {
-    LOAD_FILE_STORAGE_DIR("/", String.class),
+    LOAD_INPUT_FILE_STORAGE_DIR(".\\in", String.class),
+    LOAD_OUTPUT_FILE_STORAGE_DIR(".\\out", String.class),
     LOAD_THREADS_SIZE(4, Integer.class),
-    LOAD_MAX_ERROR_FILE_COUNT(10, Integer.class);
+    LOAD_MAX_ERROR_FILE_COUNT(10, Integer.class),
+    LOAD_RECORD_BATCH_SIZE(10, Integer.class),       
+    LOAD_RECORD_PROCESS_DELAY(0, Integer.class);
 
     private Object value;
     private Class type;
