@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.osznconnection.file.service;
 
 import com.google.common.collect.Maps;
@@ -31,15 +27,17 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Обработка записей файла запроса возмещения по льготам 
  *
  * @author Artem
+ * @author Anatoly A. Ivanov java@inheaven.ru
  */
 @Stateless(name = "BenefitBean")
 public class BenefitBean extends AbstractBean {
+    public static final String MAPPING_NAMESPACE = BenefitBean.class.getName();
 
-    private static final String MAPPING_NAMESPACE = BenefitBean.class.getName();
-
-    private static final int BATCH_SIZE = 10;
+    public static final int BATCH_SIZE = FileHandlingConfig.LOAD_RECORD_BATCH_SIZE.getInteger();
+    public static final int RECORD_PROCESS_DELAY = FileHandlingConfig.LOAD_RECORD_PROCESS_DELAY.getInteger();
 
     public enum OrderBy {
 
@@ -147,11 +145,13 @@ public class BenefitBean extends AbstractBean {
                 sqlSession = getSqlSessionManager().openSession(ExecutorType.BATCH);
             }
 
-            //todo test
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            //debug delay
+            if(RECORD_PROCESS_DELAY > 0){
+                try {
+                    Thread.sleep(RECORD_PROCESS_DELAY);
+                } catch (InterruptedException e) {
+                    //hoh...
+                }
             }
 
             try {
