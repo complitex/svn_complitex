@@ -1,7 +1,5 @@
 package org.complitex.osznconnection.file.service;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.complitex.dictionaryfw.mybatis.Transactional;
@@ -22,10 +20,7 @@ import org.xBaseJ.xBaseJException;
 
 import javax.ejb.Stateless;
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Обработка записей файла запроса начислений
@@ -62,7 +57,7 @@ public class PaymentBean extends AbstractBean {
         return (Integer) sqlSession().selectOne(MAPPING_NAMESPACE + ".count", example);
     }
 
-    @Transactional
+    @Transactional @SuppressWarnings({"unchecked"})
     public List<Payment> find(PaymentExample example) {
         return (List<Payment>) sqlSession().selectList(MAPPING_NAMESPACE + ".find", example);
     }
@@ -81,24 +76,24 @@ public class PaymentBean extends AbstractBean {
         return (Payment) sqlSession().selectOne(MAPPING_NAMESPACE + ".findById", id);
     }
 
-    @Transactional
+    @Transactional @SuppressWarnings({"unchecked"})
     public List<Payment> findForOperation(long fileId, List<Long> ids) {
-        Map<String, Object> params = Maps.newHashMap();
+        Map<String, Object> params = new HashMap<String, Object>();
         params.put("requestFileId", fileId);
         params.put("ids", ids);
         return sqlSession().selectList(MAPPING_NAMESPACE + ".findForOperation", params);
     }
 
-    @Transactional
+    @Transactional @SuppressWarnings({"unchecked"})
     private List<Long> findIdsForOperation(long fileId, List<Status> statuses) {
-        Map<String, Object> params = Maps.newHashMap();
+        Map<String, Object> params = new HashMap<String, Object>();
         params.put("requestFileId", fileId);
         params.put("statuses", statuses);
         return sqlSession().selectList(MAPPING_NAMESPACE + ".findIdsForOperation", params);
     }
 
     public List<Long> findIdsForBinding(long fileId) {
-        return findIdsForOperation(fileId, Lists.newArrayList(Status.ACCOUNT_NUMBER_NOT_FOUND, Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY,
+        return findIdsForOperation(fileId, Arrays.asList(Status.ACCOUNT_NUMBER_NOT_FOUND, Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY,
                 Status.ADDRESS_CORRECTED, Status.APARTMENT_UNRESOLVED, Status.APARTMENT_UNRESOLVED_LOCALLY, Status.BUILDING_CORP_UNRESOLVED,
                 Status.BUILDING_UNRESOLVED, Status.BUILDING_UNRESOLVED_LOCALLY, Status.CITY_UNRESOLVED, Status.CITY_UNRESOLVED_LOCALLY,
                 Status.DISTRICT_NOT_FOUND, Status.MORE_ONE_ACCOUNTS, Status.STREET_TYPE_UNRESOLVED, Status.STREET_UNRESOLVED,
@@ -107,7 +102,7 @@ public class PaymentBean extends AbstractBean {
 
     @Transactional
     public void correctCity(long fileId, String city, long objectId) {
-        Map<String, Object> params = Maps.newHashMap();
+        Map<String, Object> params = new HashMap<String, Object>();
         params.put("addressEntity", "city");
         params.put("objectId", objectId);
         params.put("city", city);
@@ -119,7 +114,7 @@ public class PaymentBean extends AbstractBean {
 
     @Transactional
     public void correctStreet(long fileId, long cityId, String street, long objectId, Long streetTypeId) {
-        Map<String, Object> params = Maps.newHashMap();
+        Map<String, Object> params = new HashMap<String, Object>();
         params.put("addressEntity", "street");
         params.put("objectId", objectId);
         params.put("cityId", cityId);
@@ -135,7 +130,7 @@ public class PaymentBean extends AbstractBean {
 
     @Transactional
     public void correctBuilding(long fileId, long cityId, long streetId, String buildingNumber, String buildingCorp, long objectId) {
-        Map<String, Object> params = Maps.newHashMap();
+        Map<String, Object> params = new HashMap<String, Object>();
         params.put("addressEntity", "building");
         params.put("objectId", objectId);
         params.put("cityId", cityId);
@@ -152,7 +147,7 @@ public class PaymentBean extends AbstractBean {
 
     @Transactional
     public void correctApartment(long fileId, long cityId, long streetId, long buildingId, String apartment, long objectId) {
-        Map<String, Object> params = Maps.newHashMap();
+        Map<String, Object> params = new HashMap<String, Object>();
         params.put("addressEntity", "apartment");
         params.put("objectId", objectId);
         params.put("cityId", cityId);
