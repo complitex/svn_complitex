@@ -45,7 +45,7 @@
         insert into `benefit`
         (
         <trim suffixOverrides=",">
-            `request_file_id`, `account_number`, `status`,
+            `request_file_id`, `status`,
             <foreach collection="dbfFields.keys" item="key">
                 `${key}`,
             </foreach>
@@ -54,7 +54,7 @@
         values
         (
         <trim suffixOverrides=",">
-            #{requestFileId}, #{accountNumber}, #{status},
+            #{requestFileId}, #{status},
             <foreach collection="dbfFields.keys" item="key">
                 #{dbfFields.${key}},
             </foreach>
@@ -65,7 +65,7 @@
     <update id="updateBenefit" parameterType="org.complitex.osznconnection.file.entity.Benefit">
         update `benefit`
         <set>
-            `request_file_id` = #{requestFileId}, `account_number` = #{accountNumber},  `status` = #{status},
+            `request_file_id` = #{requestFileId}, `status` = #{status},
             <foreach collection="dbfFields.keys" item="key">
                 `${key}` = #{dbfFields[key]},
             </foreach>

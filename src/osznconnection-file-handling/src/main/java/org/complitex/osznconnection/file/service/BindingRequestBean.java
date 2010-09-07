@@ -10,6 +10,8 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.util.List;
 import org.apache.ibatis.session.SqlSessionException;
+import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
+import org.complitex.osznconnection.file.calculation.service.CalculationCenterBean;
 
 /**
  *
@@ -34,6 +36,9 @@ public class BindingRequestBean extends AbstractBean {
     @EJB
     private BenefitBean benefitBean;
 
+    @EJB
+    private CalculationCenterBean calculationCenterBean;
+
     private static class ModifyStatus {
 
         private boolean modified;
@@ -47,36 +52,29 @@ public class BindingRequestBean extends AbstractBean {
         }
     }
 
-    private boolean resolveAddress(Payment payment, ModifyStatus modifyStatus) {
-        if (addressService.isAddressResolved(payment)) {
-            return true;
-        }
+    private boolean resolveAddress(Payment payment, long calculationCenterId, ICalculationCenterAdapter adapter, ModifyStatus modifyStatus) {
         Status oldStatus = payment.getStatus();
-        addressService.resolveAddress(payment);
+        addressService.resolveAddress(payment, calculationCenterId, adapter);
         if (oldStatus != payment.getStatus()) {
             modifyStatus.markModified();
         }
         return addressService.isAddressResolved(payment);
     }
 
-    private boolean resolveAccountNumber(Payment payment, ModifyStatus modifyStatus) {
-        if (payment.getStatus() == Status.ACCOUNT_NUMBER_RESOLVED) {
-            return true;
-        }
-
+    private boolean resolveAccountNumber(Payment payment, ICalculationCenterAdapter adapter, ModifyStatus modifyStatus) {
         Status oldStatus = payment.getStatus();
-        personAccountService.resolveAccountNumber(payment);
+        personAccountService.resolveAccountNumber(payment, adapter);
         if (oldStatus != payment.getStatus()) {
             modifyStatus.markModified();
         }
         return payment.getStatus() == Status.ACCOUNT_NUMBER_RESOLVED;
     }
 
-    private boolean bind(Payment payment) {
+    private boolean bind(Payment payment, long calculationCenterId, ICalculationCenterAdapter adapter) {
         boolean bindingSuccess = false;
         ModifyStatus modifyStatus = new ModifyStatus();
-        if (resolveAddress(payment, modifyStatus)) {
-            if (resolveAccountNumber(payment, modifyStatus)) {
+        if (resolveAddress(payment, calculationCenterId, adapter, modifyStatus)) {
+            if (resolveAccountNumber(payment, adapter, modifyStatus)) {
                 //binding successful
                 bindingSuccess = true;
             }
@@ -89,7 +87,7 @@ public class BindingRequestBean extends AbstractBean {
         return bindingSuccess;
     }
 
-    private void bindPaymentFile(long paymentFileId, AsyncOperationStatus paymentStatus) {
+    private void bindPaymentFile(long paymentFileId, long calculationCenterId, ICalculationCenterAdapter adapter, AsyncOperationStatus paymentStatus) {
         List<Long> notResolvedPaymentIds = paymentBean.findIdsByFile(paymentFileId);
 
         List<Long> batch = Lists.newArrayList();
@@ -103,7 +101,7 @@ public class BindingRequestBean extends AbstractBean {
                 getSqlSessionManager().startManagedSession(false);
                 List<Payment> payments = paymentBean.findByFile(paymentFileId, batch);
                 for (Payment payment : payments) {
-                    boolean bindingSuccess = bind(payment);
+                    boolean bindingSuccess = bind(payment, calculationCenterId, adapter);
                     if (bindingSuccess) {
                         incrementProcessedRecords(paymentStatus);
                     } else {
@@ -139,7 +137,11 @@ public class BindingRequestBean extends AbstractBean {
     public void bindPaymentAndBenefit(RequestFile paymentFile, AsyncOperationStatus paymentStatus, RequestFile benefitFile,
             AsyncOperationStatus benefitStatus) {
 
-        bindPaymentFile(paymentFile.getId(), paymentStatus);
+        CalculationCenterInfo calculationCenterInfo = calculationCenterBean.getCurrentCalculationCenterInfo();
+        long calculationCenterId = calculationCenterInfo.getId();
+        ICalculationCenterAdapter adapter = calculationCenterInfo.getAdapterInstance();
+
+        bindPaymentFile(paymentFile.getId(), calculationCenterId, adapter, paymentStatus);
         bindBenefitFile(benefitFile, benefitStatus);
     }
 

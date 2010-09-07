@@ -835,11 +835,6 @@ DROP TABLE IF EXISTS `benefit`;
 CREATE TABLE `benefit` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT,
     `request_file_id` bigint(20) NULL,
-    `account_number` varchar(100) NULL,
-    `city_id` bigint(20) NULL,
-    `street_id` bigint(20) NULL,
-    `building_id` bigint(20) NULL,
-    `apartment_id` bigint(20) NULL,
     `status` varchar(50) NOT NULL default 'CITY_UNRESOLVED_LOCALLY',
 
 	`OWN_NUM` varchar(15) COMMENT 'Номер дела',
