@@ -8,17 +8,15 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import java.util.Collection;
-import java.util.Collections;
+
+import java.util.*;
+
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -32,6 +30,10 @@ public class FileExecutorService {
     private static final Logger log = LoggerFactory.getLogger(FileExecutorService.class);
 
     private static FileExecutorService fileExecutorService;
+
+    private List<RequestFile> processed = Collections.synchronizedList(new ArrayList<RequestFile>());
+
+    private boolean binding;
 
     private FileExecutorService() {
     }
@@ -50,13 +52,18 @@ public class FileExecutorService {
     }
 
     public boolean isBinding() {
-        return !bindingFilesMap.isEmpty();
+        return binding;
     }
 
-    private ConcurrentHashMap<Long, RequestFile> bindingFilesMap = new ConcurrentHashMap<Long, RequestFile>();
+    public List<RequestFile> getProcessed(boolean flush) {
+        List<RequestFile> list = new ArrayList<RequestFile>();
+        list.addAll(processed);
 
-    public Collection<RequestFile> getBindingFiles() {
-        return Collections.unmodifiableCollection(bindingFilesMap.values());
+        if (flush) {
+            processed.clear();
+        }
+
+        return Collections.unmodifiableList(list);
     }
 
     private class BindTask implements Runnable {
@@ -76,24 +83,22 @@ public class FileExecutorService {
                 BindingRequestBean bindingRequestBean = getBindingBean();
 
                 if (paymentFile != null) {
+                    processed.add(paymentFile);
+
                     try {
-                        bindingFilesMap.putIfAbsent(paymentFile.getId(), paymentFile);
                         bindingRequestBean.bindPaymentFile(paymentFile);
                     } catch (Exception e) {
                         log.error("", e);
-                    } finally {
-                        bindingFilesMap.remove(paymentFile.getId());
                     }
                 }
 
                 if (benefitFile != null) {
-                    bindingFilesMap.putIfAbsent(benefitFile.getId(), benefitFile);
+                    processed.add(benefitFile);
+
                     try {
                         bindingRequestBean.bindBenefitFile(benefitFile);
                     } catch (Exception e) {
                         log.error("", e);
-                    } finally {
-                        bindingFilesMap.remove(benefitFile.getId());
                     }
                 }
             } catch (Exception e) {
@@ -112,6 +117,8 @@ public class FileExecutorService {
     }
 
     public void bind(List<RequestFile> requestFiles) {
+        binding = true;
+
         List<RequestFile> suitedFiles = Lists.newArrayList(Iterables.filter(requestFiles, new Predicate<RequestFile>() {
 
             @Override
@@ -156,5 +163,7 @@ public class FileExecutorService {
                 threadPool.submit(new BindTask(null, file));
             }
         }
+
+        binding = false;
     }
 }

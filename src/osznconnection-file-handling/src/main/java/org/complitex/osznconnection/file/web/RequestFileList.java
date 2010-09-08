@@ -105,16 +105,16 @@ public class RequestFileList extends TemplatePage {
         filterForm.add(new DropDownChoice<DomainObject>("organization",
                 organizationStrategy.getAllOSZNs(), new IChoiceRenderer<DomainObject>() {
 
-            @Override
-            public Object getDisplayValue(DomainObject object) {
-                return organizationStrategy.displayDomainObject(object, getLocale());
-            }
+                    @Override
+                    public Object getDisplayValue(DomainObject object) {
+                        return organizationStrategy.displayDomainObject(object, getLocale());
+                    }
 
-            @Override
-            public String getIdValue(DomainObject object, int index) {
-                return String.valueOf(object.getId());
-            }
-        }));
+                    @Override
+                    public String getIdValue(DomainObject object, int index) {
+                        return String.valueOf(object.getId());
+                    }
+                }));
 
         //Месяц
         filterForm.add(new MonthDropDownChoice("month"));
@@ -306,10 +306,6 @@ public class RequestFileList extends TemplatePage {
         return loadRequestBean.isLoading() || FileExecutorService.get().isBinding();
     }
 
-    private int renderedIndex = 0;
-
-    private boolean showLoaded = false;
-
     private void showMessages() {
         if (loadRequestBean.isError()){
             error(getString("error.process"));
@@ -319,11 +315,7 @@ public class RequestFileList extends TemplatePage {
     }
 
     private void showMessages(AjaxRequestTarget target) {
-        List<RequestFile> processed = loadRequestBean.getProcessed();
-
-        for (int i = renderedIndex; i < processed.size(); ++i) {
-            RequestFile rf = processed.get(i);
-
+        for (RequestFile rf : loadRequestBean.getProcessed(true)) {
             switch (rf.getStatus()) {
                 case LOADED:
                     if (target != null) { //highlight loaded
@@ -331,6 +323,7 @@ public class RequestFileList extends TemplatePage {
                                 + ".animate({ backgroundColor: 'lightgreen' }, 300)"
                                 + ".animate({ backgroundColor: '#E0E4E9' }, 700)");
                     }
+                    info(getStringFormat("info.loaded", rf.getName()));
                     break;
                 case LOAD_ERROR:
                     switch (rf.getStatusDetail()){
@@ -353,32 +346,19 @@ public class RequestFileList extends TemplatePage {
             }
         }
 
-        if (!isProcessing() && processed.size() > 0 && !showLoaded) {
-            int loaded = 0;
-            int error = 0;
-
-            for (RequestFile rf : processed) {
-                if (rf.getStatus() == RequestFile.STATUS.LOADED) {
-                    loaded++;
-                } else {
-                    error++;
-                }
-            }
-
-            info(getStringFormat("info.loaded", loaded, error));
+        //Load completed
+        if (loadRequestBean.isCompleted()) {
+            info(getStringFormat("info.load_completed", loadRequestBean.getLoadedCount(), loadRequestBean.getErrorCount()));
 
             if (loadRequestBean.isError()){
                 error(getString("error.process"));
             }
 
-            showLoaded = true;
+            loadRequestBean.init();
         }
 
-        renderedIndex = processed.size();
-
         //show messages for binding operation
-        Collection<RequestFile> bindingFiles = FileExecutorService.get().getBindingFiles();
-        for (RequestFile bindingFile : bindingFiles) {
+        for (RequestFile bindingFile : FileExecutorService.get().getProcessed(true)) {
             switch (bindingFile.getStatus()) {
                 case BINDED: {
                     if (target != null) { //highlight loaded
