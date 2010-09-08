@@ -247,8 +247,6 @@
         <foreach collection="statuses" item="status" open="(" close=")" separator=",">
             #{status}
         </foreach>
-
-        != 'ACCOUNT_NUMBER_RESOLVED'
     </select>
 
     <update id="correct" parameterType="hashmap">

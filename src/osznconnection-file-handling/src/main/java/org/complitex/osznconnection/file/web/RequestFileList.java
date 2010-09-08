@@ -36,7 +36,6 @@ import org.complitex.osznconnection.file.web.pages.benefit.BenefitList;
 import org.complitex.osznconnection.file.web.pages.payment.PaymentList;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 import org.complitex.osznconnection.web.resource.WebCommonResourceInitializer;
-import org.odlabs.wiquery.core.commons.CoreJavaScriptResourceReference;
 
 import javax.ejb.EJB;
 import java.util.*;
@@ -46,7 +45,8 @@ import java.util.*;
  *         Date: 25.08.2010 13:35:35
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)
-public class RequestFileList extends TemplatePage{
+public class RequestFileList extends TemplatePage {
+
     private final static String IMAGE_AJAX_LOADER = "images/ajax-loader2.gif";
 
     @EJB(name = "RequestFileBean")
@@ -101,16 +101,16 @@ public class RequestFileList extends TemplatePage{
         filterForm.add(new DropDownChoice<DomainObject>("organization",
                 organizationStrategy.getAllOSZNs(), new IChoiceRenderer<DomainObject>() {
 
-                    @Override
-                    public Object getDisplayValue(DomainObject object) {
-                        return organizationStrategy.displayDomainObject(object, getLocale());
-                    }
+            @Override
+            public Object getDisplayValue(DomainObject object) {
+                return organizationStrategy.displayDomainObject(object, getLocale());
+            }
 
-                    @Override
-                    public String getIdValue(DomainObject object, int index) {
-                        return String.valueOf(object.getId());
-                    }
-                }));
+            @Override
+            public String getIdValue(DomainObject object, int index) {
+                return String.valueOf(object.getId());
+            }
+        }));
 
         //Месяц
         filterForm.add(new MonthDropDownChoice("month"));
@@ -130,7 +130,7 @@ public class RequestFileList extends TemplatePage{
         //Статус
         filterForm.add(new DropDownChoice<RequestFile.STATUS>("status",
                 Arrays.asList(RequestFile.STATUS.values()),
-                new IChoiceRenderer<RequestFile.STATUS>(){
+                new IChoiceRenderer<RequestFile.STATUS>() {
 
                     @Override
                     public Object getDisplayValue(RequestFile.STATUS object) {
@@ -147,7 +147,7 @@ public class RequestFileList extends TemplatePage{
         final Map<RequestFile, IModel<Boolean>> selectModels = new HashMap<RequestFile, IModel<Boolean>>();
 
         //Модель данных списка
-        final SortableDataProvider<RequestFile> dataProvider = new SortableDataProvider<RequestFile>(){
+        final SortableDataProvider<RequestFile> dataProvider = new SortableDataProvider<RequestFile>() {
 
             @Override
             public Iterator<? extends RequestFile> iterator(int first, int count) {
@@ -161,7 +161,7 @@ public class RequestFileList extends TemplatePage{
                 List<RequestFile> requestFiles = requestFileBean.getRequestFiles(filter);
 
                 selectModels.clear();
-                for (RequestFile rf : requestFiles){
+                for (RequestFile rf : requestFiles) {
                     selectModels.put(rf, new Model<Boolean>(false));
                 }
 
@@ -186,7 +186,7 @@ public class RequestFileList extends TemplatePage{
         filterForm.add(dataViewContainer);
 
         //Таблица файлов запросов
-        final DataView<RequestFile> dataView = new DataView<RequestFile>("request_files", dataProvider, 1){
+        final DataView<RequestFile> dataView = new DataView<RequestFile>("request_files", dataProvider, 1) {
 
             @Override
             protected void populateItem(Item<RequestFile> item) {
@@ -219,9 +219,9 @@ public class RequestFileList extends TemplatePage{
                 item.add(new Label("status", getStringOrKey(rf.getStatus().name())));
 
                 Class<? extends Page> page = null;
-                if (rf.isPayment()){
+                if (rf.isPayment()) {
                     page = PaymentList.class;
-                }else if (rf.isBenefit()){
+                } else if (rf.isBenefit()) {
                     page = BenefitList.class;
                 }
 
@@ -234,18 +234,19 @@ public class RequestFileList extends TemplatePage{
         showMessages();
 
         //Таймер
-        if (isProcessing()){
+        if (isProcessing()) {
             waitForStopTimer = 0;
 
-            dataViewContainer.add(new AjaxSelfUpdatingTimerBehavior(Duration.seconds(1)){
+            dataViewContainer.add(new AjaxSelfUpdatingTimerBehavior(Duration.seconds(1)) {
+
                 @Override
                 protected void onPostProcessTarget(AjaxRequestTarget target) {
                     showMessages(target);
 
-                    if (!isProcessing() && ++waitForStopTimer > 2){
+                    if (!isProcessing() && ++waitForStopTimer > 2) {
                         this.stop();
                         target.addComponent(filterForm);
-                    }else{
+                    } else {
                         //update feedback messages panel
                         target.addComponent(messages);
                     }
@@ -268,11 +269,12 @@ public class RequestFileList extends TemplatePage{
         filterForm.add(new PagingNavigator("paging", dataView, filterForm));
 
         //Удалить
-        Button delete = new Button("delete"){
+        Button delete = new Button("delete") {
+
             @Override
             public void onSubmit() {
-                for (RequestFile requestFile : selectModels.keySet()){
-                    if (selectModels.get(requestFile).getObject()){
+                for (RequestFile requestFile : selectModels.keySet()) {
+                    if (selectModels.get(requestFile).getObject()) {
                         requestFileBean.delete(requestFile);
                         info(getStringFormat("info.deleted", requestFile.getName()));
                     }
@@ -287,13 +289,14 @@ public class RequestFileList extends TemplatePage{
         filterForm.add(delete);
 
         //Связать
-        Button bind = new Button("bind"){
+        Button bind = new Button("bind") {
+
             @Override
             public void onSubmit() {
                 List<RequestFile> requestFiles = new ArrayList<RequestFile>();
 
-                for (RequestFile requestFile : selectModels.keySet()){
-                    if (selectModels.get(requestFile).getObject()){
+                for (RequestFile requestFile : selectModels.keySet()) {
+                    if (selectModels.get(requestFile).getObject()) {
                         requestFiles.add(requestFile);
                     }
                 }
@@ -310,29 +313,30 @@ public class RequestFileList extends TemplatePage{
         filterForm.add(bind);
     }
 
-    private boolean isProcessing(){
-        return  loadRequestBean.isLoading(); //todo bind
+    private boolean isProcessing() {
+        return loadRequestBean.isLoading() || FileExecutorService.get().isBinding();
     }
 
     private int renderedIndex = 0;
+
     private boolean showLoaded = false;
 
-    private void showMessages(){
-        showMessages(null);        
+    private void showMessages() {
+        showMessages(null);
     }
 
-    private void showMessages(AjaxRequestTarget target){
+    private void showMessages(AjaxRequestTarget target) {
         List<RequestFile> processed = loadRequestBean.getProcessed();
 
-        for (int i = renderedIndex; i < processed.size(); ++i){
+        for (int i = renderedIndex; i < processed.size(); ++i) {
             RequestFile rf = processed.get(i);
 
-            switch (rf.getStatus()){                               
+            switch (rf.getStatus()) {
                 case LOADED:
                     if (target != null) { //highlight loaded
-                        target.appendJavascript("$('#" + ITEM_ID_PREFIX + rf.getId() + "')" +
-                                ".animate({ backgroundColor: 'lightgreen' }, 300)" +
-                                ".animate({ backgroundColor: '#E0E4E9' }, 700)");
+                        target.appendJavascript("$('#" + ITEM_ID_PREFIX + rf.getId() + "')"
+                                + ".animate({ backgroundColor: 'lightgreen' }, 300)"
+                                + ".animate({ backgroundColor: '#E0E4E9' }, 700)");
                     }
                     break;
                 case ERROR_ALREADY_LOADED:
@@ -346,22 +350,22 @@ public class RequestFileList extends TemplatePage{
                 case ERROR_XBASEJ:
                 case ERROR:
                     if (target != null) { //highlight error
-                        target.appendJavascript("$('#" + ITEM_ID_PREFIX + rf.getId() + "')" +
-                                ".animate({ backgroundColor: 'darksalmon' }, 300)" +
-                                ".animate({ backgroundColor: '#E0E4E9' }, 700)");
+                        target.appendJavascript("$('#" + ITEM_ID_PREFIX + rf.getId() + "')"
+                                + ".animate({ backgroundColor: 'darksalmon' }, 300)"
+                                + ".animate({ backgroundColor: '#E0E4E9' }, 700)");
                     }
                     error(getStringFormat("error.common", rf.getName()));
             }
         }
 
-        if (!isProcessing() && processed.size() > 0 && !showLoaded){
+        if (!isProcessing() && processed.size() > 0 && !showLoaded) {
             int loaded = 0;
             int error = 0;
 
-            for (RequestFile rf : processed){
-                if (rf.getStatus() == RequestFile.STATUS.LOADED){
-                   loaded++;
-                }else{
+            for (RequestFile rf : processed) {
+                if (rf.getStatus() == RequestFile.STATUS.LOADED) {
+                    loaded++;
+                } else {
                     error++;
                 }
             }

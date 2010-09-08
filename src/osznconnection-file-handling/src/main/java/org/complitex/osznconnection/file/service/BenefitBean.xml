@@ -145,9 +145,12 @@
         </if>
     </select>
 
-    <select id="countByFile" resultType="int" parameterType="long">
+    <select id="countByFile" resultType="int" parameterType="hashmap">
         SELECT COUNT(*) FROM `benefit` r
-        WHERE r.`request_file_id` = #{requestFileId} AND (r.`status` != 'ACCOUNT_NUMBER_RESOLVED')
+        WHERE r.`request_file_id` = #{requestFileId} AND r.`status` IN
+        <foreach collection="statuses" item="status" open="(" close=")" separator=",">
+            #{status}
+        </foreach>
     </select>
 
     <update id="updateStatusForFile" parameterType="_long">

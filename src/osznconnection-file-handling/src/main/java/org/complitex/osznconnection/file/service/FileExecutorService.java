@@ -6,7 +6,8 @@ package org.complitex.osznconnection.file.service;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import org.complitex.osznconnection.file.entity.AsyncOperationStatus;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,9 +15,8 @@ import org.slf4j.LoggerFactory;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -43,32 +43,48 @@ public class FileExecutorService {
     private ExecutorService threadPool = initThreadPool();
 
     private static ExecutorService initThreadPool() {
-        return Executors.newFixedThreadPool(10);
+        return Executors.newFixedThreadPool(FileHandlingConfig.BINDING_THREAD_SIZE.getInteger());
     }
 
-    private Map<Long, AsyncOperationStatus> fileToProcessStatusMap = new ConcurrentHashMap<Long, AsyncOperationStatus>();
+    private int taskCount;
+
+    public synchronized boolean isBinding() {
+        return taskCount > 0;
+    }
+
+    private synchronized void incrementTaskCount() {
+        taskCount++;
+    }
+
+    private synchronized void decrementTaskCount() {
+        taskCount--;
+    }
 
     private class BindTask implements Runnable {
 
         private RequestFile paymentFile;
 
-        private AsyncOperationStatus paymentStatus;
-
         private RequestFile benefitFile;
 
-        private AsyncOperationStatus benefitStatus;
-
-        public BindTask(RequestFile paymentFile, AsyncOperationStatus paymentStatus, RequestFile benefitFile, AsyncOperationStatus benefitStatus) {
+        public BindTask(RequestFile paymentFile, RequestFile benefitFile) {
             this.paymentFile = paymentFile;
-            this.paymentStatus = paymentStatus;
             this.benefitFile = benefitFile;
-            this.benefitStatus = benefitStatus;
         }
 
         @Override
         public void run() {
-            BindingRequestBean bindingRequestBean = getBindingBean();
-            bindingRequestBean.bindPaymentAndBenefit(paymentFile, paymentStatus, benefitFile, benefitStatus);
+            incrementTaskCount();
+            try {
+                //TODO: remove it after test
+                Thread.sleep(5000);
+                
+                BindingRequestBean bindingRequestBean = getBindingBean();
+                bindingRequestBean.bindPaymentAndBenefit(paymentFile, benefitFile);
+            } catch (Exception e) {
+                log.error("", e);
+            } finally {
+                decrementTaskCount();
+            }
         }
 
         private BindingRequestBean getBindingBean() {
@@ -81,16 +97,18 @@ public class FileExecutorService {
         }
     }
 
-    public Map<Long, AsyncOperationStatus> getFileToProcessStatusMap() {
-        return fileToProcessStatusMap;
-    }
-
     public void bind(List<RequestFile> requestFiles) {
-        for (final RequestFile file : requestFiles) {
+        List<RequestFile> suitedFiles = Lists.newArrayList(Iterables.filter(requestFiles, new Predicate<RequestFile>() {
+
+            @Override
+            public boolean apply(RequestFile requestFile) {
+                return requestFile.getStatus().equals(RequestFile.STATUS.LOADED);
+            }
+        }));
+        Set<Long> bindingBenefitFiles = Sets.newHashSet();
+        for (final RequestFile file : suitedFiles) {
             if (file.getType() == RequestFile.TYPE.PAYMENT) {
                 log.info("Payment file : {}", file.getName());
-                AsyncOperationStatus paymentStatus = new AsyncOperationStatus(file);
-                fileToProcessStatusMap.put(file.getId(), paymentStatus);
 
                 //find associated benefit file
                 RequestFile benefitFile = null;
@@ -108,16 +126,19 @@ public class FileExecutorService {
                 } catch (NoSuchElementException e) {
                 }
 
-                AsyncOperationStatus benefitStatus = null;
                 if (benefitFile != null) {
+                    bindingBenefitFiles.add(benefitFile.getId());
                     log.info("Benefit file : {}", benefitFile.getName());
-                    benefitStatus = new AsyncOperationStatus(benefitFile);
-                    fileToProcessStatusMap.put(benefitFile.getId(), benefitStatus);
                 }
 
-                threadPool.submit(new BindTask(file, paymentStatus, benefitFile, benefitStatus));
+                threadPool.submit(new BindTask(file, benefitFile));
 //                new BindTask(file, paymentStatus, benefitFile, benefitStatus).run();
 //               new Thread(new BindTask(file, paymentStatus, benefitFile, benefitStatus));
+            }
+        }
+        for (RequestFile file : suitedFiles) {
+            if ((file.getType() == RequestFile.TYPE.BENEFIT) && !bindingBenefitFiles.contains(file.getId())) {
+                threadPool.submit(new BindTask(null, file));
             }
         }
     }
