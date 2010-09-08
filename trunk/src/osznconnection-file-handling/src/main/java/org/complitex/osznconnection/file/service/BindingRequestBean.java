@@ -39,6 +39,9 @@ public class BindingRequestBean extends AbstractBean {
     @EJB
     private CalculationCenterBean calculationCenterBean;
 
+    @EJB
+    private RequestFileBean requestFileBean;
+
     private static class ModifyStatus {
 
         private boolean modified;
@@ -71,23 +74,24 @@ public class BindingRequestBean extends AbstractBean {
     }
 
     private boolean bind(Payment payment, long calculationCenterId, ICalculationCenterAdapter adapter) {
-        boolean bindingSuccess = false;
+        boolean bound = false;
         ModifyStatus modifyStatus = new ModifyStatus();
         if (resolveAddress(payment, calculationCenterId, adapter, modifyStatus)) {
             if (resolveAccountNumber(payment, adapter, modifyStatus)) {
                 //binding successful
-                bindingSuccess = true;
+                bound = true;
             }
         }
 
         if (modifyStatus.isModified()) {
             paymentBean.update(payment);
         }
-
-        return bindingSuccess;
+        return bound;
     }
 
-    private void bindPaymentFile(long paymentFileId, long calculationCenterId, ICalculationCenterAdapter adapter, AsyncOperationStatus paymentStatus) {
+    private boolean bindPaymentFile(long paymentFileId, long calculationCenterId, ICalculationCenterAdapter adapter) {
+        boolean bound = true;
+
         List<Long> notResolvedPaymentIds = paymentBean.findIdsForBinding(paymentFileId);
 
         List<Long> batch = Lists.newArrayList();
@@ -101,18 +105,15 @@ public class BindingRequestBean extends AbstractBean {
                 getSqlSessionManager().startManagedSession(false);
                 List<Payment> payments = paymentBean.findForOperation(paymentFileId, batch);
                 for (Payment payment : payments) {
-                    boolean bindingSuccess = bind(payment, calculationCenterId, adapter);
-                    if (bindingSuccess) {
-                        incrementProcessedRecords(paymentStatus);
-                    } else {
-                        incrementFailedRecords(paymentStatus);
-                    }
+                    bound &= bind(payment, calculationCenterId, adapter);
                 }
                 getSqlSessionManager().commit();
             } catch (Exception e) {
+                bound = false;
                 try {
                     getSqlSessionManager().rollback();
                 } catch (SqlSessionException exc) {
+                    bound = false;
                     log.error("", exc);
                 }
                 log.error("", e);
@@ -120,37 +121,63 @@ public class BindingRequestBean extends AbstractBean {
                 try {
                     getSqlSessionManager().close();
                 } catch (Exception e) {
+                    bound = false;
                     log.error("", e);
                 }
             }
         }
+        return bound;
     }
 
-    private void bindBenefitFile(RequestFile benefitFile, AsyncOperationStatus benefitStatus) {
-        if (benefitFile != null && benefitStatus != null) {
-            benefitBean.updateStatusForFile(benefitFile.getId());
-            int errors = benefitBean.countByFile(benefitFile.getId());
-            benefitStatus.setFailed(errors);
-            benefitStatus.setProcessed(benefitFile.getDbfRecordCount() - errors);
-        }
+    private boolean bindBenefitFile(long benefitFileId) {
+        benefitBean.updateStatusForFile(benefitFileId);
+        return benefitBean.isBenefitFileBound(benefitFileId);
     }
 
-    public void bindPaymentAndBenefit(RequestFile paymentFile, AsyncOperationStatus paymentStatus, RequestFile benefitFile,
-            AsyncOperationStatus benefitStatus) {
-
+    public void bindPaymentAndBenefit(RequestFile paymentFile, RequestFile benefitFile) {
         CalculationCenterInfo calculationCenterInfo = calculationCenterBean.getCurrentCalculationCenterInfo();
         long calculationCenterId = calculationCenterInfo.getId();
         ICalculationCenterAdapter adapter = calculationCenterInfo.getAdapterInstance();
 
-        bindPaymentFile(paymentFile.getId(), calculationCenterId, adapter, paymentStatus);
-        bindBenefitFile(benefitFile, benefitStatus);
-    }
+        if (paymentFile != null) {
+            try {
+                paymentFile.setStatus(RequestFile.STATUS.BINDING);
+                requestFileBean.save(paymentFile);
 
-    private void incrementFailedRecords(AsyncOperationStatus operationStatus) {
-        operationStatus.setFailed(operationStatus.getFailed());
-    }
+                boolean bound = bindPaymentFile(paymentFile.getId(), calculationCenterId, adapter);
 
-    private void incrementProcessedRecords(AsyncOperationStatus operationStatus) {
-        operationStatus.setProcessed(operationStatus.getProcessed());
+                paymentFile.setStatus(bound ? RequestFile.STATUS.BINDED : RequestFile.STATUS.LOADED);
+                requestFileBean.save(benefitFile);
+            } catch (RuntimeException e) {
+                try {
+                    paymentFile.setStatus(RequestFile.STATUS.LOADED);
+                    requestFileBean.save(paymentFile);
+                } catch (Exception ex) {
+                    log.error("", ex);
+                }
+                throw e;
+            }
+
+        }
+        if (benefitFile != null) {
+            try {
+                benefitFile.setStatus(RequestFile.STATUS.BINDING);
+                requestFileBean.save(benefitFile);
+
+                boolean bound = bindBenefitFile(benefitFile.getId());
+
+                benefitFile.setStatus(bound ? RequestFile.STATUS.BINDED : RequestFile.STATUS.LOADED);
+                requestFileBean.save(benefitFile);
+            } catch (RuntimeException e) {
+                try {
+                    benefitFile.setStatus(RequestFile.STATUS.LOADED);
+                    requestFileBean.save(benefitFile);
+                } catch (Exception ex) {
+                    log.error("", ex);
+                }
+                throw e;
+            }
+
+        }
     }
 }

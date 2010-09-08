@@ -1,5 +1,7 @@
 package org.complitex.osznconnection.file.service;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.complitex.dictionaryfw.mybatis.Transactional;
@@ -61,8 +63,20 @@ public class BenefitBean extends AbstractBean {
     }
 
     @Transactional
-    public int countByFile(long fileId) {
-        return (Integer) sqlSession().selectOne(MAPPING_NAMESPACE + ".countByFile", fileId);
+    private int boundCount(long fileId) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("requestFileId", fileId);
+        params.put("statuses", Lists.newArrayList(Status.ACCOUNT_NUMBER_NOT_FOUND, Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY,
+                Status.ADDRESS_CORRECTED, Status.APARTMENT_UNRESOLVED, Status.APARTMENT_UNRESOLVED_LOCALLY, Status.BUILDING_CORP_UNRESOLVED,
+                Status.BUILDING_UNRESOLVED, Status.BUILDING_UNRESOLVED_LOCALLY, Status.CITY_UNRESOLVED, Status.CITY_UNRESOLVED_LOCALLY,
+                Status.DISTRICT_NOT_FOUND, Status.MORE_ONE_ACCOUNTS, Status.STREET_TYPE_UNRESOLVED, Status.STREET_UNRESOLVED,
+                Status.STREET_UNRESOLVED_LOCALLY));
+
+        return (Integer) sqlSession().selectOne(MAPPING_NAMESPACE + ".countByFile", params);
+    }
+
+    public boolean isBenefitFileBound(long fileId) {
+        return boundCount(fileId) == 0;
     }
 
     @SuppressWarnings({"unchecked"})
