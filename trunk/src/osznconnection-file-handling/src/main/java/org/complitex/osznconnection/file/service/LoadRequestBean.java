@@ -5,6 +5,7 @@ import org.complitex.dictionaryfw.service.LogBean;
 import org.complitex.osznconnection.file.Module;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.storage.RequestFileStorage;
+import org.complitex.osznconnection.file.storage.StorageNotFound;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +44,7 @@ public class LoadRequestBean{
     private LogBean logBean;
 
     private boolean loading = false;
+    private boolean error = false;
 
     private List<RequestFile> processed = Collections.synchronizedList(new ArrayList<RequestFile>());
 
@@ -52,7 +54,7 @@ public class LoadRequestBean{
     }
 
     private List<File> getRequestFiles(final String[] filePrefix, final String districtDir, final String[] osznCode,
-                                       final String[] months) {
+                                       final String[] months) throws StorageNotFound {
 
         return RequestFileStorage.getInstance().getFiles(districtDir, new FilenameFilter() {
 
@@ -92,6 +94,10 @@ public class LoadRequestBean{
         return loading;
     }
 
+    public boolean isError() {
+        return error;
+    }
+
     public List<RequestFile> getProcessed() {
         return processed;
     }
@@ -101,6 +107,7 @@ public class LoadRequestBean{
         if (!loading) {
             try {
                 loading = true;
+                error = false;
                 processed.clear();
                 int errorCount = 0;
 
@@ -121,7 +128,7 @@ public class LoadRequestBean{
                             if (future.isDone()){
                                 RequestFile requestFile = future.get();
 
-                                if (requestFile.getStatus() == RequestFile.STATUS.ERROR){
+                                if (requestFile.getStatusDetail() == RequestFile.STATUS_DETAIL.CRITICAL){
                                     errorCount++;
                                 }
 
@@ -134,17 +141,28 @@ public class LoadRequestBean{
 
                     if (errorCount > MAX_ERROR_COUNT){
                         log.error("Загрузка файлов остановлена. Превышен лимит количества ошибок: " + file.getAbsolutePath());
-                        logBean.error(Module.NAME, LoadRequestBean.class, RequestFile.class, null, Log.EVENT.CREATE,
-                                "Загрузка файлов остановлена. Превышен лимит количества ошибок:  {0}", file.getName());
+                        error("Загрузка файлов остановлена. Превышен лимит количества ошибок:  {0}", file.getName());
                     }
                 }
             } catch (InterruptedException e) {
+                error = true;
                 log.error("Ошибка ожидания потока", e);
+                error("Ошибка ожидания потока");
             } catch (ExecutionException e) {
+                error = true;
                 log.error("Ошибка выполнения асинхронного метода", e);
+                error("Ошибка выполнения асинхронного метода: {0}", e.getMessage());
+            } catch (StorageNotFound e) {
+                error = true;
+                log.error(e.getMessage(), e);
+                error(e.getMessage());
             } finally {
                 loading = false;
             }
         }
-    } 
+    }
+
+    private void error(String desc, Object... args){
+        logBean.error(Module.NAME, LoadRequestBean.class, RequestFile.class, null, Log.EVENT.CREATE, desc, args);
+    }
 }

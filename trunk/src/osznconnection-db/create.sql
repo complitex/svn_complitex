@@ -735,6 +735,7 @@ CREATE TABLE `request_file` (
     `length` bigint(20),
     `check_sum` varchar(32),      
     `status` varchar(20),
+    `status_detail` varchar(20),
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

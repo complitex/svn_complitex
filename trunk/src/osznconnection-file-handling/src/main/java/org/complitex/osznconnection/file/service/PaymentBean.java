@@ -1,5 +1,8 @@
 package org.complitex.osznconnection.file.service;
 
+import com.linuxense.javadbf.DBFException;
+import com.linuxense.javadbf.DBFField;
+import com.linuxense.javadbf.DBFReader;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.complitex.dictionaryfw.mybatis.Transactional;
@@ -8,18 +11,12 @@ import org.complitex.osznconnection.file.entity.Payment;
 import org.complitex.osznconnection.file.entity.PaymentDBF;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.entity.Status;
+import org.complitex.osznconnection.file.service.exception.FieldNotFoundException;
+import org.complitex.osznconnection.file.service.exception.FieldWrongTypeException;
 import org.complitex.osznconnection.file.service.exception.SqlSessionException;
-import org.complitex.osznconnection.file.service.exception.WrongFieldTypeException;
 import org.complitex.osznconnection.file.web.pages.payment.PaymentExample;
-import org.xBaseJ.DBF;
-import org.xBaseJ.fields.CharField;
-import org.xBaseJ.fields.DateField;
-import org.xBaseJ.fields.Field;
-import org.xBaseJ.fields.NumField;
-import org.xBaseJ.xBaseJException;
 
 import javax.ejb.Stateless;
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -177,51 +174,68 @@ public class PaymentBean extends AbstractBean {
         sqlSession().update(MAPPING_NAMESPACE + ".correct", params);
     }
 
-    public void load(RequestFile requestFile, DBF dbf)
-            throws xBaseJException, IOException, WrongFieldTypeException, SqlSessionException {
-        Map<PaymentDBF, Field> fields = new HashMap<PaymentDBF, Field>();
+    public void load(RequestFile requestFile, DBFReader dbfReader)
+            throws FieldWrongTypeException, SqlSessionException, DBFException, FieldNotFoundException {
+        //карта индекс - название поля
+        Map<Integer, PaymentDBF> fieldIndex = new HashMap<Integer, PaymentDBF>();
 
-        for (PaymentDBF paymentDBF : PaymentDBF.values()) {
-            Field field = dbf.getField(paymentDBF.name());
+        int numberOfFields = dbfReader.getFieldCount();
 
-            Class fieldClass = field.getClass();
-            if ((paymentDBF.getType().equals(String.class) && !fieldClass.equals(CharField.class))
-                    || (paymentDBF.getType().equals(Integer.class) && !fieldClass.equals(NumField.class))
-                    || (paymentDBF.getType().equals(Double.class) && !fieldClass.equals(NumField.class))
-                    || (paymentDBF.getType().equals(Date.class) && !fieldClass.equals(DateField.class))) {
-                throw new WrongFieldTypeException();
+        DBFField field = null;
+        int index = 0;
+
+        try {
+            for(index = 0; index < numberOfFields; index++) {
+                field = dbfReader.getField(index);
+                PaymentDBF paymentDBF = PaymentDBF.valueOf(field.getName());
+
+                //проверка типов полей
+                byte type = field.getDataType();
+                if ((paymentDBF.getType().equals(String.class) && type != DBFField.FIELD_TYPE_C)
+                        || (paymentDBF.getType().equals(Integer.class) && type != DBFField.FIELD_TYPE_N)
+                        || (paymentDBF.getType().equals(Double.class) && type != DBFField.FIELD_TYPE_N)
+                        || (paymentDBF.getType().equals(Date.class) && type != DBFField.FIELD_TYPE_D)) {
+                    throw new FieldWrongTypeException(field.getName());
+                }
+
+                fieldIndex.put(index, paymentDBF);
             }
+        } catch (IllegalArgumentException e) {
+            throw new FieldNotFoundException(field != null ? field.getName() : "index: " + index);
+        }
 
-            fields.put(paymentDBF, field);
+        //проверка наличия всех полей
+        Collection<PaymentDBF> dbfFieldNames = fieldIndex.values();
+        for (PaymentDBF paymentDBF : PaymentDBF.values()){
+            if (!dbfFieldNames.contains(paymentDBF)){
+                throw new FieldNotFoundException(paymentDBF.name());
+            }
         }
 
         SqlSession sqlSession = null;
 
-        for (int i = 0; i < dbf.getRecordCount(); ++i) {
-            dbf.read();
+        int rowIndex = 0;
+        Object[] rowObjects;
 
+        while((rowObjects = dbfReader.nextRecord()) != null) {
             Payment payment = new Payment();
             payment.setRequestFileId(requestFile.getId());
             payment.setOrganizationId(requestFile.getOrganizationObjectId());
             payment.setStatus(Status.CITY_UNRESOLVED_LOCALLY);
 
-            for (PaymentDBF paymentDBF : PaymentDBF.values()) {
-                Field field = fields.get(paymentDBF);
+            for (int i=0; i < rowObjects.length; ++i) {
+                PaymentDBF paymentDBF = fieldIndex.get(i);
 
-                String value = field.get().trim();
-
-                if (value.isEmpty()) {
-                    continue;
-                }
+                Object value = rowObjects[i];
 
                 if (paymentDBF.getType().equals(String.class)) {
                     payment.setField(paymentDBF, value);
                 } else if (paymentDBF.getType().equals(Integer.class)) {
-                    payment.setField(paymentDBF, Integer.parseInt(value));
+                    payment.setField(paymentDBF, value);
                 } else if (paymentDBF.getType().equals(Double.class)) {
-                    payment.setField(paymentDBF, Double.parseDouble(value));
+                    payment.setField(paymentDBF, value);
                 } else if (paymentDBF.getType().equals(Date.class)) {
-                    payment.setField(paymentDBF, ((DateField) field).getCalendar().getTime());
+                    payment.setField(paymentDBF, value);
                 }
             }
 
@@ -229,7 +243,7 @@ public class PaymentBean extends AbstractBean {
             if (sqlSession == null) {
                 sqlSession = getSqlSessionManager().openSession(ExecutorType.BATCH);
             }
-            
+
             //debug delay
             if(RECORD_PROCESS_DELAY > 0){
                 try {
@@ -242,7 +256,7 @@ public class PaymentBean extends AbstractBean {
             try {
                 sqlSession().insert(MAPPING_NAMESPACE + ".insertPayment", payment);
 
-                if (i % BATCH_SIZE == 0) {
+                if (++rowIndex % BATCH_SIZE == 0) {
                     sqlSession.commit();
                     sqlSession.close();
                     sqlSession = null;

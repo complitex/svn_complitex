@@ -9,8 +9,11 @@ import java.util.Date;
  */
 public class RequestFile implements Serializable{
     public static enum STATUS {
-        LOADING, LOADED, BINDING, BINDED, BOUND_WITH_ERRORS, DEV,
-        ERROR, ERROR_XBASEJ, ERROR_FIELD_TYPE, ERROR_ALREADY_LOADED, ERROR_CANCEL_LOADING, ERROR_SQL_SESSION
+        NEW, LOADING, LOADED, LOAD_ERROR, BINDING, BINDED, BOUND_WITH_ERRORS
+    }
+
+    public static enum STATUS_DETAIL{
+        FIELD_NOT_FOUND, FIELD_WRONG_TYPE, ALREADY_LOADED, CANCEL_LOADING, SQL_SESSION, DBF, CRITICAL
     }
 
     public static enum TYPE {NONE, PAYMENT, BENEFIT}
@@ -26,10 +29,11 @@ public class RequestFile implements Serializable{
     private Integer dbfRecordCount;
     private Long length;
     private String checkSum;
-    private STATUS status = STATUS.DEV;
+    private STATUS status = STATUS.NEW;
+    private STATUS_DETAIL statusDetail;
 
     private Integer loadedRecordCount;
-    private Integer bindedRecordCount;    
+    private Integer bindedRecordCount;
 
     public boolean isPayment(){
         return getType().equals(TYPE.PAYMENT);
@@ -55,6 +59,11 @@ public class RequestFile implements Serializable{
 
     public boolean isProcessing(){
         return status.equals(STATUS.LOADING) || status.equals(STATUS.BINDING);
+    }
+
+    public void setStatus(STATUS status, STATUS_DETAIL statusDetail) {
+        this.status = status;
+        this.statusDetail = statusDetail;
     }
 
     public Long getId() {
@@ -127,6 +136,14 @@ public class RequestFile implements Serializable{
 
     public void setStatus(STATUS status) {
         this.status = status;
+    }
+
+    public STATUS_DETAIL getStatusDetail() {
+        return statusDetail;
+    }
+
+    public void setStatusDetail(STATUS_DETAIL statusDetail) {
+        this.statusDetail = statusDetail;
     }
 
     public Integer getLoadedRecordCount() {

@@ -2,30 +2,21 @@ package org.complitex.osznconnection.file.service;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.linuxense.javadbf.DBFField;
+import com.linuxense.javadbf.DBFReader;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
-import org.complitex.osznconnection.file.entity.Benefit;
-import org.complitex.osznconnection.file.entity.BenefitDBF;
-import org.complitex.osznconnection.file.entity.RequestFile;
-import org.complitex.osznconnection.file.entity.Status;
+import org.complitex.osznconnection.file.entity.*;
+import org.complitex.osznconnection.file.service.exception.FieldNotFoundException;
+import org.complitex.osznconnection.file.service.exception.FieldWrongTypeException;
 import org.complitex.osznconnection.file.service.exception.SqlSessionException;
-import org.complitex.osznconnection.file.service.exception.WrongFieldTypeException;
 import org.complitex.osznconnection.file.web.pages.benefit.BenefitExample;
-import org.xBaseJ.DBF;
-import org.xBaseJ.fields.CharField;
-import org.xBaseJ.fields.DateField;
-import org.xBaseJ.fields.Field;
-import org.xBaseJ.fields.NumField;
-import org.xBaseJ.xBaseJException;
 
 import javax.ejb.Stateless;
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Обработка записей файла запроса возмещения по льготам 
@@ -108,49 +99,67 @@ public class BenefitBean extends AbstractBean {
         sqlSession().update(MAPPING_NAMESPACE + ".updateStatusForFile", requestFileId);
     }
 
-    public void load(RequestFile requestFile, DBF dbf) throws xBaseJException, IOException, WrongFieldTypeException, SqlSessionException {
-        Map<BenefitDBF, Field> fields = new HashMap<BenefitDBF, Field>();
+    public void load(RequestFile requestFile, DBFReader dbfReader)
+            throws IOException, SqlSessionException, FieldNotFoundException, FieldWrongTypeException {
+        //карта индекс - название поля
+        Map<Integer, BenefitDBF> fieldIndex = new HashMap<Integer, BenefitDBF>();
 
-        for (BenefitDBF benefitDBF : BenefitDBF.values()) {
-            Field field = dbf.getField(benefitDBF.name());
+        int numberOfFields = dbfReader.getFieldCount();
 
-            Class fieldClass = field.getClass();
-            if ((benefitDBF.getType().equals(String.class) && !fieldClass.equals(CharField.class))
-                    || (benefitDBF.getType().equals(Integer.class) && !fieldClass.equals(NumField.class))
-                    || (benefitDBF.getType().equals(Double.class) && !fieldClass.equals(NumField.class))
-                    || (benefitDBF.getType().equals(Date.class) && !fieldClass.equals(DateField.class))) {
-                throw new WrongFieldTypeException();
+        DBFField field = null;
+        int index = 0;
+
+        try {
+            for(index = 0; index < numberOfFields; ++index) {
+                field = dbfReader.getField(index);
+                BenefitDBF benefitDBF = BenefitDBF.valueOf(field.getName());
+
+                //проверка типов полей
+                byte type = field.getDataType();
+                if ((benefitDBF.getType().equals(String.class) && type != DBFField.FIELD_TYPE_C)
+                        || (benefitDBF.getType().equals(Integer.class) && type != DBFField.FIELD_TYPE_N)
+                        || (benefitDBF.getType().equals(Double.class) && type != DBFField.FIELD_TYPE_N)
+                        || (benefitDBF.getType().equals(Date.class) && type != DBFField.FIELD_TYPE_D)) {
+                    throw new FieldWrongTypeException(field.getName());
+                }
+
+                fieldIndex.put(index, benefitDBF);
             }
+        } catch (IllegalArgumentException e) {
+            throw new FieldNotFoundException(field != null ? field.getName() : "index: " + index);
+        }
 
-            fields.put(benefitDBF, field);
+        //проверка наличия всех полей
+        Collection<BenefitDBF> dbfFieldNames = fieldIndex.values();
+        for (BenefitDBF benefitDBF : BenefitDBF.values()){
+            if (!dbfFieldNames.contains(benefitDBF)){
+                throw new FieldNotFoundException(benefitDBF.name());
+            }
         }
 
         SqlSession sqlSession = null;
 
-        for (int i = 0; i < dbf.getRecordCount(); ++i) {
-            dbf.read();
+        int rowIndex = 0;
+        Object[] rowObjects;
 
+        while((rowObjects = dbfReader.nextRecord()) != null) {
             Benefit benefit = new Benefit();
             benefit.setRequestFileId(requestFile.getId());
             benefit.setStatus(Status.CITY_UNRESOLVED_LOCALLY);
 
-            for (BenefitDBF benefitDBF : BenefitDBF.values()) {
-                Field field = fields.get(benefitDBF);
+            for (int i=0; i < rowObjects.length; ++i) {
+                BenefitDBF benefitDBF = fieldIndex.get(i);
 
-                String value = field.get().trim();
-
-                if (value.isEmpty()) {
-                    continue;
-                }
+                Object value = rowObjects[i];
 
                 if (benefitDBF.getType().equals(String.class)) {
                     benefit.setField(benefitDBF, value);
                 } else if (benefitDBF.getType().equals(Integer.class)) {
-                    benefit.setField(benefitDBF, Integer.parseInt(value));
+                    benefit.setField(benefitDBF, value);
                 } else if (benefitDBF.getType().equals(Double.class)) {
-                    benefit.setField(benefitDBF, Double.parseDouble(value));
+                    benefit.setField(benefitDBF, value);
                 } else if (benefitDBF.getType().equals(Date.class)) {
-                    benefit.setField(benefitDBF, ((DateField) field).getCalendar().getTime());
+                    benefit.setField(benefitDBF, value);
                 }
             }
 
@@ -170,7 +179,7 @@ public class BenefitBean extends AbstractBean {
             try {
                 sqlSession().insert(MAPPING_NAMESPACE + ".insertBenefit", benefit);
 
-                if (i % BATCH_SIZE == 0) {
+                if (++rowIndex % BATCH_SIZE == 0) {
                     sqlSession.commit();
                     sqlSession.close();
                     sqlSession = null;

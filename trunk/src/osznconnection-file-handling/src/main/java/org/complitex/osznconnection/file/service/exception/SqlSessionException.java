@@ -6,6 +6,6 @@ package org.complitex.osznconnection.file.service.exception;
  */
 public class SqlSessionException extends Exception{
     public SqlSessionException(Throwable cause) {
-        super(cause.getLocalizedMessage(), cause);        
+        super(cause);        
     }
 }

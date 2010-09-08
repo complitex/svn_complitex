@@ -11,6 +11,7 @@
         <result column="length" property="length"/>
         <result column="checkSum" property="checkSum"/>
         <result column="status" property="status"/>
+        <result column="status_detail" property="statusDetail"/>
         <result column="loaded_record_count" property="loadedRecordCount"/>
         <result column="binded_record_count" property="bindedRecordCount"/>
     </resultMap>
@@ -22,9 +23,11 @@
     <insert id="insertRequestFile" parameterType="org.complitex.osznconnection.file.entity.RequestFile"
             keyProperty="id" useGeneratedKeys="true">
         insert into
-            `request_file` (`organization_object_id`, `name`, `date`, `dbf_record_count`, `length`, `check_sum`, `status`, `loaded`)
+            `request_file` (`organization_object_id`, `name`, `date`, `dbf_record_count`, `length`, `check_sum`,
+                `status`, `status_detail`, `loaded`)
         values
-            (#{organizationObjectId}, #{name}, #{date}, #{dbfRecordCount}, #{length}, #{checkSum}, #{status}, #{loaded});
+            (#{organizationObjectId}, #{name}, #{date}, #{dbfRecordCount}, #{length}, #{checkSum},
+                #{status}, #{statusDetail}, #{loaded});
     </insert>
 
     <update id="updateRequestFile" parameterType="org.complitex.osznconnection.file.entity.RequestFile">
@@ -34,7 +37,8 @@
             <if test="date != null">`date` = #{date},</if>
             <if test="length != null">`length` = #{length},</if>
             <if test="checkSum != null">`check_sum` = #{checkSum},</if>
-            <if test="status != null">`status` = #{status}</if>
+            <if test="status != null">`status` = #{status},</if>
+            <if test="statusDetail != null">`status_detail` = #{statusDetail}</if>
         </set>
         where `id` = #{id}
     </update>
@@ -105,10 +109,10 @@
         from
             `request_file`
         where 
-            `name` = #{name} and `length` = #{length} and YEAR(`date`) = YEAR(#{date}) and `status` not like 'ERROR%'
+            `name` = #{name} and `length` = #{length} and YEAR(`date`) = YEAR(#{date}) and `status` not like 'LOAD_ERROR'
     </select>
 
     <update id="cancelLoading">
-        update `request_file` set `status` = 'ERROR_CANCEL_LOADING' where `status` = 'LOADING'
+        update `request_file` set `status` = 'LOAD_ERROR', `status_detail` = 'CANCEL_LOADING' where `status` = 'LOADING'
     </update>
 </mapper>
