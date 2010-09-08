@@ -18,9 +18,9 @@
             <transactionManager type="JDBC"/>
             <dataSource type="POOLED">
                 <property name="driver" value="com.mysql.jdbc.Driver"/>
-                <property name="url" value="jdbc:mysql://localhost:3306/${database}"/>
-                <property name="username" value="${username}"/>
-                <property name="password" value="${password}"/>
+                <property name="url" value="${local_url}"/>
+                <property name="username" value="${local_user}"/>
+                <property name="password" value="${local_password}"/>
 
                 <property name="poolMaximumActiveConnections" value="10"/>
                 <property name="poolMaximumIdleConnections" value="5"/>
@@ -30,7 +30,7 @@
             <transactionManager type="JDBC"/>
             <dataSource type="POOLED">
                 <property name="driver" value="oracle.jdbc.OracleDriver"/>
-                <property name="url" value="jdbc:oracle:thin:@192.168.1.102:1521:cnhar"/>
+                <property name="url" value="${remote_url}"/>
                 <property name="username" value="${remote_user}"/>
                 <property name="password" value="${remote_password}"/>
 
