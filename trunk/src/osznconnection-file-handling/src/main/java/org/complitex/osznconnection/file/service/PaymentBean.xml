@@ -223,6 +223,14 @@
         WHERE `id` = #{id}
     </update>
 
+    <select id="countByFile" resultType="int" parameterType="hashmap">
+        SELECT COUNT(*) FROM `payment` r
+        WHERE r.`request_file_id` = #{requestFileId} AND r.`status` IN
+        <foreach collection="statuses" item="status" open="(" close=")" separator=",">
+            #{status}
+        </foreach>
+    </select>
+
     <select id="findForOperation" parameterType="hashmap" resultMap="paymentResultMap">
         SELECT r.`id`, r.`status`, r.`request_file_id`, r.`F_NAM`, r.`M_NAM`, r.`SUR_NAM`,
         r.`N_NAME`, r.`VUL_NAME`, r.`BLD_NUM`, r.`FLAT`,

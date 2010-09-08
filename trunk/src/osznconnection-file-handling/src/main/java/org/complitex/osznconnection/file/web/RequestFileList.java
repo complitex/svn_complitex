@@ -1,5 +1,7 @@
 package org.complitex.osznconnection.file.web;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ResourceReference;
@@ -233,25 +235,8 @@ public class RequestFileList extends TemplatePage {
 
         showMessages();
 
-        //Таймер
         if (isProcessing()) {
-            waitForStopTimer = 0;
-
-            dataViewContainer.add(new AjaxSelfUpdatingTimerBehavior(Duration.seconds(1)) {
-
-                @Override
-                protected void onPostProcessTarget(AjaxRequestTarget target) {
-                    showMessages(target);
-
-                    if (!isProcessing() && ++waitForStopTimer > 2) {
-                        this.stop();
-                        target.addComponent(filterForm);
-                    } else {
-                        //update feedback messages panel
-                        target.addComponent(messages);
-                    }
-                }
-            });
+            dataViewContainer.add(newTimer(filterForm, messages));
         }
 
         //Сортировка
@@ -303,6 +288,7 @@ public class RequestFileList extends TemplatePage {
 
                 FileExecutorService.get().bind(requestFiles);
                 selectModels.clear();
+                addTimer(dataViewContainer, filterForm, messages);
             }
 
             @Override
@@ -375,5 +361,67 @@ public class RequestFileList extends TemplatePage {
         }
 
         renderedIndex = processed.size();
+
+        //show messages for binding operation
+        Collection<RequestFile> bindingFiles = FileExecutorService.get().getBindingFiles();
+        for (RequestFile bindingFile : bindingFiles) {
+            switch (bindingFile.getStatus()) {
+                case BINDED: {
+                    if (target != null) { //highlight loaded
+                        target.appendJavascript("$('#" + ITEM_ID_PREFIX + bindingFile.getId() + "')"
+                                + ".animate({ backgroundColor: 'lightgreen' }, 300)"
+                                + ".animate({ backgroundColor: '#E0E4E9' }, 700)");
+                    }
+                    info(getStringFormat("bound.success", bindingFile.getName()));
+                    break;
+                }
+                case BOUND_WITH_ERRORS: {
+                    if (target != null) {
+                        target.appendJavascript("$('#" + ITEM_ID_PREFIX + bindingFile.getId() + "')"
+                                + ".animate({ backgroundColor: 'darksalmon' }, 300)"
+                                + ".animate({ backgroundColor: '#E0E4E9' }, 700)");
+                    }
+                    error(getStringFormat("bound.error", bindingFile.getName()));
+                    break;
+                }
+            }
+        }
+    }
+
+    private void addTimer(WebMarkupContainer dataViewContainer, Form<?> filterForm, AjaxFeedbackPanel messages) {
+        boolean needCreateNewTimer = true;
+
+        List<AjaxSelfUpdatingTimerBehavior> timers = null;
+        timers = Lists.newArrayList(Iterables.filter(dataViewContainer.getBehaviors(), AjaxSelfUpdatingTimerBehavior.class));
+        if (timers != null && !timers.isEmpty()) {
+            for (AjaxSelfUpdatingTimerBehavior timer : timers) {
+                if (!timer.isStopped()) {
+                    needCreateNewTimer = false;
+                    break;
+                }
+            }
+        }
+        if (needCreateNewTimer) {
+            dataViewContainer.add(newTimer(filterForm, messages));
+        }
+    }
+
+    private AjaxSelfUpdatingTimerBehavior newTimer(final Form<?> filterForm, final AjaxFeedbackPanel messages) {
+        waitForStopTimer = 0;
+        return new AjaxSelfUpdatingTimerBehavior(Duration.seconds(1)) {
+
+            @Override
+            protected void onPostProcessTarget(AjaxRequestTarget target) {
+                showMessages(target);
+
+                if (!isProcessing() && ++waitForStopTimer > 2) {
+                    this.stop();
+                    target.addComponent(filterForm);
+                } else {
+                    //update feedback messages panel
+                    target.addComponent(messages);
+                }
+            }
+        };
     }
 }

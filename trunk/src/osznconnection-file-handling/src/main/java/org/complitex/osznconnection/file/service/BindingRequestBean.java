@@ -73,25 +73,20 @@ public class BindingRequestBean extends AbstractBean {
         return payment.getStatus() == Status.ACCOUNT_NUMBER_RESOLVED;
     }
 
-    private boolean bind(Payment payment, long calculationCenterId, ICalculationCenterAdapter adapter) {
-        boolean bound = false;
+    private void bind(Payment payment, long calculationCenterId, ICalculationCenterAdapter adapter) {
         ModifyStatus modifyStatus = new ModifyStatus();
         if (resolveAddress(payment, calculationCenterId, adapter, modifyStatus)) {
             if (resolveAccountNumber(payment, adapter, modifyStatus)) {
                 //binding successful
-                bound = true;
             }
         }
 
         if (modifyStatus.isModified()) {
             paymentBean.update(payment);
         }
-        return bound;
     }
 
     private boolean bindPaymentFile(long paymentFileId, long calculationCenterId, ICalculationCenterAdapter adapter) {
-        boolean bound = true;
-
         List<Long> notResolvedPaymentIds = paymentBean.findIdsForBinding(paymentFileId);
 
         List<Long> batch = Lists.newArrayList();
@@ -105,15 +100,13 @@ public class BindingRequestBean extends AbstractBean {
                 getSqlSessionManager().startManagedSession(false);
                 List<Payment> payments = paymentBean.findForOperation(paymentFileId, batch);
                 for (Payment payment : payments) {
-                    bound &= bind(payment, calculationCenterId, adapter);
+                    bind(payment, calculationCenterId, adapter);
                 }
                 getSqlSessionManager().commit();
             } catch (Exception e) {
-                bound = false;
                 try {
                     getSqlSessionManager().rollback();
                 } catch (SqlSessionException exc) {
-                    bound = false;
                     log.error("", exc);
                 }
                 log.error("", e);
@@ -121,12 +114,11 @@ public class BindingRequestBean extends AbstractBean {
                 try {
                     getSqlSessionManager().close();
                 } catch (Exception e) {
-                    bound = false;
                     log.error("", e);
                 }
             }
         }
-        return bound;
+        return paymentBean.isPaymentFileBound(paymentFileId);
     }
 
     private boolean bindBenefitFile(long benefitFileId) {
@@ -146,11 +138,11 @@ public class BindingRequestBean extends AbstractBean {
 
                 boolean bound = bindPaymentFile(paymentFile.getId(), calculationCenterId, adapter);
 
-                paymentFile.setStatus(bound ? RequestFile.STATUS.BINDED : RequestFile.STATUS.LOADED);
+                paymentFile.setStatus(bound ? RequestFile.STATUS.BINDED : RequestFile.STATUS.BOUND_WITH_ERRORS);
                 requestFileBean.save(benefitFile);
             } catch (RuntimeException e) {
                 try {
-                    paymentFile.setStatus(RequestFile.STATUS.LOADED);
+                    paymentFile.setStatus(RequestFile.STATUS.BOUND_WITH_ERRORS);
                     requestFileBean.save(paymentFile);
                 } catch (Exception ex) {
                     log.error("", ex);
@@ -166,11 +158,11 @@ public class BindingRequestBean extends AbstractBean {
 
                 boolean bound = bindBenefitFile(benefitFile.getId());
 
-                benefitFile.setStatus(bound ? RequestFile.STATUS.BINDED : RequestFile.STATUS.LOADED);
+                benefitFile.setStatus(bound ? RequestFile.STATUS.BINDED : RequestFile.STATUS.BOUND_WITH_ERRORS);
                 requestFileBean.save(benefitFile);
             } catch (RuntimeException e) {
                 try {
-                    benefitFile.setStatus(RequestFile.STATUS.LOADED);
+                    benefitFile.setStatus(RequestFile.STATUS.BOUND_WITH_ERRORS);
                     requestFileBean.save(benefitFile);
                 } catch (Exception ex) {
                     log.error("", ex);

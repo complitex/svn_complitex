@@ -8,6 +8,8 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import java.util.Collection;
+import java.util.Collections;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +19,7 @@ import javax.naming.NamingException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -46,18 +49,24 @@ public class FileExecutorService {
         return Executors.newFixedThreadPool(FileHandlingConfig.BINDING_THREAD_SIZE.getInteger());
     }
 
-    private int taskCount;
+//    private int taskCount;
 
-    public synchronized boolean isBinding() {
-        return taskCount > 0;
+    public boolean isBinding() {
+//        return taskCount > 0;
+        return !bindingFilesMap.isEmpty();
     }
 
-    private synchronized void incrementTaskCount() {
-        taskCount++;
-    }
+//    private synchronized void incrementTaskCount() {
+//        taskCount++;
+//    }
+//
+//    private synchronized void decrementTaskCount() {
+//        taskCount--;
+//    }
+    private ConcurrentHashMap<Long, RequestFile> bindingFilesMap = new ConcurrentHashMap<Long, RequestFile>();
 
-    private synchronized void decrementTaskCount() {
-        taskCount--;
+    public Collection<RequestFile> getBindingFiles() {
+        return Collections.unmodifiableCollection(bindingFilesMap.values());
     }
 
     private class BindTask implements Runnable {
@@ -73,17 +82,44 @@ public class FileExecutorService {
 
         @Override
         public void run() {
-            incrementTaskCount();
+            if (paymentFile != null) {
+                try {
+                    bindingFilesMap.putIfAbsent(paymentFile.getId(), paymentFile);
+                } catch (Exception e) {
+                    log.error("", e);
+                }
+            }
+            if (benefitFile != null) {
+                try {
+                    bindingFilesMap.putIfAbsent(benefitFile.getId(), benefitFile);
+                } catch (Exception e) {
+                    log.error("", e);
+                }
+            }
+
             try {
                 //TODO: remove it after test
                 Thread.sleep(5000);
-                
+
                 BindingRequestBean bindingRequestBean = getBindingBean();
                 bindingRequestBean.bindPaymentAndBenefit(paymentFile, benefitFile);
             } catch (Exception e) {
                 log.error("", e);
             } finally {
-                decrementTaskCount();
+                if (paymentFile != null) {
+                    try {
+                        bindingFilesMap.remove(paymentFile.getId());
+                    } catch (Exception e) {
+                        log.error("", e);
+                    }
+                }
+                if (benefitFile != null) {
+                    try {
+                        bindingFilesMap.remove(benefitFile.getId());
+                    } catch (Exception e) {
+                        log.error("", e);
+                    }
+                }
             }
         }
 
@@ -102,7 +138,7 @@ public class FileExecutorService {
 
             @Override
             public boolean apply(RequestFile requestFile) {
-                return requestFile.getStatus().equals(RequestFile.STATUS.LOADED);
+                return requestFile.getStatus() == RequestFile.STATUS.LOADED || requestFile.getStatus() == RequestFile.STATUS.BOUND_WITH_ERRORS;
             }
         }));
         Set<Long> bindingBenefitFiles = Sets.newHashSet();
@@ -138,6 +174,7 @@ public class FileExecutorService {
         }
         for (RequestFile file : suitedFiles) {
             if ((file.getType() == RequestFile.TYPE.BENEFIT) && !bindingBenefitFiles.contains(file.getId())) {
+                log.info("Benefit file : {}", file.getName());
                 threadPool.submit(new BindTask(null, file));
             }
         }

@@ -9,7 +9,7 @@ import java.util.Date;
  */
 public class RequestFile implements Serializable{
     public static enum STATUS {
-        LOADING, LOADED, BINDING, BINDED, DEV,
+        LOADING, LOADED, BINDING, BINDED, BOUND_WITH_ERRORS, DEV,
         ERROR, ERROR_XBASEJ, ERROR_FIELD_TYPE, ERROR_ALREADY_LOADED, ERROR_CANCEL_LOADING, ERROR_SQL_SESSION
     }
 
