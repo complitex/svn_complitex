@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -34,6 +35,8 @@ public class LoadRequestBean{
     public static final int MAX_ERROR_COUNT = FileHandlingConfig.LOAD_MAX_ERROR_FILE_COUNT.getInteger();
     public static final int THREADS_SIZE = FileHandlingConfig.LOAD_THREADS_SIZE.getInteger();
 
+    public static enum PROCESS_STATUS{NEW, LOADING, ERROR, COMPLETED}
+
     @EJB(beanName = "RequestFileBean")
     private RequestFileBean requestFileBean;
 
@@ -43,14 +46,33 @@ public class LoadRequestBean{
     @EJB(beanName = "LogBean")
     private LogBean logBean;
 
-    private boolean loading = false;
-    private boolean error = false;
+    private PROCESS_STATUS processStatus;
+
+    private int loadedCount = 0;
+    private int errorCount = 0;
 
     private List<RequestFile> processed = Collections.synchronizedList(new ArrayList<RequestFile>());
 
     @PostConstruct
-    private void init(){
-        requestFileBean.cancelLoading();
+    public  void init(){
+        if (processStatus == PROCESS_STATUS.COMPLETED){
+            processStatus = PROCESS_STATUS.NEW;
+        }else if (processStatus == null){
+            processStatus = PROCESS_STATUS.NEW;
+            requestFileBean.cancelLoading();
+        }
+    }
+
+    public boolean isLoading(){
+        return processStatus == PROCESS_STATUS.LOADING;
+    }
+
+    public boolean isError(){
+        return processStatus == PROCESS_STATUS.ERROR;
+    }
+
+    public boolean isCompleted(){
+        return processStatus == PROCESS_STATUS.COMPLETED;
     }
 
     private List<File> getRequestFiles(final String[] filePrefix, final String districtDir, final String[] osznCode,
@@ -90,46 +112,61 @@ public class LoadRequestBean{
         return months;
     }
 
-    public boolean isLoading() {
-        return loading;
+    public PROCESS_STATUS getProcessStatus() {
+        return processStatus;
     }
 
-    public boolean isError() {
-        return error;
+    public int getLoadedCount() {
+        return loadedCount;
     }
 
-    public List<RequestFile> getProcessed() {
-        return processed;
+    public int getErrorCount() {
+        return errorCount;
+    }
+
+    public List<RequestFile> getProcessed(boolean flush) {
+        List<RequestFile> list = new ArrayList<RequestFile>();
+        list.addAll(processed);
+
+        if (flush) {
+            processed.clear();
+        }
+
+        return Collections.unmodifiableList(list);
     }
 
     @Asynchronous
     public void load(long organizationId, String districtCode, Integer organizationCode, int monthFrom, int monthTo, int year) {
-        if (!loading) {
+        if (processStatus == PROCESS_STATUS.NEW || processStatus == PROCESS_STATUS.COMPLETED) {
             try {
-                loading = true;
-                error = false;
-                processed.clear();
-                int errorCount = 0;
+                processStatus = PROCESS_STATUS.LOADING;
+                errorCount = 0;
+                loadedCount = 0;
 
                 List<File> files = getRequestFiles(new String[]{RequestFile.PAYMENT_FILES_PREFIX, RequestFile.BENEFIT_FILES_PREFIX},
                         districtCode, new String[]{String.valueOf(organizationCode)}, getMonth(monthFrom, monthTo));
                                 
-                List<Future<RequestFile>> futures = new ArrayList<Future<RequestFile>>();
+                List<Future<RequestFile>> futures = new ArrayList<Future<RequestFile>>(THREADS_SIZE);
 
-                for (File file : files){
+                for (File file : files) {
                     futures.add(loadTaskBean.load(file, organizationId, year));
 
                     //Loading pool
                     int index;
                     Future<RequestFile> future;
-                    while(futures.size() >= THREADS_SIZE){
-                        for (index = 0; index < futures.size(); ++index){
+                    while (futures.size() >= THREADS_SIZE || futures.size() != 0) {
+                        for (index = 0; index < futures.size(); ++index) {
                             future = futures.get(index);
-                            if (future.isDone()){
+                            if (future.isDone()) {
                                 RequestFile requestFile = future.get();
 
-                                if (requestFile.getStatusDetail() == RequestFile.STATUS_DETAIL.CRITICAL){
-                                    errorCount++;
+                                switch (requestFile.getStatus()) {
+                                    case LOADED:
+                                        loadedCount++;
+                                        break;
+                                    case LOAD_ERROR:
+                                        errorCount++;
+                                        break;
                                 }
 
                                 processed.add(requestFile);
@@ -139,25 +176,25 @@ public class LoadRequestBean{
                         Thread.sleep(250);
                     }
 
-                    if (errorCount > MAX_ERROR_COUNT){
+                    if (errorCount > MAX_ERROR_COUNT) {
                         log.error("Загрузка файлов остановлена. Превышен лимит количества ошибок: " + file.getAbsolutePath());
                         error("Загрузка файлов остановлена. Превышен лимит количества ошибок:  {0}", file.getName());
                     }
                 }
             } catch (InterruptedException e) {
-                error = true;
+                processStatus = PROCESS_STATUS.ERROR;
                 log.error("Ошибка ожидания потока", e);
                 error("Ошибка ожидания потока");
             } catch (ExecutionException e) {
-                error = true;
+                processStatus = PROCESS_STATUS.ERROR;
                 log.error("Ошибка выполнения асинхронного метода", e);
                 error("Ошибка выполнения асинхронного метода: {0}", e.getMessage());
             } catch (StorageNotFound e) {
-                error = true;
+                processStatus = PROCESS_STATUS.ERROR;
                 log.error(e.getMessage(), e);
                 error(e.getMessage());
             } finally {
-                loading = false;
+                processStatus = PROCESS_STATUS.COMPLETED;
             }
         }
     }
