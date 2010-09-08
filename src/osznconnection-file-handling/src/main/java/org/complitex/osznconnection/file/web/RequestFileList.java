@@ -42,6 +42,8 @@ import org.complitex.osznconnection.web.resource.WebCommonResourceInitializer;
 import javax.ejb.EJB;
 import java.util.*;
 
+import static org.complitex.osznconnection.file.entity.RequestFile.STATUS.LOAD_ERROR;
+
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 25.08.2010 13:35:35
@@ -218,7 +220,8 @@ public class RequestFileList extends TemplatePage {
                 item.add(new Label("dbf_record_count", StringUtil.valueOf(rf.getDbfRecordCount())));
                 item.add(new Label("loaded_record_count", StringUtil.valueOf(rf.getLoadedRecordCount(), rf.getDbfRecordCount())));
                 item.add(new Label("binded_record_count", StringUtil.valueOf(rf.getBindedRecordCount(), rf.getDbfRecordCount())));
-                item.add(new Label("status", getStringOrKey(rf.getStatus().name())));
+
+                item.add(new Label("status", getStringOrKey(rf.getStatus() != LOAD_ERROR ? rf.getStatus() : rf.getStatusDetail())));
 
                 Class<? extends Page> page = null;
                 if (rf.isPayment()) {
@@ -308,6 +311,10 @@ public class RequestFileList extends TemplatePage {
     private boolean showLoaded = false;
 
     private void showMessages() {
+        if (loadRequestBean.isError()){
+            error(getString("error.process"));
+        }
+
         showMessages(null);
     }
 
@@ -325,22 +332,24 @@ public class RequestFileList extends TemplatePage {
                                 + ".animate({ backgroundColor: '#E0E4E9' }, 700)");
                     }
                     break;
-                case ERROR_ALREADY_LOADED:
-                    Calendar year = Calendar.getInstance();
-                    year.setTime(rf.getDate());
+                case LOAD_ERROR:
+                    switch (rf.getStatusDetail()){
+                        case ALREADY_LOADED:
+                            Calendar year = Calendar.getInstance();
+                            year.setTime(rf.getDate());
 
-                    error(getStringFormat("error.already_loaded", rf.getName(), year.get(Calendar.YEAR)));
-                    break;
-                case ERROR_SQL_SESSION:
-                case ERROR_FIELD_TYPE:
-                case ERROR_XBASEJ:
-                case ERROR:
-                    if (target != null) { //highlight error
-                        target.appendJavascript("$('#" + ITEM_ID_PREFIX + rf.getId() + "')"
-                                + ".animate({ backgroundColor: 'darksalmon' }, 300)"
-                                + ".animate({ backgroundColor: '#E0E4E9' }, 700)");
+                            error(getStringFormat("error.already_loaded", rf.getName(), year.get(Calendar.YEAR)));
+                            break;
+                        default:
+                            if (target != null) { //highlight error
+                                target.appendJavascript("$('#" + ITEM_ID_PREFIX + rf.getId() + "')"
+                                        + ".animate({ backgroundColor: 'darksalmon' }, 300)"
+                                        + ".animate({ backgroundColor: '#E0E4E9' }, 700)");
+                            }
+                            error(getStringFormat("error.common", rf.getName()));
+                            break;
                     }
-                    error(getStringFormat("error.common", rf.getName()));
+                    break;
             }
         }
 
@@ -357,6 +366,11 @@ public class RequestFileList extends TemplatePage {
             }
 
             info(getStringFormat("info.loaded", loaded, error));
+
+            if (loadRequestBean.isError()){
+                error(getString("error.process"));
+            }
+
             showLoaded = true;
         }
 

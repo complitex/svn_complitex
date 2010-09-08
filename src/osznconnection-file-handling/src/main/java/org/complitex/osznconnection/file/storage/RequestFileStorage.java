@@ -30,11 +30,18 @@ public class RequestFileStorage {
      * @param child дочерняя директория
      * @param filter фильтр
      * @return Список файлов в дочерней директории корневой директории файлового хранилища
+     * @throws StorageNotFound Директория не найдена
      */
-    public List<File> getFiles(String child, FilenameFilter filter){
+    public List<File> getFiles(String child, FilenameFilter filter) throws StorageNotFound {
         List<File> files = new ArrayList<File>();
 
-        addFiles(files, new File(FileHandlingConfig.LOAD_INPUT_FILE_STORAGE_DIR.getString(), child), filter);
+        File dir = new File(FileHandlingConfig.LOAD_INPUT_FILE_STORAGE_DIR.getString(), child);
+
+        if (!dir.exists()){
+            throw new StorageNotFound("Директория входящих файлов запросов " + dir.getAbsolutePath() + " не найдена");            
+        }
+
+        addFiles(files, dir, filter);
 
         return files;
     }

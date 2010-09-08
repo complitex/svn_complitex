@@ -209,6 +209,10 @@ public abstract class TemplatePage extends WebPage {
         return key != null ? getString(key, null, key) : "";
     }
 
+    protected String getStringOrKey(Enum key) {
+        return getStringOrKey(key.name());
+    }
+
     public Locale getSystemLocale() {
         return getLocale();
     }

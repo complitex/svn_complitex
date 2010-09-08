@@ -1,27 +1,30 @@
 package org.complitex.osznconnection.file.service;
 
+import com.linuxense.javadbf.DBFException;
+import com.linuxense.javadbf.DBFReader;
 import org.complitex.dictionaryfw.entity.Log;
 import org.complitex.dictionaryfw.service.LogBean;
 import org.complitex.dictionaryfw.util.DateUtil;
 import org.complitex.osznconnection.file.Module;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.service.exception.AlreadyLoadedException;
+import org.complitex.osznconnection.file.service.exception.FieldNotFoundException;
+import org.complitex.osznconnection.file.service.exception.FieldWrongTypeException;
 import org.complitex.osznconnection.file.service.exception.SqlSessionException;
-import org.complitex.osznconnection.file.service.exception.WrongFieldTypeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xBaseJ.DBF;
-import org.xBaseJ.xBaseJException;
 
 import javax.ejb.AsyncResult;
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.Date;
 import java.util.concurrent.Future;
 
 import static org.complitex.osznconnection.file.entity.RequestFile.STATUS.*;
+import static org.complitex.osznconnection.file.entity.RequestFile.STATUS_DETAIL.*;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -57,11 +60,12 @@ public class LoadTaskBean {
                 throw new AlreadyLoadedException();
             }
 
-            DBF dbf = new DBF(file.getAbsolutePath(), DBF.READ_ONLY, "Cp866");
+            DBFReader dbfReader = new DBFReader(new FileInputStream(file));
+            dbfReader.setCharactersetName("cp866");
+            requestFile.setDbfRecordCount(dbfReader.getRecordCount());
 
             //Начало загрузки
             requestFile.setLoaded(DateUtil.getCurrentDate());
-            requestFile.setDbfRecordCount(dbf.getRecordCount());
             requestFile.setOrganizationObjectId(organizationId);
             requestFile.setStatus(LOADING);
 
@@ -69,35 +73,39 @@ public class LoadTaskBean {
 
             //Загрузка записей
             if (requestFile.isPayment()){
-                paymentBean.load(requestFile, dbf);
+                paymentBean.load(requestFile, dbfReader);
             }else if (requestFile.isBenefit()){
-                benefitBean.load(requestFile, dbf);
+                benefitBean.load(requestFile, dbfReader);
             }
 
             //Загрузка завершена
             requestFile.setStatus(LOADED);
-        } catch (xBaseJException e) {
-            requestFile.setStatus(ERROR_XBASEJ);
-            log.error("Ошибка обработки DBF файла " + file.getAbsolutePath(), e);
-            error(requestFile, "Ошибка обработки DBF файла {0}. {1}", file.getName(), e.getMessage());
-        } catch (WrongFieldTypeException e) {
-            requestFile.setStatus(ERROR_FIELD_TYPE);
-            log.error("Неверные типы полей " + file.getAbsolutePath(), e);
-            error(requestFile, "Неверные типы полей {0}", file.getName());
+        }catch (FieldNotFoundException e){
+            requestFile.setStatus(LOAD_ERROR, FIELD_NOT_FOUND);
+            log.error("Поле не найдено " + file.getAbsolutePath(), e);
+            error(requestFile, "Поле {0} не найдено в файле {1}", e.getMessage(), file.getName());
+        } catch (FieldWrongTypeException e) {
+            requestFile.setStatus(LOAD_ERROR, FIELD_WRONG_TYPE);
+            log.error("Неверный тип поля " + file.getAbsolutePath(), e);
+            error(requestFile, "Неверный тип поля {0} в файле {1}", e.getMessage(), file.getName());
         } catch (AlreadyLoadedException e) {
-            requestFile.setStatus(ERROR_ALREADY_LOADED);
+            requestFile.setStatus(LOAD_ERROR, ALREADY_LOADED);
             log.warn("Файл уже загружен {}", file.getAbsolutePath());
             error(requestFile, "Файл уже загружен {0}", file.getName());
         } catch (SqlSessionException e){
-            requestFile.setStatus(ERROR_SQL_SESSION);
+            requestFile.setStatus(LOAD_ERROR, SQL_SESSION);
             log.error("Ошибка сохранения в базу данных при обработке файла " + file.getAbsolutePath(), e);
             error(requestFile, "Ошибка сохранения в базу данных файла {0}. {1}", file.getName(), e.getMessage());
+        } catch (DBFException e){
+            requestFile.setStatus(LOAD_ERROR, DBF);
+            log.error("Ошибка формата файла " + file.getAbsolutePath(), e);
+            error(requestFile, "Ошибка формата файла {0} {1}", file.getName(), e.getMessage());
         } catch (Throwable t){
-            requestFile.setStatus(ERROR);
+            requestFile.setStatus(LOAD_ERROR, CRITICAL);
             log.error("Ошибка загрузки файла " + file.getAbsolutePath(), t);
             error(requestFile, "Ошибка загрузки файла {0}", file.getName());
         } finally {
-            if (requestFile.getStatus() != ERROR_ALREADY_LOADED) {
+            if (requestFile.getStatusDetail() != ALREADY_LOADED) {
                 requestFile.setLoaded(DateUtil.getCurrentDate());
                 requestFileBean.save(requestFile);
 
