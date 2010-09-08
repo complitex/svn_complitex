@@ -86,90 +86,91 @@ public class BindingRequestBean extends AbstractBean {
         }
     }
 
-    private boolean bindPaymentFile(long paymentFileId, long calculationCenterId, ICalculationCenterAdapter adapter) {
-        List<Long> notResolvedPaymentIds = paymentBean.findIdsForBinding(paymentFileId);
+    public void bindPaymentFile(RequestFile paymentFile) {
+        try {
+            CalculationCenterInfo calculationCenterInfo = calculationCenterBean.getCurrentCalculationCenterInfo();
+            long calculationCenterId = calculationCenterInfo.getId();
+            ICalculationCenterAdapter adapter = calculationCenterInfo.getAdapterInstance();
 
-        List<Long> batch = Lists.newArrayList();
-        while (notResolvedPaymentIds.size() > 0) {
-            batch.clear();
-            for (int i = 0; i < Math.min(BATCH_SIZE, notResolvedPaymentIds.size()); i++) {
-                batch.add(notResolvedPaymentIds.remove(i));
-            }
+            paymentFile.setStatus(RequestFile.STATUS.BINDING);
+            requestFileBean.save(paymentFile);
 
-            try {
-                getSqlSessionManager().startManagedSession(false);
-                List<Payment> payments = paymentBean.findForOperation(paymentFileId, batch);
-                for (Payment payment : payments) {
-                    bind(payment, calculationCenterId, adapter);
+            //TODO: remove it after test
+//            try {
+//                Thread.sleep(5000);
+//            } catch (InterruptedException e) {
+//            }
+
+            List<Long> notResolvedPaymentIds = paymentBean.findIdsForBinding(paymentFile.getId());
+
+            List<Long> batch = Lists.newArrayList();
+            while (notResolvedPaymentIds.size() > 0) {
+                batch.clear();
+                for (int i = 0; i < Math.min(BATCH_SIZE, notResolvedPaymentIds.size()); i++) {
+                    batch.add(notResolvedPaymentIds.remove(i));
                 }
-                getSqlSessionManager().commit();
-            } catch (Exception e) {
+
                 try {
-                    getSqlSessionManager().rollback();
-                } catch (SqlSessionException exc) {
-                    log.error("", exc);
-                }
-                log.error("", e);
-            } finally {
-                try {
-                    getSqlSessionManager().close();
+                    getSqlSessionManager().startManagedSession(false);
+                    List<Payment> payments = paymentBean.findForOperation(paymentFile.getId(), batch);
+                    for (Payment payment : payments) {
+                        bind(payment, calculationCenterId, adapter);
+                    }
+                    getSqlSessionManager().commit();
                 } catch (Exception e) {
+                    try {
+                        getSqlSessionManager().rollback();
+                    } catch (SqlSessionException exc) {
+                        log.error("", exc);
+                    }
                     log.error("", e);
+                } finally {
+                    try {
+                        getSqlSessionManager().close();
+                    } catch (Exception e) {
+                        log.error("", e);
+                    }
                 }
             }
-        }
-        return paymentBean.isPaymentFileBound(paymentFileId);
-    }
 
-    private boolean bindBenefitFile(long benefitFileId) {
-        benefitBean.updateStatusForFile(benefitFileId);
-        return benefitBean.isBenefitFileBound(benefitFileId);
-    }
-
-    public void bindPaymentAndBenefit(RequestFile paymentFile, RequestFile benefitFile) {
-        CalculationCenterInfo calculationCenterInfo = calculationCenterBean.getCurrentCalculationCenterInfo();
-        long calculationCenterId = calculationCenterInfo.getId();
-        ICalculationCenterAdapter adapter = calculationCenterInfo.getAdapterInstance();
-
-        if (paymentFile != null) {
+            boolean bound = paymentBean.isPaymentFileBound(paymentFile.getId());
+            paymentFile.setStatus(bound ? RequestFile.STATUS.BINDED : RequestFile.STATUS.BOUND_WITH_ERRORS);
+            requestFileBean.save(paymentFile);
+        } catch (RuntimeException e) {
             try {
-                paymentFile.setStatus(RequestFile.STATUS.BINDING);
+                paymentFile.setStatus(RequestFile.STATUS.BOUND_WITH_ERRORS);
                 requestFileBean.save(paymentFile);
-
-                boolean bound = bindPaymentFile(paymentFile.getId(), calculationCenterId, adapter);
-
-                paymentFile.setStatus(bound ? RequestFile.STATUS.BINDED : RequestFile.STATUS.BOUND_WITH_ERRORS);
-                requestFileBean.save(benefitFile);
-            } catch (RuntimeException e) {
-                try {
-                    paymentFile.setStatus(RequestFile.STATUS.BOUND_WITH_ERRORS);
-                    requestFileBean.save(paymentFile);
-                } catch (Exception ex) {
-                    log.error("", ex);
-                }
-                throw e;
+            } catch (Exception ex) {
+                log.error("", ex);
             }
-
+            throw e;
         }
-        if (benefitFile != null) {
+    }
+
+    public void bindBenefitFile(RequestFile benefitFile) {
+        try {
+            benefitFile.setStatus(RequestFile.STATUS.BINDING);
+            requestFileBean.save(benefitFile);
+
+            //TODO: remove it after test
+//            try {
+//                Thread.sleep(5000);
+//            } catch (InterruptedException e) {
+//            }
+
+            benefitBean.updateStatusForFile(benefitFile.getId());
+            boolean bound = benefitBean.isBenefitFileBound(benefitFile.getId());
+
+            benefitFile.setStatus(bound ? RequestFile.STATUS.BINDED : RequestFile.STATUS.BOUND_WITH_ERRORS);
+            requestFileBean.save(benefitFile);
+        } catch (RuntimeException e) {
             try {
-                benefitFile.setStatus(RequestFile.STATUS.BINDING);
+                benefitFile.setStatus(RequestFile.STATUS.BOUND_WITH_ERRORS);
                 requestFileBean.save(benefitFile);
-
-                boolean bound = bindBenefitFile(benefitFile.getId());
-
-                benefitFile.setStatus(bound ? RequestFile.STATUS.BINDED : RequestFile.STATUS.BOUND_WITH_ERRORS);
-                requestFileBean.save(benefitFile);
-            } catch (RuntimeException e) {
-                try {
-                    benefitFile.setStatus(RequestFile.STATUS.BOUND_WITH_ERRORS);
-                    requestFileBean.save(benefitFile);
-                } catch (Exception ex) {
-                    log.error("", ex);
-                }
-                throw e;
+            } catch (Exception ex) {
+                log.error("", ex);
             }
-
+            throw e;
         }
     }
 }

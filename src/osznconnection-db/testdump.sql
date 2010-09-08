@@ -138,8 +138,9 @@ update sequence set sequence_value = 8 where sequence_name = 'organization_strin
 update sequence set sequence_value = 4 where sequence_name = 'organization';
 
 -- Files
-insert into `request_file`(id, organization_object_id, `name`, `date`, `loaded`) values (1,1,'A_123405.dbf', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-                                (2,1,'AF123405.dbf', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+insert into `request_file`(id, organization_object_id, `name`, `date`, `loaded`, status) values
+(1,1,'A_123405.dbf', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'LOADED'),
+(2,1,'AF123405.dbf', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'LOADED');
 
 -- Payments
 insert into payment(own_num_sr, f_nam, m_nam, sur_nam, n_name, vul_name, bld_num, flat,
