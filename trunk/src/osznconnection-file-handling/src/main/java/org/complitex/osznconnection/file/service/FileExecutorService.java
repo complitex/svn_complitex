@@ -49,20 +49,10 @@ public class FileExecutorService {
         return Executors.newFixedThreadPool(FileHandlingConfig.BINDING_THREAD_SIZE.getInteger());
     }
 
-//    private int taskCount;
-
     public boolean isBinding() {
-//        return taskCount > 0;
         return !bindingFilesMap.isEmpty();
     }
 
-//    private synchronized void incrementTaskCount() {
-//        taskCount++;
-//    }
-//
-//    private synchronized void decrementTaskCount() {
-//        taskCount--;
-//    }
     private ConcurrentHashMap<Long, RequestFile> bindingFilesMap = new ConcurrentHashMap<Long, RequestFile>();
 
     public Collection<RequestFile> getBindingFiles() {
@@ -82,44 +72,32 @@ public class FileExecutorService {
 
         @Override
         public void run() {
-            if (paymentFile != null) {
-                try {
-                    bindingFilesMap.putIfAbsent(paymentFile.getId(), paymentFile);
-                } catch (Exception e) {
-                    log.error("", e);
-                }
-            }
-            if (benefitFile != null) {
-                try {
-                    bindingFilesMap.putIfAbsent(benefitFile.getId(), benefitFile);
-                } catch (Exception e) {
-                    log.error("", e);
-                }
-            }
-
             try {
-                //TODO: remove it after test
-                Thread.sleep(5000);
-
                 BindingRequestBean bindingRequestBean = getBindingBean();
-                bindingRequestBean.bindPaymentAndBenefit(paymentFile, benefitFile);
-            } catch (Exception e) {
-                log.error("", e);
-            } finally {
+
                 if (paymentFile != null) {
                     try {
+                        bindingFilesMap.putIfAbsent(paymentFile.getId(), paymentFile);
+                        bindingRequestBean.bindPaymentFile(paymentFile);
+                    } catch (Exception e) {
+                        log.error("", e);
+                    } finally {
                         bindingFilesMap.remove(paymentFile.getId());
-                    } catch (Exception e) {
-                        log.error("", e);
                     }
                 }
+
                 if (benefitFile != null) {
+                    bindingFilesMap.putIfAbsent(benefitFile.getId(), benefitFile);
                     try {
-                        bindingFilesMap.remove(benefitFile.getId());
+                        bindingRequestBean.bindBenefitFile(benefitFile);
                     } catch (Exception e) {
                         log.error("", e);
+                    } finally {
+                        bindingFilesMap.remove(benefitFile.getId());
                     }
                 }
+            } catch (Exception e) {
+                log.error("", e);
             }
         }
 
@@ -164,7 +142,7 @@ public class FileExecutorService {
 
                 if (benefitFile != null) {
                     bindingBenefitFiles.add(benefitFile.getId());
-                    log.info("Benefit file : {}", benefitFile.getName());
+                    log.info("Paired benefit file : {}", benefitFile.getName());
                 }
 
                 threadPool.submit(new BindTask(file, benefitFile));
@@ -174,7 +152,7 @@ public class FileExecutorService {
         }
         for (RequestFile file : suitedFiles) {
             if ((file.getType() == RequestFile.TYPE.BENEFIT) && !bindingBenefitFiles.contains(file.getId())) {
-                log.info("Benefit file : {}", file.getName());
+                log.info("Single benefit file : {}", file.getName());
                 threadPool.submit(new BindTask(null, file));
             }
         }
