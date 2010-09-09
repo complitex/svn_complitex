@@ -27,9 +27,9 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAdapter {
 
-    private static final Logger log = LoggerFactory.getLogger(DefaultCalculationCenterAdapter.class);
+    protected static final Logger log = LoggerFactory.getLogger(DefaultCalculationCenterAdapter.class);
 
-    private static final String MAPPING_NAMESPACE = DefaultCalculationCenterAdapter.class.getName();
+    protected static final String MAPPING_NAMESPACE = DefaultCalculationCenterAdapter.class.getName();
 
     @Override
     public void prepareCity(Payment payment, String city, Long cityId) {
@@ -153,7 +153,7 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
             session = openSession();
 
             Map<String, Object> params = Maps.newHashMap();
-            String districtName = "ЦЕНТРАЛЬНЫЙ"; //getDistrictName(getCurrentCalculationCenterId());
+            String districtName = getDistrictName(getCurrentCalculationCenterId());
             params.put("pDistrName", districtName);
             params.put("pStSortName", payment.getOutgoingStreetType());
             params.put("pStreetName", payment.getOutgoingStreet());
