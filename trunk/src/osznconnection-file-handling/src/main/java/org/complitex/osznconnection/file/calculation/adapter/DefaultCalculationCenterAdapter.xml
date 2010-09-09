@@ -3,14 +3,36 @@
 <mapper namespace="org.complitex.osznconnection.file.calculation.adapter.DefaultCalculationCenterAdapter">
 
     <select id="acquirePersonAccount" parameterType="hashmap" resultType="string">
-        select getMNCodeByAddress(
+        select Z$RUNTIME_SZ_UTL.GETMNCODEBYADDRESS(
             #{pDistrName, javaType=string, jdbcType=VARCHAR},
             #{pStSortName, javaType=string, jdbcType=VARCHAR},
             #{pStreetName, javaType=string, jdbcType=VARCHAR},
             #{pHouseNum, javaType=string, jdbcType=VARCHAR},
             #{pHousePart, javaType=string, jdbcType=VARCHAR},
-            #{pFlatNum, javaType=string, jdbcType=VARCHAR})
+            #{pFlatNum, javaType=string, jdbcType=VARCHAR},
+            #{dat1, javaType=date, jdbcType=DATE})
             as account_number from dual
+    </select>
+    
+    <resultMap id="accountCorrectionDetail" type="org.complitex.osznconnection.file.entity.AccountCorrectionDetail">
+        <result property="accountNumber" column="acc_code" javaType="string" jdbcType="VARCHAR"/>
+        <result property="ownerName" column="owner_fio" javaType="string" jdbcType="VARCHAR"/>
+        <result property="ownerINN" column="owner_inn" javaType="string" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="acquireAccountCorrectionDetails" statementType="CALLABLE" parameterType="hashmap">
+        <![CDATA[
+         {#{resultCode, mode=OUT, javaType=int, jdbcType=NUMERIC} = call Z$RUNTIME_SZ_UTL.GETACCATTRS(
+            #{pDistrName, mode=IN, javaType=string, jdbcType=VARCHAR},
+            #{pStSortName, mode=IN, javaType=string, jdbcType=VARCHAR},
+            #{pStreetName, mode=IN, javaType=string, jdbcType=VARCHAR},
+            #{pHouseNum, mode=IN, javaType=string, jdbcType=VARCHAR},
+            #{pHousePart, mode=IN, javaType=string, jdbcType=VARCHAR},
+            #{pFlatNum, mode=IN, javaType=string, jdbcType=VARCHAR},
+            #{dat1, mode=IN, javaType=date, jdbcType=DATE},
+            #{details, mode=OUT, jdbcType=CURSOR, javaType=java.sql.ResultSet, resultMap=accountCorrectionDetail})
+        }
+        ]]>
     </select>
 
 </mapper>

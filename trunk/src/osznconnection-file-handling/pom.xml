@@ -12,7 +12,7 @@
     <artifactId>osznconnection-file-handling</artifactId>
 
     <name>osznconnection-file-handling</name>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.apache.wicket</groupId>
@@ -24,7 +24,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.wicket</groupId>
-            <artifactId>wicket-ioc</artifactId>            
+            <artifactId>wicket-ioc</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.wicket</groupId>
@@ -46,17 +46,17 @@
 
         <dependency>
             <groupId>org.mybatis</groupId>
-            <artifactId>mybatis</artifactId>            
+            <artifactId>mybatis</artifactId>
         </dependency>
 
         <dependency>
             <groupId>com.google.collections</groupId>
-            <artifactId>google-collections</artifactId>            
+            <artifactId>google-collections</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>            
+            <artifactId>slf4j-api</artifactId>
         </dependency>
 
         <dependency>
@@ -66,14 +66,14 @@
 
         <dependency>
             <groupId>org.complitex.osznconnection</groupId>
-            <artifactId>osznconnection-resources-common</artifactId>            
+            <artifactId>osznconnection-resources-common</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.complitex.osznconnection</groupId>
             <artifactId>osznconnection-organization</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.complitex.framework</groupId>
             <artifactId>dictionary-framework</artifactId>
@@ -84,6 +84,38 @@
             <artifactId>xbasej</artifactId>
             <version>20091203</version>
         </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>p6spy</groupId>
+            <artifactId>p6spy</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Oracle driver -->
+            <dependency>
+                <groupId>oracle</groupId>
+                <artifactId>ojdbc14</artifactId>
+                <scope>system</scope>
+                <systemPath>${project.basedir}/../../lib/ojdbc14_g.jar</systemPath>
+            </dependency>
+
+            <dependency>
+                <groupId>oracle</groupId>
+                <artifactId>orai18n</artifactId>
+                <scope>system</scope>
+                <systemPath>${project.basedir}/../../lib/orai18n.jar</systemPath>
+            </dependency>
 
         <dependency>
             <groupId>com.linuxense.javadbf</groupId>

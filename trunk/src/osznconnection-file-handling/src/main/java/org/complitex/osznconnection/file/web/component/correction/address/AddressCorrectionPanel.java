@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.complitex.osznconnection.file.web.component.correction;
+package org.complitex.osznconnection.file.web.component.correction.address;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
@@ -28,14 +28,14 @@ import java.util.Map;
  *
  * @author Artem
  */
-public abstract class CorrectionPanel extends Panel {
+public abstract class AddressCorrectionPanel extends Panel {
 
     @EJB(name = "StrategyFactory")
     private StrategyFactory strategyFactory;
 
     private String searchAddressEntity;
 
-    public CorrectionPanel(String id, String name, String address, Long cityId, Long streetId, Long streetTypeId, Long buildingId, Long apartmentId) {
+    public AddressCorrectionPanel(String id, String name, String address, Long cityId, Long streetId, Long streetTypeId, Long buildingId, Long apartmentId) {
         super(id);
         init(name, address, cityId, streetId, buildingId, apartmentId);
     }
