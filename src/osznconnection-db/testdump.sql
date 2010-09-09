@@ -143,12 +143,11 @@ insert into `request_file`(id, organization_object_id, `name`, `date`, `loaded`,
 (2,1,'AF123405.dbf', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'LOADED');
 
 -- Payments
-insert into payment(own_num_sr, f_nam, m_nam, sur_nam, n_name, vul_name, bld_num, flat,
-internal_city_id, internal_street_id, internal_building_id, internal_apartment_id, request_file_id, status)
+insert into payment(own_num_sr, f_nam, m_nam, sur_nam, n_name, vul_name, bld_num, flat, DAT1, request_file_id, status)
 values
-(1,'Иван', 'Иванович', 'Иванов', 'Новосибирск', 'ул. Терешковой', 'д. 10', 'кв. 10', null,null,null,null,1, 'CITY_UNRESOLVED_LOCALLY'),
-(2,'Сидор', 'Сидорович', 'Сидоров', 'Новосибирск', 'ул. Терешковой', 'д. 11', 'кв. 11', null,null,null,null,1, 'CITY_UNRESOLVED_LOCALLY'),
-(3,'Петр', 'Петрович', 'Петров', 'Харьков', 'Косиора', '154A', '1', null,null,null,null,1, 'CITY_UNRESOLVED_LOCALLY');
+(1,'Иван', 'Иванович', 'Иванов', 'Новосибирск', 'ул. Терешковой', 'д. 10', 'кв. 10', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY'),
+(2,'Сидор', 'Сидорович', 'Сидоров', 'Новосибирск', 'ул. Терешковой', 'д. 11', 'кв. 11', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY'),
+(3,'Петр', 'Петрович', 'Петров', 'Харьков', 'Косиора', '154A', '1', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY');
 
 -- Address corrections
 insert into entity_type_correction(organization_id, `type`, entity_type_id, organization_type_code) values (3,'ул.',302,1);

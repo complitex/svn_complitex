@@ -2,9 +2,10 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package org.complitex.osznconnection.file.calculation.adapter;
 
+import java.util.List;
+import org.complitex.osznconnection.file.entity.AccountCorrectionDetail;
 import org.complitex.osznconnection.file.entity.Payment;
 
 /**
@@ -25,4 +26,5 @@ public interface ICalculationCenterAdapter {
 
     void acquirePersonAccount(Payment payment);
 
+    public List<AccountCorrectionDetail> acquireAccountCorrectionDetails(Payment payment);
 }

@@ -5,13 +5,17 @@
 package org.complitex.osznconnection.file.calculation.adapter;
 
 import com.google.common.collect.Maps;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.strategy.StrategyFactoryStatic;
 import org.complitex.osznconnection.file.calculation.service.CalculationCenterBean;
+import org.complitex.osznconnection.file.entity.AccountCorrectionDetail;
 import org.complitex.osznconnection.file.entity.Payment;
+import org.complitex.osznconnection.file.entity.PaymentDBF;
 import org.complitex.osznconnection.file.entity.Status;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 import org.slf4j.Logger;
@@ -59,7 +63,7 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
         try {
             session = openSession();
 
-            Map<String, String> params = Maps.newHashMap();
+            Map<String, Object> params = Maps.newHashMap();
             String districtName = getDistrictName(getCurrentCalculationCenterId());
             params.put("pDistrName", districtName);
             params.put("pStSortName", payment.getOutgoingStreetType());
@@ -67,6 +71,7 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
             params.put("pHouseNum", payment.getOutgoingBuildingNumber());
             params.put("pHousePart", payment.getOutgoingBuildingCorp());
             params.put("pFlatNum", payment.getOutgoingApartment());
+            params.put("dat1", (Date) payment.getField(PaymentDBF.DAT1));
 
             String result = (String) session.selectOne(MAPPING_NAMESPACE + ".acquirePersonAccount", params);
             processPersonAccountResult(payment, result);
@@ -117,6 +122,87 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
                 payment.setStatus(Status.ACCOUNT_NUMBER_RESOLVED);
             }
         }
+    }
+
+//    protected boolean processAccountCorrectionDetailsResult(Payment payment, String result) {
+//        boolean error = true;
+//        if (result.equals("0")) {
+//            payment.setStatus(Status.ACCOUNT_NUMBER_NOT_FOUND);
+//        } else if (result.equals("-2")) {
+//            payment.setStatus(Status.APARTMENT_UNRESOLVED);
+//        } else if (result.equals("-3")) {
+//            payment.setStatus(Status.BUILDING_CORP_UNRESOLVED);
+//        } else if (result.equals("-4")) {
+//            payment.setStatus(Status.BUILDING_UNRESOLVED);
+//        } else if (result.equals("-5")) {
+//            payment.setStatus(Status.STREET_UNRESOLVED);
+//        } else if (result.equals("-6")) {
+//            payment.setStatus(Status.STREET_TYPE_UNRESOLVED);
+//        } else if (result.equals("-7")) {
+//            payment.setStatus(Status.DISTRICT_NOT_FOUND);
+//        } else {
+//            error = false;
+//        }
+//        return error;
+//    }
+    @Override
+    public List<AccountCorrectionDetail> acquireAccountCorrectionDetails(Payment payment) {
+        List<AccountCorrectionDetail> accountCorrectionDetails = null;
+        SqlSession session = null;
+        try {
+            session = openSession();
+
+            Map<String, Object> params = Maps.newHashMap();
+            String districtName = "ЦЕНТРАЛЬНЫЙ"; //getDistrictName(getCurrentCalculationCenterId());
+            params.put("pDistrName", districtName);
+            params.put("pStSortName", payment.getOutgoingStreetType());
+            params.put("pStreetName", payment.getOutgoingStreet());
+            params.put("pHouseNum", payment.getOutgoingBuildingNumber());
+            params.put("pHousePart", payment.getOutgoingBuildingCorp());
+            params.put("pFlatNum", payment.getOutgoingApartment());
+            params.put("dat1", (Date) payment.getField(PaymentDBF.DAT1));
+
+            try {
+                session.selectOne(MAPPING_NAMESPACE + ".acquireAccountCorrectionDetails", params);
+//                if (processAccountCorrectionDetailsResult(payment, String.valueOf(resultCode))) {
+                accountCorrectionDetails = (List<AccountCorrectionDetail>) params.get("details");
+                if (accountCorrectionDetails != null) {
+                    boolean isIncorrectResult = false;
+                    for (AccountCorrectionDetail detail : accountCorrectionDetails) {
+                        if (Strings.isEmpty(detail.getAccountNumber())) {
+                            isIncorrectResult = true;
+                            break;
+                        }
+                    }
+                    if (isIncorrectResult) {
+                        accountCorrectionDetails = null;
+                    }
+                }
+//                }
+            } catch (Exception e) {
+                payment.setStatus(Status.ACCOUNT_NUMBER_NOT_FOUND);
+            }
+
+            session.commit();
+        } catch (Exception e) {
+            try {
+                if (session != null) {
+                    session.rollback();
+                }
+            } catch (Exception exc) {
+                log.error("", exc);
+            }
+            log.error("", e);
+        } finally {
+            try {
+                if (session != null) {
+                    session.close();
+                }
+            } catch (Exception e) {
+                log.error("", e);
+            }
+        }
+        return accountCorrectionDetails;
     }
 
     protected long getCurrentCalculationCenterId() {

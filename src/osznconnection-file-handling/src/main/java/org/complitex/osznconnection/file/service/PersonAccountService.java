@@ -4,12 +4,16 @@
  */
 package org.complitex.osznconnection.file.service;
 
+import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
+import org.complitex.osznconnection.file.calculation.service.CalculationCenterBean;
+import org.complitex.osznconnection.file.entity.AccountCorrectionDetail;
+import org.complitex.osznconnection.file.entity.CalculationCenterInfo;
 import org.complitex.osznconnection.file.entity.Payment;
 import org.complitex.osznconnection.file.entity.Status;
 
@@ -25,6 +29,9 @@ public class PersonAccountService extends AbstractBean {
 
     @EJB
     private BenefitBean benefitBean;
+
+    @EJB
+    private CalculationCenterBean calculationCenterBean;
 
     private void resolveLocalAccount(Payment payment) {
         String accountNumber = personAccountLocalBean.findLocalAccountNumber(payment.getInternalCityId(), payment.getInternalStreetId(),
@@ -57,5 +64,12 @@ public class PersonAccountService extends AbstractBean {
                 || payment.getStatus() == Status.DISTRICT_NOT_FOUND || payment.getStatus() == Status.MORE_ONE_ACCOUNTS) {
             resolveRemoteAccount(payment, adapter);
         }
+    }
+
+    @Transactional
+    public List<AccountCorrectionDetail> acquireAccountCorrectionDetails(Payment payment){
+        CalculationCenterInfo calculationCenterInfo = calculationCenterBean.getCurrentCalculationCenterInfo();
+        ICalculationCenterAdapter adapter = calculationCenterInfo.getAdapterInstance();
+        return adapter.acquireAccountCorrectionDetails(payment);
     }
 }

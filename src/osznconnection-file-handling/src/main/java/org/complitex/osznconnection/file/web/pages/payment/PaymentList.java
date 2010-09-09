@@ -44,6 +44,7 @@ import java.util.Iterator;
  * @author Artem
  */
 public final class PaymentList extends TemplatePage {
+
     public static final String FILE_ID = "request_file_id";
 
     @EJB(name = "PaymentBean")
@@ -115,7 +116,7 @@ public final class PaymentList extends TemplatePage {
         filterForm.add(new TextField<String>("middleNameFilter", new PropertyModel<String>(example, "middleName")));
         filterForm.add(new TextField<String>("lastNameFilter", new PropertyModel<String>(example, "lastName")));
         filterForm.add(new TextField<String>("cityFilter", new PropertyModel<String>(example, "city")));
-        filterForm.add( new TextField<String>("streetFilter", new PropertyModel<String>(example, "street")));
+        filterForm.add(new TextField<String>("streetFilter", new PropertyModel<String>(example, "street")));
         filterForm.add(new TextField<String>("buildingFilter", new PropertyModel<String>(example, "building")));
         filterForm.add(new TextField<String>("apartmentFilter", new PropertyModel<String>(example, "apartment")));
         filterForm.add(new DropDownChoice<Status>("statusFilter", new PropertyModel<Status>(example, "status"),
@@ -148,15 +149,20 @@ public final class PaymentList extends TemplatePage {
                 item.add(new Label("firstName", (String) payment.getField(PaymentDBF.F_NAM)));
                 item.add(new Label("middleName", (String) payment.getField(PaymentDBF.M_NAM)));
                 item.add(new Label("lastName", (String) payment.getField(PaymentDBF.SUR_NAM)));
-                item.add(new Label("city", (String)payment.getField(PaymentDBF.N_NAME)));
-                item.add(new Label("street", (String)payment.getField(PaymentDBF.VUL_NAME)));
-                item.add(new Label("building", (String)payment.getField(PaymentDBF.BLD_NUM)));
-                item.add(new Label("apartment", (String)payment.getField(PaymentDBF.FLAT)));
+                item.add(new Label("city", (String) payment.getField(PaymentDBF.N_NAME)));
+                item.add(new Label("street", (String) payment.getField(PaymentDBF.VUL_NAME)));
+                item.add(new Label("building", (String) payment.getField(PaymentDBF.BLD_NUM)));
+                item.add(new Label("apartment", (String) payment.getField(PaymentDBF.FLAT)));
                 item.add(new Label("status", StatusRenderer.displayValue(payment.getStatus())));
-                BookmarkablePageLink correctionLink = new BookmarkablePageLink<PaymentCorrection>("correctionLink",
-                        PaymentCorrection.class, new PageParameters(ImmutableMap.of(PaymentCorrection.PAYMENT_ID, payment.getId())));
-                correctionLink.setVisible(payment.getStatus().isLocalAddressCorrected());
-                item.add(correctionLink);
+
+                BookmarkablePageLink addressCorrectionLink = new BookmarkablePageLink<PaymentAddressCorrection>("addressCorrectionLink",
+                        PaymentAddressCorrection.class, new PageParameters(ImmutableMap.of(PaymentAddressCorrection.PAYMENT_ID, payment.getId())));
+                addressCorrectionLink.setVisible(payment.getStatus().isLocalAddressCorrected());
+                item.add(addressCorrectionLink);
+                BookmarkablePageLink accountCorrectionLink = new BookmarkablePageLink<PaymentAccountNumberCorrection>("accountCorrectionLink",
+                        PaymentAccountNumberCorrection.class, new PageParameters(ImmutableMap.of(PaymentAccountNumberCorrection.PAYMENT_ID, payment.getId())));
+                accountCorrectionLink.setVisible(payment.getStatus() == Status.MORE_ONE_ACCOUNTS);
+                item.add(accountCorrectionLink);
             }
         };
         filterForm.add(data);
@@ -170,7 +176,8 @@ public final class PaymentList extends TemplatePage {
         filterForm.add(new ArrowOrderByBorder("apartmentHeader", PaymentBean.OrderBy.APARTMENT.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("statusHeader", PaymentBean.OrderBy.STATUS.getOrderBy(), dataProvider, data, content));
 
-        Button back =  new Button("back"){
+        Button back = new Button("back") {
+
             @Override
             public void onSubmit() {
                 setResponsePage(RequestFileList.class);

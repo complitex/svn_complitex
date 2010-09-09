@@ -36,7 +36,8 @@ public class RequestFileBean extends AbstractBean {
     public int size(RequestFileFilter filter){
         return (Integer) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectRequestFilesCount", filter);
     }
-        
+
+    @Transactional
     public void save(RequestFile requestFile){
         if (requestFile.getId() == null){
             sqlSession().insert(MAPPING_NAMESPACE + ".insertRequestFile", requestFile);

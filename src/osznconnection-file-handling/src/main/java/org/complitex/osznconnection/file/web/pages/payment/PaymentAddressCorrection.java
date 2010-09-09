@@ -13,7 +13,7 @@ import org.complitex.osznconnection.file.entity.Payment;
 import org.complitex.osznconnection.file.entity.PaymentDBF;
 import org.complitex.osznconnection.file.service.AddressService;
 import org.complitex.osznconnection.file.service.PaymentBean;
-import org.complitex.osznconnection.file.web.component.correction.CorrectionPanel;
+import org.complitex.osznconnection.file.web.component.correction.address.AddressCorrectionPanel;
 
 import javax.ejb.EJB;
 
@@ -21,7 +21,7 @@ import javax.ejb.EJB;
  *
  * @author Artem
  */
-public final class PaymentCorrection extends TemplatePage {
+public final class PaymentAddressCorrection extends TemplatePage {
 
     public static final String PAYMENT_ID = "payment_id";
 
@@ -33,7 +33,7 @@ public final class PaymentCorrection extends TemplatePage {
 
     private Payment payment;
 
-    public PaymentCorrection(PageParameters params) {
+    public PaymentAddressCorrection(PageParameters params) {
         long paymentId = params.getAsLong(PAYMENT_ID);
         init(paymentId);
     }
@@ -52,7 +52,7 @@ public final class PaymentCorrection extends TemplatePage {
                 + payment.getField(PaymentDBF.BLD_NUM) + ", "
                 + payment.getField(PaymentDBF.FLAT);
 
-        add(new CorrectionPanel("correntionPanel", name, address, payment.getInternalCityId(), payment.getInternalStreetId(),
+        add(new AddressCorrectionPanel("correntionPanel", name, address, payment.getInternalCityId(), payment.getInternalStreetId(),
                 payment.getInternalStreetTypeId(),
                 payment.getInternalBuildingId(), payment.getInternalApartmentId()) {
 
