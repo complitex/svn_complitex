@@ -6,20 +6,26 @@
         SELECT pa.`account_number`
         FROM `person_account` pa
         WHERE
-            pa.`city_id` = #{cityId} AND pa.`street_id` = #{streetId} AND pa.`building_id` = #{buildingId} AND pa.`apartment_id` = #{apartmentId}
+        <include refid="org.complitex.osznconnection.file.service.PersonAccountLocalBean.filter"/>
         LIMIT 0,1
     </select>
 
-    <select id="count" parameterType="org.complitex.osznconnection.file.entity.PersonAccount" resultType="long">
+    <sql id="filter">
+         pa.`city_id` = #{cityId} AND pa.`street_id` = #{streetId} AND pa.`building_id` = #{buildingId} AND pa.`apartment_id` = #{apartmentId} AND
+         pa.`first_name` = #{firstName} AND pa.`middle_name` = #{middleName} AND pa.`last_name` = #{lastName} AND pa.`own_num_sr` = #{ownNumSr}
+    </sql>
+
+    <!--<select id="count" parameterType="org.complitex.osznconnection.file.entity.PersonAccount" resultType="long">
         SELECT COUNT(*)
         FROM `person_account` pa
         WHERE
-         pa.`city_id` = #{cityId} AND pa.`street_id` = #{streetId} AND pa.`building_id` = #{buildingId} AND pa.`apartment_id` = #{apartmentId}
-    </select>
+         <include refid=""/>
+    </select>-->
 
     <insert id="insert" parameterType="org.complitex.osznconnection.file.entity.PersonAccount">
-        INSERT INTO `person_account` (`city_id`, `street_id`, `building_id`, `apartment_id`, `account_number`)
-        VALUES (#{cityId}, #{streetId}, #{buildingId}, #{apartmentId}, #{accountNumber})
+        INSERT INTO `person_account` (`city_id`, `street_id`, `building_id`, `apartment_id`, `account_number`, `first_name`, `middle_name`, `last_name`,
+        `own_num_sr`)
+        VALUES (#{cityId}, #{streetId}, #{buildingId}, #{apartmentId}, #{accountNumber}, #{firstName}, #{middleName}, #{lastName}, #{ownNumSr})
     </insert>
 
 </mapper>

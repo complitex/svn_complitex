@@ -15,6 +15,7 @@ import org.complitex.osznconnection.file.calculation.service.CalculationCenterBe
 import org.complitex.osznconnection.file.entity.AccountCorrectionDetail;
 import org.complitex.osznconnection.file.entity.CalculationCenterInfo;
 import org.complitex.osznconnection.file.entity.Payment;
+import org.complitex.osznconnection.file.entity.PaymentDBF;
 import org.complitex.osznconnection.file.entity.Status;
 
 /**
@@ -34,8 +35,10 @@ public class PersonAccountService extends AbstractBean {
     private CalculationCenterBean calculationCenterBean;
 
     private void resolveLocalAccount(Payment payment) {
-        String accountNumber = personAccountLocalBean.findLocalAccountNumber(payment.getInternalCityId(), payment.getInternalStreetId(),
-                payment.getInternalBuildingId(), payment.getInternalApartmentId());
+        String accountNumber = personAccountLocalBean.findLocalAccountNumber((String) payment.getField(PaymentDBF.F_NAM),
+                (String) payment.getField(PaymentDBF.M_NAM), (String) payment.getField(PaymentDBF.SUR_NAM),
+                payment.getInternalCityId(), payment.getInternalStreetId(),
+                payment.getInternalBuildingId(), payment.getInternalApartmentId(), (String) payment.getField(PaymentDBF.OWN_NUM_SR));
 
         if (!Strings.isEmpty(accountNumber)) {
             payment.setAccountNumber(accountNumber);
@@ -50,8 +53,11 @@ public class PersonAccountService extends AbstractBean {
         adapter.acquirePersonAccount(payment);
         if (payment.getStatus() == Status.ACCOUNT_NUMBER_RESOLVED) {
             benefitBean.updateAccountNumber(payment.getId(), payment.getAccountNumber());
-            personAccountLocalBean.saveAccountNumber(payment.getInternalCityId(), payment.getInternalStreetId(),
-                    payment.getInternalBuildingId(), payment.getInternalApartmentId(), payment.getAccountNumber());
+            personAccountLocalBean.saveAccountNumber((String) payment.getField(PaymentDBF.F_NAM),
+                    (String) payment.getField(PaymentDBF.M_NAM), (String) payment.getField(PaymentDBF.SUR_NAM),
+                    payment.getInternalCityId(), payment.getInternalStreetId(),
+                    payment.getInternalBuildingId(), payment.getInternalApartmentId(), payment.getAccountNumber(),
+                    (String) payment.getField(PaymentDBF.OWN_NUM_SR));
         }
     }
 
@@ -67,7 +73,7 @@ public class PersonAccountService extends AbstractBean {
     }
 
     @Transactional
-    public List<AccountCorrectionDetail> acquireAccountCorrectionDetails(Payment payment){
+    public List<AccountCorrectionDetail> acquireAccountCorrectionDetails(Payment payment) {
         CalculationCenterInfo calculationCenterInfo = calculationCenterBean.getCurrentCalculationCenterInfo();
         ICalculationCenterAdapter adapter = calculationCenterInfo.getAdapterInstance();
         return adapter.acquireAccountCorrectionDetails(payment);
