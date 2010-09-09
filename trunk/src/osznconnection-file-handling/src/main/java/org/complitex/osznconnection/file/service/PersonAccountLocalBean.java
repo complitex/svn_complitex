@@ -14,35 +14,23 @@ import javax.ejb.Stateless;
  *
  * @author Artem
  */
-@Stateless(name = "PersonAccountBean")
+@Stateless
 public class PersonAccountLocalBean extends AbstractBean {
 
     private static final String MAPPING_NAMESPACE = PersonAccountLocalBean.class.getName();
 
     @Transactional
-    public String findLocalAccountNumber(long cityId, long streetId, long buildingId, long apartmentId) {
-        PersonAccount example = new PersonAccount();
-        example.setCityId(cityId);
-        example.setStreetId(streetId);
-        example.setBuildingId(buildingId);
-        example.setApartmentId(apartmentId);
-
-        long count = (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".count", example);
-        if (count == 1) {
-            return (String) sqlSession().selectOne(MAPPING_NAMESPACE + ".find", example);
-        }
-        return null;
+    public String findLocalAccountNumber(String firstName, String middleName, String lastName, long cityId, long streetId, long buildingId,
+            long apartmentId, String ownNumSr) {
+        PersonAccount example = new PersonAccount(firstName, middleName, lastName, ownNumSr, cityId, streetId, buildingId, apartmentId);
+        return (String) sqlSession().selectOne(MAPPING_NAMESPACE + ".find", example);
     }
 
     @Transactional
-    public void saveAccountNumber(long cityId, long streetId, long buildingId, long apartmentId, String personAccount) {
-        PersonAccount param = new PersonAccount();
-        param.setCityId(cityId);
-        param.setStreetId(streetId);
-        param.setBuildingId(buildingId);
-        param.setApartmentId(apartmentId);
+    public void saveAccountNumber(String firstName, String middleName, String lastName, long cityId, long streetId, long buildingId,
+            long apartmentId, String personAccount, String ownNumSr) {
+        PersonAccount param = new PersonAccount(firstName, middleName, lastName, ownNumSr, cityId, streetId, buildingId, apartmentId);
         param.setAccountNumber(personAccount);
-
         sqlSession().insert(MAPPING_NAMESPACE + ".insert", param);
     }
 }

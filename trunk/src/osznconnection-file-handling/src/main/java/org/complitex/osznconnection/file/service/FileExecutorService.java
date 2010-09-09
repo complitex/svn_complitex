@@ -17,9 +17,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
@@ -33,7 +33,7 @@ public class FileExecutorService {
 
     private List<RequestFile> processed = Collections.synchronizedList(new ArrayList<RequestFile>());
 
-    private boolean binding;
+    private AtomicInteger bindingCounter = new AtomicInteger(0);
 
     private FileExecutorService() {
     }
@@ -52,7 +52,7 @@ public class FileExecutorService {
     }
 
     public boolean isBinding() {
-        return binding;
+        return bindingCounter.get() > 0;
     }
 
     public List<RequestFile> getProcessed(boolean flush) {
@@ -80,6 +80,8 @@ public class FileExecutorService {
         @Override
         public void run() {
             try {
+                bindingCounter.incrementAndGet();
+
                 BindingRequestBean bindingRequestBean = getBindingBean();
 
                 if (paymentFile != null) {
@@ -103,6 +105,8 @@ public class FileExecutorService {
                 }
             } catch (Exception e) {
                 log.error("", e);
+            } finally {
+                bindingCounter.decrementAndGet();
             }
         }
 
@@ -117,8 +121,6 @@ public class FileExecutorService {
     }
 
     public void bind(List<RequestFile> requestFiles) {
-        binding = true;
-
         List<RequestFile> suitedFiles = Lists.newArrayList(Iterables.filter(requestFiles, new Predicate<RequestFile>() {
 
             @Override
@@ -163,7 +165,5 @@ public class FileExecutorService {
                 threadPool.submit(new BindTask(null, file));
             }
         }
-
-        binding = false;
     }
 }

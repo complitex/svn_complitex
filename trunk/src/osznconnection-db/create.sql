@@ -867,11 +867,15 @@ DROP TABLE IF EXISTS `person_account`;
 
 CREATE TABLE `person_account` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT,
+    `first_name`varchar(100) NOT NULL,
+    `middle_name` varchar(100) NOT NULL,
+    `last_name` varchar(100) NOT NULL,
     `city_id` bigint(20) NOT NULL,
     `street_id` bigint(20) NOT NULL,
     `building_id` bigint(20) NOT NULL,
     `apartment_id` bigint(20) NOT NULL,
     `account_number` varchar(100) NOT NULL,
+    `own_num_sr` varchar(15) NOT NULL,
     PRIMARY KEY (`id`),
     KEY `FK_person_account_city` (`city_id`),
     CONSTRAINT `FK_person_account_city` FOREIGN KEY (`city_id`) REFERENCES `city` (`id`),
