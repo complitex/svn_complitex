@@ -1,6 +1,11 @@
 package org.complitex.osznconnection.file.entity;
 
+import com.linuxense.javadbf.DBFField;
+import org.complitex.osznconnection.file.service.exception.FieldNotFoundException;
+import org.complitex.osznconnection.file.service.exception.FieldWrongTypeException;
+
 import java.io.Serializable;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,19 +13,33 @@ import java.util.Map;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 27.08.2010 13:15:40
  */
-public class AbstractRequest implements Serializable {
-
+public abstract class AbstractRequest implements Serializable {
     private Long id;
-
     private Long requestFileId;
-
     private Long organizationId;
-
     private Status status;
-
     private String accountNumber;
 
     protected Map<String, Object> dbfFields = new HashMap<String, Object>();
+
+    protected abstract Class getFieldType(String name) throws FieldNotFoundException;
+
+    public final void setField(String name, Object value, byte dataType) throws FieldNotFoundException, FieldWrongTypeException {
+        try {
+            Class type = getFieldType(name);
+
+            if ((type.equals(String.class) && dataType != DBFField.FIELD_TYPE_C)
+                    || (type.equals(Integer.class) && dataType != DBFField.FIELD_TYPE_N)
+                    || (type.equals(Double.class) && dataType != DBFField.FIELD_TYPE_N)
+                    || (type.equals(Date.class) && dataType != DBFField.FIELD_TYPE_D)) {
+                throw new FieldWrongTypeException(name);
+            }
+
+            dbfFields.put(name, value);
+        } catch (IllegalArgumentException e) {
+            throw new FieldNotFoundException(e);
+        }
+    }
 
     public Long getId() {
         return id;

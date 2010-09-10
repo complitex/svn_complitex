@@ -16,10 +16,7 @@ import org.complitex.osznconnection.commons.web.pages.welcome.WelcomePage;
 import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.FormTemplatePage;
 import org.complitex.osznconnection.file.service.LoadRequestBean;
-import org.complitex.osznconnection.file.storage.StorageNotFound;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 
@@ -90,7 +87,7 @@ public class RequestFileLoad extends FormTemplatePage{
                     return;
                 }
 
-                if (!loadRequestBean.isLoading()){
+                if (!loadRequestBean.isProcessing()){
                     DomainObject oszn = organizationModel.getObject();
                     loadRequestBean.load(oszn.getId(),
                             organizationStrategy.getDistrictCode(oszn), organizationStrategy.getUniqueCode(oszn),

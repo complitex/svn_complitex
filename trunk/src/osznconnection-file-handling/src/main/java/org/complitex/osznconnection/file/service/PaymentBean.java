@@ -1,23 +1,19 @@
 package org.complitex.osznconnection.file.service;
 
-import com.linuxense.javadbf.DBFException;
-import com.linuxense.javadbf.DBFField;
-import com.linuxense.javadbf.DBFReader;
 import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.SqlSession;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
+import org.complitex.osznconnection.file.entity.AbstractRequest;
 import org.complitex.osznconnection.file.entity.Payment;
-import org.complitex.osznconnection.file.entity.PaymentDBF;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.entity.Status;
-import org.complitex.osznconnection.file.service.exception.FieldNotFoundException;
-import org.complitex.osznconnection.file.service.exception.FieldWrongTypeException;
-import org.complitex.osznconnection.file.service.exception.SqlSessionException;
 import org.complitex.osznconnection.file.web.pages.payment.PaymentExample;
 
 import javax.ejb.Stateless;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Обработка записей файла запроса начислений
@@ -28,9 +24,6 @@ import java.util.*;
 @Stateless(name = "PaymentBean")
 public class PaymentBean extends AbstractBean {
     public static final String MAPPING_NAMESPACE = PaymentBean.class.getName();
-
-    public static final int BATCH_SIZE = FileHandlingConfig.LOAD_RECORD_BATCH_SIZE.getInteger();
-    public static final int RECORD_PROCESS_DELAY = FileHandlingConfig.LOAD_RECORD_PROCESS_DELAY.getInteger();
 
     public enum OrderBy {
 
@@ -57,6 +50,18 @@ public class PaymentBean extends AbstractBean {
     @Transactional @SuppressWarnings({"unchecked"})
     public List<Payment> find(PaymentExample example) {
         return (List<Payment>) sqlSession().selectList(MAPPING_NAMESPACE + ".find", example);
+    }
+
+    @Transactional(executorType = ExecutorType.BATCH)
+    public void insert(List<AbstractRequest> abstractRequests){
+        for (AbstractRequest abstractRequest : abstractRequests){
+            insert((Payment) abstractRequest);
+        }
+    }
+
+    @Transactional
+    public void insert(Payment payment){
+        sqlSession().insert(MAPPING_NAMESPACE + ".insertPayment", payment);
     }
 
     @Transactional
@@ -172,107 +177,5 @@ public class PaymentBean extends AbstractBean {
         params.put("requestFileId", fileId);
         params.put("status", Status.ADDRESS_CORRECTED);
         sqlSession().update(MAPPING_NAMESPACE + ".correct", params);
-    }
-
-    public void load(RequestFile requestFile, DBFReader dbfReader)
-            throws FieldWrongTypeException, SqlSessionException, DBFException, FieldNotFoundException {
-        //карта индекс - название поля
-        Map<Integer, PaymentDBF> fieldIndex = new HashMap<Integer, PaymentDBF>();
-
-        int numberOfFields = dbfReader.getFieldCount();
-
-        DBFField field = null;
-        int index = 0;
-
-        try {
-            for(index = 0; index < numberOfFields; index++) {
-                field = dbfReader.getField(index);
-                PaymentDBF paymentDBF = PaymentDBF.valueOf(field.getName());
-
-                //проверка типов полей
-                byte type = field.getDataType();
-                if ((paymentDBF.getType().equals(String.class) && type != DBFField.FIELD_TYPE_C)
-                        || (paymentDBF.getType().equals(Integer.class) && type != DBFField.FIELD_TYPE_N)
-                        || (paymentDBF.getType().equals(Double.class) && type != DBFField.FIELD_TYPE_N)
-                        || (paymentDBF.getType().equals(Date.class) && type != DBFField.FIELD_TYPE_D)) {
-                    throw new FieldWrongTypeException(field.getName());
-                }
-
-                fieldIndex.put(index, paymentDBF);
-            }
-        } catch (IllegalArgumentException e) {
-            throw new FieldNotFoundException(field != null ? field.getName() : "index: " + index);
-        }
-
-        //проверка наличия всех полей
-        Collection<PaymentDBF> dbfFieldNames = fieldIndex.values();
-        for (PaymentDBF paymentDBF : PaymentDBF.values()){
-            if (!dbfFieldNames.contains(paymentDBF)){
-                throw new FieldNotFoundException(paymentDBF.name());
-            }
-        }
-
-        SqlSession sqlSession = null;
-
-        int rowIndex = 0;
-        Object[] rowObjects;
-
-        while((rowObjects = dbfReader.nextRecord()) != null) {
-            Payment payment = new Payment();
-            payment.setRequestFileId(requestFile.getId());
-            payment.setOrganizationId(requestFile.getOrganizationObjectId());
-            payment.setStatus(Status.CITY_UNRESOLVED_LOCALLY);
-
-            for (int i=0; i < rowObjects.length; ++i) {
-                PaymentDBF paymentDBF = fieldIndex.get(i);
-
-                Object value = rowObjects[i];
-
-                if (paymentDBF.getType().equals(String.class)) {
-                    payment.setField(paymentDBF, value);
-                } else if (paymentDBF.getType().equals(Integer.class)) {
-                    payment.setField(paymentDBF, value);
-                } else if (paymentDBF.getType().equals(Double.class)) {
-                    payment.setField(paymentDBF, value);
-                } else if (paymentDBF.getType().equals(Date.class)) {
-                    payment.setField(paymentDBF, value);
-                }
-            }
-
-            //open new sql session
-            if (sqlSession == null) {
-                sqlSession = getSqlSessionManager().openSession(ExecutorType.BATCH);
-            }
-
-            //debug delay
-            if(RECORD_PROCESS_DELAY > 0){
-                try {
-                    Thread.sleep(RECORD_PROCESS_DELAY);
-                } catch (InterruptedException e) {
-                    //hoh...
-                }
-            }
-
-            try {
-                sqlSession().insert(MAPPING_NAMESPACE + ".insertPayment", payment);
-
-                if (++rowIndex % BATCH_SIZE == 0) {
-                    sqlSession.commit();
-                    sqlSession.close();
-                    sqlSession = null;
-                }
-            } catch (Exception e) {
-                throw new SqlSessionException(e);
-            }
-        }
-
-        try {
-            if (sqlSession != null) {
-                sqlSession.commit();
-                sqlSession.close();
-            }
-        } catch (Exception e) {
-            throw new SqlSessionException(e);
-        }
     }
 }
