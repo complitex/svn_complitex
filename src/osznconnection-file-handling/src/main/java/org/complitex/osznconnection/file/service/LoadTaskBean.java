@@ -20,8 +20,9 @@ import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.concurrent.Future;
 
 import static org.complitex.osznconnection.file.entity.RequestFile.STATUS.*;
