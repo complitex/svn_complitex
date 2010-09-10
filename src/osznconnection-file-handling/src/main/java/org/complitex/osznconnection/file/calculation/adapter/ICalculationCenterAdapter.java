@@ -27,4 +27,6 @@ public interface ICalculationCenterAdapter {
     void acquirePersonAccount(Payment payment);
 
     public List<AccountCorrectionDetail> acquireAccountCorrectionDetails(Payment payment);
+
+    public void processPayment(Payment payment);
 }

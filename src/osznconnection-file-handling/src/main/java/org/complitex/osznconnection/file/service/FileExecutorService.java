@@ -31,9 +31,13 @@ public class FileExecutorService {
 
     private static FileExecutorService fileExecutorService;
 
-    private List<RequestFile> processed = Collections.synchronizedList(new ArrayList<RequestFile>());
+    private List<RequestFile> inBinding = Collections.synchronizedList(new ArrayList<RequestFile>());
+
+    private List<RequestFile> inProcessing = Collections.synchronizedList(new ArrayList<RequestFile>());
 
     private AtomicInteger bindingCounter = new AtomicInteger(0);
+
+    private AtomicInteger processingCounter = new AtomicInteger(0);
 
     private FileExecutorService() {
     }
@@ -45,9 +49,9 @@ public class FileExecutorService {
         return fileExecutorService;
     }
 
-    private ExecutorService threadPool = initThreadPool();
+    private ExecutorService bindingThreadPool = initBindingThreadPool();
 
-    private static ExecutorService initThreadPool() {
+    private static ExecutorService initBindingThreadPool() {
         return Executors.newFixedThreadPool(FileHandlingConfig.BINDING_THREAD_SIZE.getInteger());
     }
 
@@ -55,12 +59,33 @@ public class FileExecutorService {
         return bindingCounter.get() > 0;
     }
 
-    public List<RequestFile> getProcessed(boolean flush) {
+    private ExecutorService processingThreadPool = initProcessingThreadPool();
+
+    private static ExecutorService initProcessingThreadPool() {
+        return Executors.newFixedThreadPool(FileHandlingConfig.PROCESSING_THREAD_SIZE.getInteger());
+    }
+
+    public boolean isProcessing() {
+        return processingCounter.get() > 0;
+    }
+
+    public List<RequestFile> getInBinding(boolean flush) {
         List<RequestFile> list = new ArrayList<RequestFile>();
-        list.addAll(processed);
+        list.addAll(inBinding);
 
         if (flush) {
-            processed.clear();
+            inBinding.clear();
+        }
+
+        return Collections.unmodifiableList(list);
+    }
+
+    public List<RequestFile> getInProcessing(boolean flush) {
+        List<RequestFile> list = new ArrayList<RequestFile>();
+        list.addAll(inProcessing);
+
+        if (flush) {
+            inProcessing.clear();
         }
 
         return Collections.unmodifiableList(list);
@@ -85,7 +110,7 @@ public class FileExecutorService {
                 BindingRequestBean bindingRequestBean = getBindingBean();
 
                 if (paymentFile != null) {
-                    processed.add(paymentFile);
+                    inBinding.add(paymentFile);
 
                     try {
                         bindingRequestBean.bindPaymentFile(paymentFile);
@@ -95,7 +120,7 @@ public class FileExecutorService {
                 }
 
                 if (benefitFile != null) {
-                    processed.add(benefitFile);
+                    inBinding.add(benefitFile);
 
                     try {
                         bindingRequestBean.bindBenefitFile(benefitFile);
@@ -120,6 +145,45 @@ public class FileExecutorService {
         }
     }
 
+    private class ProcessPaymentTask implements Runnable {
+
+        private RequestFile paymentFile;
+
+        public ProcessPaymentTask(RequestFile paymentFile) {
+            this.paymentFile = paymentFile;
+        }
+
+        @Override
+        public void run() {
+            try {
+                processingCounter.incrementAndGet();
+
+                ProcessRequestBean processRequestBean = getProcessBean();
+                if (paymentFile != null) {
+                    inProcessing.add(paymentFile);
+                    try {
+                        processRequestBean.processPayment(paymentFile);
+                    } catch (Exception e) {
+                        log.error("", e);
+                    }
+                }
+            } catch (Exception e) {
+                log.error("", e);
+            } finally {
+                processingCounter.decrementAndGet();
+            }
+        }
+
+        private ProcessRequestBean getProcessBean() {
+            try {
+                InitialContext context = new InitialContext();
+                return (ProcessRequestBean) context.lookup("java:module/" + ProcessRequestBean.class.getSimpleName());
+            } catch (NamingException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
     public void bind(List<RequestFile> requestFiles) {
         List<RequestFile> suitedFiles = Lists.newArrayList(Iterables.filter(requestFiles, new Predicate<RequestFile>() {
 
@@ -131,7 +195,7 @@ public class FileExecutorService {
         Set<Long> bindingBenefitFiles = Sets.newHashSet();
         for (final RequestFile file : suitedFiles) {
             if (file.getType() == RequestFile.TYPE.PAYMENT) {
-                log.info("Payment file : {}", file.getName());
+                log.info("Binding payment file : {}", file.getName());
 
                 //find associated benefit file
                 RequestFile benefitFile = null;
@@ -151,18 +215,34 @@ public class FileExecutorService {
 
                 if (benefitFile != null) {
                     bindingBenefitFiles.add(benefitFile.getId());
-                    log.info("Paired benefit file : {}", benefitFile.getName());
+                    log.info("Binding paired benefit file : {}", benefitFile.getName());
                 }
 
-                threadPool.submit(new BindTask(file, benefitFile));
+                bindingThreadPool.submit(new BindTask(file, benefitFile));
 //                new BindTask(file, paymentStatus, benefitFile, benefitStatus).run();
 //               new Thread(new BindTask(file, paymentStatus, benefitFile, benefitStatus));
             }
         }
         for (RequestFile file : suitedFiles) {
             if ((file.getType() == RequestFile.TYPE.BENEFIT) && !bindingBenefitFiles.contains(file.getId())) {
-                log.info("Single benefit file : {}", file.getName());
-                threadPool.submit(new BindTask(null, file));
+                log.info("Binding alone benefit file : {}", file.getName());
+                bindingThreadPool.submit(new BindTask(null, file));
+            }
+        }
+    }
+
+    public void process(List<RequestFile> requestFiles) {
+        List<RequestFile> suitedFiles = Lists.newArrayList(Iterables.filter(requestFiles, new Predicate<RequestFile>() {
+
+            @Override
+            public boolean apply(RequestFile requestFile) {
+                return requestFile.getStatus() == RequestFile.STATUS.BINDED;
+            }
+        }));
+        for (RequestFile file : suitedFiles) {
+            if (file.getType() == RequestFile.TYPE.PAYMENT) {
+                log.info("Processing payment file : {}", file.getName());
+                processingThreadPool.submit(new ProcessPaymentTask(file));
             }
         }
     }

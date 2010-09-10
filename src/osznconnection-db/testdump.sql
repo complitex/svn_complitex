@@ -9,19 +9,21 @@ update sequence set sequence_value = 5 where sequence_name = 'room';
 update sequence set sequence_value = 5 where sequence_name = 'room_string_culture';
 
 -- Apartments
-insert into apartment(object_id, parent_id, parent_entity_id) values (1,1,500), (2,1,500), (3,6,500);
+insert into apartment(object_id, parent_id, parent_entity_id) values (1,1,500), (2,1,500), (3,6,500), (4,7,500);
 insert into apartment_string_culture(id, locale, value) values (1, 'ru', UPPER('10')), (1, 'en', UPPER('10')), (2, 'ru', UPPER('20')), (2, 'en', UPPER('20')),
-                                                                (3, 'ru', UPPER('1')), (3, 'en', UPPER('1'));
+                                                                (3, 'ru', UPPER('1')), (3, 'en', UPPER('1')),
+                                                                (4, 'ru', UPPER('40')), (4, 'en', UPPER('40'));
 insert into apartment_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
-(1,1,100,1,100), (1,2,100,2,100), (1,3,100,3,100);
-update sequence set sequence_value = 4 where sequence_name = 'apartment';
-update sequence set sequence_value = 4 where sequence_name = 'apartment_string_culture';
+(1,1,100,1,100), (1,2,100,2,100), (1,3,100,3,100), (1,4,100,4,100);
+update sequence set sequence_value = 5 where sequence_name = 'apartment';
+update sequence set sequence_value = 5 where sequence_name = 'apartment_string_culture';
 
 -- Buildings
-insert into building(object_id, parent_id, parent_entity_id) values (1,1,400), (2,1,400), (3,1,400), (4,2,400), (5,2,400), (6,3,400);
+insert into building(object_id, parent_id, parent_entity_id) values (1,1,400), (2,1,400), (3,1,400), (4,2,400), (5,2,400), (6,3,400), (7,3,400);
 insert into building_string_culture(id, locale, value) values (1, 'ru', UPPER('10')), (2, 'ru', UPPER('20')), (3,'ru',UPPER('11')), (4,'ru',UPPER('12')), (5,'ru',UPPER('21')), (6,'ru',UPPER('100')), (7,'ru', null), (8,'ru', null), (9,'ru', null), (10,'ru', null), (11,'ru', null), (12,'ru', null), (13,'ru', null), (14,'ru', null), (15,'ru', null), (16,'ru', null), (17,'ru', null), (18,'ru', null),
                                                               (1, 'en', UPPER('10')), (2, 'en', UPPER('20')), (3,'en',UPPER('11')), (4,'en',UPPER('12')), (5,'en',UPPER('21')), (6,'en',UPPER('100')), (7,'en', null), (8,'en', null), (9,'en', null), (10,'en', null), (11,'en', null), (12,'en', null), (13,'en', null), (14,'en', null), (15,'en', null), (16,'en', null), (17,'en', null), (18,'en', null),
-                                                              (19,'ru',UPPER('154A')), (19,'en',UPPER('154A')), (20,'ru',null), (20,'en',null), (21,'ru',null), (21,'en',null);
+                    (19,'ru',UPPER('154A')), (19,'en',UPPER('154A')), (20,'ru',null), (20,'en',null), (21,'ru',null), (21,'en',null),
+                    (22,'ru',UPPER('25A')), (22,'en',UPPER('25A')), (23,'ru',null), (23,'en',null), (24,'ru',null), (24,'en',null);
 insert into building_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
 (1,1,500,1,500),
 (1,1,501,7,501),
@@ -56,23 +58,30 @@ insert into building_attribute(attribute_id, object_id, attribute_type_id, value
 (1,6,501,20,501),
 (1,6,502,21,502),
 (1,6,503,4,503),
-(1,6,504,3,504);
-update sequence set sequence_value = 22 where sequence_name = 'building_string_culture';
-update sequence set sequence_value = 7 where sequence_name = 'building';
+(1,6,504,3,504),
+(1,7,500,22,500),
+(1,7,501,23,501),
+(1,7,502,24,502),
+(1,7,503,5,503),
+(1,7,504,3,504);
+update sequence set sequence_value = 25 where sequence_name = 'building_string_culture';
+update sequence set sequence_value = 8 where sequence_name = 'building';
 
 -- Streets
 insert into street_string_culture(id, locale, value) values (1, 'ru', UPPER('Терешковой')), (1,'en',UPPER('Tereshkovoy')),
                                                             (2, 'ru', UPPER('Ленина')), (2,'en',UPPER('Lenina')),
                                                             (3, 'ru', UPPER('Морской')), (3,'en', UPPER('Morskoy')),
-                                                            (4, 'ru', UPPER('КОСИОРА')), (4,'en', UPPER('КОСИОРА'));
-insert into street(object_id, parent_id, parent_entity_id, entity_type_id) values (1,1,400,302), (2,2,400,302), (3,1,400,302), (4,3,400,301);
+                                                            (4, 'ru', UPPER('КОСИОРА')), (4,'en', UPPER('КОСИОРА')),
+                                                            (5, 'ru', UPPER('ФРАНТИШЕКА КРАЛА')), (5,'en', UPPER('ФРАНТИШЕКА КРАЛА'));
+insert into street(object_id, parent_id, parent_entity_id, entity_type_id) values (1,1,400,302), (2,2,400,302), (3,1,400,302), (4,3,400,301), (5,3,400,302);
 insert into street_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
 (1,1,300,1,300),
 (1,2,300,2,300),
 (1,3,300,3,300),
-(1,4,300,4,300);
-update sequence set sequence_value = 5 where sequence_name = 'street_string_culture';
-update sequence set sequence_value = 5 where sequence_name = 'street';
+(1,4,300,4,300),
+(1,5,300,5,300);
+update sequence set sequence_value = 6 where sequence_name = 'street_string_culture';
+update sequence set sequence_value = 6 where sequence_name = 'street';
 
 -- Districts
 insert into district_string_culture(id, locale, value) values (1, 'ru', UPPER('Ленинский')), (1, 'en',UPPER('Leninsky')),
@@ -145,22 +154,28 @@ insert into `request_file`(id, organization_object_id, `name`, `date`, `loaded`,
 -- Payments
 insert into payment(own_num_sr, f_nam, m_nam, sur_nam, n_name, vul_name, bld_num, flat, DAT1, request_file_id, status)
 values
-(1,'Иван', 'Иванович', 'Иванов', 'Новосибирск', 'ул. Терешковой', 'д. 10', 'кв. 10', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY'),
-(2,'Сидор', 'Сидорович', 'Сидоров', 'Новосибирск', 'ул. Терешковой', 'д. 11', 'кв. 11', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY'),
+--(1,'Иван', 'Иванович', 'Иванов', 'Новосибирск', 'ул. Терешковой', 'д. 10', 'кв. 10', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY'),
+--(2,'Сидор', 'Сидорович', 'Сидоров', 'Новосибирск', 'ул. Терешковой', 'д. 11', 'кв. 11', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY'),
 (3,'Петр', 'Петрович', 'Петров', 'Харьков', 'Косиора', '154A', '1', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY');
+--(4,'Матвей', 'Матвеевич', 'Матвеев', 'Харьков', 'ФРАНТИШЕКА КРАЛА', '25А', '40', '2010-09-09',1, 'CITY_UNRESOLVED_LOCALLY');
 
 -- Address corrections
-insert into entity_type_correction(organization_id, `type`, entity_type_id, organization_type_code) values (3,'ул.',302,1);
+insert into entity_type_correction(organization_id, `type`, entity_type_id, organization_type_code) values (3,UPPER('ул'),302,1);
+insert into entity_type_correction(organization_id, `type`, entity_type_id, organization_type_code) values (3,UPPER('пр-т'),301,1);
+
 insert into city_correction(organization_id, city, city_id, organization_city_code) values (3,'Новосибирск',1,1);
 insert into street_correction(organization_id, street, street_id, organization_street_code) values (3,'Терешковой В.',1,1);
 insert into building_correction(organization_id, building_num, building_corp, building_id, organization_building_code) values (3,'10','1',1,1);
 insert into apartment_correction(organization_id, apartment, apartment_id, organization_apartment_code) values (3,'10',1,1);
 
-insert into entity_type_correction(organization_id, `type`, entity_type_id, organization_type_code) values (3,UPPER('пр-т'),301,1);
 insert into city_correction(organization_id, city, city_id, organization_city_code) values (3,UPPER('Харьков'),3,1);
 insert into street_correction(organization_id, street, street_id, organization_street_code) values (3,UPPER('Косиора'),4,1);
 insert into building_correction(organization_id, building_num, building_corp, building_id, organization_building_code) values (3,'154А','',6,1);
 insert into apartment_correction(organization_id, apartment, apartment_id, organization_apartment_code) values (3,'1',3,1);
+
+insert into street_correction(organization_id, street, street_id, organization_street_code) values (3,UPPER('ФРАНТИШЕКА КРАЛА'),5,11);
+insert into building_correction(organization_id, building_num, building_corp, building_id, organization_building_code) values (3,'25А','',7,11);
+insert into apartment_correction(organization_id, apartment, apartment_id, organization_apartment_code) values (3,'40',4,11);
 
 -- Benefit
 insert into benefit(own_num_sr, f_nam, m_nam, sur_nam, request_file_id)

@@ -300,10 +300,35 @@ public class RequestFileList extends TemplatePage {
             }
         };
         filterForm.add(bind);
+
+        //Связать
+        Button process = new Button("process") {
+
+            @Override
+            public void onSubmit() {
+                List<RequestFile> requestFiles = new ArrayList<RequestFile>();
+
+                for (RequestFile requestFile : selectModels.keySet()) {
+                    if (selectModels.get(requestFile).getObject()) {
+                        requestFiles.add(requestFile);
+                    }
+                }
+
+                FileExecutorService.get().process(requestFiles);
+                selectModels.clear();
+                addTimer(dataViewContainer, filterForm, messages);
+            }
+
+            @Override
+            public boolean isVisible() {
+                return !isProcessing();
+            }
+        };
+        filterForm.add(process);
     }
 
     private boolean isProcessing() {
-        return loadRequestBean.isProcessing() || FileExecutorService.get().isBinding();
+        return loadRequestBean.isProcessing() || FileExecutorService.get().isBinding() || FileExecutorService.get().isProcessing();
     }
 
     private void showMessages() {
@@ -349,7 +374,7 @@ public class RequestFileList extends TemplatePage {
         }
 
         //show messages for binding operation
-        for (RequestFile bindingFile : FileExecutorService.get().getProcessed(true)) {
+        for (RequestFile bindingFile : FileExecutorService.get().getInBinding(true)) {
             switch (bindingFile.getStatus()) {
                 case BINDED: {
                     highlightProcessed(target, bindingFile);
@@ -359,6 +384,30 @@ public class RequestFileList extends TemplatePage {
                 case BOUND_WITH_ERRORS: {
                     highlightError(target, bindingFile);
                     error(getStringFormat("bound.error", bindingFile.getName()));
+                    break;
+                }
+            }
+        }
+
+        //show messages for process operation
+        for (RequestFile processingFile : FileExecutorService.get().getInProcessing(true)) {
+            switch (processingFile.getStatus()) {
+                case PROCESSED: {
+                    if (target != null) { //highlight loaded
+                        target.appendJavascript("$('#" + ITEM_ID_PREFIX + processingFile.getId() + "')"
+                                + ".animate({ backgroundColor: 'lightgreen' }, 300)"
+                                + ".animate({ backgroundColor: '#E0E4E9' }, 700)");
+                    }
+                    info(getStringFormat("processed.success", processingFile.getName()));
+                    break;
+                }
+                case PROCESSED_WITH_ERRORS: {
+                    if (target != null) {
+                        target.appendJavascript("$('#" + ITEM_ID_PREFIX + processingFile.getId() + "')"
+                                + ".animate({ backgroundColor: 'darksalmon' }, 300)"
+                                + ".animate({ backgroundColor: '#E0E4E9' }, 700)");
+                    }
+                    error(getStringFormat("processed.error", processingFile.getName()));
                     break;
                 }
             }
