@@ -143,11 +143,15 @@ public class LogBean extends AbstractBean{
         List<LogChange> logChanges = new ArrayList<LogChange>();
 
         if (oldDomainObject == null){
-            for (Attribute na : newDomainObject.getAttributes()){
-                for (StringCulture ns : na.getLocalizedValues()){
-                    if (ns.getValue() != null){
-                        logChanges.add(new LogChange(na.getAttributeId(), null, strategy.getAttributeLabel(na, locale),
-                                null, ns.getValue(), ns.getLocale()));
+            if (newDomainObject.getAttributes() != null) {
+                for (Attribute na : newDomainObject.getAttributes()){
+                    if (na.getLocalizedValues() != null) {
+                        for (StringCulture ns : na.getLocalizedValues()){
+                            if (ns.getValue() != null){
+                                logChanges.add(new LogChange(na.getAttributeId(), null, strategy.getAttributeLabel(na, locale),
+                                        null, ns.getValue(), ns.getLocale()));
+                            }
+                        }
                     }
                 }
             }
