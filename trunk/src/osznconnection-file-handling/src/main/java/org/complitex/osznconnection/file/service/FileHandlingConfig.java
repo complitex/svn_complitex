@@ -22,7 +22,8 @@ public enum FileHandlingConfig {
     LOAD_RECORD_BATCH_SIZE(10, Integer.class),    
     LOAD_RECORD_PROCESS_DELAY(0, Integer.class),
     SAVE_RECORD_PROCESS_DELAY(0, Integer.class),
-    BINDING_THREAD_SIZE(10, Integer.class);    
+    BINDING_THREAD_SIZE(10, Integer.class),
+    PROCESSING_THREAD_SIZE(10, Integer.class);
 
     private Object value;
     private Class type;

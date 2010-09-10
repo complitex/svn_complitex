@@ -19,7 +19,9 @@ public enum Status {
     ACCOUNT_NUMBER_UNRESOLVED_LOCALLY(false, false), ACCOUNT_NUMBER_NOT_FOUND(false, false),
     MORE_ONE_ACCOUNTS(false, false),
     DISTRICT_NOT_FOUND(false, false),
-    ACCOUNT_NUMBER_RESOLVED(false, false);
+    ACCOUNT_NUMBER_RESOLVED(false, false),
+    PROCESSED(false, false),
+    UPLOADED(false,false);
 
     private boolean localAddressCorrected;
 

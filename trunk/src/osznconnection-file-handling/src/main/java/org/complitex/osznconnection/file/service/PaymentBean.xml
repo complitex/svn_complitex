@@ -127,7 +127,7 @@
             `outgoing_building_number` = #{outgoingBuildingNumber}, `outgoing_building_corp` = #{outgoingBuildingCorp},
             `outgoing_apartment` = #{outgoingApartment},
             `status` = #{status},
-            <foreach collection="dbfFields.keys" item="key">
+            <foreach collection="dbfFields.keys" item="key" separator=",">
                 `${key}` = #{dbfFields[key]}
             </foreach>
         </set>
@@ -219,6 +219,13 @@
         `outgoing_street` = #{outgoingStreet}, `outgoing_street_type` = #{outgoingStreetType},
         `outgoing_building_number` = #{outgoingBuildingNumber}, `outgoing_building_corp` = #{outgoingBuildingCorp},
         `outgoing_apartment` = #{outgoingApartment},
+        `FROG` = #{dbfFields['FROG'], javaType=double},
+        `FL_PAY` = #{dbfFields['FL_PAY'], javaType=double},
+        `NM_PAY` = #{dbfFields['NM_PAY'], javaType=double},
+        `DEBT` = #{dbfFields['DEBT'], javaType=double},
+        `NORM_F_1` = #{dbfFields['NORM_F_1'], javaType=double},
+        `NUMB` = #{dbfFields['NUMB'], javaType=int},
+        `MARK` = #{dbfFields["MARK"], javaType=int},
         `status` = #{status}
         WHERE `id` = #{id}
     </update>
@@ -237,7 +244,7 @@
         rf.`organization_object_id` organization_id,
         r.`internal_city_id`, r.`internal_street_id`, r.`internal_street_type_id`, r.`internal_building_id`, r.`internal_apartment_id`,
         r.`outgoing_city`, r.`outgoing_street`, r.`outgoing_street_type`, r.`outgoing_building_number`, r.`outgoing_building_corp`,
-        r.`outgoing_apartment`
+        r.`outgoing_apartment`, r.`account_number`
         FROM `payment` r
         JOIN `request_file` rf ON r.`request_file_id` = rf.`id`
         WHERE r.`request_file_id` = #{requestFileId} AND r.`id` IN

@@ -218,4 +218,60 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
     protected OrganizationStrategy getOrganizationStrategy() {
         return (OrganizationStrategy) StrategyFactoryStatic.getStrategy("organization");
     }
+
+    @Override
+    public void processPayment(Payment payment) {
+        SqlSession session = null;
+        try {
+            session = openSession();
+
+            Map<String, Object> params = Maps.newHashMap();
+            params.put("accountNumber", payment.getAccountNumber());
+            params.put("dat1", (Date) payment.getField(PaymentDBF.DAT1));
+
+            try {
+                session.selectOne(MAPPING_NAMESPACE + ".processPayment", params);
+                List<Map<String, Object>> data = (List<Map<String, Object>>) params.get("data");
+                if (data != null && (data.size() == 1)) {
+                    setPaymentData(payment, data.get(0));
+                    payment.setStatus(Status.PROCESSED);
+                    log.info("MARK1 : {}", payment.getDbfFields().get("MARK"));
+                } else {
+                   payment.setStatus(Status.ACCOUNT_NUMBER_NOT_FOUND);
+                }
+            } catch (Exception e) {
+                log.error("", e);
+                payment.setStatus(Status.ACCOUNT_NUMBER_NOT_FOUND);
+            }
+
+            session.commit();
+        } catch (Exception e) {
+            try {
+                if (session != null) {
+                    session.rollback();
+                }
+            } catch (Exception exc) {
+                log.error("", exc);
+            }
+            log.error("", e);
+        } finally {
+            try {
+                if (session != null) {
+                    session.close();
+                }
+            } catch (Exception e) {
+                log.error("", e);
+            }
+        }
+    }
+
+    protected void setPaymentData(Payment original, Map<String, Object> fromDb) {
+        original.setField(PaymentDBF.FROG, fromDb.get("FROG"));
+        original.setField(PaymentDBF.FL_PAY, fromDb.get("FL_PAY"));
+        original.setField(PaymentDBF.NM_PAY, fromDb.get("NM_PAY"));
+        original.setField(PaymentDBF.DEBT, fromDb.get("DEBT"));
+        original.setField(PaymentDBF.NORM_F_1, fromDb.get("NORM_F_1"));
+        original.setField(PaymentDBF.NUMB, fromDb.get("NUMB"));
+        original.setField(PaymentDBF.MARK, fromDb.get("MARK"));
+    }
 }
