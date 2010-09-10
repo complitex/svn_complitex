@@ -26,7 +26,8 @@ import static org.complitex.osznconnection.file.entity.RequestFile.REQUEST_FILES
 @Singleton
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 @SuppressWarnings({"EjbProhibitedPackageUsageInspection"})
-public class LoadRequestBean extends AbstractProcessBean{
+public class LoadRequestBean extends AbstractProcessBean {
+
     private static final Logger log = LoggerFactory.getLogger(RequestFileBean.class);
 
     @EJB(beanName = "RequestFileBean")
@@ -44,7 +45,7 @@ public class LoadRequestBean extends AbstractProcessBean{
     }
 
     private List<File> getFiles(final String[] filePrefix, final String districtDir, final String[] osznCode,
-                                       final String[] months) throws StorageNotFoundException {
+            final String[] months) throws StorageNotFoundException {
 
         return RequestFileStorage.getInstance().getInputFiles(districtDir, new FilenameFilter() {
 
@@ -55,7 +56,7 @@ public class LoadRequestBean extends AbstractProcessBean{
                         for (String month : months) {
                             String suffix = oszn + month + REQUEST_FILES_EXT;
 
-                            for (String prefix : filePrefix){
+                            for (String prefix : filePrefix) {
                                 if (name.equalsIgnoreCase(prefix + suffix)) {
                                     return true;
                                 }
@@ -80,8 +81,8 @@ public class LoadRequestBean extends AbstractProcessBean{
         return months;
     }
 
-    private Date parseDate(String name, int year){
-        return DateUtil.parseDate(name.substring(6,8), year);
+    private Date parseDate(String name, int year) {
+        return DateUtil.parseDate(name.substring(6, 8), year);
     }
 
     @Override
@@ -100,16 +101,16 @@ public class LoadRequestBean extends AbstractProcessBean{
     }
 
     @Asynchronous
-    public void load(long organizationId, String districtCode, Integer organizationCode, int monthFrom, int monthTo, int year) {
-        if(!isProcessing()){
+    public void load(long organizationId, String districtCode, String[] osznChildrenCodes, int monthFrom, int monthTo, int year) {
+        if (!isProcessing()) {
             try {
                 List<File> files = getFiles(new String[]{RequestFile.PAYMENT_FILES_PREFIX, RequestFile.BENEFIT_FILES_PREFIX},
-                        districtCode, new String[]{String.valueOf(organizationCode)}, getMonth(monthFrom, monthTo));
+                        districtCode, osznChildrenCodes, getMonth(monthFrom, monthTo));
 
                 List<RequestFile> requestFiles = new ArrayList<RequestFile>();
 
-                for (File file : files){
-                    RequestFile requestFile =  new RequestFile();
+                for (File file : files) {
+                    RequestFile requestFile = new RequestFile();
                     requestFile.setLength(file.length());
                     requestFile.setName(file.getName());
                     requestFile.setAbsolutePath(file.getAbsolutePath());
@@ -129,7 +130,7 @@ public class LoadRequestBean extends AbstractProcessBean{
         }
     }
 
-    protected void error(String desc, Object... args){
+    protected void error(String desc, Object... args) {
         logBean.error(Module.NAME, LoadRequestBean.class, RequestFile.class, null, Log.EVENT.CREATE, desc, args);
     }
 }

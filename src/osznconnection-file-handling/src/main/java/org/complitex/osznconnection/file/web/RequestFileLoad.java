@@ -25,7 +25,8 @@ import javax.ejb.EJB;
  *         Date: 25.08.2010 15:43:27
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)
-public class RequestFileLoad extends FormTemplatePage{
+public class RequestFileLoad extends FormTemplatePage {
+
     @EJB(name = "LoadRequestBean")
     private LoadRequestBean loadRequestBean;
 
@@ -71,29 +72,30 @@ public class RequestFileLoad extends FormTemplatePage{
         to.setRequired(true);
         form.add(to);
 
-        final DropDownChoice<Integer> year = new YearDropDownChoice("year", new Model<Integer>());        
+        final DropDownChoice<Integer> year = new YearDropDownChoice("year", new Model<Integer>());
         year.setRequired(true);
         form.add(year);
 
         //Загрузить
-        Button load = new Button("load"){
+        Button load = new Button("load") {
+
             @Override
             public void onSubmit() {
                 int f = from.getModelObject();
                 int t = to.getModelObject();
 
-                if (t < f){
+                if (t < f) {
                     error(getString("error.to_less_then_from"));
                     return;
                 }
 
-                if (!loadRequestBean.isProcessing()){
+                if (!loadRequestBean.isProcessing()) {
                     DomainObject oszn = organizationModel.getObject();
                     loadRequestBean.load(oszn.getId(),
-                            organizationStrategy.getDistrictCode(oszn), organizationStrategy.getUniqueCode(oszn),
+                            organizationStrategy.getDistrictCode(oszn), organizationStrategy.getChildrenCodes(oszn),
                             f, t, year.getModelObject());
                     getSession().info(getString("info.start_loading"));
-                }else{
+                } else {
                     getSession().error(getString("error.loading_in_progress"));
                 }
 
@@ -103,7 +105,8 @@ public class RequestFileLoad extends FormTemplatePage{
         form.add(load);
 
         //Отмена
-        Button cancel = new Button("cancel"){
+        Button cancel = new Button("cancel") {
+
             @Override
             public void onSubmit() {
                 setResponsePage(WelcomePage.class);

@@ -239,13 +239,8 @@ public class OrganizationStrategy extends Strategy {
         return null;
     }
 
-    public Integer getUniqueCode(DomainObject organization) {
-        return Integer.valueOf(stringBean.getSystemStringCulture(Iterables.find(organization.getAttributes(), new Predicate<Attribute>() {
-
-            @Override
-            public boolean apply(Attribute attr) {
-                return attr.getAttributeTypeId().equals(UNIQUE_CODE);
-            }
-        }).getLocalizedValues()).getValue());
+    public String[] getChildrenCodes(DomainObject oszn) {
+        List<String> childrenCodes = sqlSession().selectList(getClass().getName() + ".getChildrenCodes", oszn.getId());
+        return childrenCodes.toArray(new String[childrenCodes.size()]);
     }
 }
