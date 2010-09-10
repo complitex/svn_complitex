@@ -9,8 +9,8 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.util.List;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionException;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
 import org.complitex.osznconnection.file.calculation.service.CalculationCenterBean;
 
@@ -19,6 +19,7 @@ import org.complitex.osznconnection.file.calculation.service.CalculationCenterBe
  * @author Artem
  */
 @Stateless
+@TransactionManagement(TransactionManagementType.BEAN)
 public class BindingRequestBean extends AbstractBean {
 
     private static final Logger log = LoggerFactory.getLogger(BindingRequestBean.class);
@@ -111,28 +112,23 @@ public class BindingRequestBean extends AbstractBean {
                     batch.add(notResolvedPaymentIds.remove(i));
                 }
 
-                SqlSession session = null;
                 try {
-                    session = getSqlSessionManager().openSession(false);
+                    getSqlSessionManager().startManagedSession(false);
                     List<Payment> payments = paymentBean.findForOperation(paymentFile.getId(), batch);
                     for (Payment payment : payments) {
                         bind(payment, calculationCenterId, adapter);
                     }
-                    session.commit();
+                    getSqlSessionManager().commit();
                 } catch (Exception e) {
                     try {
-                        if (session != null) {
-                            session.rollback();
-                        }
-                    } catch (SqlSessionException exc) {
+                        getSqlSessionManager().rollback();
+                    } catch (Exception exc) {
                         log.error("", exc);
                     }
                     log.error("", e);
                 } finally {
                     try {
-                        if (session != null) {
-                            session.close();
-                        }
+                        getSqlSessionManager().close();
                     } catch (Exception e) {
                         log.error("", e);
                     }
