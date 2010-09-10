@@ -32,6 +32,9 @@ public class PersonAccountService extends AbstractBean {
     private BenefitBean benefitBean;
 
     @EJB
+    private PaymentBean paymentBean;
+
+    @EJB
     private CalculationCenterBean calculationCenterBean;
 
     private void resolveLocalAccount(Payment payment) {
@@ -59,6 +62,14 @@ public class PersonAccountService extends AbstractBean {
                     payment.getInternalBuildingId(), payment.getInternalApartmentId(), payment.getAccountNumber(),
                     (String) payment.getField(PaymentDBF.OWN_NUM_SR));
         }
+    }
+
+    @Transactional
+    public void correctAccountNumber(Payment payment, String accountNumber) {
+        payment.setAccountNumber(accountNumber);
+        payment.setStatus(Status.ACCOUNT_NUMBER_RESOLVED);
+        benefitBean.updateAccountNumber(payment.getId(), accountNumber);
+        paymentBean.update(payment);
     }
 
     @Transactional
