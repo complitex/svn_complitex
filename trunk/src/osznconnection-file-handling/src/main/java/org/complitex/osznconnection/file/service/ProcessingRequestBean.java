@@ -8,13 +8,13 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionException;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
 import org.complitex.osznconnection.file.calculation.service.CalculationCenterBean;
 import org.complitex.osznconnection.file.entity.CalculationCenterInfo;
 import org.complitex.osznconnection.file.entity.Payment;
-import org.complitex.osznconnection.file.entity.PaymentDBF;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.entity.Status;
 import org.slf4j.Logger;
@@ -25,9 +25,9 @@ import org.slf4j.LoggerFactory;
  * @author Artem
  */
 @Stateless
-public class ProcessRequestBean extends AbstractBean {
+public class ProcessingRequestBean extends AbstractBean {
 
-    private static final Logger log = LoggerFactory.getLogger(ProcessRequestBean.class);
+    private static final Logger log = LoggerFactory.getLogger(ProcessingRequestBean.class);
 
     private static final int BATCH_SIZE = 100;
 
@@ -43,7 +43,6 @@ public class ProcessRequestBean extends AbstractBean {
     private void processPayment(Payment payment, ICalculationCenterAdapter adapter) {
         adapter.processPayment(payment);
         if (payment.getStatus() == Status.PROCESSED) {
-            log.info("MARK2 : {}", payment.getDbfFields().get("MARK"));
             paymentBean.update(payment);
         }
     }
@@ -65,23 +64,28 @@ public class ProcessRequestBean extends AbstractBean {
                     batch.add(notResolvedPaymentIds.remove(i));
                 }
 
+                SqlSession session = null;
                 try {
-                    getSqlSessionManager().startManagedSession(false);
+                    session = getSqlSessionManager().openSession(false);
                     List<Payment> payments = paymentBean.findForOperation(paymentFile.getId(), batch);
                     for (Payment payment : payments) {
                         processPayment(payment, adapter);
                     }
-                    getSqlSessionManager().commit();
+                    session.commit();
                 } catch (Exception e) {
                     try {
-                        getSqlSessionManager().rollback();
-                    } catch (SqlSessionException exc) {
+                        if (session != null) {
+                            session.rollback();
+                        }
+                    } catch (Exception exc) {
                         log.error("", exc);
                     }
                     log.error("", e);
                 } finally {
                     try {
-                        getSqlSessionManager().close();
+                        if (session != null) {
+                            session.close();
+                        }
                     } catch (Exception e) {
                         log.error("", e);
                     }

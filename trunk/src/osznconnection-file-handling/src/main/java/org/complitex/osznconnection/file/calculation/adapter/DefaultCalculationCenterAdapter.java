@@ -235,7 +235,6 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
                 if (data != null && (data.size() == 1)) {
                     setPaymentData(payment, data.get(0));
                     payment.setStatus(Status.PROCESSED);
-                    log.info("MARK1 : {}", payment.getDbfFields().get("MARK"));
                 } else {
                    payment.setStatus(Status.ACCOUNT_NUMBER_NOT_FOUND);
                 }

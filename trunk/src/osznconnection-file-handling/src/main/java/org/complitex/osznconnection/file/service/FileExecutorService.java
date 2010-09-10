@@ -158,7 +158,7 @@ public class FileExecutorService {
             try {
                 processingCounter.incrementAndGet();
 
-                ProcessRequestBean processRequestBean = getProcessBean();
+                ProcessingRequestBean processRequestBean = getProcessBean();
                 if (paymentFile != null) {
                     inProcessing.add(paymentFile);
                     try {
@@ -174,10 +174,10 @@ public class FileExecutorService {
             }
         }
 
-        private ProcessRequestBean getProcessBean() {
+        private ProcessingRequestBean getProcessBean() {
             try {
                 InitialContext context = new InitialContext();
-                return (ProcessRequestBean) context.lookup("java:module/" + ProcessRequestBean.class.getSimpleName());
+                return (ProcessingRequestBean) context.lookup("java:module/" + ProcessingRequestBean.class.getSimpleName());
             } catch (NamingException e) {
                 throw new RuntimeException(e);
             }

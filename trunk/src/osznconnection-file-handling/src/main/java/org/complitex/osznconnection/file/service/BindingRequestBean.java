@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.util.List;
+import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionException;
 import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
 import org.complitex.osznconnection.file.calculation.service.CalculationCenterBean;
@@ -110,23 +111,28 @@ public class BindingRequestBean extends AbstractBean {
                     batch.add(notResolvedPaymentIds.remove(i));
                 }
 
+                SqlSession session = null;
                 try {
-                    getSqlSessionManager().startManagedSession(false);
+                    session = getSqlSessionManager().openSession(false);
                     List<Payment> payments = paymentBean.findForOperation(paymentFile.getId(), batch);
                     for (Payment payment : payments) {
                         bind(payment, calculationCenterId, adapter);
                     }
-                    getSqlSessionManager().commit();
+                    session.commit();
                 } catch (Exception e) {
                     try {
-                        getSqlSessionManager().rollback();
+                        if (session != null) {
+                            session.rollback();
+                        }
                     } catch (SqlSessionException exc) {
                         log.error("", exc);
                     }
                     log.error("", e);
                 } finally {
                     try {
-                        getSqlSessionManager().close();
+                        if (session != null) {
+                            session.close();
+                        }
                     } catch (Exception e) {
                         log.error("", e);
                     }
