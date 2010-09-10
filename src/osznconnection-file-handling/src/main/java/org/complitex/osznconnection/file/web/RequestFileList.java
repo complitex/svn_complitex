@@ -105,16 +105,16 @@ public class RequestFileList extends TemplatePage {
         filterForm.add(new DropDownChoice<DomainObject>("organization",
                 organizationStrategy.getAllOSZNs(), new IChoiceRenderer<DomainObject>() {
 
-                    @Override
-                    public Object getDisplayValue(DomainObject object) {
-                        return organizationStrategy.displayDomainObject(object, getLocale());
-                    }
+            @Override
+            public Object getDisplayValue(DomainObject object) {
+                return organizationStrategy.displayDomainObject(object, getLocale());
+            }
 
-                    @Override
-                    public String getIdValue(DomainObject object, int index) {
-                        return String.valueOf(object.getId());
-                    }
-                }));
+            @Override
+            public String getIdValue(DomainObject object, int index) {
+                return String.valueOf(object.getId());
+            }
+        }));
 
         //Месяц
         filterForm.add(new MonthDropDownChoice("month"));
@@ -332,7 +332,7 @@ public class RequestFileList extends TemplatePage {
     }
 
     private void showMessages() {
-        if (loadRequestBean.isError(true)){
+        if (loadRequestBean.isError(true)) {
             error(getString("error.process"));
         }
 
@@ -347,7 +347,7 @@ public class RequestFileList extends TemplatePage {
                     info(getStringFormat("info.loaded", rf.getName()));
                     break;
                 case LOAD_ERROR:
-                    switch (rf.getStatusDetail()){
+                    switch (rf.getStatusDetail()) {
                         case ALREADY_LOADED:
                             Calendar year = Calendar.getInstance();
                             year.setTime(rf.getDate());
@@ -364,7 +364,7 @@ public class RequestFileList extends TemplatePage {
         }
 
         //Error
-        if (loadRequestBean.isError(true)){
+        if (loadRequestBean.isError(true)) {
             error(getString("error.process"));
         }
 
@@ -389,24 +389,16 @@ public class RequestFileList extends TemplatePage {
             }
         }
 
-        //show messages for process operation
+        //show messages for processing operation
         for (RequestFile processingFile : FileExecutorService.get().getInProcessing(true)) {
             switch (processingFile.getStatus()) {
                 case PROCESSED: {
-                    if (target != null) { //highlight loaded
-                        target.appendJavascript("$('#" + ITEM_ID_PREFIX + processingFile.getId() + "')"
-                                + ".animate({ backgroundColor: 'lightgreen' }, 300)"
-                                + ".animate({ backgroundColor: '#E0E4E9' }, 700)");
-                    }
+                    highlightProcessed(target, processingFile);
                     info(getStringFormat("processed.success", processingFile.getName()));
                     break;
                 }
                 case PROCESSED_WITH_ERRORS: {
-                    if (target != null) {
-                        target.appendJavascript("$('#" + ITEM_ID_PREFIX + processingFile.getId() + "')"
-                                + ".animate({ backgroundColor: 'darksalmon' }, 300)"
-                                + ".animate({ backgroundColor: '#E0E4E9' }, 700)");
-                    }
+                    highlightError(target, processingFile);
                     error(getStringFormat("processed.error", processingFile.getName()));
                     break;
                 }
@@ -414,7 +406,7 @@ public class RequestFileList extends TemplatePage {
         }
     }
 
-    private void highlightProcessed(AjaxRequestTarget target, RequestFile requestFile){
+    private void highlightProcessed(AjaxRequestTarget target, RequestFile requestFile) {
         if (target != null) {
             target.appendJavascript("$('#" + ITEM_ID_PREFIX + requestFile.getId() + "')"
                     + ".animate({ backgroundColor: 'lightgreen' }, 300)"
@@ -422,7 +414,7 @@ public class RequestFileList extends TemplatePage {
         }
     }
 
-    private void highlightError(AjaxRequestTarget target, RequestFile requestFile){
+    private void highlightError(AjaxRequestTarget target, RequestFile requestFile) {
         if (target != null) {
             target.appendJavascript("$('#" + ITEM_ID_PREFIX + requestFile.getId() + "')"
                     + ".animate({ backgroundColor: 'darksalmon' }, 300)"

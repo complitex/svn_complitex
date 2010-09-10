@@ -154,10 +154,10 @@ insert into `request_file`(id, organization_object_id, `name`, `date`, `loaded`,
 -- Payments
 insert into payment(own_num_sr, f_nam, m_nam, sur_nam, n_name, vul_name, bld_num, flat, DAT1, request_file_id, status)
 values
---(1,'Иван', 'Иванович', 'Иванов', 'Новосибирск', 'ул. Терешковой', 'д. 10', 'кв. 10', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY'),
---(2,'Сидор', 'Сидорович', 'Сидоров', 'Новосибирск', 'ул. Терешковой', 'д. 11', 'кв. 11', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY'),
+(1,'Иван', 'Иванович', 'Иванов', 'Новосибирск', 'ул. Терешковой', 'д. 10', 'кв. 10', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY'),
+-- (2,'Сидор', 'Сидорович', 'Сидоров', 'Новосибирск', 'ул. Терешковой', 'д. 11', 'кв. 11', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY'),
 (3,'Петр', 'Петрович', 'Петров', 'Харьков', 'Косиора', '154A', '1', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY');
---(4,'Матвей', 'Матвеевич', 'Матвеев', 'Харьков', 'ФРАНТИШЕКА КРАЛА', '25А', '40', '2010-09-09',1, 'CITY_UNRESOLVED_LOCALLY');
+-- (4,'Матвей', 'Матвеевич', 'Матвеев', 'Харьков', 'ФРАНТИШЕКА КРАЛА', '25А', '40', '2010-09-09',1, 'CITY_UNRESOLVED_LOCALLY');
 
 -- Address corrections
 insert into entity_type_correction(organization_id, `type`, entity_type_id, organization_type_code) values (3,UPPER('ул'),302,1);

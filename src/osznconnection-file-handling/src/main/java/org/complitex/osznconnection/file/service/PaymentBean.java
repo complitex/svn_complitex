@@ -94,7 +94,6 @@ public class PaymentBean extends AbstractBean {
         return sqlSession().selectList(MAPPING_NAMESPACE + ".findForOperation", params);
     }
 
-    @Transactional
     @SuppressWarnings({"unchecked"})
     private List<Long> findIdsForOperation(long fileId, List<Status> statuses) {
         Map<String, Object> params = new HashMap<String, Object>();
@@ -103,6 +102,7 @@ public class PaymentBean extends AbstractBean {
         return sqlSession().selectList(MAPPING_NAMESPACE + ".findIdsForOperation", params);
     }
 
+    @Transactional
     public List<Long> findIdsForBinding(long fileId) {
         return findIdsForOperation(fileId, Arrays.asList(Status.ACCOUNT_NUMBER_NOT_FOUND, Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY,
                 Status.ADDRESS_CORRECTED, Status.APARTMENT_UNRESOLVED, Status.APARTMENT_UNRESOLVED_LOCALLY, Status.BUILDING_CORP_UNRESOLVED,
@@ -111,6 +111,7 @@ public class PaymentBean extends AbstractBean {
                 Status.STREET_UNRESOLVED_LOCALLY));
     }
 
+    @Transactional
     public List<Long> findIdsForProcessing(long fileId) {
         return findIdsForOperation(fileId, Arrays.asList(Status.ACCOUNT_NUMBER_RESOLVED));
     }
@@ -131,7 +132,6 @@ public class PaymentBean extends AbstractBean {
                 Status.STREET_UNRESOLVED_LOCALLY, Status.ACCOUNT_NUMBER_RESOLVED));
     }
 
-    @Transactional
     private int countByFile(long fileId, List<Status> statuses) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("requestFileId", fileId);
@@ -139,10 +139,12 @@ public class PaymentBean extends AbstractBean {
         return (Integer) sqlSession().selectOne(MAPPING_NAMESPACE + ".countByFile", params);
     }
 
+    @Transactional
     public boolean isPaymentFileBound(long fileId) {
         return boundCount(fileId) == 0;
     }
 
+    @Transactional
     public boolean isPaymentFileProcessed(long fileId) {
         return processedCount(fileId) == 0;
     }
