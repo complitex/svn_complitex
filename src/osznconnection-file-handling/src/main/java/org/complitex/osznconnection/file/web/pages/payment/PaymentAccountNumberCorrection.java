@@ -41,8 +41,7 @@ public final class PaymentAccountNumberCorrection extends TemplatePage {
     private void init(long paymentId) {
         payment = paymentBean.findById(paymentId);
 
-        add(new Label("title", new ResourceModel("label")));
-        add(new Label("label", new ResourceModel("label")));
+        add(new Label("title", new ResourceModel("title")));
 
         List<AccountCorrectionDetail> accountCorrectionDetails = personAccountService.acquireAccountCorrectionDetails(payment);
 
@@ -55,7 +54,7 @@ public final class PaymentAccountNumberCorrection extends TemplatePage {
 
             @Override
             protected void correctAccountNumber(String accountNumber) {
-                payment.setAccountNumber(accountNumber);
+                personAccountService.correctAccountNumber(payment, accountNumber);
             }
         });
 

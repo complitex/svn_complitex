@@ -37,6 +37,7 @@ public abstract class AccountNumberCorrectionPanel extends Panel {
         boolean needChoose = accountCorrectionDetails != null && !accountCorrectionDetails.isEmpty();
 
         final FeedbackPanel messages = new FeedbackPanel("messages");
+        messages.setOutputMarkupId(true);
         add(messages);
 
         IModel<String> labelModel = new ResourceModel(needChoose ? "label" : "no_info");

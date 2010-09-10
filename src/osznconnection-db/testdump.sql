@@ -143,7 +143,7 @@ insert into organization_attribute(attribute_id, object_id, attribute_type_id, v
 (1,1,900,1,900), (1,1,901,2,901), (1,1,902,3,902),
 (1,2,900,4,900), (1,2,902,5,902), (1,3,900,6,900), (1,3,902,7,902), (1,3,903,8,903);
 
-update sequence set sequence_value = 8 where sequence_name = 'organization_string_culture';
+update sequence set sequence_value = 9 where sequence_name = 'organization_string_culture';
 update sequence set sequence_value = 4 where sequence_name = 'organization';
 
 -- Files
@@ -156,8 +156,8 @@ insert into payment(own_num_sr, f_nam, m_nam, sur_nam, n_name, vul_name, bld_num
 values
 (1,'Иван', 'Иванович', 'Иванов', 'Новосибирск', 'ул. Терешковой', 'д. 10', 'кв. 10', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY'),
 -- (2,'Сидор', 'Сидорович', 'Сидоров', 'Новосибирск', 'ул. Терешковой', 'д. 11', 'кв. 11', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY'),
-(3,'Петр', 'Петрович', 'Петров', 'Харьков', 'Косиора', '154A', '1', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY');
--- (4,'Матвей', 'Матвеевич', 'Матвеев', 'Харьков', 'ФРАНТИШЕКА КРАЛА', '25А', '40', '2010-09-09',1, 'CITY_UNRESOLVED_LOCALLY');
+(3,'Петр', 'Петрович', 'Петров', 'Харьков', 'Косиора', '154A', '1', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY'),
+ (4,'Матвей', 'Матвеевич', 'Матвеев', 'Харьков', 'ФРАНТИШЕКА КРАЛА', '25А', '40', '2010-09-09',1, 'CITY_UNRESOLVED_LOCALLY');
 
 -- Address corrections
 insert into entity_type_correction(organization_id, `type`, entity_type_id, organization_type_code) values (3,UPPER('ул'),302,1);
