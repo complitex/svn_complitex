@@ -80,6 +80,11 @@ public class BenefitBean extends AbstractBean {
         }
     }
 
+    @SuppressWarnings({"unchecked"})
+    public List<AbstractRequest> getBenefits(RequestFile requestFile){
+        return sqlSession().selectList(MAPPING_NAMESPACE + ".selectBenefits", requestFile.getId());                
+    }
+
     @Transactional
     public void insert(Benefit benefit){
         sqlSession().insert(MAPPING_NAMESPACE + ".insertBenefit", benefit);

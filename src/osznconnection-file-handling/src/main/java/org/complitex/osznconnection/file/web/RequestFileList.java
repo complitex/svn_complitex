@@ -30,10 +30,7 @@ import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
 import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.TemplatePage;
 import org.complitex.osznconnection.file.entity.RequestFile;
-import org.complitex.osznconnection.file.service.FileExecutorService;
-import org.complitex.osznconnection.file.service.LoadRequestBean;
-import org.complitex.osznconnection.file.service.RequestFileBean;
-import org.complitex.osznconnection.file.service.RequestFileFilter;
+import org.complitex.osznconnection.file.service.*;
 import org.complitex.osznconnection.file.web.pages.benefit.BenefitList;
 import org.complitex.osznconnection.file.web.pages.payment.PaymentList;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
@@ -61,6 +58,9 @@ public class RequestFileList extends TemplatePage {
 
     @EJB(name = "LoadRequestBean")
     private LoadRequestBean loadRequestBean;
+
+    @EJB(name = "SaveRequestBean")
+    private SaveRequestBean saveRequestBean;
 
     private int waitForStopTimer;
 
@@ -105,16 +105,16 @@ public class RequestFileList extends TemplatePage {
         filterForm.add(new DropDownChoice<DomainObject>("organization",
                 organizationStrategy.getAllOSZNs(), new IChoiceRenderer<DomainObject>() {
 
-            @Override
-            public Object getDisplayValue(DomainObject object) {
-                return organizationStrategy.displayDomainObject(object, getLocale());
-            }
+                    @Override
+                    public Object getDisplayValue(DomainObject object) {
+                        return organizationStrategy.displayDomainObject(object, getLocale());
+                    }
 
-            @Override
-            public String getIdValue(DomainObject object, int index) {
-                return String.valueOf(object.getId());
-            }
-        }));
+                    @Override
+                    public String getIdValue(DomainObject object, int index) {
+                        return String.valueOf(object.getId());
+                    }
+                }));
 
         //Месяц
         filterForm.add(new MonthDropDownChoice("month"));
@@ -264,7 +264,7 @@ public class RequestFileList extends TemplatePage {
                 for (RequestFile requestFile : selectModels.keySet()) {
                     if (selectModels.get(requestFile).getObject()) {
                         requestFileBean.delete(requestFile);
-                        info(getStringFormat("info.deleted", requestFile.getName()));
+                        info(getStringFormat("info.deleted", requestFile.getType().ordinal(), requestFile.getName()));
                     }
                 }
             }
@@ -325,53 +325,109 @@ public class RequestFileList extends TemplatePage {
             }
         };
         filterForm.add(process);
+
+        //Выгрузить
+        Button save = new Button("save") {
+
+            @Override
+            public void onSubmit() {
+                List<RequestFile> requestFiles = new ArrayList<RequestFile>();
+
+                for (RequestFile requestFile : selectModels.keySet()) {
+                    if (selectModels.get(requestFile).getObject()) {
+                        requestFiles.add(requestFile);
+                    }
+                }
+
+                info(getString("info.start_saving"));
+
+                saveRequestBean.save(requestFiles);
+
+                selectModels.clear();
+                addTimer(dataViewContainer, filterForm, messages);
+            }
+
+            @Override
+            public boolean isVisible() {
+                return !isProcessing();
+            }
+        };
+        filterForm.add(save);
     }
 
     private boolean isProcessing() {
-        return loadRequestBean.isProcessing() || FileExecutorService.get().isBinding() || FileExecutorService.get().isProcessing();
+        return loadRequestBean.isProcessing()
+                || FileExecutorService.get().isBinding()
+                || FileExecutorService.get().isProcessing()
+                || saveRequestBean.isProcessing();
     }
 
     private void showMessages() {
-        if (loadRequestBean.isError(true)) {
-            error(getString("error.process"));
+        if (loadRequestBean.isError(true)){
+            error(getString("error.load.process"));
         }
 
         showMessages(null);
     }
 
     private void showMessages(AjaxRequestTarget target) {
+        //Load
         for (RequestFile rf : loadRequestBean.getProcessed(true)) {
             switch (rf.getStatus()) {
                 case LOADED:
                     highlightProcessed(target, rf);
-                    info(getStringFormat("info.loaded", rf.getName()));
+                    info(getStringFormat("info.loaded", rf.getType().ordinal(), rf.getName()));
                     break;
                 case LOAD_ERROR:
-                    switch (rf.getStatusDetail()) {
+                    switch (rf.getStatusDetail()){
                         case ALREADY_LOADED:
                             Calendar year = Calendar.getInstance();
                             year.setTime(rf.getDate());
 
-                            error(getStringFormat("error.already_loaded", rf.getName(), year.get(Calendar.YEAR)));
+                            error(getStringFormat("error.already_loaded", rf.getType().ordinal(), rf.getName(), year.get(Calendar.YEAR)));
                             break;
                         default:
                             highlightError(target, rf);
-                            error(getStringFormat("error.common", rf.getName()));
+                            error(getStringFormat("error.load.common", rf.getType().ordinal(), rf.getName()));
                             break;
                     }
                     break;
             }
         }
 
-        //Error
-        if (loadRequestBean.isError(true)) {
-            error(getString("error.process"));
+        //Load Error
+        if (loadRequestBean.isError(true)){
+            error(getString("error.load.process"));
         }
 
         //Load completed
         if (loadRequestBean.isCompleted(true)) {
             info(getStringFormat("info.load_completed", loadRequestBean.getProcessedCount(), loadRequestBean.getErrorCount()));
         }
+
+        //Save
+        for (RequestFile rf : saveRequestBean.getProcessed(true)){
+            switch (rf.getStatus()){
+                case SAVED:
+                    highlightProcessed(target, rf);
+                    info(getStringFormat("info.saved", rf.getType().ordinal(), rf.getName()));
+                    break;
+                case SAVE_ERROR:
+                    highlightError(target, rf);
+                    error(getStringFormat("error.save.common", rf.getType().ordinal(), rf.getName()));
+                    break;
+            }
+        }
+
+         //Save Error
+        if (saveRequestBean.isError(true)){
+            error(getString("error.save.process"));
+        }
+
+        //Save completed
+        if (saveRequestBean.isCompleted(true)) {
+            info(getStringFormat("info.save_completed", saveRequestBean.getProcessedCount(), saveRequestBean.getErrorCount()));
+        }        
 
         //show messages for binding operation
         for (RequestFile bindingFile : FileExecutorService.get().getInBinding(true)) {
@@ -389,7 +445,7 @@ public class RequestFileList extends TemplatePage {
             }
         }
 
-        //show messages for processing operation
+        //show messages for process operation
         for (RequestFile processingFile : FileExecutorService.get().getInProcessing(true)) {
             switch (processingFile.getStatus()) {
                 case PROCESSED: {
@@ -398,7 +454,7 @@ public class RequestFileList extends TemplatePage {
                     break;
                 }
                 case PROCESSED_WITH_ERRORS: {
-                    highlightError(target, processingFile);
+                   highlightError(target, processingFile);
                     error(getStringFormat("processed.error", processingFile.getName()));
                     break;
                 }
@@ -406,7 +462,7 @@ public class RequestFileList extends TemplatePage {
         }
     }
 
-    private void highlightProcessed(AjaxRequestTarget target, RequestFile requestFile) {
+    private void highlightProcessed(AjaxRequestTarget target, RequestFile requestFile){
         if (target != null) {
             target.appendJavascript("$('#" + ITEM_ID_PREFIX + requestFile.getId() + "')"
                     + ".animate({ backgroundColor: 'lightgreen' }, 300)"
@@ -414,7 +470,7 @@ public class RequestFileList extends TemplatePage {
         }
     }
 
-    private void highlightError(AjaxRequestTarget target, RequestFile requestFile) {
+    private void highlightError(AjaxRequestTarget target, RequestFile requestFile){
         if (target != null) {
             target.appendJavascript("$('#" + ITEM_ID_PREFIX + requestFile.getId() + "')"
                     + ".animate({ backgroundColor: 'darksalmon' }, 300)"

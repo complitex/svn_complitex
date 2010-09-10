@@ -115,4 +115,8 @@
     <update id="cancelLoading">
         update `request_file` set `status` = 'LOAD_ERROR', `status_detail` = 'CANCEL_LOADING' where `status` = 'LOADING'
     </update>
+
+    <update id="cancelSaving">
+        update `request_file` set `status` = 'SAVE_ERROR', `status_detail` = 'CANCEL_SAVING' where `status` = 'SAVING'
+    </update>
 </mapper>

@@ -60,6 +60,10 @@ public class RequestFileBean extends AbstractBean {
     public void cancelLoading(){
         sqlSession().update(MAPPING_NAMESPACE + ".cancelLoading");
     }
+    
+     public void cancelSaving() {
+        sqlSession().update(MAPPING_NAMESPACE + ".cancelSaving");
+    }
 
     public LogChangeList getLogChangeList(RequestFile requestFile){
         LogChangeList logChangeList = new LogChangeList();
@@ -76,9 +80,5 @@ public class RequestFileBean extends AbstractBean {
                 .add("bindedRecordCount", requestFile.getBindedRecordCount());                
 
         return logChangeList;
-    }
-
-    public void cancelSaving() {
-        //To change body of created methods use File | Settings | File Templates.
     }
 }

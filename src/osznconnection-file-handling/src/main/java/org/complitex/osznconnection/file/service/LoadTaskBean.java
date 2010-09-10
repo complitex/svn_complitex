@@ -60,11 +60,11 @@ public class LoadTaskBean {
             }
 
             //Инициализация парсера
-            DBFReader dbfReader = new DBFReader(new FileInputStream(requestFile.getAbsolutePath()));
-            dbfReader.setCharactersetName("cp866");
+            DBFReader reader = new DBFReader(new FileInputStream(requestFile.getAbsolutePath()));
+            reader.setCharactersetName("cp866");
 
             //Начало загрузки
-            requestFile.setDbfRecordCount(dbfReader.getRecordCount());
+            requestFile.setDbfRecordCount(reader.getRecordCount());
             requestFile.setLoaded(DateUtil.getCurrentDate());
             requestFile.setStatus(LOADING);
 
@@ -76,8 +76,8 @@ public class LoadTaskBean {
 
             List<String> fieldIndex = new ArrayList<String>();
 
-            for(int i = 0; i < dbfReader.getFieldCount(); i++) {
-                DBFField field = dbfReader.getField(i);
+            for(int i = 0; i < reader.getFieldCount(); i++) {
+                DBFField field = reader.getField(i);
 
                 fieldIndex.add(field.getName());
             }
@@ -89,19 +89,19 @@ public class LoadTaskBean {
 
             List<AbstractRequest> batch = new ArrayList<AbstractRequest>();
 
-            while((rowObjects = dbfReader.nextRecord()) != null) {
-                AbstractRequest abstractRequest = createObject(requestFile.getType());
+            while((rowObjects = reader.nextRecord()) != null) {
+                AbstractRequest r = createObject(requestFile.getType());
 
-                abstractRequest.setRequestFileId(requestFile.getId());
-                abstractRequest.setOrganizationId(requestFile.getOrganizationObjectId());
-                abstractRequest.setStatus(Status.CITY_UNRESOLVED_LOCALLY);
+                r.setRequestFileId(requestFile.getId());
+                r.setOrganizationId(requestFile.getOrganizationObjectId());
+                r.setStatus(Status.CITY_UNRESOLVED_LOCALLY);
 
-                batch.add(abstractRequest);
+                batch.add(r);
 
                 //Заполнение колонок записи
                 for (int i=0; i < rowObjects.length; ++i) {
-                    DBFField field = dbfReader.getField(i);
-                    abstractRequest.setField(field.getName(), rowObjects[i], field.getDataType());
+                    DBFField field = reader.getField(i);
+                    r.setField(field.getName(), rowObjects[i], getType(field.getDataType(), field.getDecimalCount()));
                 }
 
                 //Сохранение
@@ -153,8 +153,8 @@ public class LoadTaskBean {
             error(requestFile, "Ошибка формата файла {0} {1}", requestFile.getName(), e.getMessage());
         } catch (Throwable t){
             requestFile.setStatus(LOAD_ERROR, CRITICAL);
-            log.error("Ошибка загрузки файла " + requestFile.getAbsolutePath(), t);
-            error(requestFile, "Ошибка загрузки файла {0}", requestFile.getName());
+            log.error("Критическая ошибка загрузки файла " + requestFile.getAbsolutePath(), t);
+            error(requestFile, "Критическая ошибка загрузки файла {0}", requestFile.getName());
         } finally {
             if (requestFile.getStatusDetail() != ALREADY_LOADED) {
                 requestFile.setLoaded(DateUtil.getCurrentDate());
@@ -174,6 +174,15 @@ public class LoadTaskBean {
         }
 
         return new AsyncResult<RequestFile>(requestFile);
+    }
+
+    private Class getType(byte dataType, int scale){
+        switch (dataType){
+            case DBFField.FIELD_TYPE_C: return String.class;
+            case DBFField.FIELD_TYPE_N: return scale == 0 ? Integer.class : Double.class;
+            case DBFField.FIELD_TYPE_D: return Date.class;
+            default: throw new IllegalArgumentException();
+        }
     }
 
     private void checkExist(RequestFile.TYPE requestFileType, List<String> names) throws FieldNotFoundException {

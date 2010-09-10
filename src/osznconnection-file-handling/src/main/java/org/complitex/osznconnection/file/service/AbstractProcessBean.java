@@ -20,7 +20,7 @@ public abstract class AbstractProcessBean {
 
     public static enum PROCESS_STATUS{NEW, PROCESSING, ERROR, COMPLETED}
 
-    private PROCESS_STATUS processStatus;
+    protected PROCESS_STATUS processStatus;
 
     private int processedCount = 0;
     private int errorCount = 0;

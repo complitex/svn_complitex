@@ -61,6 +61,11 @@ public class PaymentBean extends AbstractBean {
         }
     }
 
+    @SuppressWarnings({"unchecked"})
+    public List<AbstractRequest> getPayments(RequestFile requestFile){
+         return sqlSession().selectList(MAPPING_NAMESPACE + ".selectPayments", requestFile.getId());
+    }
+
     @Transactional
     public void insert(Payment payment){
         sqlSession().insert(MAPPING_NAMESPACE + ".insertPayment", payment);

@@ -84,8 +84,8 @@
         </association>
     </resultMap>
 
-    <select id="selectPayments" resultMap="paymentResultMap">
-        select * from `payment`
+    <select id="selectPayments" resultMap="paymentResultMap" parameterType="long">
+        select * from `payment` where `request_file_id` = #{id}
     </select>
 
     <insert id="insertPayment" parameterType="org.complitex.osznconnection.file.entity.Payment">
