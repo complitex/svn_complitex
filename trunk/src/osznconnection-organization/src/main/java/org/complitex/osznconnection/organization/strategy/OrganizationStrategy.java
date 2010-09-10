@@ -39,7 +39,7 @@ import java.util.NoSuchElementException;
  *
  * @author Artem
  */
-@Stateless
+@Stateless(name = "OrganizationStrategy")
 public class OrganizationStrategy extends Strategy {
 
     public static final String RESOURCE_BUNDLE = OrganizationStrategy.class.getName();
@@ -220,6 +220,10 @@ public class OrganizationStrategy extends Strategy {
         }
         return null;
     }
+
+     public String getDistrictCode(Long objectId){
+         return getDistrictCode(findById(objectId));        
+     }
 
     public String getDistrictName(DomainObject organization) {
         try {

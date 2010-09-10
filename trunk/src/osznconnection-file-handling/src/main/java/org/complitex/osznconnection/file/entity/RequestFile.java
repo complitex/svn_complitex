@@ -10,50 +10,34 @@ import java.util.Date;
 public class RequestFile implements Serializable {
 
     public static enum STATUS {
-
         NEW, LOADING, LOADED, LOAD_ERROR, BINDING, BINDED, BOUND_WITH_ERRORS, SAVING, SAVED, SAVE_ERROR, PROCESSING, PROCESSED, PROCESSED_WITH_ERRORS
     }
 
     public static enum STATUS_DETAIL {
-
-        FIELD_NOT_FOUND, FIELD_WRONG_TYPE, ALREADY_LOADED, CANCEL_LOADING, SQL_SESSION, DBF, CRITICAL
+        FIELD_NOT_FOUND, FIELD_WRONG_TYPE, ALREADY_LOADED, CANCEL_LOADING, SQL_SESSION, DBF, CRITICAL, CANCEL_SAVING
     }
 
     public static enum TYPE {
-
-        NONE, PAYMENT, BENEFIT
+        BENEFIT, PAYMENT, NONE
     }
 
     public final static String PAYMENT_FILES_PREFIX = "A_";
-
     public final static String BENEFIT_FILES_PREFIX = "AF";
-
     public final static String REQUEST_FILES_EXT = ".dbf";
 
     private Long id;
-
     private Date loaded;
-
     private String name;
-
     private Long organizationObjectId;
-
     private Date date;
-
     private Integer dbfRecordCount;
-
     private Long length;
-
     private String checkSum;
-
     private STATUS status = STATUS.NEW;
-
     private STATUS_DETAIL statusDetail;
 
     private Integer loadedRecordCount;
-
     private Integer bindedRecordCount;
-
     private String absolutePath;
 
     public boolean isPayment() {
@@ -79,7 +63,10 @@ public class RequestFile implements Serializable {
     }
 
     public boolean isProcessing() {
-        return status.equals(STATUS.LOADING) || status.equals(STATUS.BINDING) || status.equals(STATUS.PROCESSING);
+        return status.equals(STATUS.LOADING)
+                || status.equals(STATUS.BINDING)
+                || status.equals(STATUS.PROCESSING)
+                || status.equals(STATUS.SAVING);
     }
 
     public void setStatus(STATUS status, STATUS_DETAIL statusDetail) {

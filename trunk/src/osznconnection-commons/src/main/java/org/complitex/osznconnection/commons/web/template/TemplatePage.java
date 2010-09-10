@@ -218,7 +218,12 @@ public abstract class TemplatePage extends WebPage {
     }
 
     protected String getStringFormat(String key, Object... args){
-        return MessageFormat.format(getString(key), args);       
+        try {
+            return MessageFormat.format(getString(key), args);
+        } catch (Exception e) {
+            log.error("Ошибка форматирования файла свойств", e);
+            return key;
+        }
     }
 }
 

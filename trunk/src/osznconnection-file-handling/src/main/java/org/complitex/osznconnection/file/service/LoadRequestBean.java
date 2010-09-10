@@ -39,14 +39,14 @@ public class LoadRequestBean extends AbstractProcessBean{
     private LogBean logBean;
 
     @PostConstruct
-    public  void init(){
+    public void init(){
         requestFileBean.cancelLoading();
     }
 
     private List<File> getFiles(final String[] filePrefix, final String districtDir, final String[] osznCode,
                                        final String[] months) throws StorageNotFoundException {
 
-        return RequestFileStorage.getInstance().getFiles(districtDir, new FilenameFilter() {
+        return RequestFileStorage.getInstance().getInputFiles(districtDir, new FilenameFilter() {
 
             @Override
             public boolean accept(File dir, String name) {
@@ -122,7 +122,8 @@ public class LoadRequestBean extends AbstractProcessBean{
                 //Запуск процесса загрузки
                 process(requestFiles);
             } catch (StorageNotFoundException e) {
-                log.error(e.getMessage(), e);
+                processStatus = PROCESS_STATUS.ERROR;
+                log.error("Ошибка процесса загрузки файлов", e);
                 error(e.getMessage());
             }
         }

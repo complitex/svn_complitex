@@ -24,15 +24,10 @@ public abstract class AbstractRequest implements Serializable {
 
     protected abstract Class getFieldType(String name) throws FieldNotFoundException;
 
-    public final void setField(String name, Object value, byte dataType) throws FieldNotFoundException, FieldWrongTypeException {
+    public final void setField(String name, Object value, Class type) throws FieldNotFoundException, FieldWrongTypeException {
         try {
-            Class type = getFieldType(name);
-
-            if ((type.equals(String.class) && dataType != DBFField.FIELD_TYPE_C)
-                    || (type.equals(Integer.class) && dataType != DBFField.FIELD_TYPE_N)
-                    || (type.equals(Double.class) && dataType != DBFField.FIELD_TYPE_N)
-                    || (type.equals(Date.class) && dataType != DBFField.FIELD_TYPE_D)) {
-                throw new FieldWrongTypeException(name);
+            if (!getFieldType(name).equals(type)){
+                throw new FieldWrongTypeException(name);                
             }
 
             dbfFields.put(name, value);

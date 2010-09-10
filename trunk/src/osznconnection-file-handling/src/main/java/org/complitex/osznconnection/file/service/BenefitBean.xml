@@ -37,8 +37,8 @@
         </association>
     </resultMap>
 
-    <select id="selectBenefits" resultMap="benefitResultMap">
-        select * from `benefit`
+    <select id="selectBenefits" resultMap="benefitResultMap" parameterType="long">
+        select * from `benefit` where `request_file_id` = #{id}
     </select>
 
     <insert id="insertBenefit" parameterType="org.complitex.osznconnection.file.entity.Benefit">
