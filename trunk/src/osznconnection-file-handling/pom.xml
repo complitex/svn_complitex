@@ -122,7 +122,7 @@
             <artifactId>javadbf</artifactId>
             <version>0.4.0</version>
             <scope>system</scope>
-            <systemPath>${pom.basedir}\..\..\lib\javadbf.jar</systemPath>
+            <systemPath>${pom.basedir}/../../lib/javadbf.jar</systemPath>
         </dependency>
     </dependencies>
 </project>
