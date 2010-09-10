@@ -301,7 +301,7 @@ public class RequestFileList extends TemplatePage {
         };
         filterForm.add(bind);
 
-        //Связать
+        //Process
         Button process = new Button("process") {
 
             @Override
