@@ -303,11 +303,11 @@ public class RequestFileList extends TemplatePage {
     }
 
     private boolean isProcessing() {
-        return loadRequestBean.isLoading() || FileExecutorService.get().isBinding();
+        return loadRequestBean.isProcessing() || FileExecutorService.get().isBinding();
     }
 
     private void showMessages() {
-        if (loadRequestBean.isError()){
+        if (loadRequestBean.isError(true)){
             error(getString("error.process"));
         }
 
@@ -318,11 +318,7 @@ public class RequestFileList extends TemplatePage {
         for (RequestFile rf : loadRequestBean.getProcessed(true)) {
             switch (rf.getStatus()) {
                 case LOADED:
-                    if (target != null) { //highlight loaded
-                        target.appendJavascript("$('#" + ITEM_ID_PREFIX + rf.getId() + "')"
-                                + ".animate({ backgroundColor: 'lightgreen' }, 300)"
-                                + ".animate({ backgroundColor: '#E0E4E9' }, 700)");
-                    }
+                    highlightProcessed(target, rf);
                     info(getStringFormat("info.loaded", rf.getName()));
                     break;
                 case LOAD_ERROR:
@@ -334,11 +330,7 @@ public class RequestFileList extends TemplatePage {
                             error(getStringFormat("error.already_loaded", rf.getName(), year.get(Calendar.YEAR)));
                             break;
                         default:
-                            if (target != null) { //highlight error
-                                target.appendJavascript("$('#" + ITEM_ID_PREFIX + rf.getId() + "')"
-                                        + ".animate({ backgroundColor: 'darksalmon' }, 300)"
-                                        + ".animate({ backgroundColor: '#E0E4E9' }, 700)");
-                            }
+                            highlightError(target, rf);
                             error(getStringFormat("error.common", rf.getName()));
                             break;
                     }
@@ -346,39 +338,46 @@ public class RequestFileList extends TemplatePage {
             }
         }
 
+        //Error
+        if (loadRequestBean.isError(true)){
+            error(getString("error.process"));
+        }
+
         //Load completed
-        if (loadRequestBean.isCompleted()) {
-            info(getStringFormat("info.load_completed", loadRequestBean.getLoadedCount(), loadRequestBean.getErrorCount()));
-
-            if (loadRequestBean.isError()){
-                error(getString("error.process"));
-            }
-
-            loadRequestBean.init();
+        if (loadRequestBean.isCompleted(true)) {
+            info(getStringFormat("info.load_completed", loadRequestBean.getProcessedCount(), loadRequestBean.getErrorCount()));
         }
 
         //show messages for binding operation
         for (RequestFile bindingFile : FileExecutorService.get().getProcessed(true)) {
             switch (bindingFile.getStatus()) {
                 case BINDED: {
-                    if (target != null) { //highlight loaded
-                        target.appendJavascript("$('#" + ITEM_ID_PREFIX + bindingFile.getId() + "')"
-                                + ".animate({ backgroundColor: 'lightgreen' }, 300)"
-                                + ".animate({ backgroundColor: '#E0E4E9' }, 700)");
-                    }
+                    highlightProcessed(target, bindingFile);
                     info(getStringFormat("bound.success", bindingFile.getName()));
                     break;
                 }
                 case BOUND_WITH_ERRORS: {
-                    if (target != null) {
-                        target.appendJavascript("$('#" + ITEM_ID_PREFIX + bindingFile.getId() + "')"
-                                + ".animate({ backgroundColor: 'darksalmon' }, 300)"
-                                + ".animate({ backgroundColor: '#E0E4E9' }, 700)");
-                    }
+                    highlightError(target, bindingFile);
                     error(getStringFormat("bound.error", bindingFile.getName()));
                     break;
                 }
             }
+        }
+    }
+
+    private void highlightProcessed(AjaxRequestTarget target, RequestFile requestFile){
+        if (target != null) {
+            target.appendJavascript("$('#" + ITEM_ID_PREFIX + requestFile.getId() + "')"
+                    + ".animate({ backgroundColor: 'lightgreen' }, 300)"
+                    + ".animate({ backgroundColor: '#E0E4E9' }, 700)");
+        }
+    }
+
+    private void highlightError(AjaxRequestTarget target, RequestFile requestFile){
+        if (target != null) {
+            target.appendJavascript("$('#" + ITEM_ID_PREFIX + requestFile.getId() + "')"
+                    + ".animate({ backgroundColor: 'darksalmon' }, 300)"
+                    + ".animate({ backgroundColor: '#E0E4E9' }, 700)");
         }
     }
 

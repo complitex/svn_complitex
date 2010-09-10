@@ -28,9 +28,6 @@ import java.util.*;
 public class BenefitBean extends AbstractBean {
     public static final String MAPPING_NAMESPACE = BenefitBean.class.getName();
 
-    public static final int BATCH_SIZE = FileHandlingConfig.LOAD_RECORD_BATCH_SIZE.getInteger();
-    public static final int RECORD_PROCESS_DELAY = FileHandlingConfig.LOAD_RECORD_PROCESS_DELAY.getInteger();
-
     public enum OrderBy {
 
         FIRST_NAME("F_NAM"), MIDDLE_NAME("M_NAM"), LAST_NAME("SUR_NAM"),
@@ -76,6 +73,18 @@ public class BenefitBean extends AbstractBean {
         return (List<Benefit>) sqlSession().selectList(MAPPING_NAMESPACE + ".find", example);
     }
 
+    @Transactional(executorType = ExecutorType.BATCH)
+    public void insert(List<AbstractRequest> abstractRequests){
+        for (AbstractRequest abstractRequest : abstractRequests){
+            insert((Benefit) abstractRequest);
+        }
+    }
+
+    @Transactional
+    public void insert(Benefit benefit){
+        sqlSession().insert(MAPPING_NAMESPACE + ".insertBenefit", benefit);
+    }
+
     @Transactional
     public void delete(RequestFile requestFile) {
         sqlSession().delete(MAPPING_NAMESPACE + ".deleteBenefits", requestFile.getId());
@@ -97,105 +106,5 @@ public class BenefitBean extends AbstractBean {
     @Transactional
     public void updateStatusForFile(long requestFileId) {
         sqlSession().update(MAPPING_NAMESPACE + ".updateStatusForFile", requestFileId);
-    }
-
-    public void load(RequestFile requestFile, DBFReader dbfReader)
-            throws IOException, SqlSessionException, FieldNotFoundException, FieldWrongTypeException {
-        //карта индекс - название поля
-        Map<Integer, BenefitDBF> fieldIndex = new HashMap<Integer, BenefitDBF>();
-
-        int numberOfFields = dbfReader.getFieldCount();
-
-        DBFField field = null;
-        int index = 0;
-
-        try {
-            for(index = 0; index < numberOfFields; ++index) {
-                field = dbfReader.getField(index);
-                BenefitDBF benefitDBF = BenefitDBF.valueOf(field.getName());
-
-                //проверка типов полей
-                byte type = field.getDataType();
-                if ((benefitDBF.getType().equals(String.class) && type != DBFField.FIELD_TYPE_C)
-                        || (benefitDBF.getType().equals(Integer.class) && type != DBFField.FIELD_TYPE_N)
-                        || (benefitDBF.getType().equals(Double.class) && type != DBFField.FIELD_TYPE_N)
-                        || (benefitDBF.getType().equals(Date.class) && type != DBFField.FIELD_TYPE_D)) {
-                    throw new FieldWrongTypeException(field.getName());
-                }
-
-                fieldIndex.put(index, benefitDBF);
-            }
-        } catch (IllegalArgumentException e) {
-            throw new FieldNotFoundException(field != null ? field.getName() : "index: " + index);
-        }
-
-        //проверка наличия всех полей
-        Collection<BenefitDBF> dbfFieldNames = fieldIndex.values();
-        for (BenefitDBF benefitDBF : BenefitDBF.values()){
-            if (!dbfFieldNames.contains(benefitDBF)){
-                throw new FieldNotFoundException(benefitDBF.name());
-            }
-        }
-
-        SqlSession sqlSession = null;
-
-        int rowIndex = 0;
-        Object[] rowObjects;
-
-        while((rowObjects = dbfReader.nextRecord()) != null) {
-            Benefit benefit = new Benefit();
-            benefit.setRequestFileId(requestFile.getId());
-            benefit.setStatus(Status.CITY_UNRESOLVED_LOCALLY);
-
-            for (int i=0; i < rowObjects.length; ++i) {
-                BenefitDBF benefitDBF = fieldIndex.get(i);
-
-                Object value = rowObjects[i];
-
-                if (benefitDBF.getType().equals(String.class)) {
-                    benefit.setField(benefitDBF, value);
-                } else if (benefitDBF.getType().equals(Integer.class)) {
-                    benefit.setField(benefitDBF, value);
-                } else if (benefitDBF.getType().equals(Double.class)) {
-                    benefit.setField(benefitDBF, value);
-                } else if (benefitDBF.getType().equals(Date.class)) {
-                    benefit.setField(benefitDBF, value);
-                }
-            }
-
-            if (sqlSession == null) {
-                sqlSession = getSqlSessionManager().openSession(ExecutorType.BATCH);
-            }
-
-            //debug delay
-            if(RECORD_PROCESS_DELAY > 0){
-                try {
-                    Thread.sleep(RECORD_PROCESS_DELAY);
-                } catch (InterruptedException e) {
-                    //hoh...
-                }
-            }
-
-            try {
-                sqlSession().insert(MAPPING_NAMESPACE + ".insertBenefit", benefit);
-
-                if (++rowIndex % BATCH_SIZE == 0) {
-                    sqlSession.commit();
-                    sqlSession.close();
-                    sqlSession = null;
-                }
-            } catch (Exception e) {
-                throw new SqlSessionException(e);
-            }
-        }
-
-        try {
-            if (sqlSession != null) {
-                sqlSession.commit();
-                sqlSession.close();
-            }
-        } catch (Exception e) {
-            throw new SqlSessionException(e);
-        }
     }
 }

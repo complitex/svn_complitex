@@ -19,7 +19,7 @@ import java.util.List;
 @Stateless(name = "RequestFileBean")
 public class RequestFileBean extends AbstractBean {
     private static final Logger log = LoggerFactory.getLogger(RequestFileBean.class);
-    private static final String MAPPING_NAMESPACE = RequestFileBean.class.getName();
+    public static final String MAPPING_NAMESPACE = RequestFileBean.class.getName();
 
     @Transactional
     public RequestFile findById(long fileId) {
@@ -76,5 +76,9 @@ public class RequestFileBean extends AbstractBean {
                 .add("bindedRecordCount", requestFile.getBindedRecordCount());                
 
         return logChangeList;
+    }
+
+    public void cancelSaving() {
+        //To change body of created methods use File | Settings | File Templates.
     }
 }

@@ -1,5 +1,7 @@
 package org.complitex.osznconnection.file.entity;
 
+import org.complitex.osznconnection.file.service.exception.FieldNotFoundException;
+
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 24.08.2010 18:22:55
@@ -14,12 +16,18 @@ public class Benefit extends AbstractRequest {
         dbfFields.put(benefitDBF.name(), object);
     }
 
+    @Override
+    protected Class getFieldType(String name) throws FieldNotFoundException {
+        try {
+            return BenefitDBF.valueOf(name).getType();
+        } catch (IllegalArgumentException e) {
+            throw new FieldNotFoundException(e);
+        }
+    }
+
     private String city;
-
     private String street;
-
     private String building;
-
     private String apartment;
 
     public String getApartment() {

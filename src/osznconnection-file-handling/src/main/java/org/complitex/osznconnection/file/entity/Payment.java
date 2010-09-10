@@ -1,11 +1,12 @@
 package org.complitex.osznconnection.file.entity;
 
+import org.complitex.osznconnection.file.service.exception.FieldNotFoundException;
+
 /**
  * @author Artem
  * @author Anatoly A. Ivanov java@inheaven.ru
  */
 public class Payment extends AbstractRequest {
-
     public Object getField(PaymentDBF paymentDBF) {
         return dbfFields.get(paymentDBF.name());
     }
@@ -14,26 +15,25 @@ public class Payment extends AbstractRequest {
         dbfFields.put(paymentDBF.name(), object);
     }
 
+    @Override
+    protected Class getFieldType(String name) throws FieldNotFoundException {
+        try {
+            return PaymentDBF.valueOf(name).getType();
+        } catch (IllegalArgumentException e) {
+            throw new FieldNotFoundException(e);
+        }
+    }
+
     private Long internalCityId;
-
     private Long internalStreetId;
-
     private Long internalStreetTypeId;
-
     private Long internalBuildingId;
-
     private Long internalApartmentId;
-
     private String outgoingCity;
-
     private String outgoingStreet;
-
     private String outgoingStreetType;
-
     private String outgoingBuildingNumber;
-
     private String outgoingBuildingCorp;
-
     private String outgoingApartment;
 
     public Long getInternalApartmentId() {

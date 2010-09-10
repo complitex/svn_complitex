@@ -2,10 +2,11 @@ package org.complitex.osznconnection.file.service;
 
 import org.complitex.dictionaryfw.entity.Log;
 import org.complitex.dictionaryfw.service.LogBean;
+import org.complitex.dictionaryfw.util.DateUtil;
 import org.complitex.osznconnection.file.Module;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.storage.RequestFileStorage;
-import org.complitex.osznconnection.file.storage.StorageNotFound;
+import org.complitex.osznconnection.file.storage.StorageNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,11 +14,7 @@ import javax.annotation.PostConstruct;
 import javax.ejb.*;
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
+import java.util.*;
 import java.util.concurrent.Future;
 
 import static org.complitex.osznconnection.file.entity.RequestFile.REQUEST_FILES_EXT;
@@ -29,13 +26,8 @@ import static org.complitex.osznconnection.file.entity.RequestFile.REQUEST_FILES
 @Singleton
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 @SuppressWarnings({"EjbProhibitedPackageUsageInspection"})
-public class LoadRequestBean{
+public class LoadRequestBean extends AbstractProcessBean{
     private static final Logger log = LoggerFactory.getLogger(RequestFileBean.class);
-
-    public static final int MAX_ERROR_COUNT = FileHandlingConfig.LOAD_MAX_ERROR_FILE_COUNT.getInteger();
-    public static final int THREADS_SIZE = FileHandlingConfig.LOAD_THREADS_SIZE.getInteger();
-
-    public static enum PROCESS_STATUS{NEW, LOADING, ERROR, COMPLETED}
 
     @EJB(beanName = "RequestFileBean")
     private RequestFileBean requestFileBean;
@@ -46,37 +38,13 @@ public class LoadRequestBean{
     @EJB(beanName = "LogBean")
     private LogBean logBean;
 
-    private PROCESS_STATUS processStatus;
-
-    private int loadedCount = 0;
-    private int errorCount = 0;
-
-    private List<RequestFile> processed = Collections.synchronizedList(new ArrayList<RequestFile>());
-
     @PostConstruct
     public  void init(){
-        if (processStatus == PROCESS_STATUS.COMPLETED){
-            processStatus = PROCESS_STATUS.NEW;
-        }else if (processStatus == null){
-            processStatus = PROCESS_STATUS.NEW;
-            requestFileBean.cancelLoading();
-        }
+        requestFileBean.cancelLoading();
     }
 
-    public boolean isLoading(){
-        return processStatus == PROCESS_STATUS.LOADING;
-    }
-
-    public boolean isError(){
-        return processStatus == PROCESS_STATUS.ERROR;
-    }
-
-    public boolean isCompleted(){
-        return processStatus == PROCESS_STATUS.COMPLETED;
-    }
-
-    private List<File> getRequestFiles(final String[] filePrefix, final String districtDir, final String[] osznCode,
-                                       final String[] months) throws StorageNotFound {
+    private List<File> getFiles(final String[] filePrefix, final String districtDir, final String[] osznCode,
+                                       final String[] months) throws StorageNotFoundException {
 
         return RequestFileStorage.getInstance().getFiles(districtDir, new FilenameFilter() {
 
@@ -112,94 +80,55 @@ public class LoadRequestBean{
         return months;
     }
 
-    public PROCESS_STATUS getProcessStatus() {
-        return processStatus;
+    private Date parseDate(String name, int year){
+        return DateUtil.parseDate(name.substring(6,8), year);
     }
 
-    public int getLoadedCount() {
-        return loadedCount;
+    @Override
+    protected int getMaxErrorCount() {
+        return FileHandlingConfig.LOAD_MAX_ERROR_FILE_COUNT.getInteger();
     }
 
-    public int getErrorCount() {
-        return errorCount;
+    @Override
+    protected int getThreadSize() {
+        return FileHandlingConfig.LOAD_THREADS_SIZE.getInteger();
     }
 
-    public List<RequestFile> getProcessed(boolean flush) {
-        List<RequestFile> list = new ArrayList<RequestFile>();
-        list.addAll(processed);
-
-        if (flush) {
-            processed.clear();
-        }
-
-        return Collections.unmodifiableList(list);
+    @Override
+    protected Future<RequestFile> processTask(RequestFile requestFile) {
+        return loadTaskBean.load(requestFile);
     }
 
     @Asynchronous
     public void load(long organizationId, String districtCode, Integer organizationCode, int monthFrom, int monthTo, int year) {
-        if (processStatus == PROCESS_STATUS.NEW || processStatus == PROCESS_STATUS.COMPLETED) {
+        if(!isProcessing()){
             try {
-                processStatus = PROCESS_STATUS.LOADING;
-                errorCount = 0;
-                loadedCount = 0;
-
-                List<File> files = getRequestFiles(new String[]{RequestFile.PAYMENT_FILES_PREFIX, RequestFile.BENEFIT_FILES_PREFIX},
+                List<File> files = getFiles(new String[]{RequestFile.PAYMENT_FILES_PREFIX, RequestFile.BENEFIT_FILES_PREFIX},
                         districtCode, new String[]{String.valueOf(organizationCode)}, getMonth(monthFrom, monthTo));
-                                
-                List<Future<RequestFile>> futures = new ArrayList<Future<RequestFile>>(THREADS_SIZE);
 
-                for (File file : files) {
-                    futures.add(loadTaskBean.load(file, organizationId, year));
+                List<RequestFile> requestFiles = new ArrayList<RequestFile>();
 
-                    //Loading pool
-                    int index;
-                    Future<RequestFile> future;
-                    while (futures.size() >= THREADS_SIZE || futures.size() != 0) {
-                        for (index = 0; index < futures.size(); ++index) {
-                            future = futures.get(index);
-                            if (future.isDone()) {
-                                RequestFile requestFile = future.get();
+                for (File file : files){
+                    RequestFile requestFile =  new RequestFile();
+                    requestFile.setLength(file.length());
+                    requestFile.setName(file.getName());
+                    requestFile.setAbsolutePath(file.getAbsolutePath());
+                    requestFile.setDate(parseDate(file.getName(), year));
+                    requestFile.setOrganizationObjectId(organizationId);
 
-                                switch (requestFile.getStatus()) {
-                                    case LOADED:
-                                        loadedCount++;
-                                        break;
-                                    case LOAD_ERROR:
-                                        errorCount++;
-                                        break;
-                                }
-
-                                processed.add(requestFile);
-                                futures.remove(index);
-                            }
-                        }
-                        Thread.sleep(250);
-                    }
-
-                    if (errorCount > MAX_ERROR_COUNT) {
-                        log.error("Загрузка файлов остановлена. Превышен лимит количества ошибок: " + file.getAbsolutePath());
-                        error("Загрузка файлов остановлена. Превышен лимит количества ошибок:  {0}", file.getName());
-                    }
+                    requestFiles.add(requestFile);
                 }
-            } catch (InterruptedException e) {
-                processStatus = PROCESS_STATUS.ERROR;
-                log.error("Ошибка ожидания потока", e);
-                error("Ошибка ожидания потока");
-            } catch (ExecutionException e) {
-                processStatus = PROCESS_STATUS.ERROR;
-                log.error("Ошибка выполнения асинхронного метода", e);
-                error("Ошибка выполнения асинхронного метода: {0}", e.getMessage());
-            } catch (StorageNotFound e) {
-                processStatus = PROCESS_STATUS.ERROR;
+
+                //Запуск процесса загрузки
+                process(requestFiles);
+            } catch (StorageNotFoundException e) {
                 log.error(e.getMessage(), e);
                 error(e.getMessage());
-            } finally {
-                processStatus = PROCESS_STATUS.COMPLETED;
             }
         }
     }
 
-    private void error(String desc, Object... args){
+    protected void error(String desc, Object... args){
         logBean.error(Module.NAME, LoadRequestBean.class, RequestFile.class, null, Log.EVENT.CREATE, desc, args);
     }
 }

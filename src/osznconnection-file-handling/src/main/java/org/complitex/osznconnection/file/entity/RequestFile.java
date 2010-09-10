@@ -9,7 +9,7 @@ import java.util.Date;
  */
 public class RequestFile implements Serializable{
     public static enum STATUS {
-        NEW, LOADING, LOADED, LOAD_ERROR, BINDING, BINDED, BOUND_WITH_ERRORS
+        NEW, LOADING, LOADED, LOAD_ERROR, BINDING, BINDED, BOUND_WITH_ERRORS, SAVING, SAVED, SAVE_ERROR
     }
 
     public static enum STATUS_DETAIL{
@@ -34,6 +34,8 @@ public class RequestFile implements Serializable{
 
     private Integer loadedRecordCount;
     private Integer bindedRecordCount;
+
+    private String absolutePath;
 
     public boolean isPayment(){
         return getType().equals(TYPE.PAYMENT);
@@ -160,5 +162,13 @@ public class RequestFile implements Serializable{
 
     public void setBindedRecordCount(Integer bindedRecordCount) {
         this.bindedRecordCount = bindedRecordCount;
+    }
+
+    public String getAbsolutePath() {
+        return absolutePath;
+    }
+
+    public void setAbsolutePath(String absolutePath) {
+        this.absolutePath = absolutePath;
     }
 }
