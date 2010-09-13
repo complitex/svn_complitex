@@ -91,9 +91,7 @@ public class RequestFileLoad extends FormTemplatePage {
 
                 if (!loadRequestBean.isProcessing()) {
                     DomainObject oszn = organizationModel.getObject();
-                    loadRequestBean.load(oszn.getId(),
-                            organizationStrategy.getDistrictCode(oszn), organizationStrategy.getChildrenCodes(oszn),
-                            f, t, year.getModelObject());
+                    loadRequestBean.load(oszn.getId(), organizationStrategy.getDistrictCode(oszn), f, t, year.getModelObject());
                     getSession().info(getString("info.start_loading"));
                 } else {
                     getSession().error(getString("error.loading_in_progress"));

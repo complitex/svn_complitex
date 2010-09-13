@@ -383,19 +383,16 @@ public class RequestFileList extends TemplatePage {
                     highlightProcessed(target, rf);
                     info(getStringFormat("info.loaded", rf.getType().ordinal(), rf.getName()));
                     break;
-                case LOAD_ERROR:
-                    switch (rf.getStatusDetail()){
-                        case ALREADY_LOADED:
-                            Calendar year = Calendar.getInstance();
-                            year.setTime(rf.getDate());
+                case SKIPPED:
+                    Calendar year = Calendar.getInstance();
+                    year.setTime(rf.getDate());
 
-                            error(getStringFormat("error.already_loaded", rf.getType().ordinal(), rf.getName(), year.get(Calendar.YEAR)));
-                            break;
-                        default:
-                            highlightError(target, rf);
-                            error(getStringFormat("error.load.common", rf.getType().ordinal(), rf.getName()));
-                            break;
-                    }
+                    info(getStringFormat("info.already_loaded", rf.getType().ordinal(), rf.getName(), year.get(Calendar.YEAR)));
+                    break;
+                case LOAD_ERROR:
+                    highlightError(target, rf);
+                    error(getStringFormat("error.load.common", rf.getType().ordinal(), rf.getName()));
+
                     break;
             }
         }
@@ -407,7 +404,8 @@ public class RequestFileList extends TemplatePage {
 
         //Load completed
         if (loadRequestBean.isCompleted(true)) {
-            info(getStringFormat("info.load_completed", loadRequestBean.getProcessedCount(), loadRequestBean.getErrorCount()));
+            info(getStringFormat("info.load_completed", loadRequestBean.getProcessedCount(),
+                    loadRequestBean.getSkippedCount(), loadRequestBean.getErrorCount()));
         }
 
         //Save

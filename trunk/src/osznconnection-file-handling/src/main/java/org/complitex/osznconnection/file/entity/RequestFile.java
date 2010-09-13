@@ -1,5 +1,7 @@
 package org.complitex.osznconnection.file.entity;
 
+import org.complitex.dictionaryfw.service.LogChangeList;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -8,9 +10,12 @@ import java.util.Date;
  *         Date: 25.08.2010 17:35:35
  */
 public class RequestFile implements Serializable {
-
     public static enum STATUS {
-        NEW, LOADING, LOADED, LOAD_ERROR, BINDING, BINDED, BOUND_WITH_ERRORS, SAVING, SAVED, SAVE_ERROR, PROCESSING, PROCESSED, PROCESSED_WITH_ERRORS
+        NEW, SKIPPED, 
+        LOADING, LOADED, LOAD_ERROR,
+        BINDING, BINDED, BOUND_WITH_ERRORS,
+        SAVING, SAVED, SAVE_ERROR,
+        PROCESSING, PROCESSED, PROCESSED_WITH_ERRORS
     }
 
     public static enum STATUS_DETAIL {
@@ -24,8 +29,6 @@ public class RequestFile implements Serializable {
     public final static String PAYMENT_FILE_PREFIX = "A_";
     public final static String BENEFIT_FILE_PREFIX = "AF";
     public final static String TARIF_FILE_PREFIX = "TARIF";
-
-    public final static String REQUEST_FILES_EXT = ".dbf";
 
     private Long id;
     private Date loaded;
@@ -74,6 +77,23 @@ public class RequestFile implements Serializable {
     public void setStatus(STATUS status, STATUS_DETAIL statusDetail) {
         this.status = status;
         this.statusDetail = statusDetail;
+    }
+
+    public LogChangeList getLogChangeList(){
+        LogChangeList logChangeList = new LogChangeList();
+
+        logChangeList.add("id", getId())
+                .add("loaded", getLoaded())
+                .add("name", getName())
+                .add("organizationObjectId", getOrganizationObjectId())
+                .add("date", getDate())
+                .add("dbfRecordCount", getDbfRecordCount())
+                .add("length", getLength())
+                .add("checkSum", getCheckSum())
+                .add("loadedRecordCount", getLoadedRecordCount())
+                .add("bindedRecordCount", getBindedRecordCount());
+
+        return logChangeList;
     }
 
     public Long getId() {

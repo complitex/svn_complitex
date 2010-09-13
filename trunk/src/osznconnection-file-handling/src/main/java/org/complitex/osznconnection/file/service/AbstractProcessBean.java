@@ -23,6 +23,7 @@ public abstract class AbstractProcessBean {
     protected PROCESS_STATUS processStatus;
 
     private int processedCount = 0;
+    private int skippedCount = 0;
     private int errorCount = 0;
 
     private List<RequestFile> processed = Collections.synchronizedList(new ArrayList<RequestFile>());
@@ -64,6 +65,10 @@ public abstract class AbstractProcessBean {
         return errorCount;
     }
 
+    public int getSkippedCount() {
+        return skippedCount;
+    }
+
     public List<RequestFile> getProcessed(boolean flush) {
         List<RequestFile> list = new ArrayList<RequestFile>();
         list.addAll(processed);
@@ -84,6 +89,7 @@ public abstract class AbstractProcessBean {
                 processStatus = PROCESS_STATUS.PROCESSING;
                 errorCount = 0;
                 processedCount = 0;
+                skippedCount = 0;
 
                 List<Future<RequestFile>> futures = new ArrayList<Future<RequestFile>>(getThreadSize());
 
@@ -108,6 +114,9 @@ public abstract class AbstractProcessBean {
                                     case LOAD_ERROR:
                                     case SAVE_ERROR:
                                         errorCount++;
+                                        break;
+                                    case SKIPPED:
+                                        skippedCount++;
                                         break;
                                 }
 

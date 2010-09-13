@@ -196,7 +196,7 @@ public class SaveTaskBean {
                 null,
                 requestFile.getId(),
                 Log.EVENT.CREATE,
-                requestFileBean.getLogChangeList(requestFile),
+                requestFile.getLogChangeList(),
                 decs,
                 args);
     }
@@ -209,7 +209,7 @@ public class SaveTaskBean {
                 null,
                 requestFile.getId(),
                 Log.EVENT.CREATE,
-                requestFileBean.getLogChangeList(requestFile),
+                requestFile.getLogChangeList(),
                 decs,
                 args);
     }

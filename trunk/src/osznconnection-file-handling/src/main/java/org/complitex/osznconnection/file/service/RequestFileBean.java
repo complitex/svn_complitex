@@ -1,15 +1,12 @@
 package org.complitex.osznconnection.file.service;
 
-import org.complitex.dictionaryfw.entity.LogChange;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
-import org.complitex.dictionaryfw.service.LogChangeList;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -63,22 +60,5 @@ public class RequestFileBean extends AbstractBean {
     
      public void cancelSaving() {
         sqlSession().update(MAPPING_NAMESPACE + ".cancelSaving");
-    }
-
-    public LogChangeList getLogChangeList(RequestFile requestFile){
-        LogChangeList logChangeList = new LogChangeList();
-
-        logChangeList.add("id", requestFile.getId())
-                .add("loaded", requestFile.getLoaded())
-                .add("name", requestFile.getName())
-                .add("organizationObjectId", requestFile.getOrganizationObjectId())
-                .add("date", requestFile.getDate())
-                .add("dbfRecordCount", requestFile.getDbfRecordCount())
-                .add("length", requestFile.getLength())
-                .add("checkSum", requestFile.getCheckSum())
-                .add("loadedRecordCount", requestFile.getLoadedRecordCount())
-                .add("bindedRecordCount", requestFile.getBindedRecordCount());                
-
-        return logChangeList;
     }
 }

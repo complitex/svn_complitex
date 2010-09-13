@@ -51,13 +51,7 @@ public class LogBean extends AbstractBean{
         String model = modelClass != null ? modelClass.getName() : null;
 
         log(module, controller, model, objectId, event, Log.STATUS.ERROR, null, descriptionPattern, descriptionArguments);
-    }
-
-    public void info(String module, Class controllerClass, Class modelClass, String entityName, Long objectId,
-                     Log.EVENT event, LogChangeList logChangeList, String descriptionPattern, Object... descriptionArguments){
-        info(module, controllerClass, modelClass, entityName, objectId, event, logChangeList.getLogChanges(),
-                descriptionPattern, descriptionArguments);
-    }
+    }        
 
     public void info(String module, Class controllerClass, Class modelClass, String entityName, Long objectId,
                      Log.EVENT event, List<LogChange> changes, String descriptionPattern, Object... descriptionArguments){
@@ -77,12 +71,6 @@ public class LogBean extends AbstractBean{
 
         log(module, controller, model, newDomainObject.getId(), event, status,
                 getLogChanges(strategy, oldDomainObject, newDomainObject, locale),
-                descriptionPattern, descriptionArguments);
-    }
-
-    public void error(String module, Class controllerClass, Class modelClass, String entityName, Long objectId,
-                      Log.EVENT event, LogChangeList logChangeList, String descriptionPattern, Object... descriptionArguments){
-        error(module, controllerClass, modelClass, entityName, objectId, event, logChangeList.getLogChanges(),
                 descriptionPattern, descriptionArguments);
     }
 
