@@ -61,6 +61,8 @@ public class PersonAccountService extends AbstractBean {
                     payment.getInternalCityId(), payment.getInternalStreetId(),
                     payment.getInternalBuildingId(), payment.getInternalApartmentId(), payment.getAccountNumber(),
                     (String) payment.getField(PaymentDBF.OWN_NUM_SR));
+        } else {
+            payment.setStatus(Status.ACCOUNT_NUMBER_NOT_FOUND);
         }
     }
 
@@ -78,7 +80,7 @@ public class PersonAccountService extends AbstractBean {
             resolveLocalAccount(payment);
         }
         if (payment.getStatus() == Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY || payment.getStatus() == Status.ACCOUNT_NUMBER_NOT_FOUND
-                || payment.getStatus() == Status.DISTRICT_NOT_FOUND || payment.getStatus() == Status.MORE_ONE_ACCOUNTS) {
+                || payment.getStatus() == Status.DISTRICT_NOT_FOUND) {
             resolveRemoteAccount(payment, adapter);
         }
     }

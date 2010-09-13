@@ -192,7 +192,7 @@ public class AddressCorrectionBean extends AbstractBean {
         Map<String, Object> params = Maps.newHashMap();
         params.put("organizationId", organizationId);
         params.put("buildingNumber", buildingNumber);
-        params.put("buildingCorp", Strings.isEmpty(buildingCorp) ? null : buildingCorp);
+        params.put("buildingCorp", buildingCorp);
         params.put("objectId", objectId);
 
         sqlSession().insert(MAPPING_NAMESPACE + ".insertBuilding", params);
