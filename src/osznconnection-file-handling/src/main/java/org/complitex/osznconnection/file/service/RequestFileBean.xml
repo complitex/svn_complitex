@@ -74,7 +74,8 @@
         select
             *,
             (select (select count(*) from `payment` where `request_file_id` = rf.`id`)
-            + (select count(*) from `benefit` where `request_file_id` = rf.`id`))
+            + (select count(*) from `benefit` where `request_file_id` = rf.`id`)
+            + (select count(*) from `tarif` where `request_file_id` = rf.`id`))
                 as loaded_record_count,
             (select (select count(*) from `payment` where `request_file_id` = rf.`id` and `status` = 'ACCOUNT_NUMBER_RESOLVED')
             + (select count(*) from `benefit` where `request_file_id` = rf.`id` and `status` = 'ACCOUNT_NUMBER_RESOLVED'))
@@ -109,7 +110,8 @@
         from
             `request_file`
         where 
-            `name` = #{name} and `length` = #{length} and YEAR(`date`) = YEAR(#{date}) and `status` not like 'LOAD_ERROR'
+            `name` = #{name} and organization_object_id = #{organizationObjectId} and `status` not like 'LOAD_ERROR'
+                and YEAR(`date`) = YEAR(#{date}) and MONTH(`date`) = MONTH(#{date})
     </select>
 
     <update id="cancelLoading">

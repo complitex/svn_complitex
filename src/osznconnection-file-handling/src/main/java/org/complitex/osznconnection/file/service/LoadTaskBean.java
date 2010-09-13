@@ -144,9 +144,9 @@ public class LoadTaskBean {
             log.error("Неверный тип поля " + requestFile.getAbsolutePath(), e);
             error(requestFile, "Неверный тип поля {0} в файле {1}", e.getMessage(), requestFile.getName());
         } catch (AlreadyLoadedException e) {
-            requestFile.setStatus(LOAD_ERROR, ALREADY_LOADED);
+            requestFile.setStatus(SKIPPED, ALREADY_LOADED);
             log.warn("Файл уже загружен {}", requestFile.getAbsolutePath());
-            error(requestFile, "Файл уже загружен {0}", requestFile.getName());
+            info(requestFile, "Файл уже загружен {0}", requestFile.getName());
         } catch (SqlSessionException e){
             requestFile.setStatus(LOAD_ERROR, SQL_SESSION);
             log.error("Ошибка сохранения в базу данных при обработке файла " + requestFile.getAbsolutePath(), e);
@@ -247,7 +247,7 @@ public class LoadTaskBean {
                 null,
                 requestFile.getId(),
                 Log.EVENT.CREATE,
-                requestFileBean.getLogChangeList(requestFile),
+                requestFile.getLogChangeList(),
                 decs,
                 args);
     }
@@ -260,7 +260,7 @@ public class LoadTaskBean {
                 null,
                 requestFile.getId(),
                 Log.EVENT.CREATE,
-                requestFileBean.getLogChangeList(requestFile),
+                requestFile.getLogChangeList(),
                 decs,
                 args);
     }

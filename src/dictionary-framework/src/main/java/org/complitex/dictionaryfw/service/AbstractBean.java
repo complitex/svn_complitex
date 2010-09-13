@@ -5,7 +5,7 @@ import org.apache.ibatis.session.SqlSessionManager;
 import org.complitex.dictionaryfw.mybatis.SqlSessionFactoryBean;
 import org.complitex.dictionaryfw.mybatis.TransactionalMethodInterceptor;
 
-import javax.ejb.EJB;
+import javax.ejb.*;
 import javax.interceptor.Interceptors;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -15,6 +15,7 @@ import java.util.ResourceBundle;
  *         Date: 09.08.2010 15:29:48
  */
 @Interceptors(TransactionalMethodInterceptor.class)
+@TransactionManagement(TransactionManagementType.BEAN)
 public abstract class AbstractBean {
     @EJB(beanName = "SqlSessionFactoryBean")
     private SqlSessionFactoryBean sqlSessionFactoryBean;

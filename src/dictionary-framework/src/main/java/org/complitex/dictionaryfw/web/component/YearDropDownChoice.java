@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class YearDropDownChoice extends DropDownChoice<Integer> {
     public YearDropDownChoice(String id){
-        this(id, Calendar.getInstance().get(Calendar.YEAR) - 3, Calendar.getInstance().get(Calendar.YEAR));        
+        this(id, Calendar.getInstance().get(Calendar.YEAR) - 2, Calendar.getInstance().get(Calendar.YEAR));        
     }
 
     public YearDropDownChoice(String id, int start, int end) {

@@ -117,4 +117,11 @@ public class DateUtil {
             return null;
         }
     }
+
+    public static Date parseYear(int year){
+        Calendar calendar  = Calendar.getInstance();
+        calendar.clear();
+        calendar.set(Calendar.YEAR, year);
+        return calendar.getTime();
+    }
 }

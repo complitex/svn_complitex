@@ -14,10 +14,10 @@ import javax.annotation.PostConstruct;
 import javax.ejb.*;
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Future;
-
-import static org.complitex.osznconnection.file.entity.RequestFile.REQUEST_FILES_EXT;
+import java.util.regex.Pattern;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -27,7 +27,6 @@ import static org.complitex.osznconnection.file.entity.RequestFile.REQUEST_FILES
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 @SuppressWarnings({"EjbProhibitedPackageUsageInspection"})
 public class LoadRequestBean extends AbstractProcessBean {
-
     private static final Logger log = LoggerFactory.getLogger(RequestFileBean.class);
 
     @EJB(beanName = "RequestFileBean")
@@ -44,22 +43,24 @@ public class LoadRequestBean extends AbstractProcessBean {
         requestFileBean.cancelLoading();
     }
 
-    private List<File> getFiles(final String[] filePrefix, final String districtDir, final String[] osznCode,
-            final String[] months) throws StorageNotFoundException {
+    private List<File> getFiles(final String districtDir, final int monthFrom, final int monthTo)
+            throws StorageNotFoundException {
 
         return RequestFileStorage.getInstance().getInputFiles(districtDir, new FilenameFilter() {
 
             @Override
             public boolean accept(File dir, String name) {
                 if (dir.getName().equalsIgnoreCase(districtDir)) {
-                    for (String oszn : osznCode) {
-                        for (String month : months) {
-                            String suffix = oszn + month + REQUEST_FILES_EXT;
+                    //TARIF
+                    if (name.equalsIgnoreCase("TARIF12.DBF")) {
+                        return true;
+                    }else{ //PAYMENT, BENEFIT
+                        for (int m = monthFrom; m <= monthTo; ++m) {
+                            String month = (m < 9 ? "0" + (m + 1) : "" + (m + 1));
+                            String pattern = "(A_|AF])\\d{4}" + month + ".DFB";
 
-                            for (String prefix : filePrefix) {
-                                if (name.equalsIgnoreCase(prefix + suffix)) {
-                                    return true;
-                                }
+                            if (Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(name).matches()) {
+                                return true;
                             }
                         }
                     }
@@ -68,17 +69,6 @@ public class LoadRequestBean extends AbstractProcessBean {
                 return false;
             }
         });
-    }
-
-    private String[] getMonth(int monthFrom, int monthTo) {
-        String[] months = new String[monthTo - monthFrom + 1];
-
-        int index = 0;
-        for (int m = monthFrom; m <= monthTo; ++m, ++index) {
-            months[index] = (m < 9 ? "0" + (m + 1) : "" + (m + 1));
-        }
-
-        return months;
     }
 
     @Override
@@ -97,20 +87,10 @@ public class LoadRequestBean extends AbstractProcessBean {
     }
 
     @Asynchronous
-    public void load(long organizationId, String districtCode, String[] osznChildrenCodes, int monthFrom, int monthTo, int year) {
+    public void load(long organizationId, String districtCode, int monthFrom, int monthTo, int year) {
         if (!isProcessing()) {
             try {
-                String[] prefix = new String[]{
-                        RequestFile.PAYMENT_FILE_PREFIX,
-                        RequestFile.BENEFIT_FILE_PREFIX,
-                        RequestFile.TARIF_FILE_PREFIX};
-
-                //add tarif empty code
-                String[] osznCodes = new String[osznChildrenCodes.length + 1];
-                System.arraycopy(osznChildrenCodes, 0, osznCodes, 0, osznChildrenCodes.length);
-                osznCodes[osznChildrenCodes.length] = "";
-
-                List<File> files = getFiles(prefix, districtCode, osznCodes, getMonth(monthFrom, monthTo));
+                List<File> files = getFiles(districtCode, monthFrom, monthTo);
 
                 List<RequestFile> requestFiles = new ArrayList<RequestFile>();
 
@@ -120,15 +100,14 @@ public class LoadRequestBean extends AbstractProcessBean {
                     requestFile.setName(file.getName());
                     requestFile.setAbsolutePath(file.getAbsolutePath());
                     requestFile.setOrganizationObjectId(organizationId);
-
-                    //todo get month and code
+                                        
                     switch (requestFile.getType()){
                         case BENEFIT:
                         case PAYMENT:
                             requestFile.setDate(DateUtil.parseDate(file.getName().substring(6, 8), year));
                             break;
                         case TARIF:
-                            requestFile.setDate(DateUtil.parseDate(file.getName().substring(5, 7), year));
+                            requestFile.setDate(DateUtil.parseYear(year));
                             break;
                     }
 
