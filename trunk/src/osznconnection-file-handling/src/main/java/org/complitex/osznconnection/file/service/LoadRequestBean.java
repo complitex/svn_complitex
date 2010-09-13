@@ -53,7 +53,7 @@ public class LoadRequestBean extends AbstractProcessBean {
                 if (dir.getName().equalsIgnoreCase(districtDir)) {
                     //TARIF
                     if (name.equalsIgnoreCase("TARIF12.DBF")) {
-                        return true;
+                        return false; //todo
                     }else{ //PAYMENT, BENEFIT
                         for (int m = monthFrom; m <= monthTo; ++m) {
                             String month = (m < 9 ? "0" + (m + 1) : "" + (m + 1));
