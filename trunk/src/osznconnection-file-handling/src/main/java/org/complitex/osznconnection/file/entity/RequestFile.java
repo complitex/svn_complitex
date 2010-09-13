@@ -18,11 +18,13 @@ public class RequestFile implements Serializable {
     }
 
     public static enum TYPE {
-        BENEFIT, PAYMENT, NONE
+        BENEFIT, PAYMENT, TARIF
     }
 
-    public final static String PAYMENT_FILES_PREFIX = "A_";
-    public final static String BENEFIT_FILES_PREFIX = "AF";
+    public final static String PAYMENT_FILE_PREFIX = "A_";
+    public final static String BENEFIT_FILE_PREFIX = "AF";
+    public final static String TARIF_FILE_PREFIX = "TARIF";
+
     public final static String REQUEST_FILES_EXT = ".dbf";
 
     private Long id;
@@ -50,16 +52,16 @@ public class RequestFile implements Serializable {
 
     public TYPE getType() {
         if (name != null && name.length() > 2) {
-            String prefix = name.substring(0, 2);
-
-            if (prefix.equalsIgnoreCase(PAYMENT_FILES_PREFIX)) {
-                return TYPE.PAYMENT;
-            } else if (prefix.equalsIgnoreCase(BENEFIT_FILES_PREFIX)) {
+            if (name.indexOf(BENEFIT_FILE_PREFIX) == 0){
                 return TYPE.BENEFIT;
+            }else if (name.indexOf(PAYMENT_FILE_PREFIX) == 0){
+                return TYPE.PAYMENT;
+            }else if (name.indexOf(TARIF_FILE_PREFIX) == 0){
+                return TYPE.TARIF;               
             }
         }
 
-        return TYPE.NONE;
+        return null;
     }
 
     public boolean isProcessing() {

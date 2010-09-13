@@ -16,6 +16,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.*;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -230,8 +231,12 @@ public class RequestFileList extends TemplatePage {
                     page = BenefitList.class;
                 }
 
-                item.add(new BookmarkablePageLinkPanel<RequestFile>("action_list", getString("action_list"),
-                        page, new PageParameters("request_file_id=" + rf.getId())));
+                if (page != null) {
+                    item.add(new BookmarkablePageLinkPanel<RequestFile>("action_list", getString("action_list"),
+                            page, new PageParameters("request_file_id=" + rf.getId())));
+                } else {
+                    item.add(new EmptyPanel("action_list"));
+                }
             }
         };
         dataViewContainer.add(dataView);

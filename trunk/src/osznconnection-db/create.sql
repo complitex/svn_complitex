@@ -833,6 +833,7 @@ CREATE TABLE `payment` (
 
 DROP TABLE IF EXISTS `benefit`;
 
+-- todo add constraints
 CREATE TABLE `benefit` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT,
     `request_file_id` bigint(20) NULL,
@@ -861,6 +862,35 @@ CREATE TABLE `benefit` (
 	`RESERV1` double(10,2) COMMENT 'Резерв',
 	`RESERV2` varchar(10) COMMENT 'Резерв',
 	PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `tarif`;
+
+CREATE TABLE `tarif` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT,
+    `request_file_id` bigint(20) NOT NULL,
+    `status` varchar(50),
+
+	`T11_DATA_T` varchar(10),
+    `T11_DATA_E` varchar(10),
+    `T11_DATA_R` varchar(10),
+    `T11_MARK` int(3),
+    `T11_TARN` int(6),
+    `T11_CODE1` int(3),
+    `T11_CODE2` int(6),
+    `T11_COD_NA` varchar(40),
+    `T11_CODE3` int(6),
+    `T11_NORM_U` double(19, 10),
+    `T11_NOR_US` double(19, 10),
+    `T11_CODE_N` int(3),
+    `T11_COD_ND` int(3),
+    `T11_CD_UNI` int(3),
+    `T11_CS_UNI` double (19, 10),
+    `T11_NORM` double (19, 10),
+    `T11_NRM_DO` double (19, 10),
+    `T11_NRM_MA` double (19, 10),
+    `T11_K_NADL` double (19, 10),
+     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `person_account`;
