@@ -229,13 +229,4 @@ public class OrganizationStrategy extends Strategy {
         }
         return null;
     }
-
-    /**
-     * TODO: remove
-     */
-    @Deprecated
-    public String[] getChildrenCodes(DomainObject oszn) {
-        List<String> childrenCodes = sqlSession().selectList(getClass().getName() + ".getChildrenCodes", oszn.getId());
-        return childrenCodes.toArray(new String[childrenCodes.size()]);
-    }
 }
