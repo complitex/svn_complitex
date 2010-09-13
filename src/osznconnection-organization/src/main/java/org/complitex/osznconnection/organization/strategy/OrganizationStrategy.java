@@ -18,14 +18,12 @@ import org.complitex.dictionaryfw.entity.example.AttributeExample;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.service.StringCultureBean;
 import org.complitex.dictionaryfw.strategy.Strategy;
-import org.complitex.dictionaryfw.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionaryfw.strategy.web.IValidator;
 import org.complitex.dictionaryfw.util.ResourceUtil;
 import org.complitex.dictionaryfw.web.component.search.ISearchCallback;
 import org.complitex.osznconnection.commons.web.pages.DomainObjectEdit;
 import org.complitex.osznconnection.commons.web.pages.DomainObjectList;
 import org.complitex.osznconnection.commons.web.pages.HistoryPage;
-import org.complitex.osznconnection.organization.strategy.web.OrganizationEditComponent;
 import org.complitex.osznconnection.organization.strategy.web.OrganizationValidator;
 
 import javax.ejb.EJB;
@@ -60,9 +58,7 @@ public class OrganizationStrategy extends Strategy {
      */
     public static final long OSZN = 900;
 
-    public static final long PU = 901;
-
-    public static final long CALCULATION_CENTER = 903;
+    public static final long CALCULATION_CENTER = 901;
 
     @EJB(beanName = "StringCultureBean")
     private StringCultureBean stringBean;
@@ -190,11 +186,6 @@ public class OrganizationStrategy extends Strategy {
     }
 
     @Override
-    public Class<? extends AbstractComplexAttributesPanel> getComplexAttributesPanelClass() {
-        return OrganizationEditComponent.class;
-    }
-
-    @Override
     public IValidator getValidator() {
         return new OrganizationValidator(this);
     }
@@ -221,9 +212,9 @@ public class OrganizationStrategy extends Strategy {
         return null;
     }
 
-     public String getDistrictCode(Long objectId){
-         return getDistrictCode(findById(objectId));        
-     }
+    public String getDistrictCode(Long objectId) {
+        return getDistrictCode(findById(objectId));
+    }
 
     public String getDistrictName(DomainObject organization) {
         try {
@@ -239,6 +230,10 @@ public class OrganizationStrategy extends Strategy {
         return null;
     }
 
+    /**
+     * TODO: remove
+     */
+    @Deprecated
     public String[] getChildrenCodes(DomainObject oszn) {
         List<String> childrenCodes = sqlSession().selectList(getClass().getName() + ".getChildrenCodes", oszn.getId());
         return childrenCodes.toArray(new String[childrenCodes.size()]);

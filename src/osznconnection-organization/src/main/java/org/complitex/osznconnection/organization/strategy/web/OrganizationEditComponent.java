@@ -18,9 +18,11 @@ import javax.ejb.EJB;
 import java.util.List;
 
 /**
+ * Unused now.
  *
  * @author Artem
  */
+@Deprecated
 public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
 
     @EJB(name = "OrganizationStrategy")
