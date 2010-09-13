@@ -46,6 +46,9 @@ public class LoadTaskBean {
     @EJB(beanName = "BenefitBean")
     private BenefitBean benefitBean;
 
+    @EJB(beanName = "TarifBean")
+    private TarifBean tarifBean;
+
     @EJB(beanName = "RequestFileBean")
     private RequestFileBean requestFileBean;
 
@@ -196,6 +199,9 @@ public class LoadTaskBean {
             case PAYMENT:
                 values = PaymentDBF.values();
                 break;
+            case TARIF:
+                values = TarifDBF.values();
+                break;
             default:
                 throw new IllegalArgumentException(requestFileType.name());
         }
@@ -209,10 +215,9 @@ public class LoadTaskBean {
 
     private AbstractRequest createObject(RequestFile.TYPE requestFileType){
         switch (requestFileType){
-            case BENEFIT:
-                return new Benefit();
-            case PAYMENT:
-                return new Payment();
+            case BENEFIT: return new Benefit();
+            case PAYMENT: return new Payment();
+            case TARIF: return new Tarif();
             default:
                 throw new IllegalArgumentException(requestFileType.name());
         }
@@ -225,6 +230,9 @@ public class LoadTaskBean {
                 break;
             case PAYMENT:
                 paymentBean.insert(abstractRequests);
+                break;
+            case TARIF:
+                tarifBean.insert(abstractRequests);
                 break;
             default:
                 throw new IllegalArgumentException(requestFileType.name());

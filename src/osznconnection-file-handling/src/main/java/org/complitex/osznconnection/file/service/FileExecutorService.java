@@ -205,8 +205,8 @@ public class FileExecutorService {
                         @Override
                         public boolean apply(RequestFile benefitFile) {
                             return benefitFile.getType() == RequestFile.TYPE.BENEFIT
-                                    && benefitFile.getName().substring(RequestFile.PAYMENT_FILES_PREFIX.length()).
-                                    equalsIgnoreCase(file.getName().substring(RequestFile.BENEFIT_FILES_PREFIX.length()));
+                                    && benefitFile.getName().substring(RequestFile.PAYMENT_FILE_PREFIX.length()).
+                                    equalsIgnoreCase(file.getName().substring(RequestFile.BENEFIT_FILE_PREFIX.length()));
 
                         }
                     });

@@ -81,10 +81,6 @@ public class LoadRequestBean extends AbstractProcessBean {
         return months;
     }
 
-    private Date parseDate(String name, int year) {
-        return DateUtil.parseDate(name.substring(6, 8), year);
-    }
-
     @Override
     protected int getMaxErrorCount() {
         return FileHandlingConfig.LOAD_MAX_ERROR_FILE_COUNT.getInteger();
@@ -104,8 +100,17 @@ public class LoadRequestBean extends AbstractProcessBean {
     public void load(long organizationId, String districtCode, String[] osznChildrenCodes, int monthFrom, int monthTo, int year) {
         if (!isProcessing()) {
             try {
-                List<File> files = getFiles(new String[]{RequestFile.PAYMENT_FILES_PREFIX, RequestFile.BENEFIT_FILES_PREFIX},
-                        districtCode, osznChildrenCodes, getMonth(monthFrom, monthTo));
+                String[] prefix = new String[]{
+                        RequestFile.PAYMENT_FILE_PREFIX,
+                        RequestFile.BENEFIT_FILE_PREFIX,
+                        RequestFile.TARIF_FILE_PREFIX};
+
+                //add tarif empty code
+                String[] osznCodes = new String[osznChildrenCodes.length + 1];
+                System.arraycopy(osznChildrenCodes, 0, osznCodes, 0, osznChildrenCodes.length);
+                osznCodes[osznChildrenCodes.length] = "";
+
+                List<File> files = getFiles(prefix, districtCode, osznCodes, getMonth(monthFrom, monthTo));
 
                 List<RequestFile> requestFiles = new ArrayList<RequestFile>();
 
@@ -114,8 +119,18 @@ public class LoadRequestBean extends AbstractProcessBean {
                     requestFile.setLength(file.length());
                     requestFile.setName(file.getName());
                     requestFile.setAbsolutePath(file.getAbsolutePath());
-                    requestFile.setDate(parseDate(file.getName(), year));
                     requestFile.setOrganizationObjectId(organizationId);
+
+                    //todo get month and code
+                    switch (requestFile.getType()){
+                        case BENEFIT:
+                        case PAYMENT:
+                            requestFile.setDate(DateUtil.parseDate(file.getName().substring(6, 8), year));
+                            break;
+                        case TARIF:
+                            requestFile.setDate(DateUtil.parseDate(file.getName().substring(5, 7), year));
+                            break;
+                    }
 
                     requestFiles.add(requestFile);
                 }

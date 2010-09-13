@@ -3,9 +3,7 @@ import com.linuxense.javadbf.DBFField;
 import com.linuxense.javadbf.DBFWriter;
 import org.complitex.osznconnection.file.entity.PaymentDBF;
 import org.complitex.osznconnection.file.entity.RequestFile;
-import org.junit.Test;
 import org.xBaseJ.DBF;
-import org.xBaseJ.Util;
 import org.xBaseJ.fields.CharField;
 import org.xBaseJ.fields.DateField;
 import org.xBaseJ.fields.Field;
@@ -28,7 +26,7 @@ public class RequestFilesGenerator{
 
     private static void generatePayment(String dir, String code, String month, int count){
         try {
-            DBF dbf = new DBF(dir + "\\" + RequestFile.PAYMENT_FILES_PREFIX + code + month + ".DBF", true);
+            DBF dbf = new DBF(dir + "\\" + RequestFile.PAYMENT_FILE_PREFIX + code + month + ".DBF", true);
 //
             Random random = new Random();
 //
