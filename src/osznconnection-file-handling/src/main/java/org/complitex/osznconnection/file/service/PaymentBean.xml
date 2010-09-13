@@ -226,6 +226,7 @@
         `NORM_F_1` = #{dbfFields.NORM_F_1},
         `NUMB` = #{dbfFields.NUMB},
         `MARK` = #{dbfFields.MARK},
+        `OPP` = #{dbfFields.OPP},
         `status` = #{status}
         WHERE `id` = #{id}
     </update>
