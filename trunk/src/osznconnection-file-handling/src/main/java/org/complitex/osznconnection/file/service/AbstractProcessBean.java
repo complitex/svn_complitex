@@ -129,6 +129,8 @@ public abstract class AbstractProcessBean {
                                 }
                             }
                         }
+
+                        Thread.sleep(100); //improve perfrormance 8% cpu vs 60% without sleep
                     }
                 }
                 processStatus = PROCESS_STATUS.COMPLETED;
