@@ -223,6 +223,7 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
     public void processPayment(Payment payment) {
         SqlSession session = null;
         try {
+            payment.setField(PaymentDBF.OPP, "00000001");
             session = openSession();
 
             Map<String, Object> params = Maps.newHashMap();

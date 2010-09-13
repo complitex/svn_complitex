@@ -154,21 +154,21 @@ insert into `request_file`(id, organization_object_id, `name`, `date`, `loaded`,
 -- Payments
 insert into payment(own_num_sr, f_nam, m_nam, sur_nam, n_name, vul_name, bld_num, corp_num, flat, DAT1, request_file_id, status)
 values
-(1,'Иван', 'Иванович', 'Иванов', 'Новосибирск', 'ул. Терешковой', 'д. 10','', 'кв. 10', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY'),
- (2,'Сидор', 'Сидорович', 'Сидоров', 'Новосибирск', 'ул. Терешковой', 'д. 11','', 'кв. 11', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY'),
-(3,'Петр', 'Петрович', 'Петров', 'Харьков', 'Косиора', '154A','', '1', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY'),
- (4,'Матвей', 'Матвеевич', 'Матвеев', 'Харьков', 'ФРАНТИШЕКА КРАЛА', '25А','', '40', '2010-09-09',1, 'CITY_UNRESOLVED_LOCALLY');
+-- (1,'Иван', 'Иванович', 'Иванов', 'Новосибирск', 'ул. Терешковой', 'д. 10','', 'кв. 10', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY'),
+-- (2,'Сидор', 'Сидорович', 'Сидоров', 'Новосибирск', 'ул. Терешковой', 'д. 11','', 'кв. 11', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY'),
+(3,'Петр', 'Петрович', 'Петров', 'Харьков', 'Косиора', '154A','', '1', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY');
+-- (4,'Матвей', 'Матвеевич', 'Матвеев', 'Харьков', 'ФРАНТИШЕКА КРАЛА', '25А','', '40', '2010-09-09',1, 'CITY_UNRESOLVED_LOCALLY');
 
 -- Address corrections
 insert into entity_type_correction(organization_id, `type`, entity_type_id, organization_type_code) values (2,UPPER('ул'),302,1);
 insert into entity_type_correction(organization_id, `type`, entity_type_id, organization_type_code) values (2,UPPER('пр-т'),301,1);
 
-insert into city_correction(organization_id, city, city_id, organization_city_code) values (2,'Новосибирск',1,1);
-insert into street_correction(organization_id, street, street_id, organization_street_code) values (2,'Терешковой В.',1,1);
+insert into city_correction(organization_id, city, city_id, organization_city_code) values (2,UPPER('Новосибирск'),1,1);
+insert into street_correction(organization_id, street, street_id, organization_street_code) values (2,UPPER('Терешковой В.'),1,1);
 insert into building_correction(organization_id, building_num, building_corp, building_id, organization_building_code) values (2,'10','1',1,1);
 insert into apartment_correction(organization_id, apartment, apartment_id, organization_apartment_code) values (2,'10',1,1);
 
-insert into city_correction(organization_id, city, city_id, organization_city_code) values (2,UPPER('Харьков'),2,1);
+insert into city_correction(organization_id, city, city_id, organization_city_code) values (2,UPPER('Харьков'),3,1);
 insert into street_correction(organization_id, street, street_id, organization_street_code) values (2,UPPER('Косиора'),4,1);
 insert into building_correction(organization_id, building_num, building_corp, building_id, organization_building_code) values (2,'154А','',6,1);
 insert into apartment_correction(organization_id, apartment, apartment_id, organization_apartment_code) values (2,'1',3,1);
