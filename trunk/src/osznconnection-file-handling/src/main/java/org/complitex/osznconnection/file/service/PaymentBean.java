@@ -14,6 +14,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Обработка записей файла запроса начислений
@@ -23,6 +25,8 @@ import java.util.Map;
  */
 @Stateless(name = "PaymentBean")
 public class PaymentBean extends AbstractBean {
+
+    private static final Logger log = LoggerFactory.getLogger(PaymentBean.class);
 
     public static final String MAPPING_NAMESPACE = PaymentBean.class.getName();
 
@@ -55,19 +59,19 @@ public class PaymentBean extends AbstractBean {
     }
 
     @Transactional(executorType = ExecutorType.BATCH)
-    public void insert(List<AbstractRequest> abstractRequests){
-        for (AbstractRequest abstractRequest : abstractRequests){
+    public void insert(List<AbstractRequest> abstractRequests) {
+        for (AbstractRequest abstractRequest : abstractRequests) {
             insert((Payment) abstractRequest);
         }
     }
 
     @SuppressWarnings({"unchecked"})
-    public List<AbstractRequest> getPayments(RequestFile requestFile){
-         return sqlSession().selectList(MAPPING_NAMESPACE + ".selectPayments", requestFile.getId());
+    public List<AbstractRequest> getPayments(RequestFile requestFile) {
+        return sqlSession().selectList(MAPPING_NAMESPACE + ".selectPayments", requestFile.getId());
     }
 
     @Transactional
-    public void insert(Payment payment){
+    public void insert(Payment payment) {
         sqlSession().insert(MAPPING_NAMESPACE + ".insertPayment", payment);
     }
 
@@ -75,11 +79,6 @@ public class PaymentBean extends AbstractBean {
     public void update(Payment payment) {
         sqlSession().update(MAPPING_NAMESPACE + ".update", payment);
     }
-
-//    @Transactional
-//    public void updatePayment(Payment payment) {
-//        sqlSession().update(MAPPING_NAMESPACE + ".updatePayment", payment);
-//    }
 
     public void delete(RequestFile requestFile) {
         sqlSession().delete(MAPPING_NAMESPACE + ".deletePayments", requestFile.getId());
@@ -190,10 +189,7 @@ public class PaymentBean extends AbstractBean {
         params.put("cityId", cityId);
         params.put("streetId", streetId);
         params.put("buildingNumber", buildingNumber);
-        if (buildingCorp != null) {
-            params.put("buildingCorp", buildingCorp);
-        }
-
+        params.put("buildingCorp", buildingCorp);
         params.put("requestFileId", fileId);
         params.put("status", Status.ADDRESS_CORRECTED);
         sqlSession().update(MAPPING_NAMESPACE + ".correct", params);
