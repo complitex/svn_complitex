@@ -158,7 +158,7 @@
             AND r.`VUL_NAME` LIKE CONCAT('%', #{street}, '%')
         </if>
         <if test="building != null">
-            AND r.`BLD_NUM` LIKE CONCAT('%', #{building}, '%')
+            AND (r.`BLD_NUM` LIKE CONCAT('%', #{building}, '%') OR r.`CORP_NUM` LIKE CONCAT('%', #{building}, '%'))
         </if>
         <if test="apartment != null">
             AND r.`FLAT` LIKE CONCAT('%', #{apartment}, '%')
@@ -169,12 +169,12 @@
         </if>
     </sql>
 
-    <select id="count" resultType="int" parameterType="org.complitex.osznconnection.file.web.pages.payment.PaymentExample">
+    <select id="count" resultType="int" parameterType="org.complitex.osznconnection.file.entity.example.PaymentExample">
         SELECT COUNT(*) FROM `payment` r WHERE r.`request_file_id` = #{requestFileId}
         <include refid="org.complitex.osznconnection.file.service.PaymentBean.filter"/>
     </select>
 
-    <select id="find" parameterType="org.complitex.osznconnection.file.web.pages.payment.PaymentExample"
+    <select id="find" parameterType="org.complitex.osznconnection.file.entity.example.PaymentExample"
             resultMap="paymentResultMap">
         SELECT r.`id`, r.`status`, r.`request_file_id`, r.`F_NAM`, r.`M_NAM`, r.`SUR_NAM`,
         r.`N_NAME`, r.`VUL_NAME`, r.`BLD_NUM`, r.`CORP_NUM`, r.`FLAT`,

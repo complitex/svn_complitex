@@ -7,7 +7,7 @@ import org.complitex.osznconnection.file.entity.AbstractRequest;
 import org.complitex.osznconnection.file.entity.Payment;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.entity.Status;
-import org.complitex.osznconnection.file.web.pages.payment.PaymentExample;
+import org.complitex.osznconnection.file.entity.example.PaymentExample;
 
 import javax.ejb.Stateless;
 import java.util.Arrays;

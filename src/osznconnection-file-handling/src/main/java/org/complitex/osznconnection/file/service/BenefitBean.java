@@ -12,7 +12,7 @@ import org.complitex.osznconnection.file.entity.*;
 import org.complitex.osznconnection.file.service.exception.FieldNotFoundException;
 import org.complitex.osznconnection.file.service.exception.FieldWrongTypeException;
 import org.complitex.osznconnection.file.service.exception.SqlSessionException;
-import org.complitex.osznconnection.file.web.pages.benefit.BenefitExample;
+import org.complitex.osznconnection.file.entity.example.BenefitExample;
 
 import javax.ejb.Stateless;
 import java.io.IOException;

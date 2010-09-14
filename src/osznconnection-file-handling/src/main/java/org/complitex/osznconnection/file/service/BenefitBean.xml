@@ -9,7 +9,8 @@
 
         <result column="city" property="city"/>
         <result column="street" property="street"/>
-        <result column="building" property="building"/>
+        <result column="building_number" property="buildingNumber"/>
+        <result column="building_corp" property="buildingCorp"/>
         <result column="apartment" property="apartment"/>
 
         <association property="dbfFields" javaType="map">
@@ -96,7 +97,7 @@
             AND p.`VUL_NAME` LIKE CONCAT('%', #{street}, '%')
         </if>
         <if test="building != null">
-            AND p.`BLD_NUM` LIKE CONCAT('%', #{building}, '%')
+            AND (p.`BLD_NUM` LIKE CONCAT('%', #{building}, '%') OR p.`CORP_NUM` LIKE CONCAT('%', #{building}, '%'))
         </if>
         <if test="apartment != null">
             AND p.`FLAT` LIKE CONCAT('%', #{apartment}, '%')
@@ -107,7 +108,7 @@
         </if>
     </sql>
 
-    <select id="count" resultType="int" parameterType="org.complitex.osznconnection.file.web.pages.benefit.BenefitExample">
+    <select id="count" resultType="int" parameterType="org.complitex.osznconnection.file.entity.example.BenefitExample">
         SELECT COUNT(DISTINCT r.`id`) FROM `benefit` r
         JOIN `request_file` rf ON r.`request_file_id` = rf.`id`
         LEFT JOIN `payment` p ON r.`OWN_NUM_SR` = p.`OWN_NUM_SR`
@@ -118,10 +119,10 @@
     </select>
 
     <select id="find" resultMap="benefitResultMap"
-            parameterType="org.complitex.osznconnection.file.web.pages.benefit.BenefitExample">
+            parameterType="org.complitex.osznconnection.file.entity.example.BenefitExample">
         SELECT DISTINCT r.`id` id, r.`request_file_id`, r.`F_NAM`, r.`M_NAM`, r.`SUR_NAM`,
         r.`status`,
-        p.`N_NAME` city, p.`VUL_NAME` street, p.`BLD_NUM` building, p.`FLAT` apartment
+        p.`N_NAME` city, p.`VUL_NAME` street, p.`BLD_NUM` building_number, p.`CORP_NUM` building_corp, p.`FLAT` apartment
         FROM `benefit` r
         JOIN `request_file` rf ON r.`request_file_id` = rf.`id`
         LEFT JOIN `payment` p ON r.`OWN_NUM_SR` = p.`OWN_NUM_SR`

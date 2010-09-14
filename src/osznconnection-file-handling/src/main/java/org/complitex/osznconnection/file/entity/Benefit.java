@@ -26,8 +26,13 @@ public class Benefit extends AbstractRequest {
     }
 
     private String city;
+
     private String street;
-    private String building;
+
+    private String buildingNumber;
+
+    private String buildingCorp;
+
     private String apartment;
 
     public String getApartment() {
@@ -38,12 +43,20 @@ public class Benefit extends AbstractRequest {
         this.apartment = apartment;
     }
 
-    public String getBuilding() {
-        return building;
+    public String getBuildingCorp() {
+        return buildingCorp;
     }
 
-    public void setBuilding(String building) {
-        this.building = building;
+    public void setBuildingCorp(String buildingCorp) {
+        this.buildingCorp = buildingCorp;
+    }
+
+    public String getBuildingNumber() {
+        return buildingNumber;
+    }
+
+    public void setBuildingNumber(String buildingNumber) {
+        this.buildingNumber = buildingNumber;
     }
 
     public String getCity() {
