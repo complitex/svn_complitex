@@ -241,18 +241,14 @@ public class OrganizationStrategy extends Strategy {
         return find(example);
     }
 
-    public long getDistrictId(DomainObject organization) {
-        return Iterables.find(organization.getAttributes(), new Predicate<Attribute>() {
+    public String getDistrictCode(DomainObject organization) {
+        return districtStrategy.getDistrictCode(Iterables.find(organization.getAttributes(), new Predicate<Attribute>() {
 
             @Override
             public boolean apply(Attribute attr) {
                 return attr.getAttributeTypeId().equals(DISTRICT);
             }
-        }).getValueId();
-    }
-
-    public String getDistrictCode(DomainObject organization) {
-        return districtStrategy.getDistrictCode(getDistrictId(organization));
+        }).getValueId());
     }
 
     public String getDistrictCode(Long objectId) {
