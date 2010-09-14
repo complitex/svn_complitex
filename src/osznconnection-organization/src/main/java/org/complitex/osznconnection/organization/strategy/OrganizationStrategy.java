@@ -18,6 +18,7 @@ import org.complitex.dictionaryfw.entity.example.AttributeExample;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.service.StringCultureBean;
 import org.complitex.dictionaryfw.strategy.Strategy;
+import org.complitex.dictionaryfw.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionaryfw.strategy.web.IValidator;
 import org.complitex.dictionaryfw.util.ResourceUtil;
 import org.complitex.dictionaryfw.web.component.search.ISearchCallback;
@@ -32,6 +33,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import org.complitex.dictionaryfw.mybatis.Transactional;
+import org.complitex.osznconnection.information.strategy.district.DistrictStrategy;
+import org.complitex.osznconnection.organization.strategy.web.OrganizationEditComponent;
 
 /**
  *
@@ -42,16 +46,16 @@ public class OrganizationStrategy extends Strategy {
 
     public static final String RESOURCE_BUNDLE = OrganizationStrategy.class.getName();
 
+    private static final String MAPPING_NAMESPACE = OrganizationStrategy.class.getPackage().getName() + ".Organization";
+
     /**
      * Attribute type ids
      */
     public static final long NAME = 900;
 
-    public static final long DISTRICT_CODE = 901;
+    public static final long UNIQUE_CODE = 901;
 
-    public static final long UNIQUE_CODE = 902;
-
-    public static final long DISTRICT_NAME = 903;
+    public static final long DISTRICT = 902;
 
     /**
      * Entity type ids
@@ -60,8 +64,42 @@ public class OrganizationStrategy extends Strategy {
 
     public static final long CALCULATION_CENTER = 901;
 
-    @EJB(beanName = "StringCultureBean")
+    @EJB
     private StringCultureBean stringBean;
+
+    @EJB
+    private DistrictStrategy districtStrategy;
+
+    @Override
+    @Transactional
+    public DomainObject findById(Long id) {
+        DomainObjectExample example = new DomainObjectExample();
+        example.setId(id);
+        example.setTable(getEntityTable());
+        DomainObject object = (DomainObject) sqlSession().selectOne(MAPPING_NAMESPACE + "." + FIND_BY_ID_OPERATION, example);
+        object.setAttributes(sqlSession().selectList(MAPPING_NAMESPACE + ".loadSimpleAttributes", example));
+        for (Attribute complexAttr : (List<Attribute>) sqlSession().selectList(MAPPING_NAMESPACE + ".loadComplexAttributes", example)) {
+            object.addAttribute(complexAttr);
+        }
+        super.updateForNewAttributeTypes(object);
+        super.updateStringsForNewLocales(object);
+        return object;
+    }
+
+    @Override
+    public DomainObject newInstance() {
+        DomainObject object = super.newInstance();
+        newDistrictAttribute(object);
+        return object;
+    }
+
+    private void newDistrictAttribute(DomainObject object) {
+        Attribute districtAttr = new Attribute();
+        districtAttr.setAttributeId(1L);
+        districtAttr.setAttributeTypeId(DISTRICT);
+        districtAttr.setValueTypeId(DISTRICT);
+        object.addAttribute(districtAttr);
+    }
 
     @Override
     public String getEntityTable() {
@@ -70,7 +108,7 @@ public class OrganizationStrategy extends Strategy {
 
     @Override
     public boolean isSimpleAttributeType(EntityAttributeType attributeType) {
-        return attributeType.getId() >= NAME;
+        return !attributeType.getId().equals(DISTRICT);
     }
 
     @Override
@@ -187,7 +225,12 @@ public class OrganizationStrategy extends Strategy {
 
     @Override
     public IValidator getValidator() {
-        return new OrganizationValidator(this);
+        return new OrganizationValidator();
+    }
+
+    @Override
+    public Class<? extends AbstractComplexAttributesPanel> getComplexAttributesPanelClass() {
+        return OrganizationEditComponent.class;
     }
 
     public List<DomainObject> getAllOSZNs() {
@@ -198,35 +241,21 @@ public class OrganizationStrategy extends Strategy {
         return find(example);
     }
 
-    public String getDistrictCode(DomainObject organization) {
-        try {
-            return stringBean.getSystemStringCulture(Iterables.find(organization.getAttributes(), new Predicate<Attribute>() {
+    public long getDistrictId(DomainObject organization) {
+        return Iterables.find(organization.getAttributes(), new Predicate<Attribute>() {
 
-                @Override
-                public boolean apply(Attribute attr) {
-                    return attr.getAttributeTypeId().equals(DISTRICT_CODE);
-                }
-            }).getLocalizedValues()).getValue();
-        } catch (NoSuchElementException e) {
-        }
-        return null;
+            @Override
+            public boolean apply(Attribute attr) {
+                return attr.getAttributeTypeId().equals(DISTRICT);
+            }
+        }).getValueId();
+    }
+
+    public String getDistrictCode(DomainObject organization) {
+        return districtStrategy.getDistrictCode(getDistrictId(organization));
     }
 
     public String getDistrictCode(Long objectId) {
         return getDistrictCode(findById(objectId));
-    }
-
-    public String getDistrictName(DomainObject organization) {
-        try {
-            return stringBean.getSystemStringCulture(Iterables.find(organization.getAttributes(), new Predicate<Attribute>() {
-
-                @Override
-                public boolean apply(Attribute attr) {
-                    return attr.getAttributeTypeId().equals(DISTRICT_NAME);
-                }
-            }).getLocalizedValues()).getValue();
-        } catch (NoSuchElementException e) {
-        }
-        return null;
     }
 }

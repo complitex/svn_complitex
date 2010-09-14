@@ -43,11 +43,13 @@ public class DistrictStrategy extends Strategy {
     @EJB(beanName = "StringCultureBean")
     private StringCultureBean stringBean;
 
-    private static final long NAME_ATTRIBUTE_TYPE_ID = 600L;
+    public static final long DISTRICT_NAME = 600;
+
+    public static final long DISTRICT_CODE = 601;
 
     @Override
     public boolean isSimpleAttributeType(EntityAttributeType attributeDescription) {
-        return attributeDescription.getId() >= NAME_ATTRIBUTE_TYPE_ID;
+        return attributeDescription.getId() >= DISTRICT_NAME;
     }
 
     @Override
@@ -56,7 +58,7 @@ public class DistrictStrategy extends Strategy {
 
             @Override
             public boolean apply(EntityAttributeType attr) {
-                return attr.getId().equals(NAME_ATTRIBUTE_TYPE_ID);
+                return attr.getId().equals(DISTRICT_NAME);
             }
         }));
     }
@@ -72,7 +74,7 @@ public class DistrictStrategy extends Strategy {
 
             @Override
             public boolean apply(Attribute attr) {
-                return attr.getAttributeTypeId().equals(NAME_ATTRIBUTE_TYPE_ID);
+                return attr.getAttributeTypeId().equals(DISTRICT_NAME);
             }
         }).getLocalizedValues(), locale);
     }
@@ -95,11 +97,11 @@ public class DistrictStrategy extends Strategy {
 
                     @Override
                     public boolean apply(AttributeExample attrExample) {
-                        return attrExample.getAttributeTypeId().equals(NAME_ATTRIBUTE_TYPE_ID);
+                        return attrExample.getAttributeTypeId().equals(DISTRICT_NAME);
                     }
                 });
             } catch (NoSuchElementException e) {
-                attrExample = new AttributeExample(NAME_ATTRIBUTE_TYPE_ID);
+                attrExample = new AttributeExample(DISTRICT_NAME);
                 example.addAttributeExample(attrExample);
             }
             attrExample.setValue(searchTextInput);
@@ -198,5 +200,16 @@ public class DistrictStrategy extends Strategy {
         params.put(HistoryPage.ENTITY, getEntityTable());
         params.put(HistoryPage.OBJECT_ID, objectId);
         return params;
+    }
+
+    public String getDistrictCode(long districtId) {
+        DomainObject district = findById(districtId);
+        return stringBean.getSystemStringCulture(Iterables.find(district.getAttributes(), new Predicate<Attribute>() {
+
+            @Override
+            public boolean apply(Attribute attr) {
+                return attr.getAttributeTypeId().equals(DISTRICT_CODE);
+            }
+        }).getLocalizedValues()).getValue();
     }
 }

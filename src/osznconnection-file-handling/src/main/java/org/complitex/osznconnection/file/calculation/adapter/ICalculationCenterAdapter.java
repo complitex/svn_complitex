@@ -16,6 +16,8 @@ public interface ICalculationCenterAdapter {
 
     void prepareCity(Payment payment, String city, Long cityId);
 
+    void prepareDistrict(Payment payment, String district, Long districtId);
+
     void prepareStreet(Payment payment, String street, Long streetId);
 
     void prepareStreetType(Payment payment, String streetType, Long streetTypeId);

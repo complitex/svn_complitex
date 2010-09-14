@@ -14,6 +14,7 @@
         <result column="internal_apartment_id" property="internalApartmentId"/>
 
         <result column="outgoing_city" property="outgoingCity"/>
+        <result column="outgoing_district" property="outgoingDistrict"/>
         <result column="outgoing_street" property="outgoingStreet"/>
         <result column="outgoing_street_type" property="outgoingStreetType"/>
         <result column="outgoing_building_number" property="outgoingBuildingNumber"/>
@@ -122,7 +123,7 @@
             `internal_city_id` = #{internalCityId},
             `internal_street_id` = #{internalStreetId}, `internal_street_type_id` = #{internalStreetTypeId},
             `internal_building_id` = #{internalBuildingId}, `internal_apartment_id` = #{internalApartmentId},
-            `outgoing_city` = #{outgoingCity},
+            `outgoing_city` = #{outgoingCity}, `outgoing_district` = #{outgoingDistrict},
             `outgoing_street` = #{outgoingStreet}, `outgoing_street_type` = #{outgoingStreetType}, 
             `outgoing_building_number` = #{outgoingBuildingNumber}, `outgoing_building_corp` = #{outgoingBuildingCorp},
             `outgoing_apartment` = #{outgoingApartment},
@@ -179,7 +180,7 @@
         r.`N_NAME`, r.`VUL_NAME`, r.`BLD_NUM`, r.`CORP_NUM`, r.`FLAT`,
         (SELECT f.`organization_object_id` FROM `request_file` f WHERE f.`id` = r.`request_file_id`) organization_id,
         r.`internal_city_id`, r.`internal_street_id`, r.`internal_street_type_id`, r.`internal_building_id`, r.`internal_apartment_id`,
-        r.`outgoing_city`, r.`outgoing_street`, r.`outgoing_street_type`, r.`outgoing_building_number`, r.`outgoing_building_corp`,
+        r.`outgoing_city`, r.`outgoing_district`, r.`outgoing_street`, r.`outgoing_street_type`, r.`outgoing_building_number`, r.`outgoing_building_corp`,
         r.`outgoing_apartment`
         FROM `payment` r WHERE r.`request_file_id` = #{requestFileId}
         <include refid="org.complitex.osznconnection.file.service.PaymentBean.filter"/>
@@ -204,7 +205,7 @@
         r.`N_NAME`, r.`VUL_NAME`, r.`BLD_NUM`, r.`CORP_NUM`, r.`FLAT`, r.`OWN_NUM_SR`,
         (SELECT f.`organization_object_id` FROM `request_file` f WHERE f.`id` = r.`request_file_id`) organization_id,
         r.`internal_city_id`, r.`internal_street_id`, r.`internal_street_type_id`, r.`internal_building_id`, r.`internal_apartment_id`,
-        r.`outgoing_city`, r.`outgoing_street`, r.`outgoing_street_type`, r.`outgoing_building_number`, r.`outgoing_building_corp`,
+        r.`outgoing_city`, r.`outgoing_district`, r.`outgoing_street`, r.`outgoing_street_type`, r.`outgoing_building_number`, r.`outgoing_building_corp`,
         r.`outgoing_apartment`
         FROM `payment` r WHERE r.`id` = #{id}
     </select>
@@ -215,7 +216,7 @@
         `internal_city_id` = #{internalCityId},
         `internal_street_id` = #{internalStreetId}, `internal_street_type_id` = #{internalStreetTypeId},
         `internal_building_id` = #{internalBuildingId}, `internal_apartment_id` = #{internalApartmentId},
-        `outgoing_city` = #{outgoingCity},
+        `outgoing_city` = #{outgoingCity}, `outgoing_district` = #{outgoingDistrict},
         `outgoing_street` = #{outgoingStreet}, `outgoing_street_type` = #{outgoingStreetType},
         `outgoing_building_number` = #{outgoingBuildingNumber}, `outgoing_building_corp` = #{outgoingBuildingCorp},
         `outgoing_apartment` = #{outgoingApartment},
@@ -244,7 +245,7 @@
         r.`N_NAME`, r.`VUL_NAME`, r.`BLD_NUM`, r.`CORP_NUM`, r.`FLAT`, r.`DAT1`, r.`OWN_NUM_SR`,
         rf.`organization_object_id` organization_id,
         r.`internal_city_id`, r.`internal_street_id`, r.`internal_street_type_id`, r.`internal_building_id`, r.`internal_apartment_id`,
-        r.`outgoing_city`, r.`outgoing_street`, r.`outgoing_street_type`, r.`outgoing_building_number`, r.`outgoing_building_corp`,
+        r.`outgoing_city`, r.`outgoing_district`, r.`outgoing_street`, r.`outgoing_street_type`, r.`outgoing_building_number`, r.`outgoing_building_corp`,
         r.`outgoing_apartment`, r.`account_number`
         FROM `payment` r
         JOIN `request_file` rf ON r.`request_file_id` = rf.`id`

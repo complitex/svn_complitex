@@ -30,6 +30,7 @@ public class Payment extends AbstractRequest {
     private Long internalBuildingId;
     private Long internalApartmentId;
     private String outgoingCity;
+    private String outgoingDistrict;
     private String outgoingStreet;
     private String outgoingStreetType;
     private String outgoingBuildingNumber;
@@ -122,5 +123,13 @@ public class Payment extends AbstractRequest {
 
     public void setOutgoingStreetType(String outgoingStreetType) {
         this.outgoingStreetType = outgoingStreetType;
+    }
+
+    public String getOutgoingDistrict() {
+        return outgoingDistrict;
+    }
+
+    public void setOutgoingDistrict(String outgoingDistrict) {
+        this.outgoingDistrict = outgoingDistrict;
     }
 }

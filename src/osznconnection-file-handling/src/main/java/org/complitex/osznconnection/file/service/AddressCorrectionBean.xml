@@ -66,4 +66,10 @@
         LIMIT 0,1
     </select>
 
+    <select id="findOutgoingDistrict" resultType="hashmap" parameterType="long">
+        SELECT c.`district` stringValue, c.`organization_district_code` codeValue FROM `district_correction` c
+        WHERE c.`organization_id` = #{calculationCenterId}
+        LIMIT 0,1
+    </select>
+
 </mapper>

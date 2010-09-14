@@ -753,6 +753,7 @@ CREATE TABLE `payment` (
     `internal_apartment_id` bigint(20) NULL,
 
     `outgoing_city` varchar(100) NULL,
+    `outgoing_district` varchar(100) NULL,
     `outgoing_street` varchar(100) NULL,
     `outgoing_street_type` varchar(100) NULL,
     `outgoing_building_number` varchar(100) NULL,
@@ -943,6 +944,19 @@ CREATE TABLE `city_correction` (
     PRIMARY KEY (`id`),
     KEY `FK_city_correction_organization` (`organization_id`),
     CONSTRAINT `FK_city_correction_organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `district_correction`;
+
+CREATE TABLE `district_correction` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT,
+    `organization_id` bigint(20) NOT NULL,
+    `district` varchar(100) NOT NULL,
+    `district_id` bigint(20) NOT NULL,
+    `organization_district_code` bigint(20) NULL,
+    PRIMARY KEY (`id`),
+    KEY `FK_district_correction_organization` (`organization_id`),
+    CONSTRAINT `FK_district_correction_organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `street_correction`;
