@@ -4,31 +4,55 @@
  */
 package org.complitex.osznconnection.organization.strategy.web;
 
-import com.google.common.collect.ImmutableMap;
-import org.apache.wicket.markup.html.form.DropDownChoice;
-import org.apache.wicket.markup.html.form.IChoiceRenderer;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import java.io.Serializable;
+import java.util.Map;
 import org.complitex.dictionaryfw.entity.DomainObject;
-import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 
 import javax.ejb.EJB;
-import java.util.List;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.complitex.dictionaryfw.entity.Attribute;
+import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
+import org.complitex.dictionaryfw.strategy.Strategy;
+import org.complitex.dictionaryfw.strategy.web.CanEditUtil;
+import org.complitex.dictionaryfw.web.component.search.ISearchCallback;
+import org.complitex.dictionaryfw.web.component.search.SearchComponent;
+import org.complitex.dictionaryfw.web.component.search.SearchComponentState;
+import org.complitex.osznconnection.information.strategy.district.DistrictStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Unused now.
- *
+ * 
  * @author Artem
  */
-@Deprecated
 public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
 
-    @EJB(name = "OrganizationStrategy")
-    private OrganizationStrategy organizationStrategy;
+    private static final Logger log = LoggerFactory.getLogger(OrganizationEditComponent.class);
 
-    private DomainObject parentObject;
+    @EJB(name = "DistrictStrategy")
+    private DistrictStrategy districtStrategy;
+
+    private Attribute districtAttribute;
+
+    private class DistrictSearchCallback implements ISearchCallback, Serializable {
+
+        @Override
+        public void found(SearchComponent component, Map<String, Long> ids, AjaxRequestTarget target) {
+            Long districtId = ids.get("district");
+            if (districtId != null && districtId > 0) {
+                districtAttribute.setValueId(districtId);
+            } else {
+                districtAttribute.setValueId(null);
+            }
+        }
+    }
+
+    private SearchComponentState componentState;
 
     public OrganizationEditComponent(String id, boolean disabled) {
         super(id, disabled);
@@ -37,50 +61,37 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
     @Override
     protected void init() {
         final DomainObject currentOrganization = getInputPanel().getObject();
-        List<DomainObject> oszns = organizationStrategy.getAllOSZNs();
-        IModel<DomainObject> parentModel = new Model<DomainObject>() {
+
+        //district
+        districtAttribute = Iterables.find(currentOrganization.getAttributes(), new Predicate<Attribute>() {
 
             @Override
-            public DomainObject getObject() {
-                if (currentOrganization.getParentId() != null) {
-                    DomainObjectExample example = new DomainObjectExample();
-                    example.setId(currentOrganization.getParentId());
-                    organizationStrategy.configureExample(example, ImmutableMap.<String, Long>of(), null);
-                    List<DomainObject> objects = organizationStrategy.find(example);
-                    if (!objects.isEmpty()) {
-                        return objects.get(0);
-                    }
-                }
-                return null;
+            public boolean apply(Attribute attr) {
+                return attr.getAttributeTypeId().equals(OrganizationStrategy.DISTRICT);
             }
+        });
+        Long districtId = districtAttribute.getValueId();
 
-            @Override
-            public void setObject(DomainObject object) {
-                if (object != null) {
-                    currentOrganization.setParentId(object.getId());
-                    currentOrganization.setParentEntityId(900L);
-                    parentObject = object;
-                }
+        if (currentOrganization.getId() == null) {
+            componentState = new SearchComponentState();
+        } else {
+            DomainObject district = null;
+            DomainObjectExample example = new DomainObjectExample();
+            example.setId(districtId);
+            district = districtStrategy.find(example).get(0);
+
+            Strategy.RestrictedObjectInfo info = districtStrategy.findParentInSearchComponent(districtId, null);
+            if (info != null) {
+                componentState = districtStrategy.getSearchComponentStateForParent(info.getId(), info.getEntityTable(), null);
+                componentState.put("district", district);
             }
-        };
-        IChoiceRenderer<DomainObject> renderer = new IChoiceRenderer<DomainObject>() {
+        }
 
-            @Override
-            public Object getDisplayValue(DomainObject object) {
-                return organizationStrategy.displayDomainObject(object, getLocale());
-
-            }
-
-            @Override
-            public String getIdValue(DomainObject object, int index) {
-                return String.valueOf(object.getId());
-            }
-        };
-        DropDownChoice<DomainObject> parent = new DropDownChoice<DomainObject>("parent", parentModel, oszns, renderer);
-        add(parent);
+        add(new SearchComponent("district", componentState, ImmutableList.of("city", "district"), new DistrictSearchCallback(),
+                !isDisabled() && CanEditUtil.canEdit(currentOrganization)));
     }
 
-    public DomainObject getParentObject() {
-        return parentObject;
+    public boolean isDistrictEntered() {
+        return componentState.get("district") != null;
     }
 }

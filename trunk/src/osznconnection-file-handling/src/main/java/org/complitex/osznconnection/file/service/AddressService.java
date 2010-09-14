@@ -102,6 +102,15 @@ public class AddressService extends AbstractBean {
         }
         adapter.prepareCity(payment, cityData.getValue(), cityData.getCode());
 
+        //district
+        AddressCorrectionBean.OutgoingAddressObject districtData = addressCorrectionBean.findOutgoingDistrict(calculationCenterId);
+        if (districtData == null) {
+            payment.setStatus(Status.DISTRICT_UNRESOLVED);
+            return;
+        }
+        adapter.prepareDistrict(payment, districtData.getValue(), districtData.getCode());
+
+
         if (payment.getInternalStreetTypeId() != null) {
             AddressCorrectionBean.OutgoingAddressObject streetTypeData = addressCorrectionBean.findOutgoingStreetType(calculationCenterId,
                     payment.getInternalStreetTypeId());

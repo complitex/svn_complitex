@@ -153,6 +153,19 @@ public class AddressCorrectionBean extends AbstractBean {
     }
 
     @Transactional
+    public OutgoingAddressObject findOutgoingDistrict(long calculationCenterId) {
+        Map<String, Object> result = (Map<String, Object>) sqlSession().selectOne(MAPPING_NAMESPACE + ".findOutgoingDistrict", calculationCenterId);
+        if (result != null) {
+            String value = (String) result.get("stringValue");
+            Long code = (Long) result.get("codeValue");
+            if (value != null && code != null) {
+                return new OutgoingAddressObject(value, code);
+            }
+        }
+        return null;
+    }
+
+    @Transactional
     private OutgoingAddressObject findOutgoingObjectType(long entityTypeId, long calculationCenterId) {
         Map<String, Object> params = Maps.newHashMap();
         params.put("entityTypeId", entityTypeId);

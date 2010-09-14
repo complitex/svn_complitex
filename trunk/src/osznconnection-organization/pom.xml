@@ -68,6 +68,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.complitex.osznconnection</groupId>
+            <artifactId>osznconnection-information</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.complitex.framework</groupId>
             <artifactId>dictionary-framework</artifactId>
             <scope>provided</scope>
