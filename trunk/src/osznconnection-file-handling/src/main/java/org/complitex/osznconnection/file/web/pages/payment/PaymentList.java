@@ -4,6 +4,7 @@
  */
 package org.complitex.osznconnection.file.web.pages.payment;
 
+import org.complitex.osznconnection.file.entity.example.PaymentExample;
 import com.google.common.collect.ImmutableMap;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -38,6 +39,7 @@ import org.complitex.osznconnection.file.web.component.StatusRenderer;
 import javax.ejb.EJB;
 import java.util.Arrays;
 import java.util.Iterator;
+import org.complitex.osznconnection.file.web.pages.util.BuildingFormatter;
 
 /**
  *
@@ -151,7 +153,8 @@ public final class PaymentList extends TemplatePage {
                 item.add(new Label("lastName", (String) payment.getField(PaymentDBF.SUR_NAM)));
                 item.add(new Label("city", (String) payment.getField(PaymentDBF.N_NAME)));
                 item.add(new Label("street", (String) payment.getField(PaymentDBF.VUL_NAME)));
-                item.add(new Label("building", (String) payment.getField(PaymentDBF.BLD_NUM)));
+                item.add(new Label("building", BuildingFormatter.getBuilding((String) payment.getField(PaymentDBF.BLD_NUM),
+                        (String) payment.getField(PaymentDBF.CORP_NUM), getLocale())));
                 item.add(new Label("apartment", (String) payment.getField(PaymentDBF.FLAT)));
                 item.add(new Label("status", StatusRenderer.displayValue(payment.getStatus())));
 

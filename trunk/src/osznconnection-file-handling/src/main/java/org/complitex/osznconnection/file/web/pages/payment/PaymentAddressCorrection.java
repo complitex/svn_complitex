@@ -16,6 +16,7 @@ import org.complitex.osznconnection.file.service.PaymentBean;
 import org.complitex.osznconnection.file.web.component.correction.address.AddressCorrectionPanel;
 
 import javax.ejb.EJB;
+import org.complitex.osznconnection.file.web.pages.util.BuildingFormatter;
 
 /**
  *
@@ -49,8 +50,8 @@ public final class PaymentAddressCorrection extends TemplatePage {
                 + payment.getField(PaymentDBF.M_NAM);
         String address = payment.getField(PaymentDBF.N_NAME) + ", "
                 + payment.getField(PaymentDBF.VUL_NAME) + ", "
-                + payment.getField(PaymentDBF.BLD_NUM) + ", "
-                + payment.getField(PaymentDBF.FLAT);
+                + BuildingFormatter.getBuilding((String) payment.getField(PaymentDBF.BLD_NUM), (String) payment.getField(PaymentDBF.CORP_NUM), getLocale())
+                + ", " + payment.getField(PaymentDBF.FLAT);
 
         add(new AddressCorrectionPanel("correntionPanel", name, address, payment.getInternalCityId(), payment.getInternalStreetId(),
                 payment.getInternalStreetTypeId(),

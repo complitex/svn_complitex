@@ -4,6 +4,7 @@
  */
 package org.complitex.osznconnection.file.web.pages.benefit;
 
+import org.complitex.osznconnection.file.entity.example.BenefitExample;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -36,6 +37,7 @@ import org.complitex.osznconnection.file.web.component.StatusRenderer;
 import javax.ejb.EJB;
 import java.util.Arrays;
 import java.util.Iterator;
+import org.complitex.osznconnection.file.web.pages.util.BuildingFormatter;
 
 /**
  *
@@ -150,7 +152,7 @@ public final class BenefitList extends TemplatePage {
                 item.add(new Label("lastName", (String) benefit.getField(BenefitDBF.SUR_NAM)));
                 item.add(new Label("city", benefit.getCity()));
                 item.add(new Label("street", benefit.getStreet()));
-                item.add(new Label("building", benefit.getBuilding()));
+                item.add(new Label("building", BuildingFormatter.getBuilding(benefit.getBuildingNumber(), benefit.getBuildingCorp(), getLocale())));
                 item.add(new Label("apartment", benefit.getApartment()));
                 item.add(new Label("status", StatusRenderer.displayValue(benefit.getStatus())));
             }
@@ -166,7 +168,8 @@ public final class BenefitList extends TemplatePage {
         filterForm.add(new ArrowOrderByBorder("apartmentHeader", BenefitBean.OrderBy.APARTMENT.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("statusHeader", BenefitBean.OrderBy.STATUS.getOrderBy(), dataProvider, data, content));
 
-        Button back =  new Button("back"){
+        Button back = new Button("back") {
+
             @Override
             public void onSubmit() {
                 setResponsePage(RequestFileList.class);
