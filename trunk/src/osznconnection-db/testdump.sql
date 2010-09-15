@@ -5,8 +5,6 @@ insert into room_string_culture(id, locale, value) values (1, 'ru', UPPER('1а')
 (3, 'ru', UPPER('2а')), (3, 'en', UPPER('2a')), (4, 'ru', UPPER('2б')), (4, 'en', UPPER('2b'));
 insert into room_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
 (1,1,200,1,200), (1,2,200,2,200), (1,3,200,3,200), (1,4,200,4,200);
-update sequence set sequence_value = 5 where sequence_name = 'room';
-update sequence set sequence_value = 5 where sequence_name = 'room_string_culture';
 
 -- Apartments
 insert into apartment(object_id, parent_id, parent_entity_id) values (1,1,500), (2,1,500), (3,6,500), (4,7,500);
@@ -15,8 +13,6 @@ insert into apartment_string_culture(id, locale, value) values (1, 'ru', UPPER('
                                                                 (4, 'ru', UPPER('40')), (4, 'en', UPPER('40'));
 insert into apartment_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
 (1,1,100,1,100), (1,2,100,2,100), (1,3,100,3,100), (1,4,100,4,100);
-update sequence set sequence_value = 5 where sequence_name = 'apartment';
-update sequence set sequence_value = 5 where sequence_name = 'apartment_string_culture';
 
 -- Buildings
 insert into building(object_id, parent_id, parent_entity_id) values (1,1,400), (2,1,400), (3,1,400), (4,2,400), (5,2,400), (6,3,400), (7,3,400);
@@ -64,8 +60,6 @@ insert into building_attribute(attribute_id, object_id, attribute_type_id, value
 (1,7,502,24,502),
 (1,7,503,5,503),
 (1,7,504,3,504);
-update sequence set sequence_value = 25 where sequence_name = 'building_string_culture';
-update sequence set sequence_value = 8 where sequence_name = 'building';
 
 -- Streets
 insert into street_string_culture(id, locale, value) values (1, 'ru', UPPER('Терешковой')), (1,'en',UPPER('Tereshkovoy')),
@@ -80,8 +74,6 @@ insert into street_attribute(attribute_id, object_id, attribute_type_id, value_i
 (1,3,300,3,300),
 (1,4,300,4,300),
 (1,5,300,5,300);
-update sequence set sequence_value = 6 where sequence_name = 'street_string_culture';
-update sequence set sequence_value = 6 where sequence_name = 'street';
 
 -- Districts
 insert into district_string_culture(id, locale, value) values (1, 'ru', UPPER('Ленинский')), (1, 'en',UPPER('Leninsky')),
@@ -96,8 +88,6 @@ insert into district_attribute(attribute_id, object_id, attribute_type_id, value
 (1,2,601,5,601),
 (1,3,600,3,600),
 (1,3,601,6,601);
-update sequence set sequence_value = 4 where sequence_name = 'district_string_culture';
-update sequence set sequence_value = 4 where sequence_name = 'district';
 
 -- Cities
 insert into city_string_culture(id, locale, value) values (1, 'ru', UPPER('Новосибирск')), (1,'en',UPPER('Novosibirsk')),
@@ -108,8 +98,6 @@ insert into city_attribute(attribute_id, object_id, attribute_type_id, value_id,
 (1,1,400,1,400),
 (1,2,400,2,400),
 (1,3,400,3,400);
-update sequence set sequence_value = 4 where sequence_name = 'city_string_culture';
-update sequence set sequence_value = 4 where sequence_name = 'city';
 
 -- Regions
 insert into region_string_culture(id, locale, value) values (1, 'ru', UPPER('Новосибирская обл.')), (1,'en',UPPER('Novosibirsk''s region')),
@@ -120,8 +108,6 @@ insert into region_attribute(attribute_id, object_id, attribute_type_id, value_i
 (1,1,700,1,700),
 (1,2,700,2,700),
 (1,3,700,3,700);
-update sequence set sequence_value = 4 where sequence_name = 'region_string_culture';
-update sequence set sequence_value = 4 where sequence_name = 'region';
 
 -- Countries
 insert into country_string_culture(id, locale, value) values (1, 'ru', UPPER('Россия')), (1,'en',UPPER('Russia')),
@@ -130,8 +116,6 @@ insert into country(object_id) values (1), (2);
 insert into country_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
 (1,1,800,1,800),
 (1,2,800,2,800);
-update sequence set sequence_value = 3 where sequence_name = 'country_string_culture';
-update sequence set sequence_value = 3 where sequence_name = 'country';
 
 -- Users
 insert into user value (1, 'admin', '21232f297a57a5a743894a0e4a801fc3', null);
@@ -145,9 +129,6 @@ insert into organization_string_culture(id, locale, value) values (1, 'ru', UPPE
 insert into organization_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
 (1,1,900,1,900), (1,1,901,2,901), (1,1,902,3,902),
 (1,2,900,3,900), (1,2,901,4,902), (1,2,902,3,902);
-
-update sequence set sequence_value = 5 where sequence_name = 'organization_string_culture';
-update sequence set sequence_value = 3 where sequence_name = 'organization';
 
 -- Files
 insert into `request_file`(id, organization_object_id, `name`, `date`, `loaded`, status) values
@@ -189,3 +170,23 @@ values (1,'Иван1', 'Иванович1', 'Иванов1',2), (1,'Иван2', 
 -- calculation center info
 insert into calculation_center_preference(calculation_center_id, adapter_class) values (2, 'org.complitex.osznconnection.file.calculation.adapter.DefaultCalculationCenterAdapter');
 
+
+-- sequence update
+update sequence set sequence_value = (select max(`object_id`) from `room`)+1 where sequence_name = 'room';
+update sequence set sequence_value = (select max(`id`) from `room_string_culture`)+1 where sequence_name = 'room_string_culture';
+update sequence set sequence_value = (select max(`object_id`) from `apartment`)+1 where sequence_name = 'apartment';
+update sequence set sequence_value = (select max(`id`) from `apartment_string_culture`)+1 where sequence_name = 'apartment_string_culture';
+update sequence set sequence_value = (select max(`id`) from `building_string_culture`)+1 where sequence_name = 'building_string_culture';
+update sequence set sequence_value = (select max(`object_id`) from `building`)+1 where sequence_name = 'building';
+update sequence set sequence_value = (select max(`id`) from `street_string_culture`)+1 where sequence_name = 'street_string_culture';
+update sequence set sequence_value = (select max(`object_id`) from `street`)+1 where sequence_name = 'street';
+update sequence set sequence_value = (select max(`id`) from `district_string_culture`)+1 where sequence_name = 'district_string_culture';
+update sequence set sequence_value = (select max(`object_id`) from `district`)+1 where sequence_name = 'district';
+update sequence set sequence_value = (select max(`id`) from `city_string_culture`)+1 where sequence_name = 'city_string_culture';
+update sequence set sequence_value = (select max(`object_id`) from `city`)+1 where sequence_name = 'city';
+update sequence set sequence_value = (select max(`id`) from `region_string_culture`)+1 where sequence_name = 'region_string_culture';
+update sequence set sequence_value = (select max(`object_id`) from `region`)+1 where sequence_name = 'region';
+update sequence set sequence_value = (select max(`id`) from `country_string_culture`)+1 where sequence_name = 'country_string_culture';
+update sequence set sequence_value = (select max(`object_id`) from `country`)+1 where sequence_name = 'country';
+update sequence set sequence_value = (select max(`id`) from `organization_string_culture`)+1 where sequence_name = 'organization_string_culture';
+update sequence set sequence_value = (select max(`object_id`) from `organization`)+1 where sequence_name = 'organization';
