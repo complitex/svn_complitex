@@ -10,7 +10,6 @@ import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
 
 import javax.ejb.Stateless;
-import org.apache.wicket.util.string.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,9 +47,7 @@ public class AddressCorrectionBean extends AbstractBean {
         Map<String, Object> params = Maps.newHashMap();
         params.put("organizationId", organizationId);
         params.put("buildingNumber", buildingNumber);
-        if (!Strings.isEmpty(buildingCorp)) {
-            params.put("buildingCorp", buildingCorp);
-        }
+        params.put("buildingCorp", buildingCorp);
         params.put("parentId", streetId);
         return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".findInternalBuilding", params);
     }

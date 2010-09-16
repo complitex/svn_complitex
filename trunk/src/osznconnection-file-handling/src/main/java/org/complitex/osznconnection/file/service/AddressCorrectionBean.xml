@@ -3,7 +3,8 @@
 <mapper namespace="org.complitex.osznconnection.file.service.AddressCorrectionBean">
 
     <select id="findInternalObject" resultType="long" parameterType="hashmap">
-        SELECT c.`${entity}_id` FROM `${entity}_correction` c WHERE c.`organization_id` = #{organizationId} AND c.`${entity}` = #{_value}
+        SELECT c.`${entity}_id` FROM `${entity}_correction` c WHERE c.`organization_id` = #{organizationId} AND 
+        TO_CYRILLIC(c.`${entity}`) = TO_CYRILLIC(#{_value})
         <if test="parentId != null">
             AND EXISTS(SELECT 1 FROM `${entity}` e WHERE e.`id` = c.`${entity}_id` AND e.`status` = 'ACTIVE' AND e.`parent_id` = #{parentId})
         </if>
@@ -11,13 +12,14 @@
     </select>
 
     <select id="findInternalBuilding" resultType="long" parameterType="hashmap">
-        SELECT c.`building_id` FROM `building_correction` c WHERE c.`organization_id` = #{organizationId} AND c.`building_num` = #{buildingNumber}
+        SELECT c.`building_id` FROM `building_correction` c WHERE c.`organization_id` = #{organizationId} AND 
+        TO_CYRILLIC(c.`building_num`) = TO_CYRILLIC(#{buildingNumber})
         <choose>
             <when test="buildingCorp == null">
                 AND c.`building_corp` IS NULL
             </when>
             <otherwise>
-                 AND c.`building_corp` = #{buildingCorp}
+                 AND TO_CYRILLIC(c.`building_corp`) = TO_CYRILLIC(#{buildingCorp})
             </otherwise>
         </choose>
         <if test="parentId != null">
@@ -36,12 +38,12 @@
 
     <insert id="insert" parameterType="hashmap">
         INSERT INTO `${entity}_correction`(`organization_id`, `${entity}`, `${entity}_id`) VALUES
-        (#{organizationId}, #{_value}, #{objectId})
+        (#{organizationId}, UPPER(TO_CYRILLIC(#{_value})), #{objectId})
     </insert>
 
     <insert id="insertBuilding" parameterType="hashmap">
         INSERT INTO `building_correction`(`organization_id`, `building_num`, `building_corp`, `building_id`) VALUES
-        (#{organizationId}, #{buildingNumber}, #{buildingCorp}, #{objectId})
+        (#{organizationId}, UPPER(TO_CYRILLIC(#{buildingNumber})), UPPER(TO_CYRILLIC(#{buildingCorp})), #{objectId})
     </insert>
 
     <select id="findOutgoingObject" resultType="hashmap" parameterType="hashmap">

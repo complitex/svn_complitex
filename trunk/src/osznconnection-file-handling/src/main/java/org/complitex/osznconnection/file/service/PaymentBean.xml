@@ -277,24 +277,24 @@
         where
             `request_file_id` = #{requestFileId}
             <if test="city != null">
-                AND `N_NAME` = #{city}
+                AND TO_CYRILLIC(`N_NAME`) = TO_CYRILLIC(#{city})
             </if>
             <if test="street != null">
-                AND `VUL_NAME` = #{street}
+                AND TO_CYRILLIC(`VUL_NAME`) = TO_CYRILLIC(#{street})
             </if>
             <if test="buildingNumber != null">
-                AND `BLD_NUM` = #{buildingNumber}
+                AND TO_CYRILLIC(`BLD_NUM`) = TO_CYRILLIC(#{buildingNumber})
                 <choose>
                     <when test="buildingCorp == null">
                         AND `CORP_NUM` IS NULL
                     </when>
                     <otherwise>
-                        AND `CORP_NUM` = #{buildingCorp}
+                        AND TO_CYRILLIC(`CORP_NUM`) = TO_CYRILLIC(#{buildingCorp})
                     </otherwise>
                 </choose>
             </if>
             <if test="apartment != null">
-                AND `FLAT` = #{apartment}
+                AND TO_CYRILLIC(`FLAT`) = TO_CYRILLIC(#{apartment})
             </if>
 
             <if test="cityId != null">
