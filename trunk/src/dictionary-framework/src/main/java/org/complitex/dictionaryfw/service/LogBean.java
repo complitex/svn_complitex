@@ -147,13 +147,24 @@ public class LogBean extends AbstractBean{
             for (Attribute oa : oldDomainObject.getAttributes()){
                 for (Attribute na : newDomainObject.getAttributes()){
                     if (oa.getAttributeTypeId().equals(na.getAttributeTypeId())){
-                        for (StringCulture os : oa.getLocalizedValues()){
-                            for (StringCulture ns : na.getLocalizedValues()){
-                                if (os.getLocale().equals(ns.getLocale())){
-                                    if (!StringUtil.equal(os.getValue(), ns.getValue())){
-                                        logChanges.add(new LogChange(na.getAttributeId(), null,
-                                                strategy.getAttributeLabel(na, locale), os.getValue(), ns.getValue(),
-                                                ns.getLocale()));
+                        if (oa.getLocalizedValues() == null){
+                            logChanges.add(new LogChange(na.getAttributeId(), null,
+                                    strategy.getAttributeLabel(na, locale),
+                                    StringUtil.valueOf(oa.getValueId()),
+                                    StringUtil.valueOf(na.getValueId()),
+                                    null));
+
+                        }else{
+                            for (StringCulture os : oa.getLocalizedValues()){
+                                for (StringCulture ns : na.getLocalizedValues()){
+                                    if (os.getLocale().equals(ns.getLocale())){
+                                        if (!StringUtil.equal(os.getValue(), ns.getValue())){
+                                            logChanges.add(new LogChange(na.getAttributeId(), null,
+                                                    strategy.getAttributeLabel(na, locale),
+                                                    os.getValue(),
+                                                    ns.getValue(),
+                                                    ns.getLocale()));
+                                        }
                                     }
                                 }
                             }
