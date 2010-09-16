@@ -734,8 +734,8 @@ CREATE TABLE `request_file` (
     `dbf_record_count` bigint(20) NOT NULL, 
     `length` bigint(20),
     `check_sum` varchar(32),      
-    `status` varchar(20),
-    `status_detail` varchar(20),
+    `status` varchar(50),
+    `status_detail` varchar(50),
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

@@ -11,6 +11,8 @@ import java.util.Map;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.osznconnection.file.entity.AccountCorrectionDetail;
+import org.complitex.osznconnection.file.entity.Benefit;
+import org.complitex.osznconnection.file.entity.BenefitDBF;
 import org.complitex.osznconnection.file.entity.Payment;
 import org.complitex.osznconnection.file.entity.PaymentDBF;
 import org.complitex.osznconnection.file.entity.Status;
@@ -205,7 +207,7 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
     }
 
     @Override
-    public void processPayment(Payment payment) {
+    public void processPaymentAndBenefit(Payment payment, Benefit benefit) {
         SqlSession session = null;
         try {
             payment.setField(PaymentDBF.OPP, "00000001");
@@ -216,11 +218,12 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
             params.put("dat1", (Date) payment.getField(PaymentDBF.DAT1));
 
             try {
-                session.selectOne(MAPPING_NAMESPACE + ".processPayment", params);
+                session.selectOne(MAPPING_NAMESPACE + ".processPaymentAndBenefit", params);
                 List<Map<String, Object>> data = (List<Map<String, Object>>) params.get("data");
                 if (data != null && (data.size() == 1)) {
-                    setPaymentData(payment, data.get(0));
+                    setPaymentData(payment, benefit, data.get(0));
                     payment.setStatus(Status.PROCESSED);
+                    benefit.setStatus(Status.PROCESSED);
                 } else {
                     payment.setStatus(Status.ACCOUNT_NUMBER_NOT_FOUND);
                 }
@@ -250,13 +253,14 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
         }
     }
 
-    protected void setPaymentData(Payment original, Map<String, Object> fromDb) {
-        original.setField(PaymentDBF.FROG, fromDb.get("FROG"));
-        original.setField(PaymentDBF.FL_PAY, fromDb.get("FL_PAY"));
-        original.setField(PaymentDBF.NM_PAY, fromDb.get("NM_PAY"));
-        original.setField(PaymentDBF.DEBT, fromDb.get("DEBT"));
-        original.setField(PaymentDBF.NORM_F_1, fromDb.get("NORM_F_1"));
-        original.setField(PaymentDBF.NUMB, fromDb.get("NUMB"));
-        original.setField(PaymentDBF.MARK, fromDb.get("MARK"));
+    protected void setPaymentData(Payment payment, Benefit benefit, Map<String, Object> fromDb) {
+        payment.setField(PaymentDBF.FROG, fromDb.get("FROG"));
+        payment.setField(PaymentDBF.FL_PAY, fromDb.get("FL_PAY"));
+        payment.setField(PaymentDBF.NM_PAY, fromDb.get("NM_PAY"));
+        payment.setField(PaymentDBF.DEBT, fromDb.get("DEBT"));
+        payment.setField(PaymentDBF.NORM_F_1, fromDb.get("NORM_F_1"));
+        payment.setField(PaymentDBF.NUMB, fromDb.get("NUMB"));
+        payment.setField(PaymentDBF.MARK, fromDb.get("MARK"));
+        benefit.setField(BenefitDBF.CM_AREA, payment.getField(PaymentDBF.NORM_F_1));
     }
 }

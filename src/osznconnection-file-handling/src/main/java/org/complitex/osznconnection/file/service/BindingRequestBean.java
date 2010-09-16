@@ -97,14 +97,7 @@ public class BindingRequestBean extends AbstractBean {
             paymentFile.setStatus(RequestFile.STATUS.BINDING);
             requestFileBean.save(paymentFile);
 
-            //TODO: remove it after test
-//            try {
-//                Thread.sleep(5000);
-//            } catch (InterruptedException e) {
-//            }
-
             List<Long> notResolvedPaymentIds = paymentBean.findIdsForBinding(paymentFile.getId());
-
             List<Long> batch = Lists.newArrayList();
             while (notResolvedPaymentIds.size() > 0) {
                 batch.clear();
@@ -154,13 +147,7 @@ public class BindingRequestBean extends AbstractBean {
             benefitFile.setStatus(RequestFile.STATUS.BINDING);
             requestFileBean.save(benefitFile);
 
-            //TODO: remove it after test
-//            try {
-//                Thread.sleep(5000);
-//            } catch (InterruptedException e) {
-//            }
-
-            benefitBean.updateStatusForFile(benefitFile.getId());
+            benefitBean.updateBindingStatus(benefitFile.getId());
             boolean bound = benefitBean.isBenefitFileBound(benefitFile.getId());
 
             benefitFile.setStatus(bound ? RequestFile.STATUS.BINDED : RequestFile.STATUS.BOUND_WITH_ERRORS);
