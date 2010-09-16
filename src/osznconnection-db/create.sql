@@ -731,7 +731,7 @@ CREATE TABLE `request_file` (
     `name` varchar(20) NOT NULL,
     `organization_object_id` bigint(20) NOT NULL,
     `date` date NOT NULL,
-    `dbf_record_count` bigint(20) NOT NULL, 
+    `dbf_record_count` bigint(20) NOT NULL default 0,
     `length` bigint(20),
     `check_sum` varchar(32),      
     `status` varchar(50),
@@ -762,7 +762,7 @@ CREATE TABLE `payment` (
 
     `status` varchar(50) NOT NULL default 'CITY_UNRESOLVED_LOCALLY',
 
-    `OWN_NUM` varchar (15) NOT NULL COMMENT 'Номер дела',
+    `OWN_NUM` varchar (15) COMMENT 'Номер дела',
     `REE_NUM` int(2) COMMENT 'Номер реестра',
     `OPP` varchar(8) COMMENT 'Признаки наличия услуг',
 	`NUMB` int(2) COMMENT 'Общее число зарегистрированных',

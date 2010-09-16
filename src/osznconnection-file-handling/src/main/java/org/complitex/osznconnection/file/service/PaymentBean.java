@@ -159,7 +159,6 @@ public class PaymentBean extends AbstractBean {
         params.put("addressEntity", "city");
         params.put("objectId", objectId);
         params.put("city", city);
-
         params.put("requestFileId", fileId);
         params.put("status", Status.ADDRESS_CORRECTED);
         sqlSession().update(MAPPING_NAMESPACE + ".correct", params);

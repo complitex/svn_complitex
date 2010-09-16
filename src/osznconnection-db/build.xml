@@ -3,7 +3,7 @@
     <target name="create">
 
         <property file="database.properties"/>
-        
+
         <sql
             driver="com.mysql.jdbc.Driver"
             encoding="UTF-8"
@@ -14,6 +14,31 @@
                     <pathelement location="mysql-connector-java-5.1.10.jar"/>
                 </classpath>
                 <transaction src="create.sql"/>
+        </sql>
+
+        <sql
+            driver="com.mysql.jdbc.Driver"
+            encoding="UTF-8"
+            url="${url}"
+            delimiter="/"
+            userid="${username}"
+            password="${password}">
+                <classpath>
+                    <pathelement location="mysql-connector-java-5.1.10.jar"/>
+                </classpath>
+                <transaction src="functions.sql"/>
+        </sql>
+        
+        <sql
+            driver="com.mysql.jdbc.Driver"
+            encoding="UTF-8"
+            url="${url}"
+            userid="${username}"
+            password="${password}">
+                <classpath>
+                    <pathelement location="mysql-connector-java-5.1.10.jar"/>
+                </classpath>
+                <!--<transaction src="create.sql"/>-->
                 <transaction src="insert.sql"/>
                 <transaction src="testdump.sql"/>
         </sql>
