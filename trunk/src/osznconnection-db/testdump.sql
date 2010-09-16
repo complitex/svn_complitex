@@ -164,8 +164,8 @@ insert into apartment_correction(organization_id, apartment, apartment_id, organ
 insert into district_correction(organization_id, district, district_id, organization_district_code) values (2,UPPER('Центральный'),3,11);
 
 -- Benefit
-insert into benefit(own_num_sr, f_nam, m_nam, sur_nam, request_file_id)
-values (1,'Иван1', 'Иванович1', 'Иванов1',2), (1,'Иван2', 'Иванович2', 'Иванов2',2), (3,'Петр','Петрович','Петров',2);
+insert into benefit(own_num_sr, OZN, f_nam, m_nam, sur_nam, request_file_id)
+values (1, 1, 'Иван', 'Иванович', 'Иванов',2), (1, 0, 'Иван2', 'Иванович2', 'Иванов2',2), (3, 1, 'Петр','Петрович','Петров',2);
 
 -- calculation center info
 insert into calculation_center_preference(calculation_center_id, adapter_class) values (2, 'org.complitex.osznconnection.file.calculation.adapter.DefaultCalculationCenterAdapter');

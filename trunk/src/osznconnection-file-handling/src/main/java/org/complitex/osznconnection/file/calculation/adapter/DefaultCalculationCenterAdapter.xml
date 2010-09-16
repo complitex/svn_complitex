@@ -35,7 +35,7 @@
         ]]>
     </select>
 
-    <resultMap id="paymentData" type="hashmap">
+    <resultMap id="data" type="hashmap">
         <result column="lodg_cnt" property="NUMB" javaType="int" jdbcType="INTEGER"/>
         <result column="usr_cnt" property="MARK" javaType="int" jdbcType="INTEGER"/>
         <result column="pct" property="FROG" javaType="double" jdbcType="NUMERIC"/>
@@ -45,13 +45,13 @@
         <result column="ts" property="NORM_F_1" javaType="double" jdbcType="NUMERIC"/>
     </resultMap>
 
-    <select id="processPayment" statementType="CALLABLE" parameterType="hashmap">
+    <select id="processPaymentAndBenefit" statementType="CALLABLE" parameterType="hashmap">
         <![CDATA[
          {#{resultCode, mode=OUT, javaType=int, jdbcType=NUMERIC} = call Z$RUNTIME_SZ_UTL.GETCHARGEANDPARAMS(
             #{accountNumber, mode=IN, javaType=string, jdbcType=VARCHAR},
             #{dat1, mode=IN, javaType=date, jdbcType=DATE},
             #{data, mode=OUT, jdbcType=CURSOR, javaType=java.sql.ResultSet,
-                resultMap=org.complitex.osznconnection.file.calculation.adapter.DefaultCalculationCenterAdapter.paymentData})
+                resultMap=org.complitex.osznconnection.file.calculation.adapter.DefaultCalculationCenterAdapter.data})
         }
         ]]>
     </select>

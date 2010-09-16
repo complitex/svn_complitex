@@ -11,6 +11,7 @@ import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.complitex.osznconnection.file.entity.Benefit;
 import org.complitex.osznconnection.file.entity.Payment;
 import org.complitex.osznconnection.file.entity.PaymentDBF;
 
@@ -51,9 +52,10 @@ public class ProcessPaymentTest {
             }
         };
         Payment p = new Payment();
+        Benefit b = new Benefit();
         p.setAccountNumber("1000000015");
         p.setField(PaymentDBF.DAT1, new Date());
-        adapter.processPayment(p);
+        adapter.processPaymentAndBenefit(p, b);
         System.out.println("Status : " + p.getStatus() + ", FROG : " + p.getField(PaymentDBF.FROG) + ", FL_PAY : " + p.getField(PaymentDBF.FL_PAY)
                 + ", NM_PAY : "
                 + p.getField(PaymentDBF.NM_PAY) + ", DEBT : " + p.getField(PaymentDBF.DEBT) + ", NORM_F_1 : " + p.getField(PaymentDBF.NORM_F_1)

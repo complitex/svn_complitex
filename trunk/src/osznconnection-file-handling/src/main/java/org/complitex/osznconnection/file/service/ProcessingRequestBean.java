@@ -13,6 +13,7 @@ import javax.ejb.TransactionManagementType;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
 import org.complitex.osznconnection.file.calculation.service.CalculationCenterBean;
+import org.complitex.osznconnection.file.entity.Benefit;
 import org.complitex.osznconnection.file.entity.CalculationCenterInfo;
 import org.complitex.osznconnection.file.entity.Payment;
 import org.complitex.osznconnection.file.entity.RequestFile;
@@ -36,15 +37,21 @@ public class ProcessingRequestBean extends AbstractBean {
     private PaymentBean paymentBean;
 
     @EJB
+    private BenefitBean benefitBean;
+
+    @EJB
     private CalculationCenterBean calculationCenterBean;
 
     @EJB
     private RequestFileBean requestFileBean;
 
     private void processPayment(Payment payment, ICalculationCenterAdapter adapter) {
-        adapter.processPayment(payment);
-        if (payment.getStatus() == Status.PROCESSED) {
+        Benefit benefit = new Benefit();
+        Status oldStatus = payment.getStatus();
+        adapter.processPaymentAndBenefit(payment, benefit);
+        if (payment.getStatus() != oldStatus) {
             paymentBean.update(payment);
+            benefitBean.populateBenefit(payment.getId(), benefit);
         }
     }
 

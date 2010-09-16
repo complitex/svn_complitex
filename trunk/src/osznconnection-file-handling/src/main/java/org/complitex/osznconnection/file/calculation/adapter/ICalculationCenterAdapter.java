@@ -6,6 +6,7 @@ package org.complitex.osznconnection.file.calculation.adapter;
 
 import java.util.List;
 import org.complitex.osznconnection.file.entity.AccountCorrectionDetail;
+import org.complitex.osznconnection.file.entity.Benefit;
 import org.complitex.osznconnection.file.entity.Payment;
 
 /**
@@ -30,5 +31,5 @@ public interface ICalculationCenterAdapter {
 
     public List<AccountCorrectionDetail> acquireAccountCorrectionDetails(Payment payment);
 
-    public void processPayment(Payment payment);
+    public void processPaymentAndBenefit(Payment payment, Benefit benefit);
 }
