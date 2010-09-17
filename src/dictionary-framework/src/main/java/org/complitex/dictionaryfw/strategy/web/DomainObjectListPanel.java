@@ -236,7 +236,9 @@ public class DomainObjectListPanel extends Panel {
 
                     @Override
                     public void setObject(String object) {
-                        attributeExample.setValue(object);
+                        if (!Strings.isEmpty(object)) {
+                            attributeExample.setValue(object);
+                        }
                     }
                 };
 
