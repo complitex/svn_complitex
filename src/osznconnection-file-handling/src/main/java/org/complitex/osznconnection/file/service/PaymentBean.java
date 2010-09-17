@@ -108,11 +108,7 @@ public class PaymentBean extends AbstractBean {
 
     @Transactional
     public List<Long> findIdsForBinding(long fileId) {
-        return findIdsForOperation(fileId, Arrays.asList(Status.ACCOUNT_NUMBER_NOT_FOUND, Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY,
-                Status.ADDRESS_CORRECTED, Status.APARTMENT_UNRESOLVED, Status.APARTMENT_UNRESOLVED_LOCALLY, Status.BUILDING_CORP_UNRESOLVED,
-                Status.BUILDING_UNRESOLVED, Status.BUILDING_UNRESOLVED_LOCALLY, Status.CITY_UNRESOLVED, Status.CITY_UNRESOLVED_LOCALLY,
-                Status.DISTRICT_UNRESOLVED, Status.MORE_ONE_ACCOUNTS, Status.STREET_TYPE_UNRESOLVED, Status.STREET_UNRESOLVED,
-                Status.STREET_UNRESOLVED_LOCALLY));
+        return findIdsForOperation(fileId, Status.notBoundStatuses());
     }
 
     @Transactional
@@ -121,19 +117,11 @@ public class PaymentBean extends AbstractBean {
     }
 
     private int boundCount(long fileId) {
-        return countByFile(fileId, Arrays.asList(Status.ACCOUNT_NUMBER_NOT_FOUND, Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY,
-                Status.ADDRESS_CORRECTED, Status.APARTMENT_UNRESOLVED, Status.APARTMENT_UNRESOLVED_LOCALLY, Status.BUILDING_CORP_UNRESOLVED,
-                Status.BUILDING_UNRESOLVED, Status.BUILDING_UNRESOLVED_LOCALLY, Status.CITY_UNRESOLVED, Status.CITY_UNRESOLVED_LOCALLY,
-                Status.DISTRICT_UNRESOLVED, Status.MORE_ONE_ACCOUNTS, Status.STREET_TYPE_UNRESOLVED, Status.STREET_UNRESOLVED,
-                Status.STREET_UNRESOLVED_LOCALLY));
+        return countByFile(fileId, Status.notBoundStatuses());
     }
 
     private int processedCount(long fileId) {
-        return countByFile(fileId, Arrays.asList(Status.ACCOUNT_NUMBER_NOT_FOUND, Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY,
-                Status.ADDRESS_CORRECTED, Status.APARTMENT_UNRESOLVED, Status.APARTMENT_UNRESOLVED_LOCALLY, Status.BUILDING_CORP_UNRESOLVED,
-                Status.BUILDING_UNRESOLVED, Status.BUILDING_UNRESOLVED_LOCALLY, Status.CITY_UNRESOLVED, Status.CITY_UNRESOLVED_LOCALLY,
-                Status.DISTRICT_UNRESOLVED, Status.MORE_ONE_ACCOUNTS, Status.STREET_TYPE_UNRESOLVED, Status.STREET_UNRESOLVED,
-                Status.STREET_UNRESOLVED_LOCALLY, Status.ACCOUNT_NUMBER_RESOLVED));
+        return countByFile(fileId, Status.notProcessedStatuses());
     }
 
     private int countByFile(long fileId, List<Status> statuses) {

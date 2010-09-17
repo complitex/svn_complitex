@@ -20,25 +20,28 @@ public class PersonAccount implements Serializable {
 
     private String ownNumSr;
 
-    private Long cityId;
+    private String city;
 
-    private Long streetId;
+    private String street;
 
-    private Long buildingId;
+    private String buildingNumber;
 
-    private Long apartmentId;
+    private String buildingCorp;
+
+    private String apartment;
 
     private String accountNumber;
 
-    public PersonAccount(String firstName, String middleName, String lastName, String ownNumSr, Long cityId, Long streetId, Long buildingId, Long apartmentId) {
+    public PersonAccount(String firstName, String middleName, String lastName, String ownNumSr, String city, String street, String buildingNumber, String buildingCorp, String apartment) {
         this.firstName = firstName;
         this.middleName = middleName;
         this.lastName = lastName;
         this.ownNumSr = ownNumSr;
-        this.cityId = cityId;
-        this.streetId = streetId;
-        this.buildingId = buildingId;
-        this.apartmentId = apartmentId;
+        this.city = city;
+        this.street = street;
+        this.buildingNumber = buildingNumber;
+        this.buildingCorp = buildingCorp;
+        this.apartment = apartment;
     }
 
     public String getAccountNumber() {
@@ -49,36 +52,36 @@ public class PersonAccount implements Serializable {
         this.accountNumber = accountNumber;
     }
 
-    public Long getApartmentId() {
-        return apartmentId;
+    public String getApartment() {
+        return apartment;
     }
 
-    public void setApartmentId(Long apartmentId) {
-        this.apartmentId = apartmentId;
+    public void setApartment(String apartment) {
+        this.apartment = apartment;
     }
 
-    public Long getBuildingId() {
-        return buildingId;
+    public String getBuildingCorp() {
+        return buildingCorp;
     }
 
-    public void setBuildingId(Long buildingId) {
-        this.buildingId = buildingId;
+    public void setBuildingCorp(String buildingCorp) {
+        this.buildingCorp = buildingCorp;
     }
 
-    public Long getCityId() {
-        return cityId;
+    public String getBuildingNumber() {
+        return buildingNumber;
     }
 
-    public void setCityId(Long cityId) {
-        this.cityId = cityId;
+    public void setBuildingNumber(String buildingNumber) {
+        this.buildingNumber = buildingNumber;
     }
 
-    public Long getStreetId() {
-        return streetId;
+    public String getCity() {
+        return city;
     }
 
-    public void setStreetId(Long streetId) {
-        this.streetId = streetId;
+    public void setCity(String city) {
+        this.city = city;
     }
 
     public String getFirstName() {
@@ -111,5 +114,13 @@ public class PersonAccount implements Serializable {
 
     public void setOwnNumSr(String ownNumSr) {
         this.ownNumSr = ownNumSr;
+    }
+
+    public String getStreet() {
+        return street;
+    }
+
+    public void setStreet(String street) {
+        this.street = street;
     }
 }

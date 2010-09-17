@@ -4,86 +4,31 @@
  */
 package org.complitex.osznconnection.file.entity;
 
-import java.io.Serializable;
-
 /**
  *
  * @author Artem
  */
-public class BuildingCorrection implements Serializable {
+public class BuildingCorrection extends ObjectCorrection {
 
-    private String buildingNumber;
-
-    private String buildingCorp;
-
-    private Long code;
-
-    private Long organizationId;
-
-    private Long internalObjectId;
-
-    private Long internalParentId;
+    private String correctionCorp;
 
     public BuildingCorrection() {
     }
 
     public BuildingCorrection(Long organizationId, Long internalObjectId) {
-        this.organizationId = organizationId;
-        this.internalObjectId = internalObjectId;
+        super(organizationId, internalObjectId, "building");
     }
 
     public BuildingCorrection(String buildingNumber, String buildingCorp, Long organizationId, Long internalParentId) {
-        this.buildingNumber = buildingNumber;
-        this.buildingCorp = buildingCorp;
-        this.organizationId = organizationId;
-        this.internalParentId = internalParentId;
+        super("building", buildingNumber, organizationId, internalParentId);
+        this.correctionCorp = buildingCorp;
     }
 
-    public String getBuildingCorp() {
-        return buildingCorp;
+    public String getCorrectionCorp() {
+        return correctionCorp;
     }
 
-    public void setBuildingCorp(String buildingCorp) {
-        this.buildingCorp = buildingCorp;
-    }
-
-    public String getBuildingNumber() {
-        return buildingNumber;
-    }
-
-    public void setBuildingNumber(String buildingNumber) {
-        this.buildingNumber = buildingNumber;
-    }
-
-    public Long getCode() {
-        return code;
-    }
-
-    public void setCode(Long code) {
-        this.code = code;
-    }
-
-    public Long getInternalObjectId() {
-        return internalObjectId;
-    }
-
-    public void setInternalObjectId(Long internalObjectId) {
-        this.internalObjectId = internalObjectId;
-    }
-
-    public Long getOrganizationId() {
-        return organizationId;
-    }
-
-    public void setOrganizationId(Long organizationId) {
-        this.organizationId = organizationId;
-    }
-
-    public Long getInternalParentId() {
-        return internalParentId;
-    }
-
-    public void setInternalParentId(Long internalParentId) {
-        this.internalParentId = internalParentId;
+    public void setCorrectionCorp(String correctionCorp) {
+        this.correctionCorp = correctionCorp;
     }
 }

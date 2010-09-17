@@ -37,30 +37,35 @@ public class PersonAccountService extends AbstractBean {
     @EJB
     private CalculationCenterBean calculationCenterBean;
 
-    private void resolveLocalAccount(Payment payment) {
+    @Transactional
+    public void resolveLocalAccount(Payment payment) {
         String accountNumber = personAccountLocalBean.findLocalAccountNumber((String) payment.getField(PaymentDBF.F_NAM),
                 (String) payment.getField(PaymentDBF.M_NAM), (String) payment.getField(PaymentDBF.SUR_NAM),
-                payment.getInternalCityId(), payment.getInternalStreetId(),
-                payment.getInternalBuildingId(), payment.getInternalApartmentId(), (String) payment.getField(PaymentDBF.OWN_NUM_SR));
+                (String) payment.getField(PaymentDBF.N_NAME), (String) payment.getField(PaymentDBF.VUL_NAME),
+                (String) payment.getField(PaymentDBF.BLD_NUM), (String) payment.getField(PaymentDBF.CORP_NUM),
+                (String) payment.getField(PaymentDBF.FLAT), (String) payment.getField(PaymentDBF.OWN_NUM_SR));
 
         if (!Strings.isEmpty(accountNumber)) {
             payment.setAccountNumber(accountNumber);
             payment.setStatus(Status.ACCOUNT_NUMBER_RESOLVED);
             benefitBean.updateAccountNumber(payment.getId(), accountNumber);
-        } else {
-            payment.setStatus(Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY);
-        }
+        } 
+//        else {
+//            payment.setStatus(Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY);
+//        }
     }
 
-    private void resolveRemoteAccount(Payment payment, ICalculationCenterAdapter adapter) {
+    @Transactional
+    public void resolveRemoteAccount(Payment payment, ICalculationCenterAdapter adapter) {
         adapter.acquirePersonAccount(payment);
         if (payment.getStatus() == Status.ACCOUNT_NUMBER_RESOLVED) {
             benefitBean.updateAccountNumber(payment.getId(), payment.getAccountNumber());
             personAccountLocalBean.saveAccountNumber((String) payment.getField(PaymentDBF.F_NAM),
                     (String) payment.getField(PaymentDBF.M_NAM), (String) payment.getField(PaymentDBF.SUR_NAM),
-                    payment.getInternalCityId(), payment.getInternalStreetId(),
-                    payment.getInternalBuildingId(), payment.getInternalApartmentId(), payment.getAccountNumber(),
-                    (String) payment.getField(PaymentDBF.OWN_NUM_SR));
+                    (String) payment.getField(PaymentDBF.N_NAME), (String) payment.getField(PaymentDBF.VUL_NAME),
+                    (String) payment.getField(PaymentDBF.BLD_NUM), (String) payment.getField(PaymentDBF.CORP_NUM),
+                    (String) payment.getField(PaymentDBF.FLAT),
+                    (String) payment.getField(PaymentDBF.OWN_NUM_SR), payment.getAccountNumber());
         }
     }
 
@@ -72,15 +77,14 @@ public class PersonAccountService extends AbstractBean {
         paymentBean.update(payment);
     }
 
-    @Transactional
-    public void resolveAccountNumber(Payment payment, ICalculationCenterAdapter adapter) {
-        if (payment.getStatus() == Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY) {
-            resolveLocalAccount(payment);
-        }
-        if (payment.getStatus() == Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY || payment.getStatus() == Status.ACCOUNT_NUMBER_NOT_FOUND) {
-            resolveRemoteAccount(payment, adapter);
-        }
-    }
+//    public void resolveAccountNumber(Payment payment, ICalculationCenterAdapter adapter) {
+//        if (payment.getStatus() == Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY) {
+//            resolveLocalAccount(payment);
+//        }
+//        if (payment.getStatus() == Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY || payment.getStatus() == Status.ACCOUNT_NUMBER_NOT_FOUND) {
+//            resolveRemoteAccount(payment, adapter);
+//        }
+//    }
 
     @Transactional
     public List<AccountCorrectionDetail> acquireAccountCorrectionDetails(Payment payment) {

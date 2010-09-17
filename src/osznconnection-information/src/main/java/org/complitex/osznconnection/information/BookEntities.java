@@ -14,8 +14,7 @@ import java.util.Collection;
  */
 public final class BookEntities {
 
-    private static final Collection<String> BOOK_ENTITIES = ImmutableList.of("country", "region", "city", "district", "street", "building", "apartment",
-            "room");
+    private static final Collection<String> BOOK_ENTITIES = ImmutableList.of("country", "region", "city", "district", "street", "building");
 
     private BookEntities() {
     }

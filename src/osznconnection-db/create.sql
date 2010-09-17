@@ -907,21 +907,14 @@ CREATE TABLE `person_account` (
     `first_name`varchar(100) NOT NULL,
     `middle_name` varchar(100) NOT NULL,
     `last_name` varchar(100) NOT NULL,
-    `city_id` bigint(20) NOT NULL,
-    `street_id` bigint(20) NOT NULL,
-    `building_id` bigint(20) NOT NULL,
-    `apartment_id` bigint(20) NOT NULL,
+    `city` varchar(100) NOT NULL,
+    `street` varchar(100) NOT NULL,
+    `building_num` varchar(100) NOT NULL,
+    `building_corp` varchar(100) NULL,
+    `apartment` varchar(100) NOT NULL,
     `account_number` varchar(100) NOT NULL,
     `own_num_sr` varchar(15) NOT NULL,
-    PRIMARY KEY (`id`),
-    KEY `FK_person_account_city` (`city_id`),
-    CONSTRAINT `FK_person_account_city` FOREIGN KEY (`city_id`) REFERENCES `city` (`id`),
-    KEY `FK_person_account_street` (`street_id`),
-    CONSTRAINT `FK_person_account_street` FOREIGN KEY (`street_id`) REFERENCES `street` (`id`),
-    KEY `FK_person_account_building` (`building_id`),
-    CONSTRAINT `FK_person_account_building` FOREIGN KEY (`building_id`) REFERENCES `building` (`id`),
-    KEY `FK_person_account_apartment` (`apartment_id`),
-    CONSTRAINT `FK_person_account_apartment` FOREIGN KEY (`apartment_id`) REFERENCES `apartment` (`id`)
+    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `entity_type_correction`;
@@ -944,9 +937,9 @@ DROP TABLE IF EXISTS `city_correction`;
 CREATE TABLE `city_correction` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT,
     `organization_id` bigint(20) NOT NULL,
-    `city` varchar(100) NOT NULL,
-    `city_id` bigint(20) NOT NULL,
-    `organization_city_code` bigint(20) NULL,
+    `correction` varchar(100) NOT NULL,
+    `object_id` bigint(20) NOT NULL,
+    `organization_code` bigint(20) NULL,
     PRIMARY KEY (`id`),
     KEY `FK_city_correction_organization` (`organization_id`),
     CONSTRAINT `FK_city_correction_organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`)
@@ -957,9 +950,9 @@ DROP TABLE IF EXISTS `district_correction`;
 CREATE TABLE `district_correction` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT,
     `organization_id` bigint(20) NOT NULL,
-    `district` varchar(100) NOT NULL,
-    `district_id` bigint(20) NOT NULL,
-    `organization_district_code` bigint(20) NULL,
+    `correction` varchar(100) NOT NULL,
+    `object_id` bigint(20) NOT NULL,
+    `organization_code` bigint(20) NULL,
     PRIMARY KEY (`id`),
     KEY `FK_district_correction_organization` (`organization_id`),
     CONSTRAINT `FK_district_correction_organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`)
@@ -970,9 +963,9 @@ DROP TABLE IF EXISTS `street_correction`;
 CREATE TABLE `street_correction` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT,
     `organization_id` bigint(20) NOT NULL,
-    `street` varchar(100) NOT NULL,
-    `street_id` bigint(20) NOT NULL,
-    `organization_street_code` bigint(20) NULL,
+    `correction` varchar(100) NOT NULL,
+    `object_id` bigint(20) NOT NULL,
+    `organization_code` bigint(20) NULL,
     PRIMARY KEY (`id`),
     KEY `FK_street_correction_organization` (`organization_id`),
     CONSTRAINT `FK_street_correction_organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`)
@@ -983,10 +976,10 @@ DROP TABLE IF EXISTS `building_correction`;
 CREATE TABLE `building_correction` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT,
     `organization_id` bigint(20) NOT NULL,
-    `building_num` varchar(100) NOT NULL,
-    `building_corp` varchar(100) NULL,
-    `building_id` bigint(20) NOT NULL,
-    `organization_building_code` bigint(20) NULL,
+    `correction` varchar(100) NOT NULL,
+    `correction_corp` varchar(100) NULL,
+    `object_id` bigint(20) NOT NULL,
+    `organization_code` bigint(20) NULL,
     PRIMARY KEY (`id`),
     KEY `FK_building_correction_organization` (`organization_id`),
     CONSTRAINT `FK_building_correction_organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`)
@@ -997,9 +990,9 @@ DROP TABLE IF EXISTS `apartment_correction`;
 CREATE TABLE `apartment_correction` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT,
     `organization_id` bigint(20) NOT NULL,
-    `apartment` varchar(100) NOT NULL,
-    `apartment_id` bigint(20) NOT NULL,
-    `organization_apartment_code` bigint(20) NULL,
+    `correction` varchar(100) NOT NULL,
+    `object_id` bigint(20) NOT NULL,
+    `organization_code` bigint(20) NULL,
     PRIMARY KEY (`id`),
     KEY `FK_apartment_correction_organization` (`organization_id`),
     CONSTRAINT `FK_apartment_correction_organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`)
