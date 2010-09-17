@@ -93,8 +93,8 @@ public class AddressCorrectionBean extends AbstractBean {
     }
 
     @Transactional
-    private ObjectCorrection findOutgoingObject(String entityTable, long calculationCenterId, long internalObjectId) {
-        ObjectCorrection parameter = new ObjectCorrection(calculationCenterId, internalObjectId, entityTable);
+    private ObjectCorrection findOutgoingObject(String entityTable, long organizationId, long internalObjectId) {
+        ObjectCorrection parameter = new ObjectCorrection(organizationId, internalObjectId, entityTable);
         ObjectCorrection result = (ObjectCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".findOutgoingObject", parameter);
         if (result != null) {
             if (result.getCorrection() != null) {
@@ -104,17 +104,17 @@ public class AddressCorrectionBean extends AbstractBean {
         return null;
     }
 
-    public ObjectCorrection findOutgoingCity(long calculationCenterId, long internalCityId) {
-        return findOutgoingObject("city", calculationCenterId, internalCityId);
+    public ObjectCorrection findOutgoingCity(long organizationId, long internalCityId) {
+        return findOutgoingObject("city", organizationId, internalCityId);
     }
 
-    public ObjectCorrection findOutgoingStreet(long calculationCenterId, long internalStreetId) {
-        return findOutgoingObject("street", calculationCenterId, internalStreetId);
+    public ObjectCorrection findOutgoingStreet(long organizationId, long internalStreetId) {
+        return findOutgoingObject("street", organizationId, internalStreetId);
     }
 
     @Transactional
-    public BuildingCorrection findOutgoingBuilding(long calculationCenterId, long internalBuildingId) {
-        BuildingCorrection parameter = new BuildingCorrection(calculationCenterId, internalBuildingId);
+    public BuildingCorrection findOutgoingBuilding(long organizationId, long internalBuildingId) {
+        BuildingCorrection parameter = new BuildingCorrection(organizationId, internalBuildingId);
         BuildingCorrection result = (BuildingCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".findOutgoingBuilding", parameter);
         if (result != null) {
             if (result.getBuildingNumber() != null) {
@@ -124,13 +124,13 @@ public class AddressCorrectionBean extends AbstractBean {
         return null;
     }
 
-    public ObjectCorrection findOutgoingApartment(long calculationCenterId, long internalApartmentId) {
-        return findOutgoingObject("apartment", calculationCenterId, internalApartmentId);
+    public ObjectCorrection findOutgoingApartment(long organizationId, long internalApartmentId) {
+        return findOutgoingObject("apartment", organizationId, internalApartmentId);
     }
 
     @Transactional
-    public ObjectCorrection findOutgoingDistrict(long calculationCenterId) {
-        ObjectCorrection result = (ObjectCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".findOutgoingDistrict", calculationCenterId);
+    public ObjectCorrection findOutgoingDistrict(long organizationId) {
+        ObjectCorrection result = (ObjectCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".findOutgoingDistrict", organizationId);
         if (result != null) {
             if (result.getCorrection() != null) {
                 return result;

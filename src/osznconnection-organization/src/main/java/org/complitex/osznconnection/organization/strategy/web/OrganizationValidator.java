@@ -21,7 +21,7 @@ public class OrganizationValidator implements IValidator {
 
     @Override
     public boolean validate(DomainObject object, Component component) {
-        boolean valid = checkDistrict(getEditComponent((DomainObjectEditPanel) component));
+        boolean valid = checkDistrict(object, getEditComponent((DomainObjectEditPanel) component));
         return valid;
     }
 
@@ -39,11 +39,16 @@ public class OrganizationValidator implements IValidator {
         return organizationEditComponent;
     }
 
-    private boolean checkDistrict(OrganizationEditComponent component) {
-        boolean validated = component.isDistrictEntered();
-        if (!validated) {
-            component.error(ResourceUtil.getString(OrganizationStrategy.RESOURCE_BUNDLE, "must_have_district", component.getLocale()));
+    private boolean checkDistrict(DomainObject object, OrganizationEditComponent component) {
+        Long entityTypeId = object.getEntityTypeId();
+        if (entityTypeId != null && entityTypeId.equals(OrganizationStrategy.OSZN)) {
+            boolean validated = component.isDistrictEntered();
+            if (!validated) {
+                component.error(ResourceUtil.getString(OrganizationStrategy.RESOURCE_BUNDLE, "must_have_district", component.getLocale()));
+            }
+            return validated;
+        } else {
+            return true;
         }
-        return validated;
     }
 }

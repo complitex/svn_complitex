@@ -89,7 +89,7 @@ insert into `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_t
 insert into `string_culture`(`id`, `locale`, `value`) values (902, 'ru', UPPER('Уникальный код организации')), (902, 'en', UPPER('Unique organization code'));
 insert into `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) values (901, 900, 1, 902, 1);
 insert into `string_culture`(`id`, `locale`, `value`) values (903, 'ru', UPPER('Район')), (903, 'en', UPPER('District'));
-insert into `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) values (902, 900, 1, 903, 1);
+insert into `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) values (902, 900, 0, 903, 1);
 insert into `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) values (900, 900, UPPER('string_culture'));
 insert into `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) values (901, 901, UPPER('string'));
 insert into `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) values (902, 902, 'district');

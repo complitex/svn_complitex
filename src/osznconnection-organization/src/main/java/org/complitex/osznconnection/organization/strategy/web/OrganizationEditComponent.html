@@ -5,16 +5,18 @@
     </head>
     <body>
         <wicket:panel>
-            <table class="tbForm" cellpadding="0" cellspacing="0" border="0">
-                <tr>
-                    <th>
-                        <wicket:message key="district"/> <b class="blue">*</b> :
-                    </th>
-                    <td>
-                        <span wicket:id="district"></span>
-                    </td>
-                </tr>
-            </table>
+            <div wicket:id="districtContainer">
+                <table class="tbForm" cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                        <th>
+                            <wicket:message key="district"/> :
+                        </th>
+                        <td>
+                            <span wicket:id="district"></span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </wicket:panel>
     </body>
 </html>

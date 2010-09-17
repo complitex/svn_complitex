@@ -101,7 +101,9 @@
     <select id="findOutgoingDistrict" resultMap="org.complitex.osznconnection.file.service.AddressCorrectionBean.objectCorrection"
             parameterType="long">
         SELECT c.`district` correction, c.`organization_district_code` code FROM `district_correction` c
-        WHERE c.`organization_id` = #{calculationCenterId}
+        WHERE c.`organization_id` = #{organizationId}
+        AND c.`district_id` = (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE
+                oa.`status` = 'ACTIVE' AND oa.`object_id` = #{organizationId} AND oa.`attribute_type_id` = 902)
         LIMIT 0,1
     </select>
 

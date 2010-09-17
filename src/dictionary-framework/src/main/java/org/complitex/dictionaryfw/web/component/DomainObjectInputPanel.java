@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.EJB;
 import java.io.Serializable;
 import java.util.*;
+import org.apache.wicket.markup.html.form.DropDownChoice;
 
 /**
  *
@@ -99,6 +100,8 @@ public class DomainObjectInputPanel extends Panel {
 
     private Date date;
 
+    private DisableAwareDropDownChoice<EntityType> types;
+
     /**
      * For use in history components
      * @param id
@@ -149,6 +152,10 @@ public class DomainObjectInputPanel extends Panel {
 
     public DomainObject getObject() {
         return object;
+    }
+
+    public DropDownChoice<EntityType> getSelectType() {
+        return types;
     }
 
     private void init() {
@@ -226,7 +233,7 @@ public class DomainObjectInputPanel extends Panel {
                 return String.valueOf(object.getId());
             }
         };
-        DisableAwareDropDownChoice<EntityType> types = new DisableAwareDropDownChoice<EntityType>("types", typeModel, entityTypes, renderer);
+        types = new DisableAwareDropDownChoice<EntityType>("types", typeModel, entityTypes, renderer);
         types.setLabel(new ResourceModel("entity_type"));
         types.setRequired(true);
         types.setEnabled(!isHistory() && CanEditUtil.canEdit(object));
