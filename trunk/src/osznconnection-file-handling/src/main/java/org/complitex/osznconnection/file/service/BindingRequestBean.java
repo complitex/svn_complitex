@@ -44,46 +44,44 @@ public class BindingRequestBean extends AbstractBean {
     @EJB
     private RequestFileBean requestFileBean;
 
-    private static class ModifyStatus {
-
-        private boolean modified;
-
-        private void markModified() {
-            modified = true;
-        }
-
-        public boolean isModified() {
-            return modified;
-        }
-    }
-
-    private boolean resolveAddress(Payment payment, long calculationCenterId, ICalculationCenterAdapter adapter, ModifyStatus modifyStatus) {
-        Status oldStatus = payment.getStatus();
+//    private static class ModifyStatus {
+//
+//        private boolean modified;
+//
+//        private void markModified() {
+//            modified = true;
+//        }
+//
+//        public boolean isModified() {
+//            return modified;
+//        }
+//    }
+    private boolean resolveAddress(Payment payment, long calculationCenterId, ICalculationCenterAdapter adapter) {
         addressService.resolveAddress(payment, calculationCenterId, adapter);
-        if (oldStatus != payment.getStatus()) {
-            modifyStatus.markModified();
-        }
         return addressService.isAddressResolved(payment);
     }
 
-    private boolean resolveAccountNumber(Payment payment, ICalculationCenterAdapter adapter, ModifyStatus modifyStatus) {
-        Status oldStatus = payment.getStatus();
-        personAccountService.resolveAccountNumber(payment, adapter);
-        if (oldStatus != payment.getStatus()) {
-            modifyStatus.markModified();
-        }
+    private boolean resolveLocalAccount(Payment payment) {
+        personAccountService.resolveLocalAccount(payment);
+        return payment.getStatus() == Status.ACCOUNT_NUMBER_RESOLVED;
+    }
+
+    private boolean resolveRemoteAccountNumber(Payment payment, ICalculationCenterAdapter adapter) {
+        personAccountService.resolveRemoteAccount(payment, adapter);
         return payment.getStatus() == Status.ACCOUNT_NUMBER_RESOLVED;
     }
 
     private void bind(Payment payment, long calculationCenterId, ICalculationCenterAdapter adapter) {
-        ModifyStatus modifyStatus = new ModifyStatus();
-        if (resolveAddress(payment, calculationCenterId, adapter, modifyStatus)) {
-            if (resolveAccountNumber(payment, adapter, modifyStatus)) {
-                //binding successful
+        Status oldStatus = payment.getStatus();
+        if (!resolveLocalAccount(payment)) {
+            if (resolveAddress(payment, calculationCenterId, adapter)) {
+                if (resolveRemoteAccountNumber(payment, adapter)) {
+                    //binding successful
+                }
             }
         }
 
-        if (modifyStatus.isModified()) {
+        if (oldStatus != payment.getStatus()) {
             paymentBean.update(payment);
         }
     }

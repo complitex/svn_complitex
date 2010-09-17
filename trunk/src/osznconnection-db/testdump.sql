@@ -148,21 +148,21 @@ values
 insert into entity_type_correction(organization_id, `type`, entity_type_id, organization_type_code) values (2,UPPER('ул'),302,1);
 insert into entity_type_correction(organization_id, `type`, entity_type_id, organization_type_code) values (2,UPPER('пр-т'),301,1);
 
-insert into city_correction(organization_id, city, city_id, organization_city_code) values (2,UPPER('Новосибирск'),1,1);
-insert into street_correction(organization_id, street, street_id, organization_street_code) values (2,UPPER('Терешковой В.'),1,1);
-insert into building_correction(organization_id, building_num, building_corp, building_id, organization_building_code) values (2,'10','1',1,1);
-insert into apartment_correction(organization_id, apartment, apartment_id, organization_apartment_code) values (2,'10',1,1);
+insert into city_correction(organization_id, correction, object_id, organization_code) values (2,UPPER('Новосибирск'),1,1);
+insert into street_correction(organization_id, correction, object_id, organization_code) values (2,UPPER('Терешковой В.'),1,1);
+insert into building_correction(organization_id, correction, correction_corp, object_id, organization_code) values (2,'10','1',1,1);
+-- insert into apartment_correction(organization_id, apartment, apartment_id, organization_apartment_code) values (2,'10',1,1);
 
-insert into city_correction(organization_id, city, city_id, organization_city_code) values (2,UPPER('Харьков'),3,1);
-insert into street_correction(organization_id, street, street_id, organization_street_code) values (2,UPPER('Косиора'),4,1);
-insert into building_correction(organization_id, building_num, building_corp, building_id, organization_building_code) values (2,'154А','',6,1);
-insert into apartment_correction(organization_id, apartment, apartment_id, organization_apartment_code) values (2,'1',3,1);
+insert into city_correction(organization_id, correction, object_id, organization_code) values (2,UPPER('Харьков'),3,1);
+insert into street_correction(organization_id, correction, object_id, organization_code) values (2,UPPER('Косиора'),4,1);
+insert into building_correction(organization_id, correction, correction_corp, object_id, organization_code) values (2,'154А','',6,1);
+-- insert into apartment_correction(organization_id, apartment, apartment_id, organization_apartment_code) values (2,'1',3,1);
 
-insert into street_correction(organization_id, street, street_id, organization_street_code) values (2,UPPER('ФРАНТИШЕКА КРАЛА'),5,11);
-insert into building_correction(organization_id, building_num, building_corp, building_id, organization_building_code) values (2,'25А','',7,11);
-insert into apartment_correction(organization_id, apartment, apartment_id, organization_apartment_code) values (2,'40',4,11);
+insert into street_correction(organization_id, correction, object_id, organization_code) values (2,UPPER('ФРАНТИШЕКА КРАЛА'),5,11);
+insert into building_correction(organization_id, correction, correction_corp, object_id, organization_code) values (2,'25А','',7,11);
+-- insert into apartment_correction(organization_id, apartment, apartment_id, organization_apartment_code) values (2,'40',4,11);
 
-insert into district_correction(organization_id, district, district_id, organization_district_code) values (1,UPPER('Центральный'),3,11);
+insert into district_correction(organization_id, correction, object_id, organization_code) values (1,UPPER('Центральный'),3,11);
 
 -- Benefit
 insert into benefit(own_num_sr, OZN, f_nam, m_nam, sur_nam, request_file_id)

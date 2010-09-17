@@ -11,21 +11,20 @@
     </select>
 
     <sql id="filter">
-         pa.`city_id` = #{cityId} AND pa.`street_id` = #{streetId} AND pa.`building_id` = #{buildingId} AND pa.`apartment_id` = #{apartmentId} AND
-         pa.`first_name` = #{firstName} AND pa.`middle_name` = #{middleName} AND pa.`last_name` = #{lastName} AND pa.`own_num_sr` = #{ownNumSr}
+         TO_CYRILLIC(pa.`city`) = TO_CYRILLIC(#{city})
+         AND TO_CYRILLIC(pa.`street`) = TO_CYRILLIC(#{street})
+         AND TO_CYRILLIC(pa.`building_num`) = TO_CYRILLIC(#{buildingNumber})
+         AND TO_CYRILLIC(pa.`building_corp`) = TO_CYRILLIC(#{buildingCorp})
+         AND TO_CYRILLIC(pa.`apartment`) = TO_CYRILLIC(#{apartment})
+         AND TO_CYRILLIC(pa.`first_name`) = TO_CYRILLIC(#{firstName}) AND TO_CYRILLIC(pa.`middle_name`) = TO_CYRILLIC(#{middleName})
+         AND TO_CYRILLIC(pa.`last_name`) = TO_CYRILLIC(#{lastName}) AND pa.`own_num_sr` = #{ownNumSr}
     </sql>
 
-    <!--<select id="count" parameterType="org.complitex.osznconnection.file.entity.PersonAccount" resultType="long">
-        SELECT COUNT(*)
-        FROM `person_account` pa
-        WHERE
-         <include refid=""/>
-    </select>-->
-
     <insert id="insert" parameterType="org.complitex.osznconnection.file.entity.PersonAccount">
-        INSERT INTO `person_account` (`city_id`, `street_id`, `building_id`, `apartment_id`, `account_number`, `first_name`, `middle_name`, `last_name`,
-        `own_num_sr`)
-        VALUES (#{cityId}, #{streetId}, #{buildingId}, #{apartmentId}, #{accountNumber}, #{firstName}, #{middleName}, #{lastName}, #{ownNumSr})
+        INSERT INTO `person_account` (`city`, `street`, `building_num`, `building_corp`, `apartment`,
+                `account_number`, `first_name`, `middle_name`, `last_name`, `own_num_sr`)
+        VALUES (TO_CYRILLIC(#{city}), TO_CYRILLIC(#{street}), TO_CYRILLIC(#{buildingNumber}), TO_CYRILLIC(#{buildingCorp}), TO_CYRILLIC(#{apartment}),
+                #{accountNumber}, TO_CYRILLIC(#{firstName}), TO_CYRILLIC(#{middleName}), TO_CYRILLIC(#{lastName}), #{ownNumSr})
     </insert>
 
 </mapper>

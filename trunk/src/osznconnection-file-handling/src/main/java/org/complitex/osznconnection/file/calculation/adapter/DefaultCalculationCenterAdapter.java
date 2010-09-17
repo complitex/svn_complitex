@@ -57,7 +57,7 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
 
     @Override
     public void prepareApartment(Payment payment, String apartment, Long apartmentId) {
-        payment.setOutgoingApartment(apartment);
+        payment.setOutgoingApartment((String)payment.getField(PaymentDBF.FLAT));
     }
 
     @Override

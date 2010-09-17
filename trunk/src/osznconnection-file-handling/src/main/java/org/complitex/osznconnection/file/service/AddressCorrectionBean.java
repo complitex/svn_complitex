@@ -117,7 +117,7 @@ public class AddressCorrectionBean extends AbstractBean {
         BuildingCorrection parameter = new BuildingCorrection(organizationId, internalBuildingId);
         BuildingCorrection result = (BuildingCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".findOutgoingBuilding", parameter);
         if (result != null) {
-            if (result.getBuildingNumber() != null) {
+            if (result.getCorrection() != null) {
                 return result;
             }
         }
