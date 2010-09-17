@@ -2,7 +2,7 @@ set @organization_id = 2;
 set @organization_code = 1;
 
 -- street type
-insert into `entity_type_correction` (`object_id`, `correction`,  `organization_id`, `organization_code`)
+insert into `entity_type_correction` (`entity_type_id`, `type`,  `organization_id`, `organization_type_code`)
   select
     et.`id`, tst.`name`,  @organization_id, @organization_code
   from
