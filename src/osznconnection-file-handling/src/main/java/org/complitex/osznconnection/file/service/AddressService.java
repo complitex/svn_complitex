@@ -15,6 +15,9 @@ import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
 import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
+import org.complitex.osznconnection.file.entity.BuildingCorrection;
+import org.complitex.osznconnection.file.entity.EntityTypeCorrection;
+import org.complitex.osznconnection.file.entity.ObjectCorrection;
 import org.complitex.osznconnection.file.entity.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,41 +98,41 @@ public class AddressService extends AbstractBean {
     }
 
     private void resolveOutgoingAddress(Payment payment, long calculationCenterId, ICalculationCenterAdapter adapter) {
-        AddressCorrectionBean.OutgoingAddressObject cityData = addressCorrectionBean.findOutgoingCity(calculationCenterId, payment.getInternalCityId());
+        ObjectCorrection cityData = addressCorrectionBean.findOutgoingCity(calculationCenterId, payment.getInternalCityId());
         if (cityData == null) {
             payment.setStatus(Status.CITY_UNRESOLVED);
             return;
         }
-        adapter.prepareCity(payment, cityData.getValue(), cityData.getCode());
+        adapter.prepareCity(payment, cityData.getCorrection(), cityData.getCode());
 
         //district
-        AddressCorrectionBean.OutgoingAddressObject districtData = addressCorrectionBean.findOutgoingDistrict(calculationCenterId);
+        ObjectCorrection districtData = addressCorrectionBean.findOutgoingDistrict(calculationCenterId);
         if (districtData == null) {
             payment.setStatus(Status.DISTRICT_UNRESOLVED);
             return;
         }
-        adapter.prepareDistrict(payment, districtData.getValue(), districtData.getCode());
+        adapter.prepareDistrict(payment, districtData.getCorrection(), districtData.getCode());
 
 
         if (payment.getInternalStreetTypeId() != null) {
-            AddressCorrectionBean.OutgoingAddressObject streetTypeData = addressCorrectionBean.findOutgoingStreetType(calculationCenterId,
+            EntityTypeCorrection streetTypeData = addressCorrectionBean.findOutgoingStreetType(calculationCenterId,
                     payment.getInternalStreetTypeId());
             if (streetTypeData == null) {
                 payment.setStatus(Status.STREET_TYPE_UNRESOLVED);
                 return;
             }
-            adapter.prepareStreetType(payment, streetTypeData.getValue(), streetTypeData.getCode());
+            adapter.prepareStreetType(payment, streetTypeData.getType(), streetTypeData.getCode());
         }
 
-        AddressCorrectionBean.OutgoingAddressObject streetData = addressCorrectionBean.findOutgoingStreet(calculationCenterId,
+        ObjectCorrection streetData = addressCorrectionBean.findOutgoingStreet(calculationCenterId,
                 payment.getInternalStreetId());
         if (streetData == null) {
             payment.setStatus(Status.STREET_UNRESOLVED);
             return;
         }
-        adapter.prepareStreet(payment, streetData.getValue(), streetData.getCode());
+        adapter.prepareStreet(payment, streetData.getCorrection(), streetData.getCode());
 
-        AddressCorrectionBean.OutgoingBuildingObject buildingData = addressCorrectionBean.findOutgoingBuilding(calculationCenterId,
+        BuildingCorrection buildingData = addressCorrectionBean.findOutgoingBuilding(calculationCenterId,
                 payment.getInternalBuildingId());
         if (buildingData == null) {
             payment.setStatus(Status.BUILDING_UNRESOLVED);
@@ -137,13 +140,13 @@ public class AddressService extends AbstractBean {
         }
         adapter.prepareBuilding(payment, buildingData.getBuildingNumber(), buildingData.getBuildingCorp(), buildingData.getCode());
 
-        AddressCorrectionBean.OutgoingAddressObject apartmentData = addressCorrectionBean.findOutgoingApartment(calculationCenterId,
+        ObjectCorrection apartmentData = addressCorrectionBean.findOutgoingApartment(calculationCenterId,
                 payment.getInternalApartmentId());
         if (apartmentData == null) {
             payment.setStatus(Status.APARTMENT_UNRESOLVED);
             return;
         }
-        adapter.prepareApartment(payment, apartmentData.getValue(), apartmentData.getCode());
+        adapter.prepareApartment(payment, apartmentData.getCorrection(), apartmentData.getCode());
         payment.setStatus(Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY);
     }
 

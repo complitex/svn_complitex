@@ -5,11 +5,22 @@
 package org.complitex.osznconnection.file.service;
 
 import com.google.common.collect.Maps;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import javax.ejb.EJB;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
 
 import javax.ejb.Stateless;
+import org.complitex.dictionaryfw.entity.DomainObject;
+import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
+import org.complitex.dictionaryfw.strategy.Strategy;
+import org.complitex.dictionaryfw.strategy.StrategyFactory;
+import org.complitex.osznconnection.file.entity.BuildingCorrection;
+import org.complitex.osznconnection.file.entity.EntityTypeCorrection;
+import org.complitex.osznconnection.file.entity.ObjectCorrection;
+import org.complitex.osznconnection.file.entity.example.ObjectCorrectionExample;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,14 +35,43 @@ public class AddressCorrectionBean extends AbstractBean {
 
     private static final String MAPPING_NAMESPACE = AddressCorrectionBean.class.getName();
 
+    public static enum OrderBy {
+
+        CORRECTION("correction"), CODE("code"), ORGANIZATION("organization"), INTERNAL_OBJECT("internalObject");
+
+        private String orderBy;
+
+        private OrderBy(String orderBy) {
+            this.orderBy = orderBy;
+        }
+
+        public String getOrderBy() {
+            return orderBy;
+        }
+    }
+
+    @EJB
+    private StrategyFactory strategyFactory;
+
+    @Transactional
+    public List<ObjectCorrection> find(ObjectCorrectionExample example) {
+        Strategy strategy = strategyFactory.getStrategy(example.getEntity());
+        List<ObjectCorrection> results = sqlSession().selectList(MAPPING_NAMESPACE + ".find", example);
+        for (ObjectCorrection correction : results) {
+            DomainObjectExample domainObjectExample = new DomainObjectExample();
+            domainObjectExample.setId(correction.getInternalObjectId());
+            List<DomainObject> objects = strategy.find(domainObjectExample);
+            if (objects != null && !objects.isEmpty()) {
+                correction.setInternalObject(strategy.displayDomainObject(objects.get(0), new Locale(example.getLocale())));
+            }
+        }
+        return results;
+    }
+
     @Transactional
     private Long findInternalObject(String entityTable, String value, long organizationId, Long parentId) {
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("entity", entityTable);
-        params.put("organizationId", organizationId);
-        params.put("_value", value);
-        params.put("parentId", parentId);
-        return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".findInternalObject", params);
+        ObjectCorrection parameter = new ObjectCorrection(entityTable, value, organizationId, parentId);
+        return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".findInternalObject", parameter);
     }
 
     public Long findInternalCity(String city, long organizationId) {
@@ -44,153 +84,84 @@ public class AddressCorrectionBean extends AbstractBean {
 
     @Transactional
     public Long findInternalBuilding(long streetId, String buildingNumber, String buildingCorp, long organizationId) {
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("organizationId", organizationId);
-        params.put("buildingNumber", buildingNumber);
-        params.put("buildingCorp", buildingCorp);
-        params.put("parentId", streetId);
-        return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".findInternalBuilding", params);
+        BuildingCorrection parameter = new BuildingCorrection(buildingNumber, buildingCorp, organizationId, streetId);
+        return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".findInternalBuilding", parameter);
     }
 
     public Long findInternalApartment(long buildingId, String apartment, long organizationId) {
         return findInternalObject("apartment", apartment, organizationId, buildingId);
     }
 
-    public static class OutgoingAddressObject {
-
-        private String value;
-
-        private Long code;
-
-        public OutgoingAddressObject(String value, Long code) {
-            this.value = value;
-            this.code = code;
-        }
-
-        public Long getCode() {
-            return code;
-        }
-
-        public String getValue() {
-            return value;
-        }
-    }
-
-    public static class OutgoingBuildingObject {
-
-        private String buildingNumber;
-
-        private String buildingCorp;
-
-        private Long code;
-
-        public OutgoingBuildingObject(String buildingNumber, String buildingCorp, Long code) {
-            this.buildingNumber = buildingNumber;
-            this.buildingCorp = buildingCorp;
-            this.code = code;
-        }
-
-        public String getBuildingCorp() {
-            return buildingCorp;
-        }
-
-        public String getBuildingNumber() {
-            return buildingNumber;
-        }
-
-        public Long getCode() {
-            return code;
-        }
-    }
-
     @Transactional
-    private OutgoingAddressObject findOutgoingObject(String entityTable, long calculationCenterId, long internalObjectId) {
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("entity", entityTable);
-        params.put("calculationCenterId", calculationCenterId);
-        params.put("objectId", internalObjectId);
-        Map<String, Object> result = (Map<String, Object>) sqlSession().selectOne(MAPPING_NAMESPACE + ".findOutgoingObject", params);
+    private ObjectCorrection findOutgoingObject(String entityTable, long calculationCenterId, long internalObjectId) {
+        ObjectCorrection parameter = new ObjectCorrection(calculationCenterId, internalObjectId, entityTable);
+        ObjectCorrection result = (ObjectCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".findOutgoingObject", parameter);
         if (result != null) {
-            String value = (String) result.get("stringValue");
-            Long code = (Long) result.get("codeValue");
-            if (value != null && code != null) {
-                return new OutgoingAddressObject(value, code);
+            if (result.getCorrection() != null) {
+                return result;
             }
         }
         return null;
     }
 
-    public OutgoingAddressObject findOutgoingCity(long calculationCenterId, long internalCityId) {
+    public ObjectCorrection findOutgoingCity(long calculationCenterId, long internalCityId) {
         return findOutgoingObject("city", calculationCenterId, internalCityId);
     }
 
-    public OutgoingAddressObject findOutgoingStreet(long calculationCenterId, long internalStreetId) {
+    public ObjectCorrection findOutgoingStreet(long calculationCenterId, long internalStreetId) {
         return findOutgoingObject("street", calculationCenterId, internalStreetId);
     }
 
     @Transactional
-    public OutgoingBuildingObject findOutgoingBuilding(long calculationCenterId, long internalBuildingId) {
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("calculationCenterId", calculationCenterId);
-        params.put("objectId", internalBuildingId);
-        Map<String, Object> result = (Map<String, Object>) sqlSession().selectOne(MAPPING_NAMESPACE + ".findOutgoingBuilding", params);
+    public BuildingCorrection findOutgoingBuilding(long calculationCenterId, long internalBuildingId) {
+        BuildingCorrection parameter = new BuildingCorrection(calculationCenterId, internalBuildingId);
+        BuildingCorrection result = (BuildingCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".findOutgoingBuilding", parameter);
         if (result != null) {
-            String buildingNumber = (String) result.get("buildingNumber");
-            String buildingCorp = (String) result.get("buildingCorp");
-            Long code = (Long) result.get("codeValue");
-            if (buildingNumber != null && code != null) {
-                return new OutgoingBuildingObject(buildingNumber, buildingCorp, code);
+            if (result.getBuildingNumber() != null) {
+                return result;
             }
         }
         return null;
     }
 
-    public OutgoingAddressObject findOutgoingApartment(long calculationCenterId, long internalApartmentId) {
+    public ObjectCorrection findOutgoingApartment(long calculationCenterId, long internalApartmentId) {
         return findOutgoingObject("apartment", calculationCenterId, internalApartmentId);
     }
 
     @Transactional
-    public OutgoingAddressObject findOutgoingDistrict(long calculationCenterId) {
-        Map<String, Object> result = (Map<String, Object>) sqlSession().selectOne(MAPPING_NAMESPACE + ".findOutgoingDistrict", calculationCenterId);
+    public ObjectCorrection findOutgoingDistrict(long calculationCenterId) {
+        ObjectCorrection result = (ObjectCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".findOutgoingDistrict", calculationCenterId);
         if (result != null) {
-            String value = (String) result.get("stringValue");
-            Long code = (Long) result.get("codeValue");
-            if (value != null && code != null) {
-                return new OutgoingAddressObject(value, code);
+            if (result.getCorrection() != null) {
+                return result;
             }
         }
         return null;
     }
 
     @Transactional
-    private OutgoingAddressObject findOutgoingObjectType(long entityTypeId, long calculationCenterId) {
+    private EntityTypeCorrection findOutgoingObjectType(long entityTypeId, long calculationCenterId) {
         Map<String, Object> params = Maps.newHashMap();
         params.put("entityTypeId", entityTypeId);
         params.put("calculationCenterId", calculationCenterId);
-        Map<String, Object> result = (Map<String, Object>) sqlSession().selectOne(MAPPING_NAMESPACE + ".findOutgoingObjectType", params);
+        EntityTypeCorrection parameter = new EntityTypeCorrection(calculationCenterId, entityTypeId);
+        EntityTypeCorrection result = (EntityTypeCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".findOutgoingObjectType", parameter);
         if (result != null) {
-            String value = (String) result.get("type");
-            Long code = (Long) result.get("typeCode");
-            if (value != null && code != null) {
-                return new OutgoingAddressObject(value, code);
+            if (result.getType() != null) {
+                return result;
             }
         }
         return null;
     }
 
-    public OutgoingAddressObject findOutgoingStreetType(long calculationCenterId, long internalStreetTypeId) {
+    public EntityTypeCorrection findOutgoingStreetType(long calculationCenterId, long internalStreetTypeId) {
         return findOutgoingObjectType(internalStreetTypeId, calculationCenterId);
     }
 
     @Transactional
     private void insert(String entityTable, String value, long objectId, long organizationId) {
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("entity", entityTable);
-        params.put("organizationId", organizationId);
-        params.put("_value", value);
-        params.put("objectId", objectId);
-
-        sqlSession().insert(MAPPING_NAMESPACE + ".insert", params);
+        ObjectCorrection parameter = new ObjectCorrection(value, organizationId, objectId, entityTable);
+        sqlSession().insert(MAPPING_NAMESPACE + ".insert", parameter);
     }
 
     public void insertInternalApartment(String apartment, long objectId, long organizationId) {
@@ -199,13 +170,9 @@ public class AddressCorrectionBean extends AbstractBean {
 
     @Transactional
     public void insertInternalBuilding(String buildingNumber, String buildingCorp, long objectId, long organizationId) {
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("organizationId", organizationId);
-        params.put("buildingNumber", buildingNumber);
-        params.put("buildingCorp", buildingCorp);
-        params.put("objectId", objectId);
-
-        sqlSession().insert(MAPPING_NAMESPACE + ".insertBuilding", params);
+        BuildingCorrection parameter = new BuildingCorrection(buildingNumber, buildingCorp, organizationId, null);
+        parameter.setInternalObjectId(objectId);
+        sqlSession().insert(MAPPING_NAMESPACE + ".insertBuilding", parameter);
     }
 
     public void insertInternalStreet(String street, long objectId, long organizationId) {
