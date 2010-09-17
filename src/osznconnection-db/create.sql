@@ -829,13 +829,13 @@ CREATE TABLE `payment` (
     KEY `FK_payment_file` (`request_file_id`),
     CONSTRAINT `FK_payment_file` FOREIGN KEY (`request_file_id`) REFERENCES `request_file` (`id`),
     KEY `FK_payment_city` (`internal_city_id`),
-    CONSTRAINT `FK_payment_city` FOREIGN KEY (`internal_city_id`) REFERENCES `city` (`id`),
+    CONSTRAINT `FK_payment_city` FOREIGN KEY (`internal_city_id`) REFERENCES `city` (`object_id`),
     KEY `FK_payment_street` (`internal_street_id`),
-    CONSTRAINT `FK_payment_street` FOREIGN KEY (`internal_street_id`) REFERENCES `street` (`id`),
+    CONSTRAINT `FK_payment_street` FOREIGN KEY (`internal_street_id`) REFERENCES `street` (`object_id`),
     KEY `FK_payment_building` (`internal_building_id`),
-    CONSTRAINT `FK_payment_building` FOREIGN KEY (`internal_building_id`) REFERENCES `building` (`id`),
+    CONSTRAINT `FK_payment_building` FOREIGN KEY (`internal_building_id`) REFERENCES `building` (`object_id`),
     KEY `FK_payment_apartment` (`internal_apartment_id`),
-    CONSTRAINT `FK_payment_apartment` FOREIGN KEY (`internal_apartment_id`) REFERENCES `apartment` (`id`)
+    CONSTRAINT `FK_payment_apartment` FOREIGN KEY (`internal_apartment_id`) REFERENCES `apartment` (`object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `benefit`;
