@@ -21,6 +21,7 @@ import javax.ejb.Stateless;
 import java.io.File;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Future;
 
 import static org.complitex.osznconnection.file.entity.RequestFile.STATUS.SAVED;
@@ -126,7 +127,7 @@ public class SaveTaskBean {
 
     private byte getDataType(Class type){
         if (type.equals(String.class)){
-            return DBFField.FIELD_TYPE_C;                       
+            return DBFField.FIELD_TYPE_C;
         }else if (type.equals(Integer.class) || type.equals(Double.class)){
             return DBFField.FIELD_TYPE_N;
         }else if (type.equals(Date.class)){

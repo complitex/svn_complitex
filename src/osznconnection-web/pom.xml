@@ -106,14 +106,6 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/src/main/webapp/WEB-INF/lib/orai18n.jar</systemPath>
         </dependency>
-
-        <dependency>
-            <groupId>com.linuxense.javadbf</groupId>
-            <artifactId>javadbf</artifactId>
-            <version>0.4.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/src/main/webapp/WEB-INF/lib/javadbf.jar</systemPath>
-        </dependency>
     </dependencies>
 </project>
 
