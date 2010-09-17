@@ -19,6 +19,7 @@ import org.complitex.osznconnection.file.entity.BuildingCorrection;
 import org.complitex.osznconnection.file.entity.EntityTypeCorrection;
 import org.complitex.osznconnection.file.entity.ObjectCorrection;
 import org.complitex.osznconnection.file.entity.Status;
+import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +43,9 @@ public class AddressService extends AbstractBean {
 
     @EJB
     private StrategyFactory strategyFactory;
+
+    @EJB
+    private OrganizationStrategy organizationStrategy;
 
     private void resolveLocalAddress(Payment payment) {
         long organizationId = payment.getOrganizationId();
@@ -106,7 +110,7 @@ public class AddressService extends AbstractBean {
         adapter.prepareCity(payment, cityData.getCorrection(), cityData.getCode());
 
         //district
-        ObjectCorrection districtData = addressCorrectionBean.findOutgoingDistrict(calculationCenterId);
+        ObjectCorrection districtData = addressCorrectionBean.findOutgoingDistrict(payment.getOrganizationId());
         if (districtData == null) {
             payment.setStatus(Status.DISTRICT_UNRESOLVED);
             return;

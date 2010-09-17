@@ -128,7 +128,7 @@ insert into organization_string_culture(id, locale, value) values (1, 'ru', UPPE
 (3, 'ru', UPPER('Центр начислений №1')), (3, 'en', UPPER('Центр начислений №1')), (4, 'ru', UPPER('1234'));
 insert into organization_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
 (1,1,900,1,900), (1,1,901,2,901), (1,1,902,3,902),
-(1,2,900,3,900), (1,2,901,4,902), (1,2,902,3,902);
+(1,2,900,3,900), (1,2,901,4,902), (1,2,902,null,902);
 
 -- Files
 insert into `request_file`(id, organization_object_id, `name`, `date`, `loaded`, status) values
@@ -162,7 +162,7 @@ insert into street_correction(organization_id, street, street_id, organization_s
 insert into building_correction(organization_id, building_num, building_corp, building_id, organization_building_code) values (2,'25А','',7,11);
 insert into apartment_correction(organization_id, apartment, apartment_id, organization_apartment_code) values (2,'40',4,11);
 
-insert into district_correction(organization_id, district, district_id, organization_district_code) values (2,UPPER('Центральный'),3,11);
+insert into district_correction(organization_id, district, district_id, organization_district_code) values (1,UPPER('Центральный'),3,11);
 
 -- Benefit
 insert into benefit(own_num_sr, OZN, f_nam, m_nam, sur_nam, request_file_id)
