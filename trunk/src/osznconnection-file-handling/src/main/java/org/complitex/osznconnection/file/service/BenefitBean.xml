@@ -156,7 +156,7 @@
 
     <update id="updateStatusForFile" parameterType="hashmap">
         UPDATE `benefit` b SET b.`status` =
-        IFNULL((SELECT p.`status` FROM `payment` p, `request_file` bf, `request_file` pf
+        IFNULL((SELECT DISTINCT p.`status` FROM `payment` p, `request_file` bf, `request_file` pf
             WHERE (b.`OWN_NUM_SR` = p.`OWN_NUM_SR`) AND (bf.`id` = b.request_file_id) AND (pf.`id` = p.`request_file_id`) AND
             (bf.`organization_object_id` = pf.`organization_object_id`) AND (EXTRACT(YEAR_MONTH FROM bf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`))
             AND p.`status` IN
@@ -168,7 +168,7 @@
     </update>
 
     <sql id="updateByOWN_NUM_SR">
-        WHERE b.`OWN_NUM_SR` = (SELECT p.`OWN_NUM_SR`
+        WHERE b.`OWN_NUM_SR` = (SELECT DISTINCT p.`OWN_NUM_SR`
                                 FROM `payment` p, `request_file` pf, `request_file` bf
                                 WHERE (p.`request_file_id` = pf.`id`) AND (b.`request_file_id` = bf.`id`) AND (p.`id` = #{paymentId}) AND
                                 (bf.`organization_object_id` = pf.`organization_object_id`) AND (EXTRACT(YEAR_MONTH FROM bf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`))
