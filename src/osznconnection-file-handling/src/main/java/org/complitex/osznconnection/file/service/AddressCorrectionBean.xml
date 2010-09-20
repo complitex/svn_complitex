@@ -24,33 +24,33 @@
         <result column="internalEntityTypeId" property="internalEntityTypeId"/>
     </resultMap>
 
-    <select id="findInternalObject" resultType="long" parameterType="org.complitex.osznconnection.file.entity.ObjectCorrection">
+    <select id="findCorrectionObject" resultType="long" parameterType="org.complitex.osznconnection.file.entity.ObjectCorrection">
         SELECT c.`object_id` FROM `${entity}_correction` c WHERE c.`organization_id` = #{organizationId} AND
-        TO_CYRILLIC(c.`correction`) = TO_CYRILLIC(#{correction})
+        c.`correction` = #{correction}
         <if test="internalParentId != null">
-            AND EXISTS(SELECT 1 FROM `${entity}` e WHERE e.`id` = c.`object_id` AND e.`status` = 'ACTIVE' AND e.`parent_id` = #{internalParentId})
+            AND EXISTS(SELECT 1 FROM `${entity}` e WHERE e.`object_id` = c.`object_id` AND e.`status` = 'ACTIVE' AND e.`parent_id` = #{internalParentId})
         </if>
         LIMIT 0,1
     </select>
 
-    <select id="findInternalBuilding" resultType="long" parameterType="org.complitex.osznconnection.file.entity.BuildingCorrection">
+    <select id="findCorrectionBuilding" resultType="long" parameterType="org.complitex.osznconnection.file.entity.BuildingCorrection">
         SELECT c.`object_id` FROM `building_correction` c WHERE c.`organization_id` = #{organizationId} AND
-        TO_CYRILLIC(c.`correction`) = TO_CYRILLIC(#{correction})
+        c.`correction` = #{correction}
         <choose>
             <when test="correctionCorp == null">
                 AND c.`correction_corp` IS NULL
             </when>
             <otherwise>
-                AND TO_CYRILLIC(c.`correction_corp`) = TO_CYRILLIC(#{correctionCorp})
+                AND c.`correction_corp` = #{correctionCorp}
             </otherwise>
         </choose>
         <if test="internalParentId != null">
-            AND EXISTS(SELECT 1 FROM `building` e WHERE e.`id` = c.`object_id` AND e.`status` = 'ACTIVE' AND e.`parent_id` = #{internalParentId})
+            AND EXISTS(SELECT 1 FROM `building` e WHERE e.`object_id` = c.`object_id` AND e.`status` = 'ACTIVE' AND e.`parent_id` = #{internalParentId})
         </if>
         LIMIT 0,1
     </select>
 
-    <select id="findInternalObjectType" resultType="long" parameterType="long">
+    <select id="findCorrectionObjectType" resultType="long" parameterType="long">
         SELECT etc.`entity_type_id` typeId
         FROM `entity_type_correction` etc
         WHERE etc.`organization_id` = #{organizationId}
@@ -101,6 +101,51 @@
                 oa.`status` = 'ACTIVE' AND oa.`attribute_type_id` = 902
                 AND oa.`object_id` = #{osznId})
         LIMIT 0,1
+    </select>
+
+    <select id="findInternalObject" parameterType="hashmap" resultType="long">
+        SELECT e.`object_id` FROM `${entity}` e WHERE e.`status` = 'ACTIVE'
+        <if test="internalParentId != null">
+            AND e.`parent_id` = #{parentId}
+        </if>
+        <if test="entityTypeId != null">
+           AND e.`entity_type_id` = #{entityTypeId}
+        </if>
+        AND EXISTS(
+        SELECT 1 FROM `${entity}_attribute` attr WHERE attr.`status` = 'ACTIVE' AND e.`object_id` = attr.`object_id`
+        AND attr.`attribute_type_id` = #{attributeTypeId}
+        AND attr.`value_id` IN (
+                SELECT sc.`id` FROM `${entity}_string_culture` sc WHERE TO_CYRILLIC(sc.`value`) = TO_CYRILLIC(#{correction})))
+    </select>
+
+    <select id="findInternalBuilding" parameterType="hashmap" resultType="long">
+        SELECT b.`object_id` FROM `building` b WHERE b.`status` = 'ACTIVE'
+        <if test="internalParentId != null">
+            AND e.`parent_id` = #{parentId}
+        </if>
+        AND EXISTS(
+        SELECT 1 FROM `building_attribute` a_num
+                JOIN `building_attribute` a_street
+                 ON ((a_num.`attribute_id` = a_street.`attribute_id`) AND (a_num.`object_id` = a_street.`object_id`) AND (a_street.`attribute_type_id` = 503)
+                  AND (a_street.`status` = 'ACTIVE'))
+                LEFT JOIN `building_attribute` a_corp
+                ON ((a_num.`attribute_id` = a_corp.`attribute_id`) AND (a_num.`object_id` = a_corp.`object_id`) AND (a_corp.`attribute_type_id` = 501)
+                 AND (a_corp.`status` = 'ACTIVE'))
+        WHERE a_num.`attribute_type_id` = 500 AND a_num.`status` = 'ACTIVE' AND b.`object_id` = a_num.`object_id`
+        AND a_num.`value_id` IN (
+                SELECT sc.`id` FROM `building_string_culture` sc WHERE TO_CYRILLIC(sc.`value`) = TO_CYRILLIC(#{number}))
+        AND a_street.`value_id` = #{streetId}
+        AND a_corp.`value_id` IN (
+            SELECT sc.`id` FROM `building_string_culture` sc WHERE
+        <choose>
+            <when test="corp != null">
+               TO_CYRILLIC(sc.`value`) = TO_CYRILLIC(#{corp})
+            </when>
+            <otherwise>
+                sc.`value` IS NULL
+            </otherwise>
+        </choose>
+        ))
     </select>
 
     <sql id="filter">
