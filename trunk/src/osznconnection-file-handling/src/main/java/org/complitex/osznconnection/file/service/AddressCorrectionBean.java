@@ -14,6 +14,7 @@ import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
 
 import javax.ejb.Stateless;
+import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.strategy.Strategy;
@@ -70,27 +71,27 @@ public class AddressCorrectionBean extends AbstractBean {
     }
 
     @Transactional
-    private Long findInternalObject(String entityTable, String value, long organizationId, Long parentId) {
+    private Long findCorrectionObject(String entityTable, String value, long organizationId, Long parentId) {
         ObjectCorrection parameter = new ObjectCorrection(entityTable, value, organizationId, parentId);
-        return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".findInternalObject", parameter);
+        return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".findCorrectionObject", parameter);
     }
 
-    public Long findInternalCity(String city, long organizationId) {
-        return findInternalObject("city", city, organizationId, null);
+    public Long findCorrectionCity(String city, long organizationId) {
+        return findCorrectionObject("city", city, organizationId, null);
     }
 
-    public Long findInternalStreet(long cityId, String street, long organizationId) {
-        return findInternalObject("street", street, organizationId, cityId);
+    public Long findCorrectionStreet(long cityId, String street, long organizationId) {
+        return findCorrectionObject("street", street, organizationId, cityId);
     }
 
     @Transactional
-    public Long findInternalBuilding(long streetId, String buildingNumber, String buildingCorp, long organizationId) {
+    public Long findCorrectionBuilding(long streetId, String buildingNumber, String buildingCorp, long organizationId) {
         BuildingCorrection parameter = new BuildingCorrection(buildingNumber, buildingCorp, organizationId, streetId);
-        return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".findInternalBuilding", parameter);
+        return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".findCorrectionBuilding", parameter);
     }
 
-    public Long findInternalApartment(long buildingId, String apartment, long organizationId) {
-        return findInternalObject("apartment", apartment, organizationId, buildingId);
+    public Long findCorrectionApartment(long buildingId, String apartment, long organizationId) {
+        return findCorrectionObject("apartment", apartment, organizationId, buildingId);
     }
 
     @Transactional
@@ -166,22 +167,62 @@ public class AddressCorrectionBean extends AbstractBean {
         sqlSession().insert(MAPPING_NAMESPACE + ".insert", parameter);
     }
 
-    public void insertInternalApartment(String apartment, long objectId, long organizationId) {
+    public void insertCorrectionApartment(String apartment, long objectId, long organizationId) {
         insert("apartment", apartment, objectId, organizationId);
     }
 
     @Transactional
-    public void insertInternalBuilding(String buildingNumber, String buildingCorp, long objectId, long organizationId) {
+    public void insertCorrectionBuilding(String buildingNumber, String buildingCorp, long objectId, long organizationId) {
         BuildingCorrection parameter = new BuildingCorrection(buildingNumber, buildingCorp, organizationId, null);
         parameter.setInternalObjectId(objectId);
         sqlSession().insert(MAPPING_NAMESPACE + ".insertBuilding", parameter);
     }
 
-    public void insertInternalStreet(String street, long objectId, long organizationId) {
+    public void insertCorrectionStreet(String street, long objectId, long organizationId) {
         insert("street", street, objectId, organizationId);
     }
 
-    public void insertInternalCity(String city, long objectId, long organizationId) {
+    public void insertCorrectionCity(String city, long objectId, long organizationId) {
         insert("city", city, objectId, organizationId);
+    }
+
+    private Long findInternalObject(String entity, String correction, long attributeTypeId, Long parentId, Long entityTypeId) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("entity", entity);
+        params.put("correction", correction != null ? correction.trim() : correction);
+        params.put("attributeTypeId", attributeTypeId);
+        params.put("parentId", parentId);
+        params.put("entityTypeId", entityTypeId);
+        List<Long> ids = sqlSession().selectList(MAPPING_NAMESPACE + ".findInternalObject", params);
+        if (ids != null && (ids.size() == 1)) {
+            return ids.get(0);
+        }
+        return null;
+    }
+
+    @Transactional
+    public Long findInternalCity(String city) {
+        return findInternalObject("city", city, 400, null, null);
+    }
+
+    @Transactional
+    public Long findInternalStreet(String street, Long cityId, Long entityTypeId) {
+        return findInternalObject("street", street, 300, cityId, entityTypeId);
+    }
+
+    @Transactional
+    public Long findInternalBuilding(String buildingNumber, String buildingCorp, Long streetId, Long cityId) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("number", buildingNumber != null ? buildingNumber.trim() : buildingNumber);
+        params.put("streetId", streetId);
+        if (!Strings.isEmpty(buildingCorp)) {
+            params.put("corp", buildingCorp.trim());
+        }
+        params.put("parentId", cityId);
+        List<Long> ids = sqlSession().selectList(MAPPING_NAMESPACE + ".findInternalBuilding", params);
+        if (ids != null && (ids.size() == 1)) {
+            return ids.get(0);
+        }
+        return null;
     }
 }
