@@ -129,7 +129,7 @@ public final class Utils {
 		return byte_array;
 	}
 
-	public static byte[] doubleFormating( Double doubleNum, String characterSetName, int fieldLength, int sizeDecimalPart) throws java.io.UnsupportedEncodingException{
+	public static byte[] doubleFormating( Double doubleNum, String characterSetName, int fieldLength, int sizeDecimalPart) throws java.io.UnsupportedEncodingException, DBFException {
 
 		int sizeWholePart = fieldLength - (sizeDecimalPart>0?( sizeDecimalPart + 1):0);
 
@@ -137,7 +137,7 @@ public final class Utils {
 
 		for( int i=0; i<sizeWholePart; i++) {
 
-			format.append( "#");
+			format.append( i == sizeWholePart-1 ? "0" : "#");
 		}
 
 		if( sizeDecimalPart > 0) {
@@ -153,9 +153,14 @@ public final class Utils {
         DecimalFormatSymbols dfs = new DecimalFormatSymbols();
         dfs.setDecimalSeparator('.');  //set '.' for support in Russian locale
 
-		DecimalFormat df = new DecimalFormat(format.toString(), dfs);         
+		DecimalFormat df = new DecimalFormat(format.toString(), dfs);
+        String f = df.format(doubleNum.doubleValue());
+
+        if (f.length() > fieldLength){
+            throw new DBFException("Значение превышает допустимую длину поля: " + f);
+        }
 		
-		return textPadding(df.format(doubleNum.doubleValue()), characterSetName, fieldLength, ALIGN_RIGHT);
+		return textPadding(f, characterSetName, fieldLength, ALIGN_RIGHT);
 	}
 
 	public static boolean contains( byte[] arr, byte value) {
