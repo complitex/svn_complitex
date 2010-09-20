@@ -15,10 +15,13 @@ import org.complitex.dictionaryfw.web.component.YearDropDownChoice;
 import org.complitex.osznconnection.commons.web.pages.welcome.WelcomePage;
 import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.FormTemplatePage;
+import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.service.LoadRequestBean;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 
 import javax.ejb.EJB;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -91,7 +94,12 @@ public class RequestFileLoad extends FormTemplatePage {
 
                 if (!loadRequestBean.isProcessing()) {
                     DomainObject oszn = organizationModel.getObject();
-                    loadRequestBean.load(oszn.getId(), organizationStrategy.getDistrictCode(oszn), f, t, year.getModelObject());
+                    loadRequestBean.load(oszn.getId(), organizationStrategy.getDistrictCode(oszn), f, t,
+                            year.getModelObject(), new ArrayList<RequestFile.TYPE>(){
+                                {
+                                    add(RequestFile.TYPE.PAYMENT);
+                                    add(RequestFile.TYPE.BENEFIT);
+                                }});
                     getSession().info(getString("info.start_loading"));
                 } else {
                     getSession().error(getString("error.loading_in_progress"));
@@ -101,6 +109,36 @@ public class RequestFileLoad extends FormTemplatePage {
             }
         };
         form.add(load);
+
+        //Загрузить
+        Button loadTarif = new Button("load_tarif") {
+
+            @Override
+            public void onSubmit() {
+                int f = from.getModelObject();
+                int t = to.getModelObject();
+
+                if (t < f) {
+                    error(getString("error.to_less_then_from"));
+                    return;
+                }
+
+                if (!loadRequestBean.isProcessing()) {
+                    DomainObject oszn = organizationModel.getObject();
+                    loadRequestBean.load(oszn.getId(), organizationStrategy.getDistrictCode(oszn), f, t,
+                            year.getModelObject(), new ArrayList<RequestFile.TYPE>(){
+                                {
+                                    add(RequestFile.TYPE.TARIF);
+                                }});
+                    getSession().info(getString("info.start_loading"));
+                } else {
+                    getSession().error(getString("error.loading_in_progress"));
+                }
+
+                setResponsePage(RequestFileList.class);
+            }
+        };
+        form.add(loadTarif);
 
         //Отмена
         Button cancel = new Button("cancel") {
