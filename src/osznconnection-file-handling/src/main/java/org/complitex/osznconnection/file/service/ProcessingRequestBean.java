@@ -45,10 +45,10 @@ public class ProcessingRequestBean extends AbstractBean {
     @EJB
     private RequestFileBean requestFileBean;
 
-    private void processPayment(Payment payment, ICalculationCenterAdapter adapter) {
+    private void processPayment(Payment payment, ICalculationCenterAdapter adapter, long calculationCenterId) {
         Benefit benefit = new Benefit();
         Status oldStatus = payment.getStatus();
-        adapter.processPaymentAndBenefit(payment, benefit);
+        adapter.processPaymentAndBenefit(payment, benefit, calculationCenterId);
         if (payment.getStatus() != oldStatus) {
             paymentBean.update(payment);
             benefitBean.populateBenefit(payment.getId(), benefit);
@@ -76,7 +76,7 @@ public class ProcessingRequestBean extends AbstractBean {
                     getSqlSessionManager().startManagedSession(false);
                     List<Payment> payments = paymentBean.findForOperation(paymentFile.getId(), batch);
                     for (Payment payment : payments) {
-                        processPayment(payment, adapter);
+                        processPayment(payment, adapter, calculationCenterInfo.getId());
                     }
                     getSqlSessionManager().commit();
                 } catch (Exception e) {

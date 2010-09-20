@@ -603,6 +603,61 @@ CREATE TABLE `organization_string_culture` (
   CONSTRAINT `FK_organization_string_culture_locale` FOREIGN KEY (`locale`) REFERENCES `locales` (`locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- forms of ownership --
+DROP TABLE IF EXISTS `ownership`;
+
+CREATE TABLE `ownership` (
+  `id` bigint(20) NOT NULL auto_increment,
+  `status` varchar(20) NOT NULL default 'ACTIVE',
+  `object_id` bigint(20) NOT NULL,
+  `start_date` timestamp NOT NULL default CURRENT_TIMESTAMP,
+  `end_date` timestamp NULL default NULL,
+  `parent_id` bigint(20) default NULL,
+  `parent_entity_id` bigint(20) default NULL,
+  `entity_type_id` bigint(20) default NULL,
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `ID` (`object_id`,`start_date`),
+  KEY `FK_ownership_type` (`entity_type_id`),
+  CONSTRAINT `FK_ownership_type` FOREIGN KEY (`entity_type_id`) REFERENCES `entity_type` (`id`),
+  KEY `FK_ownership_parent` (`parent_entity_id`),
+  CONSTRAINT `FK_ownership_parent` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `ownership_attribute`;
+
+CREATE TABLE `ownership_attribute` (
+  `id` bigint(20) NOT NULL auto_increment,
+  `attribute_id` bigint(20) NOT NULL,
+  `object_id` bigint(20) NOT NULL,
+  `attribute_type_id` bigint(20) NOT NULL,
+  `value_id` bigint(20) default NULL,
+  `value_type_id` bigint(20) default NULL,
+  `start_date` timestamp NOT NULL default CURRENT_TIMESTAMP,
+  `end_date` timestamp NULL default NULL,
+  `status` varchar(20) NOT NULL default 'ACTIVE',
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `ID` (`attribute_id`,`object_id`,`attribute_type_id`, `start_date`),
+  KEY `FK_ownership_object_id` (`object_id`),
+  CONSTRAINT `FK_ownership_object_id` FOREIGN KEY (`object_id`) REFERENCES `ownership`(`object_id`),
+  KEY `FK_ownership_attribute_attribute_type` (`attribute_type_id`),
+  CONSTRAINT `FK_ownership_attribute_attribute_type` FOREIGN KEY (`attribute_type_id`) REFERENCES `entity_attribute_type` (`id`),
+  KEY `FK_ownership_attribute_value_type` (`value_type_id`),
+  CONSTRAINT `FK_ownership_attribute_value_type` FOREIGN KEY (`value_type_id`) REFERENCES `entity_attribute_value_type` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `ownership_string_culture`;
+
+CREATE TABLE `ownership_string_culture` (
+  `pk_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) NOT NULL,
+  `locale` varchar(2) NOT NULL,
+  `value` varchar(1000) default NULL,
+  PRIMARY KEY (`pk_id`),
+  UNIQUE KEY  (`id`,`locale`),
+  KEY `FK_ownership_string_culture_locale` (`locale`),
+  CONSTRAINT `FK_ownership_string_culture_locale` FOREIGN KEY (`locale`) REFERENCES `locales` (`locale`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 -- user info --
 DROP TABLE IF EXISTS `user_info`;
 
@@ -996,6 +1051,19 @@ CREATE TABLE `apartment_correction` (
     PRIMARY KEY (`id`),
     KEY `FK_apartment_correction_organization` (`organization_id`),
     CONSTRAINT `FK_apartment_correction_organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `ownership_correction`;
+
+CREATE TABLE `ownership_correction` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT,
+    `organization_id` bigint(20) NOT NULL,
+    `correction` varchar(100) NOT NULL,
+    `object_id` bigint(20) NOT NULL,
+    `organization_code` bigint(20) NULL,
+    PRIMARY KEY (`id`),
+    KEY `FK_ownership_correction_organization` (`organization_id`),
+    CONSTRAINT `FK_ownership_correction_organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `calculation_center_preference`;

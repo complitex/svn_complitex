@@ -110,4 +110,10 @@ insert into `string_culture`(`id`, `locale`, `value`) values (1003, 'ru', UPPER(
 insert into `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) values (1002, 1000, 1, 1003, 1);
 insert into `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) values (1002, 1002, UPPER('string'));
 
+insert into `string_culture`(`id`, `locale`, `value`) values (1100, 'ru', 'Форма собственности'), (1100, 'en', 'Form of ownership');
+insert into `entity`(`id`, `entity_table`, `entity_name_id`, `strategy_factory`) values (1100, 'ownership', 1100, '');
+insert into `string_culture`(`id`, `locale`, `value`) values (1101, 'ru', UPPER('Название')), (1101, 'en', UPPER('Name'));
+insert into `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) values (1100, 1100, 1, 1101, 1);
+insert into `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) values (1100, 1100, UPPER('string_culture'));
+
 update `sequence` set `sequence_value` = 2000 where `sequence_name` = 'string_culture';

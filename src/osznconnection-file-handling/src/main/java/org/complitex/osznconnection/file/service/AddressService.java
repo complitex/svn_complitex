@@ -107,7 +107,7 @@ public class AddressService extends AbstractBean {
         adapter.prepareCity(payment, cityData.getCorrection(), cityData.getCode());
 
         //district
-        ObjectCorrection districtData = addressCorrectionBean.findOutgoingDistrict(payment.getOrganizationId());
+        ObjectCorrection districtData = addressCorrectionBean.findOutgoingDistrict(calculationCenterId, payment.getOrganizationId());
         if (districtData == null) {
             payment.setStatus(Status.DISTRICT_UNRESOLVED);
             return;
