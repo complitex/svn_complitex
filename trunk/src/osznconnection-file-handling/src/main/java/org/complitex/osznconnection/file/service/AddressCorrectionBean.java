@@ -4,6 +4,7 @@
  */
 package org.complitex.osznconnection.file.service;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Locale;
@@ -129,8 +130,9 @@ public class AddressCorrectionBean extends AbstractBean {
     }
 
     @Transactional
-    public ObjectCorrection findOutgoingDistrict(long organizationId) {
-        ObjectCorrection result = (ObjectCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".findOutgoingDistrict", organizationId);
+    public ObjectCorrection findOutgoingDistrict(long calculationCenterId, long osznId) {
+        Map<String, Long> params = ImmutableMap.of("calculationCenterId", calculationCenterId, "osznId", osznId);
+        ObjectCorrection result = (ObjectCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".findOutgoingDistrict", params);
         if (result != null) {
             if (result.getCorrection() != null) {
                 return result;

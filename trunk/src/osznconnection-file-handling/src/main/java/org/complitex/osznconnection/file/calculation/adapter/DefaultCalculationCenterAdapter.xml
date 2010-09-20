@@ -43,6 +43,8 @@
         <result column="norm_charge" property="NM_PAY" javaType="double" jdbcType="NUMERIC"/>
         <result column="saldo_in" property="DEBT" javaType="double" jdbcType="NUMERIC"/>
         <result column="ts" property="NORM_F_1" javaType="double" jdbcType="NUMERIC"/>
+        <result column="rc" property="HOSTEL" javaType="int" jdbcType="INTEGER"/>
+        <result column="own" property="OWN_FRM" javaType="string" jdbcType="VARCHAR"/>
     </resultMap>
 
     <select id="processPaymentAndBenefit" statementType="CALLABLE" parameterType="hashmap">

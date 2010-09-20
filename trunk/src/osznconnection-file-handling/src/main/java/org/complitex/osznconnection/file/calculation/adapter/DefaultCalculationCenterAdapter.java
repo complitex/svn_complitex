@@ -16,6 +16,7 @@ import org.complitex.osznconnection.file.entity.BenefitDBF;
 import org.complitex.osznconnection.file.entity.Payment;
 import org.complitex.osznconnection.file.entity.PaymentDBF;
 import org.complitex.osznconnection.file.entity.Status;
+import org.complitex.osznconnection.file.service.OwnershipCorrectionBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +58,14 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
 
     @Override
     public void prepareApartment(Payment payment, String apartment, Long apartmentId) {
-        payment.setOutgoingApartment((String)payment.getField(PaymentDBF.FLAT));
+        String flat = (String) payment.getField(PaymentDBF.FLAT);
+        if (flat != null) {
+            flat = flat.trim();
+        }
+        if (Strings.isEmpty(flat)) {
+            flat = "";
+        }
+        payment.setOutgoingApartment(flat);
     }
 
     @Override
@@ -207,7 +215,7 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
     }
 
     @Override
-    public void processPaymentAndBenefit(Payment payment, Benefit benefit) {
+    public void processPaymentAndBenefit(Payment payment, Benefit benefit, long calculationCenterId) {
         SqlSession session = null;
         try {
             payment.setField(PaymentDBF.OPP, "00000001");
@@ -221,7 +229,7 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
                 session.selectOne(MAPPING_NAMESPACE + ".processPaymentAndBenefit", params);
                 List<Map<String, Object>> data = (List<Map<String, Object>>) params.get("data");
                 if (data != null && (data.size() == 1)) {
-                    setPaymentData(payment, benefit, data.get(0));
+                    processData(calculationCenterId, payment, benefit, data.get(0));
                     payment.setStatus(Status.PROCESSED);
                     benefit.setStatus(Status.PROCESSED);
                 } else {
@@ -253,14 +261,31 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
         }
     }
 
-    protected void setPaymentData(Payment payment, Benefit benefit, Map<String, Object> fromDb) {
-        payment.setField(PaymentDBF.FROG, fromDb.get("FROG"));
-        payment.setField(PaymentDBF.FL_PAY, fromDb.get("FL_PAY"));
-        payment.setField(PaymentDBF.NM_PAY, fromDb.get("NM_PAY"));
-        payment.setField(PaymentDBF.DEBT, fromDb.get("DEBT"));
-        payment.setField(PaymentDBF.NORM_F_1, fromDb.get("NORM_F_1"));
-        payment.setField(PaymentDBF.NUMB, fromDb.get("NUMB"));
-        payment.setField(PaymentDBF.MARK, fromDb.get("MARK"));
+    protected OwnershipCorrectionBean getOwnershipCorrectionBean() {
+        return getEjbBean(OwnershipCorrectionBean.class);
+    }
+
+    protected void processData(long calculationCenterId, Payment payment, Benefit benefit, Map<String, Object> data) {
+        payment.setField(PaymentDBF.FROG, data.get("FROG"));
+        payment.setField(PaymentDBF.FL_PAY, data.get("FL_PAY"));
+        payment.setField(PaymentDBF.NM_PAY, data.get("NM_PAY"));
+        payment.setField(PaymentDBF.DEBT, data.get("DEBT"));
+        payment.setField(PaymentDBF.NORM_F_1, data.get("NORM_F_1"));
+        payment.setField(PaymentDBF.NUMB, data.get("NUMB"));
+        payment.setField(PaymentDBF.MARK, data.get("MARK"));
+
         benefit.setField(BenefitDBF.CM_AREA, payment.getField(PaymentDBF.NORM_F_1));
+        benefit.setField(BenefitDBF.HOSTEL, data.get("HOSTEL"));
+        benefit.setField(BenefitDBF.OWN_FRM, getOSZNOwnershipCode((String) data.get("OWN_FRM"), calculationCenterId, payment.getOrganizationId()));
+    }
+
+    protected Integer getOSZNOwnershipCode(String calculationCenterOwnership, long calculationCenterId, long osznId) {
+        try {
+            OwnershipCorrectionBean ownershipCorrectionBean = getOwnershipCorrectionBean();
+            return ownershipCorrectionBean.getOSZNOwnershipCode(calculationCenterOwnership, calculationCenterId, osznId);
+        } catch (Exception e) {
+            log.error("", e);
+        }
+        return null;
     }
 }

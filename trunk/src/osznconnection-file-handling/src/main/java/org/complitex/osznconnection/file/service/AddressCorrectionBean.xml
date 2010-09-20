@@ -60,12 +60,12 @@
 
     <insert id="insert" parameterType="org.complitex.osznconnection.file.entity.ObjectCorrection">
         INSERT INTO `${entity}_correction`(`organization_id`, `correction`, `object_id`) VALUES
-        (#{organizationId}, UPPER(TO_CYRILLIC(#{correction})), #{internalObjectId})
+        (#{organizationId}, UPPER(#{correction}), #{internalObjectId})
     </insert>
 
     <insert id="insertBuilding" parameterType="org.complitex.osznconnection.file.entity.BuildingCorrection">
         INSERT INTO `building_correction`(`organization_id`, `correction`, `correction_corp`, `object_id`) VALUES
-        (#{organizationId}, UPPER(TO_CYRILLIC(#{correction})), UPPER(TO_CYRILLIC(#{correctionCorp})), #{internalObjectId})
+        (#{organizationId}, UPPER(#{correction}), UPPER(#{correctionCorp}), #{internalObjectId})
     </insert>
 
     <select id="findOutgoingObject" resultMap="org.complitex.osznconnection.file.service.AddressCorrectionBean.objectCorrection"
@@ -94,11 +94,12 @@
     </select>
 
     <select id="findOutgoingDistrict" resultMap="org.complitex.osznconnection.file.service.AddressCorrectionBean.objectCorrection"
-            parameterType="long">
+            parameterType="hashmap">
         SELECT c.`correction`, c.`organization_code` FROM `district_correction` c
-        WHERE c.`organization_id` = #{organizationId}
+        WHERE c.`organization_id` = #{calculationCenterId}
         AND c.`object_id` = (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE
-                oa.`status` = 'ACTIVE' AND oa.`object_id` = #{organizationId} AND oa.`attribute_type_id` = 902)
+                oa.`status` = 'ACTIVE' AND oa.`attribute_type_id` = 902
+                AND oa.`object_id` = #{osznId})
         LIMIT 0,1
     </select>
 

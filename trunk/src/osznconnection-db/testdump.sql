@@ -130,6 +130,13 @@ insert into organization_attribute(attribute_id, object_id, attribute_type_id, v
 (1,1,900,1,900), (1,1,901,2,901), (1,1,902,3,902),
 (1,2,900,3,900), (1,2,901,4,902), (1,2,902,null,902);
 
+-- Forms of ownerships
+insert into ownership(object_id) values (1),(2);
+insert into ownership_string_culture(id, locale, value) values (1, 'ru', UPPER('мiсцевих Рад')), (1,'en',UPPER('мiсцевих Рад')),
+(2, 'ru', UPPER('кооперативна')), (2, 'en', UPPER('кооперативна'));
+insert into ownership_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
+(1,1,1100,1,1100), (1,2,1100,2,1100);
+
 -- Files
 insert into `request_file`(id, organization_object_id, `name`, `date`, `loaded`, status) values
 (1,1,'A_123405.dbf', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'LOADED'),
@@ -162,7 +169,11 @@ insert into street_correction(organization_id, correction, object_id, organizati
 insert into building_correction(organization_id, correction, correction_corp, object_id, organization_code) values (2,'25А','',7,11);
 -- insert into apartment_correction(organization_id, apartment, apartment_id, organization_apartment_code) values (2,'40',4,11);
 
-insert into district_correction(organization_id, correction, object_id, organization_code) values (1,UPPER('Центральный'),3,11);
+insert into district_correction(organization_id, correction, object_id, organization_code) values (2,UPPER('Центральный'),3,11);
+
+-- Ownership corrections
+insert into ownership_correction(organization_id, correction, object_id, organization_code) values (1,UPPER('мiсцевих Рад'),1,100), (2,UPPER('ГОС'),1,100),
+(1,UPPER('кооперативна'),2,200), (2,UPPER('КООП'),2,200);
 
 -- Benefit
 insert into benefit(own_num_sr, OZN, f_nam, m_nam, sur_nam, request_file_id)
@@ -191,3 +202,4 @@ update sequence set sequence_value = (select max(`id`) from `country_string_cult
 update sequence set sequence_value = (select max(`object_id`) from `country`)+1 where sequence_name = 'country';
 update sequence set sequence_value = (select max(`id`) from `organization_string_culture`)+1 where sequence_name = 'organization_string_culture';
 update sequence set sequence_value = (select max(`object_id`) from `organization`)+1 where sequence_name = 'organization';
+update sequence set sequence_value = (select max(`object_id`) from `ownership`)+1 where sequence_name = 'ownership';
