@@ -7,7 +7,8 @@ insert into `sequence` (`sequence_name`, `sequence_value`) values
 ('country',1), ('country_string_culture',1), ('district',1), ('district_string_culture',1),
 ('city',1), ('city_string_culture',1), ('region',1), ('region_string_culture',1),
 ('room',1), ('room_string_culture',1), ('street',1), ('street_string_culture',1),
-('organization',1), ('organization_string_culture',1), ('user_info', 1), ('user_info_string_culture', 1);
+('organization',1), ('organization_string_culture',1), ('user_info', 1), ('user_info_string_culture', 1),
+('ownership',1), ('ownership_string_culture',1);
 
 insert into `string_culture`(`id`, `locale`, `value`) values (100, 'ru', 'Квартира'), (100, 'en', 'Apartment');
 insert into `entity`(`id`, `entity_table`, `entity_name_id`, `strategy_factory`) values (100, 'apartment', 100, '');

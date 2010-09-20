@@ -202,4 +202,5 @@ update sequence set sequence_value = (select max(`id`) from `country_string_cult
 update sequence set sequence_value = (select max(`object_id`) from `country`)+1 where sequence_name = 'country';
 update sequence set sequence_value = (select max(`id`) from `organization_string_culture`)+1 where sequence_name = 'organization_string_culture';
 update sequence set sequence_value = (select max(`object_id`) from `organization`)+1 where sequence_name = 'organization';
+update sequence set sequence_value = (select max(`id`) from `ownership_string_culture`)+1 where sequence_name = 'ownership_string_culture';
 update sequence set sequence_value = (select max(`object_id`) from `ownership`)+1 where sequence_name = 'ownership';
