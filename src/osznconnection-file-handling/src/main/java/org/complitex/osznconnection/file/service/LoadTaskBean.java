@@ -20,6 +20,8 @@ import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.io.FileInputStream;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -183,7 +185,7 @@ public class LoadTaskBean {
     private Class getType(byte dataType, int scale){
         switch (dataType){
             case DBFField.FIELD_TYPE_C: return String.class;
-            case DBFField.FIELD_TYPE_N: return scale == 0 ? Integer.class : Double.class;
+            case DBFField.FIELD_TYPE_N: return scale == 0 ? Integer.class : BigDecimal.class;
             case DBFField.FIELD_TYPE_D: return Date.class;
             default: throw new IllegalArgumentException();
         }

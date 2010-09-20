@@ -78,4 +78,19 @@ public class RequestFileStorage {
 
         return new File(dir, name);
     }
+
+    @SuppressWarnings({"ResultOfMethodCallIgnored"})
+    public File createFile(String path, boolean replace){
+        File file = new File(path);
+        if (replace && file.exists()){
+            file.delete();
+        }
+
+        return file;
+    }
+
+    @SuppressWarnings({"ResultOfMethodCallIgnored"})
+    public void delete(String path){
+       new File(path).delete();
+    }
 }

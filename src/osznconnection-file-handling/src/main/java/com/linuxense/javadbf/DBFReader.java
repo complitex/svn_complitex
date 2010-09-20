@@ -14,6 +14,7 @@
 package com.linuxense.javadbf;
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -73,7 +74,7 @@ public class DBFReader extends DBFBase {
 		header information can be quried there on. And it will 
 		be ready to return the first row.
 
-		@param InputStream where the data is read from.	
+		@param in InputStream where the data is read from.
 	*/
 	public DBFReader( InputStream in) throws DBFException {
 
@@ -126,7 +127,7 @@ public class DBFReader extends DBFBase {
 		Returns the asked Field. In case of an invalid index,
 		it returns a ArrayIndexOutofboundsException.
 
-		@param index. Index of the field. Index of the first field is zero.
+		@param index Index of the field. Index of the first field is zero.
 	*/
 	public DBFField getField( int index) 
 	throws DBFException {
@@ -262,9 +263,12 @@ public class DBFReader extends DBFBase {
 							dataInputStream.read( t_numeric);
 							t_numeric = Utils.trimLeftSpaces( t_numeric);
 
-							if( t_numeric.length > 0 && !Utils.contains( t_numeric, (byte)'?')) {
-
-								recordObjects[i] = new Double( new String( t_numeric));
+							if( t_numeric.length > 0 && !Utils.contains( t_numeric, (byte)'?')) {                                 
+                                if (Utils.contains(t_numeric, (byte)'.')){
+                                    recordObjects[i] = new BigDecimal(new String( t_numeric));
+                                }else{
+                                    recordObjects[i] = new Integer(new String( t_numeric));
+                                }
 							}
 							else {
 

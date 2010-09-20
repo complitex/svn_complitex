@@ -1,5 +1,7 @@
 package org.complitex.osznconnection.file.entity;
 
+import java.math.BigDecimal;
+
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 10.09.2010 17:43:11
@@ -14,16 +16,16 @@ public enum TarifDBF {
     T11_CODE2(Integer.class, 6),
     T11_COD_NA(String.class, 40),
     T11_CODE3(Integer.class, 6),
-    T11_NORM_U(Double.class, 19, 10),
-    T11_NOR_US(Double.class, 19, 10),
+    T11_NORM_U(BigDecimal.class, 19, 10),
+    T11_NOR_US(BigDecimal.class, 19, 10),
     T11_CODE_N(Integer.class, 3),
     T11_COD_ND(Integer.class, 3),
     T11_CD_UNI(Integer.class, 3),
-    T11_CS_UNI(Double.class, 19, 10),
-    T11_NORM(Double.class, 19, 10),
-    T11_NRM_DO(Double.class, 19, 10),
-    T11_NRM_MA(Double.class, 19, 10),
-    T11_K_NADL(Double.class, 19, 10);
+    T11_CS_UNI(BigDecimal.class, 19, 10),
+    T11_NORM(BigDecimal.class, 19, 10),
+    T11_NRM_DO(BigDecimal.class, 19, 10),
+    T11_NRM_MA(BigDecimal.class, 19, 10),
+    T11_K_NADL(BigDecimal.class, 19, 10);
 
     private Class type;
     private int length;
