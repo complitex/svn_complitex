@@ -53,7 +53,7 @@ public class LoadRequestBean extends AbstractProcessBean {
                 if (dir.getName().equalsIgnoreCase(districtDir)) {
                     //TARIF
                     if (name.equalsIgnoreCase("TARIF12.DBF")) {
-                        return false; //todo
+                        return true;
                     }else{ //PAYMENT, BENEFIT
                         for (int m = monthFrom; m <= monthTo; ++m) {
                             String month = (m < 9 ? "0" + (m + 1) : "" + (m + 1));
@@ -87,7 +87,8 @@ public class LoadRequestBean extends AbstractProcessBean {
     }
 
     @Asynchronous
-    public void load(long organizationId, String districtCode, int monthFrom, int monthTo, int year) {
+    public void load(long organizationId, String districtCode, int monthFrom, int monthTo, int year,
+                     List<RequestFile.TYPE> types) {
         if (!isProcessing()) {
             try {
                 List<File> files = getFiles(districtCode, monthFrom, monthTo);
@@ -96,22 +97,25 @@ public class LoadRequestBean extends AbstractProcessBean {
 
                 for (File file : files) {
                     RequestFile requestFile = new RequestFile();
-                    requestFile.setLength(file.length());
                     requestFile.setName(file.getName());
-                    requestFile.setAbsolutePath(file.getAbsolutePath());
-                    requestFile.setOrganizationObjectId(organizationId);
-                                        
-                    switch (requestFile.getType()){
-                        case BENEFIT:
-                        case PAYMENT:
-                            requestFile.setDate(DateUtil.parseDate(file.getName().substring(6, 8), year));
-                            break;
-                        case TARIF:
-                            requestFile.setDate(DateUtil.parseYear(year));
-                            break;
-                    }
 
-                    requestFiles.add(requestFile);
+                    if (types.contains(requestFile.getType())){
+                        requestFile.setLength(file.length());
+                        requestFile.setAbsolutePath(file.getAbsolutePath());
+                        requestFile.setOrganizationObjectId(organizationId);
+
+                        switch (requestFile.getType()){
+                            case BENEFIT:
+                            case PAYMENT:
+                                requestFile.setDate(DateUtil.parseDate(file.getName().substring(6, 8), year));
+                                break;
+                            case TARIF:
+                                requestFile.setDate(DateUtil.parseYear(year));
+                                break;
+                        }
+
+                        requestFiles.add(requestFile);
+                    }
                 }
 
                 //Запуск процесса загрузки
