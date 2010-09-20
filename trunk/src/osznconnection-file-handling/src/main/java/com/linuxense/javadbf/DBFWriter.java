@@ -12,6 +12,7 @@
 */
 package com.linuxense.javadbf;
 import java.io.*;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -164,9 +165,10 @@ public class DBFWriter extends DBFBase {
 					break;
 
 				case 'N':
-					if( !( values[i] instanceof Double)) {
-						throw new DBFException( "Invalid value for field " + i);
-					}
+                    if (header.fieldArray[i].getDecimalCount() > 0 && !(values[i] instanceof BigDecimal)
+                            || header.fieldArray[i].getDecimalCount() == 0 && !(values[i] instanceof Integer)) {
+                        throw new DBFException("Invalid value for field " + i);
+                    }
 					break;
 
 				case 'D':
@@ -305,11 +307,15 @@ public class DBFWriter extends DBFBase {
 					break;
 
 				case 'N':
-
 					if( objectArray[j] != null) {
+                        String s = objectArray[j].toString();
+
+                        if (s.length() > header.fieldArray[j].getFieldLength()){
+                            throw new DBFException("Значение превышает допустимую длину поля: " + s);
+                        }
 
 						dataOutput.write(
-							Utils.doubleFormating( (Double)objectArray[j], this.characterSetName, this.header.fieldArray[j].getFieldLength(), this.header.fieldArray[j].getDecimalCount()));
+							Utils.textPadding(s, this.characterSetName, this.header.fieldArray[j].getFieldLength(), Utils.ALIGN_RIGHT));
 					}
 					else {
 

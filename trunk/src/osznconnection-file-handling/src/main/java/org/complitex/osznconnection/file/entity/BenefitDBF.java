@@ -1,5 +1,7 @@
 package org.complitex.osznconnection.file.entity;
 
+import java.math.BigDecimal;
+
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 26.08.2010 16:17:13
@@ -16,15 +18,15 @@ public enum BenefitDBF {
     PSP_SER(String.class, 6),       //9     PSP_SER	    CHARACTER	6		Серия паспорта
     PSP_NUM(String.class, 6),	    //10    PSP_NUM	    CHARACTER	6		Номер паспорта
     OZN(Integer.class, 1),	        //11    OZN	        NUMERIC	    1	0	Признак владельца
-    CM_AREA(Double.class, 10, 2),	//12    CM_AREA	    NUMERIC	    10	2	Общая площадь
-    HEAT_AREA(Double.class, 10, 2), //13    HEAT_ AREA	NUMERIC	    10	2	Обогреваемая площадь
+    CM_AREA(BigDecimal.class, 10, 2),	//12    CM_AREA	    NUMERIC	    10	2	Общая площадь
+    HEAT_AREA(BigDecimal.class, 10, 2), //13    HEAT_ AREA	NUMERIC	    10	2	Обогреваемая площадь
     OWN_FRM(Integer.class, 6),      //14    OWN_FRM 	NUMERIC	    6	0	Форма собственности
     HOSTEL(Integer.class, 2),	    //15    HOSTEL	    NUMERIC	    2	0	Количество комнат
     PRIV_CAT(Integer.class, 3),     //16    PRIV_CAT    NUMERIC	    3	0	Категория льготы на платежи
     ORD_FAM(Integer.class, 2),	    //17    ORD_FAM	    NUMERIC	    2	0	Порядок семьи льготников для расчета платежей
     OZN_SQ_ADD(Integer.class, 1),   //18    OZN_SQ_ADD	NUMERIC 	1	0	Признак учета дополнительной площади
     OZN_ABS(Integer.class, 1),	    //19    OZN_ABS	    NUMERIC 	1	0	Признак отсутствия данных в базе ЖЭО
-    RESERV1(Double.class, 10, 2),   //20    RESERV1	    NUMERIC	    10	2	Резерв
+    RESERV1(BigDecimal.class, 10, 2),   //20    RESERV1	    NUMERIC	    10	2	Резерв
     RESERV2(String.class, 10);      //21    RESERV2	    CHARACTER	10		Резерв
 
     private Class type;

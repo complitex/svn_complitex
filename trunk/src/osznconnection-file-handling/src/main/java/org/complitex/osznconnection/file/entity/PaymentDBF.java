@@ -1,5 +1,6 @@
 package org.complitex.osznconnection.file.entity;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 public enum PaymentDBF {
@@ -10,10 +11,10 @@ public enum PaymentDBF {
     MARK(Integer.class, 2),           //5	MARK	    NUMERIC 	2	0	К-во людей, которые пользуются льготами
     CODE(Integer.class, 4),           //6	CODE	    NUMERIC	    4	0	Код ЖЭО
     ENT_COD(Integer.class, 10),       //7	ENT_COD	    NUMERIC 	10	0	Код ЖЭО ОКПО
-    FROG(Double.class, 5, 1),         //8	FROG	    NUMERIC	    5	1	Процент льгот
-    FL_PAY(Double.class, 9, 2),       //9	FL_PAY	    NUMERIC	    9	2	Общая плата
-    NM_PAY(Double.class, 9, 2),       //10  NM_PAY	    NUMERIC	    9	2	Плата в пределах норм потребления
-    DEBT(Double.class, 9, 2),         //11	DEBT	    NUMERIC	    9	2	Сумма долга
+    FROG(BigDecimal.class, 5, 1),         //8	FROG	    NUMERIC	    5	1	Процент льгот
+    FL_PAY(BigDecimal.class, 9, 2),       //9	FL_PAY	    NUMERIC	    9	2	Общая плата
+    NM_PAY(BigDecimal.class, 9, 2),       //10  NM_PAY	    NUMERIC	    9	2	Плата в пределах норм потребления
+    DEBT(BigDecimal.class, 9, 2),         //11	DEBT	    NUMERIC	    9	2	Сумма долга
     CODE2_1(Integer.class, 6),        //12	CODE2_1	    NUMERIC	    6	0	Оплата жилья
     CODE2_2(Integer.class, 6),        //13	CODE2_2	    NUMERIC	    6	0	система
     CODE2_3(Integer.class, 6),        //14	CODE2_3	    NUMERIC	    6	0	Горячее водоснабжение
@@ -22,14 +23,14 @@ public enum PaymentDBF {
     CODE2_6(Integer.class, 6),        //17	CODE2_6	    NUMERIC	    6	0	Электроэнергия
     CODE2_7(Integer.class, 6),        //18	CODE2_7	    NUMERIC	    6	0	Вывоз мусора
     CODE2_8(Integer.class, 6),        //19	CODE2_8	    NUMERIC	    6	0	Водоотведение
-    NORM_F_1(Double.class, 10, 4),    //20	NORM_F_1    NUMERIC	    10	4	Общая площадь (оплата жилья)
-    NORM_F_2(Double.class, 10, 4),    //21	NORM_F_2	NUMERIC	    10	4	Объемы потребления (отопление)
-    NORM_F_3(Double.class, 10, 4),    //22	NORM_F_3	NUMERIC	    10	4	Объемы потребления (горячего водо.)
-    NORM_F_4(Double.class, 10, 4),    //23	NORM_F_4	NUMERIC 	10	4	Объемы потребления (холодное водо.)
-    NORM_F_5(Double.class, 10, 4),    //24	NORM_F_5	NUMERIC	    10	4	Объемы потребления (газоснабжение)
-    NORM_F_6(Double.class, 10, 4),    //25	NORM_F_6	NUMERIC	    10	4	Объемы потребления (электроэнергия)
-    NORM_F_7(Double.class, 10, 4),    //26	NORM_F_7	NUMERIC	    10	4	Объемы потребления (вывоз мусора)
-    NORM_F_8(Double.class, 10, 4),    //27	NORM_F_8	NUMERIC	    10	4	Объемы потребления (водоотведение)
+    NORM_F_1(BigDecimal.class, 10, 4),    //20	NORM_F_1    NUMERIC	    10	4	Общая площадь (оплата жилья)
+    NORM_F_2(BigDecimal.class, 10, 4),    //21	NORM_F_2	NUMERIC	    10	4	Объемы потребления (отопление)
+    NORM_F_3(BigDecimal.class, 10, 4),    //22	NORM_F_3	NUMERIC	    10	4	Объемы потребления (горячего водо.)
+    NORM_F_4(BigDecimal.class, 10, 4),    //23	NORM_F_4	NUMERIC 	10	4	Объемы потребления (холодное водо.)
+    NORM_F_5(BigDecimal.class, 10, 4),    //24	NORM_F_5	NUMERIC	    10	4	Объемы потребления (газоснабжение)
+    NORM_F_6(BigDecimal.class, 10, 4),    //25	NORM_F_6	NUMERIC	    10	4	Объемы потребления (электроэнергия)
+    NORM_F_7(BigDecimal.class, 10, 4),    //26	NORM_F_7	NUMERIC	    10	4	Объемы потребления (вывоз мусора)
+    NORM_F_8(BigDecimal.class, 10, 4),    //27	NORM_F_8	NUMERIC	    10	4	Объемы потребления (водоотведение)
     OWN_NUM_SR(String.class, 15),     //28	OWN_NUM_SR	CHARACTER	15	    Лицевой счет в обслуж. организации
     DAT1(Date.class, 8),              //29	DAT1	    DATE	    8		Дата начала действия субсидии
     DAT2(Date.class, 8),              //30	DAT2	    DATE	    8		Дата формирования запроса
