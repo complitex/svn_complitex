@@ -5,6 +5,7 @@ import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.entity.AbstractRequest;
 import org.complitex.osznconnection.file.entity.Payment;
+import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.entity.Tarif;
 
 import javax.ejb.Stateless;
@@ -28,5 +29,10 @@ public class TarifBean extends AbstractBean{
     @Transactional
     public void insert(Tarif tarif){
         sqlSession().insert(MAPPING_NAMESPACE + ".insertTarif", tarif);                
+    }
+
+     @Transactional
+    public void delete(RequestFile requestFile) {
+        sqlSession().delete(MAPPING_NAMESPACE + ".deleteTarifs", requestFile.getId());
     }
 }

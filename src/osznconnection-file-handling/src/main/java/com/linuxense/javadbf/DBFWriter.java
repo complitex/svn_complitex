@@ -32,6 +32,7 @@ public class DBFWriter extends DBFBase {
 	int recordCount = 0;
 	RandomAccessFile raf = null; /* Open and append records to an existing DBF */
 	boolean appendMode = false;
+    private File dbfFile;
 
 	/**
 		Creates an empty Object.
@@ -48,6 +49,7 @@ public class DBFWriter extends DBFBase {
 	 */
 	public DBFWriter( File dbfFile) 
 	throws DBFException {
+        this.dbfFile = dbfFile;
 
 		try {
 
@@ -353,4 +355,29 @@ public class DBFWriter extends DBFBase {
 			}
 		}	/* iterating through the fields */
 	}
+
+    @SuppressWarnings({"ResultOfMethodCallIgnored"})
+    public void rollback(){
+        try {
+            if (raf.getChannel().isOpen()){
+                raf.close();
+            }
+
+            if (dbfFile != null){
+                dbfFile.delete();
+            }
+        } catch (IOException e) {
+            //hehe...
+        }
+    }
+
+    public void close(){
+        try {
+            if (raf.getChannel().isOpen()){
+                raf.close();
+            }                           
+        } catch (IOException e) {
+            //ah...
+        }
+    }
 }
