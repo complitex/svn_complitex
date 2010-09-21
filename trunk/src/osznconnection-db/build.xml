@@ -41,6 +41,7 @@
                 <!--<transaction src="create.sql"/>-->
                 <transaction src="insert.sql"/>
                 <transaction src="testdump.sql"/>
+                <transaction src="sequence.sql"/>
         </sql>
     </target>
     
