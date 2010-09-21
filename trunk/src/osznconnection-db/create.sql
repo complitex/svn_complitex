@@ -1179,7 +1179,7 @@ CREATE TABLE `entity_type_correction` (
     KEY `key_organization_id` (`organization_id`),
     KEY `key_entity_type_id` (`entity_type_id`),
     KEY `key_type` (`type`),
-    CONSTRAINT `fk_entity_type_correction__organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`),
+    CONSTRAINT `fk_entity_type_correction__organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`object_id`),
     CONSTRAINT `fk_entity_type_correction__entity_type` FOREIGN KEY (`entity_type_id`) REFERENCES `entity_type` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -1195,8 +1195,8 @@ CREATE TABLE `city_correction` (
     KEY `key_object_id` (`object_id`),
     KEY `key_correction` (`correction`),
     KEY `key_organization_id` (`organization_id`),
-    CONSTRAINT `fk_city_correction__city` FOREIGN KEY (`object_id`) REFERENCES `city` (`id`),
-    CONSTRAINT `fk_city_correction__organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`)
+    CONSTRAINT `fk_city_correction__city` FOREIGN KEY (`object_id`) REFERENCES `city` (`object_id`),
+    CONSTRAINT `fk_city_correction__organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `district_correction`;
@@ -1211,8 +1211,8 @@ CREATE TABLE `district_correction` (
     KEY `key_object_id` (`object_id`),
     KEY `key_correction` (`correction`),
     KEY `key_organization_id` (`organization_id`),
-    CONSTRAINT `fk_district_correction__district` FOREIGN KEY (`object_id`) REFERENCES `district` (`id`),
-    CONSTRAINT `fk_district_correction__organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`)
+    CONSTRAINT `fk_district_correction__district` FOREIGN KEY (`object_id`) REFERENCES `district` (`object_id`),
+    CONSTRAINT `fk_district_correction__organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `street_correction`;
@@ -1227,8 +1227,8 @@ CREATE TABLE `street_correction` (
     KEY `key_object_id` (`object_id`),
     KEY `key_correction` (`correction`),
     KEY `key_organization_id` (`organization_id`),
-    CONSTRAINT `fk_street_correction__district` FOREIGN KEY (`object_id`) REFERENCES `street` (`id`),
-    CONSTRAINT `fk_street_correction__organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`)
+    CONSTRAINT `fk_street_correction__district` FOREIGN KEY (`object_id`) REFERENCES `street` (`object_id`),
+    CONSTRAINT `fk_street_correction__organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `building_correction`;
@@ -1244,8 +1244,8 @@ CREATE TABLE `building_correction` (
     KEY `key_object_id` (`object_id`),
     KEY `key_correction` (`correction`),
     KEY `key_organization_id` (`organization_id`),
-    CONSTRAINT `fk_building_correction__district` FOREIGN KEY (`object_id`) REFERENCES `building` (`id`),
-    CONSTRAINT `fk_building_correction__organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`)
+    CONSTRAINT `fk_building_correction__district` FOREIGN KEY (`object_id`) REFERENCES `building` (`object_id`),
+    CONSTRAINT `fk_building_correction__organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `apartment_correction`;
@@ -1260,8 +1260,8 @@ CREATE TABLE `apartment_correction` (
     KEY `key_object_id` (`object_id`),
     KEY `key_correction` (`correction`),
     KEY `key_organization_id` (`organization_id`),
-    CONSTRAINT `fk_apartment_correction__district` FOREIGN KEY (`object_id`) REFERENCES `apartment` (`id`),
-    CONSTRAINT `fk_apartment_correction__organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`)
+    CONSTRAINT `fk_apartment_correction__district` FOREIGN KEY (`object_id`) REFERENCES `apartment` (`object_id`),
+    CONSTRAINT `fk_apartment_correction__organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `ownership_correction`;
@@ -1276,8 +1276,8 @@ CREATE TABLE `ownership_correction` (
     KEY `key_object_id` (`object_id`),
     KEY `key_correction` (`correction`),
     KEY `key_organization_id` (`organization_id`),
-    CONSTRAINT `fk_ownership_correction__district` FOREIGN KEY (`object_id`) REFERENCES `ownership` (`id`),
-    CONSTRAINT `fk_ownership_correction__organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`)
+    CONSTRAINT `fk_ownership_correction__district` FOREIGN KEY (`object_id`) REFERENCES `ownership` (`object_id`),
+    CONSTRAINT `fk_ownership_correction__organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- calculation_center_preference --
@@ -1290,7 +1290,7 @@ CREATE TABLE `calculation_center_preference` (
     PRIMARY KEY (`id`),
     KEY `key_calculation_center_id` (`calculation_center_id`),
     CONSTRAINT `fk_calculation_center_preference__organization` FOREIGN KEY (`calculation_center_id`)
-      REFERENCES `organization` (`id`)
+      REFERENCES `organization` (`object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
