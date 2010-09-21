@@ -65,6 +65,9 @@ public class SaveTaskBean {
                 throw new SqlSessionException(e);
             }
 
+            //Удаляем файл есть такой есть
+            RequestFileStorage.getInstance().delete(requestFile.getAbsolutePath());
+
             writer = new DBFWriter(RequestFileStorage.getInstance().createFile(requestFile.getAbsolutePath(), true));
             writer.setCharactersetName("cp866");
 
@@ -95,29 +98,29 @@ public class SaveTaskBean {
             }
 
             //Выгрузка завершена
+            writer.write();
             requestFile.setStatus(SAVED);
         } catch (DBFException e) {
+            if (writer != null) {
+                writer.rollback();
+            }
             requestFile.setStatus(SAVE_ERROR, DBF);
             log.error("Ошибка выгрузки файла " + requestFile.getName(), e);
             error(requestFile, "Ошибка выгрузки файла {0}. {1}", requestFile.getName(), e.getMessage());
         } catch (SqlSessionException e) {
+            if (writer != null) {
+                writer.rollback();
+            }
             requestFile.setStatus(SAVE_ERROR, SQL_SESSION);
             log.error("Ошибка сохранения в базу данных при обработке файла " + requestFile.getAbsolutePath(), e);
             error(requestFile, "Ошибка сохранения в базу данных файла {0}. {1}", requestFile.getName(), e.getMessage());
         } catch (Throwable t) {
+            if (writer != null) {
+                writer.rollback();
+            }
             requestFile.setStatus(SAVE_ERROR, CRITICAL);
             log.error("Критическая ошибка загрузки файла " + requestFile.getAbsolutePath(), t);
             error(requestFile, "Критическая ошибка загрузки файла {0}", requestFile.getName());
-        } finally {
-            try {
-                writer.write();
-            } catch (DBFException e) {
-                RequestFileStorage.getInstance().delete(requestFile.getAbsolutePath());
-                
-                requestFile.setStatus(SAVE_ERROR, CRITICAL);
-                log.error("Ошибка сохранения на файловую систему при обработке файла " + requestFile.getAbsolutePath(), e);
-                error(requestFile, "Ошибка сохранения на файловую систему при обработке файла {0}. {1}", requestFile.getName(), e.getMessage());
-            }
         }
 
         try {

@@ -49,4 +49,8 @@
         </trim>
         )
     </insert>
+
+    <delete id="deleteTarifs" parameterType="long">
+        delete from `tarif` where `request_file_id` = #{id};
+    </delete>
 </mapper>

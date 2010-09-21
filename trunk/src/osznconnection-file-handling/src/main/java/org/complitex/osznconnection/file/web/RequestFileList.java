@@ -339,7 +339,7 @@ public class RequestFileList extends TemplatePage {
                 List<RequestFile> requestFiles = new ArrayList<RequestFile>();
 
                 for (RequestFile requestFile : selectModels.keySet()) {
-                    if (selectModels.get(requestFile).getObject()) {
+                    if (selectModels.get(requestFile).getObject() && (requestFile.isBenefit() || requestFile.isPayment())) {
                         requestFiles.add(requestFile);
                     }
                 }
