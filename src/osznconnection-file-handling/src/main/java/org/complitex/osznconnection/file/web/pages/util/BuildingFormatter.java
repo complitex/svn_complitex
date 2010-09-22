@@ -19,12 +19,12 @@ public final class BuildingFormatter {
     private BuildingFormatter() {
     }
 
-    public static String getBuilding(String buildingNumber, String buildingCorp, Locale locale) {
+    public static String formatBuilding(String buildingNumber, String buildingCorp, Locale locale) {
         StringBuilder buildingBuilder = new StringBuilder();
         if (!Strings.isEmpty(buildingNumber)) {
             buildingBuilder.append(buildingNumber);
             if (!Strings.isEmpty(buildingCorp)) {
-                buildingBuilder.append(ResourceUtil.getString(RESOURCE_BUNDLE, "building_corp", locale)).append(" ").append(buildingCorp);
+                buildingBuilder.append(" ").append(ResourceUtil.getString(RESOURCE_BUNDLE, "building_corp", locale)).append(" ").append(buildingCorp);
             }
         }
         return buildingBuilder.toString();

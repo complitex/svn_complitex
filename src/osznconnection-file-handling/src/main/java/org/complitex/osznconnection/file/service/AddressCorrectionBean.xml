@@ -2,29 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.complitex.osznconnection.file.service.AddressCorrectionBean">
 
-    <resultMap id="objectCorrection" type="org.complitex.osznconnection.file.entity.ObjectCorrection">
-        <result column="entity" property="entity"/>
-        <result column="correction" property="correction"/>
-        <result column="organization_code" property="code"/>
-        <result column="organization_id" property="organizationId"/>
-        <result column="organization" property="organization"/>
-        <result column="internalObjectId" property="internalObjectId"/>
-        <result column="internalObject" property="internalObject"/>
-        <result column="internalParentId" property="internalParentId"/>
-    </resultMap>
-
-    <resultMap id="buildingCorrection" type="org.complitex.osznconnection.file.entity.BuildingCorrection" extends="objectCorrection">
+    <resultMap id="buildingCorrection" type="org.complitex.osznconnection.file.entity.BuildingCorrection" 
+                extends="org.complitex.osznconnection.file.service.CorrectionBean.objectCorrection">
         <result column="correction_corp" property="correctionCorp"/>
     </resultMap>
 
-    <resultMap id="entityTypeCorrection" type="org.complitex.osznconnection.file.entity.EntityTypeCorrection">
-        <result column="type" property="type"/>
-        <result column="code" property="code"/>
-        <result column="organizationId" property="organizationId"/>
-        <result column="internalEntityTypeId" property="internalEntityTypeId"/>
-    </resultMap>
-
-    <select id="findCorrectionObject" resultType="long" parameterType="org.complitex.osznconnection.file.entity.ObjectCorrection">
+    <select id="findCorrectionAddressId" resultType="long" parameterType="org.complitex.osznconnection.file.entity.ObjectCorrection">
         SELECT c.`object_id` FROM `${entity}_correction` c WHERE c.`organization_id` = #{organizationId} AND
         c.`correction` = #{correction}
         <if test="internalParentId != null">
@@ -50,7 +33,7 @@
         LIMIT 0,1
     </select>
 
-    <select id="findCorrectionObjectType" resultType="long" parameterType="long">
+    <select id="findCorrectionEntityType" resultType="long" parameterType="long">
         SELECT etc.`entity_type_id` typeId
         FROM `entity_type_correction` etc
         WHERE etc.`organization_id` = #{organizationId}
@@ -58,17 +41,12 @@
         LIMIT 0,1
     </select>
 
-    <insert id="insert" parameterType="org.complitex.osznconnection.file.entity.ObjectCorrection">
-        INSERT INTO `${entity}_correction`(`organization_id`, `correction`, `object_id`) VALUES
-        (#{organizationId}, UPPER(#{correction}), #{internalObjectId})
-    </insert>
-
     <insert id="insertBuilding" parameterType="org.complitex.osznconnection.file.entity.BuildingCorrection">
         INSERT INTO `building_correction`(`organization_id`, `correction`, `correction_corp`, `object_id`) VALUES
         (#{organizationId}, UPPER(#{correction}), UPPER(#{correctionCorp}), #{internalObjectId})
     </insert>
 
-    <select id="findOutgoingObject" resultMap="org.complitex.osznconnection.file.service.AddressCorrectionBean.objectCorrection"
+    <select id="findOutgoingAddress" resultMap="org.complitex.osznconnection.file.service.CorrectionBean.objectCorrection"
             parameterType="org.complitex.osznconnection.file.entity.ObjectCorrection">
         SELECT c.`correction`, c.`organization_code` FROM `${entity}_correction` c
         WHERE c.`organization_id` = #{organizationId}
@@ -84,7 +62,7 @@
         LIMIT 0,1
     </select>
 
-    <select id="findOutgoingObjectType" resultMap="org.complitex.osznconnection.file.service.AddressCorrectionBean.entityTypeCorrection"
+    <select id="findOutgoingEntityType" resultMap="org.complitex.osznconnection.file.service.CorrectionBean.entityTypeCorrection"
             parameterType="org.complitex.osznconnection.file.entity.EntityTypeCorrection">
         SELECT etc.`type` type, etc.`organization_type_code` code
         FROM `entity_type_correction` etc
@@ -93,7 +71,7 @@
         LIMIT 0,1
     </select>
 
-    <select id="findOutgoingDistrict" resultMap="org.complitex.osznconnection.file.service.AddressCorrectionBean.objectCorrection"
+    <select id="findOutgoingDistrict" resultMap="org.complitex.osznconnection.file.service.CorrectionBean.objectCorrection"
             parameterType="hashmap">
         SELECT c.`correction`, c.`organization_code` FROM `district_correction` c
         WHERE c.`organization_id` = #{calculationCenterId}
@@ -103,7 +81,7 @@
         LIMIT 0,1
     </select>
 
-    <select id="findInternalObject" parameterType="hashmap" resultType="long">
+    <select id="findInternalObjectId" parameterType="hashmap" resultType="long">
         SELECT e.`object_id` FROM `${entity}` e WHERE e.`status` = 'ACTIVE'
         <if test="internalParentId != null">
             AND e.`parent_id` = #{parentId}
@@ -148,31 +126,28 @@
         ))
     </select>
 
-    <sql id="filter">
-        <where>
-            <if test="internalObject != null">
-                AND EXISTS(SELECT 1 FROM `${entity}_string_culture` sc WHERE sc.`value` LIKE CONCAT('%', #{internalObject}, '%') AND sc.`id` IN
-                (SELECT a.`value_id` FROM `${entity}_attribute` a WHERE a.`object_id` = c.`object_id` AND a.`status` = 'ACTIVE' AND
-                a.`attribute_type_id` = (SELECT eat.`id` FROM `entity_attribute_type` eat WHERE eat.`id` = (
-                                            SELECT e.`id` FROM `entity` e WHERE e.`entity_table` = #{entity}))))
-            </if>
-            <if test="correction != null">
-                AND c.`correction` LIKE CONCAT('%', #{correction}, '%')
-            </if>
-            <if test="code != null">
-                AND c.`organization_code` = #{code}
-            </if>
-            <if test="organization != null">
-                AND EXISTS(SELECT 1 FROM `organization_string_culture` osc WHERE osc.`value` LIKE CONCAT('%', #{organization}, '%') AND osc.`id` IN
-                (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`object_id` = c.`organization_id` AND oa.`status` = 'ACTIVE' AND
-                oa.`attribute_type_id` = 900))
-            </if>
-        </where>
-    </sql>
+    <update id="updateBuilding" parameterType="org.complitex.osznconnection.file.entity.BuildingCorrection">
+        UPDATE `building_correction` SET `organization_id` = #{organizationId}, `correction` = #{correction}, `correction_corp` = #{correctionCorp},
+        `object_id` = #{internalObjectId}, `organization_code` = #{code}
+        WHERE `id` = #{id}
+    </update>
 
-    <select id="find" parameterType="org.complitex.osznconnection.file.entity.example.ObjectCorrectionExample"
-            resultMap="org.complitex.osznconnection.file.service.AddressCorrectionBean.objectCorrection">
-        SELECT c.`correction`,
+    <select id="findBuildingById" parameterType="_long"
+                resultMap="org.complitex.osznconnection.file.service.AddressCorrectionBean.buildingCorrection">
+        SELECT c.`id`,
+        c.`correction`,
+        c.`correction_corp`,
+        c.`organization_code`,
+        c.`organization_id`,
+        c.`object_id` internalObjectId
+        FROM `building_correction` c WHERE c.`id` = #{id}
+    </select>
+
+    <select id="findBuildings" parameterType="org.complitex.osznconnection.file.entity.example.ObjectCorrectionExample"
+            resultMap="org.complitex.osznconnection.file.service.AddressCorrectionBean.buildingCorrection">
+        SELECT c.`id`,
+        c.`correction`,
+        c.`correction_corp`,
         c.`organization_code`,
         c.`organization_id`,
         (SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale` = #{locale} AND osc.`id` IN
@@ -180,7 +155,7 @@
         AND oa.`attribute_type_id` = 900)) organization,
         c.`object_id` internalObjectId
         FROM `${entity}_correction` c
-        <include refid="org.complitex.osznconnection.file.service.AddressCorrectionBean.filter"/>
+        <include refid="org.complitex.osznconnection.file.service.CorrectionBean.filter"/>
         <if test="orderByClause != null">
             ORDER BY ${orderByClause}
             <choose>
@@ -193,11 +168,6 @@
             </choose>
         </if>
         LIMIT #{start},#{size}
-    </select>
-
-     <select id="count" resultType="int" parameterType="org.complitex.osznconnection.file.entity.example.ObjectCorrectionExample">
-        SELECT COUNT(*) FROM `${entity}_correction` c
-        <include refid="org.complitex.osznconnection.file.service.AddressCorrectionBean.filter"/>
     </select>
 
 </mapper>

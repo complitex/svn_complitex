@@ -10,17 +10,15 @@ import java.io.Serializable;
  *
  * @author Artem
  */
-public class ObjectCorrectionExample implements Serializable {
+public class EntityTypeCorrectionExample implements Serializable {
 
-    private String correction;
+    private String internalEntityType;
 
-    private String internalObject;
+    private String type;
 
     private String organization;
 
     private String code;
-
-    private String entity;
 
     private int start;
 
@@ -32,6 +30,14 @@ public class ObjectCorrectionExample implements Serializable {
 
     private String locale;
 
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
     public boolean isAsc() {
         return asc;
     }
@@ -40,20 +46,12 @@ public class ObjectCorrectionExample implements Serializable {
         this.asc = asc;
     }
 
-    public String getCorrection() {
-        return correction;
+    public String getInternalEntityType() {
+        return internalEntityType;
     }
 
-    public void setCorrection(String correction) {
-        this.correction = correction;
-    }
-
-    public String getInternalObject() {
-        return internalObject;
-    }
-
-    public void setInternalObject(String internalObject) {
-        this.internalObject = internalObject;
+    public void setInternalEntityType(String internalEntityType) {
+        this.internalEntityType = internalEntityType;
     }
 
     public String getLocale() {
@@ -72,6 +70,14 @@ public class ObjectCorrectionExample implements Serializable {
         this.orderByClause = orderByClause;
     }
 
+    public String getOrganization() {
+        return organization;
+    }
+
+    public void setOrganization(String organization) {
+        this.organization = organization;
+    }
+
     public int getSize() {
         return size;
     }
@@ -88,27 +94,11 @@ public class ObjectCorrectionExample implements Serializable {
         this.start = start;
     }
 
-    public String getEntity() {
-        return entity;
+    public String getType() {
+        return type;
     }
 
-    public void setEntity(String entity) {
-        this.entity = entity;
-    }
-
-    public String getOrganization() {
-        return organization;
-    }
-
-    public void setOrganization(String organization) {
-        this.organization = organization;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
+    public void setType(String type) {
+        this.type = type;
     }
 }

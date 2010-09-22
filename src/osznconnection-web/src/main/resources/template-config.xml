@@ -11,5 +11,6 @@
         <menu class="org.complitex.osznconnection.organization.web.OrganizationDescriptionTemplateMenu"/>
         <menu class="org.complitex.osznconnection.ownership.web.OwnershipTemplateMenu"/>
         <menu class="org.complitex.osznconnection.ownership.web.OwnershipDescriptionTemplateMenu"/>
+        <menu class="org.complitex.osznconnection.file.web.pages.correction.CorrectionMenu"/>
     </sidebar>
 </template>
