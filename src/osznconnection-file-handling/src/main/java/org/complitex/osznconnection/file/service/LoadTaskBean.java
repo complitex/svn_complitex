@@ -33,6 +33,12 @@ import static org.complitex.osznconnection.file.entity.RequestFile.STATUS_DETAIL
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 06.09.2010 15:36:11
+ *
+ * Асинхронная задача загрузки файла запроса.
+ * В настройках указывается количество записей для пакетной обработки сохранения в базу данных.
+ *
+ * @see org.complitex.osznconnection.file.service.LoadRequestBean
+ * @see org.complitex.osznconnection.file.service.FileHandlingConfig
  */
 @Stateless(name = "LoadTaskBean")
 @SuppressWarnings({"EjbProhibitedPackageUsageInspection"})

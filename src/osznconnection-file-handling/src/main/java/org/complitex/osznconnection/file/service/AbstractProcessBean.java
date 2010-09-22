@@ -14,6 +14,14 @@ import java.util.concurrent.Future;
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 09.09.2010 15:06:50
+ *
+ * Абстрактный пул ejb задач для загрузки и сохранекния файлов запросов.
+ * Доступна информация о статусе процесса, количестве обработанных, пропущенных и ошибочных файлов запросов.
+ * Можно получить список обработанных файлов.
+ * Дочерние классы определяют количество паралельных потоков и количество ошибок для принудительного завершения процесса. 
+ *
+ * @see javax.ejb.Asynchronous
+ * @see java.util.concurrent.Future
  */
 public abstract class AbstractProcessBean {
     private static final Logger log = LoggerFactory.getLogger(AbstractProcessBean.class);

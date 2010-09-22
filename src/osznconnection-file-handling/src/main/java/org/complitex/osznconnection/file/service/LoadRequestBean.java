@@ -22,6 +22,12 @@ import java.util.regex.Pattern;
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 30.08.2010 17:30:55
+ *
+ * Асинхронная загрузка dbf файлов, сохранение в базу.
+ *
+ * @see org.complitex.osznconnection.file.service.AbstractProcessBean
+ * @see org.complitex.osznconnection.file.service.LoadTaskBean
+ * @see org.complitex.osznconnection.file.service.FileHandlingConfig
  */
 @Singleton
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)

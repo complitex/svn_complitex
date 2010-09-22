@@ -9,6 +9,10 @@ import java.util.Date;
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 27.08.2010 18:30:51
+ *
+ * Класс используется для фильтра файлов запросов в слое генерации пользователького интерфейса.
+ *
+ * @see org.complitex.osznconnection.file.entity.RequestFile
  */
 public class RequestFileFilter extends AbstractFilter{
     private Long id;

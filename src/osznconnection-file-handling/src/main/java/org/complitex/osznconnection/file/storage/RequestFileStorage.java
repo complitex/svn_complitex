@@ -12,6 +12,9 @@ import java.util.List;
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 25.08.2010 12:18:43
+ *
+ * Класс одиночка для работы с файловой системой.
+ * Поиск, сохранение, удаление.
  */
 public class RequestFileStorage {
     private static final Logger log = LoggerFactory.getLogger(RequestFileStorage.class);

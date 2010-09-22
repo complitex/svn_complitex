@@ -5,6 +5,10 @@ import java.math.BigDecimal;
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 10.09.2010 17:43:11
+ * 
+ * Перечисление допустимых имен и типов полей записей файлов тарифов.
+ *
+ * @see org.complitex.osznconnection.file.entity.Tarif
  */
 public enum TarifDBF {
     T11_DATA_T(String.class, 10),

@@ -34,6 +34,10 @@ import static org.complitex.osznconnection.file.entity.RequestFile.STATUS_DETAIL
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 09.09.2010 14:38:36
+ *
+ * Асинхронная задача сохранения файла запроса.
+ *
+ * @see org.complitex.osznconnection.file.service.SaveRequestBean
  */
 @Stateless(name = "SaveTaskBean")
 public class SaveTaskBean {

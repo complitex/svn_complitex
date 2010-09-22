@@ -8,6 +8,8 @@ import java.util.Date;
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 25.08.2010 17:35:35
+ *
+ * Информация о файле запроса: имя, дата загрузки, организация, дата, количество записей, размер файла, статус.
  */
 public class RequestFile implements Serializable {
     public static enum STATUS {
