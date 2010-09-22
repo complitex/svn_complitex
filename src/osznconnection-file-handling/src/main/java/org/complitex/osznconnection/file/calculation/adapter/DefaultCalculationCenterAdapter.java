@@ -17,6 +17,7 @@ import org.complitex.osznconnection.file.entity.Payment;
 import org.complitex.osznconnection.file.entity.PaymentDBF;
 import org.complitex.osznconnection.file.entity.Status;
 import org.complitex.osznconnection.file.service.OwnershipCorrectionBean;
+import org.complitex.osznconnection.file.service.TarifBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -134,27 +135,6 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
         }
     }
 
-//    protected boolean processAccountCorrectionDetailsResult(Payment payment, String result) {
-//        boolean error = true;
-//        if (result.equals("0")) {
-//            payment.setStatus(Status.ACCOUNT_NUMBER_NOT_FOUND);
-//        } else if (result.equals("-2")) {
-//            payment.setStatus(Status.APARTMENT_UNRESOLVED);
-//        } else if (result.equals("-3")) {
-//            payment.setStatus(Status.BUILDING_CORP_UNRESOLVED);
-//        } else if (result.equals("-4")) {
-//            payment.setStatus(Status.BUILDING_UNRESOLVED);
-//        } else if (result.equals("-5")) {
-//            payment.setStatus(Status.STREET_UNRESOLVED);
-//        } else if (result.equals("-6")) {
-//            payment.setStatus(Status.STREET_TYPE_UNRESOLVED);
-//        } else if (result.equals("-7")) {
-//            payment.setStatus(Status.DISTRICT_NOT_FOUND);
-//        } else {
-//            error = false;
-//        }
-//        return error;
-//    }
     @Override
     public List<AccountCorrectionDetail> acquireAccountCorrectionDetails(Payment payment) {
         List<AccountCorrectionDetail> accountCorrectionDetails = null;
@@ -173,7 +153,6 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
 
             try {
                 session.selectOne(MAPPING_NAMESPACE + ".acquireAccountCorrectionDetails", params);
-//                if (processAccountCorrectionDetailsResult(payment, String.valueOf(resultCode))) {
                 accountCorrectionDetails = (List<AccountCorrectionDetail>) params.get("details");
                 if (accountCorrectionDetails != null) {
                     boolean isIncorrectResult = false;
@@ -187,7 +166,6 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
                         accountCorrectionDetails = null;
                     }
                 }
-//                }
             } catch (Exception e) {
                 payment.setStatus(Status.ACCOUNT_NUMBER_NOT_FOUND);
             }
@@ -230,8 +208,6 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
                 List<Map<String, Object>> data = (List<Map<String, Object>>) params.get("data");
                 if (data != null && (data.size() == 1)) {
                     processData(calculationCenterId, payment, benefit, data.get(0));
-                    payment.setStatus(Status.PROCESSED);
-                    benefit.setStatus(Status.PROCESSED);
                 } else {
                     payment.setStatus(Status.ACCOUNT_NUMBER_NOT_FOUND);
                 }
@@ -265,7 +241,12 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
         return getEjbBean(OwnershipCorrectionBean.class);
     }
 
+    protected TarifBean getTarifBean() {
+        return getEjbBean(TarifBean.class);
+    }
+
     protected void processData(long calculationCenterId, Payment payment, Benefit benefit, Map<String, Object> data) {
+        //payment
         payment.setField(PaymentDBF.FROG, data.get("FROG"));
         payment.setField(PaymentDBF.FL_PAY, data.get("FL_PAY"));
         payment.setField(PaymentDBF.NM_PAY, data.get("NM_PAY"));
@@ -274,15 +255,35 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
         payment.setField(PaymentDBF.NUMB, data.get("NUMB"));
         payment.setField(PaymentDBF.MARK, data.get("MARK"));
 
+        Integer CODE2_1 = getCODE2_1((Double) data.get("T11_CS_UNI"));
+        if (CODE2_1 == null) {
+            payment.setStatus(Status.TARIF_CODE2_1_NOT_FOUND);
+        } else {
+            payment.setField(PaymentDBF.CODE2_1, CODE2_1);
+            payment.setStatus(Status.PROCESSED);
+        }
+
+        //benefit
         benefit.setField(BenefitDBF.CM_AREA, payment.getField(PaymentDBF.NORM_F_1));
         benefit.setField(BenefitDBF.HOSTEL, data.get("HOSTEL"));
         benefit.setField(BenefitDBF.OWN_FRM, getOSZNOwnershipCode((String) data.get("OWN_FRM"), calculationCenterId, payment.getOrganizationId()));
+        benefit.setStatus(Status.PROCESSED);
     }
 
     protected Integer getOSZNOwnershipCode(String calculationCenterOwnership, long calculationCenterId, long osznId) {
         try {
             OwnershipCorrectionBean ownershipCorrectionBean = getOwnershipCorrectionBean();
             return ownershipCorrectionBean.getOSZNOwnershipCode(calculationCenterOwnership, calculationCenterId, osznId);
+        } catch (Exception e) {
+            log.error("", e);
+        }
+        return null;
+    }
+
+    protected Integer getCODE2_1(Double T11_CS_UNI) {
+        try {
+            TarifBean tarifBean = getTarifBean();
+            return tarifBean.getCODE2_1(T11_CS_UNI);
         } catch (Exception e) {
             log.error("", e);
         }

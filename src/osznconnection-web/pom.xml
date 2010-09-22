@@ -97,7 +97,7 @@
         </dependency>
 
         <!-- Oracle driver -->
-        <dependency>
+        <!--<dependency>
             <groupId>oracle</groupId>
             <artifactId>ojdbc14</artifactId>
             <scope>system</scope>
@@ -109,7 +109,7 @@
             <artifactId>orai18n</artifactId>
             <scope>system</scope>
             <systemPath>${project.basedir}/src/main/webapp/WEB-INF/lib/orai18n.jar</systemPath>
-        </dependency>
+        </dependency>-->
     </dependencies>
 </project>
 

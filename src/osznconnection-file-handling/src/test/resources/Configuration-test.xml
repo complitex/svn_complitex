@@ -39,9 +39,12 @@
         <mapper resource="org/complitex/dictionaryfw/entity/DomainObject.xml"/>
 
         <mapper resource="org/complitex/osznconnection/file/service/PaymentBean.xml"/>
+        <mapper resource="org/complitex/osznconnection/file/service/CorrectionBean.xml"/>
         <mapper resource="org/complitex/osznconnection/file/service/AddressCorrectionBean.xml"/>
+        <mapper resource="org/complitex/osznconnection/file/service/OwnershipCorrectionBean.xml"/>
         <mapper resource="org/complitex/osznconnection/file/service/RequestFileBean.xml"/>
         <mapper resource="org/complitex/osznconnection/file/service/BenefitBean.xml"/>
+        <mapper resource="org/complitex/osznconnection/file/service/TarifBean.xml"/>
         <mapper resource="org/complitex/osznconnection/file/service/PersonAccountLocalBean.xml"/>
         <mapper resource="org/complitex/osznconnection/file/calculation/service/CalculationCenterBean.xml"/>
 

@@ -45,6 +45,7 @@
         <result column="ts" property="NORM_F_1" javaType="double" jdbcType="NUMERIC"/>
         <result column="rc" property="HOSTEL" javaType="int" jdbcType="INTEGER"/>
         <result column="own" property="OWN_FRM" javaType="string" jdbcType="VARCHAR"/>
+        <result column="b_tarif" property="T11_CS_UNI" javaType="double" jdbcType="NUMERIC"/>
     </resultMap>
 
     <select id="processPaymentAndBenefit" statementType="CALLABLE" parameterType="hashmap">

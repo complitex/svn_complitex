@@ -189,7 +189,8 @@ public class FileExecutorService {
 
             @Override
             public boolean apply(RequestFile requestFile) {
-                return requestFile.getStatus() == RequestFile.STATUS.LOADED || requestFile.getStatus() == RequestFile.STATUS.BOUND_WITH_ERRORS;
+                return (requestFile.getType() == RequestFile.TYPE.PAYMENT || requestFile.getType() == RequestFile.TYPE.BENEFIT)
+                        && (requestFile.getStatus() == RequestFile.STATUS.LOADED || requestFile.getStatus() == RequestFile.STATUS.BOUND_WITH_ERRORS);
             }
         }));
         Set<Long> bindingBenefitFiles = Sets.newHashSet();
@@ -236,7 +237,8 @@ public class FileExecutorService {
 
             @Override
             public boolean apply(RequestFile requestFile) {
-                return requestFile.getStatus() == RequestFile.STATUS.BINDED;
+                return (requestFile.getType() == RequestFile.TYPE.PAYMENT)
+                        && (requestFile.getStatus() == RequestFile.STATUS.BINDED || requestFile.getStatus() == RequestFile.STATUS.PROCESSED_WITH_ERRORS);
             }
         }));
         for (RequestFile file : suitedFiles) {
