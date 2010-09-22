@@ -1,7 +1,6 @@
 =Local database and Realm=
 
 ==Register the JDBC connection pool==
-
 {{{
 C:\glassfishv3\glassfish\bin>asadmin.bat create-jdbc-connection-pool 
 --driverclassname com.mysql.jdbc.Driver 
@@ -10,22 +9,22 @@ C:\glassfishv3\glassfish\bin>asadmin.bat create-jdbc-connection-pool
 }}}
 
 ==Create a JDBC resource with the specified JNDI name==
-
 {{{
 C:\glassfishv3\glassfish\bin>asadmin.bat create-jdbc-resource
 --connectionpoolid osznconnectionPool jdbc/osznconnectionResource
 }}}
 
 ==Add the named authentication realm==
-
 {{{
 C:\glassfishv3\glassfish\bin>asadmin.bat create-auth-realm
 --classname com.sun.enterprise.security.auth.realm.jdbc.JDBCRealm
 --property jaas-context=jdbcRealm:datasource-jndi=jdbc/osznconnectionResource:user-table=user:user-name-column=login:password-column=password:group-table=usergroup:group-name-column=group_name:charset=UTF-8 osznconnectionRealm
 }}}
 
+
 =Remote database=
 
+==Register the JDBC connection pool==
 {{{
 C:\glassfishv3\glassfish\bin>asadmin.bat create-jdbc-connection-pool 
 --driverclassname com.mysql.jdbc.Driver 
@@ -34,7 +33,6 @@ C:\glassfishv3\glassfish\bin>asadmin.bat create-jdbc-connection-pool
 }}}
 
 ==Create a JDBC resource with the specified JNDI name==
-
 {{{
 C:\glassfishv3\glassfish\bin>asadmin.bat create-jdbc-resource
 --connectionpoolid osznconnectionPool jdbc/osznconnectionRemoteResource
