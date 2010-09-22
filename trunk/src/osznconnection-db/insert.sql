@@ -180,3 +180,12 @@ insert into `entity`(`id`, `entity_table`, `entity_name_id`, `strategy_factory`)
 insert into `string_culture`(`id`, `locale`, `value`) values (1101, 'ru', UPPER('Название')), (1101, 'ua', UPPER('Назва'));
 insert into `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) values (1100, 1100, 1, 1101, 1);
 insert into `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) values (1100, 1100, UPPER('string_culture'));
+
+-- Forms of ownerships
+insert into ownership(object_id) values (1),(2),(3),(4),(5),(6);
+insert into ownership_string_culture(id, locale, value) values (1, 'ru', UPPER('мiсцевих Рад')), (1,'ua',UPPER('мiсцевих Рад')),
+(2, 'ru', UPPER('кооперативна')), (2, 'ua', UPPER('кооперативна')), (3, 'ru', UPPER('вiдомча')), (3,'ua',UPPER('вiдомча')),
+(4, 'ru', UPPER('громадська')), (4,'ua',UPPER('громадська')), (5, 'ru', UPPER('приватна')), (5,'ua',UPPER('приватна')),
+(6, 'ru', UPPER('приватизована')), (6,'ua',UPPER('приватизована'));
+insert into ownership_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
+(1,1,1100,1,1100),(1,2,1100,2,1100),(1,3,1100,3,1100),(1,4,1100,4,1100),(1,5,1100,5,1100),(1,6,1100,6,1100);
