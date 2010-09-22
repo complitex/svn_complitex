@@ -125,13 +125,6 @@ insert into organization_attribute(attribute_id, object_id, attribute_type_id, v
 (1,1,900,1,900), (1,1,901,2,901), (1,1,902,3,902),
 (1,2,900,3,900), (1,2,901,4,902), (1,2,902,null,902);
 
--- Forms of ownerships
-insert into ownership(object_id) values (1),(2);
-insert into ownership_string_culture(id, locale, value) values (1, 'ru', UPPER('мiсцевих Рад')), (1,'ua',UPPER('мiсцевих Рад')),
-(2, 'ru', UPPER('кооперативна')), (2, 'ua', UPPER('кооперативна'));
-insert into ownership_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
-(1,1,1100,1,1100), (1,2,1100,2,1100);
-
 -- Files
 insert into `request_file`(id, organization_object_id, `name`, `date`, `loaded`, status) values
 (1,1,'A_123405.dbf', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'LOADED'),
@@ -167,8 +160,11 @@ insert into building_correction(organization_id, correction, correction_corp, ob
 insert into district_correction(organization_id, correction, object_id, organization_code) values (2,UPPER('Центральный'),3,11);
 
 -- Ownership corrections
-insert into ownership_correction(organization_id, correction, object_id, organization_code) values (1,UPPER('мiсцевих Рад'),1,100), (2,UPPER('ГОС'),1,100),
-(1,UPPER('кооперативна'),2,200), (2,UPPER('КООП'),2,200);
+insert into ownership_correction(organization_id, correction, object_id, organization_code) values
+(1,UPPER('мiсцевих Рад'),1,100), (2,UPPER('ГОС'),1,100),
+(1,UPPER('кооперативна'),2,200), (2,UPPER('КООП'),2,200),
+(1,UPPER('приватна'),5,500), (2,UPPER('ВЫК'),5,500),
+(1,UPPER('приватизована'),6,600), (2,UPPER('ЧАС'),6,600);
 
 -- Benefit
 insert into benefit(own_num_sr, OZN, f_nam, m_nam, sur_nam, request_file_id)
