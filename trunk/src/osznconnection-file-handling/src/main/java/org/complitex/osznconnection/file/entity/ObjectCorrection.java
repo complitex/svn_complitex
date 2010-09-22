@@ -12,6 +12,8 @@ import java.io.Serializable;
  */
 public class ObjectCorrection implements Serializable {
 
+    private Long id;
+
     private String correction;
 
     private Long code;
@@ -49,6 +51,14 @@ public class ObjectCorrection implements Serializable {
         this.organizationId = organizationId;
         this.internalObjectId = internalObjectId;
         this.entity = entity;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Long getCode() {

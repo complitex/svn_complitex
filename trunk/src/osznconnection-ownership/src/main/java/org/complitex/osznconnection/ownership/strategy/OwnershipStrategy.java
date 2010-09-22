@@ -5,6 +5,7 @@
 package org.complitex.osznconnection.ownership.strategy;
 
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import java.util.List;
 import java.util.Locale;
@@ -32,7 +33,7 @@ import org.complitex.osznconnection.commons.web.pages.HistoryPage;
  *
  * @author Artem
  */
-@Stateless(name="OwnershipStrategy")
+@Stateless(name = "OwnershipStrategy")
 public class OwnershipStrategy extends Strategy {
 
     public static final String RESOURCE_BUNDLE = OwnershipStrategy.class.getName();
@@ -154,5 +155,12 @@ public class OwnershipStrategy extends Strategy {
     @Override
     public String[] getParents() {
         return null;
+    }
+
+    public List<DomainObject> getAll() {
+        DomainObjectExample example = new DomainObjectExample();
+        example.setOrderByAttribureTypeId(NAME);
+        configureExample(example, ImmutableMap.<String, Long>of(), null);
+        return find(example);
     }
 }

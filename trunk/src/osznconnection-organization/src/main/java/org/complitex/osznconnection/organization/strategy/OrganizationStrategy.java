@@ -233,6 +233,13 @@ public class OrganizationStrategy extends Strategy {
         return OrganizationEditComponent.class;
     }
 
+    public List<DomainObject> getAll(){
+        DomainObjectExample example = new DomainObjectExample();
+        example.setOrderByAttribureTypeId(OrganizationStrategy.NAME);
+        configureExample(example, ImmutableMap.<String, Long>of(), null);
+        return find(example);
+    }
+
     public List<DomainObject> getAllOSZNs() {
         DomainObjectExample example = new DomainObjectExample();
         example.setEntityTypeId(OSZN);
