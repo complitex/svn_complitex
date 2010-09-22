@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.complitex.osznconnection.file.service.AddressCorrectionBean">
+
+    <resultMap id="buildingCorrection" type="org.complitex.osznconnection.file.entity.BuildingCorrection" 
+                extends="org.complitex.osznconnection.file.service.CorrectionBean.objectCorrection">
+        <result column="correction_corp" property="correctionCorp"/>
+    </resultMap>
+
+    <select id="findCorrectionAddressId" resultType="long" parameterType="org.complitex.osznconnection.file.entity.ObjectCorrection">
+        SELECT c.`object_id` FROM `${entity}_correction` c WHERE c.`organization_id` = #{organizationId} AND
+        c.`correction` = #{correction}
+        <if test="internalParentId != null">
+            AND EXISTS(SELECT 1 FROM `${entity}` e WHERE e.`object_id` = c.`object_id` AND e.`status` = 'ACTIVE' AND e.`parent_id` = #{internalParentId})
+        </if>
+        LIMIT 0,1
+    </select>
+
+    <select id="findCorrectionBuilding" resultType="long" parameterType="org.complitex.osznconnection.file.entity.BuildingCorrection">
+        SELECT c.`object_id` FROM `building_correction` c WHERE c.`organization_id` = #{organizationId} AND
+        c.`correction` = #{correction}
+        <choose>
+            <when test="correctionCorp == null">
+                AND c.`correction_corp` IS NULL
+            </when>
+            <otherwise>
+                AND c.`correction_corp` = #{correctionCorp}
+            </otherwise>
+        </choose>
+        <if test="internalParentId != null">
+            AND EXISTS(SELECT 1 FROM `building` e WHERE e.`object_id` = c.`object_id` AND e.`status` = 'ACTIVE' AND e.`parent_id` = #{internalParentId})
+        </if>
+        LIMIT 0,1
+    </select>
+
+    <select id="findCorrectionEntityType" resultType="long" parameterType="long">
+        SELECT etc.`entity_type_id` typeId
+        FROM `entity_type_correction` etc
+        WHERE etc.`organization_id` = #{organizationId}
+        AND EXISTS(SELECT 1 FROM `entity_type` et WHERE et.`id` = etc.`entity_type_id` AND et.`end_date` IS NULL)
+        LIMIT 0,1
+    </select>
+
+    <insert id="insertBuilding" parameterType="org.complitex.osznconnection.file.entity.BuildingCorrection">
+        INSERT INTO `building_correction`(`organization_id`, `correction`, `correction_corp`, `object_id`) VALUES
+        (#{organizationId}, UPPER(#{correction}), UPPER(#{correctionCorp}), #{internalObjectId})
+    </insert>
+
+    <select id="findOutgoingAddress" resultMap="org.complitex.osznconnection.file.service.CorrectionBean.objectCorrection"
+            parameterType="org.complitex.osznconnection.file.entity.ObjectCorrection">
+        SELECT c.`correction`, c.`organization_code` FROM `${entity}_correction` c
+        WHERE c.`organization_id` = #{organizationId}
+        AND c.`object_id` = #{internalObjectId}
+        LIMIT 0,1
+    </select>
+
+    <select id="findOutgoingBuilding" resultMap="org.complitex.osznconnection.file.service.AddressCorrectionBean.buildingCorrection"
+            parameterType="org.complitex.osznconnection.file.entity.BuildingCorrection">
+        SELECT c.`correction`, c.`correction_corp`, c.`organization_code` FROM `building_correction` c
+        WHERE c.`organization_id` = #{organizationId}
+        AND c.`object_id` = #{internalObjectId}
+        LIMIT 0,1
+    </select>
+
+    <select id="findOutgoingEntityType" resultMap="org.complitex.osznconnection.file.service.CorrectionBean.entityTypeCorrection"
+            parameterType="org.complitex.osznconnection.file.entity.EntityTypeCorrection">
+        SELECT etc.`type` correction, etc.`organization_type_code` code
+        FROM `entity_type_correction` etc
+        WHERE etc.`organization_id` = #{organizationId}
+        AND etc.`entity_type_id` = #{internalObjectId}
+        LIMIT 0,1
+    </select>
+
+    <select id="findOutgoingDistrict" resultMap="org.complitex.osznconnection.file.service.CorrectionBean.objectCorrection"
+            parameterType="hashmap">
+        SELECT c.`correction`, c.`organization_code` FROM `district_correction` c
+        WHERE c.`organization_id` = #{calculationCenterId}
+        AND c.`object_id` = (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE
+                oa.`status` = 'ACTIVE' AND oa.`attribute_type_id` = 902
+                AND oa.`object_id` = #{osznId})
+        LIMIT 0,1
+    </select>
+
+    <select id="findInternalObjectId" parameterType="hashmap" resultType="long">
+        SELECT e.`object_id` FROM `${entity}` e WHERE e.`status` = 'ACTIVE'
+        <if test="internalParentId != null">
+            AND e.`parent_id` = #{parentId}
+        </if>
+        <if test="entityTypeId != null">
+           AND e.`entity_type_id` = #{entityTypeId}
+        </if>
+        AND EXISTS(
+        SELECT 1 FROM `${entity}_attribute` attr WHERE attr.`status` = 'ACTIVE' AND e.`object_id` = attr.`object_id`
+        AND attr.`attribute_type_id` = #{attributeTypeId}
+        AND attr.`value_id` IN (
+                SELECT sc.`id` FROM `${entity}_string_culture` sc WHERE TO_CYRILLIC(sc.`value`) = TO_CYRILLIC(#{correction})))
+    </select>
+
+    <select id="findInternalBuilding" parameterType="hashmap" resultType="long">
+        SELECT b.`object_id` FROM `building` b WHERE b.`status` = 'ACTIVE'
+        <if test="internalParentId != null">
+            AND e.`parent_id` = #{parentId}
+        </if>
+        AND EXISTS(
+        SELECT 1 FROM `building_attribute` a_num
+                JOIN `building_attribute` a_street
+                 ON ((a_num.`attribute_id` = a_street.`attribute_id`) AND (a_num.`object_id` = a_street.`object_id`) AND (a_street.`attribute_type_id` = 503)
+                  AND (a_street.`status` = 'ACTIVE'))
+                LEFT JOIN `building_attribute` a_corp
+                ON ((a_num.`attribute_id` = a_corp.`attribute_id`) AND (a_num.`object_id` = a_corp.`object_id`) AND (a_corp.`attribute_type_id` = 501)
+                 AND (a_corp.`status` = 'ACTIVE'))
+        WHERE a_num.`attribute_type_id` = 500 AND a_num.`status` = 'ACTIVE' AND b.`object_id` = a_num.`object_id`
+        AND a_num.`value_id` IN (
+                SELECT sc.`id` FROM `building_string_culture` sc WHERE TO_CYRILLIC(sc.`value`) = TO_CYRILLIC(#{number}))
+        AND a_street.`value_id` = #{streetId}
+        AND a_corp.`value_id` IN (
+            SELECT sc.`id` FROM `building_string_culture` sc WHERE
+        <choose>
+            <when test="corp != null">
+               TO_CYRILLIC(sc.`value`) = TO_CYRILLIC(#{corp})
+            </when>
+            <otherwise>
+                sc.`value` IS NULL
+            </otherwise>
+        </choose>
+        ))
+    </select>
+
+    <update id="updateBuilding" parameterType="org.complitex.osznconnection.file.entity.BuildingCorrection">
+        UPDATE `building_correction` SET `organization_id` = #{organizationId}, `correction` = #{correction}, `correction_corp` = #{correctionCorp},
+        `object_id` = #{internalObjectId}, `organization_code` = #{code}
+        WHERE `id` = #{id}
+    </update>
+
+    <select id="findBuildingById" parameterType="_long"
+                resultMap="org.complitex.osznconnection.file.service.AddressCorrectionBean.buildingCorrection">
+        SELECT c.`id`,
+        c.`correction`,
+        c.`correction_corp`,
+        c.`organization_code`,
+        c.`organization_id`,
+        c.`object_id` internalObjectId
+        FROM `building_correction` c WHERE c.`id` = #{id}
+    </select>
+
+    <select id="findBuildings" parameterType="org.complitex.osznconnection.file.entity.example.ObjectCorrectionExample"
+            resultMap="org.complitex.osznconnection.file.service.AddressCorrectionBean.buildingCorrection">
+        SELECT c.`id`,
+        c.`correction`,
+        c.`correction_corp`,
+        c.`organization_code`,
+        c.`organization_id`,
+        (SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale` = #{locale} AND osc.`id` IN
+        (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE' AND oa.`object_id` = c.`organization_id`
+        AND oa.`attribute_type_id` = 900)) organization,
+        c.`object_id` internalObjectId
+        FROM `${entity}_correction` c
+        <include refid="org.complitex.osznconnection.file.service.CorrectionBean.filter"/>
+        <if test="orderByClause != null">
+            ORDER BY ${orderByClause}
+            <choose>
+                <when test="asc">
+                    ASC
+                </when>
+                <otherwise>
+                    DESC
+                </otherwise>
+            </choose>
+        </if>
+        LIMIT #{start},#{size}
+    </select>
+
+</mapper>

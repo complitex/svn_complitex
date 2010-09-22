@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.complitex.osznconnection.file.service.RequestFileBean">
+    <resultMap id="requestFileResultMap" type="org.complitex.osznconnection.file.entity.RequestFile">
+        <id column="id" property="id"/>
+        <result column="loaded" property="loaded"/>
+        <result column="name" property="name"/>
+        <result column="organization_object_id" property="organizationObjectId"/>
+        <result column="date" property="date"/>
+        <result column="dbf_record_count" property="dbfRecordCount"/>
+        <result column="length" property="length"/>
+        <result column="checkSum" property="checkSum"/>
+        <result column="status" property="status"/>
+        <result column="status_detail" property="statusDetail"/>
+        <result column="loaded_record_count" property="loadedRecordCount"/>
+        <result column="binded_record_count" property="bindedRecordCount"/>
+    </resultMap>
+
+    <select id="selectAll" resultMap="requestFileResultMap">
+        select * from `request_file`;
+    </select>
+
+    <insert id="insertRequestFile" parameterType="org.complitex.osznconnection.file.entity.RequestFile"
+            keyProperty="id" useGeneratedKeys="true">
+        insert into
+            `request_file` (`organization_object_id`, `name`, `date`, `dbf_record_count`, `length`, `check_sum`,
+                `status`, `status_detail`, `loaded`)
+        values
+            (#{organizationObjectId}, #{name}, #{date}, #{dbfRecordCount}, #{length}, #{checkSum},
+                #{status}, #{statusDetail}, #{loaded});
+    </insert>
+
+    <update id="updateRequestFile" parameterType="org.complitex.osznconnection.file.entity.RequestFile">
+        update `request_file`
+        <set>
+            <if test="dbfRecordCount != null">`dbf_record_count` = #{dbfRecordCount},</if>
+            <if test="date != null">`date` = #{date},</if>
+            <if test="length != null">`length` = #{length},</if>
+            <if test="checkSum != null">`check_sum` = #{checkSum},</if>
+            <if test="status != null">`status` = #{status},</if>
+            <if test="statusDetail != null">`status_detail` = #{statusDetail}</if>
+        </set>
+        where `id` = #{id}
+    </update>
+
+    <delete id="deleteRequestFile" parameterType="long">
+        delete from `request_file` where `id` = #{id};
+    </delete>
+
+    <select id="findById" parameterType="long" resultMap="requestFileResultMap">
+        SELECT * FROM `request_file` WHERE `id` = #{id}
+    </select>
+
+    <sql id="requestFilesFilterWhere">
+        <where>
+            <if test="loaded != null">YEAR(`loaded`) = YEAR(#{loaded}) and DAY(`loaded`) = DAY(#{loaded})</if>
+            <if test="name != null">and `name` like CONCAT('%',#{name},'%')</if>
+            <if test="organization != null">and `organization_object_id` = #{organization.id}</if>            
+            <if test="year != null">and YEAR(`date`) = #{year}</if>
+            <if test="month != null">and MONTH(`date`)-1 = #{month}</if>
+            <if test="dbfRecordCount != null">and `dbf_record_count` like CONCAT('%',#{dbfRecordCount},'%')</if>
+            <if test="status != null">and `status` = #{status}</if>
+            <if test="loadedRecordCount != null">
+                loaded_record_count = #{loadedRecordCount}
+            </if>
+            <if test="bindedRecordCount != null">
+                binded_record_count = #{bindedRecordCount}
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectRequestFiles" parameterType="org.complitex.osznconnection.file.service.RequestFileFilter"
+            resultMap="requestFileResultMap">
+        select
+            *,
+            (select (select count(*) from `payment` where `request_file_id` = rf.`id`)
+            + (select count(*) from `benefit` where `request_file_id` = rf.`id`)
+            + (select count(*) from `tarif` where `request_file_id` = rf.`id`))
+                as loaded_record_count,
+            (select (select count(*) from `payment` where `request_file_id` = rf.`id` and `status` = 'ACCOUNT_NUMBER_RESOLVED')
+            + (select count(*) from `benefit` where `request_file_id` = rf.`id` and `status` = 'ACCOUNT_NUMBER_RESOLVED'))
+                as binded_record_count
+        from
+            `request_file` rf        
+        <include refid="requestFilesFilterWhere"/>
+        <if test="sortProperty != null">
+            order by
+            <choose>
+                <when test="sortProperty == 'month'">MONTH(`date`)</when>
+                <when test="sortProperty == 'year'">YEAR(`date`)</when>                              
+                <otherwise>`${sortProperty}`</otherwise>
+            </choose>
+            <choose>
+                <when test="ascending">asc</when>
+                <otherwise>desc</otherwise>
+            </choose>
+        </if>
+        limit #{first}, #{count}
+    </select>
+
+    <select id="selectRequestFilesCount" parameterType="org.complitex.osznconnection.file.service.RequestFileFilter"
+            resultType="int">
+        select count(*) from `request_file` <include refid="requestFilesFilterWhere"/>
+    </select>
+
+    <select id="selectIsLoaded" parameterType="org.complitex.osznconnection.file.entity.RequestFile"
+            resultType="boolean">
+        select
+            count(*) > 0
+        from
+            `request_file`
+        where 
+            `name` = #{name} and organization_object_id = #{organizationObjectId} and `status` not like 'LOAD_ERROR'
+                and YEAR(`date`) = YEAR(#{date}) and MONTH(`date`) = MONTH(#{date})
+    </select>
+
+    <update id="cancelLoading">
+        update `request_file` set `status` = 'LOAD_ERROR', `status_detail` = 'CANCEL_LOADING' where `status` = 'LOADING'
+    </update>
+
+    <update id="cancelSaving">
+        update `request_file` set `status` = 'SAVE_ERROR', `status_detail` = 'CANCEL_SAVING' where `status` = 'SAVING'
+    </update>
+</mapper>

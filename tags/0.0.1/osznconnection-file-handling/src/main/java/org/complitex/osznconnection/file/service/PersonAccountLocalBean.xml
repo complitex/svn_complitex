@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.complitex.osznconnection.file.service.PersonAccountLocalBean">
+
+    <select id="find" parameterType="org.complitex.osznconnection.file.entity.PersonAccount" resultType="string">
+        SELECT pa.`account_number`
+        FROM `person_account` pa
+        WHERE
+        <include refid="org.complitex.osznconnection.file.service.PersonAccountLocalBean.filter"/>
+        LIMIT 0,1
+    </select>
+
+    <sql id="filter">
+         TO_CYRILLIC(pa.`city`) = TO_CYRILLIC(#{city})
+         AND TO_CYRILLIC(pa.`street`) = TO_CYRILLIC(#{street})
+         AND TO_CYRILLIC(pa.`building_num`) = TO_CYRILLIC(#{buildingNumber})
+         AND TO_CYRILLIC(pa.`building_corp`) = TO_CYRILLIC(#{buildingCorp})
+         AND TO_CYRILLIC(pa.`apartment`) = TO_CYRILLIC(#{apartment})
+         AND TO_CYRILLIC(pa.`first_name`) = TO_CYRILLIC(#{firstName}) AND TO_CYRILLIC(pa.`middle_name`) = TO_CYRILLIC(#{middleName})
+         AND TO_CYRILLIC(pa.`last_name`) = TO_CYRILLIC(#{lastName}) AND pa.`own_num_sr` = #{ownNumSr}
+    </sql>
+
+    <insert id="insert" parameterType="org.complitex.osznconnection.file.entity.PersonAccount">
+        INSERT INTO `person_account` (`city`, `street`, `building_num`, `building_corp`, `apartment`,
+                `account_number`, `first_name`, `middle_name`, `last_name`, `own_num_sr`)
+        VALUES (TO_CYRILLIC(#{city}), TO_CYRILLIC(#{street}), TO_CYRILLIC(#{buildingNumber}), TO_CYRILLIC(#{buildingCorp}), TO_CYRILLIC(#{apartment}),
+                #{accountNumber}, TO_CYRILLIC(#{firstName}), TO_CYRILLIC(#{middleName}), TO_CYRILLIC(#{lastName}), #{ownNumSr})
+    </insert>
+
+</mapper>

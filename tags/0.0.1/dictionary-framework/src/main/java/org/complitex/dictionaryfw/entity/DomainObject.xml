@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.complitex.dictionaryfw.entity.DomainObject">
+
+    <resultMap id="DomainObject" type="DomainObject">
+        <id column="object_id" property="id"/>
+        <id column="start_date" property="startDate"/>
+        <result column="entity_id" property="entityId"/>
+        <result column="end_date" property="endDate"/>
+        <result column="status" property="status"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="parent_entity_id" property="parentEntityId"/>
+        <result column="parent_entity" property="parentEntity"/>
+        <result column="entity_type_id" property="entityTypeId"/>
+        <collection ofType="Attribute" property="attributes" column="{table = table_name, id = object_id, startDate = start_date}"
+                    select="org.complitex.dictionaryfw.entity.Attribute.find"/>
+    </resultMap>
+
+    <resultMap id="HistoryDomainObject" type="DomainObject">
+        <id column="object_id" property="id"/>
+        <id column="start_date" property="startDate"/>
+        <result column="entity_id" property="entityId"/>
+        <result column="end_date" property="endDate"/>
+        <result column="status" property="status"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="parent_entity_id" property="parentEntityId"/>
+        <result column="parent_entity" property="parentEntity"/>
+        <result column="entity_type_id" property="entityTypeId"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="InsertParameter">
+        INSERT INTO `${table}` (`object_id`, `status`, `start_date`, `end_date`, `parent_id`, `parent_entity_id`, `entity_type_id`) VALUES
+        (#{entity.id}, #{entity.status}, #{entity.startDate}, #{entity.endDate}, #{entity.parentId}, #{entity.parentEntityId}, #{entity.entityTypeId})
+    </insert>
+
+    <select id="findById" resultMap="org.complitex.dictionaryfw.entity.DomainObject.DomainObject" parameterType="DomainObjectExample">
+        SELECT e.`object_id`, e.`start_date`, e.`end_date`, e.`status`, e.`parent_id`,
+        (SELECT ent.`id` FROM `entity` ent WHERE ent.`entity_table` = #{table}) as entity_id,
+        (SELECT ent.`entity_table` FROM `entity` ent WHERE ent.`id` = e.`parent_entity_id`) as parent_entity,
+        e.`parent_entity_id`, e.`entity_type_id`, '${table}' as table_name
+        FROM `${table}` e WHERE (e.`status` = 'ACTIVE' OR e.`status` = 'INACTIVE') AND e.`object_id` = #{id}
+    </select>
+
+    <sql id="statusFilter">
+        <choose>
+            <when test="status == 'ALL'">
+                (e.`status` = 'ACTIVE' OR e.`status` = 'INACTIVE')
+            </when>
+            <otherwise>
+                e.`status` = #{status}
+            </otherwise>
+        </choose>
+    </sql>
+
+    <select id="find" resultMap="org.complitex.dictionaryfw.entity.DomainObject.DomainObject" parameterType="DomainObjectExample">
+        SELECT e.`object_id`, e.`start_date`, e.`end_date`, e.`status`, e.`parent_id`,
+        (SELECT ent.`id` FROM `entity` ent WHERE ent.`entity_table` = #{table}) as entity_id,
+        (SELECT ent.`entity_table` FROM `entity` ent WHERE ent.`id` = e.`parent_entity_id`) as parent_entity,
+        e.`parent_entity_id`, e.`entity_type_id`, '${locale}' as locale, '${table}' as table_name
+        FROM `${table}` e WHERE
+        <include refid="org.complitex.dictionaryfw.entity.DomainObject.statusFilter"/>
+        <include refid="org.complitex.dictionaryfw.entity.DomainObject.filter"/>
+        <if test="orderByAttribureTypeId != null">
+            ORDER BY (
+            SELECT sc.`value` FROM `${table}_string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`id` =
+            (SELECT orderByAttr.`value_id` FROM `${table}_attribute` orderByAttr WHERE orderByAttr.`object_id` = e.`object_id`
+            AND orderByAttr.`status` = 'ACTIVE' AND orderByAttr.`attribute_type_id` = #{orderByAttribureTypeId})
+            )
+            <choose>
+                <when test="asc">
+                    ASC
+                </when>
+                <otherwise>
+                    DESC
+                </otherwise>
+            </choose>
+        </if>
+        <include refid="org.complitex.dictionaryfw.entity.DomainObject.limit"/>
+    </select>
+
+    <sql id="filter">
+        <choose>
+            <when test="id != null">
+                AND e.`object_id` = #{id}
+            </when>
+            <otherwise>
+                <foreach item="attrExample" collection="attributeExamples">
+                    <if test="attrExample.value != null">
+                        AND EXISTS(SELECT 1 FROM `${table}_attribute` attr WHERE attr.`object_id` = e.`object_id`
+                        AND attr.`status` = 'ACTIVE'
+                        AND attr.`value_id` IN (SELECT sc.`id` FROM `${table}_string_culture` sc WHERE sc.`value` 
+                        <choose>
+                            <when test="comparisonType == 'LIKE'">
+                                LIKE '%${attrExample.value}%'
+                            </when>
+                            <when test="comparisonType == 'EQUALITY'">
+                                 = #{attrExample.value}
+                            </when>
+                        </choose>
+                        )
+                        AND attr.`attribute_type_id` = #{attrExample.attributeTypeId})
+                    </if>
+                </foreach>
+                <if test="parentId != null and parentEntity != null">
+                    AND e.`parent_entity_id` = (SELECT ent.`id` FROM `entity` ent WHERE ent.`entity_table` = #{parentEntity}) AND e.`parent_id` = #{parentId}
+                </if>
+                <if test="entityTypeId != null">
+                    AND e.`entity_type_id` = #{entityTypeId}
+                </if>
+            </otherwise>
+        </choose>
+    </sql>
+
+    <select id="count" resultType="integer" parameterType="DomainObjectExample">
+        SELECT COUNT(*) FROM `${table}` e WHERE
+        <include refid="org.complitex.dictionaryfw.entity.DomainObject.statusFilter"/>
+        <include refid="org.complitex.dictionaryfw.entity.DomainObject.filter"/>
+    </select>
+
+    <sql id="limit">
+        <if test="size > 0">
+            limit ${start},${size}
+        </if>
+    </sql>
+
+    <update id="update" parameterType="InsertParameter">
+        UPDATE `${table}` SET `end_date` = #{entity.endDate}, `status` = #{entity.status} WHERE `object_id` = #{entity.id} AND `start_date` = #{entity.startDate}
+    </update>
+
+    <select id="findParentInSearchComponent" parameterType="hashmap" resultType="hashmap">
+        SELECT (SELECT ent.`entity_table` FROM `entity` ent WHERE ent.`id` = e.`parent_entity_id`) parentEntity,
+        e.`parent_id` parentId FROM `${table}` e WHERE e.`object_id` = #{id}
+        <choose>
+            <when test="startDate != null">
+                AND e.`start_date` =
+                    (SELECT MAX(e1.`start_date`) FROM `${table}` e1 WHERE e1.`object_id` = #{id} AND e1.`start_date` <![CDATA[ <= ]]> #{startDate})
+            </when>
+            <otherwise>
+                 AND (e.`status` = 'ACTIVE' OR e.`status` = 'INACTIVE')
+            </otherwise>
+        </choose>
+    </select>
+
+    <!-- history -->
+
+    <select id="historyDates" resultType="date" parameterType="DomainObjectExample">
+        SELECT e.`start_date` FROM `${table}` e WHERE e.`object_id`= #{id}
+        UNION
+        SELECT e.`end_date` FROM `${table}` e WHERE e.`object_id`= #{id}
+        UNION
+        SELECT aa.`start_date` FROM `${table}_attribute` aa WHERE aa.`object_id`= #{id}
+        UNION
+        SELECT aa.`end_date` FROM `${table}_attribute` aa WHERE aa.`object_id`= #{id}
+    </select>
+
+    <select id="hasHistory" parameterType="DomainObjectExample" resultType="int">
+        SELECT 1 FROM DUAL WHERE EXISTS(
+            SELECT 1 FROM `${table}` e WHERE e.`object_id` = #{id} AND e.`status` = 'ARCHIVE'
+            UNION
+            SELECT 1 FROM `${table}_attribute` aa WHERE aa.`object_id`= #{id} AND aa.`status` = 'ARCHIVE'
+        )
+    </select>
+
+    <select id="findHistoryObject" parameterType="DomainObjectExample" resultMap="org.complitex.dictionaryfw.entity.DomainObject.HistoryDomainObject">
+        SELECT e.`object_id`, e.`start_date`, e.`end_date`, e.`status`, e.`parent_id`,
+        (SELECT ent.`id` FROM `entity` ent WHERE ent.`entity_table` = #{table}) as entity_id,
+        (SELECT ent.`entity_table` FROM `entity` ent WHERE ent.`id` = e.`parent_entity_id`) as parent_entity,
+        e.`parent_entity_id`, e.`entity_type_id`, '${table}' as table_name
+        FROM `${table}` e WHERE e.`object_id` = #{id}
+        AND e.`start_date` = (SELECT MAX(e1.`start_date`) FROM `${table}` e1 WHERE e1.`object_id` = #{id} AND e1.`start_date`
+        <![CDATA[ <= ]]>
+        #{startDate})
+    </select>
+
+</mapper>
