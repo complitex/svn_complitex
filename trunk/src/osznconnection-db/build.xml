@@ -63,4 +63,20 @@
         </sql>
     </target>
 
+    <target name="populate_address_base">
+        <sql
+            driver="com.mysql.jdbc.Driver"
+            encoding="UTF-8"
+            url="${url}"
+            userid="${username}"
+            password="${password}">
+            <classpath>
+                <pathelement location="mysql-connector-java-5.1.10.jar"/>
+            </classpath>              
+            <transaction src="import/address_base.sql"/>
+            <transaction src="import/tmp_correction.sql"/>
+            <transaction src="import/correction_import.sql"/>
+        </sql>
+    </target>
+
 </project>
