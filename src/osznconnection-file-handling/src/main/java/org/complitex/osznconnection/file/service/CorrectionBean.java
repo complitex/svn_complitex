@@ -16,6 +16,7 @@ import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
+import org.complitex.osznconnection.file.entity.EntityTypeCorrection;
 import org.complitex.osznconnection.file.entity.ObjectCorrection;
 import org.complitex.osznconnection.file.entity.example.ObjectCorrectionExample;
 import org.slf4j.Logger;
@@ -52,7 +53,7 @@ public class CorrectionBean extends AbstractBean {
 
     @Transactional
     public List<ObjectCorrection> find(ObjectCorrectionExample example) {
-        return (List<ObjectCorrection>)find(example, MAPPING_NAMESPACE + ".find");
+        return (List<ObjectCorrection>) find(example, MAPPING_NAMESPACE + ".find");
     }
 
     protected List<? extends ObjectCorrection> find(ObjectCorrectionExample example, String queryId) {
@@ -94,5 +95,34 @@ public class CorrectionBean extends AbstractBean {
     @Transactional
     public void insert(ObjectCorrection correction) {
         sqlSession().insert(MAPPING_NAMESPACE + ".insert", correction);
+    }
+
+    @Transactional
+    public void updateEntityType(EntityTypeCorrection correction) {
+        sqlSession().update(MAPPING_NAMESPACE + ".updateEntityType", correction);
+    }
+
+    @Transactional
+    public void insertEntityType(EntityTypeCorrection correction) {
+        sqlSession().insert(MAPPING_NAMESPACE + ".insertEntityType", correction);
+    }
+
+    @Transactional
+    public List<EntityTypeCorrection> findEntityTypes(ObjectCorrectionExample example) {
+        return sqlSession().selectList(MAPPING_NAMESPACE + ".findEntityTypes", example);
+    }
+
+    @Transactional
+    public int countEntityTypes(ObjectCorrectionExample example) {
+        return (Integer) sqlSession().selectOne(MAPPING_NAMESPACE + ".countEntityTypes", example);
+    }
+
+    @Transactional
+    public EntityTypeCorrection findEntityTypeById(long entityTypeCorrectionId) {
+        List<EntityTypeCorrection> corrections = sqlSession().selectList(MAPPING_NAMESPACE + ".findEntityTypeById", entityTypeCorrectionId);
+        if (corrections != null && (corrections.size() == 1)) {
+            return corrections.get(0);
+        }
+        return null;
     }
 }

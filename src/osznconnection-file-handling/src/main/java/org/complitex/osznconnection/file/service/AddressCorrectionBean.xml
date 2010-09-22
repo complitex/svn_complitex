@@ -64,10 +64,10 @@
 
     <select id="findOutgoingEntityType" resultMap="org.complitex.osznconnection.file.service.CorrectionBean.entityTypeCorrection"
             parameterType="org.complitex.osznconnection.file.entity.EntityTypeCorrection">
-        SELECT etc.`type` type, etc.`organization_type_code` code
+        SELECT etc.`type` correction, etc.`organization_type_code` code
         FROM `entity_type_correction` etc
         WHERE etc.`organization_id` = #{organizationId}
-        AND etc.`entity_type_id` = #{internalEntityTypeId}
+        AND etc.`entity_type_id` = #{internalObjectId}
         LIMIT 0,1
     </select>
 
