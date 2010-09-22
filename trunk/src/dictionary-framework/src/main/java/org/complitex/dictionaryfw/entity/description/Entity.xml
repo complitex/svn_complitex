@@ -2,6 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.complitex.dictionaryfw.entity.description.Entity">
 
+    <resultMap id="EntityType" type="org.complitex.dictionaryfw.entity.description.EntityType">
+        <id column="entity_type_id" property="id"/>
+        <result column="type_start_date" property="startDate"/>
+        <result column="type_end_date" property="endDate"/>
+        <collection property="entityTypeNames" ofType="StringCulture" column="entity_type_name_id"
+                    select="org.complitex.dictionaryfw.entity.description.Entity.findNames"/>
+    </resultMap>
+
     <resultMap type="org.complitex.dictionaryfw.entity.description.Entity" id="Entity">
         <id column="entity_id" property="id"/>
         <result column="entity_table" property="entityTable"/>
@@ -20,13 +28,8 @@
                 <result column="attribute_value_type" property="valueType"/>
             </collection>
         </collection>
-        <collection property="entityTypes" ofType="org.complitex.dictionaryfw.entity.description.EntityType">
-        <id column="entity_type_id" property="id"/>
-        <result column="type_start_date" property="startDate"/>
-        <result column="type_end_date" property="endDate"/>
-        <collection property="entityTypeNames" ofType="StringCulture" column="entity_type_name_id"
-                    select="org.complitex.dictionaryfw.entity.description.Entity.findNames"/>
-        </collection>        
+        <collection property="entityTypes" ofType="org.complitex.dictionaryfw.entity.description.EntityType"
+                resultMap="org.complitex.dictionaryfw.entity.description.Entity.EntityType"/>
     </resultMap>
 
     <select id="load" parameterType="hashmap" resultMap="org.complitex.dictionaryfw.entity.description.Entity.Entity">
@@ -91,5 +94,13 @@
             #{id}
         </foreach>
     </update>
+
+    <select id="allEntityTypes" resultMap="org.complitex.dictionaryfw.entity.description.Entity.EntityType">
+        SELECT et.`id` entity_type_id,
+        et.`entity_type_name_id`,
+        et.`start_date` type_start_date,
+        et.`end_date` type_end_date
+        FROM `entity_type` et
+    </select>
 
 </mapper>

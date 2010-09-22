@@ -14,19 +14,18 @@
         <result column="internalParentId" property="internalParentId"/>
     </resultMap>
 
-    <resultMap id="entityTypeCorrection" type="org.complitex.osznconnection.file.entity.EntityTypeCorrection">
-        <result column="id" property="id"/>
-        <result column="type" property="type"/>
-        <result column="code" property="code"/>
-        <result column="organization_id" property="organizationId"/>
-        <result column="organization" property="organization"/>
-        <result column="entity_type_id" property="internalEntityTypeId"/>
-        <result column="internalEntityType" property="internalEntityType"/>
+    <resultMap id="entityTypeCorrection" extends="org.complitex.osznconnection.file.service.CorrectionBean.objectCorrection"
+                type="org.complitex.osznconnection.file.entity.EntityTypeCorrection">
     </resultMap>
 
     <insert id="insert" parameterType="org.complitex.osznconnection.file.entity.ObjectCorrection">
-        INSERT INTO `${entity}_correction`(`organization_id`, `correction`, `object_id`) VALUES
-        (#{organizationId}, UPPER(#{correction}), #{internalObjectId})
+        INSERT INTO `${entity}_correction`(`organization_id`, `correction`, `object_id`, `organization_code`) VALUES
+        (#{organizationId}, UPPER(#{correction}), #{internalObjectId}, #{code})
+    </insert>
+
+    <insert id="insertEntityType" parameterType="org.complitex.osznconnection.file.entity.EntityTypeCorrection">
+        INSERT INTO `entity_type_correction`(`organization_id`, `type`, `entity_type_id`, `organization_type_code`) VALUES
+        (#{organizationId}, UPPER(#{correction}), #{internalObjectId}, #{code})
     </insert>
 
     <sql id="filter">
@@ -104,8 +103,8 @@
 
     <sql id="filterEntityTypes">
         <where>
-            <if test="type != null">
-                AND etc.`type` LIKE CONCAT('%', #{type}, '%')
+            <if test="correction != null">
+                AND etc.`type` LIKE CONCAT('%', #{correction}, '%')
             </if>
             <if test="code != null">
                 AND etc.`organization_type_code` LIKE CONCAT('%', #{code}, '%')
@@ -115,31 +114,31 @@
                 (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`object_id` = etc.`organization_id` AND oa.`status` = 'ACTIVE' AND
                 oa.`attribute_type_id` = 900))
             </if>
-            <if test="internalEntityType != null">
-                AND EXISTS(SELECT 1 FROM `string_culture` sc WHERE sc.`value` LIKE CONCAT('%', #{internalEntityType}, '%') AND sc.`id` IN
+            <if test="internalObject != null">
+                AND EXISTS(SELECT 1 FROM `string_culture` sc WHERE sc.`value` LIKE CONCAT('%', #{internalObject}, '%') AND sc.`id` IN
                 (SELECT et.`entity_type_name_id` FROM `entity_type` et WHERE et.`id` = etc.`entity_type_id`))
             </if>
         </where>
     </sql>
 
     <select id="findEntityTypes" resultMap="org.complitex.osznconnection.file.service.CorrectionBean.entityTypeCorrection"
-            parameterType="org.complitex.osznconnection.file.entity.example.EntityTypeCorrectionExample">
+            parameterType="org.complitex.osznconnection.file.entity.example.ObjectCorrectionExample">
         SELECT etc.`id`,
-            etc.`type`,
-            etc.`organization_type_code` code,
+            etc.`type` correction,
+            etc.`organization_type_code` organization_code,
             etc.`organization_id`,
             IFNULL((SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale` = #{locale} AND osc.`id` IN
-                (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE' AND oa.`object_id` = c.`organization_id`
+                (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE' AND oa.`object_id` = etc.`organization_id`
                 AND oa.`attribute_type_id` = 900)),
                 (SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale` = (SELECT l.`locale` FROM `locales` l WHERE l.`system` = 1)
-                AND osc.`id` IN (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE' AND oa.`object_id` = c.`organization_id`
-                AND oa.`attribute_type_id` = 900)
+                AND osc.`id` IN (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE' AND oa.`object_id` = etc.`organization_id`
+                AND oa.`attribute_type_id` = 900))
             ) organization,
-            etc.`entity_type_id`,
+            etc.`entity_type_id` internalObjectId,
             IFNULL((SELECT sc.`value` FROM `string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`id` IN
                     (SELECT et.`entity_type_name_id` FROM `entity_type` et WHERE et.`id` = etc.`entity_type_id`)),
                    (SELECT sc.`value` FROM `string_culture` sc WHERE sc.`locale` = (SELECT l.`locale` FROM `locales` l WHERE l.`system` = 1)
-                    AND sc.`id` IN (SELECT et.`entity_type_name_id` FROM `entity_type` et WHERE et.`id` = etc.`entity_type_id`))) internalEntityType
+                    AND sc.`id` IN (SELECT et.`entity_type_name_id` FROM `entity_type` et WHERE et.`id` = etc.`entity_type_id`))) internalObject
         FROM `entity_type_correction` etc
         <include refid="org.complitex.osznconnection.file.service.CorrectionBean.filterEntityTypes"/>
         <if test="orderByClause != null">
@@ -155,5 +154,26 @@
         </if>
         LIMIT #{start},#{size}
     </select>
+
+    <select id="countEntityTypes" resultType="int" parameterType="org.complitex.osznconnection.file.entity.example.ObjectCorrectionExample">
+        SELECT COUNT(*) FROM `entity_type_correction` etc
+        <include refid="org.complitex.osznconnection.file.service.CorrectionBean.filterEntityTypes"/>
+    </select>
+
+    <select id="findEntityTypeById" parameterType="_long"
+                resultMap="org.complitex.osznconnection.file.service.CorrectionBean.entityTypeCorrection">
+        SELECT c.`id`,
+        c.`type` correction,
+        c.`organization_type_code` organization_code,
+        c.`organization_id`,
+        c.`entity_type_id` internalObjectId
+        FROM `entity_type_correction` c WHERE c.`id` = #{id}
+    </select>
+
+    <update id="updateEntityType" parameterType="org.complitex.osznconnection.file.entity.EntityTypeCorrection">
+        UPDATE `entity_type_correction` SET `organization_id` = #{organizationId}, `type` = #{correction}, `entity_type_id` = #{internalObjectId},
+        `organization_type_code` = #{code}
+        WHERE `id` = #{id}
+    </update>   
 
 </mapper>

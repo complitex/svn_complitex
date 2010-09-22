@@ -104,13 +104,10 @@ public class AddressCorrectionBean extends CorrectionBean {
 
     @Transactional
     private EntityTypeCorrection findOutgoingEntityType(long entityTypeId, long calculationCenterId) {
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("entityTypeId", entityTypeId);
-        params.put("calculationCenterId", calculationCenterId);
         EntityTypeCorrection parameter = new EntityTypeCorrection(calculationCenterId, entityTypeId);
         EntityTypeCorrection result = (EntityTypeCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".findOutgoingEntityType", parameter);
         if (result != null) {
-            if (result.getType() != null) {
+            if (result.getCorrection() != null) {
                 return result;
             }
         }

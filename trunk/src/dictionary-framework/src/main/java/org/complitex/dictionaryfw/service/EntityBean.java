@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Singleton(name = "EntityBean")
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
-public class EntityBean extends AbstractBean{
+public class EntityBean extends AbstractBean {
 
     private static final String ENTITY_NAMESPACE = "org.complitex.dictionaryfw.entity.description.Entity";
 
@@ -190,5 +190,10 @@ public class EntityBean extends AbstractBean{
     @Transactional
     public Collection<String> getAllEntities() {
         return sqlSession().selectList(ENTITY_NAMESPACE + ".allEntities");
+    }
+
+    @Transactional
+    public List<EntityType> getAllEntityTypes() {
+        return sqlSession().selectList(ENTITY_NAMESPACE + ".allEntityTypes");
     }
 }

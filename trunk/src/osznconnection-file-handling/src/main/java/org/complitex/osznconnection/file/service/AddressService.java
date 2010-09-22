@@ -144,7 +144,7 @@ public class AddressService extends AbstractBean {
                 payment.setStatus(Status.STREET_TYPE_UNRESOLVED);
                 return;
             }
-            adapter.prepareStreetType(payment, streetTypeData.getType(), streetTypeData.getCode());
+            adapter.prepareStreetType(payment, streetTypeData.getCorrection(), streetTypeData.getCode());
         }
 
         ObjectCorrection streetData = addressCorrectionBean.findOutgoingStreet(calculationCenterId,
