@@ -1,17 +1,14 @@
 import com.linuxense.javadbf.DBFException;
 import com.linuxense.javadbf.DBFField;
 import com.linuxense.javadbf.DBFWriter;
+import org.complitex.osznconnection.file.entity.BenefitDBF;
 import org.complitex.osznconnection.file.entity.PaymentDBF;
 import org.complitex.osznconnection.file.entity.RequestFile;
-import org.xBaseJ.DBF;
-import org.xBaseJ.fields.CharField;
-import org.xBaseJ.fields.DateField;
-import org.xBaseJ.fields.Field;
-import org.xBaseJ.fields.NumField;
-import org.xBaseJ.xBaseJException;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -19,60 +16,114 @@ import java.util.*;
  *         Date: 01.09.2010 13:12:18
  */
 public class RequestFilesGenerator{
+    public static String STORAGE = "C:\\Anatoly\\Java\\org.complitex.osznconnection\\storage\\generate";
+    public static String[] MONTHS = {"01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"};
+    public static String[] CODES = {"1760"};
+    public static int COUNT = 1000;
+
     public static void main(String... arg) throws IOException {
-        //generatePayment("C:\\Anatoly\\Java\\org.complitex.osznconnection\\storage", "1760", "01", 1000);
-        a2("C:\\Anatoly\\Java\\org.complitex.osznconnection\\storage\\test.dbf");
+        for (String m : MONTHS){
+            for (String c : CODES){
+                generate(STORAGE, RequestFile.TYPE.BENEFIT, RequestFile.BENEFIT_FILE_PREFIX, c, m, COUNT);
+                generate(STORAGE, RequestFile.TYPE.PAYMENT, RequestFile.PAYMENT_FILE_PREFIX, c, m, COUNT);
+            }
+        }        
     }
 
-    private static void generatePayment(String dir, String code, String month, int count){
-        try {
-            DBF dbf = new DBF(dir + "\\" + RequestFile.PAYMENT_FILE_PREFIX + code + month + ".DBF", true);
-//
-            Random random = new Random();
-//
-            Map<PaymentDBF, Field> fields = new HashMap<PaymentDBF, Field>();
-//
-            for (PaymentDBF paymentDBF : PaymentDBF.values()){
-                Field field = null;
+    private static void generate(String dir, RequestFile.TYPE type, String prefix, String code, String month, int count) throws DBFException {
+        Random random = new Random();
 
-                if (paymentDBF.getType().equals(String.class)){
-                    field = new CharField(paymentDBF.name(), paymentDBF.getLength());
-                }else if (paymentDBF.getType().equals(Integer.class) || paymentDBF.getType().equals(Double.class)){
-                    field = new NumField(paymentDBF.name(), paymentDBF.getLength(), paymentDBF.getScale());
-                }else if (paymentDBF.getType().equals(Date.class)){
-                    field = new DateField(paymentDBF.name());
+        DBFWriter writer = new DBFWriter(new File(dir, prefix + code + month + ".DBF"));
+
+        DBFField[] fields = getDbfField(type);
+        writer.setFields(fields);
+
+        for (int i=0; i <  count; ++i){
+            Object[] rowData = new Object[fields.length];
+
+            for (int f=0; f < fields.length; ++f){
+                DBFField field = fields[f];
+
+                switch (field.getDataType()){
+                    case DBFField.FIELD_TYPE_C:
+                        rowData[f] = (field.getName() +": "+ UUID.randomUUID().toString()).substring(0, field.getFieldLength());
+                        break;
+                    case DBFField.FIELD_TYPE_N:
+                        int r = random.nextInt((int) Math.pow(10,field.getFieldLength()));
+
+                        if (field.getDecimalCount() == 0){
+                            rowData[f] = r;
+                        }else{
+                            r /= 10;
+
+                            rowData[f] = new BigDecimal(r).divide(new BigDecimal((int) Math.pow(10,field.getDecimalCount())));
+                        }
+                        break;
+                    case DBFField.FIELD_TYPE_D:
+                        long d = random.nextInt(60*60*24*360)*1000;
+
+                        rowData[f] = new Date(new Date().getTime() - d);
+                        break;
                 }
-
-                fields.put(paymentDBF, field);
-                dbf.addField(field);
             }
 
-            for (int i = 0; i < count; ++i){
-                for (PaymentDBF paymentDBF : PaymentDBF.values()){
-                    Field field = fields.get(paymentDBF);
+            writer.addRecord(rowData);
+        }
 
-                    if (paymentDBF.getType().equals(String.class)){
-                        String s = paymentDBF.name() + "::" + UUID.randomUUID().toString();
-                        field.put(s.substring(0, paymentDBF.getLength()));
-                    }else if (paymentDBF.getType().equals(Integer.class) || paymentDBF.getType().equals(Double.class)){
-                        Double d = random.nextDouble()*paymentDBF.getLength()*10;
-                        field.put(d.toString());
-                    }else if (paymentDBF.getType().equals(Date.class)){
-                        Calendar c = Calendar.getInstance();
-                        c.setTime(new Date(new Date().getTime() - random.nextInt(1000000000)));
-                        ((DateField)field).put(c);
+        writer.write();
+    }
+
+    private static byte getDataType(Class type){
+        if (type.equals(String.class)){
+            return DBFField.FIELD_TYPE_C;
+        }else if (type.equals(Integer.class) || type.equals(BigDecimal.class)){
+            return DBFField.FIELD_TYPE_N;
+        }else if (type.equals(Date.class)){
+            return DBFField.FIELD_TYPE_D;
+        }
+
+        throw  new IllegalArgumentException(type.toString());
+    }
+
+    private static DBFField[] getDbfField(RequestFile.TYPE type){
+        DBFField[] dbfFields;
+
+        switch (type){
+            case BENEFIT:
+                BenefitDBF[] benefitDBFs = BenefitDBF.values();
+                dbfFields = new DBFField[benefitDBFs.length];
+
+                for (int i = 0; i < benefitDBFs.length; ++i){
+                    BenefitDBF benefitDBF = benefitDBFs[i];
+
+                    dbfFields[i] = new DBFField();
+                    dbfFields[i].setName(benefitDBF.name());
+                    dbfFields[i].setDataType(getDataType(benefitDBF.getType()));
+                    if (!benefitDBF.getType().equals(Date.class)){
+                        dbfFields[i].setFieldLength(benefitDBF.getLength());
+                        dbfFields[i].setDecimalCount(benefitDBF.getScale());
                     }
                 }
 
-                dbf.write();
-            }
+                return dbfFields;
+            case PAYMENT:
+                PaymentDBF[] paymentDBFs = PaymentDBF.values();
+                dbfFields = new DBFField[paymentDBFs.length];
 
-            dbf.close();
+                for (int i = 0; i < paymentDBFs.length; ++i){
+                    PaymentDBF paymentDBF = paymentDBFs[i];
 
-        } catch (xBaseJException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+                    dbfFields[i] = new DBFField();
+                    dbfFields[i].setName(paymentDBF.name());
+                    dbfFields[i].setDataType(getDataType(paymentDBF.getType()));
+                    if (!paymentDBF.getType().equals(Date.class)) {
+                        dbfFields[i].setFieldLength(paymentDBF.getLength());
+                        dbfFields[i].setDecimalCount(paymentDBF.getScale());
+                    }
+                }
+
+                return dbfFields;
+            default: throw new IllegalArgumentException(type.name());
         }
     }
 

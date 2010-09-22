@@ -85,12 +85,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.xBaseJ</groupId>
-            <artifactId>xbasej</artifactId>
-            <version>20091203</version>
-        </dependency>
-
-        <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
             <scope>test</scope>
@@ -108,18 +102,18 @@
         </dependency>
 
         <!-- Oracle driver -->
-            <dependency>
-                <groupId>oracle</groupId>
-                <artifactId>ojdbc14</artifactId>
-                <scope>system</scope>
-                <systemPath>${project.basedir}/../../lib/ojdbc14_g.jar</systemPath>
-            </dependency>
+        <dependency>
+            <groupId>oracle</groupId>
+            <artifactId>ojdbc14</artifactId>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../../lib/ojdbc14_g.jar</systemPath>
+        </dependency>
 
-            <dependency>
-                <groupId>oracle</groupId>
-                <artifactId>orai18n</artifactId>
-                <scope>system</scope>
-                <systemPath>${project.basedir}/../../lib/orai18n.jar</systemPath>
-            </dependency>
+        <dependency>
+            <groupId>oracle</groupId>
+            <artifactId>orai18n</artifactId>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../../lib/orai18n.jar</systemPath>
+        </dependency>
     </dependencies>
 </project>
