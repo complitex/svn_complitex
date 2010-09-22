@@ -12,6 +12,12 @@ import java.util.List;
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 25.08.2010 12:15:53
+ * 
+ * Работа с базой данных для файла запроса.
+ * Поиск, сохранение, обновление, удаление, проверка на наличие в базе.
+ * Изменение статуса при отмене процесса загрузки и сохранения.
+ *
+ * @see org.complitex.osznconnection.file.entity.RequestFile
  */
 @Stateless(name = "RequestFileBean")
 public class RequestFileBean extends AbstractBean {

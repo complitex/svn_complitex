@@ -5,6 +5,11 @@ import org.complitex.osznconnection.file.service.exception.FieldNotFoundExceptio
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 10.09.2010 18:14:28
+ *
+ * Файл тарифа.
+ * Имя файла TARIF12.DBF
+ *
+ * @see org.complitex.osznconnection.file.entity.AbstractRequest
  */
 public class Tarif extends AbstractRequest{
     @Override

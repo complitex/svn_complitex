@@ -26,7 +26,7 @@ public class Benefit extends AbstractRequest {
     /**
      * Устанавливает значение поля по перечислению <code>BenefitDBF</code>
      * @param benefitDBF константа поля
-     * @param object Значение
+     * @param object значение
      */
     public void setField(BenefitDBF benefitDBF, Object object) {
         dbfFields.put(benefitDBF.name(), object);

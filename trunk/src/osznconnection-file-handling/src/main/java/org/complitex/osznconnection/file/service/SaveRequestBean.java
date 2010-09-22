@@ -19,6 +19,12 @@ import java.util.concurrent.Future;
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 09.09.2010 14:37:23
+ *
+ * Асинхронное сохранение dbf файлов, сохранение в базу.
+ *
+ * @see org.complitex.osznconnection.file.service.AbstractProcessBean
+ * @see org.complitex.osznconnection.file.service.SaveTaskBean
+ * @see org.complitex.osznconnection.file.service.FileHandlingConfig
  */
 @Singleton
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)

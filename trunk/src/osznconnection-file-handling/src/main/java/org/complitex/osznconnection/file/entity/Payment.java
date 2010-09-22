@@ -5,12 +5,28 @@ import org.complitex.osznconnection.file.service.exception.FieldNotFoundExceptio
 /**
  * @author Artem
  * @author Anatoly A. Ivanov java@inheaven.ru
+ *
+ * Запись файла запроса начислений.
+ * @see org.complitex.osznconnection.file.entity.AbstractRequest
+ *
+ * Имена полей фиксированы в <code>Enum<code> перечислении <code>PaymentDBF</code>
+ * @see org.complitex.osznconnection.file.entity.PaymentDBF
  */
 public class Payment extends AbstractRequest {
+    /**
+     * Возвращает значение поля по перечислению <code>PaymentDBF</code>
+     * @param paymentDBF константа поля
+     * @return значение поля
+     */
     public Object getField(PaymentDBF paymentDBF) {
         return dbfFields.get(paymentDBF.name());
     }
 
+    /**
+     * Устанавливает значение поля по перечислению <code>PaymentDBF</code>
+     * @param paymentDBF константа поля
+     * @param object значение
+     */
     public void setField(PaymentDBF paymentDBF, Object object) {
         dbfFields.put(paymentDBF.name(), object);
     }
