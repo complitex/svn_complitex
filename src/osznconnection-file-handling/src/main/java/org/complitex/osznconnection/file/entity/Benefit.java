@@ -5,13 +5,29 @@ import org.complitex.osznconnection.file.service.exception.FieldNotFoundExceptio
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 24.08.2010 18:22:55
+ *
+ * Запись файла запроса возмещения по льготам.
+ * @see org.complitex.osznconnection.file.entity.AbstractRequest
+ *
+ * Имена полей фиксированы в <code>Enum<code> перечислении <code>BenefitDBF</code>
+ * @see org.complitex.osznconnection.file.entity.BenefitDBF
  */
 public class Benefit extends AbstractRequest {
 
+    /**
+     * Возвращает значение поля по перечислению <code>BenefitDBF</code>
+     * @param benefitDBF константа поля
+     * @return значение поля
+     */
     public Object getField(BenefitDBF benefitDBF) {
         return dbfFields.get(benefitDBF.name());
     }
 
+    /**
+     * Устанавливает значение поля по перечислению <code>BenefitDBF</code>
+     * @param benefitDBF константа поля
+     * @param object Значение
+     */
     public void setField(BenefitDBF benefitDBF, Object object) {
         dbfFields.put(benefitDBF.name(), object);
     }

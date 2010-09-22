@@ -1,17 +1,22 @@
 package org.complitex.osznconnection.file.entity;
 
-import com.linuxense.javadbf.DBFField;
 import org.complitex.osznconnection.file.service.exception.FieldNotFoundException;
 import org.complitex.osznconnection.file.service.exception.FieldWrongTypeException;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 27.08.2010 13:15:40
+ *
+ * Абстрактное представление записи файла запроса.
+ * Используется <code>Map<String, Object></code> для хранения названий и значений полей.
+ *
+ * @see org.complitex.osznconnection.file.entity.Benefit
+ * @see org.complitex.osznconnection.file.entity.Payment
+ * @see org.complitex.osznconnection.file.entity.Tarif
  */
 public abstract class AbstractRequest implements Serializable {
     private Long id;
@@ -22,8 +27,22 @@ public abstract class AbstractRequest implements Serializable {
 
     protected Map<String, Object> dbfFields = new HashMap<String, Object>();
 
+    /**
+     * Проверяет допустимость имени поля и возвращает тип поля.
+     * @param name Тип поля
+     * @return Тип поля
+     * @throws FieldNotFoundException Недопустимое значение имени поля
+     */
     protected abstract Class getFieldType(String name) throws FieldNotFoundException;
 
+    /**
+     * Установка поля с проверкой допустимого значения типа и имени.
+     * @param name Имя поля
+     * @param value Значения поля
+     * @param type Тип поля
+     * @throws FieldNotFoundException Недопустимое значение имени поля
+     * @throws FieldWrongTypeException Недопустимый тип поля
+     */
     public final void setField(String name, Object value, Class type) throws FieldNotFoundException, FieldWrongTypeException {
         try {
             if (!getFieldType(name).equals(type)){
