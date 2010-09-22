@@ -57,6 +57,12 @@ public class ProcessPaymentTest {
                 System.out.println("Original OWN_FRM : " + calculationCenterOwnership);
                 return 12;
             }
+
+            @Override
+            protected Integer getCODE2_1(Double T11_CS_UNI) {
+                System.out.println("T11_CS_UNI : " + T11_CS_UNI);
+                return 0;
+            }
         };
         Payment p = new Payment();
         Benefit b = new Benefit();
@@ -65,9 +71,9 @@ public class ProcessPaymentTest {
         p.setField(PaymentDBF.DAT1, new Date());
         adapter.processPaymentAndBenefit(p, b, 2);
         System.out.println("Status : " + p.getStatus() + ", FROG : " + p.getField(PaymentDBF.FROG) + ", FL_PAY : " + p.getField(PaymentDBF.FL_PAY)
-                + ", NM_PAY : "
-                + p.getField(PaymentDBF.NM_PAY) + ", DEBT : " + p.getField(PaymentDBF.DEBT) + ", NORM_F_1 : " + p.getField(PaymentDBF.NORM_F_1)
-                + ", NUMB : " + p.getField(PaymentDBF.NUMB) + ", MARK : " + p.getField(PaymentDBF.MARK) + ", HOSTEL : " + b.getField(BenefitDBF.HOSTEL)
+                + ", NM_PAY : " + p.getField(PaymentDBF.NM_PAY) + ", DEBT : " + p.getField(PaymentDBF.DEBT) + ", NORM_F_1 : "
+                + p.getField(PaymentDBF.NORM_F_1) + ", NUMB : " + p.getField(PaymentDBF.NUMB) + ", CODE2_1 : " + p.getField(PaymentDBF.CODE2_1)
+                + ", MARK : " + p.getField(PaymentDBF.MARK) + ", HOSTEL : " + b.getField(BenefitDBF.HOSTEL)
                 + ", OWN_FRM : " + b.getField(BenefitDBF.OWN_FRM));
     }
 }

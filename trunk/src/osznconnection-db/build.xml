@@ -38,7 +38,6 @@
                 <pathelement location="mysql-connector-java-5.1.10.jar"/>
             </classpath>
             <transaction src="insert.sql"/>
-            <!--<transaction src="testdump.sql"/>-->
             <transaction src="sequence.sql"/>
         </sql>
     </target>

@@ -128,7 +128,8 @@ insert into organization_attribute(attribute_id, object_id, attribute_type_id, v
 -- Files
 insert into `request_file`(id, organization_object_id, `name`, `date`, `loaded`, status) values
 (1,1,'A_123405.dbf', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'LOADED'),
-(2,1,'AF123405.dbf', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'LOADED');
+(2,1,'AF123405.dbf', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'LOADED'),
+(3,1,'TARIF12.dbf', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'LOADED');
 
 -- Payments
 insert into payment(own_num_sr, f_nam, m_nam, sur_nam, n_name, vul_name, bld_num, corp_num, flat, DAT1, request_file_id, status)
@@ -136,7 +137,7 @@ values
 -- (1,'Иван', 'Иванович', 'Иванов', 'Новосибирск', 'ул. Терешковой', 'д. 10','', 'кв. 10', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY'),
 -- (2,'Сидор', 'Сидорович', 'Сидоров', 'Новосибирск', 'ул. Терешковой', 'д. 11','', 'кв. 11', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY'),
  (3,'Петр', 'Петрович', 'Петров', 'Харьков', 'Косиора', '154A','', '1', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY'),
- (3,'Петр1', 'Петрович1', 'Петров1', 'Харьков', 'Kоcиорa1', '154A','', '1', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY');
+ (3,'Петр1', 'Петрович1', 'Петров1', 'Харьков', 'Kоcиорa', '154A','', '1', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY');
 -- (4,'Матвей', 'Матвеевич', 'Матвеев', 'Харьков', 'ФРАНТИШЕКА КРАЛА', '25А','', '40', '2010-09-09',1, 'CITY_UNRESOLVED_LOCALLY');
 
 -- Address corrections
@@ -169,6 +170,9 @@ insert into ownership_correction(organization_id, correction, object_id, organiz
 -- Benefit
 insert into benefit(own_num_sr, OZN, f_nam, m_nam, sur_nam, request_file_id)
 values (1, 1, 'Иван', 'Иванович', 'Иванов',2), (1, 0, 'Иван2', 'Иванович2', 'Иванов2',2), (3, 1, 'Петр','Петрович','Петров',2);
+
+-- Tarif
+insert into tarif(`T11_CS_UNI`, `T11_CODE2`, `request_file_id`) values (0,123,3);
 
 -- calculation center info
 insert into calculation_center_preference(calculation_center_id, adapter_class) values (2, 'org.complitex.osznconnection.file.calculation.adapter.DefaultCalculationCenterAdapter');

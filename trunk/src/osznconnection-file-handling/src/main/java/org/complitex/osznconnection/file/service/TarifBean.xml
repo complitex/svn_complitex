@@ -53,4 +53,9 @@
     <delete id="deleteTarifs" parameterType="long">
         delete from `tarif` where `request_file_id` = #{id};
     </delete>
+
+    <select id="getCODE2_1" parameterType="double" resultType="int">
+        SELECT DISTINCT t.`T11_CODE2` FROM `tarif` t WHERE t.`T11_CS_UNI` = #{T11_CS_UNI}
+        LIMIT 0,1
+    </select>
 </mapper>

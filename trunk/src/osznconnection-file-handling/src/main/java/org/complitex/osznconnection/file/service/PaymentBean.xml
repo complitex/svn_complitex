@@ -228,6 +228,7 @@
         `NUMB` = #{dbfFields.NUMB},
         `MARK` = #{dbfFields.MARK},
         `OPP` = #{dbfFields.OPP},
+        `CODE2_1` = #{dbfFields.CODE2_1},
         `status` = #{status}
         WHERE `id` = #{id}
     </update>
