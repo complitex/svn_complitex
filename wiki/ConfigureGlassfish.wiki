@@ -27,7 +27,7 @@ C:\glassfishv3\glassfish\bin>asadmin.bat create-auth-realm
 ==Register the JDBC connection pool==
 {{{
 C:\glassfishv3\glassfish\bin>asadmin.bat create-jdbc-connection-pool 
---driverclassname com.mysql.jdbc.Driver 
+--driverclassname oracle.jdbc.OracleDriver 
 --restype java.sql.Driver 
 --property url=jdbc\:oracle\:thin\:@192.168.1.102\:1521\:cnhar:user=comp:password=comp osznconnectionRemotePool
 }}}
