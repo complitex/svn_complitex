@@ -23,7 +23,7 @@ import java.io.Reader;
 public class SqlSessionFactoryBean {
     private static final Logger log = LoggerFactory.getLogger(SqlSessionFactoryBean.class);
 
-    public static final String CONFIGURATION_FILE = "Configuration.xml";
+    public static final String CONFIGURATION_FILE = "mybatis-config.xml";
 
     private SqlSessionManager sqlSessionManager;
 
