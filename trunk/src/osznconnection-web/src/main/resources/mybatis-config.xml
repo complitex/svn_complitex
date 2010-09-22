@@ -2,9 +2,6 @@
 
 <!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
-    <properties resource="config.properties">
-    </properties>
-
     <typeAliases>
         <typeAlias type="org.complitex.dictionaryfw.entity.StringCulture" alias="StringCulture"/>
         <typeAlias type="org.complitex.dictionaryfw.entity.InsertParameter" alias="InsertParameter"/>
@@ -13,38 +10,21 @@
         <typeAlias type="org.complitex.dictionaryfw.entity.example.DomainObjectExample" alias="DomainObjectExample"/>
     </typeAliases>
 
-    <environments default="test">
+    <environments default="local">        
         <environment id="local">
-            <transactionManager type="JDBC"/>
-            <dataSource type="POOLED">
-                <property name="driver" value="com.mysql.jdbc.Driver"/>
-                <property name="url" value="${local_url}"/>
-                <property name="username" value="${local_user}"/>
-                <property name="password" value="${local_password}"/>
-
-                <property name="poolMaximumActiveConnections" value="10"/>
-                <property name="poolMaximumIdleConnections" value="5"/>
+            <transactionManager type="MANAGED"/>
+            <dataSource type="JNDI">
+                <property name="data_source" value="jdbc/osznconnectionResource"/>
             </dataSource>
         </environment>
         <environment id="remote">
-            <transactionManager type="JDBC"/>
-            <dataSource type="POOLED">
-                <property name="driver" value="oracle.jdbc.OracleDriver"/>
-                <property name="url" value="${remote_url}"/>
-                <property name="username" value="${remote_user}"/>
-                <property name="password" value="${remote_password}"/>
-
-                <property name="poolMaximumActiveConnections" value="10"/>
-                <property name="poolMaximumIdleConnections" value="5"/>
-            </dataSource>
-        </environment>
-        <environment id="test">
             <transactionManager type="MANAGED"/>
             <dataSource type="JNDI">
-                <property name="data_source" value="jdbc/osznconnectionPool"/>
+                <property name="data_source" value="jdbc/osznconnectionRemoteResource"/>
             </dataSource>
         </environment>
     </environments>
+
     <mappers>
         <mapper resource="org/complitex/dictionaryfw/entity/Locale.xml"/>
         <mapper resource="org/complitex/dictionaryfw/entity/Sequence.xml"/>
@@ -74,5 +54,4 @@
 
         <mapper resource="org/complitex/osznconnection/file/calculation/adapter/DefaultCalculationCenterAdapter.xml"/>
     </mappers>
-
 </configuration>
