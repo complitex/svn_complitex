@@ -16,10 +16,11 @@ insert into apartment_attribute(attribute_id, object_id, attribute_type_id, valu
 
 -- Buildings
 insert into building(object_id, parent_id, parent_entity_id) values (1,1,400), (2,1,400), (3,1,400), (4,2,400), (5,2,400), (6,3,400), (7,3,400);
-insert into building_string_culture(id, locale, value) values (1, 'ru', UPPER('10')), (2, 'ru', UPPER('20')), (3,'ru',UPPER('11')), (4,'ru',UPPER('12')), (5,'ru',UPPER('21')), (6,'ru',UPPER('100')), (7,'ru', null), (8,'ru', null), (9,'ru', null), (10,'ru', null), (11,'ru', null), (12,'ru', null), (13,'ru', null), (14,'ru', null), (15,'ru', null), (16,'ru', null), (17,'ru', null), (18,'ru', null),
-                                                              (1, 'uk', UPPER('10')), (2, 'uk', UPPER('20')), (3,'uk',UPPER('11')), (4,'uk',UPPER('12')), (5,'uk',UPPER('21')), (6,'uk',UPPER('100')), (7,'uk', null), (8,'uk', null), (9,'uk', null), (10,'uk', null), (11,'uk', null), (12,'uk', null), (13,'uk', null), (14,'uk', null), (15,'uk', null), (16,'uk', null), (17,'uk', null), (18,'uk', null),
-                    (19,'ru',UPPER('154A')), (19,'uk',UPPER('154A')), (20,'ru',null), (20,'uk',null), (21,'ru',null), (21,'uk',null),
-                    (22,'ru',UPPER('25A')), (22,'uk',UPPER('25A')), (23,'ru',null), (23,'uk',null), (24,'ru',null), (24,'uk',null);
+insert into building_string_culture(id, locale, value) values
+(1, 'ru', UPPER('10')), (2, 'ru', UPPER('20')), (3,'ru',UPPER('11')), (4,'ru',UPPER('12')), (5,'ru',UPPER('21')), (6,'ru',UPPER('100')),
+(1, 'uk', UPPER('10')), (2, 'uk', UPPER('20')), (3,'uk',UPPER('11')), (4,'uk',UPPER('12')), (5,'uk',UPPER('21')), (6,'uk',UPPER('100')),
+(19,'ru',UPPER('154A')), (19,'uk',UPPER('154А')),
+(22,'ru',UPPER('25A')), (22,'uk',UPPER('25А'));
 insert into building_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
 (1,1,500,1,500),
 (1,1,501,7,501),
@@ -162,10 +163,10 @@ insert into district_correction(organization_id, correction, object_id, organiza
 
 -- Ownership corrections
 insert into ownership_correction(organization_id, correction, object_id, organization_code) values
-(1,UPPER('мiсцевих Рад'),1,100), (2,UPPER('ГОС'),1,100),
-(1,UPPER('кооперативна'),2,200), (2,UPPER('КООП'),2,200),
-(1,UPPER('приватна'),5,500), (2,UPPER('ВЫК'),5,500),
-(1,UPPER('приватизована'),6,600), (2,UPPER('ЧАС'),6,600);
+(1,UPPER('мiсцевих Рад'),1,100), (2,UPPER('ГОС'),1,1),
+(1,UPPER('кооперативна'),2,200), (2,UPPER('КООП'),2,2),
+(1,UPPER('приватна'),5,500), (2,UPPER('ВЫК'),5,5),
+(1,UPPER('приватизована'),6,600), (2,UPPER('ЧАС'),6,6);
 
 -- Benefit
 insert into benefit(own_num_sr, OZN, f_nam, m_nam, sur_nam, request_file_id)

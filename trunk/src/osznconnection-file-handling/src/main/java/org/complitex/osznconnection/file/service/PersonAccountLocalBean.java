@@ -23,7 +23,7 @@ public class PersonAccountLocalBean extends AbstractBean {
     public String findLocalAccountNumber(String firstName, String middleName, String lastName, String city, String street, String buildingNumber,
             String buildingCorp, String apartment, String ownNumSr) {
         PersonAccount example = new PersonAccount(firstName, middleName, lastName, ownNumSr, city, street, buildingNumber, buildingCorp, apartment);
-        return (String) sqlSession().selectOne(MAPPING_NAMESPACE + ".find", example);
+        return (String) sqlSession().selectOne(MAPPING_NAMESPACE + ".findAccountNumber", example);
     }
 
     @Transactional

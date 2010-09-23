@@ -31,6 +31,7 @@ public class StringCultureBean extends AbstractBean{
     @EJB(beanName = "LocaleBean")
     private LocaleBean localeBean;
 
+    @Transactional
     public Long insertStrings(List<StringCulture> strings, String entityTable) {
         if (strings != null && !strings.isEmpty()) {
             long stringId = sequenceBean.nextStringId(entityTable);

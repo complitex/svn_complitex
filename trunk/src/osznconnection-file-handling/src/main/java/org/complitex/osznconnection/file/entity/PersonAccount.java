@@ -12,6 +12,8 @@ import java.io.Serializable;
  */
 public class PersonAccount implements Serializable {
 
+    private Long id;
+
     private String firstName;
 
     private String middleName;
@@ -42,6 +44,14 @@ public class PersonAccount implements Serializable {
         this.buildingNumber = buildingNumber;
         this.buildingCorp = buildingCorp;
         this.apartment = apartment;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getAccountNumber() {
