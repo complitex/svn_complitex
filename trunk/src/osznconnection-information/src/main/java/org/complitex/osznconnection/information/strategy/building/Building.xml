@@ -41,6 +41,51 @@
         </foreach>
     </select>
 
+    <sql id="orderBy">
+        <choose>
+            <when test="orderByAttribureTypeId != null">
+                ORDER BY (
+                SELECT sc.`value` FROM `building_string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`id` =
+                (SELECT orderByAttr.`value_id` FROM `building_attribute` orderByAttr WHERE orderByAttr.`object_id` = e.`object_id`
+                AND orderByAttr.`status` = 'ACTIVE'
+                AND orderByAttr.`attribute_type_id` = #{orderByAttribureTypeId}
+
+                <foreach collection="attributeExamples" item="attrExample">
+                    <if test="attrExample.attributeTypeId == 503">
+                        AND orderByAttr.`attribute_id` = (SELECT ba.`attribute_id` FROM `building_attribute` ba WHERE ba.`object_id` = e.`object_id`
+                        AND ba.`status` = 'ACTIVE'
+                        AND ba.`value_id` = #{attrExample.value}
+                        AND ba.`attribute_type_id` = 503)
+                    </if>
+                </foreach>
+                )
+                )
+                <choose>
+                    <when test="asc">
+                        ASC
+                    </when>
+                    <otherwise>
+                        DESC
+                    </otherwise>
+                </choose>
+            </when>
+            <otherwise>
+                <if test="orderByExpression != null">
+                    ORDER BY  ${orderByExpression}
+                    <choose>
+                        <when test="asc">
+                            ASC
+                        </when>
+                        <otherwise>
+                            DESC
+                        </otherwise>
+                    </choose>
+                </if>
+            </otherwise>
+        </choose>
+
+    </sql>
+
     <select id="find" resultMap="org.complitex.osznconnection.information.strategy.building.Building.Building" parameterType="DomainObjectExample">
         SELECT e.`object_id`, e.`start_date`, e.`end_date`, e.`status`, e.`parent_id`,
         (SELECT ent.`id` FROM `entity` ent WHERE ent.`entity_table` = #{table}) as entity_id,
@@ -48,32 +93,7 @@
         FROM `building` e WHERE
         <include refid="org.complitex.dictionaryfw.entity.DomainObject.statusFilter"/>
         <include refid="org.complitex.osznconnection.information.strategy.building.Building.filter"/>
-        <if test="orderByAttribureTypeId != null">
-            ORDER BY (
-            SELECT sc.`value` FROM `building_string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`id` =
-            (SELECT orderByAttr.`value_id` FROM `building_attribute` orderByAttr WHERE orderByAttr.`object_id` = e.`object_id`
-            AND orderByAttr.`status` = 'ACTIVE'
-            AND orderByAttr.`attribute_type_id` = #{orderByAttribureTypeId}
-            AND orderByAttr.`attribute_id` = (SELECT ba.`attribute_id` FROM `building_attribute` ba WHERE ba.`object_id` = e.`object_id`
-            AND ba.`status` = 'ACTIVE'
-            AND ba.`value_id` =
-            <foreach collection="attributeExamples" item="attrExample">
-                <if test="attrExample.attributeTypeId == 503">
-                    #{attrExample.value}
-                </if>
-            </foreach>
-            AND ba.`attribute_type_id` = 503)
-            )
-            )
-            <choose>
-                <when test="asc">
-                    ASC
-                </when>
-                <otherwise>
-                    DESC
-                </otherwise>
-            </choose>
-        </if>
+        <include refid="org.complitex.osznconnection.information.strategy.building.Building.orderBy"/>
         <include refid="org.complitex.dictionaryfw.entity.DomainObject.limit"/>
     </select>
 
@@ -102,13 +122,13 @@
                             <if test="attrExample.value != null">
                                 AND EXISTS(SELECT 1 FROM `building_attribute` attr WHERE attr.`object_id` = e.`object_id`
                                 AND attr.`status` = 'ACTIVE'
-                                AND attr.`value_id` IN (SELECT sc.`id` FROM `${table}_string_culture` sc WHERE sc.`value` 
+                                AND attr.`value_id` IN (SELECT sc.`id` FROM `${table}_string_culture` sc WHERE sc.`value`
                                 <choose>
                                     <when test="comparisonType == 'LIKE'">
                                         LIKE '%${attrExample.value}%'
                                     </when>
                                     <when test="comparisonType == 'EQUALITY'">
-                                         = #{attrExample.value}
+                                        = #{attrExample.value}
                                     </when>
                                 </choose>
                                 )
@@ -147,5 +167,5 @@
         attr.`status`
         FROM `building_attribute` attr WHERE attr.`object_id` = #{id} AND attr.`status` = 'ACTIVE' AND attr.`attribute_type_id` IN (503, 504)
     </select>
-    
+
 </mapper>

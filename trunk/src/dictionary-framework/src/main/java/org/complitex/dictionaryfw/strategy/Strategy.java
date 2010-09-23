@@ -30,20 +30,32 @@ import java.util.*;
  *
  * @author Artem
  */
-public abstract class Strategy extends AbstractBean{
+public abstract class Strategy extends AbstractBean {
+
     private static final Logger log = LoggerFactory.getLogger(Strategy.class);
 
     public static final String DOMAIN_OBJECT_NAMESPACE = "org.complitex.dictionaryfw.entity.DomainObject";
+
     public static final String ATTRIBUTE_NAMESPACE = "org.complitex.dictionaryfw.entity.Attribute";
+
     public static final String FIND_BY_ID_OPERATION = "findById";
+
     public static final String FIND_OPERATION = "find";
+
     public static final String COUNT_OPERATION = "count";
+
     public static final String INSERT_OPERATION = "insert";
+
     public static final String UPDATE_OPERATION = "update";
+
     public static final String ARCHIVE_ATTRIBUTES_OPERATION = "archiveAttributes";
+
     public static final String FIND_PARENT_IN_SEARCH_COMPONENT_OPERATION = "findParentInSearchComponent";
+
     public static final String HAS_HISTORY_OPERATION = "hasHistory";
+
     public static final String FIND_HISTORY_OBJECT_OPERATION = "findHistoryObject";
+
     public static final String FIND_HISTORY_ATTRIBUTES_OPERATION = "findHistoryAttributes";
 
     @EJB(beanName = "StrategyFactory")
@@ -592,27 +604,6 @@ public abstract class Strategy extends AbstractBean{
         return historyList;
     }
 
-//    protected List<Attribute> getSuitedAttributes(Long attributeTypeId, List<Attribute> allAttributesWithOneType, Date date) {
-//        Attribute result = null;
-//        long time = Long.MIN_VALUE;
-//        for (Attribute attr : allAttributesWithOneType) {
-//            if ((attr.getEndDate() == null) || (attr.getEndDate().getTime() > date.getTime())) {
-//                if (attr.getStartDate().getTime() >= time) {
-//                    time = attr.getStartDate().getTime();
-//                    result = attr;
-//                }
-//            } else {
-//                if (attr.getEndDate().getTime() > time) {
-//                    time = attr.getEndDate().getTime();
-//                    result = null;
-//                }
-//            }
-//        }
-//        if (result == null) {
-//            return null;
-//        }
-//        return Lists.newArrayList(result);
-//    }
     @Transactional
     public DomainObject findHistoryObject(long objectId, Date date) {
         DomainObjectExample example = new DomainObjectExample();
@@ -626,25 +617,6 @@ public abstract class Strategy extends AbstractBean{
         }
 
         List<Attribute> allAttributes = loadHistoryAttributes(objectId, date);
-//        ArrayListMultimap<Long, Attribute> attributesWithOneType = ArrayListMultimap.create();
-//        Entity description = entityBean.getFullEntity(getEntityTable());
-//        for (final EntityAttributeType attributeType : description.getEntityAttributeTypes()) {
-//            List<Attribute> attributes = Lists.newArrayList(Iterables.filter(allAttributes, new Predicate<Attribute>() {
-//
-//                @Override
-//                public boolean apply(Attribute attr) {
-//                    return attr.getAttributeTypeId().equals(attributeType.getId());
-//                }
-//            }));
-//            attributesWithOneType.putAll(attributeType.getId(), attributes);
-//        }
-//
-//        for (final EntityAttributeType attributeType : description.getEntityAttributeTypes()) {
-//            List<Attribute> suitedAttributes = getSuitedAttributes(attributeType.getId(), attributesWithOneType.get(attributeType.getId()), date);
-//            if (suitedAttributes != null) {
-//                object.getAttributes().addAll(suitedAttributes);
-//            }
-//        }
         object.getAttributes().addAll(allAttributes);
         updateStringsForNewLocales(object);
         return object;
@@ -669,5 +641,19 @@ public abstract class Strategy extends AbstractBean{
 
     public String getAttributeLabel(Attribute attribute, Locale locale) {
         return entityBean.getAttributeLabel(getEntityTable(), attribute.getAttributeTypeId(), locale);
+    }
+
+    protected long getDefaultOrderByAttributeId() {
+        return getEntity().getId();
+    }
+
+    public String getOrderByExpression(String objectIdReference, String locale, Map<String, Object> params) {
+        StringBuilder orderByBuilder = new StringBuilder();
+        orderByBuilder.append("(SELECT sc.`value` FROM `").append(getEntityTable()).append("_string_culture` sc WHERE sc.`locale` = '").
+                append(locale).append("' AND sc.`id` = (SELECT orderByAttr.`value_id` FROM `").
+                append(getEntityTable()).append("_attribute` orderByAttr WHERE orderByAttr.`object_id` = ").append(objectIdReference).
+                append(" AND orderByAttr.`status` = 'ACTIVE' AND orderByAttr.`attribute_type_id` = ").
+                append(getDefaultOrderByAttributeId()).append("))");
+        return orderByBuilder.toString();
     }
 }

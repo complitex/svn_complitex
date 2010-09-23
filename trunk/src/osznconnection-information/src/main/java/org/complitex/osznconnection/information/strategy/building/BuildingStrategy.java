@@ -404,4 +404,33 @@ public class BuildingStrategy extends Strategy {
         params.put(HistoryPage.OBJECT_ID, objectId);
         return params;
     }
+
+    @Override
+    public String getOrderByExpression(String objectIdReference, String locale, Map<String, Object> params) {
+        StringBuilder orderByBuilder = new StringBuilder();
+        orderByBuilder.append("(SELECT sc.`value` FROM `building_string_culture` sc WHERE sc.`locale` = '").
+                append(locale).
+                append("' AND sc.`id` = (SELECT orderByAttr.`value_id` FROM `building_attribute` orderByAttr WHERE orderByAttr.`object_id` = ").
+                append(objectIdReference).
+                append(" AND orderByAttr.`status` = 'ACTIVE' AND orderByAttr.`attribute_type_id` = ").
+                append(NUMBER).append(" AND orderByAttr.`attribute_id` = ");
+        StringBuilder attributeId = null;
+        if (params != null) {
+            Object streetObject = params.get("street");
+            if (streetObject != null && (streetObject instanceof Long)) {
+                long streetId = (Long) streetObject;
+                attributeId = new StringBuilder();
+                attributeId.append("(SELECT ba.`attribute_id` FROM `building_attribute` ba WHERE ba.`object_id` = ").append(objectIdReference).
+                        append("AND ba.`status` = 'ACTIVE' AND ba.`value_id` = ").append(streetId).append(" AND ba.`attribute_type_id` = 503)");
+            }
+        }
+
+        if (attributeId == null) {
+            attributeId = new StringBuilder("1");
+        }
+
+        orderByBuilder.append(attributeId);
+        orderByBuilder.append("))");
+        return orderByBuilder.toString();
+    }
 }

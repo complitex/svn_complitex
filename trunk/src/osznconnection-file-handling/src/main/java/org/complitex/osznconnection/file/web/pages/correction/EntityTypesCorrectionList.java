@@ -48,4 +48,9 @@ public class EntityTypesCorrectionList extends AbstractCorrectionList {
         }
         return parameters;
     }
+
+    @Override
+    protected String getInternalObjectOrderByExpression() {
+        return "internalObject";
+    }
 }
