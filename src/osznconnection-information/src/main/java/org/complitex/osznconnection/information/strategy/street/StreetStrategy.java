@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import org.complitex.dictionaryfw.entity.description.EntityType;
+import org.complitex.dictionaryfw.service.EntityBean;
 
 /**
  *
@@ -44,7 +46,13 @@ public class StreetStrategy extends Strategy {
     @EJB(beanName = "StringCultureBean")
     private StringCultureBean stringBean;
 
-    private static final long NAME_ATTRIBUTE_TYPE_ID = 300L;
+    @EJB
+    private EntityBean entityBean;
+
+    /*
+     * Attribute type ids
+     */
+    private static final long NAME = 300L;
 
     private static final String STREET_NAMESPACE = StreetStrategy.class.getPackage().getName() + ".Street";
 
@@ -62,7 +70,7 @@ public class StreetStrategy extends Strategy {
 
     @Override
     public boolean isSimpleAttributeType(EntityAttributeType attributeDescription) {
-        return attributeDescription.getId() >= NAME_ATTRIBUTE_TYPE_ID;
+        return attributeDescription.getId() >= NAME;
     }
 
     @Override
@@ -71,20 +79,33 @@ public class StreetStrategy extends Strategy {
 
             @Override
             public boolean apply(EntityAttributeType attr) {
-                return attr.getId().equals(NAME_ATTRIBUTE_TYPE_ID);
+                return attr.getId().equals(NAME);
             }
         }));
     }
 
     @Override
     public String displayDomainObject(DomainObject object, Locale locale) {
-        return stringBean.displayValue(Iterables.find(object.getAttributes(), new Predicate<Attribute>() {
+        String name = stringBean.displayValue(Iterables.find(object.getAttributes(), new Predicate<Attribute>() {
 
             @Override
             public boolean apply(Attribute attr) {
-                return attr.getAttributeTypeId().equals(NAME_ATTRIBUTE_TYPE_ID);
+                return attr.getAttributeTypeId().equals(NAME);
             }
         }).getLocalizedValues(), locale);
+        final Long entityTypeId = object.getEntityTypeId();
+        if (entityTypeId != null) {
+            String streetTypeName = stringBean.displayValue(Iterables.find(entityBean.getFullEntity(getEntityTable()).getEntityTypes(), new Predicate<EntityType>() {
+
+                @Override
+                public boolean apply(EntityType entityType) {
+                    return entityType.getId().equals(entityTypeId);
+                }
+            }).getEntityTypeNames(), locale);
+            return streetTypeName + " " + name;
+        } else {
+            return name;
+        }
     }
 
     @Override
@@ -100,11 +121,11 @@ public class StreetStrategy extends Strategy {
 
                     @Override
                     public boolean apply(AttributeExample attrExample) {
-                        return attrExample.getAttributeTypeId().equals(NAME_ATTRIBUTE_TYPE_ID);
+                        return attrExample.getAttributeTypeId().equals(NAME);
                     }
                 });
             } catch (NoSuchElementException e) {
-                attrExample = new AttributeExample(NAME_ATTRIBUTE_TYPE_ID);
+                attrExample = new AttributeExample(NAME);
                 example.addAttributeExample(attrExample);
             }
             attrExample.setValue(searchTextInput);

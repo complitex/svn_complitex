@@ -1,3 +1,11 @@
+-- Street types
+insert into `string_culture`(`id`, `locale`, `value`) values
+(302, 'ru', UPPER('ул.')), (302, 'uk', UPPER('вулиця')),
+(303, 'ru', UPPER('пр-т')), (303, 'uk', UPPER('проспект')),
+(304, 'ru', UPPER('пер-к')), (304, 'uk', UPPER('провулок'));
+insert into `entity_type` (`id`, `entity_id`, `entity_type_name_id`) values
+(300, 300, 302), (301, 300, 303), (302, 300, 304);
+
 
 -- Rooms
 insert into room(object_id, parent_id, parent_entity_id) values (1,1,100), (2,1,100), (3,2,100), (4,2,100);
@@ -68,7 +76,7 @@ insert into street_string_culture(id, locale, value) values (1, 'ru', UPPER('Т�
                                                             (3, 'ru', UPPER('Морской')), (3,'uk', UPPER('Morskoy')),
                                                             (4, 'ru', UPPER('КОСИОРА')), (4,'uk', UPPER('КОСИОРА')),
                                                             (5, 'ru', UPPER('ФРАНТИШЕКА КРАЛА')), (5,'uk', UPPER('ФРАНТИШЕКА КРАЛА'));
-insert into street(object_id, parent_id, parent_entity_id, entity_type_id) values (1,1,400,302), (2,2,400,302), (3,1,400,302), (4,3,400,301), (5,3,400,302);
+insert into street(object_id, parent_id, parent_entity_id, entity_type_id) values (1,1,400,300), (2,2,400,300), (3,1,400,300), (4,3,400,301), (5,3,400,302);
 insert into street_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
 (1,1,300,1,300),
 (1,2,300,2,300),

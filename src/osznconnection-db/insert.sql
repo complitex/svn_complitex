@@ -59,12 +59,6 @@ insert into `entity`(`id`, `entity_table`, `entity_name_id`, `strategy_factory`)
 insert into `string_culture`(`id`, `locale`, `value`) values (301, 'ru', UPPER('Наименование улицы')), (301, 'uk', UPPER('Найменування вулиці'));
 insert into `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) values (300, 300, 1, 301, 1);
 insert into `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) values (300, 300, UPPER('string_culture'));
-insert into `string_culture`(`id`, `locale`, `value`) values
-(302, 'ru', UPPER('улица')), (302, 'uk', UPPER('вулиця')),
-(303, 'ru', UPPER('проспект')), (303, 'uk', UPPER('проспект')),
-(304, 'ru', UPPER('переулок')), (304, 'uk', UPPER('провулок'));
-insert into `entity_type` (`id`, `entity_id`, `entity_type_name_id`) values
-(300, 300, 302), (301, 300, 303), (302, 300, 304);
 
 -- --------------------------------
 -- City
