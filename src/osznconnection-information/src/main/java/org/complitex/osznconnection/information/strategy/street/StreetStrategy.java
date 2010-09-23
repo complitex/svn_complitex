@@ -46,6 +46,8 @@ public class StreetStrategy extends Strategy {
 
     private static final long NAME_ATTRIBUTE_TYPE_ID = 300L;
 
+    private static final String STREET_NAMESPACE = StreetStrategy.class.getPackage().getName() + ".Street";
+
     @Override
     public String getEntityTable() {
         return "street";
@@ -55,7 +57,7 @@ public class StreetStrategy extends Strategy {
     @Transactional
     public List<DomainObject> find(DomainObjectExample example) {
         example.setTable(getEntityTable());
-        return sqlSession().selectList("org.complitex.pspoffice.information.strategy.street.Street." + FIND_OPERATION, example);
+        return sqlSession().selectList(STREET_NAMESPACE + "." + FIND_OPERATION, example);
     }
 
     @Override

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.complitex.pspoffice.information.strategy.street.Street">
+<mapper namespace="org.complitex.osznconnection.information.strategy.street.Street">
 
     <select id="find" resultMap="org.complitex.dictionaryfw.entity.DomainObject.DomainObject" parameterType="DomainObjectExample">
         SELECT e.`object_id`, e.`start_date`, e.`end_date`, e.`status`, e.`parent_id`,
@@ -18,21 +18,7 @@
                         WHERE b.`status` = 'ACTIVE' AND ba1.`value_id` = e.`object_id` AND ba2.`value_id` = #{additionalParams.district}
                 )
         </if>
-        <if test="orderByAttribureTypeId != null">
-            ORDER BY (
-            SELECT sc.`value` FROM `${table}_string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`id` =
-            (SELECT orderByAttr.`value_id` FROM `${table}_attribute` orderByAttr WHERE orderByAttr.`object_id` = e.`object_id`
-            AND orderByAttr.`status` = 'ACTIVE' AND orderByAttr.`attribute_type_id` = #{orderByAttribureTypeId})
-            )
-            <choose>
-                <when test="asc">
-                    ASC
-                </when>
-                <otherwise>
-                    DESC
-                </otherwise>
-            </choose>
-        </if>
+        <include refid="org.complitex.dictionaryfw.entity.DomainObject.orderBy"/>
         <include refid="org.complitex.dictionaryfw.entity.DomainObject.limit"/>
     </select>
 

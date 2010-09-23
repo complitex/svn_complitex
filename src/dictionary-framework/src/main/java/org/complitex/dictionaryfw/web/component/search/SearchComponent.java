@@ -29,6 +29,7 @@ import javax.ejb.EJB;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.complitex.dictionaryfw.strategy.Strategy;
 
 /**
  *
@@ -203,7 +204,11 @@ public final class SearchComponent extends Panel {
 
                         DomainObjectExample example = new DomainObjectExample();
                         example.setTable(entity);
-                        strategyFactory.getStrategy(entity).configureExample(example, transformObjects(previousInfo), searchTextInput);
+                        Strategy strategy = strategyFactory.getStrategy(entity);
+                        strategy.configureExample(example, SearchComponent.<Long>transformObjects(previousInfo), searchTextInput);
+                        example.setOrderByExpression(strategy.getOrderByExpression("e.`object_id`", getLocale().getLanguage(),
+                                transformObjects(previousInfo)));
+                        example.setAsc(true);
                         example.setStart(0);
                         example.setSize(AUTO_COMPLETE_SIZE);
                         example.setLocale(getLocale().getLanguage());
@@ -306,12 +311,12 @@ public final class SearchComponent extends Panel {
         }
     }
 
-    private Map<String, Long> transformObjects(Map<String, DomainObject> objects) {
-        return Maps.transformValues(objects, new Function<DomainObject, Long>() {
+    private static <T> Map<String, T> transformObjects(Map<String, DomainObject> objects) {
+        return Maps.transformValues(objects, new Function<DomainObject, T>() {
 
             @Override
-            public Long apply(DomainObject from) {
-                return from != null ? from.getId() : null;
+            public T apply(DomainObject from) {
+                return from != null ? (T) from.getId() : null;
             }
         });
     }

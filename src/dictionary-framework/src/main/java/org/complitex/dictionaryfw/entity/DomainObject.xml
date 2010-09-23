@@ -52,6 +52,39 @@
         </choose>
     </sql>
 
+    <sql id="orderBy">
+        <choose>
+            <when test="orderByAttribureTypeId != null">
+                ORDER BY (
+                SELECT sc.`value` FROM `${table}_string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`id` =
+                (SELECT orderByAttr.`value_id` FROM `${table}_attribute` orderByAttr WHERE orderByAttr.`object_id` = e.`object_id`
+                AND orderByAttr.`status` = 'ACTIVE' AND orderByAttr.`attribute_type_id` = #{orderByAttribureTypeId})
+                )
+                <choose>
+                    <when test="asc">
+                        ASC
+                    </when>
+                    <otherwise>
+                        DESC
+                    </otherwise>
+                </choose>
+            </when>
+            <otherwise>
+                <if test="orderByExpression != null">
+                    ORDER BY ${orderByExpression}
+                    <choose>
+                        <when test="asc">
+                            ASC
+                        </when>
+                        <otherwise>
+                            DESC
+                        </otherwise>
+                    </choose>
+                </if>
+            </otherwise>
+        </choose>
+    </sql>
+
     <select id="find" resultMap="org.complitex.dictionaryfw.entity.DomainObject.DomainObject" parameterType="DomainObjectExample">
         SELECT e.`object_id`, e.`start_date`, e.`end_date`, e.`status`, e.`parent_id`,
         (SELECT ent.`id` FROM `entity` ent WHERE ent.`entity_table` = #{table}) as entity_id,
@@ -60,21 +93,7 @@
         FROM `${table}` e WHERE
         <include refid="org.complitex.dictionaryfw.entity.DomainObject.statusFilter"/>
         <include refid="org.complitex.dictionaryfw.entity.DomainObject.filter"/>
-        <if test="orderByAttribureTypeId != null">
-            ORDER BY (
-            SELECT sc.`value` FROM `${table}_string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`id` =
-            (SELECT orderByAttr.`value_id` FROM `${table}_attribute` orderByAttr WHERE orderByAttr.`object_id` = e.`object_id`
-            AND orderByAttr.`status` = 'ACTIVE' AND orderByAttr.`attribute_type_id` = #{orderByAttribureTypeId})
-            )
-            <choose>
-                <when test="asc">
-                    ASC
-                </when>
-                <otherwise>
-                    DESC
-                </otherwise>
-            </choose>
-        </if>
+        <include refid="org.complitex.dictionaryfw.entity.DomainObject.orderBy"/>
         <include refid="org.complitex.dictionaryfw.entity.DomainObject.limit"/>
     </select>
 
@@ -88,13 +107,13 @@
                     <if test="attrExample.value != null">
                         AND EXISTS(SELECT 1 FROM `${table}_attribute` attr WHERE attr.`object_id` = e.`object_id`
                         AND attr.`status` = 'ACTIVE'
-                        AND attr.`value_id` IN (SELECT sc.`id` FROM `${table}_string_culture` sc WHERE sc.`value` 
+                        AND attr.`value_id` IN (SELECT sc.`id` FROM `${table}_string_culture` sc WHERE sc.`value`
                         <choose>
                             <when test="comparisonType == 'LIKE'">
                                 LIKE '%${attrExample.value}%'
                             </when>
                             <when test="comparisonType == 'EQUALITY'">
-                                 = #{attrExample.value}
+                                = #{attrExample.value}
                             </when>
                         </choose>
                         )
@@ -133,10 +152,10 @@
         <choose>
             <when test="startDate != null">
                 AND e.`start_date` =
-                    (SELECT MAX(e1.`start_date`) FROM `${table}` e1 WHERE e1.`object_id` = #{id} AND e1.`start_date` <![CDATA[ <= ]]> #{startDate})
+                (SELECT MAX(e1.`start_date`) FROM `${table}` e1 WHERE e1.`object_id` = #{id} AND e1.`start_date` <![CDATA[ <= ]]> #{startDate})
             </when>
             <otherwise>
-                 AND (e.`status` = 'ACTIVE' OR e.`status` = 'INACTIVE')
+                AND (e.`status` = 'ACTIVE' OR e.`status` = 'INACTIVE')
             </otherwise>
         </choose>
     </select>
@@ -155,9 +174,9 @@
 
     <select id="hasHistory" parameterType="DomainObjectExample" resultType="int">
         SELECT 1 FROM DUAL WHERE EXISTS(
-            SELECT 1 FROM `${table}` e WHERE e.`object_id` = #{id} AND e.`status` = 'ARCHIVE'
-            UNION
-            SELECT 1 FROM `${table}_attribute` aa WHERE aa.`object_id`= #{id} AND aa.`status` = 'ARCHIVE'
+        SELECT 1 FROM `${table}` e WHERE e.`object_id` = #{id} AND e.`status` = 'ARCHIVE'
+        UNION
+        SELECT 1 FROM `${table}_attribute` aa WHERE aa.`object_id`= #{id} AND aa.`status` = 'ARCHIVE'
         )
     </select>
 

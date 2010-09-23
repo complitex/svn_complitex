@@ -26,6 +26,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.util.string.Strings;
+import org.complitex.dictionaryfw.strategy.StrategyFactory;
 import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
 import org.complitex.osznconnection.commons.web.component.toolbar.AddItemButton;
@@ -45,6 +46,9 @@ public abstract class AbstractCorrectionList extends TemplatePage {
 
     @EJB(name = "CorrectionBean")
     private CorrectionBean correctionBean;
+
+    @EJB(name="StrategyFactory")
+    private StrategyFactory strategyFactory;
 
     private String entity;
 
@@ -84,6 +88,10 @@ public abstract class AbstractCorrectionList extends TemplatePage {
     protected abstract Class<? extends WebPage> getEditPage();
 
     protected abstract PageParameters getEditPageParams(Long objectCorrectionId);
+
+    protected String getInternalObjectOrderByExpression(){
+        return strategyFactory.getStrategy(entity).getOrderByExpression("c.`object_id`", getLocale().getLanguage(), null);
+    }
 
     protected void init() {
         IModel<String> labelModel = new ResourceModel("label");
@@ -173,7 +181,7 @@ public abstract class AbstractCorrectionList extends TemplatePage {
         filterForm.add(new ArrowOrderByBorder("organizationHeader", CorrectionBean.OrderBy.ORGANIZATION.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("correctionHeader", CorrectionBean.OrderBy.CORRECTION.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("codeHeader", CorrectionBean.OrderBy.CODE.getOrderBy(), dataProvider, data, content));
-        filterForm.add(new WebMarkupContainer("internalObjectHeader"));
+        filterForm.add(new ArrowOrderByBorder("internalObjectHeader", getInternalObjectOrderByExpression(), dataProvider, data, content));
 
         content.add(new PagingNavigator("navigator", data, content));
     }

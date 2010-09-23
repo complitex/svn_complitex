@@ -29,6 +29,8 @@ public class DomainObjectExample implements Serializable {
 
     private Long orderByAttribureTypeId;
 
+    private String orderByExpression;
+
     private boolean asc;
 
     private Long id;
@@ -178,5 +180,13 @@ public class DomainObjectExample implements Serializable {
 
     public void setEntityTypeId(Long entityTypeId) {
         this.entityTypeId = entityTypeId;
+    }
+
+    public String getOrderByExpression() {
+        return orderByExpression;
+    }
+
+    public void setOrderByExpression(String orderByExpression) {
+        this.orderByExpression = orderByExpression;
     }
 }
