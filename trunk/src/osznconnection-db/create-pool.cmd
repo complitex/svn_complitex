@@ -27,4 +27,4 @@ call %GLASSFISH_ASADMIN% create-jdbc-connection-pool --driverclassname oracle.jd
 
 ECHO.
 ECHO Create a JDBC resource with the specified JNDI name
-call %GLASSFISH_ASADMIN% create-jdbc-resource --connectionpoolid osznconnectionPool jdbc/osznconnectionRemoteResource
+call %GLASSFISH_ASADMIN% create-jdbc-resource --connectionpoolid osznconnectionRemotePool jdbc/osznconnectionRemoteResource
