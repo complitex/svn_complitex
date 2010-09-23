@@ -1,6 +1,11 @@
 set @organization_id = 2;
 set @organization_code = 1;
 
+-- city
+insert into `city_correction` (`object_id`, `correction`,  `organization_id`, `organization_code`)
+value
+  (10000, 'Харьков', @organization_id, @organization_code);
+
 -- street type
 insert into `entity_type_correction` (`entity_type_id`, `type`,  `organization_id`, `organization_type_code`)
   select
