@@ -217,6 +217,7 @@ public abstract class Strategy extends AbstractBean {
         sqlSession().insert(ATTRIBUTE_NAMESPACE + "." + INSERT_OPERATION, new InsertParameter(getEntityTable(), attribute));
     }
 
+    @Transactional
     public void insert(DomainObject object) {
         Date startDate = new Date();
         object.setId(sequenceBean.nextId(getEntityTable()));

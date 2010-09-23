@@ -44,18 +44,6 @@ public class BindingRequestBean extends AbstractBean {
     @EJB
     private RequestFileBean requestFileBean;
 
-//    private static class ModifyStatus {
-//
-//        private boolean modified;
-//
-//        private void markModified() {
-//            modified = true;
-//        }
-//
-//        public boolean isModified() {
-//            return modified;
-//        }
-//    }
     private boolean resolveAddress(Payment payment, long calculationCenterId, ICalculationCenterAdapter adapter) {
         addressService.resolveAddress(payment, calculationCenterId, adapter);
         return addressService.isAddressResolved(payment);

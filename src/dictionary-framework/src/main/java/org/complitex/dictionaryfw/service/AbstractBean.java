@@ -15,7 +15,7 @@ import java.util.ResourceBundle;
  *         Date: 09.08.2010 15:29:48
  */
 @Interceptors(TransactionalMethodInterceptor.class)
-@TransactionManagement(TransactionManagementType.BEAN)
+//@TransactionManagement(TransactionManagementType.BEAN)
 public abstract class AbstractBean {
     @EJB(beanName = "SqlSessionFactoryBean")
     private SqlSessionFactoryBean sqlSessionFactoryBean;

@@ -8,7 +8,7 @@
     </resultMap>
 
     <select id="findCorrectionAddressId" resultType="long" parameterType="org.complitex.osznconnection.file.entity.ObjectCorrection">
-        SELECT c.`object_id` FROM `${entity}_correction` c WHERE c.`organization_id` = #{organizationId} AND
+        SELECT DISTINCT c.`object_id` FROM `${entity}_correction` c WHERE c.`organization_id` = #{organizationId} AND
         c.`correction` = #{correction}
         <if test="internalParentId != null">
             AND EXISTS(SELECT 1 FROM `${entity}` e WHERE e.`object_id` = c.`object_id` AND e.`status` = 'ACTIVE' AND e.`parent_id` = #{internalParentId})
@@ -17,7 +17,7 @@
     </select>
 
     <select id="findCorrectionBuilding" resultType="long" parameterType="org.complitex.osznconnection.file.entity.BuildingCorrection">
-        SELECT c.`object_id` FROM `building_correction` c WHERE c.`organization_id` = #{organizationId} AND
+        SELECT DISTINCT c.`object_id` FROM `building_correction` c WHERE c.`organization_id` = #{organizationId} AND
         c.`correction` = #{correction}
         <choose>
             <when test="correctionCorp == null">
@@ -34,7 +34,7 @@
     </select>
 
     <select id="findCorrectionEntityType" resultType="long" parameterType="long">
-        SELECT etc.`entity_type_id` typeId
+        SELECT DISTINCT etc.`entity_type_id` typeId
         FROM `entity_type_correction` etc
         WHERE etc.`organization_id` = #{organizationId}
         AND EXISTS(SELECT 1 FROM `entity_type` et WHERE et.`id` = etc.`entity_type_id` AND et.`end_date` IS NULL)
@@ -93,13 +93,13 @@
         SELECT 1 FROM `${entity}_attribute` attr WHERE attr.`status` = 'ACTIVE' AND e.`object_id` = attr.`object_id`
         AND attr.`attribute_type_id` = #{attributeTypeId}
         AND attr.`value_id` IN (
-                SELECT sc.`id` FROM `${entity}_string_culture` sc WHERE TO_CYRILLIC(sc.`value`) = TO_CYRILLIC(#{correction})))
+                SELECT sc.`id` FROM `${entity}_string_culture` sc WHERE sc.`value` = TO_CYRILLIC(#{correction})))
     </select>
 
     <select id="findInternalBuilding" parameterType="hashmap" resultType="long">
         SELECT b.`object_id` FROM `building` b WHERE b.`status` = 'ACTIVE'
         <if test="internalParentId != null">
-            AND e.`parent_id` = #{parentId}
+            AND b.`parent_id` = #{parentId}
         </if>
         AND EXISTS(
         SELECT 1 FROM `building_attribute` a_num
@@ -111,19 +111,20 @@
                  AND (a_corp.`status` = 'ACTIVE'))
         WHERE a_num.`attribute_type_id` = 500 AND a_num.`status` = 'ACTIVE' AND b.`object_id` = a_num.`object_id`
         AND a_num.`value_id` IN (
-                SELECT sc.`id` FROM `building_string_culture` sc WHERE TO_CYRILLIC(sc.`value`) = TO_CYRILLIC(#{number}))
+                SELECT sc.`id` FROM `building_string_culture` sc WHERE sc.`value` = TO_CYRILLIC(#{number}))
         AND a_street.`value_id` = #{streetId}
-        AND a_corp.`value_id` IN (
-            SELECT sc.`id` FROM `building_string_culture` sc WHERE
+        
         <choose>
             <when test="corp != null">
-               TO_CYRILLIC(sc.`value`) = TO_CYRILLIC(#{corp})
+               AND a_corp.`value_id` IN (
+                    SELECT sc.`id` FROM `building_string_culture` sc WHERE sc.`value` = TO_CYRILLIC(#{corp}))
             </when>
             <otherwise>
-                sc.`value` IS NULL
+                AND ((a_corp.`value_id` IN (SELECT sc.`id` FROM `building_string_culture` sc WHERE sc.`value` IS NULL)) OR
+                    (a_corp.`value_id` NOT IN (SELECT sc.`id` FROM `building_string_culture` sc)))
             </otherwise>
         </choose>
-        ))
+        )
     </select>
 
     <update id="updateBuilding" parameterType="org.complitex.osznconnection.file.entity.BuildingCorrection">

@@ -22,7 +22,7 @@
 
     <select id="acquireAccountCorrectionDetails" statementType="CALLABLE" parameterType="hashmap">
         <![CDATA[
-         {#{resultCode, mode=OUT, javaType=int, jdbcType=NUMERIC} = call Z$RUNTIME_SZ_UTL.GETACCATTRS(
+         {#{resultCode, mode=OUT, javaType=int, jdbcType=NUMERIC} = call COMP.Z$RUNTIME_SZ_UTL.GETACCATTRS(
             #{pDistrName, mode=IN, javaType=string, jdbcType=VARCHAR},
             #{pStSortName, mode=IN, javaType=string, jdbcType=VARCHAR},
             #{pStreetName, mode=IN, javaType=string, jdbcType=VARCHAR},
@@ -50,7 +50,7 @@
 
     <select id="processPaymentAndBenefit" statementType="CALLABLE" parameterType="hashmap">
         <![CDATA[
-         {#{resultCode, mode=OUT, javaType=int, jdbcType=NUMERIC} = call Z$RUNTIME_SZ_UTL.GETCHARGEANDPARAMS(
+         {#{resultCode, mode=OUT, javaType=int, jdbcType=NUMERIC} = call COMP.Z$RUNTIME_SZ_UTL.GETCHARGEANDPARAMS(
             #{accountNumber, mode=IN, javaType=string, jdbcType=VARCHAR},
             #{dat1, mode=IN, javaType=date, jdbcType=DATE},
             #{data, mode=OUT, jdbcType=CURSOR, javaType=java.sql.ResultSet,
