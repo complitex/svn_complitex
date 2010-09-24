@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:wicket="http://wicket.apache.org">
+    <head>
+        <wicket:head>
+            <title wicket:id="title"></title>
+        </wicket:head>
+    </head>
+    <body>
+        <wicket:extend>
+            <h2 wicket:id="label" style="margin-bottom: 20px;"></h2>
+            <div wicket:id="messages"></div>
+            <form wicket:id="form">
+                <table class="tbForm" cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                        <th>
+                            <wicket:message key="lastName"/> <b class="blue">*</b> :
+                        </th>
+                        <td>
+                            <input type="text" wicket:id="lastName"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <wicket:message key="firstName"/> <b class="blue">*</b> :
+                        </th>
+                        <td>
+                            <input type="text" wicket:id="firstName"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <wicket:message key="middleName"/> <b class="blue">*</b> :
+                        </th>
+                        <td>
+                            <input type="text" wicket:id="middleName"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <wicket:message key="city"/> <b class="blue">*</b> :
+                        </th>
+                        <td>
+                            <input type="text" wicket:id="city"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <wicket:message key="street"/> <b class="blue">*</b> :
+                        </th>
+                        <td>
+                            <input type="text" wicket:id="street"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <wicket:message key="buildingNumber"/> <b class="blue">*</b> :
+                        </th>
+                        <td>
+                            <input type="text" wicket:id="buildingNumber"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <wicket:message key="buildingCorp"/> :
+                        </th>
+                        <td>
+                            <input type="text" wicket:id="buildingCorp"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <wicket:message key="apartment"/> <b class="blue">*</b> :
+                        </th>
+                        <td>
+                            <input type="text" wicket:id="apartment"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <wicket:message key="accountNumber"/> <b class="blue">*</b> :
+                        </th>
+                        <td>
+                            <input type="text" wicket:id="accountNumber"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <wicket:message key="ownNumSr"/> <b class="blue">*</b> :
+                        </th>
+                        <td>
+                            <input type="text" wicket:id="ownNumSr"/>
+                        </td>
+                    </tr>
+                </table>
+
+                <div style="margin-top: 30px;">
+                    <input type="submit" wicket:message="value:save" wicket:id="submit" class="btnMiddle"/>
+                    <input type="button" wicket:message="value:cancel" wicket:id="cancel" class="btnMiddle"/>
+                </div>
+            </form>
+        </wicket:extend>
+    </body>
+</html>

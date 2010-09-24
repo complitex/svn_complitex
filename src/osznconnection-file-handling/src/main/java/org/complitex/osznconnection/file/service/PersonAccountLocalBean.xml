@@ -90,6 +90,13 @@
         LIMIT #{start},#{size}
     </select>
 
+    <select id="findById" parameterType="long" resultType="org.complitex.osznconnection.file.entity.PersonAccount">
+        SELECT pa.`id`, pa.`city`, pa.`street`, pa.`building_num` buildingNumber, pa.`building_corp` buildingCorp, pa.`apartment`,
+                pa.`first_name` firstName, pa.`middle_name` middleName, pa.`last_name` lastName, pa.`own_num_sr` ownNumSr,
+                pa.`account_number` accountNumber
+        FROM `person_account` pa WHERE pa.`id` = #{id}
+    </select>
+
     <select id="count" resultType="int" parameterType="org.complitex.osznconnection.file.entity.example.PersonAccountExample">
         SELECT COUNT(*) FROM `person_account` pa
         <include refid="org.complitex.osznconnection.file.service.PersonAccountLocalBean.webFilter"/>
