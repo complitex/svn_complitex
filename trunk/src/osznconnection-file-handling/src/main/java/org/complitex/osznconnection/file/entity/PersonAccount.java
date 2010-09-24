@@ -34,6 +34,9 @@ public class PersonAccount implements Serializable {
 
     private String accountNumber;
 
+    public PersonAccount() {
+    }
+
     public PersonAccount(String firstName, String middleName, String lastName, String ownNumSr, String city, String street, String buildingNumber, String buildingCorp, String apartment) {
         this.firstName = firstName;
         this.middleName = middleName;

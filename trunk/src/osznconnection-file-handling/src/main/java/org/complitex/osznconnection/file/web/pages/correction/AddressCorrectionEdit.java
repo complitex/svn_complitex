@@ -113,6 +113,8 @@ public class AddressCorrectionEdit extends FormTemplatePage {
         protected List<String> getSearchFilters(String entity) {
             if (entity.equals("city")) {
                 return ImmutableList.of("city");
+            } else if (entity.equals("district")) {
+                return ImmutableList.of("city", "district");
             } else if (entity.equals("street")) {
                 return ImmutableList.of("city", "street");
             } else if (entity.equals("building")) {

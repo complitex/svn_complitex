@@ -77,6 +77,30 @@ public class CorrectionMenu extends ResourceTemplateMenu {
 
             @Override
             public String getLabel(Locale locale) {
+                return getString(CorrectionMenu.class, locale, "district_correction");
+            }
+
+            @Override
+            public Class<? extends Page> getPage() {
+                return AddressCorrectionList.class;
+            }
+
+            @Override
+            public PageParameters getParameters() {
+                PageParameters pageParameters = new PageParameters();
+                pageParameters.put(AddressCorrectionList.CORRECTED_ENTITY, "district");
+                return pageParameters;
+            }
+
+            @Override
+            public String getTagId() {
+                return "district_correction_item";
+            }
+        });
+        links.add(new ITemplateLink() {
+
+            @Override
+            public String getLabel(Locale locale) {
                 return getString(CorrectionMenu.class, locale, "street_correction");
             }
 
@@ -143,6 +167,28 @@ public class CorrectionMenu extends ResourceTemplateMenu {
             @Override
             public String getTagId() {
                 return "ownership_correction_item";
+            }
+        });
+        links.add(new ITemplateLink() {
+
+            @Override
+            public String getLabel(Locale locale) {
+                return getString(CorrectionMenu.class, locale, "person_account");
+            }
+
+            @Override
+            public Class<? extends Page> getPage() {
+                return PersonAccountList.class;
+            }
+
+            @Override
+            public PageParameters getParameters() {
+                return PageParameters.NULL;
+            }
+
+            @Override
+            public String getTagId() {
+                return "person_account_item";
             }
         });
         return links;
