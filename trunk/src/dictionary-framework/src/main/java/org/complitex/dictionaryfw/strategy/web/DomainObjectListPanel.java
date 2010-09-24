@@ -9,6 +9,7 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -46,10 +47,7 @@ import org.complitex.dictionaryfw.web.component.search.SearchComponentState;
 import javax.ejb.EJB;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 /**
  *
@@ -69,7 +67,7 @@ public class DomainObjectListPanel extends Panel {
 
     private WebMarkupContainer content;
 
-    private DataView<DomainObject> data;
+    private DataView<DomainObject> dataView;
 
     public DomainObjectListPanel(String id, String entity) {
         super(id);
@@ -88,8 +86,8 @@ public class DomainObjectListPanel extends Panel {
 
     public void refreshContent(AjaxRequestTarget target) {
         content.setVisible(true);
-        data.setCurrentPage(0);
         if (target != null) {
+            dataView.setCurrentPage(0);
             target.addComponent(content);
         }
     }
@@ -102,11 +100,9 @@ public class DomainObjectListPanel extends Panel {
         Component searchComponent;
         if (searchFilters == null || searchFilters.isEmpty()) {
             searchComponent = new EmptyPanel("searchComponent");
-            content.setVisible(true);
         } else {
             SearchComponentState componentState = getSearchComponentStateFromSession();
             searchComponent = new SearchComponent("searchComponent", componentState, searchFilters, getStrategy().getSearchCallback(), true);
-            content.setVisible(false);
         }
         add(searchComponent);
         add(content);
@@ -114,6 +110,19 @@ public class DomainObjectListPanel extends Panel {
         final List<EntityAttributeType> filterAttrDescs = getStrategy().getListColumns();
         for (EntityAttributeType filterAttrDesc : filterAttrDescs) {
             example.addAttributeExample(new AttributeExample(filterAttrDesc.getId()));
+        }
+        
+        //Configure example from component state session
+        if (searchFilters != null) {
+            Map<String, Long> ids = new HashMap<String, Long>();
+
+            for(String entity : searchFilters){
+                DomainObject domainObject = getSearchComponentStateFromSession().get(entity);
+                if (domainObject != null){
+                    ids.put(entity, domainObject.getId());
+                }
+            }
+            getStrategy().configureExample(example, ids, null);
         }
 
         IModel<String> labelModel = new AbstractReadOnlyModel<String>() {
@@ -177,7 +186,8 @@ public class DomainObjectListPanel extends Panel {
             @Override
             protected void populateItem(ListItem<EntityAttributeType> item) {
                 final EntityAttributeType attributeType = item.getModelObject();
-                ArrowOrderByBorder column = new ArrowOrderByBorder("column", String.valueOf(attributeType.getId()), dataProvider, data, content);
+                ArrowOrderByBorder column = new ArrowOrderByBorder("column", String.valueOf(attributeType.getId()),
+                        dataProvider, dataView, content);
                 IModel<String> columnNameModel = new AbstractReadOnlyModel<String>() {
 
                     @Override
@@ -314,7 +324,7 @@ public class DomainObjectListPanel extends Panel {
         };
         filterForm.add(submit);
 
-        data = new DataView<DomainObject>("data", dataProvider, 1) {
+        dataView = new DataView<DomainObject>("data", dataProvider, 1) {
 
             @Override
             protected void populateItem(Item<DomainObject> item) {
@@ -381,12 +391,16 @@ public class DomainObjectListPanel extends Panel {
                     }
                 };
                 item.add(dataColumns);
-                item.add(new BookmarkablePageLink("detailsLink", getStrategy().getEditPage(),
+                item.add(new BookmarkablePageLink<WebPage>("detailsLink", getStrategy().getEditPage(),
                         getStrategy().getEditPageParams(object.getId(), null, null)));
             }
         };
-        filterForm.add(data);
-        content.add(new PagingNavigator("navigator", data, content));
+        filterForm.add(dataView);
+
+        content.add(new PagingNavigator("navigator", dataView, getClass().getName() + entity, content));
+
+        //установка видимости после навигатора, чтобы то посчитал getPageCount
+        content.setVisible(searchFilters == null || searchFilters.isEmpty());
     }
 
     protected DictionaryFwSession getDictionaryFwSession() {

@@ -182,7 +182,7 @@ public abstract class AbstractCorrectionList extends TemplatePage {
         filterForm.add(new ArrowOrderByBorder("codeHeader", CorrectionBean.OrderBy.CODE.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("internalObjectHeader", getInternalObjectOrderByExpression(), dataProvider, data, content));
 
-        content.add(new PagingNavigator("navigator", data, content));
+        content.add(new PagingNavigator("navigator", data, getClass().getName() + entity, content));
     }
 
     @Override

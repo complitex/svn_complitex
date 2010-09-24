@@ -3,10 +3,7 @@ package org.complitex.osznconnection.file.service;
 import org.apache.ibatis.session.ExecutorType;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
-import org.complitex.osznconnection.file.entity.AbstractRequest;
-import org.complitex.osznconnection.file.entity.Payment;
-import org.complitex.osznconnection.file.entity.RequestFile;
-import org.complitex.osznconnection.file.entity.Status;
+import org.complitex.osznconnection.file.entity.*;
 import org.complitex.osznconnection.file.entity.example.PaymentExample;
 
 import javax.ejb.Stateless;
@@ -25,15 +22,19 @@ import org.slf4j.LoggerFactory;
  */
 @Stateless(name = "PaymentBean")
 public class PaymentBean extends AbstractBean {
-
     private static final Logger log = LoggerFactory.getLogger(PaymentBean.class);
 
     public static final String MAPPING_NAMESPACE = PaymentBean.class.getName();
 
     public enum OrderBy {
-
-        FIRST_NAME("F_NAM"), MIDDLE_NAME("M_NAM"), LAST_NAME("SUR_NAM"),
-        CITY("N_NAME"), STREET("VUL_NAME"), BUILDING("BLD_NUM"), APARTMENT("FLAT"),
+        ACCOUNT(PaymentDBF.OWN_NUM_SR.name()),
+        FIRST_NAME(PaymentDBF.F_NAM.name()),
+        MIDDLE_NAME(PaymentDBF.M_NAM.name()),
+        LAST_NAME(PaymentDBF.SUR_NAM.name()),
+        CITY(PaymentDBF.N_NAME.name()),
+        STREET(PaymentDBF.VUL_NAME.name()),
+        BUILDING(PaymentDBF.BLD_NUM.name()),
+        APARTMENT(PaymentDBF.FLAT.name()),
         STATUS("status");
 
         private String orderBy;

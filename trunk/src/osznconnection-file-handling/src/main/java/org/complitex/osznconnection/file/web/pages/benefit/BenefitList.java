@@ -4,6 +4,9 @@
  */
 package org.complitex.osznconnection.file.web.pages.benefit;
 
+import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
+import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.file.entity.example.BenefitExample;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -24,7 +27,6 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
-import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
 import org.complitex.osznconnection.commons.web.template.TemplatePage;
 import org.complitex.osznconnection.file.entity.Benefit;
 import org.complitex.osznconnection.file.entity.BenefitDBF;
@@ -43,6 +45,7 @@ import org.complitex.osznconnection.file.web.pages.util.BuildingFormatter;
  *
  * @author Artem
  */
+@AuthorizeInstantiation(SecurityRole.AUTHORIZED)
 public final class BenefitList extends TemplatePage {
 
     public static final String FILE_ID = "request_file_id";
@@ -112,7 +115,7 @@ public final class BenefitList extends TemplatePage {
         };
         dataProvider.setSort("", true);
 
-
+        filterForm.add(new TextField<String>("accountFilter", new PropertyModel<String>(example, "account")));
         filterForm.add(new TextField<String>("firstNameFilter", new PropertyModel<String>(example, "firstName")));
         filterForm.add(new TextField<String>("middleNameFilter", new PropertyModel<String>(example, "middleName")));
         filterForm.add(new TextField<String>("lastNameFilter", new PropertyModel<String>(example, "lastName")));
@@ -147,6 +150,8 @@ public final class BenefitList extends TemplatePage {
             @Override
             protected void populateItem(Item<Benefit> item) {
                 Benefit benefit = item.getModelObject();
+
+                item.add(new Label("account", (String) benefit.getField(BenefitDBF.OWN_NUM_SR)));
                 item.add(new Label("firstName", (String) benefit.getField(BenefitDBF.F_NAM)));
                 item.add(new Label("middleName", (String) benefit.getField(BenefitDBF.M_NAM)));
                 item.add(new Label("lastName", (String) benefit.getField(BenefitDBF.SUR_NAM)));
@@ -159,6 +164,7 @@ public final class BenefitList extends TemplatePage {
         };
         filterForm.add(data);
 
+        filterForm.add(new ArrowOrderByBorder("accountHeader", BenefitBean.OrderBy.ACCOUNT.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("firstNameHeader", BenefitBean.OrderBy.FIRST_NAME.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("middleNameHeader", BenefitBean.OrderBy.MIDDLE_NAME.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("lastNameHeader", BenefitBean.OrderBy.LAST_NAME.getOrderBy(), dataProvider, data, content));
@@ -178,7 +184,7 @@ public final class BenefitList extends TemplatePage {
         back.setDefaultFormProcessing(false);
         filterForm.add(back);
 
-        content.add(new PagingNavigator("navigator", data, content));
+        content.add(new PagingNavigator("navigator", data, getClass().getName(), content));
     }
 }
 

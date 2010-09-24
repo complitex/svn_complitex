@@ -27,6 +27,7 @@ public class BenefitExample implements Serializable {
     private String orderByClause;
     private boolean asc;
     private String locale;
+    private String account;
 
     public String getApartment() {
         return apartment;
@@ -138,5 +139,13 @@ public class BenefitExample implements Serializable {
 
     public void setStreet(String street) {
         this.street = street;
+    }
+
+    public String getAccount() {
+        return account;
+    }
+
+    public void setAccount(String account) {
+        this.account = account;
     }
 }

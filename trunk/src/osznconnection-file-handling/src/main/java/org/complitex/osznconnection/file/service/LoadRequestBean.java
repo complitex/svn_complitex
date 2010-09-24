@@ -15,6 +15,8 @@ import javax.ejb.*;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.regex.Pattern;
@@ -77,6 +79,34 @@ public class LoadRequestBean extends AbstractProcessBean {
         });
     }
 
+    private List<File> groupPaymentBenefit(List<File> files){
+        List<File> group = new ArrayList<File>();
+
+        for (int i=0; i < files.size(); ++i){
+            String name1 = files.get(i).getName();
+
+            if (name1.length() > 7 && name1.substring(0, 2).equalsIgnoreCase(RequestFile.PAYMENT_FILE_PREFIX)){
+                group.add(files.get(i));
+
+                for (int j=0; j < files.size(); ++j){
+                    String name2 = files.get(j).getName();
+
+                    if (name2.length() > 7 && name2.substring(0, 2).equalsIgnoreCase(RequestFile.BENEFIT_FILE_PREFIX)
+                            && name2.substring(2, 8).equals(name1.substring(2, 8))){
+                        group.add(files.get(j));
+                        files.remove(j);
+                        files.remove(i);
+                        i--;
+                    }
+                }
+            }else if (!name1.substring(0, 1).equalsIgnoreCase(RequestFile.BENEFIT_FILE_PREFIX)){
+                group.add(files.get(i));
+            }
+        }
+
+        return group;
+    }
+
     @Override
     protected int getMaxErrorCount() {
         return FileHandlingConfig.LOAD_MAX_ERROR_FILE_COUNT.getInteger();
@@ -97,7 +127,7 @@ public class LoadRequestBean extends AbstractProcessBean {
                      List<RequestFile.TYPE> types) {
         if (!isProcessing()) {
             try {
-                List<File> files = getFiles(districtCode, monthFrom, monthTo);
+                List<File> files = groupPaymentBenefit(getFiles(districtCode, monthFrom, monthTo));
 
                 List<RequestFile> requestFiles = new ArrayList<RequestFile>();
 

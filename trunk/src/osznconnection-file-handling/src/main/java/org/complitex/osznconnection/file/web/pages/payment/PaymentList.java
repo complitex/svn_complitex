@@ -4,6 +4,8 @@
  */
 package org.complitex.osznconnection.file.web.pages.payment;
 
+import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.file.entity.example.PaymentExample;
 import com.google.common.collect.ImmutableMap;
 import org.apache.wicket.PageParameters;
@@ -45,6 +47,7 @@ import org.complitex.osznconnection.file.web.pages.util.BuildingFormatter;
  *
  * @author Artem
  */
+@AuthorizeInstantiation(SecurityRole.AUTHORIZED)
 public final class PaymentList extends TemplatePage {
 
     public static final String FILE_ID = "request_file_id";
@@ -114,6 +117,7 @@ public final class PaymentList extends TemplatePage {
         };
         dataProvider.setSort("", true);
 
+        filterForm.add(new TextField<String>("accountFilter", new PropertyModel<String>(example, "account")));
         filterForm.add(new TextField<String>("firstNameFilter", new PropertyModel<String>(example, "firstName")));
         filterForm.add(new TextField<String>("middleNameFilter", new PropertyModel<String>(example, "middleName")));
         filterForm.add(new TextField<String>("lastNameFilter", new PropertyModel<String>(example, "lastName")));
@@ -148,6 +152,7 @@ public final class PaymentList extends TemplatePage {
             @Override
             protected void populateItem(Item<Payment> item) {
                 Payment payment = item.getModelObject();
+                item.add(new Label("account", (String) payment.getField(PaymentDBF.OWN_NUM_SR)));
                 item.add(new Label("firstName", (String) payment.getField(PaymentDBF.F_NAM)));
                 item.add(new Label("middleName", (String) payment.getField(PaymentDBF.M_NAM)));
                 item.add(new Label("lastName", (String) payment.getField(PaymentDBF.SUR_NAM)));
@@ -170,6 +175,7 @@ public final class PaymentList extends TemplatePage {
         };
         filterForm.add(data);
 
+        filterForm.add(new ArrowOrderByBorder("accountHeader", PaymentBean.OrderBy.ACCOUNT.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("firstNameHeader", PaymentBean.OrderBy.FIRST_NAME.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("middleNameHeader", PaymentBean.OrderBy.MIDDLE_NAME.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("lastNameHeader", PaymentBean.OrderBy.LAST_NAME.getOrderBy(), dataProvider, data, content));
@@ -189,7 +195,7 @@ public final class PaymentList extends TemplatePage {
         back.setDefaultFormProcessing(false);
         filterForm.add(back);
 
-        content.add(new PagingNavigator("navigator", data, content));
+        content.add(new PagingNavigator("navigator", data, getClass().getName() + fileId, content));
     }
 }
 

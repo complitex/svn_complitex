@@ -15,6 +15,7 @@
                     <table class="tbColor bookContent" cellpadding="0" cellspacing="0" border="0">
                         <thead>
                             <tr>
+                                <th wicket:id="accountHeader"><wicket:message key="account"/></th>
                                 <th wicket:id="lastNameHeader"><wicket:message key="last_name"/></th>
                                 <th wicket:id="firstNameHeader"><wicket:message key="first_name"/></th>
                                 <th wicket:id="middleNameHeader"><wicket:message key="middle_name"/></th>
@@ -28,6 +29,7 @@
                                 </th>
                             </tr>
                             <tr>
+                                <td class="filter-td"><input type="text" wicket:id="accountFilter"/></td>
                                 <td class="filter-td"><input type="text" wicket:id="lastNameFilter"/></td>
                                 <td class="filter-td"><input type="text" wicket:id="firstNameFilter"/></td>
                                 <td class="filter-td"><input type="text" wicket:id="middleNameFilter"/></td>
@@ -36,7 +38,7 @@
                                 <td class="filter-td"><input type="text" wicket:id="buildingFilter"/></td>
                                 <td class="filter-td"><input type="text" wicket:id="apartmentFilter"/></td>
                                 <td class="filter-td">
-                                    <select wicket:id="statusFilter">
+                                    <select wicket:id="statusFilter" style="width: 100%;">
                                         <option></option>
                                     </select>
                                 </td>
@@ -47,6 +49,7 @@
                         </thead>
                         <tbody>
                             <tr wicket:id="data">
+                                <td><span wicket:id="account"></span></td>
                                 <td><span wicket:id="lastName"></span></td>
                                 <td><span wicket:id="firstName"></span></td>
                                 <td><span wicket:id="middleName"></span></td>

@@ -154,7 +154,7 @@ public class UserList extends TemplatePage {
         filterForm.add(usergroups);
 
         //Постраничная навигация
-        filterForm.add(new PagingNavigator("paging", dataView, filterForm));
+        filterForm.add(new PagingNavigator("paging", dataView, getClass().getName(), filterForm));
     }
 
     /**

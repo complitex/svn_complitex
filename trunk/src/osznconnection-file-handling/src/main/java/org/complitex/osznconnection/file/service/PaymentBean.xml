@@ -141,6 +141,9 @@
       </delete>
 
     <sql id="filter">
+        <if test="account != null">
+            AND r.`OWN_NUM_SR` LIKE CONCAT('%',#{account},'%')
+        </if>
         <if test="firstName != null">
             AND r.`F_NAM` LIKE CONCAT('%',#{firstName},'%')
         </if>
@@ -176,7 +179,7 @@
 
     <select id="find" parameterType="org.complitex.osznconnection.file.entity.example.PaymentExample"
             resultMap="paymentResultMap">
-        SELECT r.`id`, r.`status`, r.`request_file_id`, r.`F_NAM`, r.`M_NAM`, r.`SUR_NAM`,
+        SELECT r.`id`, r.`status`, r.`request_file_id`, r.`OWN_NUM_SR`, r.`F_NAM`, r.`M_NAM`, r.`SUR_NAM`,
         r.`N_NAME`, r.`VUL_NAME`, r.`BLD_NUM`, r.`CORP_NUM`, r.`FLAT`,
         (SELECT f.`organization_object_id` FROM `request_file` f WHERE f.`id` = r.`request_file_id`) organization_id,
         r.`internal_city_id`, r.`internal_street_id`, r.`internal_street_type_id`, r.`internal_building_id`, r.`internal_apartment_id`,
@@ -201,7 +204,7 @@
     </select>
 
     <select id="findById" parameterType="long" resultMap="paymentResultMap">
-        SELECT r.`id`, r.`status`, r.`request_file_id`, r.`F_NAM`, r.`M_NAM`, r.`SUR_NAM`,
+        SELECT r.`id`, r.`status`, r.`request_file_id`, r.`OWN_NUM_SR`, r.`F_NAM`, r.`M_NAM`, r.`SUR_NAM`,
         r.`N_NAME`, r.`VUL_NAME`, r.`BLD_NUM`, r.`CORP_NUM`, r.`FLAT`, r.`OWN_NUM_SR`,
         (SELECT f.`organization_object_id` FROM `request_file` f WHERE f.`id` = r.`request_file_id`) organization_id,
         r.`internal_city_id`, r.`internal_street_id`, r.`internal_street_type_id`, r.`internal_building_id`, r.`internal_apartment_id`,

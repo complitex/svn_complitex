@@ -15,10 +15,7 @@ import org.complitex.osznconnection.file.storage.RequestFileStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.AsyncResult;
-import javax.ejb.Asynchronous;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
+import javax.ejb.*;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -40,6 +37,7 @@ import static org.complitex.osznconnection.file.entity.RequestFile.STATUS_DETAIL
  * @see org.complitex.osznconnection.file.service.SaveRequestBean
  */
 @Stateless(name = "SaveTaskBean")
+@ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 public class SaveTaskBean {
     private static final Logger log = LoggerFactory.getLogger(SaveTaskBean.class);
 

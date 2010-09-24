@@ -93,16 +93,16 @@ public final class SearchComponent extends Panel {
      * Used where some filters must have distinct from others settings. For example, some filters must be disabled but others not.
      * @param id
      * @param componentState
-     * @param searchFilterSettigses
+     * @param searchFilterSettings
      * @param callback
      */
-    public SearchComponent(String id, SearchComponentState componentState, List<SearchFilterSettings> searchFilterSettigses,
+    public SearchComponent(String id, SearchComponentState componentState, List<SearchFilterSettings> searchFilterSettings,
             ISearchCallback callback) {
         super(id);
         setOutputMarkupId(true);
         this.componentState = componentState;
 
-        this.filterSettings = searchFilterSettigses;
+        this.filterSettings = searchFilterSettings;
         this.searchFilters = Lists.newArrayList(Iterables.transform(filterSettings, new Function<SearchFilterSettings, String>() {
 
             @Override

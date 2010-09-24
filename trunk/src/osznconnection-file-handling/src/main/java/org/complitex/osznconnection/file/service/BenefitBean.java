@@ -22,9 +22,14 @@ public class BenefitBean extends AbstractBean {
     public static final String MAPPING_NAMESPACE = BenefitBean.class.getName();
 
     public enum OrderBy {
-
-        FIRST_NAME("F_NAM"), MIDDLE_NAME("M_NAM"), LAST_NAME("SUR_NAM"),
-        CITY("city"), STREET("street"), BUILDING("building"), APARTMENT("apartment"),
+        ACCOUNT(BenefitDBF.OWN_NUM_SR.name()),
+        FIRST_NAME(BenefitDBF.F_NAM.name()),
+        MIDDLE_NAME(BenefitDBF.M_NAM.name()),
+        LAST_NAME(BenefitDBF.SUR_NAM.name()),
+        CITY("city"),
+        STREET("street"),
+        BUILDING("building"),
+        APARTMENT("apartment"),
         STATUS("status");
 
         private String orderBy;

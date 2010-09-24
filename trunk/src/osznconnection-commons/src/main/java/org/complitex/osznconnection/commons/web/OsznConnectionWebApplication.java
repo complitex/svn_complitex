@@ -23,9 +23,4 @@ public class OsznConnectionWebApplication extends TemplateWebApplication {
     public Class<? extends Page> getHomePage() {
         return WelcomePage.class;
     }
-
-    @Override
-    public Session newSession(Request request, Response response) {
-        return new DictionaryFwSession(request);
-    }
 }
