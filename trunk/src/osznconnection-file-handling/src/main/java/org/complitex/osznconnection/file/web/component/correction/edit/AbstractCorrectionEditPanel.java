@@ -45,8 +45,6 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
 
     private Long correctionId;
 
-    private ObjectCorrection oldCorrection;
-
     private ObjectCorrection newCorrection;
 
     private WebMarkupContainer form;
@@ -56,11 +54,9 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
         this.entity = entity;
         this.correctionId = correctionId;
         if (isNew()) {
-            oldCorrection = null;
             newCorrection = newModel();
         } else {
             newCorrection = initModel(this.entity, this.correctionId);
-            oldCorrection = CloneUtil.cloneObject(newCorrection);
         }
         init();
     }

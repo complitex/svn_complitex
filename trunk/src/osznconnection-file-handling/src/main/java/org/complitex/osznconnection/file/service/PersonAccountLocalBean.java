@@ -61,4 +61,19 @@ public class PersonAccountLocalBean extends AbstractBean {
     public List<PersonAccount> find(PersonAccountExample example) {
         return sqlSession().selectList(MAPPING_NAMESPACE + ".find", example);
     }
+
+    @Transactional
+    public void insert(PersonAccount personAccount) {
+        sqlSession().insert(MAPPING_NAMESPACE + ".insert", personAccount);
+    }
+
+    @Transactional
+    public void update(PersonAccount personAccount) {
+        sqlSession().update(MAPPING_NAMESPACE + ".update", personAccount);
+    }
+
+    @Transactional
+    public PersonAccount findById(long id){
+        return (PersonAccount)sqlSession().selectOne(MAPPING_NAMESPACE+".findById", id);
+    }
 }

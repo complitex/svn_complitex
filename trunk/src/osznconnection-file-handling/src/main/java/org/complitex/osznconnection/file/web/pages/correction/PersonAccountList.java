@@ -4,8 +4,12 @@
  */
 package org.complitex.osznconnection.file.web.pages.correction;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.Iterator;
+import java.util.List;
 import javax.ejb.EJB;
+import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -14,6 +18,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.IModel;
@@ -23,6 +28,8 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
+import org.complitex.osznconnection.commons.web.component.toolbar.AddItemButton;
+import org.complitex.osznconnection.commons.web.component.toolbar.ToolbarButton;
 import org.complitex.osznconnection.commons.web.template.TemplatePage;
 import org.complitex.osznconnection.file.entity.PersonAccount;
 import org.complitex.osznconnection.file.entity.example.PersonAccountExample;
@@ -137,9 +144,8 @@ public class PersonAccountList extends TemplatePage {
                 item.add(new Label("apartment", personAccount.getApartment()));
                 item.add(new Label("accountNumber", personAccount.getAccountNumber()));
                 item.add(new Label("ownNumSr", personAccount.getOwnNumSr()));
-
-
-//                item.add(new BookmarkablePageLink("edit", getEditPage(), getEditPageParams(personAccount.getId())));
+                item.add(new BookmarkablePageLink("edit", PersonAccountEdit.class,
+                        new PageParameters(ImmutableMap.of(PersonAccountEdit.CORRECTION_ID, personAccount.getId()))));
             }
         };
         filterForm.add(data);
@@ -159,6 +165,17 @@ public class PersonAccountList extends TemplatePage {
         filterForm.add(new ArrowOrderByBorder("ownNumSrHeader", PersonAccountLocalBean.OrderBy.OWN_NUM_SR.getOrderBy(), dataProvider, data, content));
 
         content.add(new PagingNavigator("navigator", data, content));
+    }
+
+    @Override
+    protected List<? extends ToolbarButton> getToolbarButtons(String id) {
+        return ImmutableList.of(new AddItemButton(id) {
+
+            @Override
+            protected void onClick() {
+                setResponsePage(PersonAccountEdit.class);
+            }
+        });
     }
 }
 
