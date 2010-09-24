@@ -252,7 +252,7 @@ public class LogList extends TemplatePage{
         filterForm.add(new ArrowOrderByBorder("header.description", "description", dataProvider, dataView, filterForm));
 
         //Постраничная навигация
-        filterForm.add(new PagingNavigator("paging", dataView, filterForm));
+        filterForm.add(new PagingNavigator("paging", dataView, getClass().getName(), filterForm));
     }
 
 

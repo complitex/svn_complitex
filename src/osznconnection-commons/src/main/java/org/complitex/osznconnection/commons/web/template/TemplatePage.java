@@ -17,6 +17,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.util.string.Strings;
+import org.complitex.dictionaryfw.web.DictionaryFwSession;
 import org.complitex.osznconnection.commons.web.component.LocalePicker;
 import org.complitex.osznconnection.commons.web.component.toolbar.HelpButton;
 import org.complitex.osznconnection.commons.web.component.toolbar.ToolbarButton;
@@ -31,6 +32,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
+import static org.complitex.dictionaryfw.web.DictionaryFwSession.PREFERENCE.*;
+
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 22.07.2010 16:09:45
@@ -39,7 +42,6 @@ import java.util.Locale;
  * Для инициализации шаблона наследники должны вызывать метод super().
  */
 public abstract class TemplatePage extends WebPage {
-
     private static final Logger log = LoggerFactory.getLogger(TemplatePage.class);
 
     protected TemplatePage() {
@@ -225,5 +227,50 @@ public abstract class TemplatePage extends WebPage {
             return key;
         }
     }
-}
 
+    /* Template Session Preferences*/
+
+    private <T> T getNotNull(T object, T _default){
+        return object != null ? object : _default;
+    }
+
+    public void setSortProperty(String sortProperty){
+        getTemplateSession().putPreference(getClass(), SORT_PROPERTY, sortProperty);
+    }
+
+    public String getSortProperty(String _default){
+        return getNotNull((String) getTemplateSession().getPreference(getClass(), SORT_PROPERTY), _default);
+    }
+
+    public void setSortOrder(Boolean sortOrder){
+        getTemplateSession().putPreference(getClass(), SORT_ORDER, sortOrder);
+    }
+
+    public Boolean getSortOrder(Boolean _default){
+        return getNotNull((Boolean) getTemplateSession().getPreference(getClass(), SORT_ORDER), _default);
+    }
+
+    public void setPageIndex(Integer pageNumber){
+        getTemplateSession().putPreference(getClass(), PAGE_INDEX, pageNumber);
+    }
+
+    public Integer getPageIndex(Integer _default){
+        return getNotNull((Integer) getTemplateSession().getPreference(getClass(), PAGE_INDEX), _default);
+    }
+
+    public void setFilterObject(Object filterObject){
+        getTemplateSession().putPreference(getClass(), FILTER_OBJECT, filterObject);
+    }
+
+    public Object getFilterObject(Object _default){
+        return getNotNull(getTemplateSession().getPreference(getClass(), FILTER_OBJECT), _default);
+    }
+
+    public void setRowsPerPage(Integer pageSize){
+        getTemplateSession().putPreference(getClass(), ROWS_PER_PAGE, pageSize);
+    }
+
+    public Integer getRowsPerPage(Integer _default){
+        return getNotNull((Integer) getTemplateSession().getPreference(getClass(), ROWS_PER_PAGE), _default);
+    }
+}

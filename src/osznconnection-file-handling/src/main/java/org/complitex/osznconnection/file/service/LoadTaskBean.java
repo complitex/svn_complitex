@@ -15,10 +15,7 @@ import org.complitex.osznconnection.file.service.exception.SqlSessionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.AsyncResult;
-import javax.ejb.Asynchronous;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
+import javax.ejb.*;
 import java.io.FileInputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -42,7 +39,8 @@ import static org.complitex.osznconnection.file.entity.RequestFile.STATUS_DETAIL
  */
 @Stateless(name = "LoadTaskBean")
 @SuppressWarnings({"EjbProhibitedPackageUsageInspection"})
-public class LoadTaskBean {
+@ConcurrencyManagement(ConcurrencyManagementType.BEAN)
+public class  LoadTaskBean {
     private static final Logger log = LoggerFactory.getLogger(LoadTaskBean.class);
 
     public static final int BATCH_SIZE = FileHandlingConfig.LOAD_RECORD_BATCH_SIZE.getInteger();
@@ -169,7 +167,7 @@ public class LoadTaskBean {
             error(requestFile, "Критическая ошибка загрузки файла {0}", requestFile.getName());
         } finally {
             if (requestFile.getStatusDetail() != ALREADY_LOADED) {
-                requestFile.setLoaded(DateUtil.getCurrentDate());
+//                requestFile.setLoaded(DateUtil.getCurrentDate());
 
                 try {
                     requestFileBean.save(requestFile);

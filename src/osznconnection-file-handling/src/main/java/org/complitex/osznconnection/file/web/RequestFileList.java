@@ -79,7 +79,12 @@ public class RequestFileList extends TemplatePage {
         add(messages);
 
         //Фильтр модель
-        RequestFileFilter filterObject = new RequestFileFilter();
+        RequestFileFilter filterObject = (RequestFileFilter) getFilterObject(null);
+        if (filterObject == null){
+            filterObject = new RequestFileFilter();
+            setFilterObject(filterObject);
+        }
+
         final IModel<RequestFileFilter> filterModel = new CompoundPropertyModel<RequestFileFilter>(filterObject);
 
         //Фильтр форма
@@ -91,7 +96,11 @@ public class RequestFileList extends TemplatePage {
             @Override
             public void onClick() {
                 filterForm.clearInput();
-                filterModel.setObject(new RequestFileFilter());
+
+                RequestFileFilter filterObject = new RequestFileFilter();
+
+                setFilterObject(filterObject);
+                filterModel.setObject(filterObject);
             }
         };
         filterForm.add(filter_reset);
@@ -158,6 +167,12 @@ public class RequestFileList extends TemplatePage {
             public Iterator<? extends RequestFile> iterator(int first, int count) {
                 RequestFileFilter filter = filterModel.getObject();
 
+                //save preferences to session
+                setFilterObject(filter);
+                setSortOrder(getSort().isAscending());
+                setSortProperty(getSort().getProperty());
+
+                //prepare filter object
                 filter.setFirst(first);
                 filter.setCount(count);
                 filter.setSortProperty(getSort().getProperty());
@@ -183,7 +198,7 @@ public class RequestFileList extends TemplatePage {
                 return new Model<RequestFile>(object);
             }
         };
-        dataProvider.setSort("loaded", false);
+        dataProvider.setSort(getSortProperty("loaded"), getSortOrder(false));
 
         //Контейнер для ajax
         final WebMarkupContainer dataViewContainer = new WebMarkupContainer("request_files_container");
@@ -259,7 +274,7 @@ public class RequestFileList extends TemplatePage {
         filterForm.add(new ArrowOrderByBorder("header.status", "status", dataProvider, dataView, filterForm));
 
         //Постраничная навигация
-        filterForm.add(new PagingNavigator("paging", dataView, filterForm));
+        filterForm.add(new PagingNavigator("paging", dataView, getClass().getName(), filterForm));
 
         //Удалить
         Button delete = new Button("delete") {

@@ -27,12 +27,14 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.util.string.Strings;
+import org.complitex.dictionaryfw.web.DictionaryFwSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -43,28 +45,20 @@ public class PagingNavigator extends Panel {
     private static final Logger log = LoggerFactory.getLogger(PagingNavigator.class);
 
     private static final int LEFT_OFFSET = 3;
-
     private static final int RIGHT_OFFSET = 3;
-
     private static final List<Integer> SUPPORTED_PAGE_SIZES = Arrays.asList(10, 20, 30, 50, 100);
-
-    private static final String PAGE_SIZE_PREFERENCE_KEY = "PageSize";
-
+    
     private DataView dataView;
-
     private WebMarkupContainer pageBar;
-
     private Form newPageForm;
-
     private WebMarkupContainer allPagesRegion;
-
     private PropertyModel<Integer> rowsPerPagePropertyModel;
-
-    private String pageNumberPreferenceKey;
-
     private MarkupContainer[] toUpdate;
 
-    public PagingNavigator(String id, final DataView dataView, MarkupContainer... toUpdate) {
+    private final Map<Object, Object> preferenceMap;
+
+    public PagingNavigator(String id, final DataView dataView, final String groupKey,
+                           MarkupContainer... toUpdate) {
         super(id);
         setOutputMarkupId(true);
 
@@ -73,8 +67,10 @@ public class PagingNavigator extends Panel {
 
         rowsPerPagePropertyModel = new PropertyModel<Integer>(dataView, "itemsPerPage");
 
+        preferenceMap = ((DictionaryFwSession) getSession()).getPreferenceMap(groupKey);
+
         //retrieve table page size from preferences.
-        Integer rowsPerPage = null; //preferences.getPreference(UIPreferences.PreferenceType.PAGE_SIZE, PAGE_SIZE_PREFERENCE_KEY, Integer.class);
+        Integer rowsPerPage = (Integer) preferenceMap.get(DictionaryFwSession.PREFERENCE.ROWS_PER_PAGE);
         if (rowsPerPage == null) {
             rowsPerPage = SUPPORTED_PAGE_SIZES.get(0);
         }
@@ -82,7 +78,7 @@ public class PagingNavigator extends Panel {
         rowsPerPagePropertyModel.setObject(rowsPerPage);
 
         //retrieve table page index from preferences.
-        Integer pageIndex = null;//preferences.getPreference(UIPreferences.PreferenceType.PAGE_NUMBER, pageNumberPreferenceKey, Integer.class);
+        Integer pageIndex = (Integer) preferenceMap.get(DictionaryFwSession.PREFERENCE.PAGE_INDEX);
         if (pageIndex != null && pageIndex < dataView.getPageCount()) {
             dataView.setCurrentPage(pageIndex);
         }
@@ -111,7 +107,7 @@ public class PagingNavigator extends Panel {
 
             @Override
             public List<Integer> getObject() {
-                List result = new ArrayList();
+                List<Integer> result = new ArrayList<Integer>();
 
                 int currentPage = dataView.getCurrentPage();
                 for (int i = LEFT_OFFSET; i > 0; i--) {
@@ -129,7 +125,7 @@ public class PagingNavigator extends Panel {
 
             @Override
             public List<Integer> getObject() {
-                List result = new ArrayList();
+                List<Integer> result = new ArrayList<Integer>();
 
                 int currentPage = dataView.getCurrentPage();
                 for (int i = 1; i <= RIGHT_OFFSET; i++) {
@@ -164,6 +160,7 @@ public class PagingNavigator extends Panel {
                     try {
                         newPageNumber = Integer.parseInt(input);
                     } catch (NumberFormatException e) {
+                        //shit...
                     }
 
                     if (newPageNumber != null) {
@@ -206,7 +203,7 @@ public class PagingNavigator extends Panel {
 
             @Override
             public void setObject(Integer rowsPerPage) {
-//                preferences.putPreference(UIPreferences.PreferenceType.PAGE_SIZE, PAGE_SIZE_PREFERENCE_KEY, rowsPerPage);
+                preferenceMap.put(DictionaryFwSession.PREFERENCE.ROWS_PER_PAGE, rowsPerPage);
                 rowsPerPagePropertyModel.setObject(rowsPerPage);
             }
         };
@@ -314,7 +311,7 @@ public class PagingNavigator extends Panel {
 
     @Override
     protected void onBeforeRender() {
-        boolean visibility = dataView.getPageCount() <= 1 ? false : true;
+        boolean visibility = dataView.getPageCount() > 1;
         pageBar.setVisible(visibility);
         newPageForm.setVisible(visibility);
         allPagesRegion.setVisible(visibility);
@@ -322,12 +319,12 @@ public class PagingNavigator extends Panel {
         super.onBeforeRender();
     }
 
-//    @Override
-//    protected void onAfterRender() {
-//        super.onAfterRender();
-//
-//        preferences.putPreference(UIPreferences.PreferenceType.PAGE_NUMBER, pageNumberPreferenceKey, dataView.getCurrentPage());
-//    }
+    @Override
+    protected void onAfterRender() {
+        super.onAfterRender();
+
+        preferenceMap.put(DictionaryFwSession.PREFERENCE.PAGE_INDEX, dataView.getCurrentPage());
+    }
     /**
      * Appends title attribute to navigation links
      *

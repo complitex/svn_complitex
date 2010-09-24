@@ -80,6 +80,9 @@
     </delete>
 
     <sql id="filter">
+        <if test="account != null">
+            AND r.`OWN_NUM_SR` LIKE CONCAT('%',#{account},'%')
+        </if>
         <if test="firstName != null">
             AND r.`F_NAM` LIKE CONCAT('%',#{firstName},'%')
         </if>
@@ -120,7 +123,7 @@
 
     <select id="find" resultMap="benefitResultMap"
             parameterType="org.complitex.osznconnection.file.entity.example.BenefitExample">
-        SELECT DISTINCT r.`id` id, r.`request_file_id`, r.`F_NAM`, r.`M_NAM`, r.`SUR_NAM`,
+        SELECT DISTINCT r.`id` id, r.`request_file_id`, r.`OWN_NUM_SR`, r.`F_NAM`, r.`M_NAM`, r.`SUR_NAM`,
         r.`status`,
         p.`N_NAME` city, p.`VUL_NAME` street, p.`BLD_NUM` building_number, p.`CORP_NUM` building_corp, p.`FLAT` apartment
         FROM `benefit` r

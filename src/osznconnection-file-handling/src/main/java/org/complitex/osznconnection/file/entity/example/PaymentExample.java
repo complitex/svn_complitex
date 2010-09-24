@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.osznconnection.file.entity.example;
 
 import org.complitex.osznconnection.file.entity.Status;
@@ -13,6 +9,7 @@ import java.io.Serializable;
  * @author Artem
  */
 public class PaymentExample implements Serializable {
+    private String account;
     private String firstName;
     private String middleName;
     private String lastName;
@@ -28,28 +25,12 @@ public class PaymentExample implements Serializable {
     private boolean asc;
     private String locale;
 
-    public String getApartment() {
-        return apartment;
+    public String getAccount() {
+        return account;
     }
 
-    public void setApartment(String apartment) {
-        this.apartment = apartment;
-    }
-
-    public String getBuilding() {
-        return building;
-    }
-
-    public void setBuilding(String building) {
-        this.building = building;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
+    public void setAccount(String account) {
+        this.account = account;
     }
 
     public String getFirstName() {
@@ -60,6 +41,14 @@ public class PaymentExample implements Serializable {
         this.firstName = firstName;
     }
 
+    public String getMiddleName() {
+        return middleName;
+    }
+
+    public void setMiddleName(String middleName) {
+        this.middleName = middleName;
+    }
+
     public String getLastName() {
         return lastName;
     }
@@ -68,20 +57,12 @@ public class PaymentExample implements Serializable {
         this.lastName = lastName;
     }
 
-    public Status getStatus() {
-        return status;
+    public String getCity() {
+        return city;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    public String getMiddleName() {
-        return middleName;
-    }
-
-    public void setMiddleName(String middleName) {
-        this.middleName = middleName;
+    public void setCity(String city) {
+        this.city = city;
     }
 
     public String getStreet() {
@@ -92,12 +73,36 @@ public class PaymentExample implements Serializable {
         this.street = street;
     }
 
-    public int getSize() {
-        return size;
+    public String getBuilding() {
+        return building;
     }
 
-    public void setSize(int size) {
-        this.size = size;
+    public void setBuilding(String building) {
+        this.building = building;
+    }
+
+    public String getApartment() {
+        return apartment;
+    }
+
+    public void setApartment(String apartment) {
+        this.apartment = apartment;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public Long getRequestFileId() {
+        return requestFileId;
+    }
+
+    public void setRequestFileId(Long requestFileId) {
+        this.requestFileId = requestFileId;
     }
 
     public int getStart() {
@@ -108,12 +113,12 @@ public class PaymentExample implements Serializable {
         this.start = start;
     }
 
-    public boolean isAsc() {
-        return asc;
+    public int getSize() {
+        return size;
     }
 
-    public void setAsc(boolean asc) {
-        this.asc = asc;
+    public void setSize(int size) {
+        this.size = size;
     }
 
     public String getOrderByClause() {
@@ -124,19 +129,19 @@ public class PaymentExample implements Serializable {
         this.orderByClause = orderByClause;
     }
 
+    public boolean isAsc() {
+        return asc;
+    }
+
+    public void setAsc(boolean asc) {
+        this.asc = asc;
+    }
+
     public String getLocale() {
         return locale;
     }
 
     public void setLocale(String locale) {
         this.locale = locale;
-    }
-
-    public Long getRequestFileId() {
-        return requestFileId;
-    }
-
-    public void setRequestFileId(Long requestFileId) {
-        this.requestFileId = requestFileId;
     }
 }
