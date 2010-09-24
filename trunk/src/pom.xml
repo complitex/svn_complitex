@@ -20,8 +20,9 @@
         <module>dictionary-framework</module>
         <module>osznconnection-file-handling</module>
         <module>osznconnection-organization</module>
-    <module>osznconnection-ownership</module>
-  </modules>
+        <module>osznconnection-ownership</module>
+        <module>osznconnection-privilege</module>
+    </modules>
 
     <dependencyManagement>
         <dependencies>
@@ -79,6 +80,11 @@
             <dependency>
                 <groupId>org.complitex.osznconnection</groupId>
                 <artifactId>osznconnection-ownership</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.complitex.osznconnection</groupId>
+                <artifactId>osznconnection-privilege</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

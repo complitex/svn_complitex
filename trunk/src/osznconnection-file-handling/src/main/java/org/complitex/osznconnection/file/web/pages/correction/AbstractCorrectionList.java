@@ -47,7 +47,7 @@ public abstract class AbstractCorrectionList extends TemplatePage {
     @EJB(name = "CorrectionBean")
     private CorrectionBean correctionBean;
 
-    @EJB(name="StrategyFactory")
+    @EJB(name = "StrategyFactory")
     private StrategyFactory strategyFactory;
 
     private String entity;
@@ -89,7 +89,7 @@ public abstract class AbstractCorrectionList extends TemplatePage {
 
     protected abstract PageParameters getEditPageParams(Long objectCorrectionId);
 
-    protected String getInternalObjectOrderByExpression(){
+    protected String getInternalObjectOrderByExpression() {
         return strategyFactory.getStrategy(entity).getOrderByExpression("c.`object_id`", getLocale().getLanguage(), null);
     }
 
@@ -165,12 +165,11 @@ public abstract class AbstractCorrectionList extends TemplatePage {
                 item.add(new Label("organization", correction.getOrganization()));
                 item.add(new Label("correction", displayCorrection(correction)));
 
-                Long code = correction.getCode();
-                String codeAsString = "";
-                if (code != null) {
-                    codeAsString = String.valueOf(code);
+                String code = correction.getCode();
+                if (code == null) {
+                    code = "";
                 }
-                item.add(new Label("code", codeAsString));
+                item.add(new Label("code", code));
 
                 item.add(new Label("internalObject", correction.getInternalObject()));
                 item.add(new BookmarkablePageLink("edit", getEditPage(), getEditPageParams(correction.getId())));

@@ -32,33 +32,33 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
     protected static final String MAPPING_NAMESPACE = DefaultCalculationCenterAdapter.class.getName();
 
     @Override
-    public void prepareCity(Payment payment, String city, Long cityId) {
+    public void prepareCity(Payment payment, String city, String cityCode) {
         payment.setOutgoingCity(city);
     }
 
     @Override
-    public void prepareDistrict(Payment payment, String district, Long districtId) {
+    public void prepareDistrict(Payment payment, String district, String districtCode) {
         payment.setOutgoingDistrict(district);
     }
 
     @Override
-    public void prepareStreet(Payment payment, String street, Long streetId) {
+    public void prepareStreet(Payment payment, String street, String streetCode) {
         payment.setOutgoingStreet(street);
     }
 
     @Override
-    public void prepareStreetType(Payment payment, String streetType, Long streetTypeId) {
+    public void prepareStreetType(Payment payment, String streetType, String streetTypeCode) {
         payment.setOutgoingStreetType(streetType);
     }
 
     @Override
-    public void prepareBuilding(Payment payment, String buildingNumber, String buildingCorp, Long buildingId) {
+    public void prepareBuilding(Payment payment, String buildingNumber, String buildingCorp, String buildingCode) {
         payment.setOutgoingBuildingNumber(buildingNumber);
         payment.setOutgoingBuildingCorp(buildingCorp);
     }
 
     @Override
-    public void prepareApartment(Payment payment, String apartment, Long apartmentId) {
+    public void prepareApartment(Payment payment, String apartment, String apartmentCode) {
         String flat = (String) payment.getField(PaymentDBF.FLAT);
         if (flat != null) {
             flat = flat.trim();
