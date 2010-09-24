@@ -20,6 +20,41 @@
          AND pa.`last_name` = #{lastName} AND pa.`own_num_sr` = #{ownNumSr}
     </sql>
 
+    <sql id="webFilter">
+        <where>
+            <if test="city != null">
+                pa.`city` LIKE CONCAT('%', #{city}, '%')
+            </if>
+            <if test="street != null">
+                pa.`street` LIKE CONCAT('%', #{street}, '%')
+            </if>
+            <if test="buildingNumber != null">
+                pa.`building_num` LIKE CONCAT('%', #{buildingNumber}, '%')
+            </if>
+            <if test="buildingCorp != null">
+                pa.`building_corp` LIKE CONCAT('%', #{buildingCorp}, '%')
+            </if>
+            <if test="apartment != null">
+                pa.`apartment` LIKE CONCAT('%', #{apartment}, '%')
+            </if>
+            <if test="firstName != null">
+                pa.`first_name` LIKE CONCAT('%', #{firstName}, '%')
+            </if>
+            <if test="middleName != null">
+                pa.`middle_name` LIKE CONCAT('%', #{middleName}, '%')
+            </if>
+            <if test="lastName != null">
+                pa.`last_name` LIKE CONCAT('%', #{lastName}, '%')
+            </if>
+            <if test="accountNumber != null">
+                pa.`account_number` LIKE CONCAT('%', #{accountNumber}, '%')
+            </if>
+            <if test="ownNumSr != null">
+                pa.`own_num_sr` LIKE CONCAT('%', #{ownNumSr}, '%')
+            </if>
+        </where>
+    </sql>
+
     <insert id="insert" parameterType="org.complitex.osznconnection.file.entity.PersonAccount">
         INSERT INTO `person_account` (`city`, `street`, `building_num`, `building_corp`, `apartment`,
                 `account_number`, `first_name`, `middle_name`, `last_name`, `own_num_sr`)
@@ -34,12 +69,30 @@
                 WHERE `id` = #{id}
     </update>
 
-    <select id="find">
-        SELECT pa.`account_number`
+    <select id="find" parameterType="org.complitex.osznconnection.file.entity.example.PersonAccountExample"
+                resultType="org.complitex.osznconnection.file.entity.PersonAccount">
+        SELECT pa.`id`, pa.`city`, pa.`street`, pa.`building_num` buildingNumber, pa.`building_corp` buildingCorp, pa.`apartment`,
+                pa.`first_name` firstName, pa.`middle_name` middleName, pa.`last_name` lastName, pa.`own_num_sr` ownNumSr,
+                pa.`account_number` accountNumber
         FROM `person_account` pa
-        WHERE
-        <include refid="org.complitex.osznconnection.file.service.PersonAccountLocalBean.filter"/>
+        <include refid="org.complitex.osznconnection.file.service.PersonAccountLocalBean.webFilter"/>
+        <if test="orderByClause != null">
+            ORDER BY ${orderByClause}
+            <choose>
+                <when test="asc">
+                    ASC
+                </when>
+                <otherwise>
+                    DESC
+                </otherwise>
+            </choose>
+        </if>
         LIMIT #{start},#{size}
+    </select>
+
+    <select id="count" resultType="int" parameterType="org.complitex.osznconnection.file.entity.example.PersonAccountExample">
+        SELECT COUNT(*) FROM `person_account` pa
+        <include refid="org.complitex.osznconnection.file.service.PersonAccountLocalBean.webFilter"/>
     </select>
 
 </mapper>
