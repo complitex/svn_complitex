@@ -20,12 +20,12 @@
 
     <insert id="insert" parameterType="org.complitex.osznconnection.file.entity.ObjectCorrection">
         INSERT INTO `${entity}_correction`(`organization_id`, `correction`, `object_id`, `organization_code`) VALUES
-        (#{organizationId}, UPPER(#{correction}), #{internalObjectId}, #{code})
+        (#{organizationId}, UPPER(#{correction}), #{internalObjectId}, UPPER(#{code}))
     </insert>
 
     <insert id="insertEntityType" parameterType="org.complitex.osznconnection.file.entity.EntityTypeCorrection">
         INSERT INTO `entity_type_correction`(`organization_id`, `type`, `entity_type_id`, `organization_type_code`) VALUES
-        (#{organizationId}, UPPER(#{correction}), #{internalObjectId}, #{code})
+        (#{organizationId}, UPPER(#{correction}), #{internalObjectId}, UPPER(#{code}))
     </insert>
 
     <sql id="filter">
@@ -40,7 +40,7 @@
                 AND c.`correction` LIKE CONCAT('%', #{correction}, '%')
             </if>
             <if test="code != null">
-                AND c.`organization_code` = #{code}
+                AND c.`organization_code` LIKE CONCAT('%', #{code}, '%')
             </if>
             <if test="organization != null">
                 AND EXISTS(SELECT 1 FROM `organization_string_culture` osc WHERE osc.`value` LIKE CONCAT('%', #{organization}, '%') AND osc.`id` IN

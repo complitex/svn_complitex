@@ -15,17 +15,17 @@ import org.complitex.osznconnection.file.entity.Payment;
  */
 public interface ICalculationCenterAdapter {
 
-    void prepareCity(Payment payment, String city, Long cityId);
+    void prepareCity(Payment payment, String city, String cityCode);
 
-    void prepareDistrict(Payment payment, String district, Long districtId);
+    void prepareDistrict(Payment payment, String district, String districtCode);
 
-    void prepareStreet(Payment payment, String street, Long streetId);
+    void prepareStreet(Payment payment, String street, String streetCode);
 
-    void prepareStreetType(Payment payment, String streetType, Long streetTypeId);
+    void prepareStreetType(Payment payment, String streetType, String streetTypeCode);
 
-    void prepareBuilding(Payment payment, String buildingNumber, String buildingCorp, Long buildingId);
+    void prepareBuilding(Payment payment, String buildingNumber, String buildingCorp, String buildingCode);
 
-    void prepareApartment(Payment payment, String apartment, Long apartmentId);
+    void prepareApartment(Payment payment, String apartment, String apartmentCode);
 
     void acquirePersonAccount(Payment payment);
 

@@ -23,7 +23,9 @@ public enum Status {
     ACCOUNT_NUMBER_RESOLVED(false, false),
     PROCESSED(false, false),
     TARIF_CODE2_1_NOT_FOUND(false, false),
-    UPLOADED(false,false);
+    WRONG_ACCOUNT_NUMBER(false, false),
+    BENEFIT_NOT_FOUND(false, false),
+    UNLOADED(false,false);
 
     private boolean localAddressCorrected;
 

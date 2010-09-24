@@ -16,7 +16,7 @@ public class ObjectCorrection implements Serializable {
 
     private String correction;
 
-    private Long code;
+    private String code;
 
     private Long organizationId;
 
@@ -61,11 +61,11 @@ public class ObjectCorrection implements Serializable {
         this.id = id;
     }
 
-    public Long getCode() {
+    public String getCode() {
         return code;
     }
 
-    public void setCode(Long code) {
+    public void setCode(String code) {
         this.code = code;
     }
 

@@ -22,7 +22,6 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.complitex.dictionaryfw.entity.DomainObject;
-import org.complitex.dictionaryfw.util.CloneUtil;
 import org.complitex.dictionaryfw.web.component.DisableAwareDropDownChoice;
 import org.complitex.dictionaryfw.web.component.DomainObjectDisableAwareRenderer;
 import org.complitex.osznconnection.file.entity.ObjectCorrection;
@@ -130,7 +129,7 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
         correction.setRequired(true);
         form.add(correction);
 
-        TextField<Long> code = new TextField<Long>("code", new PropertyModel<Long>(newCorrection, "code"), Long.class);
+        TextField<String> code = new TextField<String>("code", new PropertyModel<String>(newCorrection, "code"));
         code.setRequired(true);
         form.add(code);
 
