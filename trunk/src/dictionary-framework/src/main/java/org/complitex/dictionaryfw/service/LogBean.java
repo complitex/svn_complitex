@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Resource;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.lang.model.type.ExecutableType;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -25,6 +27,7 @@ import java.util.Locale;
  *         Date: 22.07.2010 17:50:26
  */
 @Stateless(name = "LogBean")
+@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 public class LogBean extends AbstractBean{
     private static final Logger log = LoggerFactory.getLogger(LogBean.class);
 

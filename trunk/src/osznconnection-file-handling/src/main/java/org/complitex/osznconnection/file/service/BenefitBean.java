@@ -8,6 +8,8 @@ import org.complitex.osznconnection.file.entity.*;
 import org.complitex.osznconnection.file.entity.example.BenefitExample;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import java.util.*;
 
 /**
@@ -68,11 +70,10 @@ public class BenefitBean extends AbstractBean {
         return (List<Benefit>) sqlSession().selectList(MAPPING_NAMESPACE + ".find", example);
     }
 
-    @Transactional(executorType = ExecutorType.BATCH)
+    @Transactional
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void insert(List<AbstractRequest> abstractRequests) {
-        for (AbstractRequest abstractRequest : abstractRequests) {
-            insert((Benefit) abstractRequest);
-        }
+        sqlSession().insert(MAPPING_NAMESPACE + ".insertBenefitList", abstractRequests);
     }
 
     @SuppressWarnings({"unchecked"})

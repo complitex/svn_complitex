@@ -133,6 +133,8 @@ public class LoadRequestBean extends AbstractProcessBean {
                      List<RequestFile.TYPE> types) {
         if (!isProcessing()) {
             try {
+                processStatus = PROCESS_STATUS.PROCESSING;
+
                 List<File> files = groupPaymentBenefit(getFiles(districtCode, monthFrom, monthTo));
 
                 List<RequestFile> requestFiles = new ArrayList<RequestFile>();
