@@ -21,6 +21,9 @@ import java.util.List;
 import java.util.concurrent.Future;
 import java.util.regex.Pattern;
 
+import static org.complitex.osznconnection.file.entity.RequestFile.BENEFIT_FILE_PREFIX;
+import static org.complitex.osznconnection.file.entity.RequestFile.PAYMENT_FILE_PREFIX;
+
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 30.08.2010 17:30:55
@@ -80,31 +83,34 @@ public class LoadRequestBean extends AbstractProcessBean {
     }
 
     private List<File> groupPaymentBenefit(List<File> files){
-        List<File> group = new ArrayList<File>();
+        Collections.sort(files, new Comparator<File>(){
 
-        for (int i=0; i < files.size(); ++i){
-            String name1 = files.get(i).getName();
+            @Override
+            public int compare(File f1, File f2) {
+                String n1 = f1.getName();
+                String n2 = f2.getName();
 
-            if (name1.length() > 7 && name1.substring(0, 2).equalsIgnoreCase(RequestFile.PAYMENT_FILE_PREFIX)){
-                group.add(files.get(i));
-
-                for (int j=0; j < files.size(); ++j){
-                    String name2 = files.get(j).getName();
-
-                    if (name2.length() > 7 && name2.substring(0, 2).equalsIgnoreCase(RequestFile.BENEFIT_FILE_PREFIX)
-                            && name2.substring(2, 8).equals(name1.substring(2, 8))){
-                        group.add(files.get(j));
-                        files.remove(j);
-                        files.remove(i);
-                        i--;
-                    }
+                if (n1.length() < 8 || n2.length() < 8){
+                    return 0;
                 }
-            }else if (!name1.substring(0, 1).equalsIgnoreCase(RequestFile.BENEFIT_FILE_PREFIX)){
-                group.add(files.get(i));
-            }
-        }
 
-        return group;
+                String p1 = n1.substring(0, 2);
+                String p2 = n2.substring(0, 2);
+
+                if (!p1.equalsIgnoreCase(PAYMENT_FILE_PREFIX) && !p1.equalsIgnoreCase(BENEFIT_FILE_PREFIX)
+                        || !p2.equalsIgnoreCase(PAYMENT_FILE_PREFIX) && !p2.equalsIgnoreCase(BENEFIT_FILE_PREFIX)){
+                    return 0;
+                }
+
+                if (n1.substring(2,9).equals(n2.substring(2,9))){
+                    return p2.compareTo(p1) + n1.substring(7,9).compareTo(n2.substring(7,9));
+                }
+
+                return n1.substring(2,9).compareTo(n2.substring(2,9));
+            }
+        });
+
+        return files;
     }
 
     @Override
