@@ -164,7 +164,7 @@ public class PersonAccountList extends TemplatePage {
                 data, content));
         filterForm.add(new ArrowOrderByBorder("ownNumSrHeader", PersonAccountLocalBean.OrderBy.OWN_NUM_SR.getOrderBy(), dataProvider, data, content));
 
-        content.add(new PagingNavigator("navigator", data, content));
+        content.add(new PagingNavigator("navigator", data, getClass().getName(), content));
     }
 
     @Override
