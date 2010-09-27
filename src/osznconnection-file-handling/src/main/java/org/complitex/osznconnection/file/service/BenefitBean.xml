@@ -64,6 +64,29 @@
         )
     </insert>
 
+    <insert id="insertBenefitList" parameterType="list">
+        insert into `benefit`
+        (
+        <trim suffixOverrides=",">
+            `request_file_id`, `account_number`, `status`,
+            <foreach collection="list[0].dbfFields.keys" item="key">
+                `${key}`,
+            </foreach>
+        </trim>
+        )
+        values
+        <foreach collection="list" separator="," item="item">
+            (
+            <trim suffixOverrides=",">
+                #{item.requestFileId}, #{item.accountNumber}, #{item.status},
+                <foreach collection="item.dbfFields.keys" item="key">
+                    #{item.dbfFields.${key}},
+                </foreach>
+            </trim>
+            )
+        </foreach>
+    </insert>
+
     <update id="updateBenefit" parameterType="org.complitex.osznconnection.file.entity.Benefit">
         update `benefit`
         <set>

@@ -37,7 +37,7 @@ import static org.complitex.osznconnection.file.entity.RequestFile.STATUS_DETAIL
  * @see org.complitex.osznconnection.file.service.SaveRequestBean
  */
 @Stateless(name = "SaveTaskBean")
-@ConcurrencyManagement(ConcurrencyManagementType.BEAN)
+@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class SaveTaskBean {
     private static final Logger log = LoggerFactory.getLogger(SaveTaskBean.class);
 

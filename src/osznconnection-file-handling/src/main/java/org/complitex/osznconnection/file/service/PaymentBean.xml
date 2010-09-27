@@ -116,6 +116,35 @@
             )
     </insert>
 
+     <insert id="insertPaymentList" parameterType="list">
+        insert into `payment`
+            (
+            <trim suffixOverrides=",">
+                `request_file_id`, `account_number`,
+                `internal_city_id`, `internal_street_id`, `internal_street_type_id`, `internal_building_id`, `internal_apartment_id`,
+                `outgoing_city`, `outgoing_street`, `outgoing_street_type`, `outgoing_building_number`, `outgoing_building_corp`, `outgoing_apartment`,
+                `status`,
+                <foreach collection="list[0].dbfFields.keys" item="key">
+                    `${key}`,
+                </foreach>
+            </trim>
+            )
+        values
+         <foreach collection="list" separator="," item="item">
+            (
+            <trim suffixOverrides=",">
+                #{item.requestFileId}, #{item.accountNumber},
+                #{item.internalCityId}, #{item.internalStreetId}, #{item.internalStreetTypeId}, #{item.internalBuildingId}, #{item.internalApartmentId},
+                #{item.outgoingCity}, #{item.outgoingStreet}, #{item.outgoingStreetType}, #{item.outgoingBuildingNumber}, #{item.outgoingBuildingCorp}, #{item.outgoingApartment},
+                #{item.status},
+                <foreach collection="item.dbfFields.keys" item="key">
+                    #{dbfFields.${key}},
+                </foreach>
+            </trim>
+            )
+         </foreach>
+    </insert>
+
     <update id="updatePayment" parameterType="org.complitex.osznconnection.file.entity.Payment">
         update `payment`
         <set>

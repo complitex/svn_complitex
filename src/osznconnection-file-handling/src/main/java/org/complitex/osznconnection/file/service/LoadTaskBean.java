@@ -39,7 +39,7 @@ import static org.complitex.osznconnection.file.entity.RequestFile.STATUS_DETAIL
  */
 @Stateless(name = "LoadTaskBean")
 @SuppressWarnings({"EjbProhibitedPackageUsageInspection"})
-@ConcurrencyManagement(ConcurrencyManagementType.BEAN)
+@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class  LoadTaskBean {
     private static final Logger log = LoggerFactory.getLogger(LoadTaskBean.class);
 

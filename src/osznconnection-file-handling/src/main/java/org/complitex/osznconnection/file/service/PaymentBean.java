@@ -7,6 +7,8 @@ import org.complitex.osznconnection.file.entity.*;
 import org.complitex.osznconnection.file.entity.example.PaymentExample;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -59,11 +61,10 @@ public class PaymentBean extends AbstractBean {
         return (List<Payment>) sqlSession().selectList(MAPPING_NAMESPACE + ".find", example);
     }
 
-    @Transactional(executorType = ExecutorType.BATCH)
+    @Transactional
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void insert(List<AbstractRequest> abstractRequests) {
-        for (AbstractRequest abstractRequest : abstractRequests) {
-            insert((Payment) abstractRequest);
-        }
+        sqlSession().insert(MAPPING_NAMESPACE + ".insertPaymentList", abstractRequests);        
     }
 
     @SuppressWarnings({"unchecked"})
