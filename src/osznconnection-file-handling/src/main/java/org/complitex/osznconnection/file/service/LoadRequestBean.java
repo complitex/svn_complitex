@@ -162,6 +162,8 @@ public class LoadRequestBean extends AbstractProcessBean {
                     }
                 }
 
+                 processStatus = PROCESS_STATUS.NEW;
+
                 //Запуск процесса загрузки
                 process(requestFiles);
             } catch (StorageNotFoundException e) {
