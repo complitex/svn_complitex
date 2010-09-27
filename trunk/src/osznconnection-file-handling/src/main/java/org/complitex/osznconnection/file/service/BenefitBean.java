@@ -22,6 +22,7 @@ public class BenefitBean extends AbstractBean {
     public static final String MAPPING_NAMESPACE = BenefitBean.class.getName();
 
     public enum OrderBy {
+
         ACCOUNT(BenefitDBF.OWN_NUM_SR.name()),
         FIRST_NAME(BenefitDBF.F_NAM.name()),
         MIDDLE_NAME(BenefitDBF.M_NAM.name()),
@@ -118,7 +119,6 @@ public class BenefitBean extends AbstractBean {
     public void populateBenefit(long paymentId, Benefit benefit) {
         Map<String, Object> params = benefit.getDbfFields();
         params.put("paymentId", paymentId);
-//        params.put("status", benefit.getStatus());
         sqlSession().update(MAPPING_NAMESPACE + ".populateBenefit", params);
     }
 
@@ -127,7 +127,7 @@ public class BenefitBean extends AbstractBean {
         Map<String, Object> params = Maps.newHashMap();
         params.put("fileId", fileId);
         params.put("inn", indCode);
-        return (Integer) sqlSession().update(MAPPING_NAMESPACE + ".countByINN", params);
+        return (Integer) sqlSession().selectOne(MAPPING_NAMESPACE + ".countByINN", params);
     }
 
     public boolean existsWithInn(long fileId, String inn) {
@@ -139,7 +139,7 @@ public class BenefitBean extends AbstractBean {
         Map<String, Object> params = Maps.newHashMap();
         params.put("fileId", fileId);
         params.put("pspNumber", serialNumber);
-        return (Integer) sqlSession().update(MAPPING_NAMESPACE + ".countByPassportNumber", params);
+        return (Integer) sqlSession().selectOne(MAPPING_NAMESPACE + ".countByPassportNumber", params);
     }
 
     public boolean existsWithPassportNumber(long fileId, String serialNumber) {
@@ -202,7 +202,12 @@ public class BenefitBean extends AbstractBean {
     }
 
     @Transactional
-    public void update(Benefit benefit){
-        sqlSession().update(MAPPING_NAMESPACE+".update", benefit);
+    public void updateStatus(Benefit benefit) {
+        sqlSession().update(MAPPING_NAMESPACE + ".updateStatus", benefit);
+    }
+
+    @Transactional
+    public Date findDat1(long benefitId) {
+        return (Date) sqlSession().selectOne(MAPPING_NAMESPACE + ".findDat1", benefitId);
     }
 }

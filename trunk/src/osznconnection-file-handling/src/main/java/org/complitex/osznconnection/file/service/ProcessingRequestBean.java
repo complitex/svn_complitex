@@ -164,9 +164,10 @@ public class ProcessingRequestBean extends AbstractBean {
     }
 
     private void processBenefit(Benefit benefit, ICalculationCenterAdapter adapter, long id) {
+        Status oldStatus = benefit.getStatus();
         adapter.processBenefit(benefit, id);
-        if (benefit.getStatus() == Status.BENEFIT_NOT_FOUND) {
-            benefitBean.update(benefit);
+        if (benefit.getStatus() != oldStatus) {
+            benefitBean.updateStatus(benefit);
         }
     }
 }

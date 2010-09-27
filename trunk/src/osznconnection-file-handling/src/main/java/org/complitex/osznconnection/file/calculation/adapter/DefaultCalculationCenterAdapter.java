@@ -23,7 +23,6 @@ import org.complitex.osznconnection.file.entity.PaymentDBF;
 import org.complitex.osznconnection.file.entity.Status;
 import org.complitex.osznconnection.file.service.BenefitBean;
 import org.complitex.osznconnection.file.service.OwnershipCorrectionBean;
-import org.complitex.osznconnection.file.service.PersonAccountLocalBean;
 import org.complitex.osznconnection.file.service.PrivilegeCorrectionBean;
 import org.complitex.osznconnection.file.service.TarifBean;
 import org.slf4j.Logger;
@@ -275,9 +274,6 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
         benefit.setField(BenefitDBF.CM_AREA, payment.getField(PaymentDBF.NORM_F_1));
         benefit.setField(BenefitDBF.HOSTEL, data.get("HOSTEL"));
         benefit.setField(BenefitDBF.OWN_FRM, getOSZNOwnershipCode((String) data.get("OWN_FRM"), calculationCenterId, payment.getOrganizationId()));
-        if (CODE2_1 != null && CODE2_1 == 0) {
-            benefit.setStatus(Status.PROCESSED);
-        }
     }
 
     protected String getOSZNOwnershipCode(String calculationCenterOwnership, long calculationCenterId, long osznId) {
@@ -308,7 +304,12 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
 
             Map<String, Object> params = Maps.newHashMap();
             params.put("accountNumber", benefit.getAccountNumber());
-            params.put("dat1", getDat1((String) benefit.getField(BenefitDBF.OWN_NUM_SR), benefit.getAccountNumber()));
+            Date dat1 = getDat1(benefit.getId());
+            if (dat1 == null) {
+                benefit.setStatus(Status.PROCESSED);
+                return;
+            }
+            params.put("dat1", dat1);
 
             try {
                 session.selectOne(MAPPING_NAMESPACE + ".processBenefit", params);
@@ -411,13 +412,14 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
         return getEjbBean(BenefitBean.class).existsWithInn(benefit.getRequestFileId(), inn);
     }
 
-    protected Date getDat1(String ownNumSr, String accountNumber) {
-        try {
-            PersonAccountLocalBean personAccountLocalBean = getEjbBean(PersonAccountLocalBean.class);
-            return personAccountLocalBean.findDat1(ownNumSr, accountNumber);
-        } catch (Exception e) {
-            log.error("", e);
-        }
-        return null;
+    protected Date getDat1(long benefitId) {
+//        try {
+//            PersonAccountLocalBean personAccountLocalBean = getEjbBean(PersonAccountLocalBean.class);
+//            return personAccountLocalBean.findDat1(ownNumSr, accountNumber);
+//        } catch (Exception e) {
+//            log.error("", e);
+//        }
+//        return null;
+        return getEjbBean(BenefitBean.class).findDat1(benefitId);
     }
 }
