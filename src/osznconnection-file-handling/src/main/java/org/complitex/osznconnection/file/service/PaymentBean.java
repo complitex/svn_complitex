@@ -114,7 +114,7 @@ public class PaymentBean extends AbstractBean {
 
     @Transactional
     public List<Long> findIdsForProcessing(long fileId) {
-        return findIdsForOperation(fileId, Arrays.asList(Status.ACCOUNT_NUMBER_RESOLVED));
+        return findIdsForOperation(fileId, Status.notProcessedStatuses());
     }
 
     private int boundCount(long fileId) {

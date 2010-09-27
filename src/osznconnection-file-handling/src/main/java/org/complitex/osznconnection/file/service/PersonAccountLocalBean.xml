@@ -10,6 +10,13 @@
         LIMIT 0,1
     </select>
 
+    <select id="findDat1" parameterType="org.complitex.osznconnection.file.entity.PersonAccount" resultType="date">
+        SELECT pa.`dat1`
+        FROM `person_account` pa
+        WHERE pa.`account_number` = #{accountNumber} AND pa.`own_num_sr` = #{ownNumSr}
+        LIMIT 0,1
+    </select>
+
     <sql id="filter">
          pa.`city` = #{city}
          AND pa.`street` = #{street}

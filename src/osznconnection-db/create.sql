@@ -1230,6 +1230,7 @@ CREATE TABLE `person_account` (
     `apartment` VARCHAR(100) NOT NULL,
     `account_number` VARCHAR(100) NOT NULL,
     `own_num_sr` VARCHAR(15) NOT NULL,
+    `dat1` DATE,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -1296,7 +1297,7 @@ CREATE TABLE `street_correction` (
     KEY `key_object_id` (`object_id`),
     KEY `key_correction` (`correction`),
     KEY `key_organization_id` (`organization_id`),
-    CONSTRAINT `fk_street_correction__district` FOREIGN KEY (`object_id`) REFERENCES `street` (`object_id`),
+    CONSTRAINT `fk_street_correction` FOREIGN KEY (`object_id`) REFERENCES `street` (`object_id`),
     CONSTRAINT `fk_street_correction__organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -1313,7 +1314,7 @@ CREATE TABLE `building_correction` (
     KEY `key_object_id` (`object_id`),
     KEY `key_correction` (`correction`),
     KEY `key_organization_id` (`organization_id`),
-    CONSTRAINT `fk_building_correction__district` FOREIGN KEY (`object_id`) REFERENCES `building` (`object_id`),
+    CONSTRAINT `fk_building_correction` FOREIGN KEY (`object_id`) REFERENCES `building` (`object_id`),
     CONSTRAINT `fk_building_correction__organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -1329,7 +1330,7 @@ CREATE TABLE `apartment_correction` (
     KEY `key_object_id` (`object_id`),
     KEY `key_correction` (`correction`),
     KEY `key_organization_id` (`organization_id`),
-    CONSTRAINT `fk_apartment_correction__district` FOREIGN KEY (`object_id`) REFERENCES `apartment` (`object_id`),
+    CONSTRAINT `fk_apartment_correction` FOREIGN KEY (`object_id`) REFERENCES `apartment` (`object_id`),
     CONSTRAINT `fk_apartment_correction__organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -1345,8 +1346,24 @@ CREATE TABLE `ownership_correction` (
     KEY `key_object_id` (`object_id`),
     KEY `key_correction` (`correction`),
     KEY `key_organization_id` (`organization_id`),
-    CONSTRAINT `fk_ownership_correction__district` FOREIGN KEY (`object_id`) REFERENCES `ownership` (`object_id`),
+    CONSTRAINT `fk_ownership_correction` FOREIGN KEY (`object_id`) REFERENCES `ownership` (`object_id`),
     CONSTRAINT `fk_ownership_correction__organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`object_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `privilege_correction`;
+
+CREATE TABLE `privilege_correction` (
+    `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+    `object_id` BIGINT(20) NOT NULL,
+    `correction` VARCHAR(100) NOT NULL,
+    `organization_id` BIGINT(20) NOT NULL,
+    `organization_code` VARCHAR(100),
+    PRIMARY KEY (`id`),
+    KEY `key_object_id` (`object_id`),
+    KEY `key_correction` (`correction`),
+    KEY `key_organization_id` (`organization_id`),
+    CONSTRAINT `fk_privilege_correction` FOREIGN KEY (`object_id`) REFERENCES `privilege` (`object_id`),
+    CONSTRAINT `fk_privilege_correction__organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- calculation_center_preference --

@@ -59,4 +59,27 @@
         ]]>
     </select>
 
+    <resultMap id="benefitData" type="hashmap">
+        <result column="ln" property="LAST_NAME" javaType="string" jdbcType="VARCHAR"/>
+        <result column="fn" property="FISRT_NAME" javaType="string" jdbcType="VARCHAR"/>
+        <result column="mn" property="MIDDLE_NAME" javaType="string" jdbcType="VARCHAR"/>
+        <result column="inn" property="INN" javaType="string" jdbcType="VARCHAR"/>
+        <result column="ps" property="SERIAL_NUMBER" javaType="string" jdbcType="VARCHAR"/>
+        <result column="pn" property="PASSPORT_NUMBER" javaType="string" jdbcType="VARCHAR"/>
+        <result column="ord" property="ORD_FAM" javaType="int" jdbcType="INTEGER"/>
+        <result column="cc" property="BENEFIT_CODE" javaType="string" jdbcType="VARCHAR"/>
+        <result column="uc" property="USER_COUNT" javaType="int" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <select id="processBenefit" statementType="CALLABLE" parameterType="hashmap">
+        <![CDATA[
+         {#{resultCode, mode=OUT, javaType=int, jdbcType=NUMERIC} = call COMP.Z$RUNTIME_SZ_UTL.GETPRIVS(
+            #{accountNumber, mode=IN, javaType=string, jdbcType=VARCHAR},
+            #{dat1, mode=IN, javaType=date, jdbcType=DATE},
+            #{benefitData, mode=OUT, jdbcType=CURSOR, javaType=java.sql.ResultSet,
+                resultMap=org.complitex.osznconnection.file.calculation.adapter.DefaultCalculationCenterAdapter.benefitData})
+        }
+        ]]>
+    </select>
+
 </mapper>

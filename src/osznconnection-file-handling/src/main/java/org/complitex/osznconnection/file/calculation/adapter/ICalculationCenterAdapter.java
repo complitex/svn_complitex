@@ -32,4 +32,6 @@ public interface ICalculationCenterAdapter {
     public List<AccountCorrectionDetail> acquireAccountCorrectionDetails(Payment payment);
 
     public void processPaymentAndBenefit(Payment payment, Benefit benefit, long calculationCenterId);
+
+    public void processBenefit(Benefit benefit, long calculationCenterId);
 }

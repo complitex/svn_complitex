@@ -12,15 +12,12 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.complitex.osznconnection.file.entity.Benefit;
-import org.complitex.osznconnection.file.entity.BenefitDBF;
-import org.complitex.osznconnection.file.entity.Payment;
-import org.complitex.osznconnection.file.entity.PaymentDBF;
 
 /**
  *
  * @author Artem
  */
-public class ProcessPaymentTest {
+public class ProcessBenefitTest {
 
     private static SqlSessionFactory sqlSessionFactory;
 
@@ -53,27 +50,40 @@ public class ProcessPaymentTest {
             }
 
             @Override
-            protected String getOSZNOwnershipCode(String calculationCenterOwnership, long calculationCenterId, long osznId) {
-                System.out.println("Original OWN_FRM : " + calculationCenterOwnership);
-                return "12";
+            protected Date getDat1(String ownNumSr, String accountNumber) {
+                return new Date();
             }
 
             @Override
-            protected Integer getCODE2_1(Double T11_CS_UNI) {
-                System.out.println("T11_CS_UNI : " + T11_CS_UNI);
-                return 0;
+            protected boolean existsWithINN(Benefit benefit, String inn) {
+                return true;
+            }
+
+            @Override
+            protected boolean existsWithPassportNumber(Benefit benefit, String passportNumber) {
+                return false;
+            }
+
+            @Override
+            protected void setWrongAccountNumber(String accountNumber) {
+                System.out.println("setWrongAccountNumber, an : " + accountNumber);
+            }
+
+            @Override
+            protected String getOSZNPrivilegeCode(String calculationCenterPrivilege, long calculationCenterId, long osznId) {
+                System.out.println("calculationCenterPrivilege : " + calculationCenterPrivilege);
+                return null;
+            }
+
+            @Override
+            protected void updateBenefit(String inn, String passportNumber, Benefit benefit) {
+                System.out.println("updateBenefit, inn :  " + inn + ", passport : " + passportNumber);
             }
         };
-        Payment p = new Payment();
         Benefit b = new Benefit();
-        p.setAccountNumber("1000000015");
-        p.setOrganizationId(1L);
-        p.setField(PaymentDBF.DAT1, new Date());
-        adapter.processPaymentAndBenefit(p, b, 2);
-        System.out.println("Status : " + p.getStatus() + ", FROG : " + p.getField(PaymentDBF.FROG) + ", FL_PAY : " + p.getField(PaymentDBF.FL_PAY)
-                + ", NM_PAY : " + p.getField(PaymentDBF.NM_PAY) + ", DEBT : " + p.getField(PaymentDBF.DEBT) + ", NORM_F_1 : "
-                + p.getField(PaymentDBF.NORM_F_1) + ", NUMB : " + p.getField(PaymentDBF.NUMB) + ", CODE2_1 : " + p.getField(PaymentDBF.CODE2_1)
-                + ", MARK : " + p.getField(PaymentDBF.MARK) + ", HOSTEL : " + b.getField(BenefitDBF.HOSTEL)
-                + ", OWN_FRM : " + b.getField(BenefitDBF.OWN_FRM));
+        b.setAccountNumber("1000001108");
+        b.setOrganizationId(1L);
+        adapter.processBenefit(b, 2);
+        System.out.println("Status : " + b.getStatus());
     }
 }

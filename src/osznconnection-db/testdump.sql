@@ -176,9 +176,15 @@ insert into ownership_correction(organization_id, correction, object_id, organiz
 (1,UPPER('приватна'),5,'5'), (2,UPPER('ВЫК'),5,'5'),
 (1,UPPER('приватизована'),6,'6'), (2,UPPER('ЧАС'),6,'6');
 
+-- Privileges corrections
+--insert into privilege_correction(organization_id, correction, object_id, organization_code) values
+
 -- Benefit
 insert into benefit(own_num_sr, OZN, f_nam, m_nam, sur_nam, request_file_id)
-values (1, 1, 'Иван', 'Иванович', 'Иванов',2), (1, 0, 'Иван2', 'Иванович2', 'Иванов2',2), (3, 1, 'Петр','Петрович','Петров',2);
+values
+-- (1, 1, 'Иван', 'Иванович', 'Иванов',2),
+-- (1, 0, 'Иван2', 'Иванович2', 'Иванов2',2),
+(3, 1, 'Петр','Петрович','Петров',2);
 
 -- Tarif
 insert into tarif(`T11_CS_UNI`, `T11_CODE2`, `request_file_id`) values (0,123,3);
