@@ -12,6 +12,7 @@
         <result column="building_number" property="buildingNumber"/>
         <result column="building_corp" property="buildingCorp"/>
         <result column="apartment" property="apartment"/>
+        <result column="organization_id" property="organizationId"/>
 
         <association property="dbfFields" javaType="map">
             <result column="OWN_NUM" property="OWN_NUM"/>
@@ -35,7 +36,7 @@
             <result column="OZN_ABS" property="OZN_ABS"/>
             <result column="RESERV1" property="RESERV1"/>
             <result column="RESERV2" property="RESERV2"/>
-        </association>
+        </association>      
     </resultMap>
 
     <select id="selectBenefits" resultMap="benefitResultMap" parameterType="long">
@@ -189,12 +190,13 @@
     </update>
 
     <update id="populateBenefit" parameterType="hashmap">
-        UPDATE `benefit` b SET b.`CM_AREA` = #{CM_AREA}, b.`OWN_FRM` = #{OWN_FRM}, b.`HOSTEL` = #{HOSTEL}
+        UPDATE `benefit` b SET
+        b.`CM_AREA` = #{CM_AREA}, b.`OWN_FRM` = #{OWN_FRM}, b.`HOSTEL` = #{HOSTEL}
         <include refid="org.complitex.osznconnection.file.service.BenefitBean.updateByOWN_NUM_SR"/>
         AND b.`OZN` = 1
     </update>
 
-    <update id="update" parameterType="org.complitex.osznconnection.file.entity.Benefit">
+    <update id="updateStatus" parameterType="org.complitex.osznconnection.file.entity.Benefit">
         UPDATE `benefit` SET
         `status` = #{status}
         WHERE `id` = #{id}
@@ -213,7 +215,7 @@
         UPDATE `benefit` SET
         `status` = #{status}
         WHERE
-        `ACCOUNT_NUMBER` = #{accountNumber}
+        `account_number` = #{accountNumber}
     </update>
 
     <select id="countByINN" parameterType="hashmap" resultType="int">
@@ -237,12 +239,24 @@
 
     <select id="findForOperation" parameterType="hashmap" resultMap="benefitResultMap">
         SELECT b.`id`, b.`request_file_id`,
-        b.`status`, b.`account_number`
+        b.`status`, b.`account_number`,
+        bf.`organization_object_id` organization_id
         FROM `benefit` b
+        JOIN `request_file` bf ON b.`request_file_id` = bf.`id`
         WHERE b.`request_file_id` = #{requestFileId} AND b.`id` IN
         <foreach collection="ids" item="id" open="(" close=")" separator=",">
             #{id}
         </foreach>
+    </select>
+
+    <select id="findDat1" parameterType="_long" resultType="date">
+        SELECT DISTINCT p.`DAT1` FROM `payment` p
+        JOIN `request_file` pf ON p.`request_file_id` = pf.`id`
+        JOIN `benefit` b ON b.`OWN_NUM_SR` = p.`OWN_NUM_SR`
+        JOIN `request_file` bf ON bf.`id` = b.`request_file_id`
+        WHERE (bf.`organization_object_id` = pf.`organization_object_id`) AND (EXTRACT(YEAR_MONTH FROM bf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`))
+        AND p.`FROG` > 0
+        AND b.`id` = #{id}
     </select>
 
 </mapper>

@@ -50,7 +50,7 @@ public class ProcessBenefitTest {
             }
 
             @Override
-            protected Date getDat1(String ownNumSr, String accountNumber) {
+            protected Date getDat1(long benefitId) {
                 return new Date();
             }
 

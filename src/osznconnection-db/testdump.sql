@@ -15,12 +15,13 @@ insert into room_attribute(attribute_id, object_id, attribute_type_id, value_id,
 (1,1,200,1,200), (1,2,200,2,200), (1,3,200,3,200), (1,4,200,4,200);
 
 -- Apartments
-insert into apartment(object_id, parent_id, parent_entity_id) values (1,1,500), (2,1,500), (3,6,500), (4,7,500);
+insert into apartment(object_id, parent_id, parent_entity_id) values (1,1,500), (2,1,500), (3,6,500), (4,7,500), (5,7,500);
 insert into apartment_string_culture(id, locale, value) values (1, 'ru', UPPER('10')), (1, 'uk', UPPER('10')), (2, 'ru', UPPER('20')), (2, 'uk', UPPER('20')),
                                                                 (3, 'ru', UPPER('1')), (3, 'uk', UPPER('1')),
-                                                                (4, 'ru', UPPER('40')), (4, 'uk', UPPER('40'));
+                                                                (4, 'ru', UPPER('40')), (4, 'uk', UPPER('40')),
+                                                                (5, 'ru', UPPER('19')), (5, 'uk', UPPER('19'));
 insert into apartment_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
-(1,1,100,1,100), (1,2,100,2,100), (1,3,100,3,100), (1,4,100,4,100);
+(1,1,100,1,100), (1,2,100,2,100), (1,3,100,3,100), (1,4,100,4,100), (1,5,100,5,100);
 
 -- Buildings
 insert into building(object_id, parent_id, parent_entity_id) values (1,1,400), (2,1,400), (3,1,400), (4,2,400), (5,2,400), (6,3,400), (7,3,400);
@@ -101,7 +102,7 @@ insert into district_attribute(attribute_id, object_id, attribute_type_id, value
 -- Cities
 insert into city_string_culture(id, locale, value) values (1, 'ru', UPPER('Новосибирск')), (1,'uk',UPPER('Novosibirsk')),
                                                           (2, 'ru', UPPER('Москва')), (2,'uk',UPPER('Moscow')),
-                                                          (3, 'ru', UPPER('Харьков(ТЕСТ)')), (3,'uk',UPPER('Харьков(ТЕСТ)'));
+                                                          (3, 'ru', UPPER('Харьков')), (3,'uk',UPPER('Харьков'));
 insert into city(object_id, parent_id, parent_entity_id) values (1,1,700), (2,2,700), (3,3,700);
 insert into city_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
 (1,1,400,1,400),
@@ -141,13 +142,14 @@ insert into `request_file`(id, organization_object_id, `name`, `date`, `loaded`,
 (3,1,'TARIF12.dbf', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'LOADED');
 
 -- Payments
-insert into payment(own_num_sr, f_nam, m_nam, sur_nam, n_name, vul_name, bld_num, corp_num, flat, DAT1, request_file_id, status)
+insert into payment(own_num_sr, f_nam, m_nam, sur_nam, n_name, vul_name, bld_num, corp_num, flat, DAT1, request_file_id)
 values
 -- (1,'Иван', 'Иванович', 'Иванов', 'Новосибирск', 'ул. Терешковой', 'д. 10','', 'кв. 10', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY'),
 -- (2,'Сидор', 'Сидорович', 'Сидоров', 'Новосибирск', 'ул. Терешковой', 'д. 11','', 'кв. 11', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY'),
- (3,'Петр', 'Петрович', 'Петров', 'Харьков', 'Косиора', '154A','', '1', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY'),
- (3,'Петр1', 'Петрович1', 'Петров1', 'Харьков', 'Kоcиорa', '154A','', '1', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY');
+-- (3,'Петр', 'Петрович', 'Петров', 'Харьков', 'Косиора', '154A','', '1', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY'),
+-- (3,'Петр1', 'Петрович1', 'Петров1', 'Харьков', 'Kоcиорa', '154A','', '1', '2010-09-08',1, 'CITY_UNRESOLVED_LOCALLY');
 -- (4,'Матвей', 'Матвеевич', 'Матвеев', 'Харьков', 'ФРАНТИШЕКА КРАЛА', '25А','', '40', '2010-09-09',1, 'CITY_UNRESOLVED_LOCALLY');
+(4,'Матвей', 'Матвеевич', 'Матвеев', 'Харьков', 'ФРАНТИШЕКА КРАЛА', '25А','', '19', '2010-09-09',1);
 
 -- Address corrections
 insert into entity_type_correction(organization_id, `type`, entity_type_id, organization_type_code) values (2,UPPER('ул'),302,'1');
@@ -177,14 +179,16 @@ insert into ownership_correction(organization_id, correction, object_id, organiz
 (1,UPPER('приватизована'),6,'6'), (2,UPPER('ЧАС'),6,'6');
 
 -- Privileges corrections
---insert into privilege_correction(organization_id, correction, object_id, organization_code) values
+insert into privilege_correction(organization_id, correction, object_id, organization_code) values
+(2,'ПЕНСИОНЕР ПО ВОЗРАСТУ',15,34),(1,'ПЕНСИОНЕР ПО ВОЗРАСТУ',15,1000);
 
 -- Benefit
-insert into benefit(own_num_sr, OZN, f_nam, m_nam, sur_nam, request_file_id)
+insert into benefit(own_num_sr, OZN, f_nam, m_nam, sur_nam, request_file_id, IND_COD, PSP_NUM)
 values
 -- (1, 1, 'Иван', 'Иванович', 'Иванов',2),
 -- (1, 0, 'Иван2', 'Иванович2', 'Иванов2',2),
-(3, 1, 'Петр','Петрович','Петров',2);
+-- (3, 1, 'Петр','Петрович','Петров',2);
+(4, 1, 'Петр','Петрович','Петров',2, '2142426432', null);
 
 -- Tarif
 insert into tarif(`T11_CS_UNI`, `T11_CODE2`, `request_file_id`) values (0,123,3);
