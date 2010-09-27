@@ -5,6 +5,7 @@
 package org.complitex.osznconnection.file.entity;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  *
@@ -34,6 +35,8 @@ public class PersonAccount implements Serializable {
 
     private String accountNumber;
 
+    private Date dat1;
+
     public PersonAccount() {
     }
 
@@ -47,6 +50,20 @@ public class PersonAccount implements Serializable {
         this.buildingNumber = buildingNumber;
         this.buildingCorp = buildingCorp;
         this.apartment = apartment;
+    }
+
+    public PersonAccount(String firstName, String middleName, String lastName, String ownNumSr, String city, String street, String buildingNumber, String buildingCorp, String apartment, String accountNumber, Date dat1) {
+        this.firstName = firstName;
+        this.middleName = middleName;
+        this.lastName = lastName;
+        this.ownNumSr = ownNumSr;
+        this.city = city;
+        this.street = street;
+        this.buildingNumber = buildingNumber;
+        this.buildingCorp = buildingCorp;
+        this.apartment = apartment;
+        this.accountNumber = accountNumber;
+        this.dat1 = dat1;
     }
 
     public Long getId() {
@@ -135,5 +152,13 @@ public class PersonAccount implements Serializable {
 
     public void setStreet(String street) {
         this.street = street;
+    }
+
+    public Date getDat1() {
+        return dat1;
+    }
+
+    public void setDat1(Date dat1) {
+        this.dat1 = dat1;
     }
 }

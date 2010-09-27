@@ -145,12 +145,15 @@ public class FileExecutorService {
         }
     }
 
-    private class ProcessPaymentTask implements Runnable {
+    private class ProcessTask implements Runnable {
 
         private RequestFile paymentFile;
 
-        public ProcessPaymentTask(RequestFile paymentFile) {
+        private RequestFile benefitFile;
+
+        public ProcessTask(RequestFile paymentFile, RequestFile benefitFile) {
             this.paymentFile = paymentFile;
+            this.benefitFile = benefitFile;
         }
 
         @Override
@@ -163,6 +166,15 @@ public class FileExecutorService {
                     inProcessing.add(paymentFile);
                     try {
                         processRequestBean.processPayment(paymentFile);
+                    } catch (Exception e) {
+                        log.error("", e);
+                    }
+                }
+
+                if (benefitFile != null) {
+                    inProcessing.add(benefitFile);
+                    try {
+                        processRequestBean.processBenefit(benefitFile);
                     } catch (Exception e) {
                         log.error("", e);
                     }
@@ -201,7 +213,7 @@ public class FileExecutorService {
                 //find associated benefit file
                 RequestFile benefitFile = null;
                 try {
-                    benefitFile = Iterables.find(requestFiles, new Predicate<RequestFile>() {
+                    benefitFile = Iterables.find(suitedFiles, new Predicate<RequestFile>() {
 
                         @Override
                         public boolean apply(RequestFile benefitFile) {
@@ -237,14 +249,42 @@ public class FileExecutorService {
 
             @Override
             public boolean apply(RequestFile requestFile) {
-                return (requestFile.getType() == RequestFile.TYPE.PAYMENT)
+                return (requestFile.getType() == RequestFile.TYPE.PAYMENT || requestFile.getType() == RequestFile.TYPE.BENEFIT)
                         && (requestFile.getStatus() == RequestFile.STATUS.BINDED || requestFile.getStatus() == RequestFile.STATUS.PROCESSED_WITH_ERRORS);
             }
         }));
-        for (RequestFile file : suitedFiles) {
+        Set<Long> processingBenefitFiles = Sets.newHashSet();
+        for (final RequestFile file : suitedFiles) {
             if (file.getType() == RequestFile.TYPE.PAYMENT) {
                 log.info("Processing payment file : {}", file.getName());
-                processingThreadPool.submit(new ProcessPaymentTask(file));
+
+                //find associated benefit file
+                RequestFile benefitFile = null;
+                try {
+                    benefitFile = Iterables.find(suitedFiles, new Predicate<RequestFile>() {
+
+                        @Override
+                        public boolean apply(RequestFile benefitFile) {
+                            return benefitFile.getType() == RequestFile.TYPE.BENEFIT
+                                    && benefitFile.getName().substring(RequestFile.PAYMENT_FILE_PREFIX.length()).
+                                    equalsIgnoreCase(file.getName().substring(RequestFile.BENEFIT_FILE_PREFIX.length()));
+
+                        }
+                    });
+                } catch (NoSuchElementException e) {
+                }
+
+                if (benefitFile != null) {
+                    processingBenefitFiles.add(benefitFile.getId());
+                    log.info("Processing paired benefit file : {}", benefitFile.getName());
+                }
+                processingThreadPool.submit(new ProcessTask(file, benefitFile));
+            }
+        }
+        for (RequestFile file : suitedFiles) {
+            if ((file.getType() == RequestFile.TYPE.BENEFIT) && !processingBenefitFiles.contains(file.getId())) {
+                log.info("Processing alone benefit file : {}", file.getName());
+                processingThreadPool.submit(new ProcessTask(null, file));
             }
         }
     }

@@ -108,4 +108,65 @@ public class ProcessingRequestBean extends AbstractBean {
             throw e;
         }
     }
+
+    public void processBenefit(RequestFile benefitFile) {
+        try {
+            CalculationCenterInfo calculationCenterInfo = calculationCenterBean.getCurrentCalculationCenterInfo();
+            ICalculationCenterAdapter adapter = calculationCenterInfo.getAdapterInstance();
+
+            benefitFile.setStatus(RequestFile.STATUS.PROCESSING);
+            requestFileBean.save(benefitFile);
+
+            List<Long> notResolvedBenefitIds = benefitBean.findIdsForProcessing(benefitFile.getId());
+
+            List<Long> batch = Lists.newArrayList();
+            while (notResolvedBenefitIds.size() > 0) {
+                batch.clear();
+                for (int i = 0; i < Math.min(BATCH_SIZE, notResolvedBenefitIds.size()); i++) {
+                    batch.add(notResolvedBenefitIds.remove(i));
+                }
+
+                try {
+                    getSqlSessionManager().startManagedSession(false);
+                    List<Benefit> benefits = benefitBean.findForOperation(benefitFile.getId(), batch);
+                    for (Benefit benefit : benefits) {
+                        processBenefit(benefit, adapter, calculationCenterInfo.getId());
+                    }
+                    getSqlSessionManager().commit();
+                } catch (Exception e) {
+                    try {
+                        getSqlSessionManager().rollback();
+                    } catch (Exception exc) {
+                        log.error("", exc);
+                    }
+                    log.error("", e);
+                } finally {
+                    try {
+                        getSqlSessionManager().close();
+                    } catch (Exception e) {
+                        log.error("", e);
+                    }
+                }
+            }
+
+            boolean processed = benefitBean.isBenefitFileProcessed(benefitFile.getId());
+            benefitFile.setStatus(processed ? RequestFile.STATUS.PROCESSED : RequestFile.STATUS.PROCESSED_WITH_ERRORS);
+            requestFileBean.save(benefitFile);
+        } catch (RuntimeException e) {
+            try {
+                benefitFile.setStatus(RequestFile.STATUS.PROCESSED_WITH_ERRORS);
+                requestFileBean.save(benefitFile);
+            } catch (Exception ex) {
+                log.error("", ex);
+            }
+            throw e;
+        }
+    }
+
+    private void processBenefit(Benefit benefit, ICalculationCenterAdapter adapter, long id) {
+        adapter.processBenefit(benefit, id);
+        if (benefit.getStatus() == Status.BENEFIT_NOT_FOUND) {
+            benefitBean.update(benefit);
+        }
+    }
 }

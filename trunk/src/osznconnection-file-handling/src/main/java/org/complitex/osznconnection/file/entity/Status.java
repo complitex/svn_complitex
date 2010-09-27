@@ -56,6 +56,8 @@ public enum Status {
         List<Status> result = notBoundStatuses();
         result.add(ACCOUNT_NUMBER_RESOLVED);
         result.add(TARIF_CODE2_1_NOT_FOUND);
+        result.add(WRONG_ACCOUNT_NUMBER);
+        result.add(BENEFIT_NOT_FOUND);
         return result;
     }
 }

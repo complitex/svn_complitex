@@ -4,6 +4,7 @@
  */
 package org.complitex.osznconnection.file.service;
 
+import java.util.Date;
 import java.util.List;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
@@ -45,9 +46,18 @@ public class PersonAccountLocalBean extends AbstractBean {
     }
 
     @Transactional
+    public Date findDat1(String ownNumSr, String accountNumber) {
+        PersonAccount example = new PersonAccount();
+        example.setAccountNumber(accountNumber);
+        example.setOwnNumSr(ownNumSr);
+        return (Date) sqlSession().selectOne(MAPPING_NAMESPACE + ".findDat1", example);
+    }
+
+    @Transactional
     public void saveAccountNumber(String firstName, String middleName, String lastName, String city, String street, String buildingNumber,
-            String buildingCorp, String apartment, String ownNumSr, String personAccount) {
-        PersonAccount param = new PersonAccount(firstName, middleName, lastName, ownNumSr, city, street, buildingNumber, buildingCorp, apartment);
+            String buildingCorp, String apartment, String ownNumSr, String personAccount, Date dat1) {
+        PersonAccount param = new PersonAccount(firstName, middleName, lastName, ownNumSr, city, street, buildingNumber, buildingCorp, 
+                apartment, personAccount, dat1);
         param.setAccountNumber(personAccount);
         sqlSession().insert(MAPPING_NAMESPACE + ".insert", param);
     }

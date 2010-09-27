@@ -4,6 +4,7 @@
  */
 package org.complitex.osznconnection.file.service;
 
+import java.util.Date;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -65,7 +66,7 @@ public class PersonAccountService extends AbstractBean {
                     (String) payment.getField(PaymentDBF.N_NAME), (String) payment.getField(PaymentDBF.VUL_NAME),
                     (String) payment.getField(PaymentDBF.BLD_NUM), (String) payment.getField(PaymentDBF.CORP_NUM),
                     (String) payment.getField(PaymentDBF.FLAT),
-                    (String) payment.getField(PaymentDBF.OWN_NUM_SR), payment.getAccountNumber());
+                    (String) payment.getField(PaymentDBF.OWN_NUM_SR), payment.getAccountNumber(), (Date)payment.getField(PaymentDBF.DAT1));
         }
     }
 

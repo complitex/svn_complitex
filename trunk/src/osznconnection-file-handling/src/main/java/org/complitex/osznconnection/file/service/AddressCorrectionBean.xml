@@ -42,8 +42,8 @@
     </select>
 
     <insert id="insertBuilding" parameterType="org.complitex.osznconnection.file.entity.BuildingCorrection">
-        INSERT INTO `building_correction`(`organization_id`, `correction`, `correction_corp`, `object_id`) VALUES
-        (#{organizationId}, UPPER(#{correction}), UPPER(#{correctionCorp}), #{internalObjectId})
+        INSERT INTO `building_correction`(`organization_id`, `correction`, `correction_corp`, `object_id`, `organization_code`) VALUES
+        (#{organizationId}, #{correction}, #{correctionCorp}, #{internalObjectId}, #{code})
     </insert>
 
     <select id="findOutgoingAddress" resultMap="org.complitex.osznconnection.file.service.CorrectionBean.objectCorrection"

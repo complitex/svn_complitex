@@ -20,12 +20,12 @@
 
     <insert id="insert" parameterType="org.complitex.osznconnection.file.entity.ObjectCorrection">
         INSERT INTO `${entity}_correction`(`organization_id`, `correction`, `object_id`, `organization_code`) VALUES
-        (#{organizationId}, UPPER(#{correction}), #{internalObjectId}, UPPER(#{code}))
+        (#{organizationId}, #{correction}, #{internalObjectId}, #{code})
     </insert>
 
     <insert id="insertEntityType" parameterType="org.complitex.osznconnection.file.entity.EntityTypeCorrection">
         INSERT INTO `entity_type_correction`(`organization_id`, `type`, `entity_type_id`, `organization_type_code`) VALUES
-        (#{organizationId}, UPPER(#{correction}), #{internalObjectId}, UPPER(#{code}))
+        (#{organizationId}, #{correction}, #{internalObjectId}, #{code})
     </insert>
 
     <sql id="filter">
