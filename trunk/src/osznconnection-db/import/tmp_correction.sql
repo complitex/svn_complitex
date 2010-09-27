@@ -24,6 +24,7 @@
 --
 -- Definition of table `tmp_districts`
 --
+DROP TABLE IF EXISTS `tmp_districts`;
 CREATE TABLE `tmp_districts` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `object_id` int(11) DEFAULT NULL,
@@ -54,6 +55,7 @@ COMMIT;
 --
 -- Definition of table `tmp_houses`
 --
+DROP TABLE IF EXISTS `tmp_houses`;
 CREATE TABLE `tmp_houses` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `object_id` int(11) DEFAULT NULL,
@@ -7172,6 +7174,8 @@ COMMIT;
 --
 -- Definition of table `tmp_street_types`
 --
+
+DROP TABLE IF EXISTS `tmp_street_types`;
 CREATE TABLE `tmp_street_types` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `object_id` int(11) DEFAULT NULL,
@@ -7210,6 +7214,7 @@ COMMIT;
 --
 -- Definition of table `tmp_streets`
 --
+DROP TABLE IF EXISTS `tmp_streets`;
 CREATE TABLE `tmp_streets` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `object_id` int(11) DEFAULT NULL,
