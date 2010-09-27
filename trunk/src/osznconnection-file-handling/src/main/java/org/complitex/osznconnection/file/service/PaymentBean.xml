@@ -138,7 +138,7 @@
                 #{item.outgoingCity}, #{item.outgoingStreet}, #{item.outgoingStreetType}, #{item.outgoingBuildingNumber}, #{item.outgoingBuildingCorp}, #{item.outgoingApartment},
                 #{item.status},
                 <foreach collection="item.dbfFields.keys" item="key">
-                    #{dbfFields.${key}},
+                    #{item.dbfFields.${key}},
                 </foreach>
             </trim>
             )
