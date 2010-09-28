@@ -110,8 +110,14 @@ public class  LoadTaskBean {
 
                 //Заполнение колонок записи
                 for (int i=0; i < rowObjects.length; ++i) {
+                    Object value = rowObjects[i];
+
+                    if (value != null && value instanceof String){
+                        value = ((String)value).trim(); //string trim
+                    }
+
                     DBFField field = reader.getField(i);
-                    r.setField(field.getName(), rowObjects[i], getType(field.getDataType(), field.getDecimalCount()));
+                    r.setField(field.getName(), value, getType(field.getDataType(), field.getDecimalCount()));
                 }
 
                 //Сохранение
