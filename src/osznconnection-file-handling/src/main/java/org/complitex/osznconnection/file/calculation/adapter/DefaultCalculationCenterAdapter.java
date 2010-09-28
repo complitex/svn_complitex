@@ -297,31 +297,27 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
     }
 
     @Override
-    public void processBenefit(Benefit benefit, long calculationCenterId) {
+    public void processBenefit(Date dat1, List<Benefit> benefits, long calculationCenterId) {
         SqlSession session = null;
         try {
             session = openSession();
 
+            String accountNumber = benefits.get(0).getAccountNumber();
             Map<String, Object> params = Maps.newHashMap();
-            params.put("accountNumber", benefit.getAccountNumber());
-            Date dat1 = getDat1(benefit.getId());
-            if (dat1 == null) {
-                benefit.setStatus(Status.PROCESSED);
-                return;
-            }
+            params.put("accountNumber", accountNumber);
             params.put("dat1", dat1);
 
             try {
                 session.selectOne(MAPPING_NAMESPACE + ".processBenefit", params);
                 List<Map<String, Object>> data = (List<Map<String, Object>>) params.get("benefitData");
                 if (data != null && !data.isEmpty()) {
-                    processBenefitData(calculationCenterId, benefit, data);
+                    processBenefitData(calculationCenterId, benefits, data);
                 } else {
-                    benefit.setStatus(Status.ACCOUNT_NUMBER_NOT_FOUND);
+                    setStatus(benefits, Status.ACCOUNT_NUMBER_NOT_FOUND);
                 }
             } catch (Exception e) {
                 log.error("", e);
-                benefit.setStatus(Status.ACCOUNT_NUMBER_NOT_FOUND);
+                setStatus(benefits, Status.ACCOUNT_NUMBER_NOT_FOUND);
             }
             session.commit();
         } catch (Exception e) {
@@ -344,7 +340,7 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
         }
     }
 
-    protected void processBenefitData(long calculationCenterId, Benefit benefit, List<Map<String, Object>> data) {
+    protected void processBenefitData(long calculationCenterId, List<Benefit> benefits, List<Map<String, Object>> data) {
         log.info("Process benefit, data : {}", data);
         List<String> processed = Lists.newArrayList();
         Map<String, Object> el = null;
@@ -354,7 +350,8 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
             log.info("INN : {}, Passport : {}", inn, passportNumber);
             if (!processed.contains(inn)) {
                 List<Map<String, Object>> theSameMan = null;
-                if (existsWithINN(benefit, inn) || (!Strings.isEmpty(passportNumber) && existsWithPassportNumber(benefit, passportNumber))) {
+                List<Benefit> theSameBenefits = findByINN(benefits, inn);
+                if (!theSameBenefits.isEmpty()) {
                     theSameMan = Lists.newArrayList(Iterables.filter(data, new Predicate<Map<String, Object>>() {
 
                         @Override
@@ -363,11 +360,21 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
                         }
                     }));
                 } else {
-                    benefit.setStatus(Status.WRONG_ACCOUNT_NUMBER);
-                    setWrongAccountNumber(benefit.getAccountNumber());
-                    return;
+                    theSameBenefits = findByPassportNumber(benefits, passportNumber);
+                    if (!theSameBenefits.isEmpty()) {
+                        theSameMan = Lists.newArrayList(Iterables.filter(data, new Predicate<Map<String, Object>>() {
+
+                            @Override
+                            public boolean apply(Map<String, Object> input) {
+                                return input.get("INN").equals(inn);
+                            }
+                        }));
+                    } else {
+                        setStatus(benefits, Status.WRONG_ACCOUNT_NUMBER);
+                        return;
+                    }
                 }
-                if (theSameMan != null) {
+                if (theSameMan != null && !theSameMan.isEmpty()) {
                     el = Collections.min(theSameMan, new Comparator<Map<String, Object>>() {
 
                         @Override
@@ -377,14 +384,15 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
                         }
                     });
                     String cmBenefitCode = (String) el.get("BENEFIT_CODE");
-                    String osznBenefitCode = getOSZNPrivilegeCode(cmBenefitCode, calculationCenterId, benefit.getOrganizationId());
+                    String osznBenefitCode = getOSZNPrivilegeCode(cmBenefitCode, calculationCenterId, benefits.get(0).getOrganizationId());
                     if (osznBenefitCode == null) {
-                        benefit.setStatus(Status.BENEFIT_NOT_FOUND);
+                        setStatus(theSameBenefits, Status.BENEFIT_NOT_FOUND);
                     } else {
-                        benefit.setField(BenefitDBF.PRIV_CAT, osznBenefitCode);
-                        benefit.setField(BenefitDBF.ORD_FAM, el.get("ORD_FAM"));
-                        benefit.setStatus(Status.PROCESSED);
-                        updateBenefit(inn, passportNumber, benefit);
+                        for (Benefit benefit : theSameBenefits) {
+                            benefit.setField(BenefitDBF.PRIV_CAT, osznBenefitCode);
+                            benefit.setField(BenefitDBF.ORD_FAM, el.get("ORD_FAM"));
+                            benefit.setStatus(Status.PROCESSED);
+                        }
                     }
                     processed.add(inn);
                 }
@@ -392,34 +400,37 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
         }
     }
 
-    protected void updateBenefit(String inn, String passportNumber, Benefit benefit) {
-        getEjbBean(BenefitBean.class).updateByInnOrPassportNumber(inn, passportNumber, benefit);
-    }
-
-    protected void setWrongAccountNumber(String accountNumber) {
-        getEjbBean(BenefitBean.class).setWrongAccountNumber(accountNumber);
+    protected void setStatus(List<Benefit> benefits, Status status) {
+        for (Benefit benefit : benefits) {
+            benefit.setStatus(status);
+        }
     }
 
     protected String getOSZNPrivilegeCode(String calculationCenterPrivilege, long calculationCenterId, long osznId) {
         return getEjbBean(PrivilegeCorrectionBean.class).getOSZNPrivilegeCode(calculationCenterPrivilege, calculationCenterId, osznId);
     }
 
-    protected boolean existsWithPassportNumber(Benefit benefit, String passportNumber) {
-        return getEjbBean(BenefitBean.class).existsWithPassportNumber(benefit.getRequestFileId(), passportNumber);
+    protected List<Benefit> findByPassportNumber(List<Benefit> benefits, final String passportNumber) {
+        if (!Strings.isEmpty(passportNumber)) {
+            return Lists.newArrayList(Iterables.filter(benefits, new Predicate<Benefit>() {
+
+                @Override
+                public boolean apply(Benefit benefit) {
+                    return passportNumber.equals(benefit.getField(BenefitDBF.PSP_NUM));
+                }
+            }));
+        } else {
+            return Collections.emptyList();
+        }
     }
 
-    protected boolean existsWithINN(Benefit benefit, String inn) {
-        return getEjbBean(BenefitBean.class).existsWithInn(benefit.getRequestFileId(), inn);
-    }
+    protected List<Benefit> findByINN(List<Benefit> benefits, final String inn) {
+        return Lists.newArrayList(Iterables.filter(benefits, new Predicate<Benefit>() {
 
-    protected Date getDat1(long benefitId) {
-//        try {
-//            PersonAccountLocalBean personAccountLocalBean = getEjbBean(PersonAccountLocalBean.class);
-//            return personAccountLocalBean.findDat1(ownNumSr, accountNumber);
-//        } catch (Exception e) {
-//            log.error("", e);
-//        }
-//        return null;
-        return getEjbBean(BenefitBean.class).findDat1(benefitId);
+            @Override
+            public boolean apply(Benefit benefit) {
+                return inn.equals(benefit.getField(BenefitDBF.IND_COD));
+            }
+        }));
     }
 }

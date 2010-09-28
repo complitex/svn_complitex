@@ -4,6 +4,7 @@
  */
 package org.complitex.osznconnection.file.calculation.adapter;
 
+import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Date;
@@ -50,40 +51,15 @@ public class ProcessBenefitTest {
             }
 
             @Override
-            protected Date getDat1(long benefitId) {
-                return new Date();
-            }
-
-            @Override
-            protected boolean existsWithINN(Benefit benefit, String inn) {
-                return true;
-            }
-
-            @Override
-            protected boolean existsWithPassportNumber(Benefit benefit, String passportNumber) {
-                return false;
-            }
-
-            @Override
-            protected void setWrongAccountNumber(String accountNumber) {
-                System.out.println("setWrongAccountNumber, an : " + accountNumber);
-            }
-
-            @Override
             protected String getOSZNPrivilegeCode(String calculationCenterPrivilege, long calculationCenterId, long osznId) {
-                System.out.println("calculationCenterPrivilege : " + calculationCenterPrivilege);
-                return null;
-            }
-
-            @Override
-            protected void updateBenefit(String inn, String passportNumber, Benefit benefit) {
-                System.out.println("updateBenefit, inn :  " + inn + ", passport : " + passportNumber);
+                System.out.println("calculationCenterPrivilege code : " + calculationCenterPrivilege);
+                return "11";
             }
         };
         Benefit b = new Benefit();
         b.setAccountNumber("1000001108");
         b.setOrganizationId(1L);
-        adapter.processBenefit(b, 2);
+        adapter.processBenefit(new Date(), Lists.newArrayList(b), 2);
         System.out.println("Status : " + b.getStatus());
     }
 }

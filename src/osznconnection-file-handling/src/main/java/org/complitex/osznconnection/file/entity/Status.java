@@ -25,6 +25,7 @@ public enum Status {
     TARIF_CODE2_1_NOT_FOUND(false, false),
     WRONG_ACCOUNT_NUMBER(false, false),
     BENEFIT_NOT_FOUND(false, false),
+//    MARK_MISMATCH_BENEFIT_COUNT(false, false),
     UNLOADED(false,false);
 
     private boolean localAddressCorrected;
@@ -58,6 +59,7 @@ public enum Status {
         result.add(TARIF_CODE2_1_NOT_FOUND);
         result.add(WRONG_ACCOUNT_NUMBER);
         result.add(BENEFIT_NOT_FOUND);
+//        result.add(MARK_MISMATCH_BENEFIT_COUNT);
         return result;
     }
 }
