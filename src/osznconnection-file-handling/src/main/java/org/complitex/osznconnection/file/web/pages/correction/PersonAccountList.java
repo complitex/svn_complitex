@@ -34,6 +34,7 @@ import org.complitex.osznconnection.commons.web.template.TemplatePage;
 import org.complitex.osznconnection.file.entity.PersonAccount;
 import org.complitex.osznconnection.file.entity.example.PersonAccountExample;
 import org.complitex.osznconnection.file.service.PersonAccountLocalBean;
+import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 
 /**
  *
@@ -43,6 +44,9 @@ public class PersonAccountList extends TemplatePage {
 
     @EJB(name = "PersonAccountLocalBean")
     private PersonAccountLocalBean personAccountLocalBean;
+
+    @EJB(name = "OrganizationStrategy")
+    private OrganizationStrategy organizationStrategy;
 
     private IModel<PersonAccountExample> example;
 
@@ -108,6 +112,8 @@ public class PersonAccountList extends TemplatePage {
         filterForm.add(new TextField<String>("apartmentFilter", new PropertyModel<String>(example, "apartment")));
         filterForm.add(new TextField<String>("accountNumberFilter", new PropertyModel<String>(example, "accountNumber")));
         filterForm.add(new TextField<String>("ownNumSrFilter", new PropertyModel<String>(example, "ownNumSr")));
+        filterForm.add(new TextField<String>("osznFilter", new PropertyModel<String>(example, "oszn")));
+        filterForm.add(new TextField<String>("calculationCenterFilter", new PropertyModel<String>(example, "calculationCenter")));
 
         AjaxLink reset = new AjaxLink("reset") {
 
@@ -144,6 +150,8 @@ public class PersonAccountList extends TemplatePage {
                 item.add(new Label("apartment", personAccount.getApartment()));
                 item.add(new Label("accountNumber", personAccount.getAccountNumber()));
                 item.add(new Label("ownNumSr", personAccount.getOwnNumSr()));
+                item.add(new Label("oszn", personAccount.getOszn()));
+                item.add(new Label("calculationCenter", personAccount.getCalculationCenter()));
                 item.add(new BookmarkablePageLink("edit", PersonAccountEdit.class,
                         new PageParameters(ImmutableMap.of(PersonAccountEdit.CORRECTION_ID, personAccount.getId()))));
             }
@@ -163,6 +171,10 @@ public class PersonAccountList extends TemplatePage {
         filterForm.add(new ArrowOrderByBorder("accountNumberHeader", PersonAccountLocalBean.OrderBy.ACCOUNT_NUMBER.getOrderBy(), dataProvider,
                 data, content));
         filterForm.add(new ArrowOrderByBorder("ownNumSrHeader", PersonAccountLocalBean.OrderBy.OWN_NUM_SR.getOrderBy(), dataProvider, data, content));
+        filterForm.add(new ArrowOrderByBorder("osznHeader", organizationStrategy.getOrderByExpression("pa.`oszn_id`", getLocale().getLanguage(), null),
+                dataProvider, data, content));
+        filterForm.add(new ArrowOrderByBorder("calculationCenterHeader",
+                organizationStrategy.getOrderByExpression("pa.`oszn_id`", getLocale().getLanguage(), null), dataProvider, data, content));
 
         content.add(new PagingNavigator("navigator", data, getClass().getName(), content));
     }

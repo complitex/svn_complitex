@@ -34,6 +34,14 @@ public class PersonAccount implements Serializable {
 
     private String accountNumber;
 
+    private Long osznId;
+
+    private Long calculationCenterId;
+
+    private String oszn;
+
+    private String calculationCenter;
+
     public PersonAccount() {
     }
 
@@ -49,7 +57,7 @@ public class PersonAccount implements Serializable {
         this.apartment = apartment;
     }
 
-    public PersonAccount(String firstName, String middleName, String lastName, String ownNumSr, String city, String street, String buildingNumber, String buildingCorp, String apartment, String accountNumber) {
+    public PersonAccount(String firstName, String middleName, String lastName, String ownNumSr, String city, String street, String buildingNumber, String buildingCorp, String apartment, String accountNumber, Long osznId, Long calculationCenterId) {
         this.firstName = firstName;
         this.middleName = middleName;
         this.lastName = lastName;
@@ -60,6 +68,8 @@ public class PersonAccount implements Serializable {
         this.buildingCorp = buildingCorp;
         this.apartment = apartment;
         this.accountNumber = accountNumber;
+        this.osznId = osznId;
+        this.calculationCenterId = calculationCenterId;
     }
 
     public Long getId() {
@@ -148,5 +158,37 @@ public class PersonAccount implements Serializable {
 
     public void setStreet(String street) {
         this.street = street;
+    }
+
+    public Long getCalculationCenterId() {
+        return calculationCenterId;
+    }
+
+    public void setCalculationCenterId(Long calculationCenterId) {
+        this.calculationCenterId = calculationCenterId;
+    }
+
+    public Long getOsznId() {
+        return osznId;
+    }
+
+    public void setOsznId(Long osznId) {
+        this.osznId = osznId;
+    }
+
+    public String getCalculationCenter() {
+        return calculationCenter;
+    }
+
+    public void setCalculationCenter(String calculationCenter) {
+        this.calculationCenter = calculationCenter;
+    }
+
+    public String getOszn() {
+        return oszn;
+    }
+
+    public void setOszn(String oszn) {
+        this.oszn = oszn;
     }
 }
