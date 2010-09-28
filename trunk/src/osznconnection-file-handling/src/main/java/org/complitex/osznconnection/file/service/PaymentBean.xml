@@ -190,7 +190,10 @@
             AND r.`VUL_NAME` LIKE CONCAT('%', #{street}, '%')
         </if>
         <if test="building != null">
-            AND (r.`BLD_NUM` LIKE CONCAT('%', #{building}, '%') OR r.`CORP_NUM` LIKE CONCAT('%', #{building}, '%'))
+            AND r.`BLD_NUM` LIKE CONCAT('%', #{building}, '%')
+        </if>
+        <if test="corp != null">
+            AND r.`CORP_NUM` LIKE CONCAT('%', #{corp}, '%')
         </if>
         <if test="apartment != null">
             AND r.`FLAT` LIKE CONCAT('%', #{apartment}, '%')

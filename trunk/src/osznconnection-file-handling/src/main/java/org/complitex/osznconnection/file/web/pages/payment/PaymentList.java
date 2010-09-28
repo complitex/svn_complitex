@@ -124,6 +124,7 @@ public final class PaymentList extends TemplatePage {
         filterForm.add(new TextField<String>("cityFilter", new PropertyModel<String>(example, "city")));
         filterForm.add(new TextField<String>("streetFilter", new PropertyModel<String>(example, "street")));
         filterForm.add(new TextField<String>("buildingFilter", new PropertyModel<String>(example, "building")));
+        filterForm.add(new TextField<String>("corpFilter", new PropertyModel<String>(example, "corp")));
         filterForm.add(new TextField<String>("apartmentFilter", new PropertyModel<String>(example, "apartment")));
         filterForm.add(new DropDownChoice<Status>("statusFilter", new PropertyModel<Status>(example, "status"),
                 Arrays.asList(Status.values()), new StatusRenderer()));
@@ -158,8 +159,8 @@ public final class PaymentList extends TemplatePage {
                 item.add(new Label("lastName", (String) payment.getField(PaymentDBF.SUR_NAM)));
                 item.add(new Label("city", (String) payment.getField(PaymentDBF.N_NAME)));
                 item.add(new Label("street", (String) payment.getField(PaymentDBF.VUL_NAME)));
-                item.add(new Label("building", BuildingFormatter.formatBuilding((String) payment.getField(PaymentDBF.BLD_NUM),
-                        (String) payment.getField(PaymentDBF.CORP_NUM), getLocale())));
+                item.add(new Label("building", (String) payment.getField(PaymentDBF.BLD_NUM)));
+                item.add(new Label("corp", (String) payment.getField(PaymentDBF.CORP_NUM)));
                 item.add(new Label("apartment", (String) payment.getField(PaymentDBF.FLAT)));
                 item.add(new Label("status", StatusRenderer.displayValue(payment.getStatus())));
 
@@ -182,6 +183,7 @@ public final class PaymentList extends TemplatePage {
         filterForm.add(new ArrowOrderByBorder("cityHeader", PaymentBean.OrderBy.CITY.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("streetHeader", PaymentBean.OrderBy.STREET.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("buildingHeader", PaymentBean.OrderBy.BUILDING.getOrderBy(), dataProvider, data, content));
+        filterForm.add(new ArrowOrderByBorder("corpHeader", PaymentBean.OrderBy.CORP.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("apartmentHeader", PaymentBean.OrderBy.APARTMENT.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("statusHeader", PaymentBean.OrderBy.STATUS.getOrderBy(), dataProvider, data, content));
 
