@@ -9,7 +9,7 @@
 
     <select id="findCorrectionAddressId" resultType="long" parameterType="org.complitex.osznconnection.file.entity.ObjectCorrection">
         SELECT DISTINCT c.`object_id` FROM `${entity}_correction` c WHERE c.`organization_id` = #{organizationId} AND
-        c.`correction` = #{correction}
+        TRIM(c.`correction`) = TRIM(#{correction})
         <if test="internalParentId != null">
             AND EXISTS(SELECT 1 FROM `${entity}` e WHERE e.`object_id` = c.`object_id` AND e.`status` = 'ACTIVE' AND e.`parent_id` = #{internalParentId})
         </if>
@@ -18,13 +18,13 @@
 
     <select id="findCorrectionBuilding" resultType="long" parameterType="org.complitex.osznconnection.file.entity.BuildingCorrection">
         SELECT DISTINCT c.`object_id` FROM `building_correction` c WHERE c.`organization_id` = #{organizationId} AND
-        c.`correction` = #{correction}
+        TRIM(c.`correction`) = TRIM(#{correction})
         <choose>
             <when test="correctionCorp == null">
                 AND c.`correction_corp` IS NULL
             </when>
             <otherwise>
-                AND c.`correction_corp` = #{correctionCorp}
+                AND TRIM(c.`correction_corp`) = TRIM(#{correctionCorp})
             </otherwise>
         </choose>
         <if test="internalParentId != null">
@@ -93,7 +93,7 @@
         SELECT 1 FROM `${entity}_attribute` attr WHERE attr.`status` = 'ACTIVE' AND e.`object_id` = attr.`object_id`
         AND attr.`attribute_type_id` = #{attributeTypeId}
         AND attr.`value_id` IN (
-                SELECT sc.`id` FROM `${entity}_string_culture` sc WHERE sc.`value` = TO_CYRILLIC(#{correction})))
+                SELECT sc.`id` FROM `${entity}_string_culture` sc WHERE sc.`value` = TRIM(TO_CYRILLIC(#{correction}))))
     </select>
 
     <select id="findInternalBuilding" parameterType="hashmap" resultType="long">
@@ -111,13 +111,12 @@
                  AND (a_corp.`status` = 'ACTIVE'))
         WHERE a_num.`attribute_type_id` = 500 AND a_num.`status` = 'ACTIVE' AND b.`object_id` = a_num.`object_id`
         AND a_num.`value_id` IN (
-                SELECT sc.`id` FROM `building_string_culture` sc WHERE sc.`value` = TO_CYRILLIC(#{number}))
+                SELECT sc.`id` FROM `building_string_culture` sc WHERE sc.`value` = TRIM(TO_CYRILLIC(#{number})))
         AND a_street.`value_id` = #{streetId}
-        
         <choose>
             <when test="corp != null">
                AND a_corp.`value_id` IN (
-                    SELECT sc.`id` FROM `building_string_culture` sc WHERE sc.`value` = TO_CYRILLIC(#{corp}))
+                    SELECT sc.`id` FROM `building_string_culture` sc WHERE sc.`value` = TRIM(TO_CYRILLIC(#{corp})))
             </when>
             <otherwise>
                 AND ((a_corp.`value_id` IN (SELECT sc.`id` FROM `building_string_culture` sc WHERE sc.`value` IS NULL)) OR
