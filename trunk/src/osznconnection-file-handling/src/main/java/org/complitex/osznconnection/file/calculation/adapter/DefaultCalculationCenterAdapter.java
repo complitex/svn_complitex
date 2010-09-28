@@ -21,7 +21,6 @@ import org.complitex.osznconnection.file.entity.BenefitDBF;
 import org.complitex.osznconnection.file.entity.Payment;
 import org.complitex.osznconnection.file.entity.PaymentDBF;
 import org.complitex.osznconnection.file.entity.Status;
-import org.complitex.osznconnection.file.service.BenefitBean;
 import org.complitex.osznconnection.file.service.OwnershipCorrectionBean;
 import org.complitex.osznconnection.file.service.PrivilegeCorrectionBean;
 import org.complitex.osznconnection.file.service.TarifBean;
@@ -92,6 +91,7 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
             params.put("dat1", (Date) payment.getField(PaymentDBF.DAT1));
 
             String result = (String) session.selectOne(MAPPING_NAMESPACE + ".acquirePersonAccount", params);
+            log.info("acquirePersonAccount, parameters : {}, account number : {}", params, result);
             processPersonAccountResult(payment, result);
 
             session.commit();
@@ -161,6 +161,7 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
             try {
                 session.selectOne(MAPPING_NAMESPACE + ".acquireAccountCorrectionDetails", params);
                 accountCorrectionDetails = (List<AccountCorrectionDetail>) params.get("details");
+                log.info("acquireAccountCorrectionDetails, parameters : {}, details : {}", params, accountCorrectionDetails);
                 if (accountCorrectionDetails != null) {
                     boolean isIncorrectResult = false;
                     for (AccountCorrectionDetail detail : accountCorrectionDetails) {
@@ -213,6 +214,7 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
             try {
                 session.selectOne(MAPPING_NAMESPACE + ".processPaymentAndBenefit", params);
                 List<Map<String, Object>> data = (List<Map<String, Object>>) params.get("data");
+                log.info("processPaymentAndBenefit, parameters : {}", params);
                 if (data != null && (data.size() == 1)) {
                     processData(calculationCenterId, payment, benefit, data.get(0));
                 } else {
@@ -310,6 +312,7 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
             try {
                 session.selectOne(MAPPING_NAMESPACE + ".processBenefit", params);
                 List<Map<String, Object>> data = (List<Map<String, Object>>) params.get("benefitData");
+                log.info("processBenefit, parameters : {}", params);
                 if (data != null && !data.isEmpty()) {
                     processBenefitData(calculationCenterId, benefits, data);
                 } else {
@@ -341,13 +344,12 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
     }
 
     protected void processBenefitData(long calculationCenterId, List<Benefit> benefits, List<Map<String, Object>> data) {
-        log.info("Process benefit, data : {}", data);
         List<String> processed = Lists.newArrayList();
         Map<String, Object> el = null;
         for (final Map<String, Object> item : data) {
             final String inn = (String) item.get("INN");
             final String passportNumber = (String) item.get("PASSPORT_NUMBER");
-            log.info("INN : {}, Passport : {}", inn, passportNumber);
+//            log.info("INN : {}, Passport : {}", inn, passportNumber);
             if (!processed.contains(inn)) {
                 List<Map<String, Object>> theSameMan = null;
                 List<Benefit> theSameBenefits = findByINN(benefits, inn);

@@ -55,7 +55,7 @@
     </delete>
 
     <select id="getCODE2_1" parameterType="double" resultType="int">
-        SELECT DISTINCT t.`T11_CODE2` FROM `tarif` t WHERE t.`T11_CS_UNI` = #{T11_CS_UNI}
+        SELECT DISTINCT t.`T11_CODE2` FROM `tarif` t WHERE t.`T11_CS_UNI` = #{T11_CS_UNI} AND T11_CODE1 = 1
         LIMIT 0,1
     </select>
 </mapper>
