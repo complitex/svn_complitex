@@ -41,10 +41,6 @@ public class TarifBean extends AbstractBean {
     @SuppressWarnings({"unchecked"})
     @Transactional
     public Integer getCODE2_1(Double T11_CS_UNI) {
-        List<Integer> codes = sqlSession().selectList(MAPPING_NAMESPACE + ".getCODE2_1", T11_CS_UNI);
-        if (codes != null && (codes.size() == 1)) {
-            return codes.get(0);
-        }
-        return null;
+        return (Integer) sqlSession().selectOne(MAPPING_NAMESPACE + ".getCODE2_1", T11_CS_UNI);
     }
 }

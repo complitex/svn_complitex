@@ -1,7 +1,6 @@
 package org.complitex.osznconnection.file.service;
 
 import com.google.common.collect.Maps;
-import org.apache.ibatis.session.ExecutorType;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.entity.*;
