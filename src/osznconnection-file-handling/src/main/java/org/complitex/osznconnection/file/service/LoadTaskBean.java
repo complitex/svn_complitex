@@ -65,7 +65,7 @@ public class  LoadTaskBean {
     public Future<RequestFile> load(RequestFile requestFile){
         try {
             //проверка загружен ли файл
-            if (requestFileBean.isLoaded(requestFile)){
+            if (requestFileBean.checkLoaded(requestFile)){
                 throw new AlreadyLoadedException();
             }
 

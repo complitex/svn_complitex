@@ -21,6 +21,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.complitex.dictionaryfw.entity.Log;
+import org.complitex.dictionaryfw.service.LogManager;
 import org.complitex.dictionaryfw.util.StringUtil;
 import org.complitex.dictionaryfw.web.component.DatePicker;
 import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
@@ -209,7 +210,7 @@ public class LogList extends TemplatePage{
                 item.add(new Label("module", getStringOrKey(log.getModule())));
                 item.add(new Label("controller", getStringOrKey(log.getController())));
                 item.add(new Label("model", getStringOrKey(log.getModel())));
-                item.add(new Label("objectId", StringUtil.valueOf(log.getObjectId())));
+                item.add(LogManager.get().getLinkComponent("objectId", log));
                 item.add(new Label("event", getStringOrKey(log.getEvent().name())));
                 item.add(new Label("status", getStringOrKey(log.getStatus().name())));
                 item.add(new Label("description", log.getDescription()));

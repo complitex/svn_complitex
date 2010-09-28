@@ -12,6 +12,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -22,6 +23,7 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.converter.BooleanConverter;
 import org.complitex.dictionaryfw.converter.DateConverter;
@@ -36,6 +38,7 @@ import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.service.StringCultureBean;
 import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
+import org.complitex.dictionaryfw.util.StringUtil;
 import org.complitex.dictionaryfw.web.DictionaryFwSession;
 import org.complitex.dictionaryfw.web.component.*;
 import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
@@ -93,10 +96,22 @@ public class DomainObjectListPanel extends Panel {
     }
 
     private void init() {
-        List<String> searchFilters = getStrategy().getSearchFilters();
+        IModel<String> labelModel = new AbstractReadOnlyModel<String>() {
+
+            @Override
+            public String getObject() {
+                return getStrategy().getPluralEntityLabel(getLocale());
+            }
+        };
+
+        add(new Label("title", labelModel));
+        add(new Label("label", labelModel));
 
         content = new WebMarkupContainer("content");
         content.setOutputMarkupPlaceholderTag(true);
+
+        //Search
+        List<String> searchFilters = getStrategy().getSearchFilters();
         Component searchComponent;
         if (searchFilters == null || searchFilters.isEmpty()) {
             searchComponent = new EmptyPanel("searchComponent");
@@ -107,9 +122,10 @@ public class DomainObjectListPanel extends Panel {
         add(searchComponent);
         add(content);
 
-        final List<EntityAttributeType> filterAttrDescs = getStrategy().getListColumns();
-        for (EntityAttributeType filterAttrDesc : filterAttrDescs) {
-            example.addAttributeExample(new AttributeExample(filterAttrDesc.getId()));
+        //Column List
+        final List<EntityAttributeType> attributeTypes = getStrategy().getListColumns();
+        for (EntityAttributeType eat : attributeTypes) {
+            example.addAttributeExample(new AttributeExample(eat.getId()));
         }
         
         //Configure example from component state session
@@ -125,25 +141,16 @@ public class DomainObjectListPanel extends Panel {
             getStrategy().configureExample(example, ids, null);
         }
 
-        IModel<String> labelModel = new AbstractReadOnlyModel<String>() {
-
-            @Override
-            public String getObject() {
-                return getStrategy().getPluralEntityLabel(getLocale());
-            }
-        };
-        Label title = new Label("title", labelModel);
-        add(title);
-        Label label = new Label("label", labelModel);
-        add(label);
-
+        //Form
         final Form filterForm = new Form("filterForm");
         content.add(filterForm);
 
+        //Show Mode
         final IModel<ShowMode> showModeModel = new Model<ShowMode>(ShowMode.ACTIVE);
         ShowModePanel showModePanel = new ShowModePanel("showModePanel", showModeModel);
         filterForm.add(showModePanel);
 
+        //Data Provider
         final SortableDataProvider<DomainObject> dataProvider = new SortableDataProvider<DomainObject>() {
 
             @Override
@@ -181,7 +188,84 @@ public class DomainObjectListPanel extends Panel {
         };
         dataProvider.setSort("", true);
 
-        ListView<EntityAttributeType> columns = new ListView<EntityAttributeType>("columns", filterAttrDescs) {
+        //Data View
+        dataView = new DataView<DomainObject>("data", dataProvider, 1) {
+
+            @Override
+            protected void populateItem(Item<DomainObject> item) {
+                DomainObject object = item.getModelObject();
+
+                item.add(new Label("id", StringUtil.valueOf(object.getId())));
+
+                List<Attribute> attrs = Lists.newArrayList();
+                for (final EntityAttributeType attrDesc : attributeTypes) {
+                    Attribute attr = null;
+                    try {
+                        attr = Iterables.find(object.getAttributes(), new Predicate<Attribute>() {
+
+                            @Override
+                            public boolean apply(Attribute attr) {
+                                return attr.getAttributeTypeId().equals(attrDesc.getId());
+                            }
+                        });
+                    } catch (NoSuchElementException e) {
+                        attr = new Attribute();
+                        attr.setAttributeTypeId(-1L);
+                    }
+                    attrs.add(attr);
+                }
+
+                ListView<Attribute> dataColumns = new ListView<Attribute>("dataColumns", attrs) {
+
+                    @Override
+                    protected void populateItem(ListItem<Attribute> item) {
+                        final Attribute attr = item.getModelObject();
+                        String attributeValue = "";
+                        if (!attr.getAttributeTypeId().equals(-1L)) {
+                            EntityAttributeType desc = Iterables.find(attributeTypes, new Predicate<EntityAttributeType>() {
+
+                                @Override
+                                public boolean apply(EntityAttributeType attrDesc) {
+                                    return attrDesc.getId().equals(attr.getAttributeTypeId());
+                                }
+                            });
+                            String valueType = desc.getEntityAttributeValueTypes().get(0).getValueType();
+                            SimpleTypes type = SimpleTypes.valueOf(valueType.toUpperCase());
+                            String systemLocaleValue = stringBean.getSystemStringCulture(attr.getLocalizedValues()).getValue();
+                            switch (type) {
+                                case STRING_CULTURE:
+                                    attributeValue = stringBean.displayValue(attr.getLocalizedValues(), getLocale());
+                                    break;
+                                case STRING:
+                                    attributeValue = systemLocaleValue;
+                                    break;
+                                case DOUBLE:
+                                    attributeValue = new DoubleConverter().toObject(systemLocaleValue).toString();
+                                    break;
+                                case INTEGER:
+                                    attributeValue = new IntegerConverter().toObject(systemLocaleValue).toString();
+                                    break;
+                                case BOOLEAN:
+                                    attributeValue = getString(new BooleanConverter().toObject(systemLocaleValue).toString());
+                                    break;
+                                case DATE:
+                                    DateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy", getLocale());
+                                    attributeValue = dateFormatter.format(new DateConverter().toObject(systemLocaleValue));
+                                    break;
+                            }
+                        }
+                        item.add(new Label("dataColumn", attributeValue));
+                    }
+                };
+                item.add(dataColumns);
+                item.add(new BookmarkablePageLink<WebPage>("detailsLink", getStrategy().getEditPage(),
+                        getStrategy().getEditPageParams(object.getId(), null, null)));
+            }
+        };
+        filterForm.add(dataView);
+
+        //Filter Form Columns
+        ListView<EntityAttributeType> columns = new ListView<EntityAttributeType>("columns", attributeTypes) {
 
             @Override
             protected void populateItem(ListItem<EntityAttributeType> item) {
@@ -202,29 +286,10 @@ public class DomainObjectListPanel extends Panel {
         columns.setReuseItems(true);
         filterForm.add(columns);
 
-        AjaxLink reset = new AjaxLink("reset") {
+        //Filters
+        filterForm.add(new TextField<Long>("id", new PropertyModel<Long>(example, "id")));
 
-            @Override
-            public void onClick(AjaxRequestTarget target) {
-                filterForm.clearInput();
-
-                for (final EntityAttributeType attrDesc : filterAttrDescs) {
-                    AttributeExample attrExample = Iterables.find(example.getAttributeExamples(),
-                            new Predicate<AttributeExample>() {
-
-                                @Override
-                                public boolean apply(AttributeExample attrExample) {
-                                    return attrExample.getAttributeTypeId().equals(attrDesc.getId());
-                                }
-                            });
-                    attrExample.setValue(null);
-                }
-                target.addComponent(content);
-            }
-        };
-        filterForm.add(reset);
-
-        ListView<EntityAttributeType> filters = new ListView<EntityAttributeType>("filters", filterAttrDescs) {
+        ListView<EntityAttributeType> filters = new ListView<EntityAttributeType>("filters", attributeTypes) {
 
             @Override
             protected void populateItem(ListItem<EntityAttributeType> item) {
@@ -315,6 +380,30 @@ public class DomainObjectListPanel extends Panel {
         filters.setReuseItems(true);
         filterForm.add(filters);
 
+        //Reset Action
+        AjaxLink reset = new AjaxLink("reset") {
+
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                filterForm.clearInput();
+
+                for (final EntityAttributeType attrDesc : attributeTypes) {
+                    AttributeExample attrExample = Iterables.find(example.getAttributeExamples(),
+                            new Predicate<AttributeExample>() {
+
+                                @Override
+                                public boolean apply(AttributeExample attrExample) {
+                                    return attrExample.getAttributeTypeId().equals(attrDesc.getId());
+                                }
+                            });
+                    attrExample.setValue(null);
+                }
+                target.addComponent(content);
+            }
+        };
+        filterForm.add(reset);
+
+        //Submit Action
         AjaxButton submit = new AjaxButton("submit", filterForm) {
 
             @Override
@@ -324,79 +413,7 @@ public class DomainObjectListPanel extends Panel {
         };
         filterForm.add(submit);
 
-        dataView = new DataView<DomainObject>("data", dataProvider, 1) {
-
-            @Override
-            protected void populateItem(Item<DomainObject> item) {
-                DomainObject object = item.getModelObject();
-
-                List<Attribute> attrs = Lists.newArrayList();
-                for (final EntityAttributeType attrDesc : filterAttrDescs) {
-                    Attribute attr = null;
-                    try {
-                        attr = Iterables.find(object.getAttributes(), new Predicate<Attribute>() {
-
-                            @Override
-                            public boolean apply(Attribute attr) {
-                                return attr.getAttributeTypeId().equals(attrDesc.getId());
-                            }
-                        });
-                    } catch (NoSuchElementException e) {
-                        attr = new Attribute();
-                        attr.setAttributeTypeId(-1L);
-                    }
-                    attrs.add(attr);
-                }
-
-                ListView<Attribute> dataColumns = new ListView<Attribute>("dataColumns", attrs) {
-
-                    @Override
-                    protected void populateItem(ListItem<Attribute> item) {
-                        final Attribute attr = item.getModelObject();
-                        String attributeValue = "";
-                        if (!attr.getAttributeTypeId().equals(-1L)) {
-                            EntityAttributeType desc = Iterables.find(filterAttrDescs, new Predicate<EntityAttributeType>() {
-
-                                @Override
-                                public boolean apply(EntityAttributeType attrDesc) {
-                                    return attrDesc.getId().equals(attr.getAttributeTypeId());
-                                }
-                            });
-                            String valueType = desc.getEntityAttributeValueTypes().get(0).getValueType();
-                            SimpleTypes type = SimpleTypes.valueOf(valueType.toUpperCase());
-                            String systemLocaleValue = stringBean.getSystemStringCulture(attr.getLocalizedValues()).getValue();
-                            switch (type) {
-                                case STRING_CULTURE:
-                                    attributeValue = stringBean.displayValue(attr.getLocalizedValues(), getLocale());
-                                    break;
-                                case STRING:
-                                    attributeValue = systemLocaleValue;
-                                    break;
-                                case DOUBLE:
-                                    attributeValue = new DoubleConverter().toObject(systemLocaleValue).toString();
-                                    break;
-                                case INTEGER:
-                                    attributeValue = new IntegerConverter().toObject(systemLocaleValue).toString();
-                                    break;
-                                case BOOLEAN:
-                                    attributeValue = getString(new BooleanConverter().toObject(systemLocaleValue).toString());
-                                    break;
-                                case DATE:
-                                    DateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy", getLocale());
-                                    attributeValue = dateFormatter.format(new DateConverter().toObject(systemLocaleValue));
-                                    break;
-                            }
-                        }
-                        item.add(new Label("dataColumn", attributeValue));
-                    }
-                };
-                item.add(dataColumns);
-                item.add(new BookmarkablePageLink<WebPage>("detailsLink", getStrategy().getEditPage(),
-                        getStrategy().getEditPageParams(object.getId(), null, null)));
-            }
-        };
-        filterForm.add(dataView);
-
+        //Navigator
         content.add(new PagingNavigator("navigator", dataView, getClass().getName() + entity, content));
 
         //установка видимости после навигатора, чтобы то посчитал getPageCount
