@@ -219,67 +219,55 @@
         AND b.`OZN` = 1
     </update>
 
-    <update id="updateStatus" parameterType="org.complitex.osznconnection.file.entity.Benefit">
-        UPDATE `benefit` SET
-        `status` = #{status}
-        WHERE `id` = #{id}
-    </update>
-
-    <update id="updateByInnOrPassportNumber" parameterType="hashmap">
-        UPDATE `benefit` SET
-        `status` = #{status},
-        `ORD_FAM` = #{ORD_FAM},
-        `PRIV_CAT` = #{PRIV_CAT}
-        WHERE
-        `IND_COD` = #{inn} OR `PSP_NUM` = #{pspNumber}
-    </update>
-
-    <update id="setWrongAccountNumber" parameterType="hashmap">
-        UPDATE `benefit` SET
-        `status` = #{status}
-        WHERE
-        `account_number` = #{accountNumber}
-    </update>
-
-    <select id="countByINN" parameterType="hashmap" resultType="int">
-        SELECT COUNT(*) FROM `benefit` b WHERE b.`request_file_id` = #{fileId} AND b.`IND_COD` = #{inn}
-    </select>
-
-    <select id="countByPassportNumber" parameterType="hashmap" resultType="int">
-        SELECT COUNT(*) FROM `benefit` b WHERE b.`request_file_id` = #{fileId} AND b.`PSP_NUM` = #{pspNumber}
-    </select>
-
-    <select id="findIdsForOperation" parameterType="hashmap"
-            resultType="long">
-        SELECT b.`id`
-        FROM `benefit` b
-        JOIN `request_file` bf ON b.`request_file_id` = bf.`id`
-        WHERE b.`request_file_id` = #{requestFileId} AND b.`status` IN
-        <foreach collection="statuses" item="status" open="(" close=")" separator=",">
-            #{status}
-        </foreach>
-    </select>
-
-    <select id="findForOperation" parameterType="hashmap" resultMap="benefitResultMap">
-        SELECT b.`id`, b.`request_file_id`,
-        b.`status`, b.`account_number`,
-        bf.`organization_object_id` organization_id
-        FROM `benefit` b
-        JOIN `request_file` bf ON b.`request_file_id` = bf.`id`
-        WHERE b.`request_file_id` = #{requestFileId} AND b.`id` IN
-        <foreach collection="ids" item="id" open="(" close=")" separator=",">
-            #{id}
-        </foreach>
-    </select>
-
-    <select id="findDat1" parameterType="_long" resultType="date">
+    <select id="findDat1" parameterType="hashmap" resultType="date">
         SELECT DISTINCT p.`DAT1` FROM `payment` p
         JOIN `request_file` pf ON p.`request_file_id` = pf.`id`
         JOIN `benefit` b ON b.`OWN_NUM_SR` = p.`OWN_NUM_SR`
         JOIN `request_file` bf ON bf.`id` = b.`request_file_id`
         WHERE (bf.`organization_object_id` = pf.`organization_object_id`) AND (EXTRACT(YEAR_MONTH FROM bf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`))
         AND p.`FROG` > 0
-        AND b.`id` = #{id}
+        AND bf.`id` = #{fileId} AND p.`account_number` = #{accountNumber}
     </select>
+
+    <!--<select id="isMarkEqualToBenefitCount" parameterType="hashmap" resultType="int">
+        SELECT (SELECT DISTINCT p.`MARK` FROM `payment` p
+        JOIN `request_file` pf ON p.`request_file_id` = pf.`id`
+        JOIN `benefit` b ON b.`OWN_NUM_SR` = p.`OWN_NUM_SR`
+        JOIN `request_file` bf ON bf.`id` = b.`request_file_id`
+        WHERE (bf.`organization_object_id` = pf.`organization_object_id`) AND (EXTRACT(YEAR_MONTH FROM bf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`))
+        AND bf.`id` = #{fileId}) -
+        (SELECT COUNT(*) FROM `benefit` b
+        JOIN `request_file` bf ON bf.`id` = b.`request_file_id`
+        WHERE bf.`id` = #{fileId} AND b.`account_number` = #{accountNumber})
+        FROM DUAL
+    </select>-->
+
+    <select id="allAccountNumbers" parameterType="_long" resultType="string">
+        SELECT DISTINCT b.`account_number` FROM `benefit` b
+        JOIN `request_file` bf ON b.`request_file_id` = bf.`id`
+        WHERE bf.`id` = #{fileId}
+    </select>
+
+    <select id="findByAccountNumber" parameterType="hashmap" resultMap="benefitResultMap">
+        SELECT b.`id`, b.`status`, b.`account_number`, bf.`organization_object_id` organization_id,
+        b.`request_file_id`,
+        b.`IND_COD`,
+        b.`PSP_NUM`,
+        b.`ORD_FAM`,
+        b.`PRIV_CAT`
+        FROM `benefit` b
+        JOIN `request_file` bf ON b.`request_file_id` = bf.`id`
+        WHERE b.`account_number` = #{accountNumber} AND bf.`id` = #{fileId}
+    </select>
+
+    <update id="update" parameterType="org.complitex.osznconnection.file.entity.Benefit">
+        UPDATE `benefit` SET
+        `status` = #{status},
+        `ORD_FAM` = #{dbfFields.ORD_FAM},
+        `PRIV_CAT` = #{dbfFields.PRIV_CAT}
+        WHERE
+        `id` = #{id}
+    </update>
+
 
 </mapper>

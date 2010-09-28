@@ -46,18 +46,10 @@ public class PersonAccountLocalBean extends AbstractBean {
     }
 
     @Transactional
-    public Date findDat1(String ownNumSr, String accountNumber) {
-        PersonAccount example = new PersonAccount();
-        example.setAccountNumber(accountNumber);
-        example.setOwnNumSr(ownNumSr);
-        return (Date) sqlSession().selectOne(MAPPING_NAMESPACE + ".findDat1", example);
-    }
-
-    @Transactional
     public void saveAccountNumber(String firstName, String middleName, String lastName, String city, String street, String buildingNumber,
-            String buildingCorp, String apartment, String ownNumSr, String personAccount, Date dat1) {
-        PersonAccount param = new PersonAccount(firstName, middleName, lastName, ownNumSr, city, street, buildingNumber, buildingCorp, 
-                apartment, personAccount, dat1);
+            String buildingCorp, String apartment, String ownNumSr, String personAccount) {
+        PersonAccount param = new PersonAccount(firstName, middleName, lastName, ownNumSr, city, street, buildingNumber, buildingCorp,
+                apartment, personAccount);
         param.setAccountNumber(personAccount);
         sqlSession().insert(MAPPING_NAMESPACE + ".insert", param);
     }
@@ -83,7 +75,7 @@ public class PersonAccountLocalBean extends AbstractBean {
     }
 
     @Transactional
-    public PersonAccount findById(long id){
-        return (PersonAccount)sqlSession().selectOne(MAPPING_NAMESPACE+".findById", id);
+    public PersonAccount findById(long id) {
+        return (PersonAccount) sqlSession().selectOne(MAPPING_NAMESPACE + ".findById", id);
     }
 }

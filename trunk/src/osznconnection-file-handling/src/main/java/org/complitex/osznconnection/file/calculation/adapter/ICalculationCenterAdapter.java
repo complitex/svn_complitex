@@ -4,6 +4,7 @@
  */
 package org.complitex.osznconnection.file.calculation.adapter;
 
+import java.util.Date;
 import java.util.List;
 import org.complitex.osznconnection.file.entity.AccountCorrectionDetail;
 import org.complitex.osznconnection.file.entity.Benefit;
@@ -33,5 +34,5 @@ public interface ICalculationCenterAdapter {
 
     public void processPaymentAndBenefit(Payment payment, Benefit benefit, long calculationCenterId);
 
-    public void processBenefit(Benefit benefit, long calculationCenterId);
+    public void processBenefit(Date dat1, List<Benefit> benefits, long calculationCenterId);
 }

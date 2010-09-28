@@ -1230,7 +1230,6 @@ CREATE TABLE `person_account` (
     `apartment` VARCHAR(100) NOT NULL,
     `account_number` VARCHAR(100) NOT NULL,
     `own_num_sr` VARCHAR(15) NOT NULL,
-    `dat1` DATE,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

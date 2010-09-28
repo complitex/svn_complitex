@@ -180,7 +180,8 @@ insert into ownership_correction(organization_id, correction, object_id, organiz
 
 -- Privileges corrections
 insert into privilege_correction(organization_id, correction, object_id, organization_code) values
-(2,'ПЕНСИОНЕР ПО ВОЗРАСТУ',15,34),(1,'ПЕНСИОНЕР ПО ВОЗРАСТУ',15,1000);
+(2,'ПЕНСИОНЕР ПО ВОЗРАСТУ',15,34),
+(1,'ПЕНСИОНЕР ПО ВОЗРАСТУ',15,1000);
 
 -- Benefit
 insert into benefit(own_num_sr, OZN, f_nam, m_nam, sur_nam, request_file_id, IND_COD, PSP_NUM)

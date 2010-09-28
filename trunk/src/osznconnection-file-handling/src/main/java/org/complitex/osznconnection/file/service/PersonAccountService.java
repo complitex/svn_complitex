@@ -4,7 +4,6 @@
  */
 package org.complitex.osznconnection.file.service;
 
-import java.util.Date;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -50,7 +49,7 @@ public class PersonAccountService extends AbstractBean {
             payment.setAccountNumber(accountNumber);
             payment.setStatus(Status.ACCOUNT_NUMBER_RESOLVED);
             benefitBean.updateAccountNumber(payment.getId(), accountNumber);
-        } 
+        }
 //        else {
 //            payment.setStatus(Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY);
 //        }
@@ -66,7 +65,7 @@ public class PersonAccountService extends AbstractBean {
                     (String) payment.getField(PaymentDBF.N_NAME), (String) payment.getField(PaymentDBF.VUL_NAME),
                     (String) payment.getField(PaymentDBF.BLD_NUM), (String) payment.getField(PaymentDBF.CORP_NUM),
                     (String) payment.getField(PaymentDBF.FLAT),
-                    (String) payment.getField(PaymentDBF.OWN_NUM_SR), payment.getAccountNumber(), (Date)payment.getField(PaymentDBF.DAT1));
+                    (String) payment.getField(PaymentDBF.OWN_NUM_SR), payment.getAccountNumber());
         }
     }
 
@@ -86,7 +85,6 @@ public class PersonAccountService extends AbstractBean {
 //            resolveRemoteAccount(payment, adapter);
 //        }
 //    }
-
     @Transactional
     public List<AccountCorrectionDetail> acquireAccountCorrectionDetails(Payment payment) {
         CalculationCenterInfo calculationCenterInfo = calculationCenterBean.getCurrentCalculationCenterInfo();
