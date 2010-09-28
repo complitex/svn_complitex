@@ -67,8 +67,15 @@ public class RequestFileBean extends AbstractBean {
         sqlSession().delete(MAPPING_NAMESPACE + ".deleteRequestFile", requestFile);        
     }
 
-    public boolean isLoaded(RequestFile requestFile){
-        return (Boolean) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectIsLoaded", requestFile);
+    public boolean checkLoaded(RequestFile requestFile){
+        Long id = (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectLoadedId", requestFile);
+
+        if (id != null){
+            requestFile.setId(id);
+            return true;            
+        }
+
+        return false;
     }
 
     public void cancelLoading(){

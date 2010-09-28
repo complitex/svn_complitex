@@ -28,6 +28,7 @@
                 <thead>
                 <tr>
                     <th></th>
+                    <th class="center" wicket:id="header.id"><wicket:message key="id"/></th>
                     <th class="center" wicket:id="header.loaded"><wicket:message key="loaded"/></th>
                     <th class="center" wicket:id="header.name"><wicket:message key="name"/></th>
                     <th class="center" wicket:id="header.organization"><wicket:message key="organization"/></th>
@@ -43,6 +44,7 @@
                 </tr>
                 <tr>
                     <th><input id="select" type="checkbox" onclick="selectAll(this)"></th>
+                    <th><input type="text" wicket:id="id"/></th>
                     <th class="center">
                         <div style="width:102px">
                             <input type="text" wicket:id="loaded" style="width: 80px"/>
@@ -67,6 +69,7 @@
                         <input class="select" type="checkbox" wicket:id="selected"/>
                         <img wicket:id="processing" align="top"/>
                     </td>
+                    <td><span wicket:id="id"></span></td>
                     <td><span wicket:id="loaded"></span></td>
                     <td><span wicket:id="name"></span></td>
                     <td><span wicket:id="organization"></span></td>

@@ -67,9 +67,17 @@ public class RequestFileList extends TemplatePage {
 
     private final static String ITEM_ID_PREFIX = "item";
 
+    public RequestFileList(PageParameters parameters){
+        super();
+        init(parameters.getAsLong("request_file_id"));
+    }
+
     public RequestFileList() {
         super();
+        init(null);
+    }
 
+    private void init(Long requestFileId) {
         add(JavascriptPackageResource.getHeaderContribution(WebCommonResourceInitializer.HIGHLIGHT_JS));
 
         add(new Label("title", getString("title")));
@@ -84,6 +92,8 @@ public class RequestFileList extends TemplatePage {
             filterObject = new RequestFileFilter();
             setFilterObject(filterObject);
         }
+
+        filterObject.setId(requestFileId);
 
         final IModel<RequestFileFilter> filterModel = new CompoundPropertyModel<RequestFileFilter>(filterObject);
 
@@ -104,6 +114,9 @@ public class RequestFileList extends TemplatePage {
             }
         };
         filterForm.add(filter_reset);
+
+        //Id
+        filterForm.add(new TextField<String>("id"));
 
         //Дата загрузки
         filterForm.add(new DatePicker<Date>("loaded"));
@@ -224,6 +237,8 @@ public class RequestFileList extends TemplatePage {
                 processing.setVisible(rf.isProcessing());
                 item.add(processing);
 
+                item.add(new Label("id", StringUtil.valueOf(rf.getId())));
+
                 item.add(DateLabel.forDatePattern("loaded", new Model<Date>(rf.getLoaded()), "dd.MM.yy HH:mm:ss"));
                 item.add(new Label("name", rf.getName()));
 
@@ -263,6 +278,7 @@ public class RequestFileList extends TemplatePage {
         }
 
         //Сортировка
+        filterForm.add(new ArrowOrderByBorder("header.id", "id", dataProvider, dataView, filterForm));
         filterForm.add(new ArrowOrderByBorder("header.loaded", "loaded", dataProvider, dataView, filterForm));
         filterForm.add(new ArrowOrderByBorder("header.name", "name", dataProvider, dataView, filterForm));
         filterForm.add(new ArrowOrderByBorder("header.organization", "organization_object_id", dataProvider, dataView, filterForm));
@@ -437,7 +453,7 @@ public class RequestFileList extends TemplatePage {
             }
         }
 
-         //Save Error
+        //Save Error
         if (saveRequestBean.isError(true)){
             error(getString("error.save.process"));
         }
@@ -445,7 +461,7 @@ public class RequestFileList extends TemplatePage {
         //Save completed
         if (saveRequestBean.isCompleted(true)) {
             info(getStringFormat("info.save_completed", saveRequestBean.getProcessedCount(), saveRequestBean.getErrorCount()));
-        }        
+        }
 
         //show messages for binding operation
         for (RequestFile bindingFile : FileExecutorService.get().getInBinding(true)) {
@@ -472,7 +488,7 @@ public class RequestFileList extends TemplatePage {
                     break;
                 }
                 case PROCESSED_WITH_ERRORS: {
-                   highlightError(target, processingFile);
+                    highlightError(target, processingFile);
                     error(getStringFormat("processed.error", processingFile.getName()));
                     break;
                 }

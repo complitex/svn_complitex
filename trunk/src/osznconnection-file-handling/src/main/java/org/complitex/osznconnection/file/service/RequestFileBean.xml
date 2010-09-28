@@ -53,7 +53,8 @@
 
     <sql id="requestFilesFilterWhere">
         <where>
-            <if test="loaded != null">YEAR(`loaded`) = YEAR(#{loaded}) and DAY(`loaded`) = DAY(#{loaded})</if>
+            <if test="id != null">`id` = #{id}</if>
+            <if test="loaded != null">and YEAR(`loaded`) = YEAR(#{loaded}) and DAY(`loaded`) = DAY(#{loaded})</if>
             <if test="name != null">and `name` like CONCAT('%',#{name},'%')</if>
             <if test="organization != null">and `organization_object_id` = #{organization.id}</if>            
             <if test="year != null">and YEAR(`date`) = #{year}</if>
@@ -112,6 +113,18 @@
         where 
             `name` = #{name} and organization_object_id = #{organizationObjectId} and `status` not like 'LOAD_ERROR'
                 and YEAR(`date`) = YEAR(#{date}) and MONTH(`date`) = MONTH(#{date})
+    </select>
+    
+    <select id="selectLoadedId" parameterType="org.complitex.osznconnection.file.entity.RequestFile"
+            resultType="long">
+        select
+            id
+        from
+            `request_file`
+        where
+            `name` = #{name} and organization_object_id = #{organizationObjectId} and `status` not like 'LOAD_ERROR'
+                and YEAR(`date`) = YEAR(#{date}) and MONTH(`date`) = MONTH(#{date})
+        limit 1
     </select>
 
     <update id="cancelLoading">
