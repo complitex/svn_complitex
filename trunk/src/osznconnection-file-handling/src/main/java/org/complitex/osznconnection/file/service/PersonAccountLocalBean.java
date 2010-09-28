@@ -4,7 +4,6 @@
  */
 package org.complitex.osznconnection.file.service;
 
-import java.util.Date;
 import java.util.List;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
