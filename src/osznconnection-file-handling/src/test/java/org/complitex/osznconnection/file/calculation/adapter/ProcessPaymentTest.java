@@ -66,7 +66,7 @@ public class ProcessPaymentTest {
         };
         Payment p = new Payment();
         Benefit b = new Benefit();
-        p.setAccountNumber("1000000015");
+        p.setAccountNumber("1000460875");
         p.setOrganizationId(1L);
         p.setField(PaymentDBF.DAT1, new Date());
         adapter.processPaymentAndBenefit(p, b, 2);

@@ -192,7 +192,7 @@ values
 (4, 1, 'Петр','Петрович','Петров',2, '2142426432', null);
 
 -- Tarif
-insert into tarif(`T11_CS_UNI`, `T11_CODE2`, `request_file_id`) values (0,123,3);
+insert into tarif(`T11_CS_UNI`, `T11_CODE2`, `request_file_id`, `T11_CODE1`) values (0,123,3,1);
 
 -- calculation center info
 insert into calculation_center_preference(calculation_center_id, adapter_class) values (2, 'org.complitex.osznconnection.file.calculation.adapter.DefaultCalculationCenterAdapter');

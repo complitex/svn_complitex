@@ -63,13 +63,13 @@ public class AcquireAccountCorrectionDetailsTest {
                     session = openSession();
 
                     Map<String, Object> params = Maps.newHashMap();
-                    String districtName = "ЦЕНТРАЛЬНЫЙ";
+                    String districtName = "ДЗЕРЖИНСКИЙ";
                     params.put("pDistrName", districtName);
                     params.put("pStSortName", "УЛ");
-                    params.put("pStreetName", "ФРАНТИШЕКА КРАЛА");
-                    params.put("pHouseNum", "25А");
+                    params.put("pStreetName", "АХСАРОВА");
+                    params.put("pHouseNum", "23");
                     params.put("pHousePart", "");
-                    params.put("pFlatNum", "40");
+                    params.put("pFlatNum", "240");
                     params.put("dat1", new Date());
 
                     try {

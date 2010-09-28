@@ -57,7 +57,7 @@ public class ProcessBenefitTest {
             }
         };
         Benefit b = new Benefit();
-        b.setAccountNumber("1000001108");
+        b.setAccountNumber("1000460875");
         b.setOrganizationId(1L);
         adapter.processBenefit(new Date(), Lists.newArrayList(b), 2);
         System.out.println("Status : " + b.getStatus());
