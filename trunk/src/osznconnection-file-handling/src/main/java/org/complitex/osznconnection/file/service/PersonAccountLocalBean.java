@@ -46,9 +46,9 @@ public class PersonAccountLocalBean extends AbstractBean {
 
     @Transactional
     public void saveAccountNumber(String firstName, String middleName, String lastName, String city, String street, String buildingNumber,
-            String buildingCorp, String apartment, String ownNumSr, String personAccount) {
+            String buildingCorp, String apartment, String ownNumSr, String personAccount, long osznId, long calculationCenterId) {
         PersonAccount param = new PersonAccount(firstName, middleName, lastName, ownNumSr, city, street, buildingNumber, buildingCorp,
-                apartment, personAccount);
+                apartment, personAccount, osznId, calculationCenterId);
         param.setAccountNumber(personAccount);
         sqlSession().insert(MAPPING_NAMESPACE + ".insert", param);
     }

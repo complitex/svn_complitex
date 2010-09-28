@@ -233,7 +233,7 @@ public class OrganizationStrategy extends Strategy {
         return OrganizationEditComponent.class;
     }
 
-    public List<DomainObject> getAll(){
+    public List<DomainObject> getAll() {
         DomainObjectExample example = new DomainObjectExample();
         example.setOrderByAttribureTypeId(OrganizationStrategy.NAME);
         configureExample(example, ImmutableMap.<String, Long>of(), null);
@@ -243,6 +243,14 @@ public class OrganizationStrategy extends Strategy {
     public List<DomainObject> getAllOSZNs() {
         DomainObjectExample example = new DomainObjectExample();
         example.setEntityTypeId(OSZN);
+        example.setOrderByAttribureTypeId(OrganizationStrategy.NAME);
+        configureExample(example, ImmutableMap.<String, Long>of(), null);
+        return find(example);
+    }
+
+    public List<DomainObject> getAllCalculationCentres() {
+        DomainObjectExample example = new DomainObjectExample();
+        example.setEntityTypeId(CALCULATION_CENTER);
         example.setOrderByAttribureTypeId(OrganizationStrategy.NAME);
         configureExample(example, ImmutableMap.<String, Long>of(), null);
         return find(example);

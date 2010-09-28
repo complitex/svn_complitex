@@ -56,7 +56,7 @@ public class PersonAccountService extends AbstractBean {
     }
 
     @Transactional
-    public void resolveRemoteAccount(Payment payment, ICalculationCenterAdapter adapter) {
+    public void resolveRemoteAccount(Payment payment, long calculationCenterId, ICalculationCenterAdapter adapter) {
         adapter.acquirePersonAccount(payment);
         if (payment.getStatus() == Status.ACCOUNT_NUMBER_RESOLVED) {
             benefitBean.updateAccountNumber(payment.getId(), payment.getAccountNumber());
@@ -65,7 +65,7 @@ public class PersonAccountService extends AbstractBean {
                     (String) payment.getField(PaymentDBF.N_NAME), (String) payment.getField(PaymentDBF.VUL_NAME),
                     (String) payment.getField(PaymentDBF.BLD_NUM), (String) payment.getField(PaymentDBF.CORP_NUM),
                     (String) payment.getField(PaymentDBF.FLAT),
-                    (String) payment.getField(PaymentDBF.OWN_NUM_SR), payment.getAccountNumber());
+                    (String) payment.getField(PaymentDBF.OWN_NUM_SR), payment.getAccountNumber(), payment.getOrganizationId(), calculationCenterId);
         }
     }
 
