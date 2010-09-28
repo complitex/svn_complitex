@@ -31,7 +31,8 @@ public class BenefitBean extends AbstractBean {
         LAST_NAME(BenefitDBF.SUR_NAM.name()),
         CITY("city"),
         STREET("street"),
-        BUILDING("building"),
+        BUILDING("building_number"),
+        CORP("building_corp"),
         APARTMENT("apartment"),
         STATUS("status");
 

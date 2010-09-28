@@ -122,6 +122,7 @@ public final class BenefitList extends TemplatePage {
         filterForm.add(new TextField<String>("cityFilter", new PropertyModel<String>(example, "city")));
         filterForm.add(new TextField<String>("streetFilter", new PropertyModel<String>(example, "street")));
         filterForm.add(new TextField<String>("buildingFilter", new PropertyModel<String>(example, "building")));
+        filterForm.add(new TextField<String>("corpFilter", new PropertyModel<String>(example, "corp")));
         filterForm.add(new TextField<String>("apartmentFilter", new PropertyModel<String>(example, "apartment")));
         filterForm.add(new DropDownChoice<Status>("statusFilter", new PropertyModel<Status>(example, "status"),
                 Arrays.asList(Status.values()), new StatusRenderer()));
@@ -157,7 +158,8 @@ public final class BenefitList extends TemplatePage {
                 item.add(new Label("lastName", (String) benefit.getField(BenefitDBF.SUR_NAM)));
                 item.add(new Label("city", benefit.getCity()));
                 item.add(new Label("street", benefit.getStreet()));
-                item.add(new Label("building", BuildingFormatter.formatBuilding(benefit.getBuildingNumber(), benefit.getBuildingCorp(), getLocale())));
+                item.add(new Label("building", benefit.getBuildingNumber()));
+                item.add(new Label("corp", benefit.getBuildingCorp()));
                 item.add(new Label("apartment", benefit.getApartment()));
                 item.add(new Label("status", StatusRenderer.displayValue(benefit.getStatus())));
             }
@@ -171,6 +173,7 @@ public final class BenefitList extends TemplatePage {
         filterForm.add(new ArrowOrderByBorder("cityHeader", BenefitBean.OrderBy.CITY.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("streetHeader", BenefitBean.OrderBy.STREET.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("buildingHeader", BenefitBean.OrderBy.BUILDING.getOrderBy(), dataProvider, data, content));
+        filterForm.add(new ArrowOrderByBorder("corpHeader", BenefitBean.OrderBy.CORP.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("apartmentHeader", BenefitBean.OrderBy.APARTMENT.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("statusHeader", BenefitBean.OrderBy.STATUS.getOrderBy(), dataProvider, data, content));
 

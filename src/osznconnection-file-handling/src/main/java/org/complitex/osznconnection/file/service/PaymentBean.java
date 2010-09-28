@@ -36,6 +36,7 @@ public class PaymentBean extends AbstractBean {
         CITY(PaymentDBF.N_NAME.name()),
         STREET(PaymentDBF.VUL_NAME.name()),
         BUILDING(PaymentDBF.BLD_NUM.name()),
+        CORP(PaymentDBF.CORP_NUM.name()),
         APARTMENT(PaymentDBF.FLAT.name()),
         STATUS("status");
 

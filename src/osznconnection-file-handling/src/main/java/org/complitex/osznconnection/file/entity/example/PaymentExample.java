@@ -16,6 +16,7 @@ public class PaymentExample implements Serializable {
     private String city;
     private String street;
     private String building;
+    private String corp;
     private String apartment;
     private Status status;
     private Long requestFileId;
@@ -79,6 +80,14 @@ public class PaymentExample implements Serializable {
 
     public void setBuilding(String building) {
         this.building = building;
+    }
+
+    public String getCorp() {
+        return corp;
+    }
+
+    public void setCorp(String corp) {
+        this.corp = corp;
     }
 
     public String getApartment() {
