@@ -51,15 +51,11 @@ public class BenefitBean extends AbstractBean {
         return (Integer) sqlSession().selectOne(MAPPING_NAMESPACE + ".count", example);
     }
 
-    @Transactional
     private int boundCount(long fileId) {
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("requestFileId", fileId);
-        params.put("statuses", Status.notBoundStatuses());
-
-        return (Integer) sqlSession().selectOne(MAPPING_NAMESPACE + ".countByFile", params);
+        return countByFile(fileId, Status.notBoundStatuses());
     }
 
+    @Transactional
     public boolean isBenefitFileBound(long fileId) {
         return boundCount(fileId) == 0;
     }
@@ -73,7 +69,9 @@ public class BenefitBean extends AbstractBean {
     @Transactional
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void insert(List<AbstractRequest> abstractRequests) {
-        if (abstractRequests.isEmpty()) return;
+        if (abstractRequests.isEmpty()) {
+            return;
+        }
         sqlSession().insert(MAPPING_NAMESPACE + ".insertBenefitList", abstractRequests);
     }
 
@@ -114,7 +112,7 @@ public class BenefitBean extends AbstractBean {
 
     @Transactional
     public void updateBindingStatus(long fileId) {
-        updateStatusForFile(fileId, Status.notProcessedStatuses());
+        updateStatusForFile(fileId, Status.notBoundStatuses());
     }
 
     @Transactional

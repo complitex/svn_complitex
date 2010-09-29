@@ -4,8 +4,6 @@
  */
 package org.complitex.osznconnection.file.service;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.Date;
@@ -122,59 +120,27 @@ public class ProcessingRequestBean extends AbstractBean {
             benefitFile.setStatus(RequestFile.STATUS.PROCESSING);
             requestFileBean.save(benefitFile);
 
-//            List<Long> notResolvedBenefitIds = benefitBean.findIdsForProcessing(benefitFile.getId());
-//
-//            List<Long> batch = Lists.newArrayList();
-//            while (notResolvedBenefitIds.size() > 0) {
-//                batch.clear();
-//                for (int i = 0; i < Math.min(BATCH_SIZE, notResolvedBenefitIds.size()); i++) {
-//                    batch.add(notResolvedBenefitIds.remove(i));
-//                }
-//
-//                try {
-//                    getSqlSessionManager().startManagedSession(false);
-//                    List<Benefit> benefits = benefitBean.findForOperation(benefitFile.getId(), batch);
-//                    for (Benefit benefit : benefits) {
-//                        processBenefit(benefit, adapter, calculationCenterInfo.getId());
-//                    }
-//                    getSqlSessionManager().commit();
-//                } catch (Exception e) {
-//                    try {
-//                        getSqlSessionManager().rollback();
-//                    } catch (Exception exc) {
-//                        log.error("", exc);
-//                    }
-//                    log.error("", e);
-//                } finally {
-//                    try {
-//                        getSqlSessionManager().close();
-//                    } catch (Exception e) {
-//                        log.error("", e);
-//                    }
-//                }
-//            }
-
             List<String> allAccountNumbers = benefitBean.getAllAccountNumbers(benefitFile.getId());
             for (String accountNumber : allAccountNumbers) {
                 List<Benefit> benefits = benefitBean.findByAccountNumber(accountNumber, benefitFile.getId());
-                Map<Long, Status> statuses = Maps.newHashMap();
-                for (Benefit benefit : benefits) {
-                    statuses.put(benefit.getId(), benefit.getStatus());
-                }
-                Date dat1 = benefitBean.findDat1(accountNumber, benefitFile.getId());
-                if (dat1 != null) {
-                    adapter.processBenefit(dat1, benefits, calculationCenterInfo.getId());
-
-                } else {
+                if (benefits != null && !benefits.isEmpty()) {
+                    Map<Long, Status> statuses = Maps.newHashMap();
                     for (Benefit benefit : benefits) {
-                        benefit.setStatus(Status.PROCESSED);
+                        statuses.put(benefit.getId(), benefit.getStatus());
                     }
-                }
-
-                for (Benefit benefit : benefits) {
-                    Status oldStatus = statuses.get(benefit.getId());
-                    if (oldStatus != benefit.getStatus()) {
-                        benefitBean.update(benefit);
+                    Date dat1 = benefitBean.findDat1(accountNumber, benefitFile.getId());
+                    if (dat1 != null) {
+                        adapter.processBenefit(dat1, benefits, calculationCenterInfo.getId());
+                    } else {
+                        for (Benefit benefit : benefits) {
+                            benefit.setStatus(Status.PROCESSED);
+                        }
+                    }
+                    for (Benefit benefit : benefits) {
+                        Status oldStatus = statuses.get(benefit.getId());
+                        if (oldStatus != benefit.getStatus()) {
+                            benefitBean.update(benefit);
+                        }
                     }
                 }
             }
@@ -192,11 +158,4 @@ public class ProcessingRequestBean extends AbstractBean {
             throw e;
         }
     }
-//    private void processBenefit(Benefit benefit, ICalculationCenterAdapter adapter, long id) {
-//        Status oldStatus = benefit.getStatus();
-//        adapter.processBenefit(benefit, id);
-//        if (benefit.getStatus() != oldStatus) {
-//            benefitBean.updateStatus(benefit);
-//        }
-//    }
 }

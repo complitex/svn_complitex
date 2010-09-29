@@ -50,7 +50,7 @@ public class AddressService extends AbstractBean {
         Long buildingId = payment.getInternalBuildingId();
 //        Long apartmentId = payment.getInternalApartmentId();
 
-        if (cityId == null) {
+//        if (cityId == null) {
             String city = (String) payment.getField(PaymentDBF.N_NAME);
             cityId = addressCorrectionBean.findCorrectionCity(city, organizationId);
             if (cityId == null) {
@@ -65,10 +65,9 @@ public class AddressService extends AbstractBean {
                 payment.setStatus(Status.CITY_UNRESOLVED_LOCALLY);
                 return;
             }
-        }
+//        }
 
-
-        if (streetId == null) {
+//        if (streetId == null) {
             String street = (String) payment.getField(PaymentDBF.VUL_NAME);
             streetId = addressCorrectionBean.findCorrectionStreet(cityId, street, organizationId);
             if (streetId == null) {
@@ -87,9 +86,9 @@ public class AddressService extends AbstractBean {
                 payment.setStatus(Status.STREET_UNRESOLVED_LOCALLY);
                 return;
             }
-        }
+//        }
 
-        if (buildingId == null) {
+//        if (buildingId == null) {
             String buildingNumber = (String) payment.getField(PaymentDBF.BLD_NUM);
             String buildingCorp = (String) payment.getField(PaymentDBF.CORP_NUM);
             buildingId = addressCorrectionBean.findCorrectionBuilding(streetId, buildingNumber, buildingCorp, organizationId);
@@ -106,7 +105,7 @@ public class AddressService extends AbstractBean {
                 payment.setStatus(Status.BUILDING_UNRESOLVED_LOCALLY);
                 return;
             }
-        }
+//        }
 
 //        if (apartmentId == null) {
 //            apartmentId = addressCorrectionBean.findInternalApartment(buildingId, (String) payment.getField(PaymentDBF.FLAT), organizationId);
@@ -180,12 +179,12 @@ public class AddressService extends AbstractBean {
 
     @Transactional
     public void resolveAddress(Payment payment, long calculationCenterId, ICalculationCenterAdapter adapter) {
-        if (!isAddressResolved(payment)) {
+//        if (!isAddressResolved(payment)) {
             resolveLocalAddress(payment);
             if (!payment.getStatus().isLocalAddressCorrected()) {
                 resolveOutgoingAddress(payment, calculationCenterId, adapter);
             }
-        }
+//        }
     }
 
     @Transactional

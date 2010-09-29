@@ -186,14 +186,16 @@
 
     <update id="updateStatusForFile" parameterType="hashmap">
         UPDATE `benefit` b SET b.`status` =
-        IFNULL((SELECT DISTINCT p.`status` FROM `payment` p, `request_file` bf, `request_file` pf
-        WHERE (b.`OWN_NUM_SR` = p.`OWN_NUM_SR`) AND (bf.`id` = b.request_file_id) AND (pf.`id` = p.`request_file_id`) AND
-        (bf.`organization_object_id` = pf.`organization_object_id`) AND (EXTRACT(YEAR_MONTH FROM bf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`))
-        AND p.`status` IN
-        <foreach collection="statuses" item="status" open="(" close=")" separator=",">
-            #{status}
-        </foreach>
-        ), b.`status`)
+        CASE IFNULL((SELECT DISTINCT p.`status` FROM `payment` p, `request_file` bf, `request_file` pf
+                WHERE (b.`OWN_NUM_SR` = p.`OWN_NUM_SR`) AND (bf.`id` = b.request_file_id) AND (pf.`id` = p.`request_file_id`) AND
+                (bf.`organization_object_id` = pf.`organization_object_id`) AND (EXTRACT(YEAR_MONTH FROM bf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`))),
+               '-1')
+            WHEN '-1' THEN b.`status`
+            <foreach collection="statuses" item="status">
+                WHEN #{status} THEN #{status}
+            </foreach>
+            ELSE 'ACCOUNT_NUMBER_RESOLVED'
+        END
         WHERE b.`request_file_id` = #{fileId}
     </update>
 
@@ -245,10 +247,11 @@
         FROM DUAL
     </select>-->
 
-    <select id="allAccountNumbers" parameterType="_long" resultType="string">
+    <select id="allAccountNumbers" parameterType="hashmap" resultType="string">
         SELECT DISTINCT b.`account_number` FROM `benefit` b
         JOIN `request_file` bf ON b.`request_file_id` = bf.`id`
         WHERE bf.`id` = #{fileId}
+        AND b.`account_number` IS NOT NULL
     </select>
 
     <select id="findByAccountNumber" parameterType="hashmap" resultMap="benefitResultMap">
