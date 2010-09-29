@@ -67,7 +67,7 @@ public class RequestFileList extends TemplatePage {
 
     private final static String ITEM_ID_PREFIX = "item";
 
-    public RequestFileList(PageParameters parameters){
+    public RequestFileList(PageParameters parameters) {
         super();
         init(parameters.getAsLong("request_file_id"));
     }
@@ -88,7 +88,7 @@ public class RequestFileList extends TemplatePage {
 
         //Фильтр модель
         RequestFileFilter filterObject = (RequestFileFilter) getFilterObject(null);
-        if (filterObject == null){
+        if (filterObject == null) {
             filterObject = new RequestFileFilter();
             setFilterObject(filterObject);
         }
@@ -128,16 +128,16 @@ public class RequestFileList extends TemplatePage {
         filterForm.add(new DropDownChoice<DomainObject>("organization",
                 organizationStrategy.getAllOSZNs(), new IChoiceRenderer<DomainObject>() {
 
-                    @Override
-                    public Object getDisplayValue(DomainObject object) {
-                        return organizationStrategy.displayDomainObject(object, getLocale());
-                    }
+            @Override
+            public Object getDisplayValue(DomainObject object) {
+                return organizationStrategy.displayDomainObject(object, getLocale());
+            }
 
-                    @Override
-                    public String getIdValue(DomainObject object, int index) {
-                        return String.valueOf(object.getId());
-                    }
-                }));
+            @Override
+            public String getIdValue(DomainObject object, int index) {
+                return String.valueOf(object.getId());
+            }
+        }));
 
         //Месяц
         filterForm.add(new MonthDropDownChoice("month"));
@@ -322,6 +322,9 @@ public class RequestFileList extends TemplatePage {
                 for (RequestFile requestFile : selectModels.keySet()) {
                     if (selectModels.get(requestFile).getObject()) {
                         requestFiles.add(requestFile);
+                        if (requestFile.getStatus() == RequestFile.STATUS.BINDED) {
+                            warn(getStringFormat("has_been_bound", requestFile.getName()));
+                        }
                     }
                 }
 
@@ -347,6 +350,9 @@ public class RequestFileList extends TemplatePage {
                 for (RequestFile requestFile : selectModels.keySet()) {
                     if (selectModels.get(requestFile).getObject()) {
                         requestFiles.add(requestFile);
+                        if (requestFile.getStatus() == RequestFile.STATUS.PROCESSED) {
+                            warn(getStringFormat("has_been_processed", requestFile.getName()));
+                        }
                     }
                 }
 
@@ -399,7 +405,7 @@ public class RequestFileList extends TemplatePage {
     }
 
     private void showMessages() {
-        if (loadRequestBean.isError(true)){
+        if (loadRequestBean.isError(true)) {
             error(getString("error.load.process"));
         }
 
@@ -429,7 +435,7 @@ public class RequestFileList extends TemplatePage {
         }
 
         //Load Error
-        if (loadRequestBean.isError(true)){
+        if (loadRequestBean.isError(true)) {
             error(getString("error.load.process"));
         }
 
@@ -440,8 +446,8 @@ public class RequestFileList extends TemplatePage {
         }
 
         //Save
-        for (RequestFile rf : saveRequestBean.getProcessed(true)){
-            switch (rf.getStatus()){
+        for (RequestFile rf : saveRequestBean.getProcessed(true)) {
+            switch (rf.getStatus()) {
                 case SAVED:
                     highlightProcessed(target, rf);
                     info(getStringFormat("info.saved", rf.getType().ordinal(), rf.getName()));
@@ -454,7 +460,7 @@ public class RequestFileList extends TemplatePage {
         }
 
         //Save Error
-        if (saveRequestBean.isError(true)){
+        if (saveRequestBean.isError(true)) {
             error(getString("error.save.process"));
         }
 
@@ -496,7 +502,7 @@ public class RequestFileList extends TemplatePage {
         }
     }
 
-    private void highlightProcessed(AjaxRequestTarget target, RequestFile requestFile){
+    private void highlightProcessed(AjaxRequestTarget target, RequestFile requestFile) {
         if (target != null) {
             target.appendJavascript("$('#" + ITEM_ID_PREFIX + requestFile.getId() + "')"
                     + ".animate({ backgroundColor: 'lightgreen' }, 300)"
@@ -504,7 +510,7 @@ public class RequestFileList extends TemplatePage {
         }
     }
 
-    private void highlightError(AjaxRequestTarget target, RequestFile requestFile){
+    private void highlightError(AjaxRequestTarget target, RequestFile requestFile) {
         if (target != null) {
             target.appendJavascript("$('#" + ITEM_ID_PREFIX + requestFile.getId() + "')"
                     + ".animate({ backgroundColor: 'darksalmon' }, 300)"

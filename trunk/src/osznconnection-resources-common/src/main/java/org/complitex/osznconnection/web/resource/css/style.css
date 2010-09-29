@@ -223,6 +223,10 @@ table.bookContentHeader{
     color: #FF0000;
 }
 
+.feedbackPanelWARNING{
+    color: orange;
+}
+
 /* редактирование пользователей*/
 #user_list_filter{
     margin-bottom:20px;

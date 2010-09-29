@@ -5,12 +5,7 @@
     <select id="findAccountNumber" parameterType="org.complitex.osznconnection.file.entity.PersonAccount" resultType="string">
         SELECT pa.`account_number`
         FROM `person_account` pa
-        <include refid="org.complitex.osznconnection.file.service.PersonAccountLocalBean.filter"/>
-        LIMIT 0,1
-    </select>
-
-    <sql id="filter">
-         WHERE
+        WHERE
          TRIM(pa.`city`) = TRIM(#{city})
          AND TRIM(pa.`street`) = TRIM(#{street})
          AND TRIM(pa.`building_num`) = TRIM(#{buildingNumber})
@@ -22,7 +17,8 @@
          AND TRIM(pa.`middle_name`) = TRIM(#{middleName})
          AND TRIM(pa.`last_name`) = TRIM(#{lastName})
          AND TRIM(pa.`own_num_sr`) = TRIM(#{ownNumSr})
-    </sql>
+        LIMIT 0,1
+    </select>
 
     <sql id="webFilter">
         <where>

@@ -1,6 +1,5 @@
 package org.complitex.osznconnection.file.service;
 
-import org.apache.ibatis.session.ExecutorType;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.entity.*;
@@ -9,7 +8,6 @@ import org.complitex.osznconnection.file.entity.example.PaymentExample;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,11 +22,13 @@ import org.slf4j.LoggerFactory;
  */
 @Stateless(name = "PaymentBean")
 public class PaymentBean extends AbstractBean {
+
     private static final Logger log = LoggerFactory.getLogger(PaymentBean.class);
 
     public static final String MAPPING_NAMESPACE = PaymentBean.class.getName();
 
     public enum OrderBy {
+
         ACCOUNT(PaymentDBF.OWN_NUM_SR.name()),
         FIRST_NAME(PaymentDBF.F_NAM.name()),
         MIDDLE_NAME(PaymentDBF.M_NAM.name()),
@@ -65,8 +65,10 @@ public class PaymentBean extends AbstractBean {
     @Transactional
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void insert(List<AbstractRequest> abstractRequests) {
-        if (abstractRequests.isEmpty()) return;        
-        sqlSession().insert(MAPPING_NAMESPACE + ".insertPaymentList", abstractRequests);        
+        if (abstractRequests.isEmpty()) {
+            return;
+        }
+        sqlSession().insert(MAPPING_NAMESPACE + ".insertPaymentList", abstractRequests);
     }
 
     @SuppressWarnings({"unchecked"})
@@ -112,12 +114,16 @@ public class PaymentBean extends AbstractBean {
 
     @Transactional
     public List<Long> findIdsForBinding(long fileId) {
-        return findIdsForOperation(fileId, Status.notBoundStatuses());
+        List<Status> bindingStatuses = Status.notBoundStatuses();
+        bindingStatuses.add(Status.ACCOUNT_NUMBER_RESOLVED);
+        return findIdsForOperation(fileId, bindingStatuses);
     }
 
     @Transactional
     public List<Long> findIdsForProcessing(long fileId) {
-        return findIdsForOperation(fileId, Status.notProcessedStatuses());
+        List<Status> processingStatuses = Status.notProcessedStatuses();
+        processingStatuses.add(Status.PROCESSED);
+        return findIdsForOperation(fileId, processingStatuses);
     }
 
     private int boundCount(long fileId) {

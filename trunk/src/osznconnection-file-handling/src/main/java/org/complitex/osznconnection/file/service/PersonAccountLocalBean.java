@@ -65,6 +65,9 @@ public class PersonAccountLocalBean extends AbstractBean {
 
     @Transactional
     public void insert(PersonAccount personAccount) {
+        if (personAccount.getBuildingCorp() == null) {
+            personAccount.setBuildingCorp("");
+        }
         sqlSession().insert(MAPPING_NAMESPACE + ".insert", personAccount);
     }
 

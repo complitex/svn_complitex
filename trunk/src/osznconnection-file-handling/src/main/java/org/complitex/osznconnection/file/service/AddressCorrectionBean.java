@@ -137,6 +137,9 @@ public class AddressCorrectionBean extends CorrectionBean {
 
     @Transactional
     public void insertBuilding(BuildingCorrection correction) {
+        if (correction.getCorrectionCorp() == null) {
+            correction.setCorrectionCorp("");
+        }
         sqlSession().insert(MAPPING_NAMESPACE + ".insertBuilding", correction);
     }
 
@@ -190,6 +193,9 @@ public class AddressCorrectionBean extends CorrectionBean {
 
     @Transactional
     public void updateBuilding(BuildingCorrection correction) {
+        if (correction.getCorrectionCorp() == null) {
+            correction.setCorrectionCorp("");
+        }
         sqlSession().update(MAPPING_NAMESPACE + ".updateBuilding", correction);
     }
 
