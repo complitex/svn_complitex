@@ -119,7 +119,7 @@
                     SELECT sc.`id` FROM `building_string_culture` sc WHERE sc.`value` = TRIM(TO_CYRILLIC(#{corp})))
             </when>
             <otherwise>
-                AND ((a_corp.`value_id` IN (SELECT sc.`id` FROM `building_string_culture` sc WHERE sc.`value` IS NULL)) OR
+                AND ((a_corp.`value_id` IN (SELECT sc.`id` FROM `building_string_culture` sc WHERE (sc.`value` IS NULL) OR TRIM(sc.`value`) = '')) OR
                     (a_corp.`value_id` NOT IN (SELECT sc.`id` FROM `building_string_culture` sc)))
             </otherwise>
         </choose>
