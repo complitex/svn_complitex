@@ -5,7 +5,6 @@
 package org.complitex.osznconnection.privilege.strategy;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import java.util.List;
 import java.util.Locale;
@@ -107,6 +106,11 @@ public class PrivilegeStrategy extends Strategy {
             }
             attrExample.setValue(searchTextInput);
         }
+    }
+
+    @Override
+    public int getSearchTextFieldSize() {
+        return 40;
     }
 
     @Override

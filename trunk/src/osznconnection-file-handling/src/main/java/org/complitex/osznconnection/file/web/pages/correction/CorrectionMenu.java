@@ -191,6 +191,30 @@ public class CorrectionMenu extends ResourceTemplateMenu {
                 return "person_account_item";
             }
         });
+        links.add(new ITemplateLink() {
+
+            @Override
+            public String getLabel(Locale locale) {
+                return getString(CorrectionMenu.class, locale, "privilege");
+            }
+
+            @Override
+            public Class<? extends Page> getPage() {
+                return PrivilegeCorrectionList.class;
+            }
+
+            @Override
+            public PageParameters getParameters() {
+                PageParameters pageParameters = new PageParameters();
+                pageParameters.put(PrivilegeCorrectionList.CORRECTED_ENTITY, "privilege");
+                return pageParameters;
+            }
+
+            @Override
+            public String getTagId() {
+                return "privilege_correction_item";
+            }
+        });
         return links;
     }
 
