@@ -140,7 +140,9 @@ public class  LoadTaskBean {
                 }
             }
             try {
-                save(requestFile.getType(), batch);
+                if (!batch.isEmpty()){
+                    save(requestFile.getType(), batch);
+                }
             } catch (Exception e) {
                 throw new SqlSessionException(e);
             }
