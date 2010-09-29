@@ -80,6 +80,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.complitex.osznconnection</groupId>
+            <artifactId>osznconnection-privilege</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.complitex.framework</groupId>
             <artifactId>dictionary-framework</artifactId>
         </dependency>
