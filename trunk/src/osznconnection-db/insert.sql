@@ -28,7 +28,8 @@ insert into `sequence` (`sequence_name`, `sequence_value`) values
 ('street',1), ('street_string_culture',1),
 ('organization',1), ('organization_string_culture',1),
 ('user_info', 1), ('user_info_string_culture', 1),
-('ownership',1), ('ownership_string_culture',1);
+('ownership',1), ('ownership_string_culture',1),
+('privilege',1), ('privilege_string_culture',1);
 
 -- --------------------------------
 -- Apartment
