@@ -116,8 +116,6 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
 
     private void setVisibility(WebMarkupContainer districtContainer, DomainObject currentOrganization) {
         Long entityTypeId = currentOrganization.getEntityTypeId();
-        log.info("EntityTypeId : {}", entityTypeId);
-
         if (entityTypeId != null && entityTypeId.equals(OrganizationStrategy.OSZN)) {
             districtContainer.setVisible(true);
         } else {

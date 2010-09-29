@@ -37,6 +37,7 @@ import org.complitex.osznconnection.information.strategy.building.web.edit.Build
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -46,7 +47,7 @@ import java.util.*;
 @Stateless(name = "BuildingStrategy")
 public class BuildingStrategy extends Strategy {
 
-    public static final String RESOURCE_BUNDLE = BuildingStrategy.class.getName();
+    public static final String RESOURCE_BUNDLE = BuildingStrategy.class.getPackage().getName() + ".Building";
 
     public static final long NUMBER = 500;
 
@@ -207,13 +208,13 @@ public class BuildingStrategy extends Strategy {
             if (Strings.isEmpty(structure)) {
                 return number;
             } else {
-                return ResourceUtil.getString(RESOURCE_BUNDLE, "number_structure", locale);
+                return MessageFormat.format(ResourceUtil.getString(RESOURCE_BUNDLE, "number_structure", locale), number, structure);
             }
         } else {
             if (Strings.isEmpty(structure)) {
-                return ResourceUtil.getString(RESOURCE_BUNDLE, "number_corp", locale);
+                return MessageFormat.format(ResourceUtil.getString(RESOURCE_BUNDLE, "number_corp", locale), number, corp);
             } else {
-                return ResourceUtil.getString(RESOURCE_BUNDLE, "number_corp_structure", locale);
+                return MessageFormat.format(ResourceUtil.getString(RESOURCE_BUNDLE, "number_corp_structure", locale), number, corp, structure);
             }
         }
     }
