@@ -1,6 +1,7 @@
 package org.complitex.osznconnection.file.service;
 
 import org.complitex.osznconnection.file.entity.RequestFile;
+import org.complitex.osznconnection.file.entity.RequestFileGroup;
 import org.complitex.osznconnection.file.service.exception.MaxErrorCountException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,11 +31,11 @@ public abstract class AbstractProcessBean {
 
     protected PROCESS_STATUS processStatus;
 
-    private int processedCount = 0;
-    private int skippedCount = 0;
-    private int errorCount = 0;
+    protected int processedCount = 0;
+    protected int skippedCount = 0;
+    protected int errorCount = 0;
 
-    private List<RequestFile> processed = Collections.synchronizedList(new ArrayList<RequestFile>());
+    protected List<RequestFile> processed = Collections.synchronizedList(new ArrayList<RequestFile>());
 
     protected abstract int getMaxErrorCount();
     protected abstract int getThreadSize();
@@ -157,6 +158,6 @@ public abstract class AbstractProcessBean {
             }
         }
     }
-    
+
     protected abstract void error(String desc, Object... args);
 }

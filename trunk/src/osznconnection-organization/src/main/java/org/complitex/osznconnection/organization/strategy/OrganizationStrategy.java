@@ -64,10 +64,10 @@ public class OrganizationStrategy extends Strategy {
 
     public static final long CALCULATION_CENTER = 901;
 
-    @EJB
+    @EJB(beanName = "StringCultureBean")
     private StringCultureBean stringBean;
 
-    @EJB
+    @EJB(beanName = "DistrictStrategy")
     private DistrictStrategy districtStrategy;
 
     @Override
@@ -77,12 +77,14 @@ public class OrganizationStrategy extends Strategy {
         example.setId(id);
         example.setTable(getEntityTable());
         DomainObject object = (DomainObject) sqlSession().selectOne(MAPPING_NAMESPACE + "." + FIND_BY_ID_OPERATION, example);
-        object.setAttributes(sqlSession().selectList(MAPPING_NAMESPACE + ".loadSimpleAttributes", example));
-        for (Attribute complexAttr : (List<Attribute>) sqlSession().selectList(MAPPING_NAMESPACE + ".loadComplexAttributes", example)) {
-            object.addAttribute(complexAttr);
+        if (object != null) {
+            object.setAttributes(sqlSession().selectList(MAPPING_NAMESPACE + ".loadSimpleAttributes", example));
+            for (Attribute complexAttr : (List<Attribute>) sqlSession().selectList(MAPPING_NAMESPACE + ".loadComplexAttributes", example)) {
+                object.addAttribute(complexAttr);
+            }
+            super.updateForNewAttributeTypes(object);
+            super.updateStringsForNewLocales(object);
         }
-        super.updateForNewAttributeTypes(object);
-        super.updateStringsForNewLocales(object);
         return object;
     }
 

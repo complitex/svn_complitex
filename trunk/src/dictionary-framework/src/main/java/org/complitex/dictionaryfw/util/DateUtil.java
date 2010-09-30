@@ -56,9 +56,9 @@ public class DateUtil {
         return getEndOfDay(c.getTime());
     }
 
-    public static String getDisplayMonth(int month, Locale locale) {
+    public static String displayMonth(int month, Locale locale) {
         Calendar c = Calendar.getInstance();
-        c.set(c.get(Calendar.YEAR), month, 1);
+        c.set(Calendar.MONTH, month);
         return c.getDisplayName(Calendar.MONTH, Calendar.LONG, locale);
     }
 
@@ -123,5 +123,13 @@ public class DateUtil {
         calendar.clear();
         calendar.set(Calendar.YEAR, year);
         return calendar.getTime();
+    }
+
+    public static Date getMax(Date date1, Date date2){
+        return date1.compareTo(date2) > 0 ? date1 : date2;       
+    }
+
+    public static boolean isCurrentDay(Date date){
+        return isTheSameDay(date, getCurrentDate());
     }
 }

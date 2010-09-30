@@ -3,13 +3,17 @@
 <mapper namespace="org.complitex.osznconnection.file.service.RequestFileBean">
     <resultMap id="requestFileResultMap" type="org.complitex.osznconnection.file.entity.RequestFile">
         <id column="id" property="id"/>
+        <result column="group_id" property="groupId"/>
         <result column="loaded" property="loaded"/>
         <result column="name" property="name"/>
-        <result column="organization_object_id" property="organizationObjectId"/>
-        <result column="date" property="date"/>
+        <result column="organization_id" property="organizationId"/>
+        <result column="registry" property="registry"/>
+        <result column="month" property="month"/>
+        <result column="year" property="year"/>
         <result column="dbf_record_count" property="dbfRecordCount"/>
         <result column="length" property="length"/>
         <result column="checkSum" property="checkSum"/>
+        <result column="type" property="type"/>        
         <result column="status" property="status"/>
         <result column="status_detail" property="statusDetail"/>
         <result column="loaded_record_count" property="loadedRecordCount"/>
@@ -22,21 +26,18 @@
 
     <insert id="insertRequestFile" parameterType="org.complitex.osznconnection.file.entity.RequestFile"
             keyProperty="id" useGeneratedKeys="true">
-        insert into
-            `request_file` (`organization_object_id`, `name`, `date`, `dbf_record_count`, `length`, `check_sum`,
-                `status`, `status_detail`, `loaded`)
+        insert into `request_file`
+            (`group_id`, `organization_id`, `name`, `registry`, `month`, `year`, `dbf_record_count`, `length`, `check_sum`,
+            `type`, `status`, `status_detail`, `loaded`)
         values
-            (#{organizationObjectId}, #{name}, #{date}, #{dbfRecordCount}, #{length}, #{checkSum},
-                #{status}, #{statusDetail}, #{loaded});
+            (#{groupId}, #{organizationId}, #{name}, #{registry}, #{month}, #{year}, #{dbfRecordCount}, #{length}, #{checkSum},
+                #{type}, #{status}, #{statusDetail}, #{loaded});
     </insert>
 
     <update id="updateRequestFile" parameterType="org.complitex.osznconnection.file.entity.RequestFile">
         update `request_file`
         <set>
-            <if test="dbfRecordCount != null">`dbf_record_count` = #{dbfRecordCount},</if>
-            <if test="date != null">`date` = #{date},</if>
-            <if test="length != null">`length` = #{length},</if>
-            <if test="checkSum != null">`check_sum` = #{checkSum},</if>
+            <if test="registry != null">`registry` = #{registry},</if>
             <if test="status != null">`status` = #{status},</if>
             <if test="statusDetail != null">`status_detail` = #{statusDetail}</if>
         </set>
@@ -54,11 +55,13 @@
     <sql id="requestFilesFilterWhere">
         <where>
             <if test="id != null">`id` = #{id}</if>
+            <if test="groupId != null">`group_id` = #{groupId}</if>
             <if test="loaded != null">and YEAR(`loaded`) = YEAR(#{loaded}) and DAY(`loaded`) = DAY(#{loaded})</if>
             <if test="name != null">and `name` like CONCAT('%',#{name},'%')</if>
-            <if test="organization != null">and `organization_object_id` = #{organization.id}</if>            
-            <if test="year != null">and YEAR(`date`) = #{year}</if>
-            <if test="month != null">and MONTH(`date`)-1 = #{month}</if>
+            <if test="organization != null">and `organization_id` = #{organization.id}</if>
+            <if test="registry != null">and `registry` = #{registry}</if>
+            <if test="year != null">and `year` = #{year}</if>
+            <if test="month != null">and `month` = #{month}</if>
             <if test="dbfRecordCount != null">and `dbf_record_count` like CONCAT('%',#{dbfRecordCount},'%')</if>
             <if test="status != null">and `status` = #{status}</if>
             <if test="loadedRecordCount != null">
@@ -70,7 +73,7 @@
         </where>
     </sql>
 
-    <select id="selectRequestFiles" parameterType="org.complitex.osznconnection.file.service.RequestFileFilter"
+    <select id="selectRequestFiles" parameterType="org.complitex.osznconnection.file.entity.RequestFileFilter"
             resultMap="requestFileResultMap">
         select
             *,
@@ -82,15 +85,10 @@
             + (select count(*) from `benefit` where `request_file_id` = rf.`id` and `status` = 'ACCOUNT_NUMBER_RESOLVED'))
                 as binded_record_count
         from
-            `request_file` rf        
+            `request_file` rf
         <include refid="requestFilesFilterWhere"/>
         <if test="sortProperty != null">
-            order by
-            <choose>
-                <when test="sortProperty == 'month'">MONTH(`date`)</when>
-                <when test="sortProperty == 'year'">YEAR(`date`)</when>                              
-                <otherwise>`${sortProperty}`</otherwise>
-            </choose>
+            order by `${sortProperty}`           
             <choose>
                 <when test="ascending">asc</when>
                 <otherwise>desc</otherwise>
@@ -99,7 +97,7 @@
         limit #{first}, #{count}
     </select>
 
-    <select id="selectRequestFilesCount" parameterType="org.complitex.osznconnection.file.service.RequestFileFilter"
+    <select id="selectRequestFilesCount" parameterType="org.complitex.osznconnection.file.entity.RequestFileFilter"
             resultType="int">
         select count(*) from `request_file` <include refid="requestFilesFilterWhere"/>
     </select>
@@ -110,11 +108,11 @@
             count(*) > 0
         from
             `request_file`
-        where 
-            `name` = #{name} and organization_object_id = #{organizationObjectId} and `status` not like 'LOAD_ERROR'
-                and YEAR(`date`) = YEAR(#{date}) and MONTH(`date`) = MONTH(#{date})
+        where
+            `name` = #{name} and organization_id = #{organizationId} and `status` not like 'LOAD_ERROR'
+                and `registry` = #{registry} and `month` = #{month} and `year` = #{year}
     </select>
-    
+
     <select id="selectLoadedId" parameterType="org.complitex.osznconnection.file.entity.RequestFile"
             resultType="long">
         select
@@ -122,8 +120,8 @@
         from
             `request_file`
         where
-            `name` = #{name} and organization_object_id = #{organizationObjectId} and `status` not like 'LOAD_ERROR'
-                and YEAR(`date`) = YEAR(#{date}) and MONTH(`date`) = MONTH(#{date})
+            `name` = #{name} and organization_id = #{organizationId} and `status` not like 'LOAD_ERROR'
+                and `registry` = #{registry} and `month` = #{month} and `year` = #{year}
         limit 1
     </select>
 

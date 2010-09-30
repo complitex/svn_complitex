@@ -2,9 +2,9 @@ package org.complitex.osznconnection.file.service;
 
 import org.complitex.dictionaryfw.entity.Log;
 import org.complitex.dictionaryfw.service.LogBean;
-import org.complitex.dictionaryfw.util.DateUtil;
 import org.complitex.osznconnection.file.Module;
 import org.complitex.osznconnection.file.entity.RequestFile;
+import org.complitex.osznconnection.file.entity.RequestFileGroup;
 import org.complitex.osznconnection.file.storage.RequestFileStorage;
 import org.complitex.osznconnection.file.storage.StorageNotFoundException;
 import org.slf4j.Logger;
@@ -14,15 +14,9 @@ import javax.annotation.PostConstruct;
 import javax.ejb.*;
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Future;
 import java.util.regex.Pattern;
-
-import static org.complitex.osznconnection.file.entity.RequestFile.BENEFIT_FILE_PREFIX;
-import static org.complitex.osznconnection.file.entity.RequestFile.PAYMENT_FILE_PREFIX;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -36,12 +30,16 @@ import static org.complitex.osznconnection.file.entity.RequestFile.PAYMENT_FILE_
  */
 @Singleton
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
+@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 @SuppressWarnings({"EjbProhibitedPackageUsageInspection"})
 public class LoadRequestBean extends AbstractProcessBean {
     private static final Logger log = LoggerFactory.getLogger(RequestFileBean.class);
 
     @EJB(beanName = "RequestFileBean")
     private RequestFileBean requestFileBean;
+
+    @EJB(beanName = "RequestFileGroupBean")
+    private RequestFileGroupBean requestFileGroupBean;
 
     @EJB(beanName = "LoadTaskBean")
     private LoadTaskBean loadTaskBean;
@@ -82,37 +80,6 @@ public class LoadRequestBean extends AbstractProcessBean {
         });
     }
 
-    private List<File> groupPaymentBenefit(List<File> files){
-        Collections.sort(files, new Comparator<File>(){
-
-            @Override
-            public int compare(File f1, File f2) {
-                String n1 = f1.getName();
-                String n2 = f2.getName();
-
-                if (n1.length() < 8 || n2.length() < 8){
-                    return 0;
-                }
-
-                String p1 = n1.substring(0, 2);
-                String p2 = n2.substring(0, 2);
-
-                if (!p1.equalsIgnoreCase(PAYMENT_FILE_PREFIX) && !p1.equalsIgnoreCase(BENEFIT_FILE_PREFIX)
-                        || !p2.equalsIgnoreCase(PAYMENT_FILE_PREFIX) && !p2.equalsIgnoreCase(BENEFIT_FILE_PREFIX)){
-                    return 0;
-                }
-
-                if (n1.substring(2,9).equals(n2.substring(2,9))){
-                    return p2.compareTo(p1) + n1.substring(7,9).compareTo(n2.substring(7,9));
-                }
-
-                return n1.substring(2,9).compareTo(n2.substring(2,9));
-            }
-        });
-
-        return files;
-    }
-
     @Override
     protected int getMaxErrorCount() {
         return FileHandlingConfig.LOAD_MAX_ERROR_FILE_COUNT.getInteger();
@@ -128,35 +95,142 @@ public class LoadRequestBean extends AbstractProcessBean {
         return loadTaskBean.load(requestFile);
     }
 
+    private String getPrefix(String name){
+        return name.length() > 11 ? name.substring(0,2) : "";
+    }
+
+    private String getSuffix(String name){
+        return name.length() > 11 ? name.substring(2,8) : "";
+    }
+
+    private RequestFile newRequestFile(File file, Long organizationId, int year){
+        RequestFile requestFile = new RequestFile();
+
+        requestFile.setName(file.getName());
+        requestFile.updateTypeByName();
+        requestFile.setLength(file.length());
+        requestFile.setAbsolutePath(file.getAbsolutePath());
+        requestFile.setOrganizationId(organizationId);
+        requestFile.setMonth(Integer.parseInt(file.getName().substring(6, 8)));
+        requestFile.setYear(year);
+        return requestFile;
+    }
+
     @Asynchronous
-    public void load(long organizationId, String districtCode, int monthFrom, int monthTo, int year,
-                     List<RequestFile.TYPE> types) {
+    public void load(long organizationId, String districtCode, int monthFrom, int monthTo, int year) {
         if (!isProcessing()) {
             try {
                 processStatus = PROCESS_STATUS.PROCESSING;
 
-                List<File> files = groupPaymentBenefit(getFiles(districtCode, monthFrom, monthTo));
+                List<File> files = getFiles(districtCode, monthFrom, monthTo);
+
+                Map<String, Map<String, RequestFileGroup>> requestFileGroupsMap = new HashMap<String, Map<String, RequestFileGroup>>();
+
+                //payment
+                for (int i=0; i < files.size(); ++i){
+                    File file = files.get(i);
+
+                    if (RequestFile.PAYMENT_FILE_PREFIX.equals(getPrefix(file.getName()))){
+                        RequestFileGroup group = new RequestFileGroup();
+                        //todo add relative dir
+
+                        group.setPaymentFile(newRequestFile(file, organizationId, year));
+
+                        files.remove(i);
+                        i--;
+
+                        Map<String, RequestFileGroup> map = requestFileGroupsMap.get(file.getParent());
+
+                        if (map == null){
+                            map = new HashMap<String, RequestFileGroup>();
+                            requestFileGroupsMap.put(file.getParent(), map);
+                        }
+
+                        map.put(getSuffix(file.getName()), group);
+                    }
+                }
+
+                int linkError = 0;
+
+                //benefit
+                for (File file : files){
+                    if (RequestFile.BENEFIT_FILE_PREFIX.equals(getPrefix(file.getName()))){
+                        RequestFile requestFile = newRequestFile(file, organizationId, year);
+
+                        Map<String, RequestFileGroup> map = requestFileGroupsMap.get(file.getParent());
+
+                        if (map != null){
+                            RequestFileGroup group = map.get(getSuffix(file.getName()));
+
+                            if (group != null){
+                                group.setBenefitFile(requestFile);
+                                continue;
+                            }
+                        }
+
+                        requestFile.setStatus(RequestFile.STATUS.LOAD_ERROR);
+                        requestFile.setStatusDetail(RequestFile.STATUS_DETAIL.LINKED_FILE_NOT_FOUND);
+                        linkError++;
+
+                        processed.add(requestFile);
+                    }
+                }
+
+                //fill list to load
+                List<RequestFile> requestFiles = new ArrayList<RequestFile>();
+
+                for (Map<String, RequestFileGroup> map : requestFileGroupsMap.values()){
+                    for (RequestFileGroup group : map.values()){
+                        RequestFile paymentFile = group.getPaymentFile();
+                        RequestFile benefitFile = group.getBenefitFile();
+
+                        if (paymentFile != null && benefitFile != null){
+                            requestFileGroupBean.save(group);
+
+                            paymentFile.setGroupId(group.getId());
+                            benefitFile.setGroupId(group.getId());
+
+                            requestFiles.add(paymentFile);
+                            requestFiles.add(benefitFile);
+                        }
+                    }
+                }
+
+                //Запуск процесса загрузки
+                processStatus = PROCESS_STATUS.NEW;
+                process(requestFiles);
+
+                errorCount += linkError;
+            } catch (StorageNotFoundException e) {
+                processStatus = PROCESS_STATUS.ERROR;
+                log.error("Ошибка процесса загрузки файлов", e);
+                error(e.getMessage());
+            }
+        }
+    }
+
+    @Asynchronous
+    public void loadTarif(long organizationId, String districtCode, int monthFrom, int monthTo, int year) {
+        if (!isProcessing()) {
+            try {
+                processStatus = PROCESS_STATUS.PROCESSING;
+
+                List<File> files = getFiles(districtCode, monthFrom, monthTo);
 
                 List<RequestFile> requestFiles = new ArrayList<RequestFile>();
 
                 for (File file : files) {
-                    RequestFile requestFile = new RequestFile();
-                    requestFile.setName(file.getName());
+                    String prefix = file.getName().substring(0, 2);
 
-                    if (types.contains(requestFile.getType())){
+                    if(RequestFile.TARIF_FILE_PREFIX.equals(prefix)){
+
+                        RequestFile requestFile = new RequestFile();
+                        requestFile.setName(file.getName());
                         requestFile.setLength(file.length());
                         requestFile.setAbsolutePath(file.getAbsolutePath());
-                        requestFile.setOrganizationObjectId(organizationId);
-
-                        switch (requestFile.getType()){
-                            case BENEFIT:
-                            case PAYMENT:
-                                requestFile.setDate(DateUtil.parseDate(file.getName().substring(6, 8), year));
-                                break;
-                            case TARIF:
-                                requestFile.setDate(DateUtil.parseYear(year));
-                                break;
-                        }
+                        requestFile.setOrganizationId(organizationId);
+                        requestFile.setYear(year);
+                        requestFile.updateTypeByName();
 
                         requestFiles.add(requestFile);
                     }

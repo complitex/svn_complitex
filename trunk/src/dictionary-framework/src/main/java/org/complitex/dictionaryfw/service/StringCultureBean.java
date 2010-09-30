@@ -22,7 +22,7 @@ import java.util.NoSuchElementException;
  *
  * @author Artem
  */
-@Stateless
+@Stateless(name = "StringCultureBean")
 public class StringCultureBean extends AbstractBean{
 
     @EJB(beanName = "SequenceBean")

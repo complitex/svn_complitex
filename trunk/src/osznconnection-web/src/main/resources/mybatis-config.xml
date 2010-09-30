@@ -48,6 +48,7 @@
         <mapper resource="org/complitex/osznconnection/file/service/OwnershipCorrectionBean.xml"/>
         <mapper resource="org/complitex/osznconnection/file/service/PrivilegeCorrectionBean.xml"/>
         <mapper resource="org/complitex/osznconnection/file/service/RequestFileBean.xml"/>
+        <mapper resource="org/complitex/osznconnection/file/service/RequestFileGroupBean.xml"/>        
         <mapper resource="org/complitex/osznconnection/file/service/BenefitBean.xml"/>
         <mapper resource="org/complitex/osznconnection/file/service/TarifBean.xml"/>
         <mapper resource="org/complitex/osznconnection/file/service/PersonAccountLocalBean.xml"/>
