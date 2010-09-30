@@ -56,13 +56,11 @@ DROP TABLE IF EXISTS `entity_type`;
 CREATE TABLE `entity_type` (
   `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `entity_id` BIGINT(20) NOT NULL,
-  `import_object_id` BIGINT(20) NULL,
   `entity_type_name_id` BIGINT(20) NOT NULL,
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `end_date` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `key_entity_id` (`entity_id`),
-  KEY `key_import_object_id` (import_object_id),
   KEY `key_entity_type_name_id` (`entity_type_name_id`),
   CONSTRAINT `fk_entity_type__entity` FOREIGN KEY (`entity_id`) REFERENCES `entity` (`id`),
   CONSTRAINT `fk_entity_type__string_culture` FOREIGN KEY (`entity_type_name_id`) REFERENCES `string_culture` (`id`)
@@ -106,7 +104,6 @@ DROP TABLE IF EXISTS `apartment`;
 CREATE TABLE `apartment` (
   `id` BIGINT(20) NOT NULL AUTO_INCREMENT,  
   `object_id` BIGINT(20) NOT NULL,
-  `import_object_id` BIGINT(20),
   `parent_id` BIGINT(20),
   `parent_entity_id` BIGINT(20),
   `entity_type_id` BIGINT(20),
@@ -116,7 +113,6 @@ CREATE TABLE `apartment` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_object_id__start_date` (`object_id`,`start_date`),
   KEY `key_object_id` (object_id),
-  KEY `key_import_object_id` (import_object_id),
   KEY `key_parent_id` (`parent_id`),
   KEY `key_entity_type_id` (`entity_type_id`),
   KEY `key_parent_entity_id` (`parent_entity_id`),
@@ -177,7 +173,6 @@ DROP TABLE IF EXISTS `room`;
 CREATE TABLE `room` (
   `id` BIGINT(20) NOT NULL AUTO_INCREMENT,  
   `object_id` BIGINT(20) NOT NULL,
-  `import_object_id` BIGINT(20),
   `parent_id` BIGINT(20),
   `parent_entity_id` BIGINT(20),
   `entity_type_id` BIGINT(20),
@@ -187,7 +182,6 @@ CREATE TABLE `room` (
   PRIMARY KEY  (`id`),
   UNIQUE KEY `unique_object_id__start_date` (`object_id`,`start_date`),
   KEY `key_object_id` (`object_id`),
-  KEY `key_import_object_id` (`import_object_id`),  
   KEY `key_parent_entity_id` (`parent_entity_id`),
   KEY `key_entity_type_id` (`entity_type_id`),
   KEY `key_start_date` (`start_date`),
@@ -247,7 +241,6 @@ DROP TABLE IF EXISTS `street`;
 CREATE TABLE `street` (
   `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `object_id` BIGINT(20) NOT NULL,
-  `import_object_id` BIGINT(20),
   `parent_id` BIGINT(20),
   `parent_entity_id` BIGINT(20),
   `entity_type_id` BIGINT(20),
@@ -257,7 +250,6 @@ CREATE TABLE `street` (
   PRIMARY KEY  (`id`),
   UNIQUE KEY `unique_object_id__start_date` (`object_id`,`start_date`),
   KEY `key_object_id` (`object_id`),
-  KEY `key_import_object_id` (`import_object_id`),
   KEY `key_parent_id` (`parent_id`),
   KEY `key_parent_entity_id` (`parent_entity_id`),
   KEY `key_entity_type_id` (`entity_type_id`),
@@ -387,7 +379,6 @@ DROP TABLE IF EXISTS `building`;
 CREATE TABLE `building` (
   `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `object_id` BIGINT(20) NOT NULL,
-  `import_object_id` BIGINT(20) NULL, KEY(import_object_id),
   `parent_id` BIGINT(20),
   `parent_entity_id` BIGINT(20),
   `entity_type_id` BIGINT(20),
@@ -397,7 +388,6 @@ CREATE TABLE `building` (
   PRIMARY KEY  (`id`),
   UNIQUE KEY `unique_object_id__start_date` (`object_id`,`start_date`),
   KEY `key_object_id` (`object_id`),
-  KEY `key_import_object_id` (`import_object_id`),
   KEY `key_parent_id` (`parent_id`),
   KEY `key_parent_entity_id` (`parent_entity_id`),
   KEY `key_entity_type_id` (`entity_type_id`),
@@ -458,7 +448,6 @@ DROP TABLE IF EXISTS `district`;
 CREATE TABLE `district` (
   `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `object_id` BIGINT(20) NOT NULL,
-  `import_object_id` BIGINT(20) NULL, KEY(import_object_id),
   `parent_id` BIGINT(20),
   `parent_entity_id` BIGINT(20),
   `entity_type_id` BIGINT(20),
@@ -468,7 +457,6 @@ CREATE TABLE `district` (
   PRIMARY KEY  (`id`),
   UNIQUE KEY `unique_object_id__start_date` (`object_id`,`start_date`),
   KEY `key_object_id` (`object_id`),
-  KEY `key_import_object_id` (`import_object_id`),
   KEY `key_parent_id` (`parent_id`),
   KEY `key_parent_entity_id` (`parent_entity_id`),
   KEY `key_entity_type_id` (`entity_type_id`),
