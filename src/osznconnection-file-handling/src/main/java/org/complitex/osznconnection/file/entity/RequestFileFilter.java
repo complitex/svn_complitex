@@ -1,4 +1,4 @@
-package org.complitex.osznconnection.file.service;
+package org.complitex.osznconnection.file.entity;
 
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.service.AbstractFilter;
@@ -19,8 +19,11 @@ public class RequestFileFilter extends AbstractFilter{
     private Date loaded;
     private String name;
     private Long organizationObjectId;
+    private Integer registry;
     private Integer year;
     private Integer month;
+    private String paymentName;
+    private String benefitName;
     private Integer dbfRecordCount;
     private Integer loadedRecordCount;
     private Integer bindedRecordCount;
@@ -61,6 +64,14 @@ public class RequestFileFilter extends AbstractFilter{
         this.organizationObjectId = organizationObjectId;
     }
 
+    public Integer getRegistry() {
+        return registry;
+    }
+
+    public void setRegistry(Integer registry) {
+        this.registry = registry;
+    }
+
     public Integer getYear() {
         return year;
     }
@@ -75,6 +86,22 @@ public class RequestFileFilter extends AbstractFilter{
 
     public void setMonth(Integer month) {
         this.month = month;
+    }
+
+    public String getPaymentName() {
+        return paymentName;
+    }
+
+    public void setPaymentName(String paymentName) {
+        this.paymentName = paymentName;
+    }
+
+    public String getBenefitName() {
+        return benefitName;
+    }
+
+    public void setBenefitName(String benefitName) {
+        this.benefitName = benefitName;
     }
 
     public Integer getDbfRecordCount() {

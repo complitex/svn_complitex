@@ -105,16 +105,16 @@
 
     <sql id="filter">
         <if test="account != null">
-            AND r.`OWN_NUM_SR` LIKE CONCAT('%',#{account},'%')
+            AND b.`OWN_NUM_SR` LIKE CONCAT('%',#{account},'%')
         </if>
         <if test="firstName != null">
-            AND r.`F_NAM` LIKE CONCAT('%',#{firstName},'%')
+            AND b.`F_NAM` LIKE CONCAT('%',#{firstName},'%')
         </if>
         <if test="middleName != null">
-            AND r.`M_NAM` LIKE CONCAT('%',#{middleName},'%')
+            AND b.`M_NAM` LIKE CONCAT('%',#{middleName},'%')
         </if>
         <if test="lastName != null">
-            AND r.`SUR_NAM` LIKE CONCAT('%',#{lastName},'%')
+            AND b.`SUR_NAM` LIKE CONCAT('%',#{lastName},'%')
         </if>
 
         <if test="city != null">
@@ -134,31 +134,36 @@
         </if>
 
         <if test="status != null">
-            AND r.`status` = #{status}
+            AND b.`status` = #{status}
         </if>
     </sql>
 
     <select id="count" resultType="int" parameterType="org.complitex.osznconnection.file.entity.example.BenefitExample">
-        SELECT COUNT(DISTINCT r.`id`) FROM `benefit` r
-        JOIN `request_file` rf ON r.`request_file_id` = rf.`id`
-        LEFT JOIN `payment` p ON r.`OWN_NUM_SR` = p.`OWN_NUM_SR`
-        LEFT JOIN `request_file` pf ON p.`request_file_id` = pf.`id`
-        WHERE (pf.`organization_object_id` IS NULL OR rf.`organization_object_id` = pf.`organization_object_id`) AND (pf.`date` IS NULL OR EXTRACT(YEAR_MONTH FROM rf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`))
-        AND r.`request_file_id` = #{requestFileId}
+        SELECT
+            COUNT(DISTINCT b.`id`)
+        FROM
+            `benefit` b
+            LEFT JOIN `request_file` bf ON b.`request_file_id` = bf.`id`
+            LEFT JOIN `payment` p ON b.`OWN_NUM_SR` = p.`OWN_NUM_SR`
+            LEFT JOIN `request_file` pf ON p.`request_file_id` = pf.`id`
+        WHERE
+            pf.`group_id` = bf.`group_id` AND b.`request_file_id` = #{requestFileId}
         <include refid="org.complitex.osznconnection.file.service.BenefitBean.filter"/>
     </select>
 
     <select id="find" resultMap="benefitResultMap"
             parameterType="org.complitex.osznconnection.file.entity.example.BenefitExample">
-        SELECT DISTINCT r.`id` id, r.`request_file_id`, r.`OWN_NUM_SR`, r.`F_NAM`, r.`M_NAM`, r.`SUR_NAM`,
-        r.`status`,
-        p.`N_NAME` city, p.`VUL_NAME` street, p.`BLD_NUM` building_number, p.`CORP_NUM` building_corp, p.`FLAT` apartment
-        FROM `benefit` r
-        JOIN `request_file` rf ON r.`request_file_id` = rf.`id`
-        LEFT JOIN `payment` p ON r.`OWN_NUM_SR` = p.`OWN_NUM_SR`
-        LEFT JOIN `request_file` pf ON p.`request_file_id` = pf.`id`
-        WHERE (pf.`organization_object_id` IS NULL OR rf.`organization_object_id` = pf.`organization_object_id`) AND (pf.`date` IS NULL OR EXTRACT(YEAR_MONTH FROM rf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`))
-        AND r.`request_file_id` = #{requestFileId}
+        SELECT
+            DISTINCT b.`id` id, b.`request_file_id`, b.`OWN_NUM_SR`, b.`F_NAM`, b.`M_NAM`, b.`SUR_NAM`, b.`status`,
+            p.`N_NAME` city, p.`VUL_NAME` street, p.`BLD_NUM` building_number, p.`CORP_NUM` building_corp,
+            p.`FLAT` apartment
+        FROM
+            `benefit` b
+            LEFT JOIN `request_file` bf ON b.`request_file_id` = bf.`id`
+            LEFT JOIN `payment` p ON b.`OWN_NUM_SR` = p.`OWN_NUM_SR`
+            LEFT JOIN `request_file` pf ON p.`request_file_id` = pf.`id`
+        WHERE
+            pf.`group_id` = bf.`group_id` AND b.`request_file_id` = #{requestFileId}
         <include refid="org.complitex.osznconnection.file.service.BenefitBean.filter"/>
         <if test="orderByClause != null">
             ORDER BY ${orderByClause}
@@ -177,8 +182,8 @@
     </select>
 
     <select id="countByFile" resultType="int" parameterType="hashmap">
-        SELECT COUNT(*) FROM `benefit` r
-        WHERE r.`request_file_id` = #{requestFileId} AND r.`status` IN
+        SELECT COUNT(*) FROM `benefit` b
+        WHERE b.`request_file_id` = #{requestFileId} AND b.`status` IN
         <foreach collection="statuses" item="status" open="(" close=")" separator=",">
             #{status}
         </foreach>
@@ -186,9 +191,10 @@
 
     <update id="updateStatusForFile" parameterType="hashmap">
         UPDATE `benefit` b SET b.`status` =
-        CASE IFNULL((SELECT DISTINCT p.`status` FROM `payment` p, `request_file` bf, `request_file` pf
-                WHERE (b.`OWN_NUM_SR` = p.`OWN_NUM_SR`) AND (bf.`id` = b.request_file_id) AND (pf.`id` = p.`request_file_id`) AND
-                (bf.`organization_object_id` = pf.`organization_object_id`) AND (EXTRACT(YEAR_MONTH FROM bf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`))),
+        CASE IFNULL(
+            (SELECT DISTINCT p.`status` FROM `payment` p, `request_file` bf, `request_file` pf
+                WHERE b.`OWN_NUM_SR` = p.`OWN_NUM_SR` AND bf.`id` = b.request_file_id AND pf.`id` = p.`request_file_id`
+                    AND bf.`group_id` = pf.`group_id`),
                '-1')
             WHEN '-1' THEN b.`status`
             <foreach collection="statuses" item="status">
@@ -200,11 +206,9 @@
     </update>
 
     <sql id="updateByOWN_NUM_SR">
-        WHERE b.`OWN_NUM_SR` = (SELECT DISTINCT p.`OWN_NUM_SR`
-        FROM `payment` p, `request_file` pf, `request_file` bf
-        WHERE (p.`request_file_id` = pf.`id`) AND (b.`request_file_id` = bf.`id`) AND (p.`id` = #{paymentId}) AND
-        (bf.`organization_object_id` = pf.`organization_object_id`) AND (EXTRACT(YEAR_MONTH FROM bf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`))
-        )
+        WHERE b.`OWN_NUM_SR` = (SELECT DISTINCT p.`OWN_NUM_SR` FROM `payment` p, `request_file` pf, `request_file` bf
+            WHERE p.`request_file_id` = pf.`id` AND b.`request_file_id` = bf.`id` AND p.`id` = #{paymentId}
+                AND bf.`group_id` = pf.`group_id`)
     </sql>
 
     <update id="addressCorrected" parameterType="_long">
@@ -229,7 +233,7 @@
         JOIN `request_file` pf ON p.`request_file_id` = pf.`id`
         JOIN `benefit` b ON b.`OWN_NUM_SR` = p.`OWN_NUM_SR`
         JOIN `request_file` bf ON bf.`id` = b.`request_file_id`
-        WHERE (bf.`organization_object_id` = pf.`organization_object_id`) AND (EXTRACT(YEAR_MONTH FROM bf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`))
+        WHERE bf.`group_id` = pf.`group_id`
         AND p.`FROG` > 0
         AND bf.`id` = #{fileId} AND p.`account_number` = #{accountNumber}
     </select>
@@ -239,7 +243,7 @@
         JOIN `request_file` pf ON p.`request_file_id` = pf.`id`
         JOIN `benefit` b ON b.`OWN_NUM_SR` = p.`OWN_NUM_SR`
         JOIN `request_file` bf ON bf.`id` = b.`request_file_id`
-        WHERE (bf.`organization_object_id` = pf.`organization_object_id`) AND (EXTRACT(YEAR_MONTH FROM bf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`))
+        WHERE (bf.`organization_id` = pf.`organization_id`) AND (EXTRACT(YEAR_MONTH FROM bf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`))
         AND bf.`id` = #{fileId}) -
         (SELECT COUNT(*) FROM `benefit` b
         JOIN `request_file` bf ON bf.`id` = b.`request_file_id`
@@ -255,7 +259,7 @@
     </select>
 
     <select id="findByAccountNumber" parameterType="hashmap" resultMap="benefitResultMap">
-        SELECT b.`id`, b.`status`, b.`account_number`, bf.`organization_object_id` organization_id,
+        SELECT b.`id`, b.`status`, b.`account_number`, bf.`organization_id` organization_id,
         b.`request_file_id`,
         b.`IND_COD`,
         b.`PSP_NUM`,

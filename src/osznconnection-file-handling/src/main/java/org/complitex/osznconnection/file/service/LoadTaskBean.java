@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.*;
 import java.io.FileInputStream;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -78,12 +77,6 @@ public class  LoadTaskBean {
             requestFile.setLoaded(DateUtil.getCurrentDate());
             requestFile.setStatus(LOADING);
 
-            try {
-                requestFileBean.save(requestFile);
-            } catch (Exception e) {
-                throw new SqlSessionException(e);
-            }
-
             List<String> fieldIndex = new ArrayList<String>();
 
             for(int i = 0; i < reader.getFieldCount(); i++) {
@@ -99,14 +92,10 @@ public class  LoadTaskBean {
 
             List<AbstractRequest> batch = new ArrayList<AbstractRequest>();
 
+            int index = 0;
+
             while((rowObjects = reader.nextRecord()) != null) {
-                AbstractRequest r = createObject(requestFile.getType());
-
-                r.setRequestFileId(requestFile.getId());
-                r.setOrganizationId(requestFile.getOrganizationObjectId());
-                r.setStatus(Status.CITY_UNRESOLVED_LOCALLY);
-
-                batch.add(r);
+                AbstractRequest request = createObject(requestFile.getType());
 
                 //Заполнение колонок записи
                 for (int i=0; i < rowObjects.length; ++i) {
@@ -117,8 +106,27 @@ public class  LoadTaskBean {
                     }
 
                     DBFField field = reader.getField(i);
-                    r.setField(field.getName(), value, getType(field.getDataType(), field.getDecimalCount()));
+                    request.setField(field.getName(), value, getType(field.getDataType(), field.getDecimalCount()));
                 }
+
+                //Установка номера реестра и сохранение
+                if (index++ == 0){
+                    Integer registry = (Integer) request.getDbfFields().get(PaymentDBF.REE_NUM.name());
+                    if (registry != null){
+                        try {
+                            requestFile.setRegistry(registry);
+                            requestFileBean.save(requestFile);
+                        } catch (Exception e) {
+                            throw new SqlSessionException(e);
+                        }
+                    }
+                }                
+
+                request.setRequestFileId(requestFile.getId());
+                request.setOrganizationId(requestFile.getOrganizationId());
+                request.setStatus(Status.CITY_UNRESOLVED_LOCALLY);
+
+                batch.add(request);
 
                 //Сохранение
                 if (batch.size() > BATCH_SIZE){

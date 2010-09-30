@@ -51,11 +51,11 @@ public class FileHandlingTemplateMenu extends ResourceTemplateMenu {
         links.add(new ITemplateLink(){
             @Override
             public String getLabel(Locale locale) {
-                return getString(FileHandlingTemplateMenu.class, locale, "request_file_list");
+                return getString(FileHandlingTemplateMenu.class, locale, "request_file_group_list");
             }
             @Override
             public Class<? extends Page> getPage() {
-                return RequestFileList.class;
+                return RequestFileGroupList.class;
             }
 
             @Override
@@ -65,7 +65,7 @@ public class FileHandlingTemplateMenu extends ResourceTemplateMenu {
 
             @Override
             public String getTagId() {
-                return "RequestFileList";
+                return "RequestFileGroupList";
             }
         });
 

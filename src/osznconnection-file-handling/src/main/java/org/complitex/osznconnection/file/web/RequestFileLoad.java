@@ -95,17 +95,13 @@ public class RequestFileLoad extends FormTemplatePage {
                 if (!loadRequestBean.isProcessing()) {
                     DomainObject oszn = organizationModel.getObject();
                     loadRequestBean.load(oszn.getId(), organizationStrategy.getDistrictCode(oszn), f, t,
-                            year.getModelObject(), new ArrayList<RequestFile.TYPE>(){
-                                {
-                                    add(RequestFile.TYPE.PAYMENT);
-                                    add(RequestFile.TYPE.BENEFIT);
-                                }});
+                            year.getModelObject());
                     getSession().info(getString("info.start_loading"));
                 } else {
                     getSession().error(getString("error.loading_in_progress"));
                 }
 
-                setResponsePage(RequestFileList.class);
+                setResponsePage(RequestFileGroupList.class);
             }
         };
         form.add(load);
@@ -125,11 +121,8 @@ public class RequestFileLoad extends FormTemplatePage {
 
                 if (!loadRequestBean.isProcessing()) {
                     DomainObject oszn = organizationModel.getObject();
-                    loadRequestBean.load(oszn.getId(), organizationStrategy.getDistrictCode(oszn), f, t,
-                            year.getModelObject(), new ArrayList<RequestFile.TYPE>(){
-                                {
-                                    add(RequestFile.TYPE.TARIF);
-                                }});
+                    loadRequestBean.loadTarif(oszn.getId(), organizationStrategy.getDistrictCode(oszn), f, t,
+                            year.getModelObject());
                     getSession().info(getString("info.start_loading"));
                 } else {
                     getSession().error(getString("error.loading_in_progress"));

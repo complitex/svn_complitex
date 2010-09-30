@@ -75,7 +75,7 @@ public class SaveRequestBean extends AbstractProcessBean{
         try {
             //устанавливаем абсолютный путь для сохранения файла запроса
             for (RequestFile requestFile : requestFiles){
-                String districtCode = organizationStrategy.getDistrictCode(requestFile.getOrganizationObjectId());
+                String districtCode = organizationStrategy.getDistrictCode(requestFile.getOrganizationId());
 
                 File file = RequestFileStorage.getInstance().createOutputFile(requestFile.getName(), districtCode);
                 requestFile.setAbsolutePath(file.getAbsolutePath());

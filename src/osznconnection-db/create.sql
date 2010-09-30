@@ -102,7 +102,7 @@ CREATE TABLE `entity_attribute_value_type` (
 DROP TABLE IF EXISTS `apartment`;
 
 CREATE TABLE `apartment` (
-  `id` BIGINT(20) NOT NULL AUTO_INCREMENT,  
+  `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `object_id` BIGINT(20) NOT NULL,
   `parent_id` BIGINT(20),
   `parent_entity_id` BIGINT(20),
@@ -110,7 +110,7 @@ CREATE TABLE `apartment` (
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `end_date` TIMESTAMP NULL DEFAULT NULL,
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`pk_id`),
   UNIQUE KEY `unique_object_id__start_date` (`object_id`,`start_date`),
   KEY `key_object_id` (object_id),
   KEY `key_parent_id` (`parent_id`),
@@ -126,7 +126,7 @@ CREATE TABLE `apartment` (
 DROP TABLE IF EXISTS `apartment_attribute`;
 
 CREATE TABLE `apartment_attribute` (
-  `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `attribute_id` BIGINT(20) NOT NULL,
   `object_id` BIGINT(20) NOT NULL,
   `attribute_type_id` BIGINT(20) NOT NULL,
@@ -135,7 +135,7 @@ CREATE TABLE `apartment_attribute` (
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `end_date` TIMESTAMP NULL DEFAULT NULL,
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`pk_id`),
   UNIQUE KEY `unique_id` (`attribute_id`,`object_id`,`attribute_type_id`, `start_date`),
   KEY `key_object_id` (`object_id`),
   KEY `key_attribute_type_id` (`attribute_type_id`),
@@ -171,7 +171,7 @@ CREATE TABLE `apartment_string_culture` (
 DROP TABLE IF EXISTS `room`;
 
 CREATE TABLE `room` (
-  `id` BIGINT(20) NOT NULL AUTO_INCREMENT,  
+  `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `object_id` BIGINT(20) NOT NULL,
   `parent_id` BIGINT(20),
   `parent_entity_id` BIGINT(20),
@@ -179,7 +179,7 @@ CREATE TABLE `room` (
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `end_date` TIMESTAMP NULL DEFAULT NULL,
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY  (`pk_id`),
   UNIQUE KEY `unique_object_id__start_date` (`object_id`,`start_date`),
   KEY `key_object_id` (`object_id`),
   KEY `key_parent_entity_id` (`parent_entity_id`),
@@ -194,7 +194,7 @@ CREATE TABLE `room` (
 DROP TABLE IF EXISTS `room_attribute`;
 
 CREATE TABLE `room_attribute` (
-  `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `attribute_id` BIGINT(20) NOT NULL,
   `object_id` BIGINT(20) NOT NULL,
   `attribute_type_id` BIGINT(20) NOT NULL,
@@ -203,7 +203,7 @@ CREATE TABLE `room_attribute` (
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `end_date` TIMESTAMP NULL DEFAULT NULL,
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY  (`pk_id`),
   UNIQUE KEY `unique_id` (`attribute_id`,`object_id`,`attribute_type_id`, `start_date`),
   KEY `key_object_id` (`object_id`),
   KEY `key_attribute_type_id` (`attribute_type_id`),
@@ -239,7 +239,7 @@ CREATE TABLE `room_string_culture` (
 DROP TABLE IF EXISTS `street`;
 
 CREATE TABLE `street` (
-  `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `object_id` BIGINT(20) NOT NULL,
   `parent_id` BIGINT(20),
   `parent_entity_id` BIGINT(20),
@@ -247,7 +247,7 @@ CREATE TABLE `street` (
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `end_date` TIMESTAMP NULL DEFAULT NULL,
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY  (`pk_id`),
   UNIQUE KEY `unique_object_id__start_date` (`object_id`,`start_date`),
   KEY `key_object_id` (`object_id`),
   KEY `key_parent_id` (`parent_id`),
@@ -263,7 +263,7 @@ CREATE TABLE `street` (
 DROP TABLE IF EXISTS `street_attribute`;
 
 CREATE TABLE `street_attribute` (
-  `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `attribute_id` BIGINT(20) NOT NULL,
   `object_id` BIGINT(20) NOT NULL,
   `attribute_type_id` BIGINT(20) NOT NULL,
@@ -272,7 +272,7 @@ CREATE TABLE `street_attribute` (
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `end_date` TIMESTAMP NULL DEFAULT NULL,
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY  (`pk_id`),
   UNIQUE KEY `unique_id` (`attribute_id`,`object_id`,`attribute_type_id`, `start_date`),
   KEY `key_object_id` (`object_id`),
   KEY `key_attribute_type_id` (`attribute_type_id`),
@@ -308,7 +308,7 @@ CREATE TABLE `street_string_culture` (
 DROP TABLE IF EXISTS `city`;
 
 CREATE TABLE `city` (
-  `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `object_id` BIGINT(20) NOT NULL,
   `parent_id` BIGINT(20),
   `parent_entity_id` BIGINT(20),
@@ -316,7 +316,7 @@ CREATE TABLE `city` (
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `end_date` TIMESTAMP NULL DEFAULT NULL,
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`pk_id`),
   UNIQUE KEY `unique_object_id__start_date` (`object_id`,`start_date`),
   KEY `key_object_id` (`object_id`),  
   KEY `key_parent_id` (`parent_id`),
@@ -332,7 +332,7 @@ CREATE TABLE `city` (
 DROP TABLE IF EXISTS `city_attribute`;
 
 CREATE TABLE `city_attribute` (
-  `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `attribute_id` BIGINT(20) NOT NULL,
   `object_id` BIGINT(20) NOT NULL,
   `attribute_type_id` BIGINT(20) NOT NULL,
@@ -341,7 +341,7 @@ CREATE TABLE `city_attribute` (
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `end_date` TIMESTAMP NULL DEFAULT NULL,
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY  (`pk_id`),
   UNIQUE KEY `unique_id` (`attribute_id`,`object_id`,`attribute_type_id`, `start_date`),
   KEY `key_object_id` (`object_id`),
   KEY `key_attribute_type_id` (`attribute_type_id`),
@@ -377,7 +377,7 @@ CREATE TABLE `city_string_culture` (
 DROP TABLE IF EXISTS `building`;
 
 CREATE TABLE `building` (
-  `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `object_id` BIGINT(20) NOT NULL,
   `parent_id` BIGINT(20),
   `parent_entity_id` BIGINT(20),
@@ -385,7 +385,7 @@ CREATE TABLE `building` (
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `end_date` TIMESTAMP NULL DEFAULT NULL,
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY  (`pk_id`),
   UNIQUE KEY `unique_object_id__start_date` (`object_id`,`start_date`),
   KEY `key_object_id` (`object_id`),
   KEY `key_parent_id` (`parent_id`),
@@ -401,7 +401,7 @@ CREATE TABLE `building` (
 DROP TABLE IF EXISTS `building_attribute`;
 
 CREATE TABLE `building_attribute` (
-  `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `attribute_id` BIGINT(20) NOT NULL,
   `object_id` BIGINT(20) NOT NULL,
   `attribute_type_id` BIGINT(20) NOT NULL,
@@ -410,7 +410,7 @@ CREATE TABLE `building_attribute` (
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `end_date` TIMESTAMP NULL DEFAULT NULL,
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY  (`pk_id`),
   UNIQUE KEY `unique_id` (`attribute_id`,`object_id`,`attribute_type_id`, `start_date`),
   KEY `key_object_id` (`object_id`),
   KEY `key_attribute_type_id` (`attribute_type_id`),
@@ -446,7 +446,7 @@ CREATE TABLE `building_string_culture` (
 DROP TABLE IF EXISTS `district`;
 
 CREATE TABLE `district` (
-  `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `object_id` BIGINT(20) NOT NULL,
   `parent_id` BIGINT(20),
   `parent_entity_id` BIGINT(20),
@@ -454,7 +454,7 @@ CREATE TABLE `district` (
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `end_date` TIMESTAMP NULL DEFAULT NULL,
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY  (`pk_id`),
   UNIQUE KEY `unique_object_id__start_date` (`object_id`,`start_date`),
   KEY `key_object_id` (`object_id`),
   KEY `key_parent_id` (`parent_id`),
@@ -470,7 +470,7 @@ CREATE TABLE `district` (
 DROP TABLE IF EXISTS `district_attribute`;
 
 CREATE TABLE `district_attribute` (
-  `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `attribute_id` BIGINT(20) NOT NULL,
   `object_id` BIGINT(20) NOT NULL,
   `attribute_type_id` BIGINT(20) NOT NULL,
@@ -479,7 +479,7 @@ CREATE TABLE `district_attribute` (
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `end_date` TIMESTAMP NULL DEFAULT NULL,
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY  (`pk_id`),
   UNIQUE KEY `unique_id` (`attribute_id`,`object_id`,`attribute_type_id`, `start_date`),
   KEY `key_object_id` (`object_id`),
   KEY `key_attribute_type_id` (`attribute_type_id`),
@@ -515,7 +515,7 @@ CREATE TABLE `district_string_culture` (
 DROP TABLE IF EXISTS `region`;
 
 CREATE TABLE `region` (
-  `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `object_id` BIGINT(20) NOT NULL,
   `parent_id` BIGINT(20),
   `parent_entity_id` BIGINT(20),
@@ -523,7 +523,7 @@ CREATE TABLE `region` (
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `end_date` TIMESTAMP NULL DEFAULT NULL,
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY  (`pk_id`),
   UNIQUE KEY `unique_object_id__start_date` (`object_id`,`start_date`),
   KEY `key_object_id` (`object_id`),  
   KEY `key_parent_id` (`parent_id`),
@@ -539,7 +539,7 @@ CREATE TABLE `region` (
 DROP TABLE IF EXISTS `region_attribute`;
 
 CREATE TABLE `region_attribute` (
-  `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `attribute_id` BIGINT(20) NOT NULL,
   `object_id` BIGINT(20) NOT NULL,
   `attribute_type_id` BIGINT(20) NOT NULL,
@@ -548,7 +548,7 @@ CREATE TABLE `region_attribute` (
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `end_date` TIMESTAMP NULL DEFAULT NULL,
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY  (`pk_id`),
   UNIQUE KEY `unique_id` (`attribute_id`,`object_id`,`attribute_type_id`, `start_date`),
   KEY `key_object_id` (`object_id`),
   KEY `key_attribute_type_id` (`attribute_type_id`),
@@ -584,7 +584,7 @@ CREATE TABLE `region_string_culture` (
 DROP TABLE IF EXISTS `country`;
 
 CREATE TABLE `country` (
-  `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `object_id` BIGINT(20) NOT NULL,
   `parent_id` BIGINT(20),
   `parent_entity_id` BIGINT(20),
@@ -592,7 +592,7 @@ CREATE TABLE `country` (
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `end_date` TIMESTAMP NULL DEFAULT NULL,
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY  (`pk_id`),
   UNIQUE KEY `unique_object_id__start_date` (`object_id`,`start_date`),
   KEY `key_object_id` (`object_id`),  
   KEY `key_parent_id` (`parent_id`),
@@ -608,7 +608,7 @@ CREATE TABLE `country` (
 DROP TABLE IF EXISTS `country_attribute`;
 
 CREATE TABLE `country_attribute` (
-  `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `attribute_id` BIGINT(20) NOT NULL,
   `object_id` BIGINT(20) NOT NULL,
   `attribute_type_id` BIGINT(20) NOT NULL,
@@ -617,7 +617,7 @@ CREATE TABLE `country_attribute` (
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `end_date` TIMESTAMP NULL DEFAULT NULL,
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY  (`pk_id`),
   UNIQUE KEY `unique_id` (`attribute_id`,`object_id`,`attribute_type_id`, `start_date`),
   KEY `key_object_id` (`object_id`),
   KEY `key_attribute_type_id` (`attribute_type_id`),
@@ -653,7 +653,7 @@ CREATE TABLE `country_string_culture` (
 DROP TABLE IF EXISTS `organization`;
 
 CREATE TABLE `organization` (
-  `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `object_id` BIGINT(20) NOT NULL,
   `parent_id` BIGINT(20),
   `parent_entity_id` BIGINT(20),
@@ -661,7 +661,7 @@ CREATE TABLE `organization` (
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `end_date` TIMESTAMP NULL DEFAULT NULL,
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY  (`pk_id`),
   UNIQUE KEY `unique_object_id__start_date` (`object_id`,`start_date`),
   KEY `key_object_id` (`object_id`),  
   KEY `key_parent_id` (`parent_id`),
@@ -677,7 +677,7 @@ CREATE TABLE `organization` (
 DROP TABLE IF EXISTS `organization_attribute`;
 
 CREATE TABLE `organization_attribute` (
-  `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `attribute_id` BIGINT(20) NOT NULL,
   `object_id` BIGINT(20) NOT NULL,
   `attribute_type_id` BIGINT(20) NOT NULL,
@@ -686,7 +686,7 @@ CREATE TABLE `organization_attribute` (
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `end_date` TIMESTAMP NULL DEFAULT NULL,
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY  (`pk_id`),
   UNIQUE KEY `unique_id` (`attribute_id`,`object_id`,`attribute_type_id`, `start_date`),
   KEY `key_object_id` (`object_id`),
   KEY `key_attribute_type_id` (`attribute_type_id`),
@@ -722,7 +722,7 @@ CREATE TABLE `organization_string_culture` (
 DROP TABLE IF EXISTS `ownership`;
 
 CREATE TABLE `ownership` (
-  `id` bigint(20) NOT NULL auto_increment,
+  `pk_id` bigint(20) NOT NULL auto_increment,
   `object_id` bigint(20) NOT NULL,
   `parent_id` bigint(20),
   `parent_entity_id` bigint(20),
@@ -730,7 +730,7 @@ CREATE TABLE `ownership` (
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `end_date` TIMESTAMP NULL DEFAULT NULL,
   `status` varchar(20) NOT NULL default 'ACTIVE',
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY  (`pk_id`),
   UNIQUE KEY `unique_object_id__start_date` (`object_id`,`start_date`),
   KEY `key_object_id` (`object_id`),  
   KEY `key_parent_id` (`parent_id`),
@@ -746,7 +746,7 @@ CREATE TABLE `ownership` (
 DROP TABLE IF EXISTS `ownership_attribute`;
 
 CREATE TABLE `ownership_attribute` (
-  `id` bigint(20) NOT NULL auto_increment,
+  `pk_id` bigint(20) NOT NULL auto_increment,
   `attribute_id` bigint(20) NOT NULL,
   `object_id` bigint(20) NOT NULL,
   `attribute_type_id` bigint(20) NOT NULL,
@@ -755,7 +755,7 @@ CREATE TABLE `ownership_attribute` (
   `start_date` TIMESTAMP NOT NULL default CURRENT_TIMESTAMP,
   `end_date` TIMESTAMP NULL default NULL,
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY  (`pk_id`),
   UNIQUE KEY `unique_id` (`attribute_id`,`object_id`,`attribute_type_id`, `start_date`),
   KEY `key_object_id` (`object_id`),
   KEY `key_attribute_type_id` (`attribute_type_id`),
@@ -791,7 +791,7 @@ CREATE TABLE `ownership_string_culture` (
 DROP TABLE IF EXISTS `privilege`;
 
 CREATE TABLE `privilege` (
-  `id` bigint(20) NOT NULL auto_increment,
+  `pk_id` bigint(20) NOT NULL auto_increment,
   `object_id` bigint(20) NOT NULL,
   `parent_id` bigint(20),
   `parent_entity_id` bigint(20),
@@ -799,7 +799,7 @@ CREATE TABLE `privilege` (
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `end_date` TIMESTAMP NULL DEFAULT NULL,
   `status` varchar(20) NOT NULL default 'ACTIVE',
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY  (`pk_id`),
   UNIQUE KEY `unique_object_id__start_date` (`object_id`,`start_date`),
   KEY `key_object_id` (`object_id`),
   KEY `key_parent_id` (`parent_id`),
@@ -815,7 +815,7 @@ CREATE TABLE `privilege` (
 DROP TABLE IF EXISTS `privilege_attribute`;
 
 CREATE TABLE `privilege_attribute` (
-  `id` bigint(20) NOT NULL auto_increment,
+  `pk_id` bigint(20) NOT NULL auto_increment,
   `attribute_id` bigint(20) NOT NULL,
   `object_id` bigint(20) NOT NULL,
   `attribute_type_id` bigint(20) NOT NULL,
@@ -824,7 +824,7 @@ CREATE TABLE `privilege_attribute` (
   `start_date` TIMESTAMP NOT NULL default CURRENT_TIMESTAMP,
   `end_date` TIMESTAMP NULL default NULL,
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY  (`pk_id`),
   UNIQUE KEY `unique_id` (`attribute_id`,`object_id`,`attribute_type_id`, `start_date`),
   KEY `key_object_id` (`object_id`),
   KEY `key_attribute_type_id` (`attribute_type_id`),
@@ -860,7 +860,7 @@ CREATE TABLE `privilege_string_culture` (
 DROP TABLE IF EXISTS `user_info`;
 
 CREATE TABLE `user_info` (
-  `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `object_id` BIGINT(20) NOT NULL,
   `parent_id` BIGINT(20),
   `parent_entity_id` BIGINT(20),
@@ -868,7 +868,7 @@ CREATE TABLE `user_info` (
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `end_date` TIMESTAMP NULL DEFAULT NULL,
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY  (`pk_id`),
   UNIQUE KEY `unique_object_id__start_date` (`object_id`,`start_date`),
   KEY `key_object_id` (`object_id`),  
   KEY `key_parent_id` (`parent_id`),
@@ -884,7 +884,7 @@ CREATE TABLE `user_info` (
 DROP TABLE IF EXISTS `user_info_attribute`;
 
 CREATE TABLE `user_info_attribute` (
-  `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `attribute_id` BIGINT(20) NOT NULL,
   `object_id` BIGINT(20) NOT NULL,
   `attribute_type_id` BIGINT(20) NOT NULL,
@@ -893,7 +893,7 @@ CREATE TABLE `user_info_attribute` (
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `end_date` TIMESTAMP NULL DEFAULT NULL,
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY  (`pk_id`),
   UNIQUE KEY `unique_id` (`attribute_id`,`object_id`,`attribute_type_id`, `start_date`),
   KEY `key_object_id` (`object_id`),
   KEY `key_attribute_type_id` (`attribute_type_id`),
@@ -1001,23 +1001,53 @@ CREATE TABLE `log_change` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
--- request_file  --
+-- ------------------------------
+-- Request File
+-- ------------------------------
+DROP TABLE IF EXISTS `request_file_group`;
+
+CREATE TABLE `request_file_group` (
+    `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+    `created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+-- ------------------------------
+-- Request File
+-- ------------------------------
 DROP TABLE IF EXISTS `request_file`;
 
 CREATE TABLE `request_file` (
     `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+    `group_id` BIGINT(20),
     `loaded` DATETIME NOT NULL,
     `name` VARCHAR(20) NOT NULL,
-    `organization_object_id` BIGINT(20) NOT NULL,
-    `date` DATE NOT NULL,
+    `organization_id` BIGINT(20) NOT NULL,
+    `registry` INT(2) NOT NULL,
+    `month` INT(2) NOT NULL,
+    `year` INT(4) NOT NULL,
     `dbf_record_count` BIGINT(20) NOT NULL DEFAULT 0,
     `length` BIGINT(20),
-    `check_sum` VARCHAR(32),      
+    `check_sum` VARCHAR(32),
+    `type` VARCHAR(50),
     `status` VARCHAR(50),
     `status_detail` VARCHAR(50),
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_id` (`name`, `organization_id`, `registry`, `month`, `year`), 
+    KEY `key_group_id` (`group_id`),
+    KEY `key_loaded` (`loaded`),
+    KEY `key_name` (`name`),
+    KEY `key_organization_id` (`organization_id`),
+    KEY `key_registry` (`registry`),
+    KEY `key_month` (`month`),
+    KEY `key_year` (`year`) ,
+    KEY `key_type` (`type`) ,
+    KEY `key_status` (`status`) ,
+    KEY `key_status_detail` (`status_detail`),
+    CONSTRAINT `fk_request_file__request_file_group` FOREIGN KEY (`group_id`) REFERENCES `request_file_group` (`id`),
+    CONSTRAINT `fk_request_file__organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 
 -- ------------------------------
 -- Payment

@@ -136,10 +136,10 @@ insert into organization_attribute(attribute_id, object_id, attribute_type_id, v
 (1,2,900,3,900), (1,2,901,4,902), (1,2,902,null,902);
 
 -- Files
-insert into `request_file`(id, organization_object_id, `name`, `date`, `loaded`, status) values
-(1,1,'A_123405.dbf', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'LOADED'),
-(2,1,'AF123405.dbf', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'LOADED'),
-(3,1,'TARIF12.dbf', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'LOADED');
+insert into `request_file`(id, organization_id, `name`, `registry`, `month`, `year`, `loaded`, status) values
+(1,1,'A_123405.dbf', 1, 10, 2010, CURRENT_TIMESTAMP, 'LOADED'),
+(2,1,'AF123405.dbf', 1, 10, 2010, CURRENT_TIMESTAMP, 'LOADED'),
+(3,1,'TARIF12.dbf', 1, 10, 2010, CURRENT_TIMESTAMP, 'LOADED');
 
 -- Payments
 insert into payment(own_num_sr, f_nam, m_nam, sur_nam, n_name, vul_name, bld_num, corp_num, flat, DAT1, request_file_id)

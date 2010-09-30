@@ -3,6 +3,7 @@ package org.complitex.osznconnection.file.service;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.entity.RequestFile;
+import org.complitex.osznconnection.file.entity.RequestFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

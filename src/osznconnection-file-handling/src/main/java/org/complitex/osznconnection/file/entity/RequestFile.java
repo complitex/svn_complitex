@@ -21,7 +21,8 @@ public class RequestFile implements Serializable {
     }
 
     public static enum STATUS_DETAIL {
-        FIELD_NOT_FOUND, FIELD_WRONG_TYPE, ALREADY_LOADED, CANCEL_LOADING, SQL_SESSION, DBF, CRITICAL, CANCEL_SAVING
+        FIELD_NOT_FOUND, FIELD_WRONG_TYPE, ALREADY_LOADED, CANCEL_LOADING, SQL_SESSION, DBF, CRITICAL, CANCEL_SAVING,
+        LINKED_FILE_NOT_FOUND
     }
 
     public static enum TYPE {
@@ -33,13 +34,17 @@ public class RequestFile implements Serializable {
     public final static String TARIF_FILE_PREFIX = "TARIF";
 
     private Long id;
+    private Long groupId;
     private Date loaded;
     private String name;
-    private Long organizationObjectId;
-    private Date date;
+    private Long organizationId;
+    private int registry;
+    private int month;
+    private int year;
     private Integer dbfRecordCount;
     private Long length;
     private String checkSum;
+    private TYPE type;
     private STATUS status = STATUS.NEW;
     private STATUS_DETAIL statusDetail;
 
@@ -48,25 +53,23 @@ public class RequestFile implements Serializable {
     private String absolutePath;
 
     public boolean isPayment() {
-        return getType().equals(TYPE.PAYMENT);
+        return TYPE.PAYMENT.equals(type);
     }
 
     public boolean isBenefit() {
-        return getType().equals(TYPE.BENEFIT);
+        return TYPE.BENEFIT.equals(type);
     }
 
-    public TYPE getType() {
+    public void updateTypeByName() {
         if (name != null && name.length() > 2) {
             if (name.indexOf(BENEFIT_FILE_PREFIX) == 0){
-                return TYPE.BENEFIT;
+                type =  TYPE.BENEFIT;
             }else if (name.indexOf(PAYMENT_FILE_PREFIX) == 0){
-                return TYPE.PAYMENT;
+                type = TYPE.PAYMENT;
             }else if (name.indexOf(TARIF_FILE_PREFIX) == 0){
-                return TYPE.TARIF;               
+                type = TYPE.TARIF;
             }
         }
-
-        return null;
     }
 
     public boolean isProcessing() {
@@ -87,8 +90,9 @@ public class RequestFile implements Serializable {
         logChangeList.add("id", getId())
                 .add("loaded", getLoaded())
                 .add("name", getName())
-                .add("organizationObjectId", getOrganizationObjectId())
-                .add("date", getDate())
+                .add("organizationId", getOrganizationId())
+                .add("month", getMonth())
+                .add("year", getYear())
                 .add("dbfRecordCount", getDbfRecordCount())
                 .add("length", getLength())
                 .add("checkSum", getCheckSum())
@@ -104,6 +108,14 @@ public class RequestFile implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(Long groupId) {
+        this.groupId = groupId;
     }
 
     public Date getLoaded() {
@@ -122,20 +134,36 @@ public class RequestFile implements Serializable {
         this.name = name;
     }
 
-    public Long getOrganizationObjectId() {
-        return organizationObjectId;
+    public Long getOrganizationId() {
+        return organizationId;
     }
 
-    public void setOrganizationObjectId(Long organizationObjectId) {
-        this.organizationObjectId = organizationObjectId;
+    public void setOrganizationId(Long organizationId) {
+        this.organizationId = organizationId;
     }
 
-    public Date getDate() {
-        return date;
+    public int getRegistry() {
+        return registry;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setRegistry(int registry) {
+        this.registry = registry;
+    }
+
+    public int getMonth() {
+        return month;
+    }
+
+    public void setMonth(int month) {
+        this.month = month;
+    }
+
+    public int getYear() {
+        return year;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
     }
 
     public Integer getDbfRecordCount() {
@@ -168,6 +196,14 @@ public class RequestFile implements Serializable {
 
     public void setStatus(STATUS status) {
         this.status = status;
+    }
+
+    public TYPE getType() {
+        return type;
+    }
+
+    public void setType(TYPE type) {
+        this.type = type;
     }
 
     public STATUS_DETAIL getStatusDetail() {

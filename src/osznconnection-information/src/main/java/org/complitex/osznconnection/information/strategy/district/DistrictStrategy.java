@@ -37,7 +37,7 @@ import java.util.NoSuchElementException;
  *
  * @author Artem
  */
-@Stateless
+@Stateless(name = "DistrictStrategy")
 public class DistrictStrategy extends Strategy {
 
     @EJB(beanName = "StringCultureBean")
