@@ -52,10 +52,10 @@ public class ProcessingRequestBean extends AbstractBean {
         Benefit benefit = new Benefit();
         Status oldStatus = payment.getStatus();
         adapter.processPaymentAndBenefit(payment, benefit, calculationCenterId);
-        if (payment.getStatus() != oldStatus) {
+//        if (payment.getStatus() != oldStatus) {
             paymentBean.update(payment);
             benefitBean.populateBenefit(payment.getId(), benefit);
-        }
+//        }
     }
 
     public void processPayment(RequestFile paymentFile) {
@@ -138,9 +138,9 @@ public class ProcessingRequestBean extends AbstractBean {
                     }
                     for (Benefit benefit : benefits) {
                         Status oldStatus = statuses.get(benefit.getId());
-                        if (oldStatus != benefit.getStatus()) {
+//                        if (oldStatus != benefit.getStatus()) {
                             benefitBean.update(benefit);
-                        }
+//                        }
                     }
                 }
             }

@@ -69,9 +69,9 @@ public class BindingRequestBean extends AbstractBean {
             }
         }
 
-        if (oldStatus != payment.getStatus()) {
+//        if (oldStatus != payment.getStatus()) {
             paymentBean.update(payment);
-        }
+//        }
     }
 
     public void bindPaymentFile(RequestFile paymentFile) {
