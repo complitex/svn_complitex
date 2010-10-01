@@ -136,7 +136,7 @@ insert into organization_attribute(attribute_id, object_id, attribute_type_id, v
 (1,2,900,3,900), (1,2,901,4,902), (1,2,902,null,902);
 
 -- Files
-insert into request_file_group(id) values (1),(2);
+insert into request_file_group(id) values (1);
 insert into `request_file`(id, group_id, organization_id, `name`, `registry`, `month`, `year`, `loaded`, status, `type`) values
 (1,1,1,'A_123405.dbf', 1, 10, 2010, CURRENT_TIMESTAMP, 'LOADED', 'PAYMENT'),
 (2,1,1,'AF123405.dbf', 1, 10, 2010, CURRENT_TIMESTAMP, 'LOADED', 'BENEFIT'),
