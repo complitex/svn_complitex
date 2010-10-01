@@ -59,7 +59,7 @@ public class ProcessPaymentTest {
             }
 
             @Override
-            protected Integer getCODE2_1(Double T11_CS_UNI) {
+            protected Integer getCODE2_1(Double T11_CS_UNI, long organizationId) {
                 System.out.println("T11_CS_UNI : " + T11_CS_UNI);
                 return 0;
             }

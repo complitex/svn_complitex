@@ -39,7 +39,7 @@ import org.complitex.osznconnection.file.web.component.StatusRenderer;
 import javax.ejb.EJB;
 import java.util.Arrays;
 import java.util.Iterator;
-import org.complitex.osznconnection.file.web.pages.util.BuildingFormatter;
+import org.complitex.osznconnection.file.web.RequestFileGroupList;
 
 /**
  *
@@ -181,7 +181,7 @@ public final class BenefitList extends TemplatePage {
 
             @Override
             public void onSubmit() {
-                setResponsePage(RequestFileList.class);
+                setResponsePage(RequestFileGroupList.class);
             }
         };
         back.setDefaultFormProcessing(false);

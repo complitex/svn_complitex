@@ -54,8 +54,9 @@
         delete from `tarif` where `request_file_id` = #{id};
     </delete>
 
-    <select id="getCODE2_1" parameterType="double" resultType="int">
-        SELECT DISTINCT t.`T11_CODE2` FROM `tarif` t WHERE t.`T11_CS_UNI` = #{T11_CS_UNI} AND T11_CODE1 = 1
+    <select id="getCODE2_1" parameterType="hashmap" resultType="int">
+        SELECT DISTINCT t.`T11_CODE2` FROM `tarif` t WHERE t.`T11_CS_UNI` = #{T11_CS_UNI} AND t.`T11_CODE1` = 1 AND t.`request_file_id` IN
+            (SELECT f.`id` FROM `request_file` f WHERE f.`type` = 'TARIF' AND f.`organization_id` = #{organizationId})
         LIMIT 0,1
     </select>
 </mapper>
