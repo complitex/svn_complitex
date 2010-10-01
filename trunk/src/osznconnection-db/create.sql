@@ -1023,6 +1023,7 @@ CREATE TABLE `request_file` (
     `group_id` BIGINT(20),
     `loaded` DATETIME NOT NULL,
     `name` VARCHAR(20) NOT NULL,
+    `directory` VARCHAR(255),
     `organization_id` BIGINT(20) NOT NULL,
     `registry` INT(2) NOT NULL,
     `month` INT(2) NOT NULL,

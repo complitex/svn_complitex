@@ -37,6 +37,7 @@ public class RequestFile implements Serializable {
     private Long groupId;
     private Date loaded;
     private String name;
+    private String directory;
     private Long organizationId;
     private int registry;
     private int month;
@@ -132,6 +133,14 @@ public class RequestFile implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDirectory() {
+        return directory;
+    }
+
+    public void setDirectory(String directory) {
+        this.directory = directory;
     }
 
     public Long getOrganizationId() {

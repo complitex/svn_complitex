@@ -26,7 +26,7 @@ import java.util.concurrent.Future;
  * @see org.complitex.osznconnection.file.service.SaveTaskBean
  * @see org.complitex.osznconnection.file.service.FileHandlingConfig
  */
-@Singleton
+@Singleton(name = "SaveRequestBean")
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 @SuppressWarnings({"EjbProhibitedPackageUsageInspection"})
 public class SaveRequestBean extends AbstractProcessBean{
@@ -71,19 +71,16 @@ public class SaveRequestBean extends AbstractProcessBean{
 
     @Asynchronous
     public void save(List<RequestFile> requestFiles){
-
         try {
             //устанавливаем абсолютный путь для сохранения файла запроса
             for (RequestFile requestFile : requestFiles){
-                String districtCode = organizationStrategy.getDistrictCode(requestFile.getOrganizationId());
-
-                File file = RequestFileStorage.getInstance().createOutputFile(requestFile.getName(), districtCode);
+                File file = RequestFileStorage.getInstance().createOutputFile(requestFile.getName(), requestFile.getDirectory());
                 requestFile.setAbsolutePath(file.getAbsolutePath());
             }
 
             //Запуск процесса выгрузки
             process(requestFiles);
-        } catch (StorageNotFoundException e) {
+        } catch (Exception e) {
             processStatus = PROCESS_STATUS.ERROR;
             log.error("Ошибка процесса выгрузки файлов", e);
             error(e.getMessage());

@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +36,7 @@ public class RequestFileStorage {
      * @return Список файлов в дочерней директории корневой директории файлового хранилища
      * @throws StorageNotFoundException Директория не найдена
      */
-    public List<File> getInputFiles(String child, FilenameFilter filter) throws StorageNotFoundException {
+    public List<File> getInputFiles(String child, FileFilter filter) throws StorageNotFoundException {
         List<File> files = new ArrayList<File>();
 
         File dir = new File(FileHandlingConfig.LOAD_INPUT_FILE_STORAGE_DIR.getString(), child);
@@ -49,7 +50,7 @@ public class RequestFileStorage {
         return files;
     }
 
-    private void addFiles(List<File> list, File dir, FilenameFilter filter){
+    private void addFiles(List<File> list, File dir, FileFilter filter){
         for(File file: dir.listFiles(filter)){
             if (file.isDirectory()){
                 addFiles(list, file, filter);
@@ -95,5 +96,12 @@ public class RequestFileStorage {
     @SuppressWarnings({"ResultOfMethodCallIgnored"})
     public void delete(String path){
        new File(path).delete();
+    }
+    
+    public String getRelativeParent(File file){
+        File root = new File(FileHandlingConfig.LOAD_INPUT_FILE_STORAGE_DIR.getString());
+        String absolutePath = file.getParent();
+
+        return absolutePath.substring(root.getAbsolutePath().length());
     }
 }
