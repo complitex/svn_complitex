@@ -25,4 +25,12 @@ public class StringUtil {
 
         return "";
     }
+
+    public static String getDots(int count){
+        String dots = "";
+
+        for (int i=0; i<count; ++i) dots += '.';
+
+        return dots; 
+    }
 }

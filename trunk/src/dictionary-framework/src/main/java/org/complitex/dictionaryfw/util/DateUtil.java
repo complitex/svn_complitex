@@ -56,9 +56,15 @@ public class DateUtil {
         return getEndOfDay(c.getTime());
     }
 
+    /**
+     * Отображает локализованный месяц
+     * @param month месяц, формат 1-январь, 2-февраль
+     * @param locale локализация
+     * @return месяц
+     */
     public static String displayMonth(int month, Locale locale) {
         Calendar c = Calendar.getInstance();
-        c.set(Calendar.MONTH, month);
+        c.set(Calendar.MONTH, month-1);
         return c.getDisplayName(Calendar.MONTH, Calendar.LONG, locale);
     }
 

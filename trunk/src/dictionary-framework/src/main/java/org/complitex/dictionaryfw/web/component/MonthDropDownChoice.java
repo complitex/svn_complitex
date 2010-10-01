@@ -16,12 +16,12 @@ public class MonthDropDownChoice extends DropDownChoice<Integer>{
 
     public MonthDropDownChoice(String id){
         super(id);        
-        setChoices(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11));
+        setChoices(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12));
         setChoiceRenderer(new IChoiceRenderer<Integer>(){
 
             @Override
             public Object getDisplayValue(Integer object) {
-                return MONTHS[object];
+                return MONTHS[object-1];
             }
 
             @Override

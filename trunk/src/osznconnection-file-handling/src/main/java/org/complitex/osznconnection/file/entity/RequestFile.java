@@ -14,10 +14,10 @@ import java.util.Date;
 public class RequestFile implements Serializable {
     public static enum STATUS {
         NEW, SKIPPED, 
-        LOADING, LOADED, LOAD_ERROR,
-        BINDING, BINDED, BOUND_WITH_ERRORS,
-        SAVING, SAVED, SAVE_ERROR,
-        PROCESSING, PROCESSED, PROCESSED_WITH_ERRORS
+        LOADING, LOAD_ERROR, LOADED,
+        BINDING, BOUND_WITH_ERRORS, BINDED,
+        SAVING, SAVE_ERROR, SAVED,
+        PROCESSING, PROCESSED_WITH_ERRORS, PROCESSED 
     }
 
     public static enum STATUS_DETAIL {
@@ -49,8 +49,8 @@ public class RequestFile implements Serializable {
     private STATUS status = STATUS.NEW;
     private STATUS_DETAIL statusDetail;
 
-    private Integer loadedRecordCount;
-    private Integer bindedRecordCount;
+    private Integer loadedRecordCount = 0;
+    private Integer bindedRecordCount = 0;
     private String absolutePath;
 
     public boolean isPayment() {

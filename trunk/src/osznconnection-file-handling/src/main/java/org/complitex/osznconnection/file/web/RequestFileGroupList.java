@@ -63,8 +63,9 @@ public class RequestFileGroupList extends TemplatePage {
     private SaveRequestBean saveRequestBean;
 
     private int waitForStopTimer;
+    private int timerIndex = 0;
 
-    private final static String ITEM_ID_PREFIX = "item";
+    private final static String ITEM_GROUP_ID_PREFIX = "item";
 
     public RequestFileGroupList(PageParameters parameters){
         super();
@@ -228,7 +229,7 @@ public class RequestFileGroupList extends TemplatePage {
                 RequestFileGroup rfg = item.getModelObject();
 
                 item.setOutputMarkupId(true);
-                item.setMarkupId(ITEM_ID_PREFIX + rfg.getId());
+                item.setMarkupId(ITEM_GROUP_ID_PREFIX + rfg.getId());
 
                 //checkbox
                 CheckBox checkBox = new CheckBox("selected", selectModels.get(rfg));
@@ -284,6 +285,16 @@ public class RequestFileGroupList extends TemplatePage {
                 String detail = "";
                 if (rfg.getStatusDetail() != null){
                     detail = ": " + getStringOrKey(rfg.getStatusDetail());                                                            
+                }
+
+                if (rfg.isProcessing()){
+                    if (FileExecutorService.get().isBinding()){
+                        detail += StringUtil.getDots(timerIndex%5);
+                    }
+
+                    if (loadRequestBean.isProcessing()){
+                        detail += StringUtil.getDots(timerIndex%5);
+                    }
                 }
 
                 item.add(new Label("status", getStringOrKey(rfg.getStatus()) + detail));
@@ -534,8 +545,8 @@ public class RequestFileGroupList extends TemplatePage {
     }
 
     private void highlightProcessed(AjaxRequestTarget target, RequestFile requestFile){
-        if (target != null) {
-            target.appendJavascript("$('#" + ITEM_ID_PREFIX + requestFile.getId() + "')"
+        if (target != null) {            
+            target.appendJavascript("$('#" + ITEM_GROUP_ID_PREFIX + requestFile.getGroupId() + "')"
                     + ".animate({ backgroundColor: 'lightgreen' }, 300)"
                     + ".animate({ backgroundColor: '#E0E4E9' }, 700)");
         }
@@ -543,7 +554,7 @@ public class RequestFileGroupList extends TemplatePage {
 
     private void highlightError(AjaxRequestTarget target, RequestFile requestFile){
         if (target != null) {
-            target.appendJavascript("$('#" + ITEM_ID_PREFIX + requestFile.getId() + "')"
+            target.appendJavascript("$('#" + ITEM_GROUP_ID_PREFIX + requestFile.getGroupId() + "')"
                     + ".animate({ backgroundColor: 'darksalmon' }, 300)"
                     + ".animate({ backgroundColor: '#E0E4E9' }, 700)");
         }
@@ -582,6 +593,8 @@ public class RequestFileGroupList extends TemplatePage {
                     //update feedback messages panel
                     target.addComponent(messages);
                 }
+
+                timerIndex++;
             }
         };
     }
