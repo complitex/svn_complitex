@@ -113,14 +113,15 @@ public class  LoadTaskBean {
                 if (index++ == 0){
                     Integer registry = (Integer) request.getDbfFields().get(PaymentDBF.REE_NUM.name());
                     if (registry != null){
-                        try {
-                            requestFile.setRegistry(registry);
-                            requestFileBean.save(requestFile);
-                        } catch (Exception e) {
-                            throw new SqlSessionException(e);
-                        }
+                        requestFile.setRegistry(registry);
                     }
-                }                
+
+                    try {
+                        requestFileBean.save(requestFile);
+                    } catch (Exception e) {
+                        throw new SqlSessionException(e);
+                    }
+                }
 
                 request.setRequestFileId(requestFile.getId());
                 request.setOrganizationId(requestFile.getOrganizationId());
