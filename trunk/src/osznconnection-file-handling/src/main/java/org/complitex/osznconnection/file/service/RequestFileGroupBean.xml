@@ -63,7 +63,8 @@
         <where>            
             <if test="id != null">and g.`id` = #{id}</if>
             <if test="loaded != null">and YEAR(p.`loaded`) = YEAR(#{loaded}) and DAY(p.`loaded`) = DAY(#{loaded})</if>
-            <if test="name != null">and p.`name` like CONCAT('%',#{name},'%')</if>
+            <if test="paymentName != null">and p.`name` like CONCAT('%',#{paymentName},'%')</if>
+            <if test="benefitName != null">and b.`name` like CONCAT('%',#{benefitName},'%')</if>            
             <if test="organization != null">and p.`organization_id` = #{organization.id}</if>
             <if test="registry != null">and p.`registry` = #{registry}</if>
             <if test="year != null">and p.`year` = #{year}</if>
@@ -98,7 +99,13 @@
         <include refid="requestFileGroupFilterFrom"/>
         <include refid="requestFileGroupFilterWhere"/>
         <if test="sortProperty != null">
-            order by p.`${sortProperty}`
+            <choose>
+                <when test="sortProperty == 'paymentName'">order by p.`name`</when>
+                <when test="sortProperty == 'benefitName'">order by b.`name`</when>
+                <when test="sortProperty == 'loaded_record_count'">order by loaded_record_count</when>
+                <when test="sortProperty == 'binded_record_count'">order by binded_record_count</when>
+                <otherwise>order by p.`${sortProperty}`</otherwise>
+            </choose>
             <choose>
                 <when test="ascending">asc</when>
                 <otherwise>desc</otherwise>
