@@ -78,7 +78,7 @@ public class RequestFileGroupList extends TemplatePage {
     }
 
     private void init(Long requestFileId) {
-//        add(JavascriptPackageResource.getHeaderContribution(WebCommonResourceInitializer.HIGHLIGHT_JS));
+        add(JavascriptPackageResource.getHeaderContribution(WebCommonResourceInitializer.HIGHLIGHT_JS));
 
         add(new Label("title", getString("title")));
 
