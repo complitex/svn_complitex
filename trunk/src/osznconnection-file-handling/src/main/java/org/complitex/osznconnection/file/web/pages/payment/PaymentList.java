@@ -35,13 +35,12 @@ import org.complitex.osznconnection.file.entity.PaymentDBF;
 import org.complitex.osznconnection.file.entity.Status;
 import org.complitex.osznconnection.file.service.PaymentBean;
 import org.complitex.osznconnection.file.service.RequestFileBean;
-import org.complitex.osznconnection.file.web.RequestFileList;
 import org.complitex.osznconnection.file.web.component.StatusRenderer;
 
 import javax.ejb.EJB;
 import java.util.Arrays;
 import java.util.Iterator;
-import org.complitex.osznconnection.file.web.pages.util.BuildingFormatter;
+import org.complitex.osznconnection.file.web.RequestFileGroupList;
 
 /**
  *
@@ -191,7 +190,7 @@ public final class PaymentList extends TemplatePage {
 
             @Override
             public void onSubmit() {
-                setResponsePage(RequestFileList.class);
+                setResponsePage(RequestFileGroupList.class);
             }
         };
         back.setDefaultFormProcessing(false);

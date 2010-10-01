@@ -271,7 +271,7 @@ public class RequestFileGroupList extends TemplatePage {
                 //benefit name link
                 if (rfg.getBenefitFile() != null){
                     item.add(new BookmarkablePageLinkPanel<RequestFile>("benefitName", rfg.getBenefitFile().getName(),
-                            BenefitList.class, new PageParameters("request_file_id=" + rfg.getPaymentFile().getId())));
+                            BenefitList.class, new PageParameters("request_file_id=" + rfg.getBenefitFile().getId())));
                 }else{
                     item.add(new Label("benefitName", "—"));
                 }

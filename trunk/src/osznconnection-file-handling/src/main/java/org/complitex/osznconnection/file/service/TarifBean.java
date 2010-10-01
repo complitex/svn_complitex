@@ -1,5 +1,6 @@
 package org.complitex.osznconnection.file.service;
 
+import com.google.common.collect.Maps;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.entity.AbstractRequest;
@@ -10,6 +11,7 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -40,7 +42,10 @@ public class TarifBean extends AbstractBean {
 
     @SuppressWarnings({"unchecked"})
     @Transactional
-    public Integer getCODE2_1(Double T11_CS_UNI) {
-        return (Integer) sqlSession().selectOne(MAPPING_NAMESPACE + ".getCODE2_1", T11_CS_UNI);
+    public Integer getCODE2_1(Double T11_CS_UNI, long organizationId) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("T11_CS_UNI", T11_CS_UNI);
+        params.put("organizationId", organizationId);
+        return (Integer) sqlSession().selectOne(MAPPING_NAMESPACE + ".getCODE2_1", params);
     }
 }
