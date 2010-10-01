@@ -78,7 +78,7 @@ public class RequestFileGroupList extends TemplatePage {
     }
 
     private void init(Long requestFileId) {
-        add(JavascriptPackageResource.getHeaderContribution(WebCommonResourceInitializer.HIGHLIGHT_JS));
+//        add(JavascriptPackageResource.getHeaderContribution(WebCommonResourceInitializer.HIGHLIGHT_JS));
 
         add(new Label("title", getString("title")));
 
@@ -253,7 +253,7 @@ public class RequestFileGroupList extends TemplatePage {
                 DomainObject domainObject = organizationStrategy.findById(rfg.getOrganizationId());
                 String organization = domainObject != null
                         ? organizationStrategy.displayDomainObject(domainObject, getLocale())
-                        : "[not found]";
+                        : "—";
                 item.add(new Label("organization", organization));
 
                 //registry, month, year
@@ -289,11 +289,11 @@ public class RequestFileGroupList extends TemplatePage {
 
                 if (rfg.isProcessing()){
                     if (FileExecutorService.get().isBinding()){
-                        detail += StringUtil.getDots(timerIndex%5);
+                        detail += StringUtil.getDots(timerIndex%7);
                     }
 
                     if (loadRequestBean.isProcessing()){
-                        detail += StringUtil.getDots(timerIndex%5);
+                        detail += StringUtil.getDots(timerIndex%7);
                     }
                 }
 
