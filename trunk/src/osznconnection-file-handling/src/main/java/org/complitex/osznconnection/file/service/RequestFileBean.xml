@@ -59,10 +59,12 @@
             <if test="loaded != null">and YEAR(`loaded`) = YEAR(#{loaded}) and DAY(`loaded`) = DAY(#{loaded})</if>
             <if test="name != null">and `name` like CONCAT('%',#{name},'%')</if>
             <if test="organization != null">and `organization_id` = #{organization.id}</if>
+            <if test="organizationId != null">and `organization_id` = #{organizationId}</if>
             <if test="registry != null">and `registry` = #{registry}</if>
             <if test="year != null">and `year` = #{year}</if>
             <if test="month != null">and `month` = #{month}</if>
             <if test="dbfRecordCount != null">and `dbf_record_count` like CONCAT('%',#{dbfRecordCount},'%')</if>
+            <if test="type != null">and `type` = #{type}</if>
             <if test="status != null">and `status` = #{status}</if>
             <if test="loadedRecordCount != null">
                 loaded_record_count = #{loadedRecordCount}
@@ -132,4 +134,8 @@
     <update id="cancelSaving">
         update `request_file` set `status` = 'SAVE_ERROR', `status_detail` = 'CANCEL_SAVING' where `status` = 'SAVING'
     </update>
+
+    <select id="selectTarifFiles" parameterType="long" resultMap="requestFileResultMap">
+        select * from `request_file` where organization_id = #{organizationId} and `type` = 'TARIF'
+    </select>
 </mapper>

@@ -4,6 +4,7 @@ import org.complitex.dictionaryfw.entity.Log;
 import org.complitex.dictionaryfw.service.LogBean;
 import org.complitex.osznconnection.file.Module;
 import org.complitex.osznconnection.file.entity.RequestFile;
+import org.complitex.osznconnection.file.entity.RequestFileFilter;
 import org.complitex.osznconnection.file.entity.RequestFileGroup;
 import org.complitex.osznconnection.file.storage.RequestFileStorage;
 import org.complitex.osznconnection.file.storage.StorageNotFoundException;
@@ -220,11 +221,13 @@ public class LoadRequestBean extends AbstractProcessBean {
                 List<RequestFile> requestFiles = new ArrayList<RequestFile>();
 
                 for (File file : files) {
-                    String prefix = file.getName().substring(0, 2);
-
-                    if(RequestFile.TARIF_FILE_PREFIX.equals(prefix)){
-
+                    if(file.getName().indexOf(RequestFile.TARIF_FILE_PREFIX) == 0){
+                        //delete previous tarif
+                        requestFileBean.deleteTarif(organizationId);
+                        
+                        //fill fields
                         RequestFile requestFile = new RequestFile();
+
                         requestFile.setName(file.getName());
                         requestFile.setLength(file.length());
                         requestFile.setAbsolutePath(file.getAbsolutePath());

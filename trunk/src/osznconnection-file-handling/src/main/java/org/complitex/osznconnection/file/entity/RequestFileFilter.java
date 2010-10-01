@@ -2,7 +2,6 @@ package org.complitex.osznconnection.file.entity;
 
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.service.AbstractFilter;
-import org.complitex.osznconnection.file.entity.RequestFile;
 
 import java.util.Date;
 
@@ -16,9 +15,10 @@ import java.util.Date;
  */
 public class RequestFileFilter extends AbstractFilter{
     private Long id;
+    private Long groupId;
     private Date loaded;
     private String name;
-    private Long organizationObjectId;
+    private Long organizationId;
     private Integer registry;
     private Integer year;
     private Integer month;
@@ -31,6 +31,7 @@ public class RequestFileFilter extends AbstractFilter{
     private String checkSum;
     private RequestFile.STATUS status;
     private DomainObject organization;
+    private RequestFile.TYPE type;
 
     public Long getId() {
         return id;
@@ -38,6 +39,14 @@ public class RequestFileFilter extends AbstractFilter{
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(Long groupId) {
+        this.groupId = groupId;
     }
 
     public Date getLoaded() {
@@ -56,12 +65,12 @@ public class RequestFileFilter extends AbstractFilter{
         this.name = name;
     }
 
-    public Long getOrganizationObjectId() {
-        return organizationObjectId;
+    public Long getOrganizationId() {
+        return organizationId;
     }
 
-    public void setOrganizationObjectId(Long organizationObjectId) {
-        this.organizationObjectId = organizationObjectId;
+    public void setOrganizationId(Long organizationId) {
+        this.organizationId = organizationId;
     }
 
     public Integer getRegistry() {
@@ -158,5 +167,13 @@ public class RequestFileFilter extends AbstractFilter{
 
     public void setOrganization(DomainObject organization) {
         this.organization = organization;
+    }
+
+    public RequestFile.TYPE getType() {
+        return type;
+    }
+
+    public void setType(RequestFile.TYPE type) {
+        this.type = type;
     }
 }

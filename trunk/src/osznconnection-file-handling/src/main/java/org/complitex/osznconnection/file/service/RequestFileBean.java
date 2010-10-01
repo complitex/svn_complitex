@@ -30,8 +30,8 @@ public class RequestFileBean extends AbstractBean {
         return (RequestFile) sqlSession().selectOne(MAPPING_NAMESPACE + ".findById", fileId);
     }
 
-    @SuppressWarnings({"unchecked"})
     @Transactional
+    @SuppressWarnings({"unchecked"})
     public List<RequestFile> getRequestFiles(RequestFileFilter filter){
         return sqlSession().selectList(MAPPING_NAMESPACE + ".selectRequestFiles", filter);
     }
@@ -86,4 +86,14 @@ public class RequestFileBean extends AbstractBean {
      public void cancelSaving() {
         sqlSession().update(MAPPING_NAMESPACE + ".cancelSaving");
     }
+
+    @Transactional
+    @SuppressWarnings({"unchecked"})
+    public void deleteTarif(Long organizationId){
+        List<RequestFile> tarifs = sqlSession().selectList(MAPPING_NAMESPACE + ".selectTarifFiles", organizationId);
+        for (RequestFile tarif : tarifs){
+            delete(tarif);
+        }
+    }
+
 }
