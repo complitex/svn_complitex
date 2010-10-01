@@ -11,6 +11,7 @@
             <id column="b_id" property="id"/>
             <result column="b_loaded" property="loaded"/>
             <result column="b_name" property="name"/>
+            <result column="b_directory" property="directory"/>
             <result column="b_organization_id" property="organizationId"/>
             <result column="b_registry" property="registry"/>
             <result column="b_month" property="month"/>
@@ -28,6 +29,7 @@
             <id column="p_id" property="id"/>
             <result column="p_loaded" property="loaded"/>
             <result column="p_name" property="name"/>
+            <result column="p_directory" property="directory"/>
             <result column="p_organization_id" property="organizationId"/>
             <result column="p_registry" property="registry"/>
             <result column="p_month" property="month"/>
@@ -51,8 +53,7 @@
             left join `request_file` p on g.`id` = p.`group_id`
             left join `request_file` b on g.`id` = b.`group_id`
     </sql>
-
-    <!--todo add filter-->
+        
     <sql id="requestFileGroupFilterWhere">
         <where>
             p.`type` = 'PAYMENT' and b.`type` = 'BENEFIT'
@@ -78,11 +79,11 @@
             resultMap="requestFileGroupResultMap">
         select
             g.id as gid,
-            b.id as b_id, b.loaded as b_loaded, b.name as b_name, b.organization_id as b_organization_id, 
+            b.id as b_id, b.loaded as b_loaded, b.name as b_name, b.directory as b_directory, b.organization_id as b_organization_id,
             b.registry as b_registry, b.month as b_month, b.year as b_year, b.dbf_record_count as b_dbf_record_count,
             b.length as b_length, b.check_sum as b_check_sum, b.type as b_type, b.status as b_status,
             b.status_detail as b_status_detail,
-            p.id as p_id, p.loaded as p_loaded, p.name as p_name, p.organization_id as p_organization_id, 
+            p.id as p_id, p.loaded as p_loaded, p.name as p_name, p.directory as p_directory, p.organization_id as p_organization_id, 
             p.registry as p_registry, p.month as p_month, p.year as p_year, p.dbf_record_count as p_dbf_record_count,
             p.length as p_length, p.check_sum as p_check_sum, p.type as p_type, p.status as p_status,
             p.status_detail as p_status_detail,            

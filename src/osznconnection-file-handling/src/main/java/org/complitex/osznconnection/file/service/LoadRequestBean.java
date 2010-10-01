@@ -4,7 +4,6 @@ import org.complitex.dictionaryfw.entity.Log;
 import org.complitex.dictionaryfw.service.LogBean;
 import org.complitex.osznconnection.file.Module;
 import org.complitex.osznconnection.file.entity.RequestFile;
-import org.complitex.osznconnection.file.entity.RequestFileFilter;
 import org.complitex.osznconnection.file.entity.RequestFileGroup;
 import org.complitex.osznconnection.file.storage.RequestFileStorage;
 import org.complitex.osznconnection.file.storage.StorageNotFoundException;
@@ -14,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.ejb.*;
 import java.io.File;
-import java.io.FilenameFilter;
+import java.io.FileFilter;
 import java.util.*;
 import java.util.concurrent.Future;
 import java.util.regex.Pattern;
@@ -56,22 +55,26 @@ public class LoadRequestBean extends AbstractProcessBean {
     private List<File> getFiles(final String districtDir, final int monthFrom, final int monthTo)
             throws StorageNotFoundException {
 
-        return RequestFileStorage.getInstance().getInputFiles(districtDir, new FilenameFilter() {
+        return RequestFileStorage.getInstance().getInputFiles(districtDir, new FileFilter() {
 
             @Override
-            public boolean accept(File dir, String name) {
-                if (dir.getName().equalsIgnoreCase(districtDir)) {
-                    //TARIF
-                    if (name.equalsIgnoreCase("TARIF12.DBF")) {
-                        return true;
-                    }else{ //PAYMENT, BENEFIT
-                        for (int m = monthFrom; m <= monthTo; ++m) {
-                            String month = (m < 9 ? "0" + (m + 1) : "" + (m + 1));
-                            String pattern = "((A_)|(AF))\\d{4}" + month + "\\.DBF";
+            public boolean accept(File file) {
+                if(file.isDirectory()){
+                    return true;                   
+                }
 
-                            if (Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(name).matches()) {
-                                return true;
-                            }
+                String name = file.getName();
+
+                //TARIF
+                if (name.equalsIgnoreCase("TARIF12.DBF")) {
+                    return true;
+                }else{ //PAYMENT, BENEFIT
+                    for (int m = monthFrom; m <= monthTo; ++m) {
+                        String month = (m < 9 ? "0" + (m + 1) : "" + (m + 1));
+                        String pattern = "((A_)|(AF))\\d{4}" + month + "\\.DBF";
+
+                        if (Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(name).matches()) {
+                            return true;
                         }
                     }
                 }
@@ -107,8 +110,9 @@ public class LoadRequestBean extends AbstractProcessBean {
     private RequestFile newRequestFile(File file, Long organizationId, int year){
         RequestFile requestFile = new RequestFile();
 
-        requestFile.setName(file.getName());
+        requestFile.setName(file.getName());        
         requestFile.updateTypeByName();
+        requestFile.setDirectory(RequestFileStorage.getInstance().getRelativeParent(file));
         requestFile.setLength(file.length());
         requestFile.setAbsolutePath(file.getAbsolutePath());
         requestFile.setOrganizationId(organizationId);
@@ -133,7 +137,6 @@ public class LoadRequestBean extends AbstractProcessBean {
 
                     if (RequestFile.PAYMENT_FILE_PREFIX.equals(getPrefix(file.getName()))){
                         RequestFileGroup group = new RequestFileGroup();
-                        //todo add relative dir
 
                         group.setPaymentFile(newRequestFile(file, organizationId, year));
 
@@ -202,7 +205,7 @@ public class LoadRequestBean extends AbstractProcessBean {
                 process(requestFiles);
 
                 errorCount += linkError;
-            } catch (StorageNotFoundException e) {
+            } catch (Exception e) {
                 processStatus = PROCESS_STATUS.ERROR;
                 log.error("Ошибка процесса загрузки файлов", e);
                 error(e.getMessage());

@@ -63,11 +63,6 @@ public class  LoadTaskBean {
     @Asynchronous
     public Future<RequestFile> load(RequestFile requestFile){
         try {
-            //проверка загружен ли файл
-            if (requestFileBean.checkLoaded(requestFile)){
-                throw new AlreadyLoadedException();
-            }
-
             //Инициализация парсера
             DBFReader reader = new DBFReader(new FileInputStream(requestFile.getAbsolutePath()));
             reader.setCharactersetName("cp866");
@@ -109,13 +104,19 @@ public class  LoadTaskBean {
                     request.setField(field.getName(), value, getType(field.getDataType(), field.getDecimalCount()));
                 }
 
-                //Установка номера реестра и сохранение
                 if (index++ == 0){
+                    //установка номера реестра
                     Integer registry = (Integer) request.getDbfFields().get(PaymentDBF.REE_NUM.name());
                     if (registry != null){
                         requestFile.setRegistry(registry);
                     }
 
+                    //проверка загружен ли файл
+                    if (requestFileBean.checkLoaded(requestFile)){
+                        throw new AlreadyLoadedException();
+                    }
+
+                    //сохранение
                     try {
                         requestFileBean.save(requestFile);
                     } catch (Exception e) {
