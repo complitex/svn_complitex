@@ -1,6 +1,7 @@
 package org.complitex.osznconnection.file.entity;
 
 import org.complitex.dictionaryfw.util.DateUtil;
+import org.complitex.dictionaryfw.util.StringUtil;
 
 import java.io.Serializable;
 import java.util.*;
