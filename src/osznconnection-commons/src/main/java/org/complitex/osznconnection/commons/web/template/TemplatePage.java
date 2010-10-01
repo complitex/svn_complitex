@@ -212,7 +212,7 @@ public abstract class TemplatePage extends WebPage {
     }
 
     protected String getStringOrKey(Enum key) {
-        return getStringOrKey(key.name());
+        return key != null ? getStringOrKey(key.name()) : "";
     }
 
     public Locale getSystemLocale() {

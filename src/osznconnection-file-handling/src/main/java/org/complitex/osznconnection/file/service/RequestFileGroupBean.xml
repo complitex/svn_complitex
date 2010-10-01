@@ -48,15 +48,19 @@
         insert into `request_file_group` value ()
     </insert>
 
+    <delete id="deleteRequestFileGroup" parameterType="long">
+        delete from `request_file_group` where `id` = #{id}
+    </delete>
+
+    <!--todo empty group-->
     <sql id="requestFileGroupFilterFrom">
         from `request_file_group` g
-            left join `request_file` p on g.`id` = p.`group_id`
-            left join `request_file` b on g.`id` = b.`group_id`
+            left join `request_file` p on g.`id` = p.`group_id` and p.`type` = 'PAYMENT'
+            left join `request_file` b on g.`id` = b.`group_id` and b.`type` = 'BENEFIT'
     </sql>
         
     <sql id="requestFileGroupFilterWhere">
-        <where>
-            p.`type` = 'PAYMENT' and b.`type` = 'BENEFIT'
+        <where>            
             <if test="id != null">and g.`id` = #{id}</if>
             <if test="loaded != null">and YEAR(p.`loaded`) = YEAR(#{loaded}) and DAY(p.`loaded`) = DAY(#{loaded})</if>
             <if test="name != null">and p.`name` like CONCAT('%',#{name},'%')</if>
