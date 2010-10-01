@@ -27,7 +27,7 @@ public final class WebCommonResourceInitializer implements IInitializer {
     public static final String IE_SELECT_FIX_RESOURCE_NAME = "js/ie_select_fix.js";
     public static final ResourceReference IE_SELECT_FIX_RESOURCE_NAME_JS = getResourceReference(IE_SELECT_FIX_RESOURCE_NAME);
 
-    private static final String HIGHLIGHT_JS_PATH = "js/jquery-ui-1.8.4.highlight.min.js";
+    private static final String HIGHLIGHT_JS_PATH = "js/jquery-ui-1.7.3.highlight.min.js";
     public static final ResourceReference HIGHLIGHT_JS = getResourceReference(HIGHLIGHT_JS_PATH);
 
     @Override
