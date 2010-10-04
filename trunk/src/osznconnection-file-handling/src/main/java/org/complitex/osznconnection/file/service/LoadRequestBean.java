@@ -208,6 +208,9 @@ public class LoadRequestBean extends AbstractProcessBean {
                 processStatus = PROCESS_STATUS.NEW;
                 process(requestFiles);
 
+                //Очистка пустых групп
+                requestFileGroupBean.clearEmptyGroup();
+
                 errorCount += linkError;
             } catch (Exception e) {
                 processStatus = PROCESS_STATUS.ERROR;

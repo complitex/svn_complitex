@@ -1,6 +1,10 @@
 package org.complitex.osznconnection.file.entity;
 
 import org.complitex.osznconnection.file.service.exception.FieldNotFoundException;
+import org.complitex.osznconnection.file.service.exception.FieldWrongSizeException;
+
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -18,6 +22,25 @@ public class Tarif extends AbstractRequest{
             return TarifDBF.valueOf(name).getType();
         } catch (IllegalArgumentException e) {
             throw new FieldNotFoundException(e);
+        }
+    }
+
+    @Override
+    protected void checkSize(String name, Object value) throws FieldWrongSizeException {
+        if (value == null || value instanceof Date){
+            return;
+        }
+
+        TarifDBF tarifDBF = TarifDBF.valueOf(name);
+
+        if (value instanceof BigDecimal){
+            if (((BigDecimal) value).scale() > tarifDBF.getScale()){
+                throw new FieldWrongSizeException(value.toString());
+            }
+        }
+
+        if (value.toString().length() > tarifDBF.getLength()){
+            throw new FieldWrongSizeException(value.toString());
         }
     }
 }

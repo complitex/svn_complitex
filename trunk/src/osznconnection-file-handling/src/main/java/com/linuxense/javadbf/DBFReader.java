@@ -277,7 +277,8 @@ public class DBFReader extends DBFBase {
 						}
 						catch( NumberFormatException e) {
 
-							throw new DBFException( "Failed to parse Number: " + e.getMessage());
+							throw new DBFException( "Failed to parse Number: " + e.getMessage()
+                                    + ", row: " + this.header.fieldArray[i].getName());
 						}
 
 						break;

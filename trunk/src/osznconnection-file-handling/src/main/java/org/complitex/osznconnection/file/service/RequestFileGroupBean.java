@@ -38,4 +38,8 @@ public class RequestFileGroupBean extends AbstractBean{
     public void save(RequestFileGroup requestFileGroup){
         sqlSession().insert(MAPPING_NAMESPACE + ".insertRequestFileGroup", requestFileGroup);
     }
+
+    public void clearEmptyGroup(){
+        sqlSession().delete(MAPPING_NAMESPACE + ".clearEmptyGroup");
+    }
 }
