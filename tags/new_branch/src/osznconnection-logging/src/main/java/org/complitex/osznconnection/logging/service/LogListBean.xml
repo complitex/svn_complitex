@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.complitex.osznconnection.logging.service.LogListBean">
+    <resultMap id="logResultMap" type="org.complitex.dictionaryfw.entity.Log">
+        <id column="id" property="id"/>
+        <result column="date" property="date"/>
+        <result column="login" property="login"/>
+        <result column="module" property="module"/>
+        <result column="controller" property="controller"/>
+        <result column="model" property="model"/>
+        <result column="object_id" property="objectId"/>
+        <result column="event" property="event"/>
+        <result column="status" property="status"/>
+        <result column="description" property="description"/>
+        <collection property="logChanges" ofType="org.complitex.dictionaryfw.entity.LogChange">
+            <id column="lc_id" property="id"/>
+            <result column="log_id" property="logId"/>
+            <result column="attribute_id" property="attributeId"/>
+            <result column="collection" property="collection"/>
+            <result column="property" property="property"/>
+            <result column="old_value" property="oldValue"/>
+            <result column="new_value" property="newValue"/>
+            <result column="locale" property="locale"/>
+        </collection>
+    </resultMap>
+
+    <sql id="logFilterWhere">
+        <where>
+            <if test="date != null">YEAR(`date`) = YEAR(#{date}) and DAY(`date`) = DAY(#{date})</if>
+            <if test="login != null">and `login` like CONCAT('%',#{login},'%')</if>
+            <if test="module != null">and `module` = #{module}</if>
+            <if test="controller != null">and `controller` = #{controller}</if>
+            <if test="model != null">and `model` = #{model}</if>
+            <if test="objectId != null">and `object_id` = #{objectId}</if>
+            <if test="event != null">and `event` = #{event}</if>
+            <if test="status != null">and `status` = #{status}</if>
+            <if test="description != null">and `description` = #{description}</if>
+        </where>
+    </sql>
+
+    <select id="selectLogs" resultMap="logResultMap" parameterType="org.complitex.osznconnection.logging.service.LogFilter">
+        select
+            l.`id`, `date`, `login`, `module`, `controller`, `model`, `object_id`, `event`, `status`, `description`,
+            lc.`id` as lc_id, `log_id`, `attribute_id`, `collection`, `property`, `old_value`, `new_value`, `locale`
+        from
+            (select * from `log` <include refid="logFilterWhere"/>
+            <if test="sortProperty != null">
+              order by `${sortProperty}` <choose><when test="ascending">asc</when><otherwise>desc</otherwise></choose>
+            </if>
+            limit #{first}, #{count}
+            ) as l
+        left join `log_change` as lc on l.id = lc.log_id
+    </select>
+
+    <select id="selectLogsCount" resultType="int">
+        select count(*) from `log` <include refid="logFilterWhere"/>
+    </select>
+
+    <select id="selectModules" resultType="string">
+        select `module` from `log` where `module` is not null group by `module` order by `module`
+    </select>
+
+    <select id="selectControllers" resultType="string">
+        select `controller` from `log` where `controller` is not null group by `controller` order by `controller`
+    </select>
+
+    <select id="selectModels" resultType="string">
+        select `model` from `log` where `model` is not null group by `model` order by `model`
+    </select>
+</mapper>
