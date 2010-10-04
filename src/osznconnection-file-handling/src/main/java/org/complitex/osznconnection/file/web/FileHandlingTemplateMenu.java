@@ -90,6 +90,27 @@ public class FileHandlingTemplateMenu extends ResourceTemplateMenu {
             }
         });
 
+        links.add(new ITemplateLink(){
+            @Override
+            public String getLabel(Locale locale) {
+                return getString(FileHandlingTemplateMenu.class, locale, "config");
+            }
+            @Override
+            public Class<? extends Page> getPage() {
+                return ConfigEdit.class;
+            }
+
+            @Override
+            public PageParameters getParameters() {
+                return PageParameters.NULL;
+            }
+
+            @Override
+            public String getTagId() {
+                return "ConfigEdit";
+            }
+        });
+
         return links;
     }
 

@@ -52,6 +52,7 @@
         <mapper resource="org/complitex/osznconnection/file/service/BenefitBean.xml"/>
         <mapper resource="org/complitex/osznconnection/file/service/TarifBean.xml"/>
         <mapper resource="org/complitex/osznconnection/file/service/PersonAccountLocalBean.xml"/>
+        <mapper resource="org/complitex/osznconnection/file/service/ConfigBean.xml"/>
         <mapper resource="org/complitex/osznconnection/file/calculation/service/CalculationCenterBean.xml"/>
 
         <mapper resource="org/complitex/osznconnection/file/calculation/adapter/DefaultCalculationCenterAdapter.xml"/>

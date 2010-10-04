@@ -20,11 +20,11 @@ public abstract class AbstractBean {
     @EJB(beanName = "SqlSessionFactoryBean")
     private SqlSessionFactoryBean sqlSessionFactoryBean;
 
-    public SqlSessionManager getSqlSessionManager() {
+    protected SqlSessionManager getSqlSessionManager() {
         return sqlSessionFactoryBean.getSqlSessionManager();
     }
 
-    public SqlSession sqlSession(){
+    protected SqlSession sqlSession(){
         return sqlSessionFactoryBean.getSqlSessionManager();
     }
 }

@@ -102,13 +102,15 @@ public abstract class AbstractProcessBean {
 
                 List<Future<RequestFile>> futures = new ArrayList<Future<RequestFile>>(getThreadSize());
 
+                int size = getThreadSize();
+                int maxErrorCount = getMaxErrorCount();
+
                 for (int index = 0; index < requestFiles.size(); ++index) {
                     futures.add(processTask(requestFiles.get(index)));
 
                     //Loading pool
                     boolean finish = index == requestFiles.size() - 1;
                     int i;
-                    int size = getThreadSize();
                     Future<RequestFile> future;
                     while (futures.size() >= size || (finish && futures.size() != 0)) {
                         for (i = 0; i < futures.size(); ++i) {
@@ -133,7 +135,7 @@ public abstract class AbstractProcessBean {
                                 processed.add(processedRequestFile);
                                 futures.remove(i);
 
-                                if (errorCount > getMaxErrorCount()) {
+                                if (errorCount > maxErrorCount) {
                                     throw new MaxErrorCountException();
                                 }
                             }
