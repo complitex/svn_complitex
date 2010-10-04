@@ -52,6 +52,7 @@ public class Payment extends AbstractRequest {
     private String outgoingBuildingNumber;
     private String outgoingBuildingCorp;
     private String outgoingApartment;
+    private Double calculationCenterCode2_1;
 
     public Long getInternalApartmentId() {
         return internalApartmentId;
@@ -147,5 +148,13 @@ public class Payment extends AbstractRequest {
 
     public void setOutgoingDistrict(String outgoingDistrict) {
         this.outgoingDistrict = outgoingDistrict;
+    }
+
+    public Double getCalculationCenterCode2_1() {
+        return calculationCenterCode2_1;
+    }
+
+    public void setCalculationCenterCode2_1(Double calculationCenterCode2_1) {
+        this.calculationCenterCode2_1 = calculationCenterCode2_1;
     }
 }

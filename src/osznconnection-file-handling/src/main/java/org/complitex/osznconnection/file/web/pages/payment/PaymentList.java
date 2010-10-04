@@ -162,7 +162,13 @@ public final class PaymentList extends TemplatePage {
                 item.add(new Label("corp", (String) payment.getField(PaymentDBF.CORP_NUM)));
                 item.add(new Label("apartment", (String) payment.getField(PaymentDBF.FLAT)));
                 item.add(new Label("status", StatusRenderer.displayValue(payment.getStatus())));
-
+                String statusDetails = "";
+                switch (payment.getStatus()) {
+                    case TARIF_CODE2_1_NOT_FOUND:
+                        statusDetails = StatusRenderer.displayTarifNotFoundDetails(payment.getCalculationCenterCode2_1());
+                        break;
+                }
+                item.add(new Label("statusDetails", statusDetails));
                 BookmarkablePageLink addressCorrectionLink = new BookmarkablePageLink<PaymentAddressCorrection>("addressCorrectionLink",
                         PaymentAddressCorrection.class, new PageParameters(ImmutableMap.of(PaymentAddressCorrection.PAYMENT_ID, payment.getId())));
                 addressCorrectionLink.setVisible(payment.getStatus().isLocalAddressCorrected());

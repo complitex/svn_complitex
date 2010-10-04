@@ -4,6 +4,7 @@
  */
 package org.complitex.dictionaryfw.util;
 
+import java.text.MessageFormat;
 import org.apache.wicket.Application;
 import org.apache.wicket.Component;
 import org.slf4j.Logger;
@@ -36,6 +37,15 @@ public final class ResourceUtil {
     public static String getString(String bundle, String key, Locale locale) {
         try {
             return getResourceBundle(bundle, locale).getString(key);
+        } catch (MissingResourceException e) {
+//            log.warn("Couldn't to find resource message. Bundle : '{}', Key : '{}', Locale : '{}'", new Object[]{bundle, key, locale});
+            throw e;
+        }
+    }
+
+    public static String getFormatString(String bundle, String key, Locale locale, Object... parameters) {
+        try {
+            return MessageFormat.format(getResourceBundle(bundle, locale).getString(key), parameters);
         } catch (MissingResourceException e) {
 //            log.warn("Couldn't to find resource message. Bundle : '{}', Key : '{}', Locale : '{}'", new Object[]{bundle, key, locale});
             throw e;
