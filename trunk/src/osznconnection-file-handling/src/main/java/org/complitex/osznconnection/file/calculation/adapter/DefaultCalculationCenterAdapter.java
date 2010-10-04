@@ -264,8 +264,10 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
         payment.setField(PaymentDBF.NUMB, data.get("NUMB"));
         payment.setField(PaymentDBF.MARK, data.get("MARK"));
 
-        Integer CODE2_1 = getCODE2_1((Double) data.get("T11_CS_UNI"), payment.getOrganizationId());
+        Double T11_CS_UNI = (Double) data.get("T11_CS_UNI");
+        Integer CODE2_1 = getCODE2_1(T11_CS_UNI, payment.getOrganizationId());
         if (CODE2_1 == null) {
+            payment.setCalculationCenterCode2_1(T11_CS_UNI);
             payment.setStatus(Status.TARIF_CODE2_1_NOT_FOUND);
         } else {
             payment.setField(PaymentDBF.CODE2_1, CODE2_1);

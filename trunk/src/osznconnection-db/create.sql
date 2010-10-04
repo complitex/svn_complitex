@@ -1133,6 +1133,7 @@ CREATE TABLE `payment` (
 	`OPP_SERV` VARCHAR(8) COMMENT 'Резерв',
 	`RESERV1` INT(10) COMMENT 'Резерв',
 	`RESERV2` VARCHAR(10) COMMENT 'Резер',
+        `calc_center_code2_1` DOUBLE COMMENT 'Код тарифа на оплату жилья, пришедший из центра начислений',
     PRIMARY KEY (`id`),
     KEY `key_request_file_id` (`request_file_id`),
     KEY `key_account_number` (`account_number`),

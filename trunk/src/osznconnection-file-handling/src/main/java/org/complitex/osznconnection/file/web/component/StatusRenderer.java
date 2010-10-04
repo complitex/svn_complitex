@@ -30,4 +30,8 @@ public class StatusRenderer implements IChoiceRenderer<Status> {
     public static String displayValue(Status object) {
         return ResourceUtil.getString(RESOURCE_BUNDLE, object.name(), Session.get().getLocale());
     }
+
+    public static String displayTarifNotFoundDetails(Double calculationCenterCode2_1) {
+        return ResourceUtil.getFormatString(RESOURCE_BUNDLE, "TARIF_CODE2_1_NOT_FOUND_DETAILS", Session.get().getLocale(), calculationCenterCode2_1);
+    }
 }

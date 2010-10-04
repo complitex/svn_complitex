@@ -23,6 +23,7 @@
         
         <result column="status" property="status"/>
         <result column="organization_id" property="organizationId"/>
+        <result column="calc_center_code2_1" property="calculationCenterCode2_1"/>
 
         <association property="dbfFields" javaType="map">
             <result column="OWN_NUM" property="OWN_NUM"/>
@@ -216,7 +217,7 @@
         (SELECT f.`organization_id` FROM `request_file` f WHERE f.`id` = r.`request_file_id`) organization_id,
         r.`internal_city_id`, r.`internal_street_id`, r.`internal_street_type_id`, r.`internal_building_id`, r.`internal_apartment_id`,
         r.`outgoing_city`, r.`outgoing_district`, r.`outgoing_street`, r.`outgoing_street_type`, r.`outgoing_building_number`, r.`outgoing_building_corp`,
-        r.`outgoing_apartment`
+        r.`outgoing_apartment`, r.`calc_center_code2_1`
         FROM `payment` r WHERE r.`request_file_id` = #{requestFileId}
         <include refid="org.complitex.osznconnection.file.service.PaymentBean.filter"/>
         <if test="orderByClause != null">
@@ -264,6 +265,7 @@
         `MARK` = #{dbfFields.MARK},
         `OPP` = #{dbfFields.OPP},
         `CODE2_1` = #{dbfFields.CODE2_1},
+        `calc_center_code2_1` = #{calculationCenterCode2_1},
         `status` = #{status}
         WHERE `id` = #{id}
     </update>
@@ -282,7 +284,7 @@
         rf.`organization_id` organization_id,
         r.`internal_city_id`, r.`internal_street_id`, r.`internal_street_type_id`, r.`internal_building_id`, r.`internal_apartment_id`,
         r.`outgoing_city`, r.`outgoing_district`, r.`outgoing_street`, r.`outgoing_street_type`, r.`outgoing_building_number`, r.`outgoing_building_corp`,
-        r.`outgoing_apartment`, r.`account_number`
+        r.`outgoing_apartment`, r.`account_number`, r.`calc_center_code2_1`
         FROM `payment` r
         JOIN `request_file` rf ON r.`request_file_id` = rf.`id`
         WHERE r.`request_file_id` = #{requestFileId} AND r.`id` IN
