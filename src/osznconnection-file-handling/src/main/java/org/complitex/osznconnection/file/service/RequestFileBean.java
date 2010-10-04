@@ -73,7 +73,7 @@ public class RequestFileBean extends AbstractBean {
 
         if (id != null){
             requestFile.setId(id);
-            return true;            
+            return true;
         }
 
         return false;

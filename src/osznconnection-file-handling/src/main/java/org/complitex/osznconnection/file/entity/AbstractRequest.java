@@ -1,6 +1,7 @@
 package org.complitex.osznconnection.file.entity;
 
 import org.complitex.osznconnection.file.service.exception.FieldNotFoundException;
+import org.complitex.osznconnection.file.service.exception.FieldWrongSizeException;
 import org.complitex.osznconnection.file.service.exception.FieldWrongTypeException;
 
 import java.io.Serializable;
@@ -29,11 +30,19 @@ public abstract class AbstractRequest implements Serializable {
 
     /**
      * Проверяет допустимость имени поля и возвращает тип поля.
-     * @param name Тип поля
+     * @param name Имя поля
      * @return Тип поля
      * @throws FieldNotFoundException Недопустимое значение имени поля
      */
     protected abstract Class getFieldType(String name) throws FieldNotFoundException;
+
+    /**
+     * Проверяет допустимый размер поля
+     * @param name Имя поля
+     * @param value Значение поля
+     * @throws FieldWrongSizeException Недопустимый размер поля
+     */
+    protected abstract void checkSize(String name, Object value) throws FieldWrongSizeException;
 
     /**
      * Установка поля с проверкой допустимого значения типа и имени.
@@ -42,8 +51,11 @@ public abstract class AbstractRequest implements Serializable {
      * @param type Тип поля
      * @throws FieldNotFoundException Недопустимое значение имени поля
      * @throws FieldWrongTypeException Недопустимый тип поля
+     * @throws FieldWrongSizeException Недопустимый размер поля 
      */
-    public final void setField(String name, Object value, Class type) throws FieldNotFoundException, FieldWrongTypeException {
+    public final void setField(String name, Object value, Class type) throws FieldNotFoundException, FieldWrongTypeException, FieldWrongSizeException {
+        checkSize(name, value);
+
         try {
             if (!getFieldType(name).equals(type)){
                 throw new FieldWrongTypeException(name);                

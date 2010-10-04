@@ -12,7 +12,7 @@ import java.util.Date;
  * Информация о файле запроса: имя, дата загрузки, организация, дата, количество записей, размер файла, статус.
  */
 public class RequestFile implements Serializable {
-    public static enum STATUS {
+    public static enum STATUS { //внимание! используется порядок по ordinal
         NEW, SKIPPED, 
         LOADING, LOAD_ERROR, LOADED,
         BINDING, BOUND_WITH_ERRORS, BINDED,
@@ -21,8 +21,8 @@ public class RequestFile implements Serializable {
     }
 
     public static enum STATUS_DETAIL {
-        FIELD_NOT_FOUND, FIELD_WRONG_TYPE, ALREADY_LOADED, CANCEL_LOADING, SQL_SESSION, DBF, CRITICAL, CANCEL_SAVING,
-        LINKED_FILE_NOT_FOUND
+        FIELD_NOT_FOUND, FIELD_WRONG_TYPE, FIELD_WRONG_SIZE, ALREADY_LOADED, CANCEL_LOADING, SQL_SESSION, DBF, CRITICAL,
+        CANCEL_SAVING, LINKED_FILE_NOT_FOUND
     }
 
     public static enum TYPE {

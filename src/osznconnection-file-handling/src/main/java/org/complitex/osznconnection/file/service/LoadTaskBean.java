@@ -8,10 +8,7 @@ import org.complitex.dictionaryfw.service.LogBean;
 import org.complitex.dictionaryfw.util.DateUtil;
 import org.complitex.osznconnection.file.Module;
 import org.complitex.osznconnection.file.entity.*;
-import org.complitex.osznconnection.file.service.exception.AlreadyLoadedException;
-import org.complitex.osznconnection.file.service.exception.FieldNotFoundException;
-import org.complitex.osznconnection.file.service.exception.FieldWrongTypeException;
-import org.complitex.osznconnection.file.service.exception.SqlSessionException;
+import org.complitex.osznconnection.file.service.exception.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +59,10 @@ public class  LoadTaskBean {
 
     @Asynchronous
     public Future<RequestFile> load(RequestFile requestFile){
+        String currentFieldName = "-1";
+        int index = 0;
+        int batchSize = configBean.getInteger(ConfigName.LOAD_RECORD_BATCH_SIZE, true);
+
         try {
             //Инициализация парсера
             DBFReader reader = new DBFReader(new FileInputStream(requestFile.getAbsolutePath()));
@@ -87,9 +88,6 @@ public class  LoadTaskBean {
 
             List<AbstractRequest> batch = new ArrayList<AbstractRequest>();
 
-            int index = 0;
-            int batchSize = configBean.getInteger(ConfigName.LOAD_RECORD_BATCH_SIZE, true);
-
             while((rowObjects = reader.nextRecord()) != null) {
                 AbstractRequest request = createObject(requestFile.getType());
 
@@ -102,9 +100,12 @@ public class  LoadTaskBean {
                     }
 
                     DBFField field = reader.getField(i);
-                    request.setField(field.getName(), value, getType(field.getDataType(), field.getDecimalCount()));
+
+                    currentFieldName = field.getName();
+                    request.setField(currentFieldName, value, getType(field.getDataType(), field.getDecimalCount()));
                 }
 
+                //обработка первой строки
                 if (index++ == 0){
                     //установка номера реестра
                     Integer registry = (Integer) request.getDbfFields().get(PaymentDBF.REE_NUM.name());
@@ -153,34 +154,41 @@ public class  LoadTaskBean {
             requestFile.setStatus(LOADED);
         }catch (FieldNotFoundException e){
             requestFile.setStatus(LOAD_ERROR, FIELD_NOT_FOUND);
-            log.error("Поле не найдено " + requestFile.getAbsolutePath(), e);
-            error(requestFile, "Поле {0} не найдено в файле {1}", e.getMessage(), requestFile.getName());
+            log.error("Поле не найдено " + requestFile.getAbsolutePath() + ", строка: " + index + ", колонка " + currentFieldName, e);
+            error(requestFile, "Поле {0} не найдено в файле {1}, строка: {2}, колонка: {3}", e.getMessage(), requestFile.getName(), index, currentFieldName);
         } catch (FieldWrongTypeException e) {
             requestFile.setStatus(LOAD_ERROR, FIELD_WRONG_TYPE);
-            log.error("Неверный тип поля " + requestFile.getAbsolutePath(), e);
-            error(requestFile, "Неверный тип поля {0} в файле {1}", e.getMessage(), requestFile.getName());
+            log.error("Недопустимый тип поля " + requestFile.getAbsolutePath()+ ", колонка: " + currentFieldName, e);
+            error(requestFile, "Неверный тип поля {0} в файле {1}, колонка: {2}", e.getMessage(), requestFile.getName(), currentFieldName);
+        } catch (FieldWrongSizeException e) {
+            requestFile.setStatus(LOAD_ERROR, FIELD_WRONG_SIZE);
+            log.error("Недопустимый размер поля " + requestFile.getAbsolutePath()+ ", строка: " + index, e);
+            error(requestFile, "Неверный размер поля {0} в файле {1}, строка: {2}, колонка: {3}",
+                    e.getMessage(), requestFile.getName(), index, currentFieldName);
         } catch (AlreadyLoadedException e) {
             requestFile.setStatus(SKIPPED, ALREADY_LOADED);
             log.warn("Файл уже загружен {}", requestFile.getAbsolutePath());
             info(requestFile, "Файл уже загружен {0}", requestFile.getName());
         } catch (SqlSessionException e){
             requestFile.setStatus(LOAD_ERROR, SQL_SESSION);
-            log.error("Ошибка сохранения в базу данных при обработке файла " + requestFile.getAbsolutePath(), e);
-            error(requestFile, "Ошибка сохранения в базу данных файла {0}. {1}", requestFile.getName(), e.getMessage());
+            log.error("Ошибка сохранения в базу данных при обработке файла " + requestFile.getAbsolutePath() + ", строка: " + index, e);
+            error(requestFile, "Ошибка сохранения в базу данных файла {0}. {1}, строка: {2}", requestFile.getName(), e.getMessage(), index);
         } catch (DBFException e){
             requestFile.setStatus(LOAD_ERROR, DBF);
-            log.error("Ошибка формата файла " + requestFile.getAbsolutePath(), e);
-            error(requestFile, "Ошибка формата файла {0} {1}", requestFile.getName(), e.getMessage());
+            log.error("Ошибка формата файла " + requestFile.getAbsolutePath()+ ", строка: " + index, e);
+            error(requestFile, "Ошибка формата файла {0} {1}, строка: {2}", requestFile.getName(), e.getMessage(), index, currentFieldName);
         } catch (Throwable t){
             requestFile.setStatus(LOAD_ERROR, CRITICAL);
-            log.error("Критическая ошибка загрузки файла " + requestFile.getAbsolutePath(), t);
-            error(requestFile, "Критическая ошибка загрузки файла {0}", requestFile.getName());
+            log.error("Критическая ошибка загрузки файла " + requestFile.getAbsolutePath()+ ", строка: " + index + ", колонка: " + currentFieldName, t);
+            error(requestFile, "Критическая ошибка загрузки файла {0}, строка: {1}, колонка: {2}", requestFile.getName(), index, currentFieldName);
         } finally {
             if (requestFile.getStatusDetail() != ALREADY_LOADED) {
-//                requestFile.setLoaded(DateUtil.getCurrentDate());
+                requestFile.setLoaded(DateUtil.getCurrentDate());
 
                 try {
-                    requestFileBean.save(requestFile);
+                    if (requestFile.getId() != null) { //update status
+                        requestFileBean.save(requestFile);
+                    }
                 } catch (Exception e) {
                     log.error("Ошибка сохранения в базу данных при обработке файла " + requestFile.getAbsolutePath(), e);
                     error(requestFile, "Ошибка сохранения в базу данных файла {0}. {1}", requestFile.getName(), e.getMessage());

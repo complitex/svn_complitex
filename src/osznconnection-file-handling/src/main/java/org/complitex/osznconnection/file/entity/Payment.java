@@ -1,6 +1,10 @@
 package org.complitex.osznconnection.file.entity;
 
 import org.complitex.osznconnection.file.service.exception.FieldNotFoundException;
+import org.complitex.osznconnection.file.service.exception.FieldWrongSizeException;
+
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * @author Artem
@@ -37,6 +41,25 @@ public class Payment extends AbstractRequest {
             return PaymentDBF.valueOf(name).getType();
         } catch (IllegalArgumentException e) {
             throw new FieldNotFoundException(e);
+        }
+    }
+
+    @Override
+    protected void checkSize(String name, Object value) throws FieldWrongSizeException {
+        if (value == null || value instanceof Date){
+            return;
+        }
+
+        PaymentDBF paymentDBF = PaymentDBF.valueOf(name);
+
+        if (value instanceof BigDecimal){
+            if (((BigDecimal) value).scale() > paymentDBF.getScale()){
+                throw new FieldWrongSizeException(value.toString());
+            }
+        }
+
+        if (value.toString().length() > paymentDBF.getLength()){
+            throw new FieldWrongSizeException(value.toString());
         }
     }
 

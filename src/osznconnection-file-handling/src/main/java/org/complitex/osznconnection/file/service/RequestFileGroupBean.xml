@@ -52,7 +52,10 @@
         delete from `request_file_group` where `id` = #{id}
     </delete>
 
-    <!--todo empty group-->
+    <delete id="clearEmptyGroup">
+        delete g from `request_file_group` g left join `request_file` rf on g.`id` = rf.`group_id` where rf.`id` is null
+    </delete>
+
     <sql id="requestFileGroupFilterFrom">
         from `request_file_group` g
             left join `request_file` p on g.`id` = p.`group_id` and p.`type` = 'PAYMENT'
@@ -60,7 +63,8 @@
     </sql>
         
     <sql id="requestFileGroupFilterWhere">
-        <where>            
+        <where>
+            (p.`id` is not null or b.`id` is not null) 
             <if test="id != null">and g.`id` = #{id}</if>
             <if test="loaded != null">and YEAR(p.`loaded`) = YEAR(#{loaded}) and DAY(p.`loaded`) = DAY(#{loaded})</if>
             <if test="paymentName != null">and p.`name` like CONCAT('%',#{paymentName},'%')</if>
