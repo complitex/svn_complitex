@@ -3,6 +3,7 @@ package org.complitex.osznconnection.file.service;
 import org.complitex.dictionaryfw.entity.Log;
 import org.complitex.dictionaryfw.service.LogBean;
 import org.complitex.osznconnection.file.Module;
+import org.complitex.osznconnection.file.entity.ConfigName;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.entity.RequestFileGroup;
 import org.complitex.osznconnection.file.storage.RequestFileStorage;
@@ -26,7 +27,7 @@ import java.util.regex.Pattern;
  *
  * @see org.complitex.osznconnection.file.service.AbstractProcessBean
  * @see org.complitex.osznconnection.file.service.LoadTaskBean
- * @see org.complitex.osznconnection.file.service.FileHandlingConfig
+ * @see org.complitex.osznconnection.file.service.ConfigBean
  */
 @Singleton
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
@@ -46,6 +47,9 @@ public class LoadRequestBean extends AbstractProcessBean {
 
     @EJB(beanName = "LogBean")
     private LogBean logBean;
+
+    @EJB(beanName = "ConfigBean")
+    private ConfigBean configBean;
 
     @PostConstruct
     public void init(){
@@ -86,12 +90,12 @@ public class LoadRequestBean extends AbstractProcessBean {
 
     @Override
     protected int getMaxErrorCount() {
-        return FileHandlingConfig.LOAD_MAX_ERROR_FILE_COUNT.getInteger();
+        return configBean.getInteger(ConfigName.LOAD_MAX_ERROR_FILE_COUNT, true);
     }
 
     @Override
     protected int getThreadSize() {
-        return FileHandlingConfig.LOAD_THREADS_SIZE.getInteger();
+        return configBean.getInteger(ConfigName.LOAD_THREADS_SIZE, true);
     }
 
     @Override

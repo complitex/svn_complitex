@@ -41,8 +41,6 @@ import static org.complitex.osznconnection.file.entity.RequestFile.STATUS_DETAIL
 public class SaveTaskBean {
     private static final Logger log = LoggerFactory.getLogger(SaveTaskBean.class);
 
-    public static final int RECORD_PROCESS_DELAY = FileHandlingConfig.SAVE_RECORD_PROCESS_DELAY.getInteger();
-
     @EJB(beanName = "PaymentBean")
     private PaymentBean paymentBean;
 
@@ -88,15 +86,6 @@ public class SaveTaskBean {
                 }
 
                 writer.addRecord(rowData);
-
-                //debug delay
-                if (RECORD_PROCESS_DELAY > 0) {
-                    try {
-                        Thread.sleep(RECORD_PROCESS_DELAY);
-                    } catch (InterruptedException e) {
-                        //hoh...
-                    }
-                }
             }
 
             //Выгрузка завершена

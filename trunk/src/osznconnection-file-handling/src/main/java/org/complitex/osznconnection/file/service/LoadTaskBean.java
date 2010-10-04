@@ -34,16 +34,13 @@ import static org.complitex.osznconnection.file.entity.RequestFile.STATUS_DETAIL
  * В настройках указывается количество записей для пакетной обработки сохранения в базу данных.
  *
  * @see org.complitex.osznconnection.file.service.LoadRequestBean
- * @see org.complitex.osznconnection.file.service.FileHandlingConfig
+ * @see org.complitex.osznconnection.file.service.ConfigBean
  */
 @Stateless(name = "LoadTaskBean")
 @SuppressWarnings({"EjbProhibitedPackageUsageInspection"})
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class  LoadTaskBean {
     private static final Logger log = LoggerFactory.getLogger(LoadTaskBean.class);
-
-    public static final int BATCH_SIZE = FileHandlingConfig.LOAD_RECORD_BATCH_SIZE.getInteger();
-    public static final int RECORD_PROCESS_DELAY = FileHandlingConfig.LOAD_RECORD_PROCESS_DELAY.getInteger();
 
     @EJB(beanName = "PaymentBean")
     private PaymentBean paymentBean;
@@ -59,6 +56,9 @@ public class  LoadTaskBean {
 
     @EJB(beanName = "LogBean")
     private LogBean logBean;
+
+    @EJB(beanName = "ConfigBean")
+    private ConfigBean configBean;
 
     @Asynchronous
     public Future<RequestFile> load(RequestFile requestFile){
@@ -88,6 +88,7 @@ public class  LoadTaskBean {
             List<AbstractRequest> batch = new ArrayList<AbstractRequest>();
 
             int index = 0;
+            int batchSize = configBean.getInteger(ConfigName.LOAD_RECORD_BATCH_SIZE, true);
 
             while((rowObjects = reader.nextRecord()) != null) {
                 AbstractRequest request = createObject(requestFile.getType());
@@ -131,22 +132,13 @@ public class  LoadTaskBean {
                 batch.add(request);
 
                 //Сохранение
-                if (batch.size() > BATCH_SIZE){
+                if (batch.size() > batchSize){
                     try {
                         save(requestFile.getType(), batch);
                     } catch (Exception e) {
                         throw new SqlSessionException(e);
                     }
                     batch.clear();
-                }
-
-                //debug delay
-                if(RECORD_PROCESS_DELAY > 0){
-                    try {
-                        Thread.sleep(RECORD_PROCESS_DELAY);
-                    } catch (InterruptedException e) {
-                        //hoh...
-                    }
                 }
             }
             try {

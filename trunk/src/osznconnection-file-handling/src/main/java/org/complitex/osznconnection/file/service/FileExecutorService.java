@@ -11,6 +11,7 @@ import com.google.common.collect.Sets;
 
 import java.util.*;
 
+import org.complitex.osznconnection.file.entity.ConfigName;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +53,7 @@ public class FileExecutorService {
     private ExecutorService bindingThreadPool = initBindingThreadPool();
 
     private static ExecutorService initBindingThreadPool() {
-        return Executors.newFixedThreadPool(FileHandlingConfig.BINDING_THREAD_SIZE.getInteger());
+        return Executors.newFixedThreadPool(ConfigStatic.get().getInteger(ConfigName.BINDING_THREAD_SIZE, true));
     }
 
     public boolean isBinding() {
@@ -62,7 +63,7 @@ public class FileExecutorService {
     private ExecutorService processingThreadPool = initProcessingThreadPool();
 
     private static ExecutorService initProcessingThreadPool() {
-        return Executors.newFixedThreadPool(FileHandlingConfig.PROCESSING_THREAD_SIZE.getInteger());
+        return Executors.newFixedThreadPool(ConfigStatic.get().getInteger(ConfigName.PROCESSING_THREAD_SIZE, true));
     }
 
     public boolean isProcessing() {

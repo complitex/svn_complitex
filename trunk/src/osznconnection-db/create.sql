@@ -1400,6 +1400,20 @@ CREATE TABLE `calculation_center_preference` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
+-- ------------------------------
+-- Config
+-- ------------------------------
+
+DROP TABLE IF EXISTS `config`;
+
+CREATE TABLE `config` (
+    `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(64) NOT NULL,
+    `value` VARCHAR(255) NOT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
