@@ -8,7 +8,7 @@
     </resultMap>
 
     <select id="findCorrectionAddressId" resultType="long" parameterType="org.complitex.osznconnection.file.entity.ObjectCorrection">
-        SELECT DISTINCT c.`object_id` FROM `${entity}_correction` c WHERE c.`organization_id` = #{organizationId} AND
+        SELECT c.`object_id` FROM `${entity}_correction` c WHERE c.`organization_id` = #{organizationId} AND
         TRIM(c.`correction`) = TRIM(#{correction})
         <if test="internalParentId != null">
             AND EXISTS(SELECT 1 FROM `${entity}` e WHERE e.`object_id` = c.`object_id` AND e.`status` = 'ACTIVE' AND e.`parent_id` = #{internalParentId})
@@ -17,7 +17,7 @@
     </select>
 
     <select id="findCorrectionBuilding" resultType="long" parameterType="org.complitex.osznconnection.file.entity.BuildingCorrection">
-        SELECT DISTINCT c.`object_id` FROM `building_correction` c WHERE c.`organization_id` = #{organizationId} AND
+        SELECT c.`object_id` FROM `building_correction` c WHERE c.`organization_id` = #{organizationId} AND
         TRIM(c.`correction`) = TRIM(#{correction})
         <choose>
             <when test="correctionCorp == null">
@@ -34,7 +34,7 @@
     </select>
 
     <select id="findCorrectionEntityType" resultType="long" parameterType="long">
-        SELECT DISTINCT etc.`entity_type_id` typeId
+        SELECT etc.`entity_type_id` typeId
         FROM `entity_type_correction` etc
         WHERE etc.`organization_id` = #{organizationId}
         AND EXISTS(SELECT 1 FROM `entity_type` et WHERE et.`id` = etc.`entity_type_id` AND et.`end_date` IS NULL)

@@ -51,60 +51,60 @@ public class AddressService extends AbstractBean {
 //        Long apartmentId = payment.getInternalApartmentId();
 
 //        if (cityId == null) {
-            String city = (String) payment.getField(PaymentDBF.N_NAME);
-            cityId = addressCorrectionBean.findCorrectionCity(city, organizationId);
-            if (cityId == null) {
-                cityId = addressCorrectionBean.findInternalCity(city);
-                if (cityId != null) {
-                    addressCorrectionBean.insertCorrectionCity(city, cityId, organizationId);
-                }
-            }
+        String city = (String) payment.getField(PaymentDBF.N_NAME);
+        cityId = addressCorrectionBean.findCorrectionCity(city, organizationId);
+        if (cityId == null) {
+            cityId = addressCorrectionBean.findInternalCity(city);
             if (cityId != null) {
-                payment.setInternalCityId(cityId);
-            } else {
-                payment.setStatus(Status.CITY_UNRESOLVED_LOCALLY);
-                return;
+                addressCorrectionBean.insertCorrectionCity(city, cityId, organizationId);
             }
+        }
+        if (cityId != null) {
+            payment.setInternalCityId(cityId);
+        } else {
+            payment.setStatus(Status.CITY_UNRESOLVED_LOCALLY);
+            return;
+        }
 //        }
 
 //        if (streetId == null) {
-            String street = (String) payment.getField(PaymentDBF.VUL_NAME);
-            streetId = addressCorrectionBean.findCorrectionStreet(cityId, street, organizationId);
-            if (streetId == null) {
-                streetId = addressCorrectionBean.findInternalStreet(street, cityId, null);
-                if (streetId != null) {
-                    addressCorrectionBean.insertCorrectionStreet(street, streetId, organizationId);
-                }
-            }
+        String street = (String) payment.getField(PaymentDBF.VUL_NAME);
+        streetId = addressCorrectionBean.findCorrectionStreet(cityId, street, organizationId);
+        if (streetId == null) {
+            streetId = addressCorrectionBean.findInternalStreet(street, cityId, null);
             if (streetId != null) {
-                payment.setInternalStreetId(streetId);
-
-                Strategy streetStrategy = strategyFactory.getStrategy("street");
-                DomainObject streetObject = streetStrategy.findById(streetId);
-                payment.setInternalStreetTypeId(streetObject.getEntityTypeId());
-            } else {
-                payment.setStatus(Status.STREET_UNRESOLVED_LOCALLY);
-                return;
+                addressCorrectionBean.insertCorrectionStreet(street, streetId, organizationId);
             }
+        }
+        if (streetId != null) {
+            payment.setInternalStreetId(streetId);
+
+            Strategy streetStrategy = strategyFactory.getStrategy("street");
+            DomainObject streetObject = streetStrategy.findById(streetId);
+            payment.setInternalStreetTypeId(streetObject.getEntityTypeId());
+        } else {
+            payment.setStatus(Status.STREET_UNRESOLVED_LOCALLY);
+            return;
+        }
 //        }
 
 //        if (buildingId == null) {
-            String buildingNumber = (String) payment.getField(PaymentDBF.BLD_NUM);
-            String buildingCorp = (String) payment.getField(PaymentDBF.CORP_NUM);
-            buildingId = addressCorrectionBean.findCorrectionBuilding(streetId, buildingNumber, buildingCorp, organizationId);
-            if (buildingId == null) {
-                buildingId = addressCorrectionBean.findInternalBuilding(buildingNumber, buildingCorp, streetId, cityId);
-                if (buildingId != null) {
-                    addressCorrectionBean.insertCorrectionBuilding(buildingNumber, buildingCorp, buildingId, organizationId);
-                }
-            }
+        String buildingNumber = (String) payment.getField(PaymentDBF.BLD_NUM);
+        String buildingCorp = (String) payment.getField(PaymentDBF.CORP_NUM);
+        buildingId = addressCorrectionBean.findCorrectionBuilding(cityId, buildingNumber, buildingCorp, organizationId);
+        if (buildingId == null) {
+            buildingId = addressCorrectionBean.findInternalBuilding(buildingNumber, buildingCorp, streetId, cityId);
             if (buildingId != null) {
-                payment.setStatus(Status.CITY_UNRESOLVED);
-                payment.setInternalBuildingId(buildingId);
-            } else {
-                payment.setStatus(Status.BUILDING_UNRESOLVED_LOCALLY);
-                return;
+                addressCorrectionBean.insertCorrectionBuilding(buildingNumber, buildingCorp, buildingId, organizationId);
             }
+        }
+        if (buildingId != null) {
+            payment.setStatus(Status.CITY_UNRESOLVED);
+            payment.setInternalBuildingId(buildingId);
+        } else {
+            payment.setStatus(Status.BUILDING_UNRESOLVED_LOCALLY);
+            return;
+        }
 //        }
 
 //        if (apartmentId == null) {
@@ -180,10 +180,10 @@ public class AddressService extends AbstractBean {
     @Transactional
     public void resolveAddress(Payment payment, long calculationCenterId, ICalculationCenterAdapter adapter) {
 //        if (!isAddressResolved(payment)) {
-            resolveLocalAddress(payment);
-            if (!payment.getStatus().isLocalAddressCorrected()) {
-                resolveOutgoingAddress(payment, calculationCenterId, adapter);
-            }
+        resolveLocalAddress(payment);
+        if (!payment.getStatus().isLocalAddressCorrected()) {
+            resolveOutgoingAddress(payment, calculationCenterId, adapter);
+        }
 //        }
     }
 
@@ -196,26 +196,27 @@ public class AddressService extends AbstractBean {
         String street = (String) payment.getField(PaymentDBF.VUL_NAME);
         String buildingNumber = (String) payment.getField(PaymentDBF.BLD_NUM);
         String buildingCorp = (String) payment.getField(PaymentDBF.CORP_NUM);
-        String apartment = (String) payment.getField(PaymentDBF.FLAT);
+//        String apartment = (String) payment.getField(PaymentDBF.FLAT);
 
         boolean corrected = false;
         if ((payment.getInternalCityId() == null) && (cityId != null)) {
             addressCorrectionBean.insertCorrectionCity(city, cityId, organizationId);
-            paymentBean.correctCity(requestFileId, city, cityId);
+                paymentBean.correctCity(requestFileId, city, cityId);
             corrected = true;
         } else if ((payment.getInternalStreetId() == null) && (streetId != null)) {
             addressCorrectionBean.insertCorrectionStreet(street, streetId, organizationId);
-            paymentBean.correctStreet(requestFileId, cityId, street, streetId, streetTypeId);
+                paymentBean.correctStreet(requestFileId, cityId, street, streetId, streetTypeId);
             corrected = true;
         } else if ((payment.getInternalBuildingId() == null) && (buildingId != null)) {
             addressCorrectionBean.insertCorrectionBuilding(buildingNumber, buildingCorp, buildingId, organizationId);
-            paymentBean.correctBuilding(requestFileId, cityId, streetId, buildingNumber, buildingCorp, buildingId);
-            corrected = true;
-        } else if ((payment.getInternalApartmentId() == null) && (apartmentId != null)) {
-            addressCorrectionBean.insertCorrectionApartment(apartment, apartmentId, organizationId);
-            paymentBean.correctApartment(requestFileId, cityId, streetId, buildingId, apartment, apartmentId);
+                paymentBean.correctBuilding(requestFileId, cityId, streetId, buildingNumber, buildingCorp, buildingId);
             corrected = true;
         }
+//        else if ((payment.getInternalApartmentId() == null) && (apartmentId != null)) {
+//            addressCorrectionBean.insertCorrectionApartment(apartment, apartmentId, organizationId);
+//            paymentBean.correctApartment(requestFileId, cityId, streetId, buildingId, apartment, apartmentId);
+//            corrected = true;
+//        }
         if (corrected) {
             benefitBean.addressCorrected(payment.getId());
         }

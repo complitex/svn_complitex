@@ -45,8 +45,8 @@ public class AddressCorrectionBean extends CorrectionBean {
     }
 
     @Transactional
-    public Long findCorrectionBuilding(long streetId, String buildingNumber, String buildingCorp, long organizationId) {
-        BuildingCorrection parameter = new BuildingCorrection(buildingNumber, buildingCorp, organizationId, streetId);
+    public Long findCorrectionBuilding(long cityId, String buildingNumber, String buildingCorp, long organizationId) {
+        BuildingCorrection parameter = new BuildingCorrection(buildingNumber, buildingCorp, organizationId, cityId);
         return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".findCorrectionBuilding", parameter);
     }
 
