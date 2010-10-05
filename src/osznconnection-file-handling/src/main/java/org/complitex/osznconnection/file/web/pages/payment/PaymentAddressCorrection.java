@@ -16,6 +16,7 @@ import org.complitex.osznconnection.file.service.PaymentBean;
 import org.complitex.osznconnection.file.web.component.correction.address.AddressCorrectionPanel;
 
 import javax.ejb.EJB;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.complitex.osznconnection.file.web.pages.util.BuildingFormatter;
 
 /**
@@ -53,7 +54,7 @@ public final class PaymentAddressCorrection extends TemplatePage {
                 + BuildingFormatter.formatBuilding((String) payment.getField(PaymentDBF.BLD_NUM), (String) payment.getField(PaymentDBF.CORP_NUM), getLocale())
                 + ", " + payment.getField(PaymentDBF.FLAT);
 
-        add(new AddressCorrectionPanel("correntionPanel", name, address, payment.getInternalCityId(), payment.getInternalStreetId(),
+        add(new AddressCorrectionPanel("correctionPanel", name, address, payment.getInternalCityId(), payment.getInternalStreetId(),
                 payment.getInternalStreetTypeId(),
                 payment.getInternalBuildingId(), payment.getInternalApartmentId()) {
 
@@ -63,7 +64,7 @@ public final class PaymentAddressCorrection extends TemplatePage {
             }
 
             @Override
-            public void back() {
+            public void back(AjaxRequestTarget target) {
                 setResponsePage(PaymentList.class, new PageParameters(ImmutableMap.of(PaymentList.FILE_ID, payment.getRequestFileId())));
             }
         });

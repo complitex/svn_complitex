@@ -9,7 +9,6 @@ import com.google.common.collect.Maps;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.complitex.dictionaryfw.entity.DomainObject;
@@ -84,7 +83,7 @@ public abstract class AddressCorrectionPanel extends Panel {
         return object;
     }
 
-    private List<SearchComponent.SearchFilterSettings> initFilters() {
+    protected List<SearchComponent.SearchFilterSettings> initFilters() {
         if (searchAddressEntity.equalsIgnoreCase("city")) {
             return ImmutableList.of(new SearchComponent.SearchFilterSettings("city", true));
         }
@@ -103,7 +102,7 @@ public abstract class AddressCorrectionPanel extends Panel {
                 new SearchComponent.SearchFilterSettings("apartment", true));
     }
 
-    private String initSearchAddressEntity(Long cityId, Long streetId, Long buildingId) {
+    protected String initSearchAddressEntity(Long cityId, Long streetId, Long buildingId) {
         if (cityId == null) {
             return "city";
         }
@@ -149,18 +148,17 @@ public abstract class AddressCorrectionPanel extends Panel {
                             getObjectTypeId(componentState.get("street")),
                             getObjectId(componentState.get("building")),
                             getObjectId(componentState.get("apartment")));
-                    back();
-                } else {
-                    target.addComponent(messages);
+                    back(target);
                 }
+                target.addComponent(messages);
             }
         };
         add(save);
-        Link cancel = new Link("cancel") {
+        AjaxLink cancel = new AjaxLink("cancel") {
 
             @Override
-            public void onClick() {
-                back();
+            public void onClick(AjaxRequestTarget target) {
+                back(target);
             }
         };
         add(cancel);
@@ -184,5 +182,5 @@ public abstract class AddressCorrectionPanel extends Panel {
         return validated;
     }
 
-    public abstract void back();
+    public abstract void back(AjaxRequestTarget target);
 }

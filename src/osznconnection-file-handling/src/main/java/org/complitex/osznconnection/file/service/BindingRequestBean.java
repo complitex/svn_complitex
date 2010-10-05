@@ -70,7 +70,7 @@ public class BindingRequestBean extends AbstractBean {
         }
 
 //        if (oldStatus != payment.getStatus()) {
-            paymentBean.update(payment);
+        paymentBean.update(payment);
 //        }
     }
 

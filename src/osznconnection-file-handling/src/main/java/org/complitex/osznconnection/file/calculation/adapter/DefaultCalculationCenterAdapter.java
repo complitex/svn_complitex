@@ -161,7 +161,7 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
             try {
                 session.selectOne(MAPPING_NAMESPACE + ".acquireAccountCorrectionDetails", params);
                 accountCorrectionDetails = (List<AccountCorrectionDetail>) params.get("details");
-                log.info("acquireAccountCorrectionDetails, parameters : {}, details : {}", params, accountCorrectionDetails);
+                log.info("acquireAccountCorrectionDetails, parameters : {}", params);
                 if (accountCorrectionDetails != null) {
                     boolean isIncorrectResult = false;
                     for (AccountCorrectionDetail detail : accountCorrectionDetails) {
