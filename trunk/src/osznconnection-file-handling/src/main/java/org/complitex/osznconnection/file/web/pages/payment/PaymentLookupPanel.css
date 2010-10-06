@@ -1,0 +1,9 @@
+.ui-dialog{
+    background:#C4CDD4 url(images/formFrame-t.gif) repeat-x scroll 0 0 !important;
+    padding: 0px 0px 0px 0px !important;
+}
+
+.ui-corner-all {
+    -moz-border-radius: 0px !important;
+    -webkit-border-radius: 0px !important;
+}

@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.wicket.util.string.Strings;
-import org.complitex.osznconnection.file.entity.AccountCorrectionDetail;
+import org.complitex.osznconnection.file.entity.AccountDetail;
 import org.complitex.osznconnection.file.entity.Benefit;
 import org.complitex.osznconnection.file.entity.BenefitDBF;
 import org.complitex.osznconnection.file.entity.Payment;
@@ -143,8 +143,8 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
     }
 
     @Override
-    public List<AccountCorrectionDetail> acquireAccountCorrectionDetails(Payment payment) {
-        List<AccountCorrectionDetail> accountCorrectionDetails = null;
+    public List<AccountDetail> acquireAccountCorrectionDetails(Payment payment) {
+        List<AccountDetail> accountCorrectionDetails = null;
         SqlSession session = null;
         try {
             session = openSession();
@@ -160,11 +160,11 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
 
             try {
                 session.selectOne(MAPPING_NAMESPACE + ".acquireAccountCorrectionDetails", params);
-                accountCorrectionDetails = (List<AccountCorrectionDetail>) params.get("details");
+                accountCorrectionDetails = (List<AccountDetail>) params.get("details");
                 log.info("acquireAccountCorrectionDetails, parameters : {}", params);
                 if (accountCorrectionDetails != null) {
                     boolean isIncorrectResult = false;
-                    for (AccountCorrectionDetail detail : accountCorrectionDetails) {
+                    for (AccountDetail detail : accountCorrectionDetails) {
                         if (Strings.isEmpty(detail.getAccountNumber())) {
                             isIncorrectResult = true;
                             break;
@@ -175,6 +175,7 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
                     }
                 }
             } catch (Exception e) {
+                log.error("", e);
                 payment.setStatus(Status.ACCOUNT_NUMBER_NOT_FOUND);
             }
 

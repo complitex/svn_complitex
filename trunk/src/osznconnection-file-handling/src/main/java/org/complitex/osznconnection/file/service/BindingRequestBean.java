@@ -49,8 +49,8 @@ public class BindingRequestBean extends AbstractBean {
         return addressService.isAddressResolved(payment);
     }
 
-    private boolean resolveLocalAccount(Payment payment) {
-        personAccountService.resolveLocalAccount(payment);
+    private boolean resolveLocalAccount(Payment payment, long calculationCenterId) {
+        personAccountService.resolveLocalAccount(payment, calculationCenterId);
         return payment.getStatus() == Status.ACCOUNT_NUMBER_RESOLVED;
     }
 
@@ -61,7 +61,7 @@ public class BindingRequestBean extends AbstractBean {
 
     private void bind(Payment payment, long calculationCenterId, ICalculationCenterAdapter adapter) {
         Status oldStatus = payment.getStatus();
-        if (!resolveLocalAccount(payment)) {
+        if (!resolveLocalAccount(payment, calculationCenterId)) {
             if (resolveAddress(payment, calculationCenterId, adapter)) {
                 if (resolveRemoteAccountNumber(payment, calculationCenterId, adapter)) {
                     //binding successful

@@ -45,7 +45,7 @@ public class PersonAccount implements Serializable {
     public PersonAccount() {
     }
 
-    public PersonAccount(String firstName, String middleName, String lastName, String ownNumSr, String city, String street, String buildingNumber, String buildingCorp, String apartment) {
+    public PersonAccount(String firstName, String middleName, String lastName, String ownNumSr, String city, String street, String buildingNumber, String buildingCorp, String apartment, Long osznId, Long calculationCenterId) {
         this.firstName = firstName;
         this.middleName = middleName;
         this.lastName = lastName;
@@ -55,6 +55,8 @@ public class PersonAccount implements Serializable {
         this.buildingNumber = buildingNumber;
         this.buildingCorp = buildingCorp;
         this.apartment = apartment;
+        this.osznId = osznId;
+        this.calculationCenterId = calculationCenterId;
     }
 
     public PersonAccount(String firstName, String middleName, String lastName, String ownNumSr, String city, String street, String buildingNumber, String buildingCorp, String apartment, String accountNumber, Long osznId, Long calculationCenterId) {

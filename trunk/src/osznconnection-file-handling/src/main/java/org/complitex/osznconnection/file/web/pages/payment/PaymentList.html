@@ -65,12 +65,30 @@
                                     <span wicket:id="statusDetails"></span>
                                 </td>
                                 <td>
-                                    <a wicket:id="addressCorrectionLink">
-                                        <wicket:message key="correctAddress"/>
-                                    </a>
-                                    <a wicket:id="accountCorrectionLink">
-                                        <wicket:message key="correctAccount"/>
-                                    </a>
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <a wicket:id="addressCorrectionLink">
+                                                    <wicket:message key="correctAddress"/>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <a wicket:id="accountCorrectionLink">
+                                                    <wicket:message key="correctAccount"/>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <a wicket:id="lookup">
+                                                    <wicket:message key="lookup"/>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <span wicket:id="lookupPanel" style="display: none"></span>
                                 </td>
                             </tr>
                         </tbody>

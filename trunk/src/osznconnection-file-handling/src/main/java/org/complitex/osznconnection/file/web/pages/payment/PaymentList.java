@@ -40,6 +40,7 @@ import org.complitex.osznconnection.file.web.component.StatusRenderer;
 import javax.ejb.EJB;
 import java.util.Arrays;
 import java.util.Iterator;
+import org.complitex.dictionaryfw.util.CloneUtil;
 import org.complitex.osznconnection.file.web.RequestFileGroupList;
 
 /**
@@ -151,7 +152,7 @@ public final class PaymentList extends TemplatePage {
 
             @Override
             protected void populateItem(Item<Payment> item) {
-                Payment payment = item.getModelObject();
+                final Payment payment = item.getModelObject();
                 item.add(new Label("account", (String) payment.getField(PaymentDBF.OWN_NUM_SR)));
                 item.add(new Label("firstName", (String) payment.getField(PaymentDBF.F_NAM)));
                 item.add(new Label("middleName", (String) payment.getField(PaymentDBF.M_NAM)));
@@ -177,6 +178,27 @@ public final class PaymentList extends TemplatePage {
                         PaymentAccountNumberCorrection.class, new PageParameters(ImmutableMap.of(PaymentAccountNumberCorrection.PAYMENT_ID, payment.getId())));
                 accountCorrectionLink.setVisible(payment.getStatus() == Status.MORE_ONE_ACCOUNTS);
                 item.add(accountCorrectionLink);
+
+                final Payment lookupPayment = CloneUtil.cloneObject(payment);
+                final PaymentLookupPanel lookupPanel = new PaymentLookupPanel("lookupPanel", lookupPayment) {
+
+                    @Override
+                    protected void updateAccountNumber(String accountNumber) {
+                        payment.setAccountNumber(accountNumber);
+                        payment.setStatus(Status.ACCOUNT_NUMBER_RESOLVED);
+                        paymentBean.updateAccountNumber(payment);
+                    }
+                };
+                item.add(lookupPanel);
+
+                AjaxLink lookup = new AjaxLink("lookup") {
+
+                    @Override
+                    public void onClick(AjaxRequestTarget target) {
+                        lookupPanel.open(target, CloneUtil.cloneObject(payment));
+                    }
+                };
+                item.add(lookup);
             }
         };
         filterForm.add(data);

@@ -10,6 +10,8 @@ import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.entity.PersonAccount;
 
 import javax.ejb.Stateless;
+import org.complitex.osznconnection.file.entity.Payment;
+import org.complitex.osznconnection.file.entity.PaymentDBF;
 import org.complitex.osznconnection.file.entity.example.PersonAccountExample;
 
 /**
@@ -38,19 +40,40 @@ public class PersonAccountLocalBean extends AbstractBean {
     }
 
     @Transactional
-    public String findLocalAccountNumber(String firstName, String middleName, String lastName, String city, String street, String buildingNumber,
-            String buildingCorp, String apartment, String ownNumSr) {
-        PersonAccount example = new PersonAccount(firstName, middleName, lastName, ownNumSr, city, street, buildingNumber, buildingCorp, apartment);
-        return (String) sqlSession().selectOne(MAPPING_NAMESPACE + ".findAccountNumber", example);
+    public String findLocalAccountNumber(Payment payment, long calculationCenterId) {
+        PersonAccount example = new PersonAccount((String) payment.getField(PaymentDBF.F_NAM),
+                (String) payment.getField(PaymentDBF.M_NAM), (String) payment.getField(PaymentDBF.SUR_NAM),
+                (String) payment.getField(PaymentDBF.OWN_NUM_SR), (String) payment.getField(PaymentDBF.N_NAME),
+                (String) payment.getField(PaymentDBF.VUL_NAME), (String) payment.getField(PaymentDBF.BLD_NUM),
+                (String) payment.getField(PaymentDBF.CORP_NUM), (String) payment.getField(PaymentDBF.FLAT), payment.getOrganizationId(),
+                calculationCenterId);
+        List<PersonAccount> results = sqlSession().selectList(MAPPING_NAMESPACE + ".findAccountNumber", example);
+        if (results.isEmpty()) {
+            return null;
+        } else if (results.size() == 1) {
+            return results.get(0).getAccountNumber();
+        } else {
+            throw new RuntimeException("More one entry in person_account table with the same data.");
+        }
     }
 
     @Transactional
-    public void saveAccountNumber(String firstName, String middleName, String lastName, String city, String street, String buildingNumber,
-            String buildingCorp, String apartment, String ownNumSr, String personAccount, long osznId, long calculationCenterId) {
-        PersonAccount param = new PersonAccount(firstName, middleName, lastName, ownNumSr, city, street, buildingNumber, buildingCorp,
-                apartment, personAccount, osznId, calculationCenterId);
-        param.setAccountNumber(personAccount);
-        sqlSession().insert(MAPPING_NAMESPACE + ".insert", param);
+    public void saveOrUpdate(Payment payment, long calculationCenterId) {
+        PersonAccount param = new PersonAccount((String) payment.getField(PaymentDBF.F_NAM),
+                (String) payment.getField(PaymentDBF.M_NAM), (String) payment.getField(PaymentDBF.SUR_NAM),
+                (String) payment.getField(PaymentDBF.OWN_NUM_SR), (String) payment.getField(PaymentDBF.N_NAME),
+                (String) payment.getField(PaymentDBF.VUL_NAME), (String) payment.getField(PaymentDBF.BLD_NUM),
+                (String) payment.getField(PaymentDBF.CORP_NUM), (String) payment.getField(PaymentDBF.FLAT), payment.getAccountNumber(),
+                payment.getOrganizationId(), calculationCenterId);
+        List<PersonAccount> results = sqlSession().selectList(MAPPING_NAMESPACE + ".findAccountNumber", param);
+        if (results.isEmpty()) {
+            insert(param);
+        } else if (results.size() == 1) {
+            param.setId(results.get(0).getId());
+            update(param);
+        } else {
+            throw new RuntimeException("More one entry in person_account table with the same data.");
+        }
     }
 
     @Transactional

@@ -14,7 +14,7 @@
         as account_number from dual
     </select>
 
-    <resultMap id="accountCorrectionDetail" type="org.complitex.osznconnection.file.entity.AccountCorrectionDetail">
+    <resultMap id="accountCorrectionDetail" type="org.complitex.osznconnection.file.entity.AccountDetail">
         <result property="accountNumber" column="acc_code" javaType="string" jdbcType="VARCHAR"/>
         <result property="ownerName" column="owner_fio" javaType="string" jdbcType="VARCHAR"/>
         <result property="ownerINN" column="owner_inn" javaType="string" jdbcType="VARCHAR"/>

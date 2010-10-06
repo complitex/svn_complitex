@@ -15,7 +15,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.wicket.util.string.Strings;
-import org.complitex.osznconnection.file.entity.AccountCorrectionDetail;
+import org.complitex.osznconnection.file.entity.AccountDetail;
 import org.complitex.osznconnection.file.entity.Payment;
 import org.complitex.osznconnection.file.entity.Status;
 
@@ -56,8 +56,8 @@ public class AcquireAccountCorrectionDetailsTest {
             }
 
             @Override
-            public List<AccountCorrectionDetail> acquireAccountCorrectionDetails(Payment payment) {
-                List<AccountCorrectionDetail> accountCorrectionDetails = null;
+            public List<AccountDetail> acquireAccountCorrectionDetails(Payment payment) {
+                List<AccountDetail> accountCorrectionDetails = null;
                 SqlSession session = null;
                 try {
                     session = openSession();
@@ -75,10 +75,10 @@ public class AcquireAccountCorrectionDetailsTest {
                     try {
                         session.selectOne(MAPPING_NAMESPACE + ".acquireAccountCorrectionDetails", params);
 //                if (processAccountCorrectionDetailsResult(payment, String.valueOf(resultCode))) {
-                        accountCorrectionDetails = (List<AccountCorrectionDetail>) params.get("details");
+                        accountCorrectionDetails = (List<AccountDetail>) params.get("details");
                         if (accountCorrectionDetails != null) {
                             boolean isIncorrectResult = false;
-                            for (AccountCorrectionDetail detail : accountCorrectionDetails) {
+                            for (AccountDetail detail : accountCorrectionDetails) {
                                 if (Strings.isEmpty(detail.getAccountNumber())) {
                                     isIncorrectResult = true;
                                     break;
