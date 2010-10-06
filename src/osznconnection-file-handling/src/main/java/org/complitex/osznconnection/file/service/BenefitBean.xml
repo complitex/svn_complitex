@@ -217,7 +217,7 @@
     </update>
 
     <update id="updateAccountNumber" parameterType="hashmap">
-        UPDATE `benefit` b SET b.`account_number` = #{accountNumber}
+        UPDATE `benefit` b SET b.`account_number` = #{accountNumber}, b.`status` = #{status}
         <include refid="org.complitex.osznconnection.file.service.BenefitBean.updateByOWN_NUM_SR"/>
     </update>
 

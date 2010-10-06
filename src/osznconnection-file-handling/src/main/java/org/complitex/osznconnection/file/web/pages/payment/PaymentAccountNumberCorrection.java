@@ -11,7 +11,7 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.ResourceModel;
 import org.complitex.osznconnection.commons.web.template.TemplatePage;
-import org.complitex.osznconnection.file.entity.AccountCorrectionDetail;
+import org.complitex.osznconnection.file.entity.AccountDetail;
 import org.complitex.osznconnection.file.entity.Payment;
 import org.complitex.osznconnection.file.service.PaymentBean;
 import org.complitex.osznconnection.file.service.PersonAccountService;
@@ -43,7 +43,7 @@ public final class PaymentAccountNumberCorrection extends TemplatePage {
 
         add(new Label("title", new ResourceModel("title")));
 
-        List<AccountCorrectionDetail> accountCorrectionDetails = personAccountService.acquireAccountCorrectionDetails(payment);
+        List<AccountDetail> accountCorrectionDetails = personAccountService.acquireAccountCorrectionDetails(payment);
 
         add(new AccountNumberCorrectionPanel("accountNumberCorrentionPanel", accountCorrectionDetails) {
 

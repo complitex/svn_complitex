@@ -10,7 +10,7 @@ import java.io.Serializable;
  *
  * @author Artem
  */
-public class AccountCorrectionDetail implements Serializable {
+public class AccountDetail implements Serializable {
 
     private String accountNumber;
 

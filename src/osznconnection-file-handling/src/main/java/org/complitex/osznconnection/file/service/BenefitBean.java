@@ -100,6 +100,7 @@ public class BenefitBean extends AbstractBean {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("paymentId", paymentId);
         params.put("accountNumber", accountNumber);
+        params.put("status", Status.ACCOUNT_NUMBER_RESOLVED.name());
         sqlSession().update(MAPPING_NAMESPACE + ".updateAccountNumber", params);
     }
 

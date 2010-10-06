@@ -18,7 +18,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.util.string.Strings;
-import org.complitex.osznconnection.file.entity.AccountCorrectionDetail;
+import org.complitex.osznconnection.file.entity.AccountDetail;
 
 /**
  *
@@ -26,14 +26,14 @@ import org.complitex.osznconnection.file.entity.AccountCorrectionDetail;
  */
 public abstract class AccountNumberCorrectionPanel extends Panel {
 
-    private IModel<AccountCorrectionDetail> model;
+    private IModel<AccountDetail> model;
 
-    public AccountNumberCorrectionPanel(String id, List<AccountCorrectionDetail> accountCorrectionDetails) {
+    public AccountNumberCorrectionPanel(String id, List<AccountDetail> accountCorrectionDetails) {
         super(id);
         init(accountCorrectionDetails);
     }
 
-    private void init(List<AccountCorrectionDetail> accountCorrectionDetails) {
+    private void init(List<AccountDetail> accountCorrectionDetails) {
         boolean needChoose = accountCorrectionDetails != null && !accountCorrectionDetails.isEmpty();
 
         final FeedbackPanel messages = new FeedbackPanel("messages");
@@ -44,7 +44,7 @@ public abstract class AccountNumberCorrectionPanel extends Panel {
         Label label = new Label("label", labelModel);
         add(label);
 
-        model = new Model<AccountCorrectionDetail>();
+        model = new Model<AccountDetail>();
 
         Form form = new Form("form") {
 
@@ -56,10 +56,10 @@ public abstract class AccountNumberCorrectionPanel extends Panel {
         };
         add(form);
 
-        IChoiceRenderer<AccountCorrectionDetail> renderer = new IChoiceRenderer<AccountCorrectionDetail>() {
+        IChoiceRenderer<AccountDetail> renderer = new IChoiceRenderer<AccountDetail>() {
 
             @Override
-            public Object getDisplayValue(AccountCorrectionDetail object) {
+            public Object getDisplayValue(AccountDetail object) {
                 StringBuilder displayValueBuilder = new StringBuilder().append(object.getAccountNumber());
 
                 if (!Strings.isEmpty(object.getOwnerName())) {
@@ -72,11 +72,11 @@ public abstract class AccountNumberCorrectionPanel extends Panel {
             }
 
             @Override
-            public String getIdValue(AccountCorrectionDetail object, int index) {
+            public String getIdValue(AccountDetail object, int index) {
                 return object.getAccountNumber();
             }
         };
-        RadioChoice<AccountCorrectionDetail> accountDetails = new RadioChoice<AccountCorrectionDetail>("accountDetails", model,
+        RadioChoice<AccountDetail> accountDetails = new RadioChoice<AccountDetail>("accountDetails", model,
                 accountCorrectionDetails, renderer);
         accountDetails.setRequired(true);
         form.add(accountDetails);

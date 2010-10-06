@@ -11,6 +11,8 @@ import javax.ejb.TransactionAttributeType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.ejb.EJB;
+import org.complitex.osznconnection.file.calculation.service.CalculationCenterBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +52,15 @@ public class PaymentBean extends AbstractBean {
             return orderBy;
         }
     }
+
+    @EJB
+    private BenefitBean benefitBean;
+
+    @EJB
+    private CalculationCenterBean calculationCenterBean;
+
+    @EJB
+    private PersonAccountLocalBean personAccountLocalBean;
 
     @Transactional
     public int count(PaymentExample example) {
@@ -172,7 +183,6 @@ public class PaymentBean extends AbstractBean {
         if (streetTypeId != null) {
             params.put("entityTypeId", streetTypeId);
         }
-
         params.put("requestFileId", fileId);
         params.put("status", Status.ADDRESS_CORRECTED);
         sqlSession().update(MAPPING_NAMESPACE + ".correct", params);
@@ -201,9 +211,16 @@ public class PaymentBean extends AbstractBean {
         params.put("streetId", streetId);
         params.put("buildingId", buildingId);
         params.put("apartment", apartment);
-
         params.put("requestFileId", fileId);
         params.put("status", Status.ADDRESS_CORRECTED);
         sqlSession().update(MAPPING_NAMESPACE + ".correct", params);
+    }
+
+    @Transactional
+    public void updateAccountNumber(Payment payment) {
+        sqlSession().update(MAPPING_NAMESPACE + ".updateAccountNumber", payment);
+        benefitBean.updateAccountNumber(payment.getId(), payment.getAccountNumber());
+        long calculationCenterId = calculationCenterBean.getCurrentCalculationCenterInfo().getId();
+        personAccountLocalBean.saveOrUpdate(payment, calculationCenterId);
     }
 }

@@ -119,7 +119,8 @@ public class AddressService extends AbstractBean {
 //        }
     }
 
-    private void resolveOutgoingAddress(Payment payment, long calculationCenterId, ICalculationCenterAdapter adapter) {
+    @Transactional
+    public void resolveOutgoingAddress(Payment payment, long calculationCenterId, ICalculationCenterAdapter adapter) {
         ObjectCorrection cityData = addressCorrectionBean.findOutgoingCity(calculationCenterId, payment.getInternalCityId());
         if (cityData == null) {
             payment.setStatus(Status.CITY_UNRESOLVED);
