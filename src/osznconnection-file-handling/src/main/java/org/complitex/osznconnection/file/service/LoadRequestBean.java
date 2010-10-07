@@ -74,7 +74,7 @@ public class LoadRequestBean extends AbstractProcessBean {
                     return true;
                 }else{ //PAYMENT, BENEFIT
                     for (int m = monthFrom; m <= monthTo; ++m) {
-                        String month = (m < 9 ? "0" + (m + 1) : "" + (m + 1));
+                        String month = (m < 9 ? "0" + m : "" + m);
                         String pattern = "((A_)|(AF))\\d{4}" + month + "\\.DBF";
 
                         if (Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(name).matches()) {
