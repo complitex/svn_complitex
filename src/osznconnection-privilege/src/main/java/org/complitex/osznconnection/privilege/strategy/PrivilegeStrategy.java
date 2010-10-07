@@ -42,6 +42,8 @@ public class PrivilegeStrategy extends Strategy {
      */
     public static final long NAME = 1200;
 
+    public static final long CODE = 1201;
+
     @EJB
     private StringCultureBean stringBean;
 
