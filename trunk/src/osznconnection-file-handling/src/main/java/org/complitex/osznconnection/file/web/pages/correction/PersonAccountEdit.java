@@ -43,28 +43,27 @@ public final class PersonAccountEdit extends FormTemplatePage {
 
     private Long correctionId;
 
-    private PersonAccount newPersonAccount;
+    private PersonAccount personAccount;
 
     public PersonAccountEdit(PageParameters params) {
         this.correctionId = params.getAsLong(CORRECTION_ID);
-        if (isNew()) {
-            newPersonAccount = new PersonAccount();
-        } else {
-            newPersonAccount = personAccountLocalBean.findById(this.correctionId);
-        }
+//        if (isNew()) {
+//            newPersonAccount = new PersonAccount();
+//        } else {
+        personAccount = personAccountLocalBean.findById(this.correctionId);
+//        }
         init();
     }
 
-    private boolean isNew() {
-        return correctionId == null;
-    }
-
+//    private boolean isNew() {
+//        return correctionId == null;
+//    }
     private void saveOrUpdate() {
-        if (isNew()) {
-            personAccountLocalBean.insert(newPersonAccount);
-        } else {
-            personAccountLocalBean.update(newPersonAccount);
-        }
+//        if (isNew()) {
+//            personAccountLocalBean.insert(personAccount);
+//        } else {
+        personAccountLocalBean.update(personAccount);
+//        }
     }
 
     private void init() {
@@ -75,20 +74,20 @@ public final class PersonAccountEdit extends FormTemplatePage {
         FeedbackPanel messages = new FeedbackPanel("messages");
         add(messages);
 
-        final IModel<PersonAccount> model = new CompoundPropertyModel<PersonAccount>(newPersonAccount);
+        final IModel<PersonAccount> model = new CompoundPropertyModel<PersonAccount>(personAccount);
         Form<PersonAccount> form = new Form<PersonAccount>("form", model);
         add(form);
 
-        form.add(new TextField<String>("lastName").setRequired(true).setEnabled(isNew()));
-        form.add(new TextField<String>("firstName").setRequired(true).setEnabled(isNew()));
-        form.add(new TextField<String>("middleName").setRequired(true).setEnabled(isNew()));
-        form.add(new TextField<String>("city").setRequired(true).setEnabled(isNew()));
-        form.add(new TextField<String>("street").setRequired(true).setEnabled(isNew()));
-        form.add(new TextField<String>("buildingNumber").setRequired(true).setEnabled(isNew()));
-        form.add(new TextField<String>("buildingCorp").setEnabled(isNew()));
-        form.add(new TextField<String>("apartment").setRequired(true).setEnabled(isNew()));
+        form.add(new TextField<String>("lastName").setRequired(true).setEnabled(false));
+        form.add(new TextField<String>("firstName").setRequired(true).setEnabled(false));
+        form.add(new TextField<String>("middleName").setRequired(true).setEnabled(false));
+        form.add(new TextField<String>("city").setRequired(true).setEnabled(false));
+        form.add(new TextField<String>("street").setRequired(true).setEnabled(false));
+        form.add(new TextField<String>("buildingNumber").setRequired(true).setEnabled(false));
+        form.add(new TextField<String>("buildingCorp").setEnabled(false));
+        form.add(new TextField<String>("apartment").setRequired(true).setEnabled(false));
         form.add(new TextField<String>("accountNumber").setRequired(true));
-        form.add(new TextField<String>("ownNumSr").setRequired(true).setEnabled(isNew()));
+        form.add(new TextField<String>("ownNumSr").setRequired(true).setEnabled(false));
 
         final List<DomainObject> allOSZNs = organizationStrategy.getAllOSZNs();
 
@@ -146,7 +145,7 @@ public final class PersonAccountEdit extends FormTemplatePage {
         };
         DisableAwareDropDownChoice<DomainObject> oszn = new DisableAwareDropDownChoice<DomainObject>("oszn", osznModel, allOSZNs, renderer);
         oszn.setRequired(true);
-        oszn.setEnabled(isNew());
+        oszn.setEnabled(false);
         form.add(oszn);
 
         final List<DomainObject> allCalculationCentres = organizationStrategy.getAllCalculationCentres();
@@ -170,7 +169,7 @@ public final class PersonAccountEdit extends FormTemplatePage {
         DisableAwareDropDownChoice<DomainObject> calculationCenter = new DisableAwareDropDownChoice<DomainObject>("calculationCenter",
                 calculationCenterModel, allCalculationCentres, renderer);
         calculationCenter.setRequired(true);
-        calculationCenter.setEnabled(isNew());
+        calculationCenter.setEnabled(false);
         form.add(calculationCenter);
 
         //save-cancel functional
