@@ -1,9 +1,28 @@
 .ui-dialog{
-    background:#C4CDD4 url(images/formFrame-t.gif) repeat-x scroll 0 0 !important;
     padding: 0px 0px 0px 0px !important;
 }
 
 .ui-corner-all {
     -moz-border-radius: 0px !important;
     -webkit-border-radius: 0px !important;
+}
+
+#lookupByAddress{
+    height: 80px !important;
+}
+
+#lookupByOwnNumSr{
+    height: 80px !important;
+}
+
+#lookupByMegabank{
+    height: 80px !important;
+}
+
+.ui-widget-content{
+    background:#C4CDD4 url(images/formFrame-t.gif) repeat-x scroll 0 0 !important;
+}
+
+.ui-widget input[type="button"] {
+    font-size: 12px;
 }
