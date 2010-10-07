@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.complitex.osznconnection.file.service.RequestFileBean">
+    <resultMap id="requestFileResultMap" type="org.complitex.osznconnection.file.entity.RequestFile">
+        <id column="id" property="id"/>
+        <result column="group_id" property="groupId"/>
+        <result column="loaded" property="loaded"/>
+        <result column="name" property="name"/>
+        <result column="directory" property="directory"/>
+        <result column="organization_id" property="organizationId"/>
+        <result column="registry" property="registry"/>
+        <result column="month" property="month"/>
+        <result column="year" property="year"/>
+        <result column="dbf_record_count" property="dbfRecordCount"/>
+        <result column="length" property="length"/>
+        <result column="checkSum" property="checkSum"/>
+        <result column="type" property="type"/>        
+        <result column="status" property="status"/>
+        <result column="status_detail" property="statusDetail"/>
+        <result column="loaded_record_count" property="loadedRecordCount"/>
+        <result column="binded_record_count" property="bindedRecordCount"/>
+    </resultMap>
+
+    <select id="selectAll" resultMap="requestFileResultMap">
+        select * from `request_file`;
+    </select>
+
+    <insert id="insertRequestFile" parameterType="org.complitex.osznconnection.file.entity.RequestFile"
+            keyProperty="id" useGeneratedKeys="true">
+        insert into `request_file`
+            (`group_id`, `organization_id`, `name`, `directory`, `registry`, `month`, `year`, `dbf_record_count`, `length`, `check_sum`,
+            `type`, `status`, `status_detail`, `loaded`)
+        values
+            (#{groupId}, #{organizationId}, #{name}, #{directory}, #{registry}, #{month}, #{year}, #{dbfRecordCount}, #{length}, #{checkSum},
+                #{type}, #{status}, #{statusDetail}, #{loaded});
+    </insert>
+
+    <update id="updateRequestFile" parameterType="org.complitex.osznconnection.file.entity.RequestFile">
+        update `request_file`
+        <set>
+            <if test="registry != null">`registry` = #{registry},</if>
+            <if test="status != null">`status` = #{status},</if>
+            <if test="statusDetail != null">`status_detail` = #{statusDetail}</if>
+        </set>
+        where `id` = #{id}
+    </update>
+
+    <delete id="deleteRequestFile" parameterType="long">
+        delete from `request_file` where `id` = #{id};
+    </delete>
+
+    <select id="findById" parameterType="long" resultMap="requestFileResultMap">
+        SELECT * FROM `request_file` WHERE `id` = #{id}
+    </select>
+
+    <sql id="requestFilesFilterWhere">
+        <where>
+            <if test="id != null">`id` = #{id}</if>
+            <if test="groupId != null">`group_id` = #{groupId}</if>
+            <if test="loaded != null">and YEAR(`loaded`) = YEAR(#{loaded}) and DAY(`loaded`) = DAY(#{loaded})</if>
+            <if test="name != null">and `name` like CONCAT('%',#{name},'%')</if>
+            <if test="organization != null">and `organization_id` = #{organization.id}</if>
+            <if test="organizationId != null">and `organization_id` = #{organizationId}</if>
+            <if test="registry != null">and `registry` = #{registry}</if>
+            <if test="year != null">and `year` = #{year}</if>
+            <if test="month != null">and `month` = #{month}</if>
+            <if test="dbfRecordCount != null">and `dbf_record_count` like CONCAT('%',#{dbfRecordCount},'%')</if>
+            <if test="type != null">and `type` = #{type}</if>
+            <if test="status != null">and `status` = #{status}</if>
+            <if test="loadedRecordCount != null">
+                loaded_record_count = #{loadedRecordCount}
+            </if>
+            <if test="bindedRecordCount != null">
+                binded_record_count = #{bindedRecordCount}
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectRequestFiles" parameterType="org.complitex.osznconnection.file.entity.RequestFileFilter"
+            resultMap="requestFileResultMap">
+        select
+            *,
+            (select (select count(*) from `payment` where `request_file_id` = rf.`id`)
+            + (select count(*) from `benefit` where `request_file_id` = rf.`id`)
+            + (select count(*) from `tarif` where `request_file_id` = rf.`id`))
+                as loaded_record_count,
+            (select (select count(*) from `payment` where `request_file_id` = rf.`id` and `status` = 'ACCOUNT_NUMBER_RESOLVED')
+            + (select count(*) from `benefit` where `request_file_id` = rf.`id` and `status` = 'ACCOUNT_NUMBER_RESOLVED'))
+                as binded_record_count
+        from
+            `request_file` rf
+        <include refid="requestFilesFilterWhere"/>
+        <if test="sortProperty != null">
+            order by `${sortProperty}`           
+            <choose>
+                <when test="ascending">asc</when>
+                <otherwise>desc</otherwise>
+            </choose>
+        </if>
+        limit #{first}, #{count}
+    </select>
+
+    <select id="selectRequestFilesCount" parameterType="org.complitex.osznconnection.file.entity.RequestFileFilter"
+            resultType="int">
+        select count(*) from `request_file` <include refid="requestFilesFilterWhere"/>
+    </select>
+
+    <select id="selectIsLoaded" parameterType="org.complitex.osznconnection.file.entity.RequestFile"
+            resultType="boolean">
+        select
+            count(*) > 0
+        from
+            `request_file`
+        where
+            `name` = #{name} and organization_id = #{organizationId}
+                and `registry` = #{registry} and `month` = #{month} and `year` = #{year}
+    </select>
+
+    <select id="selectLoadedId" parameterType="org.complitex.osznconnection.file.entity.RequestFile"
+            resultType="long">
+        select
+            id
+        from
+            `request_file`
+        where
+            `name` = #{name} and `organization_id` = #{organizationId} 
+                and `registry` = #{registry} and `month` = #{month} and `year` = #{year}
+        limit 1
+    </select>
+
+    <update id="cancelLoading">
+        update `request_file` set `status` = 'LOAD_ERROR', `status_detail` = 'CANCEL_LOADING' where `status` = 'LOADING'
+    </update>
+
+    <update id="cancelSaving">
+        update `request_file` set `status` = 'SAVE_ERROR', `status_detail` = 'CANCEL_SAVING' where `status` = 'SAVING'
+    </update>
+
+    <select id="selectTarifFiles" parameterType="long" resultMap="requestFileResultMap">
+        select * from `request_file` where organization_id = #{organizationId} and `type` = 'TARIF'
+    </select>
+</mapper>

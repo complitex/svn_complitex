@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:wicket="http://wicket.apache.org">
+    <head>
+        <wicket:head>
+            <title wicket:id="title"></title>
+        </wicket:head>
+    </head>
+    <body>
+        <wicket:extend>
+            <h2 wicket:id="label" style="margin-bottom: 20px;"></h2>
+
+            <div wicket:id="content">
+                <form wicket:id="filterForm">
+                    <table class="tbColor bookContent" cellpadding="0" cellspacing="0" border="0">
+                        <thead>
+                            <tr>
+                                <th wicket:id="lastNameHeader"><wicket:message key="last_name"/></th>
+                                <th wicket:id="firstNameHeader"><wicket:message key="first_name"/></th>
+                                <th wicket:id="middleNameHeader"><wicket:message key="middle_name"/></th>
+                                <th wicket:id="cityHeader"><wicket:message key="city"/></th>
+                                <th wicket:id="streetHeader"><wicket:message key="street"/></th>
+                                <th wicket:id="buildingNumberHeader"><wicket:message key="building_number"/></th>
+                                <th wicket:id="buildingCorpHeader"><wicket:message key="building_corp"/></th>
+                                <th wicket:id="apartmentHeader"><wicket:message key="apartment"/></th>
+                                <th wicket:id="accountNumberHeader"><wicket:message key="account_number"/></th>
+                                <th wicket:id="ownNumSrHeader"><wicket:message key="own_num_sr"/></th>
+                                <th wicket:id="osznHeader"><wicket:message key="oszn"/></th>
+                                <th wicket:id="calculationCenterHeader"><wicket:message key="calculationCenter"/></th>
+                                <th>
+                                    <input wicket:id="reset" type="button" wicket:message="value:reset" class="btnSmall"/>
+                                </th>
+                            </tr>
+                            <tr>
+                                <td class="filter-td"><input type="text" wicket:id="lastNameFilter"/></td>
+                                <td class="filter-td"><input type="text" wicket:id="firstNameFilter"/></td>
+                                <td class="filter-td"><input type="text" wicket:id="middleNameFilter"/></td>
+                                <td class="filter-td"><input type="text" wicket:id="cityFilter"/></td>
+                                <td class="filter-td"><input type="text" wicket:id="streetFilter"/></td>
+                                <td class="filter-td"><input type="text" wicket:id="buildingNumberFilter"/></td>
+                                <td class="filter-td"><input type="text" wicket:id="buildingCorpFilter"/></td>
+                                <td class="filter-td"><input type="text" wicket:id="apartmentFilter"/></td>
+                                <td class="filter-td"><input type="text" wicket:id="accountNumberFilter"/></td>
+                                <td class="filter-td"><input type="text" wicket:id="ownNumSrFilter"/></td>
+                                <td class="filter-td"><input type="text" wicket:id="osznFilter"/></td>
+                                <td class="filter-td"><input type="text" wicket:id="calculationCenterFilter"/></td>
+                                <td class="filter-td">
+                                    <input wicket:id="submit" type="submit" wicket:message="value:find" class="btnSmall default"/>
+                                </td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr wicket:id="data">
+                                <td><span wicket:id="lastName"></span></td>
+                                <td><span wicket:id="firstName"></span></td>
+                                <td><span wicket:id="middleName"></span></td>
+                                <td><span wicket:id="city"></span></td>
+                                <td><span wicket:id="street"></span></td>
+                                <td><span wicket:id="buildingNumber"></span></td>
+                                <td><span wicket:id="buildingCorp"></span></td>
+                                <td><span wicket:id="apartment"></span></td>
+                                <td><span wicket:id="accountNumber"></span></td>
+                                <td><span wicket:id="ownNumSr"></span></td>
+                                <td><span wicket:id="oszn"></span></td>
+                                <td><span wicket:id="calculationCenter"></span></td>
+                                <td>
+                                    <a wicket:id="edit">
+                                        <wicket:message key="edit"/>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+                <div wicket:id="navigator"></div>
+            </div>
+        </wicket:extend>
+    </body>
+</html>
