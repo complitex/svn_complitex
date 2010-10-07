@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.complitex.osznconnection.file.service.BenefitBean">
+    <resultMap id="benefitResultMap" type="org.complitex.osznconnection.file.entity.Benefit">
+        <id column="id" property="id"/>
+        <result column="request_file_id" property="requestFileId"/>
+        <result column="account_number" property="accountNumber"/>
+        <result column="status" property="status"/>
+
+        <result column="city" property="city"/>
+        <result column="street" property="street"/>
+        <result column="building_number" property="buildingNumber"/>
+        <result column="building_corp" property="buildingCorp"/>
+        <result column="apartment" property="apartment"/>
+        <result column="organization_id" property="organizationId"/>
+
+        <association property="dbfFields" javaType="map">
+            <result column="OWN_NUM" property="OWN_NUM"/>
+            <result column="REE_NUM" property="REE_NUM"/>
+            <result column="OWN_NUM_SR" property="OWN_NUM_SR"/>
+            <result column="FAM_NUM" property="FAM_NUM"/>
+            <result column="SUR_NAM" property="SUR_NAM"/>
+            <result column="F_NAM" property="F_NAM"/>
+            <result column="M_NAM" property="M_NAM"/>
+            <result column="IND_COD" property="IND_COD"/>
+            <result column="PSP_SER" property="PSP_SER"/>
+            <result column="PSP_NUM" property="PSP_NUM"/>
+            <result column="OZN" property="OZN"/>
+            <result column="CM_AREA" property="CM_AREA"/>
+            <result column="HEAT_AREA" property="HEAT_AREA"/>
+            <result column="OWN_FRM" property="OWN_FRM"/>
+            <result column="HOSTEL" property="HOSTEL"/>
+            <result column="PRIV_CAT" property="PRIV_CAT"/>
+            <result column="ORD_FAM" property="ORD_FAM"/>
+            <result column="OZN_SQ_ADD" property="OZN_SQ_ADD"/>
+            <result column="OZN_ABS" property="OZN_ABS"/>
+            <result column="RESERV1" property="RESERV1"/>
+            <result column="RESERV2" property="RESERV2"/>
+        </association>      
+    </resultMap>
+
+    <select id="selectBenefits" resultMap="benefitResultMap" parameterType="long">
+        select * from `benefit` where `request_file_id` = #{id}
+    </select>
+
+    <insert id="insertBenefit" parameterType="org.complitex.osznconnection.file.entity.Benefit">
+        insert into `benefit`
+        (
+        <trim suffixOverrides=",">
+            `request_file_id`, `account_number`, `status`,
+            <foreach collection="dbfFields.keys" item="key">
+                `${key}`,
+            </foreach>
+        </trim>
+        )
+        values
+        (
+        <trim suffixOverrides=",">
+            #{requestFileId}, #{accountNumber}, #{status},
+            <foreach collection="dbfFields.keys" item="key">
+                #{dbfFields.${key}},
+            </foreach>
+        </trim>
+        )
+    </insert>
+
+    <insert id="insertBenefitList" parameterType="list">
+        insert into `benefit`
+        (
+        <trim suffixOverrides=",">
+            `request_file_id`, `account_number`, `status`,
+            <foreach collection="list[0].dbfFields.keys" item="key">
+                `${key}`,
+            </foreach>
+        </trim>
+        )
+        values
+        <foreach collection="list" separator="," item="item">
+            (
+            <trim suffixOverrides=",">
+                #{item.requestFileId}, #{item.accountNumber}, #{item.status},
+                <foreach collection="item.dbfFields.keys" item="key">
+                    #{item.dbfFields.${key}},
+                </foreach>
+            </trim>
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateBenefit" parameterType="org.complitex.osznconnection.file.entity.Benefit">
+        update `benefit`
+        <set>
+            `request_file_id` = #{requestFileId}, `account_number` = #{accountNumber}, `status` = #{status},
+            <foreach collection="dbfFields.keys" item="key">
+                `${key}` = #{dbfFields[key]},
+            </foreach>
+        </set>
+        where
+        `id` = #{id}
+    </update>
+
+    <delete id="deleteBenefits" parameterType="long">
+        delete from `benefit` where `request_file_id` = #{id};
+    </delete>
+
+    <sql id="filter">
+        <if test="account != null">
+            AND b.`OWN_NUM_SR` LIKE CONCAT('%',#{account},'%')
+        </if>
+        <if test="firstName != null">
+            AND b.`F_NAM` LIKE CONCAT('%',#{firstName},'%')
+        </if>
+        <if test="middleName != null">
+            AND b.`M_NAM` LIKE CONCAT('%',#{middleName},'%')
+        </if>
+        <if test="lastName != null">
+            AND b.`SUR_NAM` LIKE CONCAT('%',#{lastName},'%')
+        </if>
+
+        <if test="city != null">
+            AND p.`N_NAME` LIKE CONCAT('%', #{city}, '%')
+        </if>
+        <if test="street != null">
+            AND p.`VUL_NAME` LIKE CONCAT('%', #{street}, '%')
+        </if>
+        <if test="building != null">
+            AND p.`BLD_NUM` LIKE CONCAT('%', #{building}, '%')
+        </if>
+        <if test="corp != null">
+            AND p.`CORP_NUM` LIKE CONCAT('%', #{corp}, '%')
+        </if>
+        <if test="apartment != null">
+            AND p.`FLAT` LIKE CONCAT('%', #{apartment}, '%')
+        </if>
+
+        <if test="status != null">
+            AND b.`status` = #{status}
+        </if>
+    </sql>
+
+    <select id="count" resultType="int" parameterType="org.complitex.osznconnection.file.entity.example.BenefitExample">
+        SELECT
+            COUNT(DISTINCT b.`id`)
+        FROM
+            `benefit` b
+            LEFT JOIN `request_file` bf ON b.`request_file_id` = bf.`id`
+            LEFT JOIN `payment` p ON b.`OWN_NUM_SR` = p.`OWN_NUM_SR`
+            LEFT JOIN `request_file` pf ON p.`request_file_id` = pf.`id`
+        WHERE
+            pf.`group_id` = bf.`group_id` AND b.`request_file_id` = #{requestFileId}
+        <include refid="org.complitex.osznconnection.file.service.BenefitBean.filter"/>
+    </select>
+
+    <select id="find" resultMap="benefitResultMap"
+            parameterType="org.complitex.osznconnection.file.entity.example.BenefitExample">
+        SELECT
+            DISTINCT b.`id` id, b.`request_file_id`, b.`OWN_NUM_SR`, b.`F_NAM`, b.`M_NAM`, b.`SUR_NAM`, b.`status`,
+            p.`N_NAME` city, p.`VUL_NAME` street, p.`BLD_NUM` building_number, p.`CORP_NUM` building_corp,
+            p.`FLAT` apartment
+        FROM
+            `benefit` b
+            LEFT JOIN `request_file` bf ON b.`request_file_id` = bf.`id`
+            LEFT JOIN `payment` p ON b.`OWN_NUM_SR` = p.`OWN_NUM_SR`
+            LEFT JOIN `request_file` pf ON p.`request_file_id` = pf.`id`
+        WHERE
+            pf.`group_id` = bf.`group_id` AND b.`request_file_id` = #{requestFileId}
+        <include refid="org.complitex.osznconnection.file.service.BenefitBean.filter"/>
+        <if test="orderByClause != null">
+            ORDER BY ${orderByClause}
+            <choose>
+                <when test="asc">
+                    ASC
+                </when>
+                <otherwise>
+                    DESC
+                </otherwise>
+            </choose>
+        </if>
+        <if test="size != 0">
+            limit #{start},#{size}
+        </if>
+    </select>
+
+    <select id="countByFile" resultType="int" parameterType="hashmap">
+        SELECT COUNT(*) FROM `benefit` b
+        WHERE b.`request_file_id` = #{requestFileId} AND b.`status` IN
+        <foreach collection="statuses" item="status" open="(" close=")" separator=",">
+            #{status}
+        </foreach>
+    </select>
+
+    <update id="updateStatusForFile" parameterType="hashmap">
+        UPDATE `benefit` b SET b.`status` =
+        CASE IFNULL(
+            (SELECT DISTINCT p.`status` FROM `payment` p, `request_file` bf, `request_file` pf
+                WHERE b.`OWN_NUM_SR` = p.`OWN_NUM_SR` AND bf.`id` = b.request_file_id AND pf.`id` = p.`request_file_id`
+                    AND bf.`group_id` = pf.`group_id`),
+               '-1')
+            WHEN '-1' THEN b.`status`
+            <foreach collection="statuses" item="status">
+                WHEN #{status} THEN #{status}
+            </foreach>
+            ELSE 'ACCOUNT_NUMBER_RESOLVED'
+        END
+        WHERE b.`request_file_id` = #{fileId}
+    </update>
+
+    <sql id="updateByOWN_NUM_SR">
+        WHERE b.`OWN_NUM_SR` = (SELECT DISTINCT p.`OWN_NUM_SR` FROM `payment` p, `request_file` pf, `request_file` bf
+            WHERE p.`request_file_id` = pf.`id` AND b.`request_file_id` = bf.`id` AND p.`id` = #{paymentId}
+                AND bf.`group_id` = pf.`group_id`)
+    </sql>
+
+    <update id="addressCorrected" parameterType="_long">
+        UPDATE `benefit` b SET b.`status` = 'ADDRESS_CORRECTED'
+        <include refid="org.complitex.osznconnection.file.service.BenefitBean.updateByOWN_NUM_SR"/>
+    </update>
+
+    <update id="updateAccountNumber" parameterType="hashmap">
+        UPDATE `benefit` b SET b.`account_number` = #{accountNumber}, b.`status` = #{status}
+        <include refid="org.complitex.osznconnection.file.service.BenefitBean.updateByOWN_NUM_SR"/>
+    </update>
+
+    <update id="populateBenefit" parameterType="hashmap">
+        UPDATE `benefit` b SET
+        b.`CM_AREA` = #{CM_AREA}, b.`OWN_FRM` = #{OWN_FRM}, b.`HOSTEL` = #{HOSTEL}
+        <include refid="org.complitex.osznconnection.file.service.BenefitBean.updateByOWN_NUM_SR"/>
+        AND b.`OZN` = 1
+    </update>
+
+    <select id="findDat1" parameterType="hashmap" resultType="date">
+        SELECT DISTINCT p.`DAT1` FROM `payment` p
+        JOIN `request_file` pf ON p.`request_file_id` = pf.`id`
+        JOIN `benefit` b ON b.`OWN_NUM_SR` = p.`OWN_NUM_SR`
+        JOIN `request_file` bf ON bf.`id` = b.`request_file_id`
+        WHERE bf.`group_id` = pf.`group_id`
+        AND p.`FROG` > 0
+        AND bf.`id` = #{fileId} AND p.`account_number` = #{accountNumber}
+    </select>
+
+    <!--<select id="isMarkEqualToBenefitCount" parameterType="hashmap" resultType="int">
+        SELECT (SELECT DISTINCT p.`MARK` FROM `payment` p
+        JOIN `request_file` pf ON p.`request_file_id` = pf.`id`
+        JOIN `benefit` b ON b.`OWN_NUM_SR` = p.`OWN_NUM_SR`
+        JOIN `request_file` bf ON bf.`id` = b.`request_file_id`
+        WHERE (bf.`organization_id` = pf.`organization_id`) AND (EXTRACT(YEAR_MONTH FROM bf.`date`) = EXTRACT(YEAR_MONTH FROM pf.`date`))
+        AND bf.`id` = #{fileId}) -
+        (SELECT COUNT(*) FROM `benefit` b
+        JOIN `request_file` bf ON bf.`id` = b.`request_file_id`
+        WHERE bf.`id` = #{fileId} AND b.`account_number` = #{accountNumber})
+        FROM DUAL
+    </select>-->
+
+    <select id="allAccountNumbers" parameterType="hashmap" resultType="string">
+        SELECT DISTINCT b.`account_number` FROM `benefit` b
+        JOIN `request_file` bf ON b.`request_file_id` = bf.`id`
+        WHERE bf.`id` = #{fileId}
+        AND b.`account_number` IS NOT NULL
+    </select>
+
+    <select id="findByAccountNumber" parameterType="hashmap" resultMap="benefitResultMap">
+        SELECT b.`id`, b.`status`, b.`account_number`, bf.`organization_id` organization_id,
+        b.`request_file_id`,
+        b.`IND_COD`,
+        b.`PSP_NUM`,
+        b.`ORD_FAM`,
+        b.`PRIV_CAT`
+        FROM `benefit` b
+        JOIN `request_file` bf ON b.`request_file_id` = bf.`id`
+        WHERE b.`account_number` = #{accountNumber} AND bf.`id` = #{fileId}
+    </select>
+
+    <update id="update" parameterType="org.complitex.osznconnection.file.entity.Benefit">
+        UPDATE `benefit` SET
+        `status` = #{status},
+        `ORD_FAM` = #{dbfFields.ORD_FAM},
+        `PRIV_CAT` = #{dbfFields.PRIV_CAT}
+        WHERE
+        `id` = #{id}
+    </update>
+
+
+</mapper>
