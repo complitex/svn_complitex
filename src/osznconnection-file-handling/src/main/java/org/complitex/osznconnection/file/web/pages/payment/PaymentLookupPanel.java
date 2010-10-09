@@ -39,6 +39,7 @@ import org.complitex.osznconnection.file.entity.RequestStatus;
 import org.complitex.osznconnection.file.service.PaymentLookupBean;
 import org.complitex.osznconnection.file.web.component.StatusRenderer;
 import org.odlabs.wiquery.ui.accordion.Accordion;
+import org.odlabs.wiquery.ui.accordion.AccordionAnimated;
 import org.odlabs.wiquery.ui.dialog.Dialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,7 +109,6 @@ public abstract class PaymentLookupPanel extends Panel {
         dialog = new Dialog("dialog");
         dialog.setModal(true);
         dialog.setWidth(600);
-        dialog.setTitle(getString("title"));
         add(dialog);
 
         messages = new FeedbackPanel("messages");
@@ -116,6 +116,7 @@ public abstract class PaymentLookupPanel extends Panel {
         dialog.add(messages);
 
         Accordion accordion = new Accordion("accordion");
+        accordion.setAnimationEffect(new AccordionAnimated(false));
         dialog.add(accordion);
 
         //lookup by address
