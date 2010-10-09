@@ -1032,8 +1032,8 @@ CREATE TABLE `request_file` (
     `length` BIGINT(20),
     `check_sum` VARCHAR(32),
     `type` VARCHAR(50),
-    `status` VARCHAR(50),
-    `status_detail` VARCHAR(50),
+    `status` INTEGER NULL COMMENT 'См. таблицу status_description и org.complitex.osznconnection.file.entity.RequestFile$STATUS',
+    `status_detail` INTEGER NULL COMMENT 'См. таблицу status_description и org.complitex.osznconnection.file.entity.RequestFile$STATUS_DETAIL',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_id` (`name`, `organization_id`, `registry`, `month`, `year`), 
     KEY `key_group_id` (`group_id`),
@@ -1074,7 +1074,7 @@ CREATE TABLE `payment` (
     `outgoing_building_corp` VARCHAR(100),
     `outgoing_apartment` VARCHAR(100),
 
-    `status` VARCHAR(50) NOT NULL DEFAULT 'CITY_UNRESOLVED_LOCALLY',
+    `status` INTEGER NOT NULL DEFAULT 200 COMMENT 'См. таблицу status_description и org.complitex.osznconnection.file.entity.RequestStatus',
 
     `OWN_NUM` VARCHAR (15) COMMENT 'Номер дела',
     `REE_NUM` INT(2) COMMENT 'Номер реестра',
@@ -1166,7 +1166,7 @@ CREATE TABLE `benefit` (
     `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
     `request_file_id` BIGINT(20) NULL,
     `account_number` VARCHAR(100) NULL,
-    `status` VARCHAR(50) NOT NULL DEFAULT 'CITY_UNRESOLVED_LOCALLY',
+    `status` INTEGER NOT NULL DEFAULT 200 COMMENT 'См. таблицу status_description и org.complitex.osznconnection.file.entity.RequestStatus',
 
 	`OWN_NUM` VARCHAR(15) COMMENT 'Номер дела',
 	`REE_NUM` INT(2) COMMENT 'Номер реестра',
@@ -1208,7 +1208,7 @@ DROP TABLE IF EXISTS `tarif`;
 CREATE TABLE `tarif` (
     `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
     `request_file_id` BIGINT(20) NOT NULL,
-    `status` VARCHAR(50),
+    `status` INTEGER NULL,
 
 	`T11_DATA_T` VARCHAR(10),
     `T11_DATA_E` VARCHAR(10),
@@ -1414,6 +1414,18 @@ CREATE TABLE `config` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- ------------------------------
+-- Status descriptions. Read only, use only for reports.
+-- ------------------------------
+
+DROP TABLE IF EXISTS `status_description`;
+
+CREATE TABLE `status_description` (
+    `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+    `code` INTEGER NOT NULL,
+    `name` VARCHAR(500) NOT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

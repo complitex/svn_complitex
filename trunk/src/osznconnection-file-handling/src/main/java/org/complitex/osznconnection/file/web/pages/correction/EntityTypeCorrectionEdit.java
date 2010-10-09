@@ -108,12 +108,12 @@ public class EntityTypeCorrectionEdit extends FormTemplatePage {
             }
 
             @Override
-            protected EntityTypeCorrection initModel(String entity, long correctionId) {
+            protected EntityTypeCorrection initObjectCorrection(String entity, long correctionId) {
                 return correctionBean.findEntityTypeById(correctionId);
             }
 
             @Override
-            protected EntityTypeCorrection newModel() {
+            protected EntityTypeCorrection newObjectCorrection() {
                 return new EntityTypeCorrection();
             }
 

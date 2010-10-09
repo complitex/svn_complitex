@@ -20,7 +20,7 @@ import org.complitex.osznconnection.file.entity.Benefit;
 import org.complitex.osznconnection.file.entity.BenefitDBF;
 import org.complitex.osznconnection.file.entity.Payment;
 import org.complitex.osznconnection.file.entity.PaymentDBF;
-import org.complitex.osznconnection.file.entity.Status;
+import org.complitex.osznconnection.file.entity.RequestStatus;
 import org.complitex.osznconnection.file.service.OwnershipCorrectionBean;
 import org.complitex.osznconnection.file.service.PrivilegeCorrectionBean;
 import org.complitex.osznconnection.file.service.TarifBean;
@@ -117,27 +117,27 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
 
     protected void processPersonAccountResult(Payment payment, String result) {
         if (result.equals("0")) {
-            payment.setStatus(Status.ACCOUNT_NUMBER_NOT_FOUND);
+            payment.setStatus(RequestStatus.ACCOUNT_NUMBER_NOT_FOUND);
         } else if (result.equals("-1")) {
-            payment.setStatus(Status.MORE_ONE_ACCOUNTS);
+            payment.setStatus(RequestStatus.MORE_ONE_ACCOUNTS);
         } else if (result.equals("-2")) {
-            payment.setStatus(Status.APARTMENT_UNRESOLVED);
+            payment.setStatus(RequestStatus.APARTMENT_UNRESOLVED);
         } else if (result.equals("-3")) {
-            payment.setStatus(Status.BUILDING_CORP_UNRESOLVED);
+            payment.setStatus(RequestStatus.BUILDING_CORP_UNRESOLVED);
         } else if (result.equals("-4")) {
-            payment.setStatus(Status.BUILDING_UNRESOLVED);
+            payment.setStatus(RequestStatus.BUILDING_UNRESOLVED);
         } else if (result.equals("-5")) {
-            payment.setStatus(Status.STREET_UNRESOLVED);
+            payment.setStatus(RequestStatus.STREET_UNRESOLVED);
         } else if (result.equals("-6")) {
-            payment.setStatus(Status.STREET_TYPE_UNRESOLVED);
+            payment.setStatus(RequestStatus.STREET_TYPE_UNRESOLVED);
         } else if (result.equals("-7")) {
-            payment.setStatus(Status.DISTRICT_UNRESOLVED);
+            payment.setStatus(RequestStatus.DISTRICT_UNRESOLVED);
         } else {
             if (Strings.isEmpty(result)) {
-                payment.setStatus(Status.ACCOUNT_NUMBER_NOT_FOUND);
+                payment.setStatus(RequestStatus.ACCOUNT_NUMBER_NOT_FOUND);
             } else {
                 payment.setAccountNumber(result);
-                payment.setStatus(Status.ACCOUNT_NUMBER_RESOLVED);
+                payment.setStatus(RequestStatus.ACCOUNT_NUMBER_RESOLVED);
             }
         }
     }
@@ -176,7 +176,7 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
                 }
             } catch (Exception e) {
                 log.error("", e);
-                payment.setStatus(Status.ACCOUNT_NUMBER_NOT_FOUND);
+                payment.setStatus(RequestStatus.ACCOUNT_NUMBER_NOT_FOUND);
             }
 
             session.commit();
@@ -219,11 +219,11 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
                 if (data != null && (data.size() == 1)) {
                     processData(calculationCenterId, payment, benefit, data.get(0));
                 } else {
-                    payment.setStatus(Status.ACCOUNT_NUMBER_NOT_FOUND);
+                    payment.setStatus(RequestStatus.ACCOUNT_NUMBER_NOT_FOUND);
                 }
             } catch (Exception e) {
                 log.error("", e);
-                payment.setStatus(Status.ACCOUNT_NUMBER_NOT_FOUND);
+                payment.setStatus(RequestStatus.ACCOUNT_NUMBER_NOT_FOUND);
             }
 
             session.commit();
@@ -269,10 +269,10 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
         Integer CODE2_1 = getCODE2_1(T11_CS_UNI, payment.getOrganizationId());
         if (CODE2_1 == null) {
             payment.setCalculationCenterCode2_1(T11_CS_UNI);
-            payment.setStatus(Status.TARIF_CODE2_1_NOT_FOUND);
+            payment.setStatus(RequestStatus.TARIF_CODE2_1_NOT_FOUND);
         } else {
             payment.setField(PaymentDBF.CODE2_1, CODE2_1);
-            payment.setStatus(Status.PROCESSED);
+            payment.setStatus(RequestStatus.PROCESSED);
         }
 
         //benefit
@@ -319,11 +319,11 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
                 if (data != null && !data.isEmpty()) {
                     processBenefitData(calculationCenterId, benefits, data);
                 } else {
-                    setStatus(benefits, Status.ACCOUNT_NUMBER_NOT_FOUND);
+                    setStatus(benefits, RequestStatus.ACCOUNT_NUMBER_NOT_FOUND);
                 }
             } catch (Exception e) {
                 log.error("", e);
-                setStatus(benefits, Status.ACCOUNT_NUMBER_NOT_FOUND);
+                setStatus(benefits, RequestStatus.ACCOUNT_NUMBER_NOT_FOUND);
             }
             session.commit();
         } catch (Exception e) {
@@ -375,7 +375,7 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
                             }
                         }));
                     } else {
-                        setStatus(benefits, Status.WRONG_ACCOUNT_NUMBER);
+                        setStatus(benefits, RequestStatus.WRONG_ACCOUNT_NUMBER);
                         return;
                     }
                 }
@@ -391,12 +391,12 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
                     String cmBenefitCode = (String) el.get("BENEFIT_CODE");
                     String osznBenefitCode = getOSZNPrivilegeCode(cmBenefitCode, calculationCenterId, benefits.get(0).getOrganizationId());
                     if (osznBenefitCode == null) {
-                        setStatus(theSameBenefits, Status.BENEFIT_NOT_FOUND);
+                        setStatus(theSameBenefits, RequestStatus.BENEFIT_NOT_FOUND);
                     } else {
                         for (Benefit benefit : theSameBenefits) {
                             benefit.setField(BenefitDBF.PRIV_CAT, osznBenefitCode);
                             benefit.setField(BenefitDBF.ORD_FAM, el.get("ORD_FAM"));
-                            benefit.setStatus(Status.PROCESSED);
+                            benefit.setStatus(RequestStatus.PROCESSED);
                         }
                     }
                     processed.add(inn);
@@ -405,7 +405,7 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
         }
     }
 
-    protected void setStatus(List<Benefit> benefits, Status status) {
+    protected void setStatus(List<Benefit> benefits, RequestStatus status) {
         for (Benefit benefit : benefits) {
             benefit.setStatus(status);
         }

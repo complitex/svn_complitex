@@ -23,7 +23,7 @@ public abstract class AbstractRequest implements Serializable {
     private Long id;
     private Long requestFileId;
     private Long organizationId;
-    private Status status;
+    private RequestStatus status;
     private String accountNumber;
 
     protected Map<String, Object> dbfFields = new HashMap<String, Object>();
@@ -91,11 +91,11 @@ public abstract class AbstractRequest implements Serializable {
         this.organizationId = organizationId;
     }
 
-    public Status getStatus() {
+    public RequestStatus getStatus() {
         return status;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(RequestStatus status) {
         this.status = status;
     }
 

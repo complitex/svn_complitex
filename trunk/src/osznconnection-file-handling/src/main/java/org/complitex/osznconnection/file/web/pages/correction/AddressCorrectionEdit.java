@@ -147,14 +147,14 @@ public class AddressCorrectionEdit extends FormTemplatePage {
         }
 
         @Override
-        protected BuildingCorrection initModel(String entity, long correctionId) {
+        protected BuildingCorrection initObjectCorrection(String entity, long correctionId) {
             BuildingCorrection correction = addressCorrectionBean.findBuildingById(correctionId);
             correction.setEntity("building");
             return correction;
         }
 
         @Override
-        protected BuildingCorrection newModel() {
+        protected BuildingCorrection newObjectCorrection() {
             BuildingCorrection correction = new BuildingCorrection();
             correction.setEntity("building");
             return correction;

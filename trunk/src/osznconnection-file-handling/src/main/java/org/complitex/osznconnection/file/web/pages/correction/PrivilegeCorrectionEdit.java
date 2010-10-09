@@ -91,6 +91,11 @@ public final class PrivilegeCorrectionEdit extends FormTemplatePage {
             }
 
             @Override
+            protected boolean isOrganizationCodeRequired() {
+                return true;
+            }
+
+            @Override
             protected void back() {
                 PageParameters parameters = new PageParameters();
                 parameters.put(PrivilegeCorrectionList.CORRECTED_ENTITY, getEntity());

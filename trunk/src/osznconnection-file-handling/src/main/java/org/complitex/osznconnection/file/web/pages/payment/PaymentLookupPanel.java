@@ -35,7 +35,7 @@ import org.complitex.dictionaryfw.web.component.search.SearchComponentState;
 import org.complitex.osznconnection.file.entity.AccountDetail;
 import org.complitex.osznconnection.file.entity.Payment;
 import org.complitex.osznconnection.file.entity.PaymentDBF;
-import org.complitex.osznconnection.file.entity.Status;
+import org.complitex.osznconnection.file.entity.RequestStatus;
 import org.complitex.osznconnection.file.service.PaymentLookupBean;
 import org.complitex.osznconnection.file.web.component.StatusRenderer;
 import org.odlabs.wiquery.ui.accordion.Accordion;
@@ -148,14 +148,14 @@ public abstract class PaymentLookupPanel extends Panel {
 //                            paymentModel.getObject().getField(PaymentDBF.FLAT)});
                 if (validateInternalAddress()) {
                     paymentLookupBean.resolveOutgoingAddress(paymentModel.getObject());
-                    if (paymentModel.getObject().getStatus() == Status.ACCOUNT_NUMBER_NOT_FOUND) {
+                    if (paymentModel.getObject().getStatus() == RequestStatus.ACCOUNT_NUMBER_NOT_FOUND) {
                         List<AccountDetail> accountList = paymentLookupBean.getAccounts(paymentModel.getObject());
 //                        log.info("Accounts : {}", accountList);
 
-                        if (paymentModel.getObject().getStatus() == Status.ACCOUNT_NUMBER_NOT_FOUND) {
+                        if (paymentModel.getObject().getStatus() == RequestStatus.ACCOUNT_NUMBER_NOT_FOUND) {
                             accountNumberModel.setObject(null);
                             accountModel.setObject(null);
-                            error(StatusRenderer.displayValue(Status.ACCOUNT_NUMBER_NOT_FOUND));
+                            error(StatusRenderer.displayValue(RequestStatus.ACCOUNT_NUMBER_NOT_FOUND));
                             target.addComponent(messages);
                             target.addComponent(accountNumber);
                         } else {

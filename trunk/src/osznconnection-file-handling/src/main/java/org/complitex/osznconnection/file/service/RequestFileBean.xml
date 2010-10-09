@@ -84,8 +84,8 @@
             + (select count(*) from `benefit` where `request_file_id` = rf.`id`)
             + (select count(*) from `tarif` where `request_file_id` = rf.`id`))
                 as loaded_record_count,
-            (select (select count(*) from `payment` where `request_file_id` = rf.`id` and `status` = 'ACCOUNT_NUMBER_RESOLVED')
-            + (select count(*) from `benefit` where `request_file_id` = rf.`id` and `status` = 'ACCOUNT_NUMBER_RESOLVED'))
+            (select (select count(*) from `payment` where `request_file_id` = rf.`id` and `status` = 214)
+            + (select count(*) from `benefit` where `request_file_id` = rf.`id` and `status` = 214))
                 as binded_record_count
         from
             `request_file` rf
@@ -129,11 +129,11 @@
     </select>
 
     <update id="cancelLoading">
-        update `request_file` set `status` = 'LOAD_ERROR', `status_detail` = 'CANCEL_LOADING' where `status` = 'LOADING'
+        update `request_file` set `status` = 4, `status_detail` = 104 where `status` = 3
     </update>
 
     <update id="cancelSaving">
-        update `request_file` set `status` = 'SAVE_ERROR', `status_detail` = 'CANCEL_SAVING' where `status` = 'SAVING'
+        update `request_file` set `status` = 10, `status_detail` = 108 where `status` = 9
     </update>
 
     <select id="selectTarifFiles" parameterType="long" resultMap="requestFileResultMap">
