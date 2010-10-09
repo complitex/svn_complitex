@@ -12,17 +12,39 @@ import java.util.Date;
  * Информация о файле запроса: имя, дата загрузки, организация, дата, количество записей, размер файла, статус.
  */
 public class RequestFile implements Serializable {
-    public static enum STATUS { //внимание! используется порядок по ordinal
-        NEW, SKIPPED, 
-        LOADING, LOAD_ERROR, LOADED,
-        BINDING, BOUND_WITH_ERRORS, BINDED,
-        SAVING, SAVE_ERROR, SAVED,
-        PROCESSING, PROCESSED_WITH_ERRORS, PROCESSED 
+    public static enum STATUS implements IEnumCode { //внимание! используется порядок по ordinal
+        NEW(1), SKIPPED(2),
+        LOADING(3), LOAD_ERROR(4), LOADED(5),
+        BINDING(6), BOUND_WITH_ERRORS(7), BINDED(8),
+        SAVING(9), SAVE_ERROR(10), SAVED(11),
+        PROCESSING(12), PROCESSED_WITH_ERRORS(13), PROCESSED(14);
+
+        private int code;
+
+        private STATUS(int code) {
+            this.code = code;
+        }
+
+        @Override
+        public int getCode() {
+            return code;
+        }
     }
 
-    public static enum STATUS_DETAIL {
-        FIELD_NOT_FOUND, FIELD_WRONG_TYPE, FIELD_WRONG_SIZE, ALREADY_LOADED, CANCEL_LOADING, SQL_SESSION, DBF, CRITICAL,
-        CANCEL_SAVING, LINKED_FILE_NOT_FOUND
+    public static enum STATUS_DETAIL implements IEnumCode {
+        FIELD_NOT_FOUND(100), FIELD_WRONG_TYPE(101), FIELD_WRONG_SIZE(102), ALREADY_LOADED(103), CANCEL_LOADING(104), SQL_SESSION(105), DBF(106),
+        CRITICAL(107), CANCEL_SAVING(108), LINKED_FILE_NOT_FOUND(109);
+
+        private int code;
+
+        private STATUS_DETAIL(int code) {
+            this.code = code;
+        }
+
+        @Override
+        public int getCode() {
+            return code;
+        }
     }
 
     public static enum TYPE {

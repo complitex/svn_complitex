@@ -1,6 +1,6 @@
 package org.complitex.osznconnection.file.entity.example;
 
-import org.complitex.osznconnection.file.entity.Status;
+import org.complitex.osznconnection.file.entity.RequestStatus;
 
 import java.io.Serializable;
 
@@ -18,7 +18,7 @@ public class PaymentExample implements Serializable {
     private String building;
     private String corp;
     private String apartment;
-    private Status status;
+    private RequestStatus status;
     private Long requestFileId;
     private int start;
     private int size;
@@ -98,11 +98,11 @@ public class PaymentExample implements Serializable {
         this.apartment = apartment;
     }
 
-    public Status getStatus() {
+    public RequestStatus getStatus() {
         return status;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(RequestStatus status) {
         this.status = status;
     }
 

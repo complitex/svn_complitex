@@ -15,7 +15,7 @@ import org.complitex.osznconnection.file.calculation.service.CalculationCenterBe
 import org.complitex.osznconnection.file.entity.AccountDetail;
 import org.complitex.osznconnection.file.entity.CalculationCenterInfo;
 import org.complitex.osznconnection.file.entity.Payment;
-import org.complitex.osznconnection.file.entity.Status;
+import org.complitex.osznconnection.file.entity.RequestStatus;
 
 /**
  *
@@ -41,7 +41,7 @@ public class PersonAccountService extends AbstractBean {
         String accountNumber = personAccountLocalBean.findLocalAccountNumber(payment, calculationCenterId);
         if (!Strings.isEmpty(accountNumber)) {
             payment.setAccountNumber(accountNumber);
-            payment.setStatus(Status.ACCOUNT_NUMBER_RESOLVED);
+            payment.setStatus(RequestStatus.ACCOUNT_NUMBER_RESOLVED);
             benefitBean.updateAccountNumber(payment.getId(), accountNumber);
         }
 //        else {
@@ -52,7 +52,7 @@ public class PersonAccountService extends AbstractBean {
     @Transactional
     public void resolveRemoteAccount(Payment payment, long calculationCenterId, ICalculationCenterAdapter adapter) {
         adapter.acquirePersonAccount(payment);
-        if (payment.getStatus() == Status.ACCOUNT_NUMBER_RESOLVED) {
+        if (payment.getStatus() == RequestStatus.ACCOUNT_NUMBER_RESOLVED) {
             benefitBean.updateAccountNumber(payment.getId(), payment.getAccountNumber());
             personAccountLocalBean.saveOrUpdate(payment, calculationCenterId);
         }
@@ -61,7 +61,7 @@ public class PersonAccountService extends AbstractBean {
     @Transactional
     public void correctAccountNumber(Payment payment, String accountNumber) {
         payment.setAccountNumber(accountNumber);
-        payment.setStatus(Status.ACCOUNT_NUMBER_RESOLVED);
+        payment.setStatus(RequestStatus.ACCOUNT_NUMBER_RESOLVED);
         benefitBean.updateAccountNumber(payment.getId(), accountNumber);
         paymentBean.update(payment);
     }

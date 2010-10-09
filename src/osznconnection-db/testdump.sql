@@ -138,9 +138,9 @@ insert into organization_attribute(attribute_id, object_id, attribute_type_id, v
 -- Files
 insert into request_file_group(id) values (1);
 insert into `request_file`(id, group_id, organization_id, `name`, `registry`, `month`, `year`, `loaded`, status, `type`) values
-(1,1,1,'A_123405.dbf', 1, 10, 2010, CURRENT_TIMESTAMP, 'LOADED', 'PAYMENT'),
-(2,1,1,'AF123405.dbf', 1, 10, 2010, CURRENT_TIMESTAMP, 'LOADED', 'BENEFIT'),
-(3,null,1,'TARIF12.dbf', 1, 10, 2010, CURRENT_TIMESTAMP, 'LOADED', 'TARIF');
+(1,1,1,'A_123405.dbf', 1, 10, 2010, CURRENT_TIMESTAMP, 5, 'PAYMENT'),
+(2,1,1,'AF123405.dbf', 1, 10, 2010, CURRENT_TIMESTAMP, 5, 'BENEFIT'),
+(3,null,1,'TARIF12.dbf', 1, 10, 2010, CURRENT_TIMESTAMP, 5, 'TARIF');
 
 -- Benefit
 insert into benefit(own_num_sr, OZN, f_nam, m_nam, sur_nam, request_file_id, IND_COD, PSP_NUM)
@@ -161,24 +161,21 @@ values
 (4,'Матвей', 'Матвеевич', 'Матвеев', 'Харьков', 'ФРАНТИШЕКА КРАЛА', '    25А','  ', '19', '2010-09-09',1);
 
 -- Address corrections
-insert into entity_type_correction(organization_id, `type`, entity_type_id, organization_type_code) values (2,UPPER('ул'),302,'1');
-insert into entity_type_correction(organization_id, `type`, entity_type_id, organization_type_code) values (2,UPPER('пр-т'),301,'1');
+insert into entity_type_correction(organization_id, `type`, entity_type_id) values (2,UPPER('ул'),302);
+insert into entity_type_correction(organization_id, `type`, entity_type_id) values (2,UPPER('пр-т'),301);
 
-insert into city_correction(organization_id, correction, object_id, organization_code) values (2,UPPER('Новосибирск'),1,'1');
-insert into street_correction(organization_id, correction, object_id, organization_code) values (2,UPPER('Терешковой В.'),1,'1');
-insert into building_correction(organization_id, correction, correction_corp, object_id, organization_code) values (2,'10','1',1,'1');
--- insert into apartment_correction(organization_id, apartment, apartment_id, organization_apartment_code) values (2,'10',1,'1');
+insert into city_correction(organization_id, correction, object_id) values (2,UPPER('Новосибирск'),1);
+insert into street_correction(organization_id, correction, object_id) values (2,UPPER('Терешковой В.'),1);
+insert into building_correction(organization_id, correction, correction_corp, object_id) values (2,'10','1',1);
 
-insert into city_correction(organization_id, correction, object_id, organization_code) values (2,UPPER('Харьков'),3,'1');
-insert into street_correction(organization_id, correction, object_id, organization_code) values (2,UPPER('Косиора'),4,'1');
-insert into building_correction(organization_id, correction, correction_corp, object_id, organization_code) values (2,'154А','',6,'1');
--- insert into apartment_correction(organization_id, apartment, apartment_id, organization_apartment_code) values (2,'1',3,'1');
+insert into city_correction(organization_id, correction, object_id) values (2,UPPER('Харьков'),3);
+insert into street_correction(organization_id, correction, object_id) values (2,UPPER('Косиора'),4);
+insert into building_correction(organization_id, correction, correction_corp, object_id) values (2,'154А','',6);
 
-insert into street_correction(organization_id, correction, object_id, organization_code) values (2,UPPER('ФРАНТИШЕКА КРАЛА'),5,'11');
-insert into building_correction(organization_id, correction, correction_corp, object_id, organization_code) values (2,'25А','',7,'11');
--- insert into apartment_correction(organization_id, apartment, apartment_id, organization_apartment_code) values (2,'40',4,'11');
+insert into street_correction(organization_id, correction, object_id) values (2,UPPER('ФРАНТИШЕКА КРАЛА'),5);
+insert into building_correction(organization_id, correction, correction_corp, object_id) values (2,'25А','',7);
 
-insert into district_correction(organization_id, correction, object_id, organization_code) values (2,UPPER('Центральный'),3,'11');
+insert into district_correction(organization_id, correction, object_id) values (2,UPPER('Центральный'),3);
 
 -- Ownership corrections
 insert into ownership_correction(organization_id, correction, object_id, organization_code) values

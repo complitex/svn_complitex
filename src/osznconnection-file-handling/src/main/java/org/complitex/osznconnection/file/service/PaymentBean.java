@@ -116,7 +116,7 @@ public class PaymentBean extends AbstractBean {
     }
 
     @SuppressWarnings({"unchecked"})
-    private List<Long> findIdsForOperation(long fileId, List<Status> statuses) {
+    private List<Long> findIdsForOperation(long fileId, List<RequestStatus> statuses) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("requestFileId", fileId);
         params.put("statuses", statuses);
@@ -125,27 +125,27 @@ public class PaymentBean extends AbstractBean {
 
     @Transactional
     public List<Long> findIdsForBinding(long fileId) {
-        List<Status> bindingStatuses = Status.notBoundStatuses();
-        bindingStatuses.add(Status.ACCOUNT_NUMBER_RESOLVED);
+        List<RequestStatus> bindingStatuses = RequestStatus.notBoundStatuses();
+        bindingStatuses.add(RequestStatus.ACCOUNT_NUMBER_RESOLVED);
         return findIdsForOperation(fileId, bindingStatuses);
     }
 
     @Transactional
     public List<Long> findIdsForProcessing(long fileId) {
-        List<Status> processingStatuses = Status.notProcessedStatuses();
-        processingStatuses.add(Status.PROCESSED);
+        List<RequestStatus> processingStatuses = RequestStatus.notProcessedStatuses();
+        processingStatuses.add(RequestStatus.PROCESSED);
         return findIdsForOperation(fileId, processingStatuses);
     }
 
     private int boundCount(long fileId) {
-        return countByFile(fileId, Status.notBoundStatuses());
+        return countByFile(fileId, RequestStatus.notBoundStatuses());
     }
 
     private int processedCount(long fileId) {
-        return countByFile(fileId, Status.notProcessedStatuses());
+        return countByFile(fileId, RequestStatus.notProcessedStatuses());
     }
 
-    private int countByFile(long fileId, List<Status> statuses) {
+    private int countByFile(long fileId, List<RequestStatus> statuses) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("requestFileId", fileId);
         params.put("statuses", statuses);
@@ -169,7 +169,7 @@ public class PaymentBean extends AbstractBean {
         params.put("objectId", objectId);
         params.put("city", city);
         params.put("requestFileId", fileId);
-        params.put("status", Status.ADDRESS_CORRECTED);
+        params.put("status", RequestStatus.ADDRESS_CORRECTED);
         sqlSession().update(MAPPING_NAMESPACE + ".correct", params);
     }
 
@@ -184,7 +184,7 @@ public class PaymentBean extends AbstractBean {
             params.put("entityTypeId", streetTypeId);
         }
         params.put("requestFileId", fileId);
-        params.put("status", Status.ADDRESS_CORRECTED);
+        params.put("status", RequestStatus.ADDRESS_CORRECTED);
         sqlSession().update(MAPPING_NAMESPACE + ".correct", params);
     }
 
@@ -198,7 +198,7 @@ public class PaymentBean extends AbstractBean {
         params.put("buildingNumber", buildingNumber);
         params.put("buildingCorp", buildingCorp);
         params.put("requestFileId", fileId);
-        params.put("status", Status.ADDRESS_CORRECTED);
+        params.put("status", RequestStatus.ADDRESS_CORRECTED);
         sqlSession().update(MAPPING_NAMESPACE + ".correct", params);
     }
 
@@ -212,7 +212,7 @@ public class PaymentBean extends AbstractBean {
         params.put("buildingId", buildingId);
         params.put("apartment", apartment);
         params.put("requestFileId", fileId);
-        params.put("status", Status.ADDRESS_CORRECTED);
+        params.put("status", RequestStatus.ADDRESS_CORRECTED);
         sqlSession().update(MAPPING_NAMESPACE + ".correct", params);
     }
 

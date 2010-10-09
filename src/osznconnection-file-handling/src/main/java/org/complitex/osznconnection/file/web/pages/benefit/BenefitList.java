@@ -30,7 +30,7 @@ import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.osznconnection.commons.web.template.TemplatePage;
 import org.complitex.osznconnection.file.entity.Benefit;
 import org.complitex.osznconnection.file.entity.BenefitDBF;
-import org.complitex.osznconnection.file.entity.Status;
+import org.complitex.osznconnection.file.entity.RequestStatus;
 import org.complitex.osznconnection.file.service.BenefitBean;
 import org.complitex.osznconnection.file.service.RequestFileBean;
 import org.complitex.osznconnection.file.web.RequestFileList;
@@ -124,8 +124,8 @@ public final class BenefitList extends TemplatePage {
         filterForm.add(new TextField<String>("buildingFilter", new PropertyModel<String>(example, "building")));
         filterForm.add(new TextField<String>("corpFilter", new PropertyModel<String>(example, "corp")));
         filterForm.add(new TextField<String>("apartmentFilter", new PropertyModel<String>(example, "apartment")));
-        filterForm.add(new DropDownChoice<Status>("statusFilter", new PropertyModel<Status>(example, "status"),
-                Arrays.asList(Status.values()), new StatusRenderer()));
+        filterForm.add(new DropDownChoice<RequestStatus>("statusFilter", new PropertyModel<RequestStatus>(example, "status"),
+                Arrays.asList(RequestStatus.values()), new StatusRenderer()));
 
         AjaxLink reset = new AjaxLink("reset") {
 

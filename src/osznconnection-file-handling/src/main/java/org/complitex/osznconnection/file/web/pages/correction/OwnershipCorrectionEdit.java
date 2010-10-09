@@ -90,6 +90,11 @@ public final class OwnershipCorrectionEdit extends FormTemplatePage {
             }
 
             @Override
+            protected boolean isOrganizationCodeRequired() {
+                return true;
+            }
+
+            @Override
             protected void back() {
                 PageParameters parameters = new PageParameters();
                 parameters.put(OwnershipCorrectionList.CORRECTED_ENTITY, getEntity());

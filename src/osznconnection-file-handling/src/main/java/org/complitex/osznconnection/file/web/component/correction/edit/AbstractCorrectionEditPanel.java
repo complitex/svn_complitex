@@ -44,7 +44,7 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
 
     private Long correctionId;
 
-    private ObjectCorrection newCorrection;
+    private ObjectCorrection objectCorrection;
 
     private WebMarkupContainer form;
 
@@ -53,9 +53,9 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
         this.entity = entity;
         this.correctionId = correctionId;
         if (isNew()) {
-            newCorrection = newModel();
+            objectCorrection = newObjectCorrection();
         } else {
-            newCorrection = initModel(this.entity, this.correctionId);
+            objectCorrection = initObjectCorrection(this.entity, this.correctionId);
         }
         init();
     }
@@ -64,20 +64,20 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
         return correctionId == null;
     }
 
-    protected ObjectCorrection initModel(String entity, long correctionId) {
+    protected ObjectCorrection initObjectCorrection(String entity, long correctionId) {
         ObjectCorrection correction = correctionBean.findById(entity, correctionId);
         correction.setEntity(entity);
         return correction;
     }
 
-    protected ObjectCorrection newModel() {
+    protected ObjectCorrection newObjectCorrection() {
         ObjectCorrection correction = new ObjectCorrection();
         correction.setEntity(entity);
         return correction;
     }
 
     protected ObjectCorrection getModel() {
-        return newCorrection;
+        return objectCorrection;
     }
 
     protected String getEntity() {
@@ -103,15 +103,19 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
     }
 
     protected void save() {
-        correctionBean.insert(newCorrection);
+        correctionBean.insert(objectCorrection);
     }
 
     protected void update() {
-        correctionBean.update(newCorrection);
+        correctionBean.update(objectCorrection);
     }
 
     protected WebMarkupContainer getFormContainer() {
         return form;
+    }
+
+    protected boolean isOrganizationCodeRequired() {
+        return false;
     }
 
     protected void init() {
@@ -125,12 +129,16 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
         form = new Form("form");
         add(form);
 
-        TextField<String> correction = new TextField<String>("correction", new PropertyModel<String>(newCorrection, "correction"));
+        TextField<String> correction = new TextField<String>("correction", new PropertyModel<String>(objectCorrection, "correction"));
         correction.setRequired(true);
         form.add(correction);
 
-        TextField<String> code = new TextField<String>("code", new PropertyModel<String>(newCorrection, "code"));
-        code.setRequired(true);
+        WebMarkupContainer codeRequiredContainer = new WebMarkupContainer("codeRequiredContainer");
+        form.add(codeRequiredContainer);
+        boolean isOrganizationCodeRequired = isOrganizationCodeRequired();
+        codeRequiredContainer.setVisible(isOrganizationCodeRequired);
+        TextField<String> code = new TextField<String>("code", new PropertyModel<String>(objectCorrection, "code"));
+        code.setRequired(isOrganizationCodeRequired);
         form.add(code);
 
         final List<DomainObject> allOrganizations = organizationStrategy.getAll();

@@ -94,7 +94,7 @@
             p.status_detail as p_status_detail,            
             (select count(*) from `payment` where `request_file_id` = p.`id`)
                 as loaded_record_count,
-            (select count(*) from `payment` where `request_file_id` = p.`id` and `status` = 'ACCOUNT_NUMBER_RESOLVED')
+            (select count(*) from `payment` where `request_file_id` = p.`id` and `status` = 214)
                 as binded_record_count
         <include refid="requestFileGroupFilterFrom"/>
         <include refid="requestFileGroupFilterWhere"/>

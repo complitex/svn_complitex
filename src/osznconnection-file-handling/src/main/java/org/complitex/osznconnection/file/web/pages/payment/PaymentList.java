@@ -32,7 +32,7 @@ import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
 import org.complitex.osznconnection.commons.web.template.TemplatePage;
 import org.complitex.osznconnection.file.entity.Payment;
 import org.complitex.osznconnection.file.entity.PaymentDBF;
-import org.complitex.osznconnection.file.entity.Status;
+import org.complitex.osznconnection.file.entity.RequestStatus;
 import org.complitex.osznconnection.file.service.PaymentBean;
 import org.complitex.osznconnection.file.service.RequestFileBean;
 import org.complitex.osznconnection.file.web.component.StatusRenderer;
@@ -126,8 +126,8 @@ public final class PaymentList extends TemplatePage {
         filterForm.add(new TextField<String>("buildingFilter", new PropertyModel<String>(example, "building")));
         filterForm.add(new TextField<String>("corpFilter", new PropertyModel<String>(example, "corp")));
         filterForm.add(new TextField<String>("apartmentFilter", new PropertyModel<String>(example, "apartment")));
-        filterForm.add(new DropDownChoice<Status>("statusFilter", new PropertyModel<Status>(example, "status"),
-                Arrays.asList(Status.values()), new StatusRenderer()));
+        filterForm.add(new DropDownChoice<RequestStatus>("statusFilter", new PropertyModel<RequestStatus>(example, "status"),
+                Arrays.asList(RequestStatus.values()), new StatusRenderer()));
 
         AjaxLink reset = new AjaxLink("reset") {
 
@@ -176,7 +176,7 @@ public final class PaymentList extends TemplatePage {
                 item.add(addressCorrectionLink);
                 BookmarkablePageLink accountCorrectionLink = new BookmarkablePageLink<PaymentAccountNumberCorrection>("accountCorrectionLink",
                         PaymentAccountNumberCorrection.class, new PageParameters(ImmutableMap.of(PaymentAccountNumberCorrection.PAYMENT_ID, payment.getId())));
-                accountCorrectionLink.setVisible(payment.getStatus() == Status.MORE_ONE_ACCOUNTS);
+                accountCorrectionLink.setVisible(payment.getStatus() == RequestStatus.MORE_ONE_ACCOUNTS);
                 item.add(accountCorrectionLink);
 
                 final Payment lookupPayment = CloneUtil.cloneObject(payment);
@@ -185,7 +185,7 @@ public final class PaymentList extends TemplatePage {
                     @Override
                     protected void updateAccountNumber(String accountNumber) {
                         payment.setAccountNumber(accountNumber);
-                        payment.setStatus(Status.ACCOUNT_NUMBER_RESOLVED);
+                        payment.setStatus(RequestStatus.ACCOUNT_NUMBER_RESOLVED);
                         paymentBean.updateAccountNumber(payment);
                     }
                 };

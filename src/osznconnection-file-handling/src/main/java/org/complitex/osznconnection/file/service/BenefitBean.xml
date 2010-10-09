@@ -200,7 +200,7 @@
             <foreach collection="statuses" item="status">
                 WHEN #{status} THEN #{status}
             </foreach>
-            ELSE 'ACCOUNT_NUMBER_RESOLVED'
+            ELSE 214
         END
         WHERE b.`request_file_id` = #{fileId}
     </update>
@@ -212,7 +212,7 @@
     </sql>
 
     <update id="addressCorrected" parameterType="_long">
-        UPDATE `benefit` b SET b.`status` = 'ADDRESS_CORRECTED'
+        UPDATE `benefit` b SET b.`status` = 204
         <include refid="org.complitex.osznconnection.file.service.BenefitBean.updateByOWN_NUM_SR"/>
     </update>
 

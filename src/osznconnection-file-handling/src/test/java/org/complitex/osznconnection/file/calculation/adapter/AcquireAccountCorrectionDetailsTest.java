@@ -17,7 +17,7 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.osznconnection.file.entity.AccountDetail;
 import org.complitex.osznconnection.file.entity.Payment;
-import org.complitex.osznconnection.file.entity.Status;
+import org.complitex.osznconnection.file.entity.RequestStatus;
 
 /**
  *
@@ -90,7 +90,7 @@ public class AcquireAccountCorrectionDetailsTest {
                         }
 //                }
                     } catch (Exception e) {
-                        payment.setStatus(Status.ACCOUNT_NUMBER_NOT_FOUND);
+                        payment.setStatus(RequestStatus.ACCOUNT_NUMBER_NOT_FOUND);
                     }
 
                     session.commit();

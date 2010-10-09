@@ -16,7 +16,7 @@ import org.complitex.osznconnection.file.calculation.service.CalculationCenterBe
 import org.complitex.osznconnection.file.entity.AccountDetail;
 import org.complitex.osznconnection.file.entity.CalculationCenterInfo;
 import org.complitex.osznconnection.file.entity.Payment;
-import org.complitex.osznconnection.file.entity.Status;
+import org.complitex.osznconnection.file.entity.RequestStatus;
 
 /**
  *
@@ -46,9 +46,9 @@ public class PaymentLookupBean extends AbstractBean {
         ICalculationCenterAdapter adapter = calculationCenterInfo.getAdapterInstance();
         List<AccountDetail> accounts = adapter.acquireAccountCorrectionDetails(payment);
         if (accounts == null || accounts.isEmpty()) {
-            payment.setStatus(Status.ACCOUNT_NUMBER_NOT_FOUND);
+            payment.setStatus(RequestStatus.ACCOUNT_NUMBER_NOT_FOUND);
         } else {
-            payment.setStatus(Status.ACCOUNT_NUMBER_RESOLVED);
+            payment.setStatus(RequestStatus.ACCOUNT_NUMBER_RESOLVED);
         }
         return accounts;
     }
