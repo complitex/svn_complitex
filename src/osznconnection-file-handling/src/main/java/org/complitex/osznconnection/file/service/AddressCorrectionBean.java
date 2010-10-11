@@ -33,7 +33,11 @@ public class AddressCorrectionBean extends CorrectionBean {
     @Transactional
     private Long findCorrectionAddressId(String entityTable, String value, long organizationId, Long parentId) {
         ObjectCorrection parameter = new ObjectCorrection(entityTable, value, organizationId, parentId);
-        return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".findCorrectionAddressId", parameter);
+        List<Long> ids = sqlSession().selectList(MAPPING_NAMESPACE + ".findCorrectionAddressId", parameter);
+        if (ids != null && ids.size() == 1) {
+            return ids.get(0);
+        }
+        return null;
     }
 
     public Long findCorrectionCity(String city, long organizationId) {
@@ -45,15 +49,15 @@ public class AddressCorrectionBean extends CorrectionBean {
     }
 
     @Transactional
-    public Long findCorrectionBuilding(long cityId, String buildingNumber, String buildingCorp, long organizationId) {
+    public Long findCorrectionBuilding(long cityId, Long streetId, String buildingNumber, String buildingCorp, long organizationId) {
         BuildingCorrection parameter = new BuildingCorrection(buildingNumber, buildingCorp, organizationId, cityId);
+        parameter.setInternalStreetId(streetId);
         return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".findCorrectionBuilding", parameter);
     }
 
-    public Long findCorrectionApartment(long buildingId, String apartment, long organizationId) {
-        return findCorrectionAddressId("apartment", apartment, organizationId, buildingId);
-    }
-
+//    public Long findCorrectionApartment(long buildingId, String apartment, long organizationId) {
+//        return findCorrectionAddressId("apartment", apartment, organizationId, buildingId);
+//    }
     @Transactional
     private ObjectCorrection findOutgoingAddress(String entityTable, long organizationId, long internalObjectId) {
         ObjectCorrection parameter = new ObjectCorrection(organizationId, internalObjectId, entityTable);
@@ -86,10 +90,9 @@ public class AddressCorrectionBean extends CorrectionBean {
         return null;
     }
 
-    public ObjectCorrection findOutgoingApartment(long organizationId, long internalApartmentId) {
-        return findOutgoingAddress("apartment", organizationId, internalApartmentId);
-    }
-
+//    public ObjectCorrection findOutgoingApartment(long organizationId, long internalApartmentId) {
+//        return findOutgoingAddress("apartment", organizationId, internalApartmentId);
+//    }
     @Transactional
     public ObjectCorrection findOutgoingDistrict(long calculationCenterId, long osznId) {
         Map<String, Long> params = ImmutableMap.of("calculationCenterId", calculationCenterId, "osznId", osznId);

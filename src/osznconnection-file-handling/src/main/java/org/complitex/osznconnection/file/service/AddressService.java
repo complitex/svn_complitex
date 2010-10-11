@@ -78,7 +78,6 @@ public class AddressService extends AbstractBean {
         }
         if (streetId != null) {
             payment.setInternalStreetId(streetId);
-
             Strategy streetStrategy = strategyFactory.getStrategy("street");
             DomainObject streetObject = streetStrategy.findById(streetId);
             payment.setInternalStreetTypeId(streetObject.getEntityTypeId());
@@ -91,7 +90,7 @@ public class AddressService extends AbstractBean {
 //        if (buildingId == null) {
         String buildingNumber = (String) payment.getField(PaymentDBF.BLD_NUM);
         String buildingCorp = (String) payment.getField(PaymentDBF.CORP_NUM);
-        buildingId = addressCorrectionBean.findCorrectionBuilding(cityId, buildingNumber, buildingCorp, organizationId);
+        buildingId = addressCorrectionBean.findCorrectionBuilding(cityId, streetId, buildingNumber, buildingCorp, organizationId);
         if (buildingId == null) {
             buildingId = addressCorrectionBean.findInternalBuilding(buildingNumber, buildingCorp, streetId, cityId);
             if (buildingId != null) {
