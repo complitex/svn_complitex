@@ -12,6 +12,8 @@ public class BuildingCorrection extends ObjectCorrection {
 
     private String correctionCorp;
 
+    private Long internalStreetId;
+
     public BuildingCorrection() {
     }
 
@@ -30,5 +32,13 @@ public class BuildingCorrection extends ObjectCorrection {
 
     public void setCorrectionCorp(String correctionCorp) {
         this.correctionCorp = correctionCorp;
+    }
+
+    public Long getInternalStreetId() {
+        return internalStreetId;
+    }
+
+    public void setInternalStreetId(Long internalStreetId) {
+        this.internalStreetId = internalStreetId;
     }
 }
