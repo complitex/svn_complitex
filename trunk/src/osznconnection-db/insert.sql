@@ -431,7 +431,7 @@ INSERT INTO `status_description`(`code`, `name`) VALUES
 -- Itself organization
 INSERT INTO `organization`(`object_id`) VALUES (0);
 INSERT INTO `organization_string_culture`(`id`, `locale`, `value`) VALUES
-(1, 'ru', UPPER('Модуль взаимодействия с соц. защитой')), (1,'ua',UPPER('Модуль взаимодействия с соц. защитой')), (2, 'ru', UPPER('0'));
+(1, 'ru', UPPER('Модуль взаимодействия с соц. защитой')), (1,'uk',UPPER('Модуль взаимодействия с соц. защитой')), (2, 'ru', UPPER('0'));
 INSERT INTO `organization_attribute`(`attribute_id`, `object_id`, `attribute_type_id`, `value_id`, `value_type_id`) VALUES
 (1,0,900,1,900), (1,0,901,2,901), (1,0,902,null,902);
 
