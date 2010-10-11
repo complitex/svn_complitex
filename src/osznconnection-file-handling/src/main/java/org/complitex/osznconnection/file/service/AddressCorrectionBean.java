@@ -32,7 +32,11 @@ public class AddressCorrectionBean extends CorrectionBean {
 
     @Transactional
     private Long findCorrectionAddressId(String entityTable, String value, long organizationId, Long parentId) {
-        ObjectCorrection parameter = new ObjectCorrection(entityTable, value, organizationId, parentId);
+        ObjectCorrection parameter = new ObjectCorrection();
+        parameter.setEntity(entityTable);
+        parameter.setCorrection(value);
+        parameter.setOrganizationId(organizationId);
+        parameter.setInternalParentId(parentId);
         List<Long> ids = sqlSession().selectList(MAPPING_NAMESPACE + ".findCorrectionAddressId", parameter);
         if (ids != null && ids.size() == 1) {
             return ids.get(0);
@@ -50,7 +54,11 @@ public class AddressCorrectionBean extends CorrectionBean {
 
     @Transactional
     public Long findCorrectionBuilding(long cityId, Long streetId, String buildingNumber, String buildingCorp, long organizationId) {
-        BuildingCorrection parameter = new BuildingCorrection(buildingNumber, buildingCorp, organizationId, cityId);
+        BuildingCorrection parameter = new BuildingCorrection();
+        parameter.setCorrection(buildingNumber);
+        parameter.setCorrectionCorp(buildingCorp);
+        parameter.setOrganizationId(organizationId);
+        parameter.setInternalParentId(cityId);
         parameter.setInternalStreetId(streetId);
         return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".findCorrectionBuilding", parameter);
     }
@@ -60,7 +68,10 @@ public class AddressCorrectionBean extends CorrectionBean {
 //    }
     @Transactional
     private ObjectCorrection findOutgoingAddress(String entityTable, long organizationId, long internalObjectId) {
-        ObjectCorrection parameter = new ObjectCorrection(organizationId, internalObjectId, entityTable);
+        ObjectCorrection parameter = new ObjectCorrection();
+        parameter.setOrganizationId(organizationId);
+        parameter.setEntity(entityTable);
+        parameter.setInternalObjectId(internalObjectId);
         ObjectCorrection result = (ObjectCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".findOutgoingAddress", parameter);
         if (result != null) {
             if (result.getCorrection() != null) {
@@ -80,7 +91,9 @@ public class AddressCorrectionBean extends CorrectionBean {
 
     @Transactional
     public BuildingCorrection findOutgoingBuilding(long organizationId, long internalBuildingId) {
-        BuildingCorrection parameter = new BuildingCorrection(organizationId, internalBuildingId);
+        BuildingCorrection parameter = new BuildingCorrection();
+        parameter.setOrganizationId(organizationId);
+        parameter.setInternalObjectId(internalBuildingId);
         BuildingCorrection result = (BuildingCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".findOutgoingBuilding", parameter);
         if (result != null) {
             if (result.getCorrection() != null) {
@@ -122,18 +135,27 @@ public class AddressCorrectionBean extends CorrectionBean {
     }
 
     @Transactional
-    private void insert(String entityTable, String value, long objectId, long organizationId) {
-        ObjectCorrection correction = new ObjectCorrection(value, organizationId, objectId, entityTable);
+    private void insert(String entityTable, String value, long objectId, long organizationId, long internalOrganizationId) {
+        ObjectCorrection correction = new ObjectCorrection();
+        correction.setCorrection(value);
+        correction.setOrganizationId(organizationId);
+        correction.setInternalOrganizationId(internalOrganizationId);
+        correction.setInternalObjectId(objectId);
+        correction.setEntity(entityTable);
         insert(correction);
     }
 
-    public void insertCorrectionApartment(String apartment, long objectId, long organizationId) {
-        insert("apartment", apartment, objectId, organizationId);
+    public void insertCorrectionApartment(String apartment, long objectId, long organizationId, long internalOrganizationId) {
+        insert("apartment", apartment, objectId, organizationId, internalOrganizationId);
     }
 
     @Transactional
-    public void insertCorrectionBuilding(String buildingNumber, String buildingCorp, long objectId, long organizationId) {
-        BuildingCorrection correction = new BuildingCorrection(buildingNumber, buildingCorp, organizationId, null);
+    public void insertCorrectionBuilding(String buildingNumber, String buildingCorp, long objectId, long organizationId, long internalOrganizationId) {
+        BuildingCorrection correction = new BuildingCorrection();
+        correction.setCorrection(buildingNumber);
+        correction.setCorrectionCorp(buildingCorp);
+        correction.setOrganizationId(organizationId);
+        correction.setInternalOrganizationId(internalOrganizationId);
         correction.setInternalObjectId(objectId);
         insertBuilding(correction);
     }
@@ -146,12 +168,12 @@ public class AddressCorrectionBean extends CorrectionBean {
         sqlSession().insert(MAPPING_NAMESPACE + ".insertBuilding", correction);
     }
 
-    public void insertCorrectionStreet(String street, long objectId, long organizationId) {
-        insert("street", street, objectId, organizationId);
+    public void insertCorrectionStreet(String street, long objectId, long organizationId, long internalOrganizationId) {
+        insert("street", street, objectId, organizationId, internalOrganizationId);
     }
 
-    public void insertCorrectionCity(String city, long objectId, long organizationId) {
-        insert("city", city, objectId, organizationId);
+    public void insertCorrectionCity(String city, long objectId, long organizationId, long internalOrganizationId) {
+        insert("city", city, objectId, organizationId, internalOrganizationId);
     }
 
     private Long findInternalObjectId(String entity, String correction, long attributeTypeId, Long parentId, Long entityTypeId) {

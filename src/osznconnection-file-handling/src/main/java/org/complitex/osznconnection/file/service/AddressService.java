@@ -19,6 +19,7 @@ import org.complitex.osznconnection.file.entity.BuildingCorrection;
 import org.complitex.osznconnection.file.entity.EntityTypeCorrection;
 import org.complitex.osznconnection.file.entity.ObjectCorrection;
 import org.complitex.osznconnection.file.entity.RequestStatus;
+import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +57,7 @@ public class AddressService extends AbstractBean {
         if (cityId == null) {
             cityId = addressCorrectionBean.findInternalCity(city);
             if (cityId != null) {
-                addressCorrectionBean.insertCorrectionCity(city, cityId, organizationId);
+                addressCorrectionBean.insertCorrectionCity(city, cityId, organizationId, OrganizationStrategy.ITSELF_ORGANIZATION_OBJECT_ID);
             }
         }
         if (cityId != null) {
@@ -73,7 +74,7 @@ public class AddressService extends AbstractBean {
         if (streetId == null) {
             streetId = addressCorrectionBean.findInternalStreet(street, cityId, null);
             if (streetId != null) {
-                addressCorrectionBean.insertCorrectionStreet(street, streetId, organizationId);
+                addressCorrectionBean.insertCorrectionStreet(street, streetId, organizationId, OrganizationStrategy.ITSELF_ORGANIZATION_OBJECT_ID);
             }
         }
         if (streetId != null) {
@@ -94,7 +95,8 @@ public class AddressService extends AbstractBean {
         if (buildingId == null) {
             buildingId = addressCorrectionBean.findInternalBuilding(buildingNumber, buildingCorp, streetId, cityId);
             if (buildingId != null) {
-                addressCorrectionBean.insertCorrectionBuilding(buildingNumber, buildingCorp, buildingId, organizationId);
+                addressCorrectionBean.insertCorrectionBuilding(buildingNumber, buildingCorp, buildingId, organizationId,
+                        OrganizationStrategy.ITSELF_ORGANIZATION_OBJECT_ID);
             }
         }
         if (buildingId != null) {
@@ -200,16 +202,17 @@ public class AddressService extends AbstractBean {
 
         boolean corrected = false;
         if ((payment.getInternalCityId() == null) && (cityId != null)) {
-            addressCorrectionBean.insertCorrectionCity(city, cityId, organizationId);
-                paymentBean.correctCity(requestFileId, city, cityId);
+            addressCorrectionBean.insertCorrectionCity(city, cityId, organizationId, OrganizationStrategy.ITSELF_ORGANIZATION_OBJECT_ID);
+            paymentBean.correctCity(requestFileId, city, cityId);
             corrected = true;
         } else if ((payment.getInternalStreetId() == null) && (streetId != null)) {
-            addressCorrectionBean.insertCorrectionStreet(street, streetId, organizationId);
-                paymentBean.correctStreet(requestFileId, cityId, street, streetId, streetTypeId);
+            addressCorrectionBean.insertCorrectionStreet(street, streetId, organizationId, OrganizationStrategy.ITSELF_ORGANIZATION_OBJECT_ID);
+            paymentBean.correctStreet(requestFileId, cityId, street, streetId, streetTypeId);
             corrected = true;
         } else if ((payment.getInternalBuildingId() == null) && (buildingId != null)) {
-            addressCorrectionBean.insertCorrectionBuilding(buildingNumber, buildingCorp, buildingId, organizationId);
-                paymentBean.correctBuilding(requestFileId, cityId, streetId, buildingNumber, buildingCorp, buildingId);
+            addressCorrectionBean.insertCorrectionBuilding(buildingNumber, buildingCorp, buildingId, organizationId,
+                    OrganizationStrategy.ITSELF_ORGANIZATION_OBJECT_ID);
+            paymentBean.correctBuilding(requestFileId, cityId, streetId, buildingNumber, buildingCorp, buildingId);
             corrected = true;
         }
 //        else if ((payment.getInternalApartmentId() == null) && (apartmentId != null)) {

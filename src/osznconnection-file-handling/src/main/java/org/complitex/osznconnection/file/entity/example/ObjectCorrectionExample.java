@@ -18,6 +18,8 @@ public class ObjectCorrectionExample implements Serializable {
 
     private String organization;
 
+    private String internalOrganization;
+
     private String code;
 
     private String entity;
@@ -110,5 +112,13 @@ public class ObjectCorrectionExample implements Serializable {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public String getInternalOrganization() {
+        return internalOrganization;
+    }
+
+    public void setInternalOrganization(String internalOrganization) {
+        this.internalOrganization = internalOrganization;
     }
 }

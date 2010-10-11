@@ -137,6 +137,7 @@ public abstract class AbstractCorrectionList extends TemplatePage {
         filterForm.add(new TextField<String>("correctionFilter", new PropertyModel<String>(example, "correction")));
         filterForm.add(new TextField<String>("codeFilter", new PropertyModel<String>(example, "code")));
         filterForm.add(new TextField<String>("internalObjectFilter", new PropertyModel<String>(example, "internalObject")));
+        filterForm.add(new TextField<String>("internalOrganizationFilter", new PropertyModel<String>(example, "internalOrganization")));
 
         AjaxLink reset = new AjaxLink("reset") {
 
@@ -172,6 +173,7 @@ public abstract class AbstractCorrectionList extends TemplatePage {
                 item.add(new Label("code", code));
 
                 item.add(new Label("internalObject", correction.getInternalObject()));
+                item.add(new Label("internalOrganization", correction.getInternalOrganization()));
                 item.add(new BookmarkablePageLink("edit", getEditPage(), getEditPageParams(correction.getId())));
             }
         };
@@ -181,6 +183,8 @@ public abstract class AbstractCorrectionList extends TemplatePage {
         filterForm.add(new ArrowOrderByBorder("correctionHeader", CorrectionBean.OrderBy.CORRECTION.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("codeHeader", CorrectionBean.OrderBy.CODE.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("internalObjectHeader", getInternalObjectOrderByExpression(), dataProvider, data, content));
+        filterForm.add(new ArrowOrderByBorder("internalOrganizationHeader", CorrectionBean.OrderBy.INTERNAL_ORGANIZATION.getOrderBy(), dataProvider,
+                data, content));
 
         content.add(new PagingNavigator("navigator", data, getClass().getName() + entity, content));
     }

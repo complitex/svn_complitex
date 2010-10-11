@@ -38,7 +38,7 @@ public class CorrectionBean extends AbstractBean {
 
     public static enum OrderBy {
 
-        CORRECTION("correction"), CODE("organization_code"), ORGANIZATION("organization");
+        CORRECTION("correction"), CODE("organization_code"), ORGANIZATION("organization"), INTERNAL_ORGANIZATION("internalOrganization");
 
         private String orderBy;
 

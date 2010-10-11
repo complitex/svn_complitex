@@ -48,6 +48,8 @@ public class OrganizationStrategy extends Strategy {
 
     private static final String MAPPING_NAMESPACE = OrganizationStrategy.class.getPackage().getName() + ".Organization";
 
+    public static final long ITSELF_ORGANIZATION_OBJECT_ID = 0;
+
     /**
      * Attribute type ids
      */
@@ -235,11 +237,17 @@ public class OrganizationStrategy extends Strategy {
         return OrganizationEditComponent.class;
     }
 
-    public List<DomainObject> getAll() {
-        DomainObjectExample example = new DomainObjectExample();
-        example.setOrderByAttribureTypeId(OrganizationStrategy.NAME);
-        configureExample(example, ImmutableMap.<String, Long>of(), null);
-        return find(example);
+    public List<DomainObject> getAllOuterOrganizations() {
+        List<DomainObject> result = Lists.newArrayList();
+        List<DomainObject> oszns = getAllOSZNs();
+        if(oszns != null){
+            result.addAll(oszns);
+        }
+        List<DomainObject> calculationCentres = getAllCalculationCentres();
+        if(calculationCentres != null){
+            result.addAll(calculationCentres);
+        }
+        return result;
     }
 
     public List<DomainObject> getAllOSZNs() {
@@ -279,5 +287,12 @@ public class OrganizationStrategy extends Strategy {
 
     public String getDistrictCode(Long objectId) {
         return getDistrictCode(findById(objectId));
+    }
+
+    public DomainObject getItselfOrganization(){
+        DomainObjectExample example = new DomainObjectExample();
+        example.setId(ITSELF_ORGANIZATION_OBJECT_ID);
+        configureExample(example, ImmutableMap.<String, Long>of(), null);
+        return find(example).get(0);
     }
 }
