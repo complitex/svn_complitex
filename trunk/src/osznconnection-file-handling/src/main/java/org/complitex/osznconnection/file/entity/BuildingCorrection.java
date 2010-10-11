@@ -17,15 +17,6 @@ public class BuildingCorrection extends ObjectCorrection {
     public BuildingCorrection() {
     }
 
-    public BuildingCorrection(Long organizationId, Long internalObjectId) {
-        super(organizationId, internalObjectId, "building");
-    }
-
-    public BuildingCorrection(String buildingNumber, String buildingCorp, Long organizationId, Long internalParentId) {
-        super("building", buildingNumber, organizationId, internalParentId);
-        this.correctionCorp = buildingCorp;
-    }
-
     public String getCorrectionCorp() {
         return correctionCorp;
     }

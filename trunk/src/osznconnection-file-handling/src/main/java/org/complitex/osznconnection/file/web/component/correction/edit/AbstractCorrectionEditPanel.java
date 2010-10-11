@@ -6,6 +6,7 @@ package org.complitex.osznconnection.file.web.component.correction.edit;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Locale;
 import javax.ejb.EJB;
@@ -141,14 +142,13 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
         code.setRequired(isOrganizationCodeRequired);
         form.add(code);
 
-        final List<DomainObject> allOrganizations = organizationStrategy.getAll();
-        IModel<DomainObject> organizationModel = new Model<DomainObject>() {
+        abstract class OrganizationModel extends Model<DomainObject> {
 
             @Override
             public DomainObject getObject() {
-                final Long organizationId = getModel().getOrganizationId();
+                final Long organizationId = getOrganizationId(objectCorrection);
                 if (organizationId != null) {
-                    return Iterables.find(allOrganizations, new Predicate<DomainObject>() {
+                    return Iterables.find(getOrganizations(), new Predicate<DomainObject>() {
 
                         @Override
                         public boolean apply(DomainObject object) {
@@ -161,7 +161,32 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
 
             @Override
             public void setObject(DomainObject object) {
-                getModel().setOrganizationId(object.getId());
+                setOrganizationId(objectCorrection, object.getId());
+            }
+
+            public abstract Long getOrganizationId(ObjectCorrection objectCorrection);
+
+            public abstract void setOrganizationId(ObjectCorrection objectCorrection, Long organizationId);
+
+            public abstract List<DomainObject> getOrganizations();
+        }
+
+        final List<DomainObject> allOuterOrganizations = organizationStrategy.getAllOuterOrganizations();
+        IModel<DomainObject> outerOrganizationModel = new OrganizationModel() {
+
+            @Override
+            public Long getOrganizationId(ObjectCorrection objectCorrection) {
+                return objectCorrection.getOrganizationId();
+            }
+
+            @Override
+            public void setOrganizationId(ObjectCorrection objectCorrection, Long organizationId) {
+                objectCorrection.setOrganizationId(organizationId);
+            }
+
+            @Override
+            public List<DomainObject> getOrganizations() {
+                return allOuterOrganizations;
             }
         };
         DomainObjectDisableAwareRenderer renderer = new DomainObjectDisableAwareRenderer() {
@@ -172,9 +197,35 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
             }
         };
         DisableAwareDropDownChoice<DomainObject> organization = new DisableAwareDropDownChoice<DomainObject>("organization",
-                organizationModel, allOrganizations, renderer);
+                outerOrganizationModel, allOuterOrganizations, renderer);
         organization.setRequired(true);
         form.add(organization);
+
+        if (isNew()) {
+            objectCorrection.setInternalOrganizationId(OrganizationStrategy.ITSELF_ORGANIZATION_OBJECT_ID);
+        }
+        final List<DomainObject> internalOrganizations = Lists.newArrayList(organizationStrategy.getItselfOrganization());
+        IModel<DomainObject> internalOrganizationModel = new OrganizationModel() {
+
+            @Override
+            public Long getOrganizationId(ObjectCorrection objectCorrection) {
+                return objectCorrection.getInternalOrganizationId();
+            }
+
+            @Override
+            public void setOrganizationId(ObjectCorrection objectCorrection, Long organizationId) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public List<DomainObject> getOrganizations() {
+                return internalOrganizations;
+            }
+        };
+        DisableAwareDropDownChoice<DomainObject> internalOrganization = new DisableAwareDropDownChoice<DomainObject>("internalOrganization",
+                internalOrganizationModel, internalOrganizations, renderer);
+        internalOrganization.setEnabled(false);
+        form.add(internalOrganization);
 
         Label internalObjectLabel = new Label("internalObjectLabel", internalObjectLabel(getLocale()));
         form.add(internalObjectLabel);

@@ -28,29 +28,13 @@ public class ObjectCorrection implements Serializable {
 
     private Long internalParentId;
 
+    private Long internalOrganizationId;
+
+    private String internalOrganization;
+
     private String entity;
 
     public ObjectCorrection() {
-    }
-
-    public ObjectCorrection(Long organizationId, Long internalObjectId, String entity) {
-        this.organizationId = organizationId;
-        this.internalObjectId = internalObjectId;
-        this.entity = entity;
-    }
-
-    public ObjectCorrection(String entity, String correction, Long organizationId, Long internalParentId) {
-        this.correction = correction;
-        this.organizationId = organizationId;
-        this.internalParentId = internalParentId;
-        this.entity = entity;
-    }
-
-    public ObjectCorrection(String correction, Long organizationId, Long internalObjectId, String entity) {
-        this.correction = correction;
-        this.organizationId = organizationId;
-        this.internalObjectId = internalObjectId;
-        this.entity = entity;
     }
 
     public Long getId() {
@@ -123,5 +107,21 @@ public class ObjectCorrection implements Serializable {
 
     public void setOrganization(String organization) {
         this.organization = organization;
+    }
+
+    public Long getInternalOrganizationId() {
+        return internalOrganizationId;
+    }
+
+    public void setInternalOrganizationId(Long internalOrganizationId) {
+        this.internalOrganizationId = internalOrganizationId;
+    }
+
+    public String getInternalOrganization() {
+        return internalOrganization;
+    }
+
+    public void setInternalOrganization(String internalOrganization) {
+        this.internalOrganization = internalOrganization;
     }
 }

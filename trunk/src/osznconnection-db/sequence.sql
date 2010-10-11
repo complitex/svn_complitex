@@ -1,5 +1,6 @@
 -- sequence update
 
+update sequence set sequence_value = (select IFNULL(max(`id`), 0) from `string_culture`)+1 where sequence_name = 'string_culture';
 update sequence set sequence_value = (select IFNULL(max(`object_id`), 0) from `room`)+1 where sequence_name = 'room';
 update sequence set sequence_value = (select IFNULL(max(`id`), 0) from `room_string_culture`)+1 where sequence_name = 'room_string_culture';
 update sequence set sequence_value = (select IFNULL(max(`object_id`), 0) from `apartment`)+1 where sequence_name = 'apartment';

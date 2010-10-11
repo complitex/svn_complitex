@@ -54,8 +54,9 @@
     </select>
 
     <insert id="insertBuilding" parameterType="org.complitex.osznconnection.file.entity.BuildingCorrection">
-        INSERT INTO `building_correction`(`organization_id`, `correction`, `correction_corp`, `object_id`, `organization_code`) VALUES
-        (#{organizationId}, #{correction}, #{correctionCorp}, #{internalObjectId}, #{code})
+        INSERT INTO `building_correction`(`organization_id`, `correction`, `correction_corp`, `object_id`, `organization_code`,
+        `internal_organization_id`) VALUES
+        (#{organizationId}, #{correction}, #{correctionCorp}, #{internalObjectId}, #{code}, #{internalOrganizationId})
     </insert>
 
     <select id="findOutgoingAddress" resultMap="org.complitex.osznconnection.file.service.CorrectionBean.objectCorrection"
@@ -140,7 +141,7 @@
 
     <update id="updateBuilding" parameterType="org.complitex.osznconnection.file.entity.BuildingCorrection">
         UPDATE `building_correction` SET `organization_id` = #{organizationId}, `correction` = #{correction}, `correction_corp` = #{correctionCorp},
-        `object_id` = #{internalObjectId}, `organization_code` = #{code}
+        `object_id` = #{internalObjectId}, `organization_code` = #{code}, `internal_organization_id` = #{internalOrganizationId}
         WHERE `id` = #{id}
     </update>
 
@@ -162,6 +163,7 @@
         c.`correction_corp`,
         c.`organization_code`,
         c.`organization_id`,
+        c.`internal_organization_id`,
         (SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale` = #{locale} AND osc.`id` IN
         (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE' AND oa.`object_id` = c.`organization_id`
         AND oa.`attribute_type_id` = 900)) organization,
