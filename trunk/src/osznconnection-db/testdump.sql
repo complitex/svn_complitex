@@ -1,25 +1,25 @@
 -- Street types
 insert into `string_culture`(`id`, `locale`, `value`) values
-(302, 'ru', UPPER('ул.')), (302, 'ua', UPPER('вулиця')),
-(303, 'ru', UPPER('пр-т')), (303, 'ua', UPPER('проспект')),
-(304, 'ru', UPPER('пер-к')), (304, 'ua', UPPER('провулок'));
+(302, 'ru', UPPER('ул.')), (302, 'uk', UPPER('вулиця')),
+(303, 'ru', UPPER('пр-т')), (303, 'uk', UPPER('проспект')),
+(304, 'ru', UPPER('пер-к')), (304, 'uk', UPPER('провулок'));
 insert into `entity_type` (`id`, `entity_id`, `entity_type_name_id`) values
 (300, 300, 302), (301, 300, 303), (302, 300, 304);
 
 
 -- Rooms
 insert into room(object_id, parent_id, parent_entity_id) values (1,1,100), (2,1,100), (3,2,100), (4,2,100);
-insert into room_string_culture(id, locale, value) values (1, 'ru', UPPER('1а')), (1, 'ua', UPPER('1a')), (2, 'ru', UPPER('1б')), (2, 'ua', UPPER('1b')),
-(3, 'ru', UPPER('2а')), (3, 'ua', UPPER('2a')), (4, 'ru', UPPER('2б')), (4, 'ua', UPPER('2b'));
+insert into room_string_culture(id, locale, value) values (1, 'ru', UPPER('1а')), (1, 'uk', UPPER('1a')), (2, 'ru', UPPER('1б')), (2, 'uk', UPPER('1b')),
+(3, 'ru', UPPER('2а')), (3, 'uk', UPPER('2a')), (4, 'ru', UPPER('2б')), (4, 'uk', UPPER('2b'));
 insert into room_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
 (1,1,200,1,200), (1,2,200,2,200), (1,3,200,3,200), (1,4,200,4,200);
 
 -- Apartments
 insert into apartment(object_id, parent_id, parent_entity_id) values (1,1,500), (2,1,500), (3,6,500), (4,7,500), (5,7,500);
-insert into apartment_string_culture(id, locale, value) values (1, 'ru', UPPER('10')), (1, 'ua', UPPER('10')), (2, 'ru', UPPER('20')), (2, 'ua', UPPER('20')),
-                                                                (3, 'ru', UPPER('1')), (3, 'ua', UPPER('1')),
-                                                                (4, 'ru', UPPER('40')), (4, 'ua', UPPER('40')),
-                                                                (5, 'ru', UPPER('19')), (5, 'ua', UPPER('19'));
+insert into apartment_string_culture(id, locale, value) values (1, 'ru', UPPER('10')), (1, 'uk', UPPER('10')), (2, 'ru', UPPER('20')), (2, 'uk', UPPER('20')),
+                                                                (3, 'ru', UPPER('1')), (3, 'uk', UPPER('1')),
+                                                                (4, 'ru', UPPER('40')), (4, 'uk', UPPER('40')),
+                                                                (5, 'ru', UPPER('19')), (5, 'uk', UPPER('19'));
 insert into apartment_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
 (1,1,100,1,100), (1,2,100,2,100), (1,3,100,3,100), (1,4,100,4,100), (1,5,100,5,100);
 
@@ -27,9 +27,9 @@ insert into apartment_attribute(attribute_id, object_id, attribute_type_id, valu
 insert into building(object_id, parent_id, parent_entity_id) values (1,1,400), (2,1,400), (3,1,400), (4,2,400), (5,2,400), (6,3,400), (7,3,400);
 insert into building_string_culture(id, locale, value) values
 (1, 'ru', UPPER('10')), (2, 'ru', UPPER('20')), (3,'ru',UPPER('11')), (4,'ru',UPPER('12')), (5,'ru',UPPER('21')), (6,'ru',UPPER('100')),
-(1, 'ua', UPPER('10')), (2, 'ua', UPPER('20')), (3,'ua',UPPER('11')), (4,'ua',UPPER('12')), (5,'ua',UPPER('21')), (6,'ua',UPPER('100')),
-(19,'ru',UPPER('154A')), (19,'ua',UPPER('154А')),
-(22,'ru',UPPER('25A')), (22,'ua',UPPER('25А'));
+(1, 'uk', UPPER('10')), (2, 'uk', UPPER('20')), (3,'uk',UPPER('11')), (4,'uk',UPPER('12')), (5,'uk',UPPER('21')), (6,'uk',UPPER('100')),
+(19,'ru',UPPER('154A')), (19,'uk',UPPER('154А')),
+(22,'ru',UPPER('25A')), (22,'uk',UPPER('25А'));
 insert into building_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
 (1,1,500,1,500),
 (1,1,501,7,501),
@@ -72,11 +72,11 @@ insert into building_attribute(attribute_id, object_id, attribute_type_id, value
 (1,7,504,3,504);
 
 -- Streets
-insert into street_string_culture(id, locale, value) values (1, 'ru', UPPER('Терешковой')), (1,'ua',UPPER('Tereshkovoy')),
-                                                            (2, 'ru', UPPER('Ленина')), (2,'ua',UPPER('Lenina')),
-                                                            (3, 'ru', UPPER('Морской')), (3,'ua', UPPER('Morskoy')),
-                                                            (4, 'ru', UPPER('КОСИОРА')), (4,'ua', UPPER('КОСИОРА')),
-                                                            (5, 'ru', UPPER('ФРАНТИШЕКА КРАЛА')), (5,'ua', UPPER('ФРАНТИШЕКА КРАЛА'));
+insert into street_string_culture(id, locale, value) values (1, 'ru', UPPER('Терешковой')), (1,'uk',UPPER('Tereshkovoy')),
+                                                            (2, 'ru', UPPER('Ленина')), (2,'uk',UPPER('Lenina')),
+                                                            (3, 'ru', UPPER('Морской')), (3,'uk', UPPER('Morskoy')),
+                                                            (4, 'ru', UPPER('КОСИОРА')), (4,'uk', UPPER('КОСИОРА')),
+                                                            (5, 'ru', UPPER('ФРАНТИШЕКА КРАЛА')), (5,'uk', UPPER('ФРАНТИШЕКА КРАЛА'));
 insert into street(object_id, parent_id, parent_entity_id, entity_type_id) values (1,1,400,300), (2,2,400,300), (3,1,400,300), (4,3,400,301), (5,3,400,302);
 insert into street_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
 (1,1,300,1,300),
@@ -86,9 +86,9 @@ insert into street_attribute(attribute_id, object_id, attribute_type_id, value_i
 (1,5,300,5,300);
 
 -- Districts
-insert into district_string_culture(id, locale, value) values (1, 'ru', UPPER('Ленинский')), (1, 'ua',UPPER('Leninsky')),
-                                                              (2, 'ru', UPPER('Советский')), (2, 'ua', UPPER('Sovetsky')),
-                                                              (3, 'ru', UPPER('Центральный')), (3, 'ua', UPPER('Центральный')),
+insert into district_string_culture(id, locale, value) values (1, 'ru', UPPER('Ленинский')), (1, 'uk',UPPER('Leninsky')),
+                                                              (2, 'ru', UPPER('Советский')), (2, 'uk', UPPER('Sovetsky')),
+                                                              (3, 'ru', UPPER('Центральный')), (3, 'uk', UPPER('Центральный')),
                                                               (4, 'ru', UPPER('LE')), (5, 'ru', UPPER('SO')), (6, 'ru', UPPER('CE'));
 insert into district(object_id, parent_id, parent_entity_id) values (1,1,400), (2,1,400), (3,3,400);
 insert into district_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
@@ -100,9 +100,9 @@ insert into district_attribute(attribute_id, object_id, attribute_type_id, value
 (1,3,601,6,601);
 
 -- Cities
-insert into city_string_culture(id, locale, value) values (1, 'ru', UPPER('Новосибирск')), (1,'ua',UPPER('Novosibirsk')),
-                                                          (2, 'ru', UPPER('Москва')), (2,'ua',UPPER('Moscow')),
-                                                          (3, 'ru', UPPER('Харьков')), (3,'ua',UPPER('Харьков'));
+insert into city_string_culture(id, locale, value) values (1, 'ru', UPPER('Новосибирск')), (1,'uk',UPPER('Novosibirsk')),
+                                                          (2, 'ru', UPPER('Москва')), (2,'uk',UPPER('Moscow')),
+                                                          (3, 'ru', UPPER('Харьков')), (3,'uk',UPPER('Харьков'));
 insert into city(object_id, parent_id, parent_entity_id, entity_type_id) values (1,1,700,400), (2,2,700,400), (3,3,700,400);
 insert into city_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
 (1,1,400,1,400),
@@ -110,9 +110,9 @@ insert into city_attribute(attribute_id, object_id, attribute_type_id, value_id,
 (1,3,400,3,400);
 
 -- Regions
-insert into region_string_culture(id, locale, value) values (1, 'ru', UPPER('Новосибирская обл.')), (1,'ua',UPPER('Novosibirsk''s region')),
-                                                            (2, 'ru', UPPER('Московская обл.')), (2,'ua',UPPER('Moscow''s region')),
-                                                            (3, 'ru', UPPER('Харьковская обл.(ТЕСТ)')), (3,'ua',UPPER('Харьковская обл.(ТЕСТ)'));
+insert into region_string_culture(id, locale, value) values (1, 'ru', UPPER('Новосибирская обл.')), (1,'uk',UPPER('Novosibirsk''s region')),
+                                                            (2, 'ru', UPPER('Московская обл.')), (2,'uk',UPPER('Moscow''s region')),
+                                                            (3, 'ru', UPPER('Харьковская обл.(ТЕСТ)')), (3,'uk',UPPER('Харьковская обл.(ТЕСТ)'));
 insert into region(object_id, parent_id, parent_entity_id) values (1,1,800), (2,1,800), (3,2,800);
 insert into region_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
 (1,1,700,1,700),
@@ -120,8 +120,8 @@ insert into region_attribute(attribute_id, object_id, attribute_type_id, value_i
 (1,3,700,3,700);
 
 -- Countries
-insert into country_string_culture(id, locale, value) values (1, 'ru', UPPER('Россия')), (1,'ua',UPPER('Russia')),
-                                                            (2, 'ru', UPPER('Украина(ТЕСТ)')), (2,'ua',UPPER('Ukraine(ТЕСТ)'));
+insert into country_string_culture(id, locale, value) values (1, 'ru', UPPER('Россия')), (1,'uk',UPPER('Russia')),
+                                                            (2, 'ru', UPPER('Украина(ТЕСТ)')), (2,'uk',UPPER('Ukraine(ТЕСТ)'));
 insert into country(object_id) values (1), (2);
 insert into country_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
 (1,1,800,1,800),
@@ -129,8 +129,8 @@ insert into country_attribute(attribute_id, object_id, attribute_type_id, value_
 
 -- Organizations
 insert into organization(object_id, parent_id, parent_entity_id, entity_type_id) values (1,null,null,900), (2,null,null,901);
-insert into organization_string_culture(id, locale, value) values (1, 'ru', UPPER('ОСЗН 1')), (1,'ua',UPPER('ОСЗН 1')), (2, 'ru', UPPER('1234')),
-(3, 'ru', UPPER('Центр начислений №1')), (3, 'ua', UPPER('Центр начислений №1')), (4, 'ru', UPPER('1234'));
+insert into organization_string_culture(id, locale, value) values (1, 'ru', UPPER('ОСЗН 1')), (1,'uk',UPPER('ОСЗН 1')), (2, 'ru', UPPER('1234')),
+(3, 'ru', UPPER('Центр начислений №1')), (3, 'uk', UPPER('Центр начислений №1')), (4, 'ru', UPPER('1234'));
 insert into organization_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
 (1,1,900,1,900), (1,1,901,2,901), (1,1,902,3,902),
 (1,2,900,3,900), (1,2,901,4,902), (1,2,902,null,902);
