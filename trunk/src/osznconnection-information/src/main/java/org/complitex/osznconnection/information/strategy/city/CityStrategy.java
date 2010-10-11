@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import org.complitex.dictionaryfw.entity.description.EntityType;
+import org.complitex.dictionaryfw.service.EntityBean;
 
 /**
  *
@@ -42,6 +44,9 @@ public class CityStrategy extends Strategy {
 
     @EJB(beanName = "StringCultureBean")
     private StringCultureBean stringBean;
+
+    @EJB
+    private EntityBean entityBean;
 
     private static final long NAME_ATTRIBUTE_TYPE_ID = 400L;
 
@@ -68,13 +73,26 @@ public class CityStrategy extends Strategy {
 
     @Override
     public String displayDomainObject(DomainObject object, Locale locale) {
-        return stringBean.displayValue(Iterables.find(object.getAttributes(), new Predicate<Attribute>() {
+        String name = stringBean.displayValue(Iterables.find(object.getAttributes(), new Predicate<Attribute>() {
 
             @Override
             public boolean apply(Attribute attr) {
                 return attr.getAttributeTypeId().equals(NAME_ATTRIBUTE_TYPE_ID);
             }
         }).getLocalizedValues(), locale);
+        final Long entityTypeId = object.getEntityTypeId();
+        if (entityTypeId != null) {
+            String cityTypeName = stringBean.displayValue(Iterables.find(entityBean.getFullEntity(getEntityTable()).getEntityTypes(), new Predicate<EntityType>() {
+
+                @Override
+                public boolean apply(EntityType entityType) {
+                    return entityType.getId().equals(entityTypeId);
+                }
+            }).getEntityTypeNames(), locale);
+            return cityTypeName + " " + name;
+        } else {
+            return name;
+        }
     }
 
     @Override

@@ -6,7 +6,7 @@ package org.complitex.osznconnection.information;
 
 import com.google.common.collect.ImmutableList;
 
-import java.util.Collection;
+import java.util.List;
 
 /**
  *
@@ -14,12 +14,12 @@ import java.util.Collection;
  */
 public final class BookEntities {
 
-    private static final Collection<String> BOOK_ENTITIES = ImmutableList.of("country", "region", "city", "district", "street", "building");
+    private static final List<String> BOOK_ENTITIES = ImmutableList.of("country", "region", "city", "district", "street", "building");
 
     private BookEntities() {
     }
 
-    public static Collection<String> getEntities() {
+    public static List<String> getEntities() {
         return BOOK_ENTITIES;
     }
 }

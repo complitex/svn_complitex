@@ -103,7 +103,7 @@ insert into district_attribute(attribute_id, object_id, attribute_type_id, value
 insert into city_string_culture(id, locale, value) values (1, 'ru', UPPER('Новосибирск')), (1,'ua',UPPER('Novosibirsk')),
                                                           (2, 'ru', UPPER('Москва')), (2,'ua',UPPER('Moscow')),
                                                           (3, 'ru', UPPER('Харьков')), (3,'ua',UPPER('Харьков'));
-insert into city(object_id, parent_id, parent_entity_id) values (1,1,700), (2,2,700), (3,3,700);
+insert into city(object_id, parent_id, parent_entity_id, entity_type_id) values (1,1,700,400), (2,2,700,400), (3,3,700,400);
 insert into city_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
 (1,1,400,1,400),
 (1,2,400,2,400),
