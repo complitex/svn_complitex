@@ -53,7 +53,7 @@ public class FileExecutorService {
     private ExecutorService bindingThreadPool = initBindingThreadPool();
 
     private static ExecutorService initBindingThreadPool() {
-        return Executors.newFixedThreadPool(ConfigStatic.get().getInteger(ConfigName.BINDING_THREAD_SIZE, true));
+        return Executors.newFixedThreadPool(ConfigStatic.get().getInteger(ConfigName.BIND_THREAD_SIZE, true));
     }
 
     public boolean isBinding() {
@@ -63,7 +63,7 @@ public class FileExecutorService {
     private ExecutorService processingThreadPool = initProcessingThreadPool();
 
     private static ExecutorService initProcessingThreadPool() {
-        return Executors.newFixedThreadPool(ConfigStatic.get().getInteger(ConfigName.PROCESSING_THREAD_SIZE, true));
+        return Executors.newFixedThreadPool(ConfigStatic.get().getInteger(ConfigName.FILL_THREAD_SIZE, true));
     }
 
     public boolean isProcessing() {

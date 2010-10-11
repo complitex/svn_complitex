@@ -13,7 +13,7 @@ import org.complitex.osznconnection.file.entity.CalculationCenterInfo;
  *
  * @author Artem
  */
-@Stateless
+@Stateless(name = "CalculationCenterBean")
 public class CalculationCenterBean extends AbstractBean {
 
     private static final String MAPPING_NAMESPACE = CalculationCenterBean.class.getName();

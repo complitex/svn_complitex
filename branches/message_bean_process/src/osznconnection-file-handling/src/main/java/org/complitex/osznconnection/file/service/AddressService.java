@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Artem
  */
-@Stateless
+@Stateless(name = "AddressService")
 public class AddressService extends AbstractBean {
 
     private static final Logger log = LoggerFactory.getLogger(AddressService.class);

@@ -12,8 +12,10 @@ public enum ConfigName {
         LOAD_MAX_ERROR_FILE_COUNT("10"),
         SAVE_MAX_ERROR_FILE_COUNT("10"),
         LOAD_RECORD_BATCH_SIZE("64"),
-        BINDING_THREAD_SIZE("10"),
-        PROCESSING_THREAD_SIZE("10");
+        BIND_RECORD_BATCH_SIZE("64"),
+        BIND_THREAD_SIZE("10"),
+        FILL_RECORD_BATCH_SIZE("64"),
+        FILL_THREAD_SIZE("10");
 
     private String defaultValue;
 

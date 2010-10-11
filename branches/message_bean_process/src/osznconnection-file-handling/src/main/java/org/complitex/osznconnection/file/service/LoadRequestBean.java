@@ -64,7 +64,7 @@ public class LoadRequestBean extends AbstractProcessBean {
             @Override
             public boolean accept(File file) {
                 if(file.isDirectory()){
-                    return true;                   
+                    return true;
                 }
 
                 String name = file.getName();
@@ -74,7 +74,7 @@ public class LoadRequestBean extends AbstractProcessBean {
                     return true;
                 }else{ //PAYMENT, BENEFIT
                     for (int m = monthFrom; m <= monthTo; ++m) {
-                        String month = (m < 9 ? "0" + (m + 1) : "" + (m + 1));
+                        String month = (m <= 9 ? "0" + (m + 1) : "" + (m + 1));
                         String pattern = "((A_)|(AF))\\d{4}" + month + "\\.DBF";
 
                         if (Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(name).matches()) {
@@ -114,7 +114,7 @@ public class LoadRequestBean extends AbstractProcessBean {
     private RequestFile newRequestFile(File file, Long organizationId, int year){
         RequestFile requestFile = new RequestFile();
 
-        requestFile.setName(file.getName());        
+        requestFile.setName(file.getName());
         requestFile.updateTypeByName();
         requestFile.setDirectory(RequestFileStorage.getInstance().getRelativeParent(file));
         requestFile.setLength(file.length());
@@ -234,7 +234,7 @@ public class LoadRequestBean extends AbstractProcessBean {
                     if(file.getName().indexOf(RequestFile.TARIF_FILE_PREFIX) == 0){
                         //delete previous tarif
                         requestFileBean.deleteTarif(organizationId);
-                        
+
                         //fill fields
                         RequestFile requestFile = new RequestFile();
 

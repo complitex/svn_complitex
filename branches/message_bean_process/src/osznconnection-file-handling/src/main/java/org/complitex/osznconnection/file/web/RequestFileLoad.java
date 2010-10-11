@@ -12,16 +12,13 @@ import org.apache.wicket.model.Model;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.web.component.MonthDropDownChoice;
 import org.complitex.dictionaryfw.web.component.YearDropDownChoice;
-import org.complitex.osznconnection.commons.web.pages.welcome.WelcomePage;
 import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.FormTemplatePage;
-import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.service.LoadRequestBean;
+import org.complitex.osznconnection.file.service.process.ProcessBean;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 
 import javax.ejb.EJB;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -35,6 +32,9 @@ public class RequestFileLoad extends FormTemplatePage {
 
     @EJB(name = "OrganizationStrategy")
     private OrganizationStrategy organizationStrategy;
+
+    @EJB(name = "ProcessManagerBean")
+    private ProcessBean processManagerBean;
 
     public RequestFileLoad() {
         super();
@@ -138,7 +138,8 @@ public class RequestFileLoad extends FormTemplatePage {
 
             @Override
             public void onSubmit() {
-                setResponsePage(WelcomePage.class);
+//                setResponsePage(WelcomePage.class);
+//                processManagerBean.test();
             }
         };
         cancel.setDefaultFormProcessing(false);
