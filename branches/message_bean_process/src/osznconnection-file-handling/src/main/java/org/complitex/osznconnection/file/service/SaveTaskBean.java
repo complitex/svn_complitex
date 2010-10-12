@@ -16,12 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.*;
-import java.io.File;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.Future;
 
 import static org.complitex.osznconnection.file.entity.RequestFile.STATUS.SAVED;
@@ -35,9 +32,10 @@ import static org.complitex.osznconnection.file.entity.RequestFile.STATUS_DETAIL
  * Асинхронная задача сохранения файла запроса.
  *
  * @see org.complitex.osznconnection.file.service.SaveRequestBean
- */
+  */
 @Stateless(name = "SaveTaskBean2")
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+@Deprecated
 public class SaveTaskBean {
     private static final Logger log = LoggerFactory.getLogger(SaveTaskBean.class);
 

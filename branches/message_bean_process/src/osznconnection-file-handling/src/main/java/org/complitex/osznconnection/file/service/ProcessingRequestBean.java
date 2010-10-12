@@ -6,30 +6,29 @@ package org.complitex.osznconnection.file.service;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import org.complitex.dictionaryfw.service.AbstractBean;
+import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
+import org.complitex.osznconnection.file.calculation.service.CalculationCenterBean;
+import org.complitex.osznconnection.file.entity.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
-import org.complitex.dictionaryfw.service.AbstractBean;
-import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
-import org.complitex.osznconnection.file.calculation.service.CalculationCenterBean;
-import org.complitex.osznconnection.file.entity.Benefit;
-import org.complitex.osznconnection.file.entity.CalculationCenterInfo;
-import org.complitex.osznconnection.file.entity.Payment;
-import org.complitex.osznconnection.file.entity.RequestFile;
-import org.complitex.osznconnection.file.entity.Status;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
  * @author Artem
  */
+@SuppressWarnings({"EjbEnvironmentInspection"})
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)
+@Deprecated
 public class ProcessingRequestBean extends AbstractBean {
 
     private static final Logger log = LoggerFactory.getLogger(ProcessingRequestBean.class);

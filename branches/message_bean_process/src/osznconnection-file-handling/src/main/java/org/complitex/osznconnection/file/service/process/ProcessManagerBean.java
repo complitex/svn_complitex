@@ -23,6 +23,10 @@ import java.util.List;
 public class ProcessManagerBean {
     private static final Logger log = LoggerFactory.getLogger(BindTaskBean.class);
 
+    public static enum PROCESS {
+        NONE, LOAD, BIND, FILL, SAVE
+    }
+
     @EJB(beanName = "LoadTaskBean")
     private LoadTaskBean loadTaskBean;
 
@@ -39,9 +43,15 @@ public class ProcessManagerBean {
     private ExecutorBean executorBean;
 
     @EJB(beanName = "ConfigBean")
-    protected ConfigBean configBean;
+    private ConfigBean configBean;
 
-    protected List<RequestFile> linkError = Collections.synchronizedList(new ArrayList<RequestFile>());
+    private List<RequestFile> linkError = Collections.synchronizedList(new ArrayList<RequestFile>());
+
+    private PROCESS process = PROCESS.NONE;
+
+    public PROCESS getProcess() {
+        return process;
+    }
 
     public List<RequestFile> getLinkError(boolean flush) {
         List<RequestFile> list = new ArrayList<RequestFile>();
@@ -65,20 +75,34 @@ public class ProcessManagerBean {
         return Collections.unmodifiableList(list);
     }
 
-    public ExecutorBean.STATUS getStatus() {
-        return executorBean.getStatus();
-    }
-
     public int getProcessedCount() {
         return executorBean.getProcessedCount();
+    }
+
+    public int getSkippedCount() {
+        return executorBean.getSkippedCount();
     }
 
     public int getErrorCount() {
         return executorBean.getErrorCount();
     }
 
+    public boolean isProcessing(){
+        return executorBean.getStatus().equals(ExecutorBean.STATUS.RUNNING);
+    }
+
+    public boolean isCriticalError(){
+        return executorBean.getStatus().equals(ExecutorBean.STATUS.CRITICAL_ERROR);
+    }
+
+    public boolean isCompleted(){
+        return executorBean.getStatus().equals(ExecutorBean.STATUS.COMPLETED);
+    }
+
     @Asynchronous
     public void load(Long organizationId, String districtCode, int monthFrom, int monthTo, int year){
+        process = PROCESS.LOAD;
+
         try {
             LoadUtil.LoadParameter loadParameter = LoadUtil.getLoadParameter(organizationId, districtCode, monthFrom, monthTo, year);
 
@@ -95,6 +119,8 @@ public class ProcessManagerBean {
 
     @Asynchronous
     public void bind(List<RequestFileGroup> groups){
+        process = PROCESS.BIND;
+
         executorBean.execute(groups,
                 bindTaskBean,
                 configBean.getInteger(ConfigName.BIND_THREADS_SIZE, true),
@@ -103,6 +129,8 @@ public class ProcessManagerBean {
 
     @Asynchronous
     public void fill(List<RequestFileGroup> groups){
+        process = PROCESS.FILL;
+
         executorBean.execute(groups,
                 fillTaskBean,
                 configBean.getInteger(ConfigName.FILL_THREADS_SIZE, true),
@@ -111,6 +139,8 @@ public class ProcessManagerBean {
 
     @Asynchronous
     public void save(List<RequestFileGroup> groups){
+        process = PROCESS.SAVE;
+
         executorBean.execute(groups,
                 saveTaskBean,
                 configBean.getInteger(ConfigName.SAVE_THREADS_SIZE, true),

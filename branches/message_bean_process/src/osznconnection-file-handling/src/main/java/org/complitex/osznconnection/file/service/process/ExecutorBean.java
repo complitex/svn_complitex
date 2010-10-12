@@ -21,12 +21,13 @@ public class ExecutorBean {
     private static final Logger log = LoggerFactory.getLogger(AbstractProcessBean.class);
 
     public static enum STATUS {
-        RUNNING, COMPLETED, CRITICAL_ERROR
+        NEW, RUNNING, COMPLETED, CRITICAL_ERROR
     }
 
-    protected STATUS status;
+    protected STATUS status = STATUS.NEW;
     
     protected int processedCount = 0;
+    protected int skippedCount = 0;
     protected int errorCount = 0;
 
     protected List<RequestFileGroup> processed = Collections.synchronizedList(new ArrayList<RequestFileGroup>());
@@ -39,6 +40,10 @@ public class ExecutorBean {
         return processedCount;
     }
 
+    public int getSkippedCount() {
+        return skippedCount;
+    }
+
     public int getErrorCount() {
         return errorCount;
     }
@@ -47,12 +52,21 @@ public class ExecutorBean {
         return processed;
     }
 
+    public void restart(){
+        if (status.equals(STATUS.COMPLETED) || status.equals(STATUS.CRITICAL_ERROR)){
+            status = STATUS.NEW;
+        }else{
+            throw new IllegalStateException();
+        }
+    }
+
     public void execute(List<RequestFileGroup> groups, AbstractTaskBean taskBean, int maxThread, final int maxErrors){
         if (status.equals(STATUS.RUNNING)){
             throw new IllegalStateException();           
         }
 
         processedCount = 0;
+        skippedCount = 0;
         errorCount = 0;
 
         final Semaphore semaphore = new Semaphore(maxThread);
@@ -69,6 +83,11 @@ public class ExecutorBean {
                         processedCount++;
 
                         semaphore.release();
+                    }
+
+                    @Override
+                    public void skip(RequestFileGroup group) {
+                        skippedCount++;
                     }
 
                     @Override

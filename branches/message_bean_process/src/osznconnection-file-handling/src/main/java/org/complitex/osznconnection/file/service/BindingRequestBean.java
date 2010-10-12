@@ -2,24 +2,29 @@ package org.complitex.osznconnection.file.service;
 
 import com.google.common.collect.Lists;
 import org.complitex.dictionaryfw.service.AbstractBean;
-import org.complitex.osznconnection.file.entity.*;
+import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
+import org.complitex.osznconnection.file.calculation.service.CalculationCenterBean;
+import org.complitex.osznconnection.file.entity.CalculationCenterInfo;
+import org.complitex.osznconnection.file.entity.Payment;
+import org.complitex.osznconnection.file.entity.RequestFile;
+import org.complitex.osznconnection.file.entity.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import java.util.List;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
-import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
-import org.complitex.osznconnection.file.calculation.service.CalculationCenterBean;
+import java.util.List;
 
 /**
  *
  * @author Artem
  */
+@SuppressWarnings({"EjbEnvironmentInspection"})
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)
+@Deprecated
 public class BindingRequestBean extends AbstractBean {
 
     private static final Logger log = LoggerFactory.getLogger(BindingRequestBean.class);

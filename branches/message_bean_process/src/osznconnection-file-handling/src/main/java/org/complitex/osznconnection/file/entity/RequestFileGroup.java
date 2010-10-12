@@ -1,10 +1,11 @@
 package org.complitex.osznconnection.file.entity;
 
 import org.complitex.dictionaryfw.util.DateUtil;
-import org.complitex.dictionaryfw.util.StringUtil;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -93,6 +94,14 @@ public class RequestFileGroup implements Serializable{
 
         if (paymentFile != null) return paymentFile.getStatusDetail();
         if (benefitFile != null) return benefitFile.getStatusDetail();
+
+        return null;
+    }
+
+    public String getName(){
+        if (paymentFile != null){
+            return paymentFile.getName().substring(2,8);           
+        }
 
         return null;
     }

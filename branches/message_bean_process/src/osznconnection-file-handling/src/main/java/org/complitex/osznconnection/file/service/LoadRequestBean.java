@@ -15,7 +15,10 @@ import javax.annotation.PostConstruct;
 import javax.ejb.*;
 import java.io.File;
 import java.io.FileFilter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.regex.Pattern;
 
@@ -33,6 +36,7 @@ import java.util.regex.Pattern;
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 @SuppressWarnings({"EjbProhibitedPackageUsageInspection"})
+@Deprecated
 public class LoadRequestBean extends AbstractProcessBean {
     private static final Logger log = LoggerFactory.getLogger(RequestFileBean.class);
 

@@ -12,10 +12,11 @@ import org.apache.wicket.model.Model;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.web.component.MonthDropDownChoice;
 import org.complitex.dictionaryfw.web.component.YearDropDownChoice;
+import org.complitex.osznconnection.commons.web.pages.welcome.WelcomePage;
 import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.FormTemplatePage;
 import org.complitex.osznconnection.file.service.LoadRequestBean;
-import org.complitex.osznconnection.file.service.process.ExecutorBean;
+import org.complitex.osznconnection.file.service.process.ProcessManagerBean;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 
 import javax.ejb.EJB;
@@ -30,11 +31,11 @@ public class RequestFileLoad extends FormTemplatePage {
     @EJB(name = "LoadRequestBean")
     private LoadRequestBean loadRequestBean;
 
+    @EJB(name = "ProcessManagerBean")
+    private ProcessManagerBean processManagerBean;
+
     @EJB(name = "OrganizationStrategy")
     private OrganizationStrategy organizationStrategy;
-
-    @EJB(name = "ProcessManagerBean")
-    private ExecutorBean processManagerBean;
 
     public RequestFileLoad() {
         super();
@@ -92,9 +93,9 @@ public class RequestFileLoad extends FormTemplatePage {
                     return;
                 }
 
-                if (!loadRequestBean.isProcessing()) {
+                if (!processManagerBean.isProcessing()) {
                     DomainObject oszn = organizationModel.getObject();
-                    loadRequestBean.load(oszn.getId(), organizationStrategy.getDistrictCode(oszn), f, t,
+                    processManagerBean.load(oszn.getId(), organizationStrategy.getDistrictCode(oszn), f, t,
                             year.getModelObject());
                     getSession().info(getString("info.start_loading"));
                 } else {
@@ -138,8 +139,7 @@ public class RequestFileLoad extends FormTemplatePage {
 
             @Override
             public void onSubmit() {
-//                setResponsePage(WelcomePage.class);
-//                processManagerBean.test();
+                setResponsePage(WelcomePage.class);
             }
         };
         cancel.setDefaultFormProcessing(false);

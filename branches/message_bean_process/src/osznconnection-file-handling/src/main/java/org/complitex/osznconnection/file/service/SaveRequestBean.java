@@ -29,6 +29,7 @@ import java.util.concurrent.Future;
 @Singleton(name = "SaveRequestBean")
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 @SuppressWarnings({"EjbProhibitedPackageUsageInspection"})
+@Deprecated
 public class SaveRequestBean extends AbstractProcessBean{
     private static final Logger log = LoggerFactory.getLogger(SaveRequestBean.class);       
 

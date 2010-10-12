@@ -8,9 +8,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-
-import java.util.*;
-
 import org.complitex.osznconnection.file.entity.ConfigName;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.slf4j.Logger;
@@ -18,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -26,6 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author Artem
  */
+@Deprecated
 public class FileExecutorService {
 
     private static final Logger log = LoggerFactory.getLogger(FileExecutorService.class);

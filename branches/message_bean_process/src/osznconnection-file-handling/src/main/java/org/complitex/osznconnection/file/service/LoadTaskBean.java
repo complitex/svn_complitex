@@ -36,6 +36,7 @@ import static org.complitex.osznconnection.file.entity.RequestFile.STATUS_DETAIL
 @Stateless(name = "LoadTaskBean2")
 @SuppressWarnings({"EjbProhibitedPackageUsageInspection"})
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+@Deprecated
 public class  LoadTaskBean {
     private static final Logger log = LoggerFactory.getLogger(LoadTaskBean.class);
 
