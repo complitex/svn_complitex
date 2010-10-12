@@ -116,7 +116,6 @@
         <if test="lastName != null">
             AND b.`SUR_NAM` LIKE CONCAT('%',#{lastName},'%')
         </if>
-
         <if test="city != null">
             AND p.`N_NAME` LIKE CONCAT('%', #{city}, '%')
         </if>
@@ -132,7 +131,6 @@
         <if test="apartment != null">
             AND p.`FLAT` LIKE CONCAT('%', #{apartment}, '%')
         </if>
-
         <if test="status != null">
             AND b.`status` = #{status}
         </if>
@@ -143,11 +141,11 @@
             COUNT(DISTINCT b.`id`)
         FROM
             `benefit` b
-            LEFT JOIN `request_file` bf ON b.`request_file_id` = bf.`id`
-            LEFT JOIN `payment` p ON b.`OWN_NUM_SR` = p.`OWN_NUM_SR`
-            LEFT JOIN `request_file` pf ON p.`request_file_id` = pf.`id`
+            JOIN `request_file` bf ON b.`request_file_id` = bf.`id`
+            JOIN `request_file` pf ON (pf.`group_id` = bf.`group_id` AND pf.`type` = 'PAYMENT')
+            LEFT JOIN `payment` p ON (b.`OWN_NUM_SR` = p.`OWN_NUM_SR` AND p.`request_file_id` = pf.`id`)
         WHERE
-            pf.`group_id` = bf.`group_id` AND b.`request_file_id` = #{requestFileId}
+            b.`request_file_id` = #{requestFileId}
         <include refid="org.complitex.osznconnection.file.service.BenefitBean.filter"/>
     </select>
 
@@ -159,11 +157,11 @@
             p.`FLAT` apartment
         FROM
             `benefit` b
-            LEFT JOIN `request_file` bf ON b.`request_file_id` = bf.`id`
-            LEFT JOIN `payment` p ON b.`OWN_NUM_SR` = p.`OWN_NUM_SR`
-            LEFT JOIN `request_file` pf ON p.`request_file_id` = pf.`id`
+            JOIN `request_file` bf ON b.`request_file_id` = bf.`id`
+            JOIN `request_file` pf ON (pf.`group_id` = bf.`group_id` AND pf.`type` = 'PAYMENT')
+            LEFT JOIN `payment` p ON (b.`OWN_NUM_SR` = p.`OWN_NUM_SR` AND p.`request_file_id` = pf.`id`)
         WHERE
-            pf.`group_id` = bf.`group_id` AND b.`request_file_id` = #{requestFileId}
+            b.`request_file_id` = #{requestFileId}
         <include refid="org.complitex.osznconnection.file.service.BenefitBean.filter"/>
         <if test="orderByClause != null">
             ORDER BY ${orderByClause}
