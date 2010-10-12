@@ -5,6 +5,7 @@
 package org.complitex.osznconnection.file.web.pages.correction;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
@@ -24,6 +25,8 @@ import org.complitex.dictionaryfw.strategy.StrategyFactory;
 import org.complitex.dictionaryfw.web.component.search.ISearchCallback;
 import org.complitex.dictionaryfw.web.component.search.SearchComponent;
 import org.complitex.dictionaryfw.web.component.search.SearchComponentState;
+import org.complitex.osznconnection.commons.web.component.toolbar.DeleteItemButton;
+import org.complitex.osznconnection.commons.web.component.toolbar.ToolbarButton;
 import org.complitex.osznconnection.commons.web.template.FormTemplatePage;
 import org.complitex.osznconnection.file.entity.BuildingCorrection;
 import org.complitex.osznconnection.file.entity.ObjectCorrection;
@@ -184,13 +187,40 @@ public class AddressCorrectionEdit extends FormTemplatePage {
         protected void update() {
             addressCorrectionBean.updateBuilding(getModel());
         }
+
+        @Override
+        public void delete() {
+            addressCorrectionBean.deleteBuilding(getModel());
+            back();
+        }
     }
+
+    private AbstractCorrectionEditPanel addressEditPanel;
 
     public AddressCorrectionEdit(PageParameters params) {
         String entity = params.getString(CORRECTED_ENTITY);
         Long correctionId = params.getAsLong(CORRECTION_ID);
-        add(entity.equals("building") ? new BuildingCorrectionEditPanel("addressEditPanel", correctionId)
-                : new AddressCorrectionEditPanel("addressEditPanel", entity, correctionId));
+        addressEditPanel = entity.equals("building") ? new BuildingCorrectionEditPanel("addressEditPanel", correctionId)
+                : new AddressCorrectionEditPanel("addressEditPanel", entity, correctionId);
+        add(addressEditPanel);
+    }
+
+    @Override
+    protected List<? extends ToolbarButton> getToolbarButtons(String id) {
+        List<ToolbarButton> toolbar = Lists.newArrayList();
+        toolbar.add(new DeleteItemButton(id) {
+
+            @Override
+            protected void onClick() {
+                addressEditPanel.delete();
+            }
+
+            @Override
+            public boolean isVisible() {
+                return !addressEditPanel.isNew();
+            }
+        });
+        return toolbar;
     }
 }
 

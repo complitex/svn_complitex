@@ -30,7 +30,7 @@
                     </tr>
                     <tr>
                         <th>
-                            <wicket:message key="code"/> <b class="blue">*</b> :
+                            <wicket:message key="code"/> :
                         </th>
                         <td>
                             <input type="text" wicket:id="code"/>
@@ -42,6 +42,16 @@
                         </th>
                         <td>
                             <select wicket:id="organization">
+                                <option></option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <wicket:message key="internal_organization"/> <b class="blue">*</b> :
+                        </th>
+                        <td>
+                            <select wicket:id="internalOrganization">
                                 <option></option>
                             </select>
                         </td>

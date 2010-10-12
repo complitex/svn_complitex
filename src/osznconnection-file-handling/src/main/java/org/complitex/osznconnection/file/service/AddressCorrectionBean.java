@@ -237,4 +237,9 @@ public class AddressCorrectionBean extends CorrectionBean {
     public List<BuildingCorrection> findBuildings(ObjectCorrectionExample example) {
         return (List<BuildingCorrection>) super.find(example, MAPPING_NAMESPACE + ".findBuildings");
     }
+
+    @Transactional
+    public void deleteBuilding(BuildingCorrection buildingCorrection) {
+        sqlSession().delete(MAPPING_NAMESPACE + ".deleteBuilding", buildingCorrection);
+    }
 }

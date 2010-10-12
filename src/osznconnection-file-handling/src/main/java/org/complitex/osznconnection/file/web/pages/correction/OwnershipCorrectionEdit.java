@@ -6,6 +6,7 @@ package org.complitex.osznconnection.file.web.pages.correction;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Locale;
 import javax.ejb.EJB;
@@ -17,6 +18,8 @@ import org.apache.wicket.model.ResourceModel;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.web.component.DisableAwareDropDownChoice;
 import org.complitex.dictionaryfw.web.component.DomainObjectDisableAwareRenderer;
+import org.complitex.osznconnection.commons.web.component.toolbar.DeleteItemButton;
+import org.complitex.osznconnection.commons.web.component.toolbar.ToolbarButton;
 import org.complitex.osznconnection.commons.web.template.FormTemplatePage;
 import org.complitex.osznconnection.file.entity.ObjectCorrection;
 import org.complitex.osznconnection.file.web.component.correction.edit.AbstractCorrectionEditPanel;
@@ -75,9 +78,11 @@ public final class OwnershipCorrectionEdit extends FormTemplatePage {
         }
     }
 
+    private AbstractCorrectionEditPanel correctionEditPanel;
+
     public OwnershipCorrectionEdit(PageParameters params) {
         Long correctionId = params.getAsLong(CORRECTION_ID);
-        add(new AbstractCorrectionEditPanel("correctionEditPanel", "ownership", correctionId) {
+        add(correctionEditPanel = new AbstractCorrectionEditPanel("correctionEditPanel", "ownership", correctionId) {
 
             @Override
             protected IModel<String> internalObjectLabel(Locale locale) {
@@ -101,6 +106,24 @@ public final class OwnershipCorrectionEdit extends FormTemplatePage {
                 setResponsePage(OwnershipCorrectionList.class, parameters);
             }
         });
+    }
+
+    @Override
+    protected List<? extends ToolbarButton> getToolbarButtons(String id) {
+        List<ToolbarButton> toolbar = Lists.newArrayList();
+        toolbar.add(new DeleteItemButton(id) {
+
+            @Override
+            protected void onClick() {
+                correctionEditPanel.delete();
+            }
+
+            @Override
+            public boolean isVisible() {
+                return !correctionEditPanel.isNew();
+            }
+        });
+        return toolbar;
     }
 }
 

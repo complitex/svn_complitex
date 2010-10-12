@@ -61,7 +61,7 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
         init();
     }
 
-    protected boolean isNew() {
+    public boolean isNew() {
         return correctionId == null;
     }
 
@@ -109,6 +109,11 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
 
     protected void update() {
         correctionBean.update(objectCorrection);
+    }
+
+    public void delete(){
+        correctionBean.delete(objectCorrection);
+        back();
     }
 
     protected WebMarkupContainer getFormContainer() {

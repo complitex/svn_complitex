@@ -204,6 +204,14 @@
         UPDATE `entity_type_correction` SET `organization_id` = #{organizationId}, `type` = #{correction}, `entity_type_id` = #{internalObjectId},
         `organization_type_code` = #{code}, `internal_organization_id` = #{internalOrganizationId}
         WHERE `id` = #{id}
-    </update>   
+    </update>
+
+    <delete id="delete" parameterType="org.complitex.osznconnection.file.entity.ObjectCorrection">
+        DELETE FROM `${entity}_correction` WHERE `id` = #{id}
+    </delete>
+
+    <delete id="deleteEntityType" parameterType="org.complitex.osznconnection.file.entity.EntityTypeCorrection">
+        DELETE FROM `entity_type_correction` WHERE `id` = #{id}
+    </delete>
 
 </mapper>
