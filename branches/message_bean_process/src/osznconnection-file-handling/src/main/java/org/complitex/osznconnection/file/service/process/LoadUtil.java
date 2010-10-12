@@ -18,11 +18,11 @@ import java.util.regex.Pattern;
  *         Date: 11.10.2010 16:04:21
  */
 public class LoadUtil {
-    public static class LoadGroup{
+    public static class LoadParameter {
         List<RequestFileGroup> requestFileGroups;
         List<RequestFile> linkError;
 
-        public LoadGroup(List<RequestFileGroup> requestFileGroups, List<RequestFile> linkError) {
+        public LoadParameter(List<RequestFileGroup> requestFileGroups, List<RequestFile> linkError) {
             this.requestFileGroups = requestFileGroups;
             this.linkError = linkError;
         }
@@ -90,7 +90,7 @@ public class LoadUtil {
         return requestFile;
     }
 
-    public static LoadGroup getLoadGroup(Long organizationId, String districtCode, int monthFrom, int monthTo, int year)
+    public static LoadParameter getLoadParameter(Long organizationId, String districtCode, int monthFrom, int monthTo, int year)
             throws StorageNotFoundException {
         List<File> files = getFiles(districtCode, monthFrom, monthTo);
 
@@ -161,6 +161,6 @@ public class LoadUtil {
             }
         }
 
-        return new LoadGroup(requestFileGroups, linkError);
+        return new LoadParameter(requestFileGroups, linkError);
     }
 }

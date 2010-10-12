@@ -1,13 +1,11 @@
 package org.complitex.osznconnection.file.service.process;
 
-import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.entity.RequestFileGroup;
 import org.complitex.osznconnection.file.service.AbstractProcessBean;
 import org.complitex.osznconnection.file.service.exception.MaxErrorCountException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,31 +16,49 @@ import java.util.concurrent.Semaphore;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 08.10.2010 17:53:43
  */
-@Stateless
-public class ProcessBean {
+@Stateless(name = "ExecutorBean")
+public class ExecutorBean {
     private static final Logger log = LoggerFactory.getLogger(AbstractProcessBean.class);
 
-    public static enum PROCESS_STATUS{PROCESSING, COMPLETED, CRITICAL_ERROR}
+    public static enum STATUS {
+        RUNNING, COMPLETED, CRITICAL_ERROR
+    }
 
-    protected PROCESS_STATUS status;
+    protected STATUS status;
     
     protected int processedCount = 0;
     protected int errorCount = 0;
 
-    protected List<RequestFile> processed = Collections.synchronizedList(new ArrayList<RequestFile>());
+    protected List<RequestFileGroup> processed = Collections.synchronizedList(new ArrayList<RequestFileGroup>());
 
-    public boolean isProcessing(){
-        return status == PROCESS_STATUS.PROCESSING;
+    public STATUS getStatus() {
+        return status;
+    }
+
+    public int getProcessedCount() {
+        return processedCount;
+    }
+
+    public int getErrorCount() {
+        return errorCount;
+    }
+
+    public List<RequestFileGroup> getProcessed() {
+        return processed;
     }
 
     public void execute(List<RequestFileGroup> groups, AbstractTaskBean taskBean, int maxThread, final int maxErrors){
+        if (status.equals(STATUS.RUNNING)){
+            throw new IllegalStateException();           
+        }
+
         processedCount = 0;
         errorCount = 0;
 
         final Semaphore semaphore = new Semaphore(maxThread);
 
         try {
-            status = PROCESS_STATUS.PROCESSING;
+            status = STATUS.RUNNING;
 
             for (RequestFileGroup g : groups){
                 semaphore.acquire();
@@ -68,13 +84,13 @@ public class ProcessBean {
 
             semaphore.acquire(semaphore.availablePermits());
 
-            status = PROCESS_STATUS.COMPLETED;
+            status = STATUS.COMPLETED;
         } catch (MaxErrorCountException e) {
-            status = PROCESS_STATUS.CRITICAL_ERROR;
+            status = STATUS.CRITICAL_ERROR;
 
             log.error("Превышено количество критических ошибок", e);
         } catch (InterruptedException e) {
-            status = PROCESS_STATUS.CRITICAL_ERROR;
+            status = STATUS.CRITICAL_ERROR;
 
             log.error("Ошибка выполнения процесса", e);
         }

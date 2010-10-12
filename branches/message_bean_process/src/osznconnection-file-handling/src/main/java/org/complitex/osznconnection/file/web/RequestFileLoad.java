@@ -15,7 +15,7 @@ import org.complitex.dictionaryfw.web.component.YearDropDownChoice;
 import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.FormTemplatePage;
 import org.complitex.osznconnection.file.service.LoadRequestBean;
-import org.complitex.osznconnection.file.service.process.ProcessBean;
+import org.complitex.osznconnection.file.service.process.ExecutorBean;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 
 import javax.ejb.EJB;
@@ -34,7 +34,7 @@ public class RequestFileLoad extends FormTemplatePage {
     private OrganizationStrategy organizationStrategy;
 
     @EJB(name = "ProcessManagerBean")
-    private ProcessBean processManagerBean;
+    private ExecutorBean processManagerBean;
 
     public RequestFileLoad() {
         super();

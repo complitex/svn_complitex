@@ -9,13 +9,15 @@ public enum ConfigName {
         SAVE_OUTPUT_FILE_STORAGE_DIR("C:\\storage\\out"),
         LOAD_THREADS_SIZE("4"),
         SAVE_THREADS_SIZE("4"),
-        LOAD_MAX_ERROR_FILE_COUNT("10"),
-        SAVE_MAX_ERROR_FILE_COUNT("10"),
+        LOAD_MAX_ERROR_COUNT("10"),
+        SAVE_MAX_ERROR_COUNT("10"),
         LOAD_RECORD_BATCH_SIZE("64"),
         BIND_RECORD_BATCH_SIZE("64"),
-        BIND_THREAD_SIZE("10"),
+        BIND_THREADS_SIZE("10"),
+        BIND_MAX_ERROR_COUNT("10"),
         FILL_RECORD_BATCH_SIZE("64"),
-        FILL_THREAD_SIZE("10");
+        FILL_THREADS_SIZE("10"),
+        FILL_MAX_ERROR_COUNT("10");
 
     private String defaultValue;
 

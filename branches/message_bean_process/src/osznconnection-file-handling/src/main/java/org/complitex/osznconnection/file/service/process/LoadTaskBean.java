@@ -30,7 +30,7 @@ import static org.complitex.osznconnection.file.entity.RequestFile.STATUS_DETAIL
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 08.10.2010 18:49:12
  */
-@Stateless(name = "LoadTaskBean2")
+@Stateless(name = "LoadTaskBean")
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class LoadTaskBean extends AbstractTaskBean{
     private static final Logger log = LoggerFactory.getLogger(LoadTaskBean.class);

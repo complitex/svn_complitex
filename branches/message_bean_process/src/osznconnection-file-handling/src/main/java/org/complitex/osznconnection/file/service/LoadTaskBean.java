@@ -33,7 +33,7 @@ import static org.complitex.osznconnection.file.entity.RequestFile.STATUS_DETAIL
  * @see org.complitex.osznconnection.file.service.LoadRequestBean
  * @see org.complitex.osznconnection.file.service.ConfigBean
  */
-@Stateless(name = "LoadTaskBean")
+@Stateless(name = "LoadTaskBean2")
 @SuppressWarnings({"EjbProhibitedPackageUsageInspection"})
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class  LoadTaskBean {

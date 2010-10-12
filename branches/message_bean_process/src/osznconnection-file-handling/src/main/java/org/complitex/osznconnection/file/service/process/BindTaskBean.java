@@ -21,7 +21,7 @@ import java.util.List;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 11.10.2010 17:57:03
  */
-@Stateless(name = "BindTask")
+@Stateless(name = "BindTaskBean")
 @TransactionManagement(TransactionManagementType.BEAN)
 public class BindTaskBean extends AbstractTaskBean{
     private static final Logger log = LoggerFactory.getLogger(BindTaskBean.class);

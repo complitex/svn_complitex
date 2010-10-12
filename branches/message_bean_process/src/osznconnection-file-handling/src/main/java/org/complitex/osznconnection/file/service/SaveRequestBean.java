@@ -6,7 +6,6 @@ import org.complitex.osznconnection.file.Module;
 import org.complitex.osznconnection.file.entity.ConfigName;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.storage.RequestFileStorage;
-import org.complitex.osznconnection.file.storage.StorageNotFoundException;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +32,7 @@ import java.util.concurrent.Future;
 public class SaveRequestBean extends AbstractProcessBean{
     private static final Logger log = LoggerFactory.getLogger(SaveRequestBean.class);       
 
-    @EJB(beanName = "SaveTaskBean")
+    @EJB(beanName = "SaveTaskBean2")
     private SaveTaskBean saveTaskBean;
 
     @EJB(beanName = "LogBean")
@@ -55,7 +54,7 @@ public class SaveRequestBean extends AbstractProcessBean{
 
     @Override
     protected int getMaxErrorCount() {
-        return configBean.getInteger(ConfigName.SAVE_MAX_ERROR_FILE_COUNT, true);
+        return configBean.getInteger(ConfigName.SAVE_MAX_ERROR_COUNT, true);
     }
 
     @Override

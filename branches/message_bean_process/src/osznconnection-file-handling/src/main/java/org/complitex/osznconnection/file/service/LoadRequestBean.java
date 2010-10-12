@@ -42,7 +42,7 @@ public class LoadRequestBean extends AbstractProcessBean {
     @EJB(beanName = "RequestFileGroupBean")
     private RequestFileGroupBean requestFileGroupBean;
 
-    @EJB(beanName = "LoadTaskBean")
+    @EJB(beanName = "LoadTaskBean2")
     private LoadTaskBean loadTaskBean;
 
     @EJB(beanName = "LogBean")
@@ -90,7 +90,7 @@ public class LoadRequestBean extends AbstractProcessBean {
 
     @Override
     protected int getMaxErrorCount() {
-        return configBean.getInteger(ConfigName.LOAD_MAX_ERROR_FILE_COUNT, true);
+        return configBean.getInteger(ConfigName.LOAD_MAX_ERROR_COUNT, true);
     }
 
     @Override
