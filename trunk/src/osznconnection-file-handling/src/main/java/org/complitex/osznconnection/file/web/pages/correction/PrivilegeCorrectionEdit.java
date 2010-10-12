@@ -5,7 +5,9 @@
 package org.complitex.osznconnection.file.web.pages.correction;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import javax.ejb.EJB;
@@ -19,6 +21,8 @@ import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.web.component.search.ISearchCallback;
 import org.complitex.dictionaryfw.web.component.search.SearchComponent;
 import org.complitex.dictionaryfw.web.component.search.SearchComponentState;
+import org.complitex.osznconnection.commons.web.component.toolbar.DeleteItemButton;
+import org.complitex.osznconnection.commons.web.component.toolbar.ToolbarButton;
 import org.complitex.osznconnection.commons.web.template.FormTemplatePage;
 import org.complitex.osznconnection.file.entity.ObjectCorrection;
 import org.complitex.osznconnection.file.web.component.correction.edit.AbstractCorrectionEditPanel;
@@ -52,10 +56,12 @@ public final class PrivilegeCorrectionEdit extends FormTemplatePage {
         }
     }
 
+    private AbstractCorrectionEditPanel correctionEditPanel;
+
     public PrivilegeCorrectionEdit(PageParameters params) {
         Long correctionId = params.getAsLong(CORRECTION_ID);
 
-        add(new AbstractCorrectionEditPanel("correctionEditPanel", privilegeStrategy.getEntityTable(), correctionId) {
+        add(correctionEditPanel = new AbstractCorrectionEditPanel("correctionEditPanel", privilegeStrategy.getEntityTable(), correctionId) {
 
             @Override
             protected IModel<String> internalObjectLabel(Locale locale) {
@@ -102,6 +108,24 @@ public final class PrivilegeCorrectionEdit extends FormTemplatePage {
                 setResponsePage(PrivilegeCorrectionList.class, parameters);
             }
         });
+    }
+
+    @Override
+    protected List<? extends ToolbarButton> getToolbarButtons(String id) {
+        List<ToolbarButton> toolbar = Lists.newArrayList();
+        toolbar.add(new DeleteItemButton(id) {
+
+            @Override
+            protected void onClick() {
+                correctionEditPanel.delete();
+            }
+
+            @Override
+            public boolean isVisible() {
+                return !correctionEditPanel.isNew();
+            }
+        });
+        return toolbar;
     }
 }
 

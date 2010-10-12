@@ -20,6 +20,8 @@ import org.complitex.dictionaryfw.service.EntityBean;
 import org.complitex.dictionaryfw.service.StringCultureBean;
 import org.complitex.dictionaryfw.web.component.DisableAwareDropDownChoice;
 import org.complitex.dictionaryfw.web.component.IDisableAwareChoiceRenderer;
+import org.complitex.osznconnection.commons.web.component.toolbar.DeleteItemButton;
+import org.complitex.osznconnection.commons.web.component.toolbar.ToolbarButton;
 import org.complitex.osznconnection.commons.web.template.FormTemplatePage;
 import org.complitex.osznconnection.file.entity.EntityTypeCorrection;
 import org.complitex.osznconnection.file.service.CorrectionBean;
@@ -95,9 +97,11 @@ public class EntityTypeCorrectionEdit extends FormTemplatePage {
         }
     }
 
+    private AbstractCorrectionEditPanel correctionEditPanel;
+
     public EntityTypeCorrectionEdit(PageParameters params) {
         Long correctionId = params.getAsLong(CORRECTION_ID);
-        add(new AbstractCorrectionEditPanel("correctionEditPanel", null, correctionId) {
+        add(correctionEditPanel = new AbstractCorrectionEditPanel("correctionEditPanel", null, correctionId) {
 
             @EJB(name = "CorrectionBean")
             private CorrectionBean correctionBean;
@@ -143,7 +147,31 @@ public class EntityTypeCorrectionEdit extends FormTemplatePage {
             protected void update() {
                 correctionBean.updateEntityType(getModel());
             }
+
+            @Override
+            public void delete() {
+                correctionBean.delete(getModel());
+                back();
+            }
         });
+    }
+
+    @Override
+    protected List<? extends ToolbarButton> getToolbarButtons(String id) {
+        List<ToolbarButton> toolbar = Lists.newArrayList();
+        toolbar.add(new DeleteItemButton(id) {
+
+            @Override
+            protected void onClick() {
+                correctionEditPanel.delete();
+            }
+
+            @Override
+            public boolean isVisible() {
+                return !correctionEditPanel.isNew();
+            }
+        });
+        return toolbar;
     }
 }
 

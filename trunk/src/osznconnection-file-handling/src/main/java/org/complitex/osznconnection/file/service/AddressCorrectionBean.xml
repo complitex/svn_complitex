@@ -152,6 +152,7 @@
         c.`correction_corp`,
         c.`organization_code`,
         c.`organization_id`,
+        c.`internal_organization_id`,
         c.`object_id` internalObjectId
         FROM `building_correction` c WHERE c.`id` = #{id}
     </select>
@@ -167,8 +168,16 @@
         (SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale` = #{locale} AND osc.`id` IN
         (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE' AND oa.`object_id` = c.`organization_id`
         AND oa.`attribute_type_id` = 900)) organization,
+        c.`internal_organization_id`,
+        IFNULL((SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale` = #{locale} AND osc.`id` IN
+        (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE' AND oa.`object_id` = c.`internal_organization_id`
+        AND oa.`attribute_type_id` = 900)),
+        (SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale` = (SELECT l.`locale` FROM `locales` l WHERE l.`system` = 1)
+        AND osc.`id` IN (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE' AND oa.`object_id` = c.`internal_organization_id`
+        AND oa.`attribute_type_id` = 900))
+        ) internalOrganization,
         c.`object_id` internalObjectId
-        FROM `${entity}_correction` c
+        FROM `building_correction` c
         <include refid="org.complitex.osznconnection.file.service.CorrectionBean.filter"/>
         <if test="orderByClause != null">
             ORDER BY ${orderByClause}
@@ -183,5 +192,9 @@
         </if>
         LIMIT #{start},#{size}
     </select>
+
+    <delete id="deleteBuilding" parameterType="org.complitex.osznconnection.file.entity.BuildingCorrection">
+        DELETE FROM `building_correction` WHERE `id` = #{id}
+    </delete>
 
 </mapper>

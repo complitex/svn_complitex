@@ -125,4 +125,14 @@ public class CorrectionBean extends AbstractBean {
         }
         return null;
     }
+
+    @Transactional
+    public void delete(ObjectCorrection objectCorrection) {
+        sqlSession().delete(MAPPING_NAMESPACE + ".delete", objectCorrection);
+    }
+
+    @Transactional
+    public void delete(EntityTypeCorrection entityTypeCorrection) {
+        sqlSession().delete(MAPPING_NAMESPACE + ".deleteEntityType", entityTypeCorrection);
+    }
 }
