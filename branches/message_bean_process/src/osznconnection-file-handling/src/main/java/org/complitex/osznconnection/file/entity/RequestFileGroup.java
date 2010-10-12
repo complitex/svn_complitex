@@ -106,6 +106,11 @@ public class RequestFileGroup implements Serializable{
         return null;
     }
 
+    public void updateGroupId(){
+        if (paymentFile != null) paymentFile.setGroupId(id);
+        if (benefitFile != null) benefitFile.setGroupId(id); 
+    }
+
     public Long getId() {
         return id;
     }
@@ -144,5 +149,16 @@ public class RequestFileGroup implements Serializable{
 
     public void setBindedRecordCount(int bindedRecordCount) {
         this.bindedRecordCount = bindedRecordCount;
+    }
+
+    @Override
+    public String toString() {
+        return "RequestFileGroup{" +
+                "id=" + id +
+                ", benefitFile=" + benefitFile +
+                ", paymentFile=" + paymentFile +
+                ", loadedRecordCount=" + loadedRecordCount +
+                ", bindedRecordCount=" + bindedRecordCount +
+                '}';
     }
 }

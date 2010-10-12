@@ -9,7 +9,6 @@ import org.complitex.osznconnection.file.service.*;
 
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
-import javax.interceptor.Interceptors;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -41,10 +40,9 @@ public abstract class AbstractTaskBean{
     public void asyncExecute(RequestFileGroup group, ITaskListener listener) {
         try {
             execute(group);
+            listener.complete(group);
         } catch (Exception e){
             listener.error(group, e);
-        } finally {
-            listener.complete(group);
         }
     }
 

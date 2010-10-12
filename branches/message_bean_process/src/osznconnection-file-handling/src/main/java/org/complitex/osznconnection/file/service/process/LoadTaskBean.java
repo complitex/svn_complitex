@@ -3,20 +3,15 @@ package org.complitex.osznconnection.file.service.process;
 import com.linuxense.javadbf.DBFException;
 import com.linuxense.javadbf.DBFField;
 import com.linuxense.javadbf.DBFReader;
-import org.complitex.dictionaryfw.entity.Log;
-import org.complitex.dictionaryfw.service.LogBean;
 import org.complitex.dictionaryfw.util.DateUtil;
-import org.complitex.osznconnection.file.Module;
 import org.complitex.osznconnection.file.entity.*;
-import org.complitex.osznconnection.file.service.*;
 import org.complitex.osznconnection.file.service.exception.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import java.io.FileInputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -31,7 +26,7 @@ import static org.complitex.osznconnection.file.entity.RequestFile.STATUS_DETAIL
  *         Date: 08.10.2010 18:49:12
  */
 @Stateless(name = "LoadTaskBean")
-@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+@TransactionManagement(TransactionManagementType.BEAN)
 public class LoadTaskBean extends AbstractTaskBean{
     private static final Logger log = LoggerFactory.getLogger(LoadTaskBean.class);
 
@@ -96,15 +91,19 @@ public class LoadTaskBean extends AbstractTaskBean{
     }
 
     protected void execute(RequestFileGroup requestFileGroup) {
-        requestFileGroupBean.save(requestFileGroup);
+        try {
+            requestFileGroupBean.save(requestFileGroup);
 
-        load(requestFileGroup.getPaymentFile());
+            requestFileGroup.updateGroupId(); //устанавливаем идентификатор группы
 
-        if (!requestFileGroup.getPaymentFile().getStatus().equals(RequestFile.STATUS.LOADED)){
-            load(requestFileGroup.getBenefitFile());
-        }
+            load(requestFileGroup.getPaymentFile());
 
-        requestFileGroupBean.clearEmptyGroup();
+            if (requestFileGroup.getPaymentFile().getStatus().equals(RequestFile.STATUS.LOADED)){
+                load(requestFileGroup.getBenefitFile());
+            }
+        } finally {
+            requestFileGroupBean.clearEmptyGroup();
+        }        
     }
 
     @SuppressWarnings({"EjbProhibitedPackageUsageInspection", "ConstantConditions"})

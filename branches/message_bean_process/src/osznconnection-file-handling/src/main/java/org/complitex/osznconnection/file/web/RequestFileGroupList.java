@@ -455,14 +455,15 @@ public class RequestFileGroupList extends TemplatePage {
     }
 
     private void showMessages(AjaxRequestTarget target) {
-        for (RequestFileGroup g : processManagerBean.getProcessed(true)){
+        for (RequestFileGroup g : processManagerBean.getProcessed(this)){
             switch (g.getStatus()){
                 case LOADED:
                     highlightProcessed(target, g);
                     info(getStringFormat("info.group.loaded", g.getName()));
                     break;
                 case SKIPPED:
-                    info(getStringFormat("info.already_loaded", g.getName()));
+                    highlightProcessed(target, g);
+                    info(getStringFormat("info.group.skipped", g.getName()));
                     break;
                 case LOAD_ERROR:
                     highlightError(target, g);
@@ -510,8 +511,9 @@ public class RequestFileGroupList extends TemplatePage {
                 case SAVE: completeInfo = getStringOrKey("info.save.complete"); break;
             }
 
+            //todo skipped
             info(completeInfo + ". " + getStringFormat("info.completed_detail", processManagerBean.getProcessedCount(),
-                    processManagerBean.getSkippedCount(), processManagerBean.getErrorCount()));
+                    processManagerBean.getCount(RequestFile.STATUS.SKIPPED), processManagerBean.getErrorCount()));
         }
     }
 

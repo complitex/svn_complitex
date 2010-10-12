@@ -246,4 +246,28 @@ public class RequestFile implements Serializable {
     public void setAbsolutePath(String absolutePath) {
         this.absolutePath = absolutePath;
     }
+
+    @Override
+    public String toString() {
+        return "RequestFile{" +
+                "id=" + id +
+                ", groupId=" + groupId +
+                ", loaded=" + loaded +
+                ", name='" + name + '\'' +
+                ", directory='" + directory + '\'' +
+                ", organizationId=" + organizationId +
+                ", registry=" + registry +
+                ", month=" + month +
+                ", year=" + year +
+                ", dbfRecordCount=" + dbfRecordCount +
+                ", length=" + length +
+                ", checkSum='" + checkSum + '\'' +
+                ", type=" + type +
+                ", status=" + status +
+                ", statusDetail=" + statusDetail +
+                ", loadedRecordCount=" + loadedRecordCount +
+                ", bindedRecordCount=" + bindedRecordCount +
+                ", absolutePath='" + absolutePath + '\'' +
+                '}';
+    }
 }

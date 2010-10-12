@@ -14,6 +14,9 @@ import javax.ejb.Singleton;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -45,7 +48,9 @@ public class ProcessManagerBean {
     @EJB(beanName = "ConfigBean")
     private ConfigBean configBean;
 
-    private List<RequestFile> linkError = Collections.synchronizedList(new ArrayList<RequestFile>());
+    private List<RequestFile> linkError = new CopyOnWriteArrayList<RequestFile>();
+
+    Map<Object, Integer> processedIndex = new ConcurrentHashMap<Object, Integer>();
 
     private PROCESS process = PROCESS.NONE;
 
@@ -64,23 +69,34 @@ public class ProcessManagerBean {
         return Collections.unmodifiableList(list);
     }
 
-    public List<RequestFileGroup> getProcessed(boolean flush){
+    public List<RequestFileGroup> getProcessed(Object queryKey){
         List<RequestFileGroup> list = new ArrayList<RequestFileGroup>();
-        list.addAll(executorBean.getProcessed());
 
-        if (flush){
-            executorBean.getProcessed().clear();
-        }
+        Integer index = processedIndex.get(queryKey);
+
+        int size = executorBean.getProcessed().size();
+
+        list.addAll(executorBean.getProcessed().subList(index != null ? index : 0, size));
+
+        processedIndex.put(queryKey, size);
 
         return Collections.unmodifiableList(list);
     }
 
-    public int getProcessedCount() {
-        return executorBean.getProcessedCount();
+    public int getCount(RequestFile.STATUS status){
+        int count = 0;
+
+        for (RequestFileGroup group : executorBean.getProcessed()){
+            if (group.getStatus().equals(status)){
+                count++;
+            }
+        }
+
+        return count;
     }
 
-    public int getSkippedCount() {
-        return executorBean.getSkippedCount();
+    public int getProcessedCount() {
+        return executorBean.getProcessedCount();
     }
 
     public int getErrorCount() {
@@ -102,6 +118,7 @@ public class ProcessManagerBean {
     @Asynchronous
     public void load(Long organizationId, String districtCode, int monthFrom, int monthTo, int year){
         process = PROCESS.LOAD;
+        processedIndex.clear();
 
         try {
             LoadUtil.LoadParameter loadParameter = LoadUtil.getLoadParameter(organizationId, districtCode, monthFrom, monthTo, year);
@@ -120,6 +137,7 @@ public class ProcessManagerBean {
     @Asynchronous
     public void bind(List<RequestFileGroup> groups){
         process = PROCESS.BIND;
+        processedIndex.clear();
 
         executorBean.execute(groups,
                 bindTaskBean,
@@ -130,6 +148,7 @@ public class ProcessManagerBean {
     @Asynchronous
     public void fill(List<RequestFileGroup> groups){
         process = PROCESS.FILL;
+        processedIndex.clear();
 
         executorBean.execute(groups,
                 fillTaskBean,
@@ -140,6 +159,7 @@ public class ProcessManagerBean {
     @Asynchronous
     public void save(List<RequestFileGroup> groups){
         process = PROCESS.SAVE;
+        processedIndex.clear();
 
         executorBean.execute(groups,
                 saveTaskBean,
