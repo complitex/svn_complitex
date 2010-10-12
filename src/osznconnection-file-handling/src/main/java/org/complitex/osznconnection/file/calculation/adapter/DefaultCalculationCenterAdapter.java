@@ -384,8 +384,25 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
 
                         @Override
                         public int compare(Map<String, Object> o1, Map<String, Object> o2) {
-                            //TODO: reimplement
-                            return ((String) o1.get("BENEFIT_CODE")).compareTo((String) o2.get("BENEFIT_CODE"));
+                            String benefitCode1 = (String) o1.get("BENEFIT_CODE");
+                            Integer i1 = null;
+                            try {
+                                i1 = Integer.parseInt(benefitCode1);
+                            } catch (NumberFormatException e) {
+                            }
+
+                            String benefitCode2 = (String) o2.get("BENEFIT_CODE");
+                            Integer i2 = null;
+                            try {
+                                i2 = Integer.parseInt(benefitCode2);
+                            } catch (NumberFormatException e) {
+                            }
+
+                            if (i1 != null && i2 != null) {
+                                return i1.compareTo(i2);
+                            } else {
+                                return benefitCode1.compareTo(benefitCode2);
+                            }
                         }
                     });
                     String cmBenefitCode = (String) el.get("BENEFIT_CODE");
@@ -396,13 +413,13 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
                         for (Benefit benefit : theSameBenefits) {
                             benefit.setField(BenefitDBF.PRIV_CAT, osznBenefitCode);
                             benefit.setField(BenefitDBF.ORD_FAM, el.get("ORD_FAM"));
-                            benefit.setStatus(RequestStatus.PROCESSED);
                         }
                     }
                     processed.add(inn);
                 }
             }
         }
+        setStatus(benefits, RequestStatus.PROCESSED);
     }
 
     protected void setStatus(List<Benefit> benefits, RequestStatus status) {
