@@ -12,6 +12,7 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
@@ -31,6 +32,7 @@ import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
 import org.complitex.osznconnection.commons.web.component.toolbar.AddItemButton;
 import org.complitex.osznconnection.commons.web.component.toolbar.ToolbarButton;
+import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.TemplatePage;
 import org.complitex.osznconnection.file.entity.ObjectCorrection;
 import org.complitex.osznconnection.file.entity.example.ObjectCorrectionExample;
@@ -40,6 +42,7 @@ import org.complitex.osznconnection.file.service.CorrectionBean;
  *
  * @author Artem
  */
+@AuthorizeInstantiation(SecurityRole.AUTHORIZED)
 public abstract class AbstractCorrectionList extends TemplatePage {
 
     public static final String CORRECTED_ENTITY = "entity";
