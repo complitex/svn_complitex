@@ -23,7 +23,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import org.apache.wicket.MarkupContainer;
-import org.apache.wicket.markup.html.CSSPackageResource;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.complitex.osznconnection.file.entity.Payment;
@@ -244,7 +243,6 @@ public abstract class AddressCorrectionPanel extends Panel {
     public void open(AjaxRequestTarget target) {
         searchComponent.setVisible(true);
         target.addComponent(searchComponent);
-        target.addComponent(messages);
         dialog.open(target);
     }
 }

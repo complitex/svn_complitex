@@ -11,14 +11,10 @@ import java.util.List;
 import java.util.Map;
 import javax.ejb.EJB;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.CSSPackageResource;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.IChoiceRenderer;
-import org.apache.wicket.markup.html.form.RadioChoice;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -38,6 +34,7 @@ import org.complitex.osznconnection.file.entity.PaymentDBF;
 import org.complitex.osznconnection.file.entity.RequestStatus;
 import org.complitex.osznconnection.file.service.PaymentLookupBean;
 import org.complitex.osznconnection.file.web.component.StatusRenderer;
+import org.complitex.osznconnection.file.web.component.correction.account.AccountNumberCorrectionPanel;
 import org.odlabs.wiquery.core.javascript.JsStatement;
 import org.odlabs.wiquery.ui.accordion.Accordion;
 import org.odlabs.wiquery.ui.accordion.AccordionAnimated;
@@ -66,13 +63,13 @@ public abstract class PaymentLookupPanel extends Panel {
 
     private Dialog dialog;
 
+    private Accordion accordion;
+
     private Label accountInfo;
 
     private IModel<String> accountInfoModel;
 
     private IModel<String> apartmentModel;
-
-    private TextField<String> apartment;
 
     private SearchComponentState componentState;
 
@@ -80,17 +77,13 @@ public abstract class PaymentLookupPanel extends Panel {
 
     private IModel<AccountDetail> accountModel;
 
-    private WebMarkupContainer chooseAccountNumberContainer;
+    private AccountNumberCorrectionPanel accountNumberCorrectionPanel;
 
     private SearchComponent searchComponent;
 
     private IModel<String> ownNumSrModel;
 
-    private TextField<String> ownNumSr;
-
     private IModel<String> megabankModel;
-
-    private TextField<String> megabank;
 
     private static class FakeSearchCallback implements ISearchCallback, Serializable {
 
@@ -106,8 +99,6 @@ public abstract class PaymentLookupPanel extends Panel {
     }
 
     private void init() {
-        add(CSSPackageResource.getHeaderContribution(PaymentLookupPanel.class, PaymentLookupPanel.class.getSimpleName() + ".css"));
-
         dialog = new Dialog("dialog");
         dialog.setModal(true);
         dialog.setWidth(600);
@@ -121,8 +112,9 @@ public abstract class PaymentLookupPanel extends Panel {
         messages.setOutputMarkupId(true);
         dialog.add(messages);
 
-        Accordion accordion = new Accordion("accordion");
+        accordion = new Accordion("accordion");
         accordion.setAnimationEffect(new AccordionAnimated(false));
+        accordion.setOutputMarkupPlaceholderTag(true);
         dialog.add(accordion);
 
         //lookup by address
@@ -134,7 +126,7 @@ public abstract class PaymentLookupPanel extends Panel {
         dialog.add(accountInfo);
 
         apartmentModel = new Model<String>();
-        apartment = new TextField<String>("apartment", apartmentModel);
+        TextField<String> apartment = new TextField<String>("apartment", apartmentModel);
         apartment.setOutputMarkupId(true);
         apartment.add(new AjaxFormComponentUpdatingBehavior("onblur") {
 
@@ -168,17 +160,19 @@ public abstract class PaymentLookupPanel extends Panel {
                         } else {
                             if (accountList.size() == 1) {
                                 accountModel.setObject(accountList.get(0));
-                                accountInfoModel.setObject(printAccountDetail(accountList.get(0)));
+                                accountInfoModel.setObject(AccountNumberCorrectionPanel.displayAccountDetail(accountList.get(0)));
                                 target.addComponent(accountInfo);
-                                chooseAccountNumberContainer.setVisible(false);
-                                target.addComponent(chooseAccountNumberContainer);
+                                if (accountNumberCorrectionPanel.isVisible()) {
+                                    accountNumberCorrectionPanel.setVisible(false);
+                                    target.addComponent(accordion);
+                                }
                             } else {
                                 accountModel.setObject(null);
                                 accountInfoModel.setObject(null);
                                 target.addComponent(accountInfo);
                                 accountsModel.setObject(accountList);
-                                chooseAccountNumberContainer.setVisible(true);
-                                target.addComponent(chooseAccountNumberContainer);
+                                accountNumberCorrectionPanel.setVisible(true);
+                                target.addComponent(accordion);
                             }
                         }
                     } else {
@@ -195,41 +189,25 @@ public abstract class PaymentLookupPanel extends Panel {
         searchComponent.setVisible(false);
         accordion.add(searchComponent);
 
-        chooseAccountNumberContainer = new WebMarkupContainer("chooseAccountNumberContainer");
-        chooseAccountNumberContainer.setOutputMarkupPlaceholderTag(true);
-        chooseAccountNumberContainer.setVisible(false);
-        accordion.add(chooseAccountNumberContainer);
-
-        IChoiceRenderer<AccountDetail> renderer = new IChoiceRenderer<AccountDetail>() {
-
-            @Override
-            public Object getDisplayValue(AccountDetail object) {
-                return printAccountDetail(object);
-            }
-
-            @Override
-            public String getIdValue(AccountDetail object, int index) {
-                return object.getAccountNumber();
-            }
-        };
         accountModel = new Model<AccountDetail>();
         accountsModel = new WildcardListModel<AccountDetail>();
-        RadioChoice<AccountDetail> accounts = new RadioChoice<AccountDetail>("accountDetails", accountModel,
-                accountsModel, renderer);
-        accounts.add(new AjaxFormChoiceComponentUpdatingBehavior() {
+        accountNumberCorrectionPanel = new AccountNumberCorrectionPanel("accountNumberCorrectionPanel", accountsModel) {
 
             @Override
-            protected void onUpdate(AjaxRequestTarget target) {
-//                log.info("Account number changed to [{}]", accountModel.getObject());
-                accountInfoModel.setObject(printAccountDetail(accountModel.getObject()));
+            protected void correctAccountNumber(AccountDetail accountDetail, AjaxRequestTarget target) {
+//                log.info("Account number changed to [{}]", accountDetail);
+                accountModel.setObject(accountDetail);
+                accountInfoModel.setObject(AccountNumberCorrectionPanel.displayAccountDetail(accountDetail));
                 target.addComponent(accountInfo);
             }
-        });
-        chooseAccountNumberContainer.add(accounts);
+        };
+        accountNumberCorrectionPanel.setOutputMarkupPlaceholderTag(true);
+        accountNumberCorrectionPanel.setVisible(false);
+        accordion.add(accountNumberCorrectionPanel);
 
         //lookup by OWN_NUM_SR
         ownNumSrModel = new Model<String>();
-        ownNumSr = new TextField<String>("ownNumSr", ownNumSrModel);
+        TextField<String> ownNumSr = new TextField<String>("ownNumSr", ownNumSrModel);
         ownNumSr.add(new AjaxFormComponentUpdatingBehavior("onblur") {
 
             @Override
@@ -251,7 +229,7 @@ public abstract class PaymentLookupPanel extends Panel {
 
         //lookup by megabank
         megabankModel = new Model<String>();
-        megabank = new TextField<String>("megabank", megabankModel);
+        TextField<String> megabank = new TextField<String>("megabank", megabankModel);
         megabank.add(new AjaxFormComponentUpdatingBehavior("onblur") {
 
             @Override
@@ -382,36 +360,29 @@ public abstract class PaymentLookupPanel extends Panel {
         return validated;
     }
 
-    private String printAccountDetail(AccountDetail accountDetail) {
-        StringBuilder displayValueBuilder = new StringBuilder().append(accountDetail.getAccountNumber());
-
-        if (!Strings.isEmpty(accountDetail.getOwnerName())) {
-            displayValueBuilder.append(", ").append(accountDetail.getOwnerName());
-        }
-        if (!Strings.isEmpty(accountDetail.getOwnerINN())) {
-            displayValueBuilder.append(", ").append(getString("INN")).append(" : ").append(accountDetail.getOwnerINN());
-        }
-        return displayValueBuilder.toString();
-    }
-
     public void open(AjaxRequestTarget target, Payment payment) {
         paymentModel.setObject(payment);
 
         accountModel.setObject(null);
+        accountsModel.setObject(null);
         accountInfoModel.setObject(null);
         target.addComponent(accountInfo);
 
         //lookup by address
         apartmentModel.setObject((String) payment.getField(PaymentDBF.FLAT));
-        target.addComponent(apartment);
         initSearchComponentState(componentState, payment);
         searchComponent.setVisible(true);
-        target.addComponent(searchComponent);
+        if (accountNumberCorrectionPanel.isVisible()) {
+            accountNumberCorrectionPanel.setVisible(false);
+        }
 
         //lookup by OWN_NUM_SR
         ownNumSrModel.setObject(null);
-        target.addComponent(ownNumSr);
 
+        //lookup by megabank
+        megabankModel.setObject(null);
+
+        target.addComponent(accordion);
         target.addComponent(messages);
         dialog.open(target);
     }
