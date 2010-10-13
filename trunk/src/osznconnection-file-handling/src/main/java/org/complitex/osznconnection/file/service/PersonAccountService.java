@@ -7,6 +7,8 @@ package org.complitex.osznconnection.file.service;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
@@ -75,6 +77,7 @@ public class PersonAccountService extends AbstractBean {
 //        }
 //    }
     @Transactional
+    @TransactionAttribute(TransactionAttributeType.NEVER)
     public List<AccountDetail> acquireAccountCorrectionDetails(Payment payment) {
         CalculationCenterInfo calculationCenterInfo = calculationCenterBean.getCurrentCalculationCenterInfo();
         ICalculationCenterAdapter adapter = calculationCenterInfo.getAdapterInstance();

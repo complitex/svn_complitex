@@ -7,7 +7,6 @@ package org.complitex.osznconnection.file.web.pages.payment;
 import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.file.entity.example.PaymentExample;
-import com.google.common.collect.ImmutableMap;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -19,7 +18,6 @@ import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.IModel;
@@ -196,8 +194,17 @@ public final class PaymentList extends TemplatePage {
                 addressCorrectionLink.setVisible(payment.getStatus().isLocalAddressCorrected());
                 item.add(addressCorrectionLink);
 
-                BookmarkablePageLink accountCorrectionLink = new BookmarkablePageLink<PaymentAccountNumberCorrection>("accountCorrectionLink",
-                        PaymentAccountNumberCorrection.class, new PageParameters(ImmutableMap.of(PaymentAccountNumberCorrection.PAYMENT_ID, payment.getId())));
+                final PaymentAccountNumberCorrectionPanel paymentAccountNumberCorrectionPanel =
+                        new PaymentAccountNumberCorrectionPanel("paymentAccountNumberCorrectionPanel", payment, new MarkupContainer[]{content});
+                paymentAccountNumberCorrectionPanel.setVisible(payment.getStatus() == RequestStatus.MORE_ONE_ACCOUNTS);
+                item.add(paymentAccountNumberCorrectionPanel);
+                AjaxLink accountCorrectionLink = new AjaxLink("accountCorrectionLink") {
+
+                    @Override
+                    public void onClick(AjaxRequestTarget target) {
+                        paymentAccountNumberCorrectionPanel.open(target);
+                    }
+                };
                 accountCorrectionLink.setVisible(payment.getStatus() == RequestStatus.MORE_ONE_ACCOUNTS);
                 item.add(accountCorrectionLink);
 
