@@ -64,7 +64,6 @@
         SELECT c.`correction`, c.`organization_code` FROM `${entity}_correction` c
         WHERE c.`organization_id` = #{organizationId}
         AND c.`object_id` = #{internalObjectId}
-        LIMIT 0,1
     </select>
 
     <select id="findOutgoingBuilding" resultMap="org.complitex.osznconnection.file.service.AddressCorrectionBean.buildingCorrection"
@@ -72,7 +71,6 @@
         SELECT c.`correction`, c.`correction_corp`, c.`organization_code` FROM `building_correction` c
         WHERE c.`organization_id` = #{organizationId}
         AND c.`object_id` = #{internalObjectId}
-        LIMIT 0,1
     </select>
 
     <select id="findOutgoingEntityType" resultMap="org.complitex.osznconnection.file.service.CorrectionBean.entityTypeCorrection"
@@ -81,7 +79,6 @@
         FROM `entity_type_correction` etc
         WHERE etc.`organization_id` = #{organizationId}
         AND etc.`entity_type_id` = #{internalObjectId}
-        LIMIT 0,1
     </select>
 
     <select id="findOutgoingDistrict" resultMap="org.complitex.osznconnection.file.service.CorrectionBean.objectCorrection"
@@ -91,7 +88,6 @@
         AND c.`object_id` = (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE
         oa.`status` = 'ACTIVE' AND oa.`attribute_type_id` = 902
         AND oa.`object_id` = #{osznId})
-        LIMIT 0,1
     </select>
 
     <select id="findInternalObjectId" parameterType="hashmap" resultType="long">
