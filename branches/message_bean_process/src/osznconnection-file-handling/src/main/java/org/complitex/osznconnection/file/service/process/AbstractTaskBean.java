@@ -6,6 +6,7 @@ import org.complitex.osznconnection.file.Module;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.entity.RequestFileGroup;
 import org.complitex.osznconnection.file.service.*;
+import org.complitex.osznconnection.file.service.exception.ExecuteException;
 
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
@@ -41,12 +42,14 @@ public abstract class AbstractTaskBean{
         try {
             execute(group);
             listener.complete(group);
+        } catch (ExecuteException e){
+            listener.error(group, e); //handled exception
         } catch (Exception e){
-            listener.error(group, e);
+            listener.error(group, e); //critical exception
         }
     }
 
-    protected abstract void execute(RequestFileGroup group);
+    protected abstract void execute(RequestFileGroup group) throws ExecuteException;
 
     protected void info(RequestFile requestFile, String decs, Object... args){
         logBean.info(

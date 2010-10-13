@@ -326,18 +326,10 @@ public class RequestFileGroupList extends TemplatePage {
 
             @Override
             public void onSubmit() {
-                for (RequestFileGroup requestFileGroup : selectModels.keySet()) {
-                    if (selectModels.get(requestFileGroup).getObject()) {
-                        requestFileGroupBean.delete(requestFileGroup);
-                        if (requestFileGroup.getBenefitFile() != null){
-                            info(getStringFormat("info.deleted", RequestFile.TYPE.BENEFIT.ordinal(),
-                                    requestFileGroup.getBenefitFile().getName()));
-                        }
-                        if (requestFileGroup.getPaymentFile() != null){
-                            info(getStringFormat("info.deleted", RequestFile.TYPE.PAYMENT.ordinal(),
-                                    requestFileGroup.getPaymentFile().getName()));
-                        }
-                    }
+                for (RequestFileGroup group : getSelectedGroup()) {
+                    requestFileGroupBean.delete(group);
+
+                    info(getStringFormat("info.group.deleted ", group.getBenefitFile().getName()));
                 }
             }
 
@@ -358,7 +350,6 @@ public class RequestFileGroupList extends TemplatePage {
 //                      warn(getStringFormat("has_been_bound", requestFile.getName()));
 //                }
                 processManagerBean.bind(getSelectedGroup());
-
 
                 selectModels.clear();
                 addTimer(dataViewContainer, filterForm, messages);
@@ -386,6 +377,8 @@ public class RequestFileGroupList extends TemplatePage {
                 processManagerBean.fill(getSelectedGroup());
                 selectModels.clear();
                 addTimer(dataViewContainer, filterForm, messages);
+
+                completedDisplayed = false;
             }
 
             @Override
@@ -406,6 +399,8 @@ public class RequestFileGroupList extends TemplatePage {
 
                 selectModels.clear();
                 addTimer(dataViewContainer, filterForm, messages);
+
+                completedDisplayed = false;
             }
 
             @Override
@@ -461,7 +456,7 @@ public class RequestFileGroupList extends TemplatePage {
                     break;
                 case SAVE_ERROR:
                     highlightError(target, g);
-                    error(getStringFormat("error.save.common",  g.getName()));
+                    error(getStringFormat("error.group.save",  g.getName()));
                     break;
                 case BINDED: {
                     highlightProcessed(target, g);

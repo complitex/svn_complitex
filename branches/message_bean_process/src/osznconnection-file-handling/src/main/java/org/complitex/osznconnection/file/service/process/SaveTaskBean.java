@@ -7,6 +7,7 @@ import org.complitex.osznconnection.file.entity.*;
 import org.complitex.osznconnection.file.service.BenefitBean;
 import org.complitex.osznconnection.file.service.PaymentBean;
 import org.complitex.osznconnection.file.service.RequestFileBean;
+import org.complitex.osznconnection.file.service.exception.ExecuteException;
 import org.complitex.osznconnection.file.service.exception.SqlSessionException;
 import org.complitex.osznconnection.file.storage.RequestFileStorage;
 import org.slf4j.Logger;
@@ -105,11 +106,23 @@ public class SaveTaskBean extends AbstractTaskBean{
     }
 
     @Override
-    protected void execute(RequestFileGroup group) {
+    protected void execute(RequestFileGroup group) throws ExecuteException {
+        //сохранение начислений
         save(group.getPaymentFile());
-        save(group.getBenefitFile());
+
+        if (group.getPaymentFile().getStatus().equals(RequestFile.STATUS.SAVED)){
+            //сохранение льгот
+            save(group.getBenefitFile());
+
+            if (!group.getBenefitFile().getStatus().equals(RequestFile.STATUS.SAVED)){
+                throw new ExecuteException();
+            }
+        } else{
+            throw new ExecuteException();
+        }
     }
 
+    @SuppressWarnings({"EjbProhibitedPackageUsageInspection"})
     private void save(RequestFile requestFile){
         DBFWriter writer = null;
 
@@ -175,8 +188,8 @@ public class SaveTaskBean extends AbstractTaskBean{
                 writer.rollback();
             }
             requestFile.setStatus(SAVE_ERROR, CRITICAL);
-            log.error("Критическая ошибка загрузки файла " + requestFile.getAbsolutePath(), e);
-            error(requestFile, "Критическая ошибка загрузки файла {0}", requestFile.getName());
+            log.error("Критическая ошибка выгрузки файла " + requestFile.getAbsolutePath(), e);
+            error(requestFile, "Критическая ошибка выгрузки файла {0}. {1}", requestFile.getName(), e.getMessage());
         }
 
         try {
