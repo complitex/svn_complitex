@@ -38,8 +38,10 @@ import org.complitex.osznconnection.file.entity.PaymentDBF;
 import org.complitex.osznconnection.file.entity.RequestStatus;
 import org.complitex.osznconnection.file.service.PaymentLookupBean;
 import org.complitex.osznconnection.file.web.component.StatusRenderer;
+import org.odlabs.wiquery.core.javascript.JsStatement;
 import org.odlabs.wiquery.ui.accordion.Accordion;
 import org.odlabs.wiquery.ui.accordion.AccordionAnimated;
+import org.odlabs.wiquery.ui.core.JsScopeUiEvent;
 import org.odlabs.wiquery.ui.dialog.Dialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,9 +66,9 @@ public abstract class PaymentLookupPanel extends Panel {
 
     private Dialog dialog;
 
-    private Label accountNumber;
+    private Label accountInfo;
 
-    private IModel<String> accountNumberModel;
+    private IModel<String> accountInfoModel;
 
     private IModel<String> apartmentModel;
 
@@ -109,6 +111,10 @@ public abstract class PaymentLookupPanel extends Panel {
         dialog = new Dialog("dialog");
         dialog.setModal(true);
         dialog.setWidth(600);
+        dialog.setOpenEvent(JsScopeUiEvent.quickScope(new JsStatement().self().chain("parents", "'.ui-dialog:first'").
+                chain("find", "'.ui-dialog-titlebar-close'").
+                chain("hide").render()));
+        dialog.setCloseOnEscape(false);
         add(dialog);
 
         messages = new FeedbackPanel("messages");
@@ -122,10 +128,10 @@ public abstract class PaymentLookupPanel extends Panel {
         //lookup by address
         componentState = new SearchComponentState();
         initSearchComponentState(componentState, paymentModel.getObject());
-        accountNumberModel = new Model<String>();
-        accountNumber = new Label("accountNumber", accountNumberModel);
-        accountNumber.setOutputMarkupId(true);
-        dialog.add(accountNumber);
+        accountInfoModel = new Model<String>();
+        accountInfo = new Label("accountInfo", accountInfoModel);
+        accountInfo.setOutputMarkupId(true);
+        dialog.add(accountInfo);
 
         apartmentModel = new Model<String>();
         apartment = new TextField<String>("apartment", apartmentModel);
@@ -154,22 +160,22 @@ public abstract class PaymentLookupPanel extends Panel {
 //                        log.info("Accounts : {}", accountList);
 
                         if (paymentModel.getObject().getStatus() == RequestStatus.ACCOUNT_NUMBER_NOT_FOUND) {
-                            accountNumberModel.setObject(null);
+                            accountInfoModel.setObject(null);
                             accountModel.setObject(null);
                             error(StatusRenderer.displayValue(RequestStatus.ACCOUNT_NUMBER_NOT_FOUND));
                             target.addComponent(messages);
-                            target.addComponent(accountNumber);
+                            target.addComponent(accountInfo);
                         } else {
                             if (accountList.size() == 1) {
                                 accountModel.setObject(accountList.get(0));
-                                accountNumberModel.setObject(accountList.get(0).getAccountNumber());
-                                target.addComponent(accountNumber);
+                                accountInfoModel.setObject(printAccountDetail(accountList.get(0)));
+                                target.addComponent(accountInfo);
                                 chooseAccountNumberContainer.setVisible(false);
                                 target.addComponent(chooseAccountNumberContainer);
                             } else {
                                 accountModel.setObject(null);
-                                accountNumberModel.setObject(null);
-                                target.addComponent(accountNumber);
+                                accountInfoModel.setObject(null);
+                                target.addComponent(accountInfo);
                                 accountsModel.setObject(accountList);
                                 chooseAccountNumberContainer.setVisible(true);
                                 target.addComponent(chooseAccountNumberContainer);
@@ -185,7 +191,8 @@ public abstract class PaymentLookupPanel extends Panel {
         accordion.add(lookupByAddress);
         searchComponent = new SearchComponent("searchComponent", componentState, ImmutableList.of("city", "street", "building"),
                 new FakeSearchCallback(), true);
-        searchComponent.setOutputMarkupId(true);
+        searchComponent.setOutputMarkupPlaceholderTag(true);
+        searchComponent.setVisible(false);
         accordion.add(searchComponent);
 
         chooseAccountNumberContainer = new WebMarkupContainer("chooseAccountNumberContainer");
@@ -197,15 +204,7 @@ public abstract class PaymentLookupPanel extends Panel {
 
             @Override
             public Object getDisplayValue(AccountDetail object) {
-                StringBuilder displayValueBuilder = new StringBuilder().append(object.getAccountNumber());
-
-                if (!Strings.isEmpty(object.getOwnerName())) {
-                    displayValueBuilder.append(", ").append(object.getOwnerName());
-                }
-                if (!Strings.isEmpty(object.getOwnerINN())) {
-                    displayValueBuilder.append(", ").append(getString("INN")).append(" : ").append(object.getOwnerINN());
-                }
-                return displayValueBuilder.toString();
+                return printAccountDetail(object);
             }
 
             @Override
@@ -222,8 +221,8 @@ public abstract class PaymentLookupPanel extends Panel {
             @Override
             protected void onUpdate(AjaxRequestTarget target) {
 //                log.info("Account number changed to [{}]", accountModel.getObject());
-                accountNumberModel.setObject(accountModel.getObject().getAccountNumber());
-                target.addComponent(accountNumber);
+                accountInfoModel.setObject(printAccountDetail(accountModel.getObject()));
+                target.addComponent(accountInfo);
             }
         });
         chooseAccountNumberContainer.add(accounts);
@@ -280,7 +279,7 @@ public abstract class PaymentLookupPanel extends Panel {
 //                log.info("account : {}", accountModel.getObject());
                 if (validate()) {
                     updateAccountNumber(accountModel.getObject().getAccountNumber());
-                    dialog.close(target);
+                    closeDialog(target);
                 } else {
                     target.addComponent(messages);
                 }
@@ -290,9 +289,15 @@ public abstract class PaymentLookupPanel extends Panel {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
-                dialog.close(target);
+                closeDialog(target);
             }
         });
+    }
+
+    private void closeDialog(AjaxRequestTarget target) {
+        searchComponent.setVisible(false);
+        target.addComponent(searchComponent);
+        dialog.close(target);
     }
 
     private boolean validateOwnNumSr() {
@@ -377,17 +382,30 @@ public abstract class PaymentLookupPanel extends Panel {
         return validated;
     }
 
+    private String printAccountDetail(AccountDetail accountDetail) {
+        StringBuilder displayValueBuilder = new StringBuilder().append(accountDetail.getAccountNumber());
+
+        if (!Strings.isEmpty(accountDetail.getOwnerName())) {
+            displayValueBuilder.append(", ").append(accountDetail.getOwnerName());
+        }
+        if (!Strings.isEmpty(accountDetail.getOwnerINN())) {
+            displayValueBuilder.append(", ").append(getString("INN")).append(" : ").append(accountDetail.getOwnerINN());
+        }
+        return displayValueBuilder.toString();
+    }
+
     public void open(AjaxRequestTarget target, Payment payment) {
         paymentModel.setObject(payment);
 
         accountModel.setObject(null);
-        accountNumberModel.setObject(null);
-        target.addComponent(accountNumber);
+        accountInfoModel.setObject(null);
+        target.addComponent(accountInfo);
 
         //lookup by address
         apartmentModel.setObject((String) payment.getField(PaymentDBF.FLAT));
         target.addComponent(apartment);
         initSearchComponentState(componentState, payment);
+        searchComponent.setVisible(true);
         target.addComponent(searchComponent);
 
         //lookup by OWN_NUM_SR
