@@ -103,4 +103,9 @@ public class PersonAccountLocalBean extends AbstractBean {
     public PersonAccount findById(long id) {
         return (PersonAccount) sqlSession().selectOne(MAPPING_NAMESPACE + ".findById", id);
     }
+
+    @Transactional
+    public void delete(PersonAccount personAccount){
+        sqlSession().delete(MAPPING_NAMESPACE+".delete", personAccount);
+    }
 }

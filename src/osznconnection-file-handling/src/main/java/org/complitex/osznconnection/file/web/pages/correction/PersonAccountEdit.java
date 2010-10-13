@@ -6,6 +6,7 @@ package org.complitex.osznconnection.file.web.pages.correction;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import java.util.List;
 import javax.ejb.EJB;
 import org.apache.wicket.PageParameters;
@@ -23,11 +24,15 @@ import org.apache.wicket.model.ResourceModel;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.web.component.DisableAwareDropDownChoice;
 import org.complitex.dictionaryfw.web.component.DomainObjectDisableAwareRenderer;
+import org.complitex.osznconnection.commons.web.component.toolbar.DeleteItemButton;
+import org.complitex.osznconnection.commons.web.component.toolbar.ToolbarButton;
 import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.FormTemplatePage;
 import org.complitex.osznconnection.file.entity.PersonAccount;
 import org.complitex.osznconnection.file.service.PersonAccountLocalBean;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -35,6 +40,8 @@ import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)
 public final class PersonAccountEdit extends FormTemplatePage {
+
+    private static final Logger log = LoggerFactory.getLogger(PersonAccountEdit.class);
 
     public static final String CORRECTION_ID = "correction_id";
 
@@ -50,23 +57,28 @@ public final class PersonAccountEdit extends FormTemplatePage {
 
     public PersonAccountEdit(PageParameters params) {
         this.correctionId = params.getAsLong(CORRECTION_ID);
-//        if (isNew()) {
-//            newPersonAccount = new PersonAccount();
-//        } else {
         personAccount = personAccountLocalBean.findById(this.correctionId);
-//        }
         init();
     }
 
-//    private boolean isNew() {
-//        return correctionId == null;
-//    }
     private void saveOrUpdate() {
-//        if (isNew()) {
-//            personAccountLocalBean.insert(personAccount);
-//        } else {
-        personAccountLocalBean.update(personAccount);
-//        }
+        try {
+            personAccountLocalBean.update(personAccount);
+            setResponsePage(PersonAccountList.class);
+        } catch (Exception e) {
+            error(getString("db_error"));
+            log.error("", e);
+        }
+    }
+
+    private void delete() {
+        try {
+            personAccountLocalBean.delete(personAccount);
+            setResponsePage(PersonAccountList.class);
+        } catch (Exception e) {
+            error(getString("db_error"));
+            log.error("", e);
+        }
     }
 
     private void init() {
@@ -181,7 +193,6 @@ public final class PersonAccountEdit extends FormTemplatePage {
             @Override
             public void onSubmit() {
                 saveOrUpdate();
-                setResponsePage(PersonAccountList.class);
             }
         };
         form.add(submit);
@@ -193,6 +204,19 @@ public final class PersonAccountEdit extends FormTemplatePage {
             }
         };
         form.add(cancel);
+    }
+
+    @Override
+    protected List<? extends ToolbarButton> getToolbarButtons(String id) {
+        List<ToolbarButton> toolbar = Lists.newArrayList();
+        toolbar.add(new DeleteItemButton(id) {
+
+            @Override
+            protected void onClick() {
+                delete();
+            }
+        });
+        return toolbar;
     }
 }
 

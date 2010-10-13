@@ -11,6 +11,7 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -26,6 +27,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
+import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.TemplatePage;
 import org.complitex.osznconnection.file.entity.PersonAccount;
 import org.complitex.osznconnection.file.entity.example.PersonAccountExample;
@@ -36,6 +38,7 @@ import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
  *
  * @author Artem
  */
+@AuthorizeInstantiation(SecurityRole.AUTHORIZED)
 public class PersonAccountList extends TemplatePage {
 
     @EJB(name = "PersonAccountLocalBean")
@@ -170,7 +173,7 @@ public class PersonAccountList extends TemplatePage {
         filterForm.add(new ArrowOrderByBorder("osznHeader", organizationStrategy.getOrderByExpression("pa.`oszn_id`", getLocale().getLanguage(), null),
                 dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("calculationCenterHeader",
-                organizationStrategy.getOrderByExpression("pa.`oszn_id`", getLocale().getLanguage(), null), dataProvider, data, content));
+                organizationStrategy.getOrderByExpression("pa.`calc_center_id`", getLocale().getLanguage(), null), dataProvider, data, content));
 
         content.add(new PagingNavigator("navigator", data, getClass().getName(), content));
     }
