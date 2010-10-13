@@ -60,7 +60,11 @@ public class AddressCorrectionBean extends CorrectionBean {
         parameter.setOrganizationId(organizationId);
         parameter.setInternalParentId(cityId);
         parameter.setInternalStreetId(streetId);
-        return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".findCorrectionBuilding", parameter);
+        List<Long> ids = sqlSession().selectList(MAPPING_NAMESPACE + ".findCorrectionBuilding", parameter);
+        if (ids != null && ids.size() == 1) {
+            return ids.get(0);
+        }
+        return null;
     }
 
 //    public Long findCorrectionApartment(long buildingId, String apartment, long organizationId) {
@@ -72,8 +76,9 @@ public class AddressCorrectionBean extends CorrectionBean {
         parameter.setOrganizationId(organizationId);
         parameter.setEntity(entityTable);
         parameter.setInternalObjectId(internalObjectId);
-        ObjectCorrection result = (ObjectCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".findOutgoingAddress", parameter);
-        if (result != null) {
+        List<ObjectCorrection> corrections = sqlSession().selectList(MAPPING_NAMESPACE + ".findOutgoingAddress", parameter);
+        if (corrections != null && corrections.size() == 1) {
+            ObjectCorrection result = corrections.get(0);
             if (result.getCorrection() != null) {
                 return result;
             }
@@ -94,8 +99,9 @@ public class AddressCorrectionBean extends CorrectionBean {
         BuildingCorrection parameter = new BuildingCorrection();
         parameter.setOrganizationId(organizationId);
         parameter.setInternalObjectId(internalBuildingId);
-        BuildingCorrection result = (BuildingCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".findOutgoingBuilding", parameter);
-        if (result != null) {
+        List<BuildingCorrection> corrections = sqlSession().selectList(MAPPING_NAMESPACE + ".findOutgoingBuilding", parameter);
+        if (corrections != null && corrections.size() == 1) {
+            BuildingCorrection result = corrections.get(0);
             if (result.getCorrection() != null) {
                 return result;
             }
@@ -109,8 +115,9 @@ public class AddressCorrectionBean extends CorrectionBean {
     @Transactional
     public ObjectCorrection findOutgoingDistrict(long calculationCenterId, long osznId) {
         Map<String, Long> params = ImmutableMap.of("calculationCenterId", calculationCenterId, "osznId", osznId);
-        ObjectCorrection result = (ObjectCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".findOutgoingDistrict", params);
-        if (result != null) {
+        List<ObjectCorrection> corrections = sqlSession().selectList(MAPPING_NAMESPACE + ".findOutgoingDistrict", params);
+        if (corrections != null && corrections.size() == 1) {
+            ObjectCorrection result = corrections.get(0);
             if (result.getCorrection() != null) {
                 return result;
             }
@@ -121,8 +128,9 @@ public class AddressCorrectionBean extends CorrectionBean {
     @Transactional
     private EntityTypeCorrection findOutgoingEntityType(long entityTypeId, long calculationCenterId) {
         EntityTypeCorrection parameter = new EntityTypeCorrection(calculationCenterId, entityTypeId);
-        EntityTypeCorrection result = (EntityTypeCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".findOutgoingEntityType", parameter);
-        if (result != null) {
+        List<EntityTypeCorrection> corrections = sqlSession().selectList(MAPPING_NAMESPACE + ".findOutgoingEntityType", parameter);
+        if (corrections != null && corrections.size() == 1) {
+            EntityTypeCorrection result = corrections.get(0);
             if (result.getCorrection() != null) {
                 return result;
             }
