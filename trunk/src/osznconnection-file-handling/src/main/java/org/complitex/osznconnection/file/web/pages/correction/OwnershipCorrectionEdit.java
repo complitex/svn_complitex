@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 import javax.ejb.EJB;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -20,6 +21,7 @@ import org.complitex.dictionaryfw.web.component.DisableAwareDropDownChoice;
 import org.complitex.dictionaryfw.web.component.DomainObjectDisableAwareRenderer;
 import org.complitex.osznconnection.commons.web.component.toolbar.DeleteItemButton;
 import org.complitex.osznconnection.commons.web.component.toolbar.ToolbarButton;
+import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.FormTemplatePage;
 import org.complitex.osznconnection.file.entity.ObjectCorrection;
 import org.complitex.osznconnection.file.web.component.correction.edit.AbstractCorrectionEditPanel;
@@ -29,6 +31,7 @@ import org.complitex.osznconnection.ownership.strategy.OwnershipStrategy;
  *
  * @author Artem
  */
+@AuthorizeInstantiation(SecurityRole.AUTHORIZED)
 public final class OwnershipCorrectionEdit extends FormTemplatePage {
 
     public static final String CORRECTION_ID = "correction_id";

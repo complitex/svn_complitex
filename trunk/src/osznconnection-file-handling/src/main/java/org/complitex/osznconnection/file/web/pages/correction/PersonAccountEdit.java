@@ -9,6 +9,7 @@ import com.google.common.collect.Iterables;
 import java.util.List;
 import javax.ejb.EJB;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
@@ -22,6 +23,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.web.component.DisableAwareDropDownChoice;
 import org.complitex.dictionaryfw.web.component.DomainObjectDisableAwareRenderer;
+import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.FormTemplatePage;
 import org.complitex.osznconnection.file.entity.PersonAccount;
 import org.complitex.osznconnection.file.service.PersonAccountLocalBean;
@@ -31,6 +33,7 @@ import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
  *
  * @author Artem
  */
+@AuthorizeInstantiation(SecurityRole.AUTHORIZED)
 public final class PersonAccountEdit extends FormTemplatePage {
 
     public static final String CORRECTION_ID = "correction_id";
