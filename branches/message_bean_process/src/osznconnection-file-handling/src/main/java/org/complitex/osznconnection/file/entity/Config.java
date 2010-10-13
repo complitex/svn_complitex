@@ -4,11 +4,11 @@ package org.complitex.osznconnection.file.entity;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 04.10.2010 11:12:46
  */
-public enum ConfigName {    
+public enum Config {
         LOAD_INPUT_FILE_STORAGE_DIR("C:\\storage\\in"),
         SAVE_OUTPUT_FILE_STORAGE_DIR("C:\\storage\\out"),
-        LOAD_THREADS_SIZE("4"),
-        SAVE_THREADS_SIZE("4"),
+        LOAD_THREADS_SIZE("2"),
+        SAVE_THREADS_SIZE("2"),
         LOAD_MAX_ERROR_COUNT("10"),
         SAVE_MAX_ERROR_COUNT("10"),
         LOAD_RECORD_BATCH_SIZE("64"),
@@ -21,7 +21,7 @@ public enum ConfigName {
 
     private String defaultValue;
 
-    ConfigName(String defaultValue) {
+    Config(String defaultValue) {
         this.defaultValue = defaultValue;
     }
 

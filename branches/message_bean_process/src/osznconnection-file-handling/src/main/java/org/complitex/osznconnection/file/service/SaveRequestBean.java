@@ -3,7 +3,7 @@ package org.complitex.osznconnection.file.service;
 import org.complitex.dictionaryfw.entity.Log;
 import org.complitex.dictionaryfw.service.LogBean;
 import org.complitex.osznconnection.file.Module;
-import org.complitex.osznconnection.file.entity.ConfigName;
+import org.complitex.osznconnection.file.entity.Config;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.storage.RequestFileStorage;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
@@ -55,12 +55,12 @@ public class SaveRequestBean extends AbstractProcessBean{
 
     @Override
     protected int getMaxErrorCount() {
-        return configBean.getInteger(ConfigName.SAVE_MAX_ERROR_COUNT, true);
+        return configBean.getInteger(Config.SAVE_MAX_ERROR_COUNT, true);
     }
 
     @Override
     protected int getThreadSize() {
-        return configBean.getInteger(ConfigName.SAVE_THREADS_SIZE, true);
+        return configBean.getInteger(Config.SAVE_THREADS_SIZE, true);
     }
 
     @Override

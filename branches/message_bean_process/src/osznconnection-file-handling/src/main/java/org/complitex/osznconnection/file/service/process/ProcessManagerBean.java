@@ -1,16 +1,16 @@
 package org.complitex.osznconnection.file.service.process;
 
-import org.complitex.osznconnection.file.entity.ConfigName;
+import org.complitex.osznconnection.file.entity.Config;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.entity.RequestFileGroup;
 import org.complitex.osznconnection.file.service.ConfigBean;
+import org.complitex.osznconnection.file.service.RequestFileBean;
 import org.complitex.osznconnection.file.storage.StorageNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.Asynchronous;
-import javax.ejb.EJB;
-import javax.ejb.Singleton;
+import javax.annotation.PostConstruct;
+import javax.ejb.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,7 +22,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 11.10.2010 15:53:41
  */
-@Singleton
+@Singleton(name = "ProcessManagerBean")
+@ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 public class ProcessManagerBean {
     private static final Logger log = LoggerFactory.getLogger(BindTaskBean.class);
 
@@ -48,11 +49,22 @@ public class ProcessManagerBean {
     @EJB(beanName = "ConfigBean")
     private ConfigBean configBean;
 
+    @EJB(beanName = "RequestFileBean")
+    private RequestFileBean requestFileBean;
+
     private List<RequestFile> linkError = new CopyOnWriteArrayList<RequestFile>();
 
     Map<Object, Integer> processedIndex = new ConcurrentHashMap<Object, Integer>();
 
     private PROCESS process = PROCESS.NONE;
+
+    private boolean pretreatment = false;
+
+    @PostConstruct
+    public void init(){
+        requestFileBean.cancelLoading();
+        requestFileBean.cancelSaving();
+    }
 
     public PROCESS getProcess() {
         return process;
@@ -104,7 +116,7 @@ public class ProcessManagerBean {
     }
 
     public boolean isProcessing(){
-        return executorBean.getStatus().equals(ExecutorBean.STATUS.RUNNING);
+        return executorBean.getStatus().equals(ExecutorBean.STATUS.RUNNING) || pretreatment;
     }
 
     public boolean isCriticalError(){
@@ -121,14 +133,18 @@ public class ProcessManagerBean {
         processedIndex.clear();
 
         try {
+            pretreatment = true; // предобработка
+
             LoadUtil.LoadParameter loadParameter = LoadUtil.getLoadParameter(organizationId, districtCode, monthFrom, monthTo, year);
 
             linkError.addAll(loadParameter.getLinkError());
 
+            pretreatment = false;
+
             executorBean.execute(loadParameter.getRequestFileGroups(),
                     loadTaskBean,
-                    configBean.getInteger(ConfigName.LOAD_THREADS_SIZE, true),
-                    configBean.getInteger(ConfigName.LOAD_MAX_ERROR_COUNT, true));
+                    configBean.getInteger(Config.LOAD_THREADS_SIZE, true),
+                    configBean.getInteger(Config.LOAD_MAX_ERROR_COUNT, true));
         } catch (StorageNotFoundException e) {
             log.error("Директория файлов для загрузки не найдена", e);
         }
@@ -141,8 +157,8 @@ public class ProcessManagerBean {
 
         executorBean.execute(groups,
                 bindTaskBean,
-                configBean.getInteger(ConfigName.BIND_THREADS_SIZE, true),
-                configBean.getInteger(ConfigName.BIND_MAX_ERROR_COUNT, true));
+                configBean.getInteger(Config.BIND_THREADS_SIZE, true),
+                configBean.getInteger(Config.BIND_MAX_ERROR_COUNT, true));
     }
 
     @Asynchronous
@@ -152,8 +168,8 @@ public class ProcessManagerBean {
 
         executorBean.execute(groups,
                 fillTaskBean,
-                configBean.getInteger(ConfigName.FILL_THREADS_SIZE, true),
-                configBean.getInteger(ConfigName.FILL_MAX_ERROR_COUNT, true));
+                configBean.getInteger(Config.FILL_THREADS_SIZE, true),
+                configBean.getInteger(Config.FILL_MAX_ERROR_COUNT, true));
     }
 
     @Asynchronous
@@ -163,7 +179,7 @@ public class ProcessManagerBean {
 
         executorBean.execute(groups,
                 saveTaskBean,
-                configBean.getInteger(ConfigName.SAVE_THREADS_SIZE, true),
-                configBean.getInteger(ConfigName.SAVE_MAX_ERROR_COUNT, true));
+                configBean.getInteger(Config.SAVE_THREADS_SIZE, true),
+                configBean.getInteger(Config.SAVE_MAX_ERROR_COUNT, true));
     }
 }

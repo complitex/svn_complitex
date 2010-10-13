@@ -2,7 +2,7 @@ package org.complitex.osznconnection.file.service;
 
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
-import org.complitex.osznconnection.file.entity.ConfigName;
+import org.complitex.osznconnection.file.entity.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,11 +22,11 @@ public class ConfigBean extends AbstractBean{
 
     private static final String MAPPING_NAMESPACE = ConfigBean.class.getName();
 
-    public Map<ConfigName, String> configs = new EnumMap<ConfigName, String>(ConfigName.class);
+    public Map<Config, String> configs = new EnumMap<Config, String>(Config.class);
 
     @PostConstruct
     public void init(){
-        for (ConfigName configName : ConfigName.values()){
+        for (Config configName : Config.values()){
             if (!isExist(configName.name())){
                 insert(configName.name(), configName.getDefaultValue());
             }
@@ -41,7 +41,7 @@ public class ConfigBean extends AbstractBean{
      * @param flush отчистить кэш, обновить значение из базы данных
      * @return числовое строковое параметра
      */
-    public String getString(ConfigName configName, boolean flush){
+    public String getString(Config configName, boolean flush){
         if (flush){
             configs.put(configName, getValue(configName.name()));
         }
@@ -55,7 +55,7 @@ public class ConfigBean extends AbstractBean{
      * @param flush отчистить кэш, обновить значение из базы данных
      * @return числовое значение параметра
      */
-    public Integer getInteger(ConfigName configName, boolean flush){
+    public Integer getInteger(Config configName, boolean flush){
         try {
             return Integer.valueOf(getString(configName, flush));
         } catch (NumberFormatException e) {
@@ -66,7 +66,7 @@ public class ConfigBean extends AbstractBean{
     }
 
     @Transactional
-    public void update(final ConfigName configName, final String value){
+    public void update(final Config configName, final String value){
         sqlSession().insert(MAPPING_NAMESPACE + ".updateConfig", new HashMap<String, String>(){{
             put("name", configName.name());
             put("value", value);

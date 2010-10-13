@@ -1,6 +1,6 @@
 package org.complitex.osznconnection.file.storage;
 
-import org.complitex.osznconnection.file.entity.ConfigName;
+import org.complitex.osznconnection.file.entity.Config;
 import org.complitex.osznconnection.file.service.ConfigStatic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +39,7 @@ public class RequestFileStorage {
     public List<File> getInputFiles(String child, FileFilter filter) throws StorageNotFoundException {
         List<File> files = new ArrayList<File>();
 
-        File dir = new File(ConfigStatic.get().getString(ConfigName.LOAD_INPUT_FILE_STORAGE_DIR, true), child);
+        File dir = new File(ConfigStatic.get().getString(Config.LOAD_INPUT_FILE_STORAGE_DIR, true), child);
 
         if (!dir.exists()){
             throw new StorageNotFoundException("Директория входящих файлов запросов " + dir.getAbsolutePath() + " не найдена");
@@ -61,7 +61,7 @@ public class RequestFileStorage {
     }
 
     public void checkOutputFileStorageExists() throws StorageNotFoundException {
-        File parent = new File(ConfigStatic.get().getString(ConfigName.SAVE_OUTPUT_FILE_STORAGE_DIR, true));
+        File parent = new File(ConfigStatic.get().getString(Config.SAVE_OUTPUT_FILE_STORAGE_DIR, true));
 
         //Желательно чтобы директория для исходящих файлов запроса уже была создана
         if (!parent.exists()){
@@ -75,7 +75,7 @@ public class RequestFileStorage {
         checkOutputFileStorageExists();
 
         //Создаем директорию с именем кода района если что
-        File dir = new File(ConfigStatic.get().getString(ConfigName.SAVE_OUTPUT_FILE_STORAGE_DIR, false), child);
+        File dir = new File(ConfigStatic.get().getString(Config.SAVE_OUTPUT_FILE_STORAGE_DIR, false), child);
         if (!dir.exists()){
             dir.mkdir();
         }
@@ -99,7 +99,7 @@ public class RequestFileStorage {
     }
     
     public String getRelativeParent(File file){
-        File root = new File(ConfigStatic.get().getString(ConfigName.LOAD_INPUT_FILE_STORAGE_DIR, false));
+        File root = new File(ConfigStatic.get().getString(Config.LOAD_INPUT_FILE_STORAGE_DIR, false));
         String absolutePath = file.getParent();
 
         return absolutePath.substring(root.getAbsolutePath().length());

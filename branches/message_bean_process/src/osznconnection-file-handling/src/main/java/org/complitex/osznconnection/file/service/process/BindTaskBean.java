@@ -5,7 +5,8 @@ import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
 import org.complitex.osznconnection.file.calculation.service.CalculationCenterBean;
 import org.complitex.osznconnection.file.entity.*;
-import org.complitex.osznconnection.file.service.*;
+import org.complitex.osznconnection.file.service.AddressService;
+import org.complitex.osznconnection.file.service.PersonAccountService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,7 +75,7 @@ public class BindTaskBean extends AbstractTaskBean{
     @Transactional
     private void bindPaymentFile(RequestFile paymentFile) {
         try {
-            int batchSize = configBean.getInteger(ConfigName.BIND_RECORD_BATCH_SIZE, true);
+            int batchSize = configBean.getInteger(Config.BIND_RECORD_BATCH_SIZE, true);
 
             CalculationCenterInfo calculationCenterInfo = calculationCenterBean.getCurrentCalculationCenterInfo();
             long calculationCenterId = calculationCenterInfo.getId();

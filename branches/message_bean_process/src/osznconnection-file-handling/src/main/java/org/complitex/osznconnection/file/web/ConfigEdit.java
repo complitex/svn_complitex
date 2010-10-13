@@ -12,7 +12,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.FormTemplatePage;
-import org.complitex.osznconnection.file.entity.ConfigName;
+import org.complitex.osznconnection.file.entity.Config;
 import org.complitex.osznconnection.file.service.ConfigBean;
 
 import javax.ejb.EJB;
@@ -38,19 +38,19 @@ public class ConfigEdit extends FormTemplatePage{
         Form form = new Form("form");
         add(form);
 
-        final Map<ConfigName, IModel<String>> model = new HashMap<ConfigName, IModel<String>>();
-        for (ConfigName configName : ConfigName.values()){
+        final Map<Config, IModel<String>> model = new HashMap<Config, IModel<String>>();
+        for (Config configName : Config.values()){
             model.put(configName, new Model<String>(configBean.getString(configName, true)));
         }
 
-        ListView<ConfigName> listView = new ListView<ConfigName>("listView", Arrays.asList(ConfigName.values())){
+        ListView<Config> listView = new ListView<Config>("listView", Arrays.asList(Config.values())){
 
             @Override
-            protected void populateItem(ListItem<ConfigName> item) {
-                ConfigName configName = item.getModelObject();
+            protected void populateItem(ListItem<Config> item) {
+                Config config = item.getModelObject();
 
-                item.add(new Label("label", getStringOrKey(configName)));
-                item.add(new TextField<String>("config", model.get(configName)));
+                item.add(new Label("label", getStringOrKey(config)));
+                item.add(new TextField<String>("config", model.get(config)));
             }
         };
         listView.setReuseItems(true);
@@ -59,11 +59,11 @@ public class ConfigEdit extends FormTemplatePage{
         Button save = new Button("save"){
             @Override
             public void onSubmit() {
-                for (ConfigName  configName : ConfigName.values()){
-                    String value = model.get(configName).getObject();
+                for (Config config : Config.values()){
+                    String value = model.get(config).getObject();
 
-                    if (!configBean.getString(configName, true).equals(value)){
-                        configBean.update(configName, value);
+                    if (!configBean.getString(config, true).equals(value)){
+                        configBean.update(config, value);
                     }
                 }
                 info(getString("saved"));

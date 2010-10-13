@@ -2,20 +2,24 @@ package org.complitex.osznconnection.file.service.process;
 
 import org.complitex.osznconnection.file.entity.RequestFileGroup;
 import org.complitex.osznconnection.file.service.AbstractProcessBean;
-import org.complitex.osznconnection.file.service.exception.MaxErrorCountException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ejb.ConcurrencyManagement;
+import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.Singleton;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 08.10.2010 17:53:43
  */
 @Singleton(name = "ExecutorBean")
+@ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 public class ExecutorBean {
     private static final Logger log = LoggerFactory.getLogger(AbstractProcessBean.class);
 
@@ -24,11 +28,13 @@ public class ExecutorBean {
     }
 
     protected STATUS status = STATUS.NEW;
-    
+
     protected int processedCount = 0;
     protected int errorCount = 0;
 
     protected List<RequestFileGroup> processed = new CopyOnWriteArrayList<RequestFileGroup>();
+
+    private AtomicInteger runningThread = new AtomicInteger(0);
 
     public STATUS getStatus() {
         return status;
@@ -46,65 +52,79 @@ public class ExecutorBean {
         return processed;
     }
 
-    public void execute(List<RequestFileGroup> groups, final AbstractTaskBean taskBean, int maxThread, final int maxErrors){
-        if (status.equals(STATUS.RUNNING)){
-            throw new IllegalStateException();           
+    private void executeNext(final Queue<RequestFileGroup> queue, final AbstractTaskBean taskBean, final int maxErrors){
+        RequestFileGroup group = queue.poll();
+
+        if (group == null){
+            if (STATUS.RUNNING.equals(status) && runningThread.get() == 0){
+                status = STATUS.COMPLETED;
+
+                log.debug("Завершен процесс обработки файлов {}", taskBean);
+            }
+
+            return;
         }
 
-        processed.clear();
+        if (errorCount > maxErrors){
+            if (STATUS.RUNNING.equals(status) && runningThread.get() == 0){
+                status = STATUS.CRITICAL_ERROR;
+
+                log.error("Превышено количество критических ошибок");
+            }
+
+            return;
+        }
+
+        runningThread.incrementAndGet();
+
+        log.debug("Обработка группы файлов {}", group);
+
+        taskBean.asyncExecute(group, new ITaskListener(){
+            @Override
+            public void complete(RequestFileGroup group) {
+                processedCount++;
+                processed.add(group);
+
+                runningThread.decrementAndGet();
+
+                log.debug("Обработка группы файлов завершена успешно {}", group);
+
+                executeNext(queue, taskBean, maxErrors);
+            }
+
+            @Override
+            public void error(RequestFileGroup group, Exception e) {
+                errorCount++;
+                processed.add(group);
+
+                runningThread.decrementAndGet();
+
+                log.error("Критическая ошибка выполнения процесса", e);
+
+                executeNext(queue, taskBean, maxErrors);
+            }
+        });
+    }
+
+    public void execute(List<RequestFileGroup> groups, final AbstractTaskBean taskBean, int maxThread, final int maxErrors){
+        if (status.equals(STATUS.RUNNING)){
+            throw new IllegalStateException();
+        }
+
+        log.debug("Начат процесс обработки файлов {}", taskBean);
+
+        status = STATUS.RUNNING;
+
         processedCount = 0;
         errorCount = 0;
 
-        final Semaphore semaphore = new Semaphore(maxThread);
+        processed.clear();
 
-        try {
-            status = STATUS.RUNNING;
+        Queue<RequestFileGroup> queue = new ConcurrentLinkedQueue <RequestFileGroup>();
+        queue.addAll(groups);
 
-            log.debug("Начат процесс обработки файлов {}", taskBean);
-
-            for (RequestFileGroup g : groups){
-                semaphore.acquire();
-
-                log.debug("Обработка группы файлов {}", g);
-
-                taskBean.asyncExecute(g, new ITaskListener(){
-                    @Override
-                    public void complete(RequestFileGroup group) {
-                        processedCount++;
-                        processed.add(group);
-                        semaphore.release();
-
-                        log.debug("Обработка группы файлов завершена успешно {}", group);
-                    }
-
-                    @Override
-                    public void error(RequestFileGroup group, Exception e) {
-                        errorCount++;
-                        processed.add(group);
-                        semaphore.release();
-
-                        log.error("Критическая ошибка выполнения процесса", e);
-                    }
-                });
-
-                if (errorCount > maxErrors){
-                    throw new MaxErrorCountException();
-                }
-            }
-
-            semaphore.acquire(semaphore.drainPermits());
-
-            log.debug("Завершен процесс обработки файлов {}", taskBean);
-
-            status = STATUS.COMPLETED;
-        } catch (MaxErrorCountException e) {
-            status = STATUS.CRITICAL_ERROR;
-
-            log.error("Превышено количество критических ошибок", e);
-        } catch (InterruptedException e) {
-            status = STATUS.CRITICAL_ERROR;
-
-            log.error("Ошибка выполнения процесса", e);
+        for (int i = 0; i < maxThread; ++i){
+            executeNext(queue, taskBean, maxErrors);
         }
     }
 }

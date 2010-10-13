@@ -49,7 +49,7 @@ public class FillTaskBean extends AbstractTaskBean{
 
     public void fillPaymentFile(RequestFile paymentFile) {
         try {
-            int batchSize = configBean.getInteger(ConfigName.FILL_RECORD_BATCH_SIZE, true);
+            int batchSize = configBean.getInteger(Config.FILL_RECORD_BATCH_SIZE, true);
 
             CalculationCenterInfo calculationCenterInfo = calculationCenterBean.getCurrentCalculationCenterInfo();
             ICalculationCenterAdapter adapter = calculationCenterInfo.getAdapterInstance();

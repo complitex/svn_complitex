@@ -8,7 +8,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.complitex.osznconnection.file.entity.ConfigName;
+import org.complitex.osznconnection.file.entity.Config;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +52,7 @@ public class FileExecutorService {
     private ExecutorService bindingThreadPool = initBindingThreadPool();
 
     private static ExecutorService initBindingThreadPool() {
-        return Executors.newFixedThreadPool(ConfigStatic.get().getInteger(ConfigName.BIND_THREADS_SIZE, true));
+        return Executors.newFixedThreadPool(ConfigStatic.get().getInteger(Config.BIND_THREADS_SIZE, true));
     }
 
     public boolean isBinding() {
@@ -62,7 +62,7 @@ public class FileExecutorService {
     private ExecutorService processingThreadPool = initProcessingThreadPool();
 
     private static ExecutorService initProcessingThreadPool() {
-        return Executors.newFixedThreadPool(ConfigStatic.get().getInteger(ConfigName.FILL_THREADS_SIZE, true));
+        return Executors.newFixedThreadPool(ConfigStatic.get().getInteger(Config.FILL_THREADS_SIZE, true));
     }
 
     public boolean isProcessing() {

@@ -62,7 +62,7 @@ public class  LoadTaskBean {
     public Future<RequestFile> load(RequestFile requestFile){
         String currentFieldName = "-1";
         int index = 0;
-        int batchSize = configBean.getInteger(ConfigName.LOAD_RECORD_BATCH_SIZE, true);
+        int batchSize = configBean.getInteger(Config.LOAD_RECORD_BATCH_SIZE, true);
 
         try {
             //Инициализация парсера

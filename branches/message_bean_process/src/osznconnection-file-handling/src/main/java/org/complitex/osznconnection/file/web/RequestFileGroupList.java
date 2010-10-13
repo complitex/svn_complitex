@@ -32,7 +32,6 @@ import org.complitex.osznconnection.commons.web.template.TemplatePage;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.entity.RequestFileFilter;
 import org.complitex.osznconnection.file.entity.RequestFileGroup;
-import org.complitex.osznconnection.file.service.FileExecutorService;
 import org.complitex.osznconnection.file.service.RequestFileGroupBean;
 import org.complitex.osznconnection.file.service.process.ProcessManagerBean;
 import org.complitex.osznconnection.file.web.pages.benefit.BenefitList;
@@ -354,22 +353,17 @@ public class RequestFileGroupList extends TemplatePage {
 
             @Override
             public void onSubmit() {
-                List<RequestFile> requestFiles = new ArrayList<RequestFile>();
+//                todo
+//                if (requestFile.getStatus() == RequestFile.STATUS.BINDED) {
+//                      warn(getStringFormat("has_been_bound", requestFile.getName()));
+//                }
+                processManagerBean.bind(getSelectedGroup());
 
-                for (RequestFileGroup requestFileGroup : selectModels.keySet()) {
-                    if (selectModels.get(requestFileGroup).getObject()) {
-                        for (RequestFile requestFile : requestFileGroup.getRequestFiles()) {
-                            requestFiles.add(requestFile);
-                            if (requestFile.getStatus() == RequestFile.STATUS.BINDED) {
-                                warn(getStringFormat("has_been_bound", requestFile.getName()));
-                            }
-                        }
-                    }
-                }
 
-                FileExecutorService.get().bind(requestFiles);
                 selectModels.clear();
                 addTimer(dataViewContainer, filterForm, messages);
+
+                completedDisplayed = false;
             }
 
             @Override
@@ -379,25 +373,17 @@ public class RequestFileGroupList extends TemplatePage {
         };
         filterForm.add(bind);
 
-        //Process
-        Button process = new Button("process") {
+        //Fill
+        Button process = new Button("fill") {
 
             @Override
             public void onSubmit() {
-                List<RequestFile> requestFiles = new ArrayList<RequestFile>();
+//                todo
+//                 if (requestFile.getStatus() == RequestFile.STATUS.PROCESSED) {
+//                      warn(getStringFormat("has_been_processed", requestFile.getName()));
+//                 }
 
-                for (RequestFileGroup requestFileGroup : selectModels.keySet()) {
-                    if (selectModels.get(requestFileGroup).getObject()) {
-                        for (RequestFile requestFile : requestFileGroup.getRequestFiles()) {
-                            requestFiles.add(requestFile);
-                            if (requestFile.getStatus() == RequestFile.STATUS.PROCESSED) {
-                                warn(getStringFormat("has_been_processed", requestFile.getName()));
-                            }
-                        }
-                    }
-                }
-
-                FileExecutorService.get().process(requestFiles);
+                processManagerBean.fill(getSelectedGroup());
                 selectModels.clear();
                 addTimer(dataViewContainer, filterForm, messages);
             }
@@ -501,7 +487,7 @@ public class RequestFileGroupList extends TemplatePage {
         }
 
         //Process completed
-        if (processManagerBean.isCompleted()) {
+        if (processManagerBean.isCompleted() && !completedDisplayed) {
             String completeInfo = "";
 
             switch (processManagerBean.getProcess()){
@@ -514,6 +500,8 @@ public class RequestFileGroupList extends TemplatePage {
             //todo skipped
             info(completeInfo + ". " + getStringFormat("info.completed_detail", processManagerBean.getProcessedCount(),
                     processManagerBean.getCount(RequestFile.STATUS.SKIPPED), processManagerBean.getErrorCount()));
+
+            completedDisplayed = true;
         }
     }
 
@@ -536,8 +524,8 @@ public class RequestFileGroupList extends TemplatePage {
     private void addTimer(WebMarkupContainer dataViewContainer, Form<?> filterForm, AjaxFeedbackPanel messages) {
         boolean needCreateNewTimer = true;
 
-        List<AjaxSelfUpdatingTimerBehavior> timers = null;
-        timers = Lists.newArrayList(Iterables.filter(dataViewContainer.getBehaviors(), AjaxSelfUpdatingTimerBehavior.class));
+        List<AjaxSelfUpdatingTimerBehavior> timers = Lists.newArrayList(Iterables.filter(dataViewContainer.getBehaviors(), 
+                AjaxSelfUpdatingTimerBehavior.class));
         if (timers != null && !timers.isEmpty()) {
             for (AjaxSelfUpdatingTimerBehavior timer : timers) {
                 if (!timer.isStopped()) {
