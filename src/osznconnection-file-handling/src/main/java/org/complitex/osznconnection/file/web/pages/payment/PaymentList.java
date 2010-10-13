@@ -40,7 +40,9 @@ import org.complitex.osznconnection.file.web.component.StatusRenderer;
 import javax.ejb.EJB;
 import java.util.Arrays;
 import java.util.Iterator;
+import org.apache.wicket.MarkupContainer;
 import org.complitex.dictionaryfw.util.CloneUtil;
+import org.complitex.osznconnection.file.service.AddressService;
 import org.complitex.osznconnection.file.web.RequestFileGroupList;
 
 /**
@@ -57,6 +59,9 @@ public final class PaymentList extends TemplatePage {
 
     @EJB(name = "RequestFileBean")
     private RequestFileBean requestFileBean;
+
+    @EJB(name = "AddressService")
+    private AddressService addressService;
 
     private IModel<PaymentExample> example;
 
@@ -170,10 +175,27 @@ public final class PaymentList extends TemplatePage {
                         break;
                 }
                 item.add(new Label("statusDetails", statusDetails));
-                BookmarkablePageLink addressCorrectionLink = new BookmarkablePageLink<PaymentAddressCorrection>("addressCorrectionLink",
-                        PaymentAddressCorrection.class, new PageParameters(ImmutableMap.of(PaymentAddressCorrection.PAYMENT_ID, payment.getId())));
+
+                final AddressCorrectionPanel addressCorrectionPanel = new AddressCorrectionPanel("addressCorrectionPanel", payment,
+                        new MarkupContainer[]{content}) {
+
+                    @Override
+                    protected void correctAddress(Long cityId, Long streetId, Long streetTypeId, Long buildingId, Long apartmentId) {
+                        addressService.correctLocalAddress(payment, cityId, streetId, streetTypeId, buildingId, apartmentId);
+                    }
+                };
+                addressCorrectionPanel.setVisible(payment.getStatus().isLocalAddressCorrected());
+                item.add(addressCorrectionPanel);
+                AjaxLink addressCorrectionLink = new AjaxLink("addressCorrectionLink") {
+
+                    @Override
+                    public void onClick(AjaxRequestTarget target) {
+                        addressCorrectionPanel.open(target);
+                    }
+                };
                 addressCorrectionLink.setVisible(payment.getStatus().isLocalAddressCorrected());
                 item.add(addressCorrectionLink);
+
                 BookmarkablePageLink accountCorrectionLink = new BookmarkablePageLink<PaymentAccountNumberCorrection>("accountCorrectionLink",
                         PaymentAccountNumberCorrection.class, new PageParameters(ImmutableMap.of(PaymentAccountNumberCorrection.PAYMENT_ID, payment.getId())));
                 accountCorrectionLink.setVisible(payment.getStatus() == RequestStatus.MORE_ONE_ACCOUNTS);
