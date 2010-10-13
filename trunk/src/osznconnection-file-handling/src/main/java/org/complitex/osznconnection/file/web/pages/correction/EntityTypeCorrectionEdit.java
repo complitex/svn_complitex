@@ -152,9 +152,8 @@ public class EntityTypeCorrectionEdit extends FormTemplatePage {
             }
 
             @Override
-            public void delete() {
+            protected void delete() {
                 correctionBean.delete(getModel());
-                back();
             }
         });
     }
@@ -166,7 +165,7 @@ public class EntityTypeCorrectionEdit extends FormTemplatePage {
 
             @Override
             protected void onClick() {
-                correctionEditPanel.delete();
+                correctionEditPanel.executeDeletion();
             }
 
             @Override

@@ -28,12 +28,16 @@ import org.complitex.dictionaryfw.web.component.DomainObjectDisableAwareRenderer
 import org.complitex.osznconnection.file.entity.ObjectCorrection;
 import org.complitex.osznconnection.file.service.CorrectionBean;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author Artem
  */
 public abstract class AbstractCorrectionEditPanel extends Panel {
+
+    private static final Logger log = LoggerFactory.getLogger(AbstractCorrectionEditPanel.class);
 
     @EJB(name = "CorrectionBean")
     private CorrectionBean correctionBean;
@@ -96,10 +100,16 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
     protected abstract void back();
 
     protected void saveOrUpdate() {
-        if (isNew()) {
-            save();
-        } else {
-            update();
+        try {
+            if (isNew()) {
+                save();
+            } else {
+                update();
+            }
+            back();
+        } catch (Exception e) {
+            error(getString("db_error"));
+            log.error("", e);
         }
     }
 
@@ -111,9 +121,18 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
         correctionBean.update(objectCorrection);
     }
 
-    public void delete(){
+    protected void delete() {
         correctionBean.delete(objectCorrection);
-        back();
+    }
+
+    public void executeDeletion() {
+        try {
+            delete();
+            back();
+        } catch (Exception e) {
+            error(getString("db_error"));
+            log.error("", e);
+        }
     }
 
     protected WebMarkupContainer getFormContainer() {
@@ -244,7 +263,7 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
             public void onSubmit() {
                 if (AbstractCorrectionEditPanel.this.validate()) {
                     saveOrUpdate();
-                    back();
+
                 }
             }
         };

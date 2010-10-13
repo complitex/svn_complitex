@@ -129,4 +129,8 @@
         <include refid="org.complitex.osznconnection.file.service.PersonAccountLocalBean.webFilter"/>
     </select>
 
+    <delete id="delete" parameterType="org.complitex.osznconnection.file.entity.PersonAccount">
+        DELETE FROM `person_account` WHERE `id` = #{id}
+    </delete>
+
 </mapper>

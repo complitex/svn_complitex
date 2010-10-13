@@ -118,7 +118,7 @@ public final class OwnershipCorrectionEdit extends FormTemplatePage {
 
             @Override
             protected void onClick() {
-                correctionEditPanel.delete();
+                correctionEditPanel.executeDeletion();
             }
 
             @Override

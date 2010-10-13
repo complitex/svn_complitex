@@ -169,7 +169,6 @@ public class AddressCorrectionEdit extends FormTemplatePage {
         @Override
         protected void init() {
             super.init();
-
             TextField<String> correctionCorp = new TextField<String>("correctionCorp", new PropertyModel<String>(getModel(), "correctionCorp"));
             getFormContainer().add(correctionCorp);
         }
@@ -192,9 +191,8 @@ public class AddressCorrectionEdit extends FormTemplatePage {
         }
 
         @Override
-        public void delete() {
+        protected void delete() {
             addressCorrectionBean.deleteBuilding(getModel());
-            back();
         }
     }
 
@@ -215,7 +213,11 @@ public class AddressCorrectionEdit extends FormTemplatePage {
 
             @Override
             protected void onClick() {
-                addressEditPanel.delete();
+                try {
+
+                } catch (Exception e) {
+                }
+                addressEditPanel.executeDeletion();
             }
 
             @Override
