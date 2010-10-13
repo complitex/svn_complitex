@@ -40,6 +40,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import org.apache.wicket.MarkupContainer;
 import org.complitex.dictionaryfw.util.CloneUtil;
+import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.service.AddressService;
 import org.complitex.osznconnection.file.web.RequestFileGroupList;
 
@@ -81,8 +82,10 @@ public final class PaymentList extends TemplatePage {
     }
 
     private void init() {
-        String fileName = requestFileBean.findById(fileId).getName();
-        IModel<String> labelModel = new StringResourceModel("label", this, null, new Object[]{fileName});
+        RequestFile requestFile = requestFileBean.findById(fileId);
+        String fileName = requestFile.getName();
+        String directory = requestFile.getDirectory();
+        IModel<String> labelModel = new StringResourceModel("label", this, null, new Object[]{fileName, directory});
         add(new Label("title", labelModel));
         add(new Label("label", labelModel));
 
