@@ -26,8 +26,8 @@ insert into apartment_attribute(attribute_id, object_id, attribute_type_id, valu
 -- Buildings
 insert into building(object_id, parent_id, parent_entity_id) values (1,1,400), (2,1,400), (3,1,400), (4,2,400), (5,2,400), (6,3,400), (7,3,400);
 insert into building_string_culture(id, locale, value) values
-(1, 'ru', UPPER('10')), (2, 'ru', UPPER('20')), (3,'ru',UPPER('11')), (4,'ru',UPPER('12')), (5,'ru',UPPER('21')), (6,'ru',UPPER('100')),
-(1, 'uk', UPPER('10')), (2, 'uk', UPPER('20')), (3,'uk',UPPER('11')), (4,'uk',UPPER('12')), (5,'uk',UPPER('21')), (6,'uk',UPPER('100')),
+(1, 'ru', UPPER('8')), (2, 'ru', UPPER('28')), (3,'ru',UPPER('18')), (4,'ru',UPPER('12')), (5,'ru',UPPER('21')), (6,'ru',UPPER('100')),
+(1, 'uk', UPPER('8')), (2, 'uk', UPPER('28')), (3,'uk',UPPER('18')), (4,'uk',UPPER('12')), (5,'uk',UPPER('21')), (6,'uk',UPPER('100')),
 (19,'ru',UPPER('154A')), (19,'uk',UPPER('154А')),
 (22,'ru',UPPER('25A')), (22,'uk',UPPER('25А'));
 insert into building_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
