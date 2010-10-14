@@ -2,6 +2,7 @@ package org.complitex.osznconnection.file.web;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import java.io.File;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ResourceReference;
@@ -302,7 +303,8 @@ public class RequestFileList extends TemplatePage {
                 for (RequestFile requestFile : selectModels.keySet()) {
                     if (selectModels.get(requestFile).getObject()) {
                         requestFileBean.delete(requestFile);
-                        info(getStringFormat("info.deleted", requestFile.getType().ordinal(), requestFile.getName(), requestFile.getDirectory()));
+                        info(getStringFormat("info.deleted", requestFile.getType().ordinal(), requestFile.getName(), requestFile.getDirectory(),
+                                File.separator));
                     }
                 }
             }
@@ -325,7 +327,7 @@ public class RequestFileList extends TemplatePage {
                     if (selectModels.get(requestFile).getObject()) {
                         requestFiles.add(requestFile);
                         if (requestFile.getStatus() == RequestFile.STATUS.BINDED) {
-                            warn(getStringFormat("has_been_bound", requestFile.getName()));
+                            warn(getStringFormat("has_been_bound", requestFile.getName(), requestFile.getDirectory(), File.separator));
                         }
                     }
                 }
@@ -353,7 +355,7 @@ public class RequestFileList extends TemplatePage {
                     if (selectModels.get(requestFile).getObject()) {
                         requestFiles.add(requestFile);
                         if (requestFile.getStatus() == RequestFile.STATUS.PROCESSED) {
-                            warn(getStringFormat("has_been_processed", requestFile.getName()));
+                            warn(getStringFormat("has_been_processed", requestFile.getName(), requestFile.getDirectory(), File.separator));
                         }
                     }
                 }
@@ -420,15 +422,15 @@ public class RequestFileList extends TemplatePage {
             switch (rf.getStatus()) {
                 case LOADED:
                     highlightProcessed(target, rf);
-                    info(getStringFormat("info.loaded", rf.getType().ordinal(), rf.getName(), rf.getDirectory()));
+                    info(getStringFormat("info.loaded", rf.getType().ordinal(), rf.getName(), rf.getDirectory(), File.separator));
                     break;
                 case SKIPPED:                    
-                    info(getStringFormat("info.already_loaded", rf.getType().ordinal(), rf.getName(), rf.getDirectory(), rf.getYear()));
+                    info(getStringFormat("info.already_loaded", rf.getType().ordinal(), rf.getName(), rf.getDirectory(), File.separator, rf.getYear()));
                     break;
                 case LOAD_ERROR:
                     highlightError(target, rf);
                     error(getStringOrKey(rf.getStatus())
-                            + " " + getStringFormat("error.load.common", rf.getType().ordinal(), rf.getName(), rf.getDirectory())
+                            + " " + getStringFormat("error.load.common", rf.getType().ordinal(), rf.getName(), rf.getDirectory(), File.separator)
                             + ": " + getStringOrKey(rf.getStatusDetail()));
 
                     break;
@@ -451,11 +453,11 @@ public class RequestFileList extends TemplatePage {
             switch (rf.getStatus()) {
                 case SAVED:
                     highlightProcessed(target, rf);
-                    info(getStringFormat("info.saved", rf.getType().ordinal(), rf.getName(), rf.getDirectory()));
+                    info(getStringFormat("info.saved", rf.getType().ordinal(), rf.getName(), rf.getDirectory(), File.separator));
                     break;
                 case SAVE_ERROR:
                     highlightError(target, rf);
-                    error(getStringFormat("error.save.common", rf.getType().ordinal(), rf.getName(), rf.getDirectory()));
+                    error(getStringFormat("error.save.common", rf.getType().ordinal(), rf.getName(), rf.getDirectory(), File.separator));
                     break;
             }
         }
@@ -475,12 +477,12 @@ public class RequestFileList extends TemplatePage {
             switch (bindingFile.getStatus()) {
                 case BINDED: {
                     highlightProcessed(target, bindingFile);
-                    info(getStringFormat("bound.success", bindingFile.getName(), bindingFile.getDirectory()));
+                    info(getStringFormat("bound.success", bindingFile.getName(), bindingFile.getDirectory(), File.separator));
                     break;
                 }
                 case BOUND_WITH_ERRORS: {
                     highlightError(target, bindingFile);
-                    error(getStringFormat("bound.error", bindingFile.getName(), bindingFile.getDirectory()));
+                    error(getStringFormat("bound.error", bindingFile.getName(), bindingFile.getDirectory(), File.separator));
                     break;
                 }
             }
@@ -491,12 +493,12 @@ public class RequestFileList extends TemplatePage {
             switch (processingFile.getStatus()) {
                 case PROCESSED: {
                     highlightProcessed(target, processingFile);
-                    info(getStringFormat("processed.success", processingFile.getName(), processingFile.getDirectory()));
+                    info(getStringFormat("processed.success", processingFile.getName(), processingFile.getDirectory(), File.separator));
                     break;
                 }
                 case PROCESSED_WITH_ERRORS: {
                     highlightError(target, processingFile);
-                    error(getStringFormat("processed.error", processingFile.getName(), processingFile.getDirectory()));
+                    error(getStringFormat("processed.error", processingFile.getName(), processingFile.getDirectory(), File.separator));
                     break;
                 }
             }
