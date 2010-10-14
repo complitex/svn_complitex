@@ -228,8 +228,6 @@ public class FileExecutorService {
                 }
 
                 bindingThreadPool.submit(new BindTask(file, benefitFile));
-//                new BindTask(file, paymentStatus, benefitFile, benefitStatus).run();
-//               new Thread(new BindTask(file, paymentStatus, benefitFile, benefitStatus));
             }
         }
 
@@ -241,7 +239,8 @@ public class FileExecutorService {
             @Override
             public boolean apply(RequestFile requestFile) {
                 return (requestFile.getType() == RequestFile.TYPE.PAYMENT || requestFile.getType() == RequestFile.TYPE.BENEFIT)
-                        && (requestFile.getStatus() == RequestFile.STATUS.BINDED || requestFile.getStatus() == RequestFile.STATUS.PROCESSED_WITH_ERRORS
+                        && (requestFile.getStatus() == RequestFile.STATUS.BOUND_WITH_ERRORS || requestFile.getStatus() == RequestFile.STATUS.BINDED
+                        || requestFile.getStatus() == RequestFile.STATUS.PROCESSED_WITH_ERRORS
                         || requestFile.getStatus() == RequestFile.STATUS.PROCESSED);
             }
         }));

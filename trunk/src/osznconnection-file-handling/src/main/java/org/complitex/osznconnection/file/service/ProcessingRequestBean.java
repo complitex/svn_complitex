@@ -13,12 +13,14 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
+import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
 import org.complitex.osznconnection.file.calculation.service.CalculationCenterBean;
 import org.complitex.osznconnection.file.entity.Benefit;
 import org.complitex.osznconnection.file.entity.CalculationCenterInfo;
 import org.complitex.osznconnection.file.entity.Payment;
+import org.complitex.osznconnection.file.entity.PaymentDBF;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.entity.RequestStatus;
 import org.slf4j.Logger;
@@ -49,6 +51,9 @@ public class ProcessingRequestBean extends AbstractBean {
     private RequestFileBean requestFileBean;
 
     private void processPayment(Payment payment, ICalculationCenterAdapter adapter, long calculationCenterId) {
+        if(payment.getField(PaymentDBF.DAT1) == null || Strings.isEmpty(payment.getAccountNumber())){
+            return ;
+        }
         Benefit benefit = new Benefit();
         RequestStatus oldStatus = payment.getStatus();
         adapter.processPaymentAndBenefit(payment, benefit, calculationCenterId);
