@@ -7,7 +7,6 @@ package org.complitex.osznconnection.file.service;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 import java.util.*;
 
@@ -207,10 +206,9 @@ public class FileExecutorService {
                         || requestFile.getStatus() == RequestFile.STATUS.BINDED);
             }
         }));
-        Set<Long> bindingBenefitFiles = Sets.newHashSet();
         for (final RequestFile file : suitedFiles) {
             if (file.getType() == RequestFile.TYPE.PAYMENT) {
-                log.info("Binding payment file : {}", file.getName());
+                log.info("Binding payment file. Name: {}, directory: {}", file.getName(), file.getDirectory());
 
                 //find associated benefit file
                 RequestFile benefitFile = null;
@@ -219,18 +217,14 @@ public class FileExecutorService {
 
                         @Override
                         public boolean apply(RequestFile benefitFile) {
-                            return benefitFile.getType() == RequestFile.TYPE.BENEFIT
-                                    && benefitFile.getName().substring(RequestFile.PAYMENT_FILE_PREFIX.length()).
-                                    equalsIgnoreCase(file.getName().substring(RequestFile.BENEFIT_FILE_PREFIX.length()));
-
+                            return (benefitFile.getType() == RequestFile.TYPE.BENEFIT) && benefitFile.getGroupId().equals(file.getGroupId());
                         }
                     });
                 } catch (NoSuchElementException e) {
                 }
 
                 if (benefitFile != null) {
-                    bindingBenefitFiles.add(benefitFile.getId());
-                    log.info("Binding paired benefit file : {}", benefitFile.getName());
+                    log.info("Binding paired benefit file. Name: {}, directory: {}", benefitFile.getName(), benefitFile.getDirectory());
                 }
 
                 bindingThreadPool.submit(new BindTask(file, benefitFile));
@@ -238,12 +232,7 @@ public class FileExecutorService {
 //               new Thread(new BindTask(file, paymentStatus, benefitFile, benefitStatus));
             }
         }
-        for (RequestFile file : suitedFiles) {
-            if ((file.getType() == RequestFile.TYPE.BENEFIT) && !bindingBenefitFiles.contains(file.getId())) {
-                log.info("Binding alone benefit file : {}", file.getName());
-                bindingThreadPool.submit(new BindTask(null, file));
-            }
-        }
+
     }
 
     public void process(List<RequestFile> requestFiles) {
@@ -256,10 +245,9 @@ public class FileExecutorService {
                         || requestFile.getStatus() == RequestFile.STATUS.PROCESSED);
             }
         }));
-        Set<Long> processingBenefitFiles = Sets.newHashSet();
         for (final RequestFile file : suitedFiles) {
             if (file.getType() == RequestFile.TYPE.PAYMENT) {
-                log.info("Processing payment file : {}", file.getName());
+                log.info("Processing payment file. Name: {}, direcory: {}", file.getName(), file.getDirectory());
 
                 //find associated benefit file
                 RequestFile benefitFile = null;
@@ -268,9 +256,7 @@ public class FileExecutorService {
 
                         @Override
                         public boolean apply(RequestFile benefitFile) {
-                            return benefitFile.getType() == RequestFile.TYPE.BENEFIT
-                                    && benefitFile.getName().substring(RequestFile.PAYMENT_FILE_PREFIX.length()).
-                                    equalsIgnoreCase(file.getName().substring(RequestFile.BENEFIT_FILE_PREFIX.length()));
+                            return (benefitFile.getType() == RequestFile.TYPE.BENEFIT) && benefitFile.getGroupId().equals(file.getGroupId());
 
                         }
                     });
@@ -278,16 +264,9 @@ public class FileExecutorService {
                 }
 
                 if (benefitFile != null) {
-                    processingBenefitFiles.add(benefitFile.getId());
-                    log.info("Processing paired benefit file : {}", benefitFile.getName());
+                    log.info("Processing paired benefit file. Name: {}, directory: {}", benefitFile.getName(), benefitFile.getDirectory());
                 }
                 processingThreadPool.submit(new ProcessTask(file, benefitFile));
-            }
-        }
-        for (RequestFile file : suitedFiles) {
-            if ((file.getType() == RequestFile.TYPE.BENEFIT) && !processingBenefitFiles.contains(file.getId())) {
-                log.info("Processing alone benefit file : {}", file.getName());
-                processingThreadPool.submit(new ProcessTask(null, file));
             }
         }
     }

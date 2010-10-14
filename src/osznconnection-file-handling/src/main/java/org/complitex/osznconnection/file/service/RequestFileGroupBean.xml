@@ -9,6 +9,7 @@
 
         <association property="benefitFile" javaType="org.complitex.osznconnection.file.entity.RequestFile">
             <id column="b_id" property="id"/>
+            <result column="gid" property="groupId"/>
             <result column="b_loaded" property="loaded"/>
             <result column="b_name" property="name"/>
             <result column="b_directory" property="directory"/>
@@ -27,6 +28,7 @@
         </association>
         <association property="paymentFile" javaType="org.complitex.osznconnection.file.entity.RequestFile">
             <id column="p_id" property="id"/>
+            <result column="gid" property="groupId"/>
             <result column="p_loaded" property="loaded"/>
             <result column="p_name" property="name"/>
             <result column="p_directory" property="directory"/>
