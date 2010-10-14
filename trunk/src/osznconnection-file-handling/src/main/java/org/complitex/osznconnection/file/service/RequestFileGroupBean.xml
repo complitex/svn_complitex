@@ -78,8 +78,8 @@
             <if test="month != null">and p.`month` = #{month}</if>
             <if test="dbfRecordCount != null">and p.`dbf_record_count` like CONCAT('%',#{dbfRecordCount},'%')</if>
             <if test="status != null">
-                and ((p.`status` = #{status} and b.`status` > p.`status`)
-                    or (b.`status` = #{status} and p.`status` > b.`status`))
+                and ((p.`status` = #{status} and b.`status` >= p.`status`)
+                    or (b.`status` = #{status} and p.`status` >= b.`status`))
             </if>
             <if test="loadedRecordCount != null">and loaded_record_count = #{loadedRecordCount}</if>
             <if test="bindedRecordCount != null">and binded_record_count = #{bindedRecordCount}</if>
