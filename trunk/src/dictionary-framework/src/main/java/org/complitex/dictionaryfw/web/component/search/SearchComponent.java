@@ -202,18 +202,7 @@ public final class SearchComponent extends Panel {
                         if (!isComplete(previousInfo)) {
                             return Collections.emptyList();
                         }
-
-//                        DomainObjectExample example = new DomainObjectExample();
-//                        example.setTable(entity);
-//                        Strategy strategy = strategyFactory.getStrategy(entity);
-//                        strategy.configureExample(example, SearchComponent.<Long>transformObjects(previousInfo), searchTextInput);
-//                        example.setOrderByExpression(strategy.getOrderByExpression("e.`object_id`", getLocale().getLanguage(),
-//                                transformObjects(previousInfo)));
-//                        example.setAsc(true);
-//                        example.setStart(0);
-//                        example.setSize(AUTO_COMPLETE_SIZE);
-//                        example.setLocale(getLocale().getLanguage());
-//                        List<DomainObject> list = strategyFactory.getStrategy(entity).find(example);
+                        
                         List<DomainObject> choiceList = Lists.newArrayList();
 
                         List<DomainObject> equalToExample = findByExample(entity, searchTextInput, previousInfo, ComparisonType.EQUALITY,
