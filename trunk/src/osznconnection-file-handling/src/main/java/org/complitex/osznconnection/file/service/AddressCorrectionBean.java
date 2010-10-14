@@ -211,10 +211,10 @@ public class AddressCorrectionBean extends CorrectionBean {
     @Transactional
     public Long findInternalBuilding(String buildingNumber, String buildingCorp, Long streetId, Long cityId) {
         Map<String, Object> params = Maps.newHashMap();
-        params.put("number", buildingNumber != null ? buildingNumber.trim() : buildingNumber);
+        params.put("number", buildingNumber == null ? "" : prepareBuildingData(buildingNumber));
         params.put("streetId", streetId);
         if (!Strings.isEmpty(buildingCorp)) {
-            params.put("corp", buildingCorp.trim());
+            params.put("corp", prepareBuildingData(buildingCorp));
         }
         params.put("parentId", cityId);
         List<Long> ids = sqlSession().selectList(MAPPING_NAMESPACE + ".findInternalBuilding", params);
@@ -222,6 +222,17 @@ public class AddressCorrectionBean extends CorrectionBean {
             return ids.get(0);
         }
         return null;
+    }
+
+    private String prepareBuildingData(String data) {
+        char[] chars = data.toCharArray();
+        StringBuilder result = new StringBuilder();
+        for (char c : chars) {
+            if (c != ' ') {
+                result.append(c);
+            }
+        }
+        return result.toString();
     }
 
     @Transactional
