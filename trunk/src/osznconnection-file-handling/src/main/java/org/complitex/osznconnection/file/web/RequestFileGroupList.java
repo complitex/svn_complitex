@@ -335,11 +335,11 @@ public class RequestFileGroupList extends TemplatePage {
                         requestFileGroupBean.delete(requestFileGroup);
                         if (requestFileGroup.getBenefitFile() != null){
                             info(getStringFormat("info.deleted", RequestFile.TYPE.BENEFIT.ordinal(),
-                                    requestFileGroup.getBenefitFile().getName()));
+                                    requestFileGroup.getBenefitFile().getName(), requestFileGroup.getBenefitFile().getDirectory()));
                         }
                         if (requestFileGroup.getPaymentFile() != null){
                             info(getStringFormat("info.deleted", RequestFile.TYPE.PAYMENT.ordinal(),
-                                    requestFileGroup.getPaymentFile().getName()));
+                                    requestFileGroup.getPaymentFile().getName(), requestFileGroup.getPaymentFile().getDirectory()));
                         }
                     }
                 }
@@ -462,15 +462,15 @@ public class RequestFileGroupList extends TemplatePage {
             switch (rf.getStatus()) {
                 case LOADED:
                     highlightProcessed(target, rf);
-                    info(getStringFormat("info.loaded", rf.getType().ordinal(), rf.getName()));
+                    info(getStringFormat("info.loaded", rf.getType().ordinal(), rf.getName(), rf.getDirectory()));
                     break;
                 case SKIPPED:                    
-                    info(getStringFormat("info.already_loaded", rf.getType().ordinal(), rf.getName(), rf.getYear()));
+                    info(getStringFormat("info.already_loaded", rf.getType().ordinal(), rf.getName(), rf.getDirectory(), rf.getYear()));
                     break;
                 case LOAD_ERROR:
                     highlightError(target, rf);
                     error(getStringOrKey(rf.getStatus())
-                            + " " + getStringFormat("error.load.common", rf.getType().ordinal(), rf.getName())
+                            + " " + getStringFormat("error.load.common", rf.getType().ordinal(), rf.getName(), rf.getDirectory())
                             + ". " + getStringOrKey(rf.getStatusDetail()));
                     break;
             }
@@ -492,11 +492,11 @@ public class RequestFileGroupList extends TemplatePage {
             switch (rf.getStatus()){
                 case SAVED:
                     highlightProcessed(target, rf);
-                    info(getStringFormat("info.saved", rf.getType().ordinal(), rf.getName()));
+                    info(getStringFormat("info.saved", rf.getType().ordinal(), rf.getName(), rf.getDirectory()));
                     break;
                 case SAVE_ERROR:
                     highlightError(target, rf);
-                    error(getStringFormat("error.save.common", rf.getType().ordinal(), rf.getName()));
+                    error(getStringFormat("error.save.common", rf.getType().ordinal(), rf.getName(), rf.getDirectory()));
                     break;
             }
         }
@@ -516,12 +516,12 @@ public class RequestFileGroupList extends TemplatePage {
             switch (bindingFile.getStatus()) {
                 case BINDED: {
                     highlightProcessed(target, bindingFile);
-                    info(getStringFormat("bound.success", bindingFile.getName()));
+                    info(getStringFormat("bound.success", bindingFile.getName(), bindingFile.getDirectory()));
                     break;
                 }
                 case BOUND_WITH_ERRORS: {
                     highlightError(target, bindingFile);
-                    error(getStringFormat("bound.error", bindingFile.getName()));
+                    error(getStringFormat("bound.error", bindingFile.getName(), bindingFile.getDirectory()));
                     break;
                 }
             }
@@ -532,12 +532,12 @@ public class RequestFileGroupList extends TemplatePage {
             switch (processingFile.getStatus()) {
                 case PROCESSED: {
                     highlightProcessed(target, processingFile);
-                    info(getStringFormat("processed.success", processingFile.getName()));
+                    info(getStringFormat("processed.success", processingFile.getName(), processingFile.getDirectory()));
                     break;
                 }
                 case PROCESSED_WITH_ERRORS: {
                     highlightError(target, processingFile);
-                    error(getStringFormat("processed.error", processingFile.getName()));
+                    error(getStringFormat("processed.error", processingFile.getName(), processingFile.getDirectory()));
                     break;
                 }
             }
