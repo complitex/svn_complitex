@@ -18,6 +18,7 @@ public class RequestFileGroup implements Serializable{
 
     private int loadedRecordCount;
     private int bindedRecordCount;
+    private int filledRecordCount;
 
     public boolean isProcessing() {
        return benefitFile != null && benefitFile.isProcessing()
@@ -135,5 +136,13 @@ public class RequestFileGroup implements Serializable{
 
     public void setBindedRecordCount(int bindedRecordCount) {
         this.bindedRecordCount = bindedRecordCount;
+    }
+
+    public int getFilledRecordCount() {
+        return filledRecordCount;
+    }
+
+    public void setFilledRecordCount(int filledRecordCount) {
+        this.filledRecordCount = filledRecordCount;
     }
 }
