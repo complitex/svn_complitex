@@ -45,7 +45,7 @@ public class BindingRequestBean extends AbstractBean {
     private RequestFileBean requestFileBean;
 
     /**
-     * разрешить адресс по схеме "ОСЗН адрес -> локальная адресная база -> адрес центра начислений"
+     * разрешить адрес по схеме "ОСЗН адрес -> локальная адресная база -> адрес центра начислений"
      * @param адрес
      * @return
      */

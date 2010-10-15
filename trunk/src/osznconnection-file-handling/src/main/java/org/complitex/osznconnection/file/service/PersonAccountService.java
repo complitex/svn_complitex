@@ -95,7 +95,8 @@ public class PersonAccountService extends AbstractBean {
 //        }
 //    }
     /**
-     * Получает детальную информацию о номерах л/с, фамилии, ИНН в случае когда для одной записи payment в ЦН может найтись несколько человек.
+     * Получает детальную информацию о номерах л/с, фамилии, ИНН в случае когда к одному адресу в ЦН привязано несколько человек.
+     * Делегирует всю работу реализации адаптера взаимодействия с ЦН.
      * См. org.complitex.osznconnection.file.calculation.adapter.DefaultCalculationCenterAdapter.acquireAccountCorrectionDetails()
      * @param payment
      * @return
