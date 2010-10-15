@@ -5,10 +5,8 @@
 package org.complitex.osznconnection.file.service;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
