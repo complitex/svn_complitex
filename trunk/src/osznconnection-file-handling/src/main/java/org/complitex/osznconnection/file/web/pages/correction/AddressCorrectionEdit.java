@@ -36,7 +36,7 @@ import org.complitex.osznconnection.file.service.AddressCorrectionBean;
 import org.complitex.osznconnection.file.web.component.correction.edit.AbstractCorrectionEditPanel;
 
 /**
- *
+ * Страница для редактирования коррекций адресов.
  * @author Artem
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)
@@ -69,6 +69,10 @@ public class AddressCorrectionEdit extends FormTemplatePage {
         }
     }
 
+    /**
+     * Стандартная панель редактирования коррекции элемента адреса.
+     * Подходит для города, улицы.
+     */
     private class AddressCorrectionEditPanel extends AbstractCorrectionEditPanel {
 
         public AddressCorrectionEditPanel(String id, String entity, Long correctionId) {
@@ -138,6 +142,9 @@ public class AddressCorrectionEdit extends FormTemplatePage {
         }
     }
 
+    /**
+     * Панель редактирования коррекции дома.
+     */
     private class BuildingCorrectionEditPanel extends AddressCorrectionEditPanel {
 
         @EJB(name = "AddressCorrectionBean")

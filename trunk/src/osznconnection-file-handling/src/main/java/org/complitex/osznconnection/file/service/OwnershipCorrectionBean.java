@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
+ * Класс для работы с коррекциями форм власти
  * @author Artem
  */
 @Stateless
@@ -23,6 +23,12 @@ public class OwnershipCorrectionBean extends AbstractBean {
 
     private static final String MAPPING_NAMESPACE = OwnershipCorrectionBean.class.getName();
 
+    /**
+     * Найти id внутреннего объекта системы(форму власти) в таблице коррекций форм власти по коррекции(correction) и организации(organizationId)
+     * @param correction
+     * @param organizationId
+     * @return
+     */
     @Transactional
     private Long findInternalOwnership(String correction, long organizationId) {
         ObjectCorrection example = new ObjectCorrection();
@@ -35,6 +41,12 @@ public class OwnershipCorrectionBean extends AbstractBean {
         return null;
     }
 
+    /**
+     * Найти код коррекции в таблице коррекций форм власти по id внутреннего объекта системы(формы власти) и организации.
+     * @param objectId
+     * @param organizationId
+     * @return
+     */
     @Transactional
     private String findOwnershipCode(long objectId, long organizationId) {
         ObjectCorrection example = new ObjectCorrection();
@@ -47,6 +59,13 @@ public class OwnershipCorrectionBean extends AbstractBean {
         return null;
     }
 
+    /**
+     * Получить код коррекции формы власти по коррекции формы власти ЦН(calculationCenterCorrection), текущему ЦН(calculationCenterId) и ОСЗН(osznId)
+     * @param calculationCenterCorrection
+     * @param calculationCenterId
+     * @param osznId
+     * @return
+     */
     public String getOSZNOwnershipCode(String calculationCenterCorrection, long calculationCenterId, long osznId) {
         Long objectId = findInternalOwnership(calculationCenterCorrection, calculationCenterId);
         if (objectId != null) {

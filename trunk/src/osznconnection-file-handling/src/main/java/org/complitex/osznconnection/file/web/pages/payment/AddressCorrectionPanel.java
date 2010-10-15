@@ -33,7 +33,7 @@ import org.odlabs.wiquery.ui.core.JsScopeUiEvent;
 import org.odlabs.wiquery.ui.dialog.Dialog;
 
 /**
- *
+ * Панель для корректировке адреса вручную, когда нет соответствующей коррекции и поиск по локальной адресной базе не дал результатов.
  * @author Artem
  */
 public abstract class AddressCorrectionPanel extends Panel {

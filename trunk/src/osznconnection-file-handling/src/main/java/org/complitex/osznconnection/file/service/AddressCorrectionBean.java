@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
+ * Класс для работы с коррекциями адресов.
  * @author Artem
  */
 @Stateless
@@ -30,6 +30,16 @@ public class AddressCorrectionBean extends CorrectionBean {
 
     private static final String MAPPING_NAMESPACE = AddressCorrectionBean.class.getName();
 
+    /**
+     * Находит id внутреннего объекта системы в таблице коррекций
+     * по коррекции(value), сущности(entityTable), ОСЗН(organizationId) и id родительского объекта.
+     * При поиске для значения коррекции применяется SQL функция TRIM().
+     * @param entityTable
+     * @param value
+     * @param organizationId
+     * @param parentId
+     * @return
+     */
     @Transactional
     private Long findCorrectionAddressId(String entityTable, String value, long organizationId, Long parentId) {
         ObjectCorrection parameter = new ObjectCorrection();
@@ -44,14 +54,39 @@ public class AddressCorrectionBean extends CorrectionBean {
         return null;
     }
 
+    /**
+     * Найти id локального города в таблице коррекций.
+     * См. findCorrectionAddressId()
+     * @param city
+     * @param organizationId
+     * @return
+     */
     public Long findCorrectionCity(String city, long organizationId) {
         return findCorrectionAddressId("city", city, organizationId, null);
     }
 
+    /**
+     * Найти id локальной улицы в таблице коррекций.
+     * См. findCorrectionAddressId()
+     * @param cityId
+     * @param street
+     * @param organizationId
+     * @return
+     */
     public Long findCorrectionStreet(long cityId, String street, long organizationId) {
         return findCorrectionAddressId("street", street, organizationId, cityId);
     }
 
+    /**
+     * Найти id локального дома в таблице коррекций.
+     * При поиске для номера и корпуса дома применяется SQL функция TRIM().
+     * @param cityId
+     * @param streetId
+     * @param buildingNumber
+     * @param buildingCorp
+     * @param organizationId
+     * @return
+     */
     @Transactional
     public Long findCorrectionBuilding(long cityId, Long streetId, String buildingNumber, String buildingCorp, long organizationId) {
         BuildingCorrection parameter = new BuildingCorrection();
@@ -70,6 +105,14 @@ public class AddressCorrectionBean extends CorrectionBean {
 //    public Long findCorrectionApartment(long buildingId, String apartment, long organizationId) {
 //        return findCorrectionAddressId("apartment", apartment, organizationId, buildingId);
 //    }
+    /**
+     * Находит данные о коррекции(полное название, код) по сущности(entityTable), ОСЗН(organizationId) и id внутреннего объекта системы(internalObjectId)
+     * Используется для разрешения адреса для ЦН.
+     * @param entityTable
+     * @param organizationId
+     * @param internalObjectId
+     * @return
+     */
     @Transactional
     private ObjectCorrection findOutgoingAddress(String entityTable, long organizationId, long internalObjectId) {
         ObjectCorrection parameter = new ObjectCorrection();
@@ -86,14 +129,34 @@ public class AddressCorrectionBean extends CorrectionBean {
         return null;
     }
 
+    /**
+     * Найти данные о коррекции для города.
+     * См. findOutgoingAddress()
+     * @param organizationId
+     * @param internalCityId
+     * @return
+     */
     public ObjectCorrection findOutgoingCity(long organizationId, long internalCityId) {
         return findOutgoingAddress("city", organizationId, internalCityId);
     }
 
+    /**
+     * Найти данные о коррекции для улицы.
+     * См. findOutgoingAddress()
+     * @param organizationId
+     * @param internalStreetId
+     * @return
+     */
     public ObjectCorrection findOutgoingStreet(long organizationId, long internalStreetId) {
         return findOutgoingAddress("street", organizationId, internalStreetId);
     }
 
+    /**
+     * Найти данные о коррекции для дома.
+     * @param organizationId
+     * @param internalBuildingId
+     * @return
+     */
     @Transactional
     public BuildingCorrection findOutgoingBuilding(long organizationId, long internalBuildingId) {
         BuildingCorrection parameter = new BuildingCorrection();
@@ -112,6 +175,12 @@ public class AddressCorrectionBean extends CorrectionBean {
 //    public ObjectCorrection findOutgoingApartment(long organizationId, long internalApartmentId) {
 //        return findOutgoingAddress("apartment", organizationId, internalApartmentId);
 //    }
+    /**
+     * Найти данные о коррекции для района.
+     * @param calculationCenterId
+     * @param osznId
+     * @return
+     */
     @Transactional
     public ObjectCorrection findOutgoingDistrict(long calculationCenterId, long osznId) {
         Map<String, Long> params = ImmutableMap.of("calculationCenterId", calculationCenterId, "osznId", osznId);
@@ -125,6 +194,12 @@ public class AddressCorrectionBean extends CorrectionBean {
         return null;
     }
 
+    /**
+     * Найти данные о коррекции для типа объекта.
+     * @param entityTypeId
+     * @param calculationCenterId
+     * @return
+     */
     @Transactional
     private EntityTypeCorrection findOutgoingEntityType(long entityTypeId, long calculationCenterId) {
         EntityTypeCorrection parameter = new EntityTypeCorrection(calculationCenterId, entityTypeId);
@@ -138,10 +213,25 @@ public class AddressCorrectionBean extends CorrectionBean {
         return null;
     }
 
+    /**
+     * Найти данные о коррекции для типа улицы.
+     * @param calculationCenterId
+     * @param internalStreetTypeId
+     * @return
+     */
     public EntityTypeCorrection findOutgoingStreetType(long calculationCenterId, long internalStreetTypeId) {
         return findOutgoingEntityType(internalStreetTypeId, calculationCenterId);
     }
 
+    /**
+     * Сохранить коррекцию в базу.
+     * Значение коррекции(value) сохраняется как есть, т.е. без применения SQL функций TRIM() и TO_CYRYLLIC()
+     * @param entityTable
+     * @param value
+     * @param objectId
+     * @param organizationId
+     * @param internalOrganizationId
+     */
     @Transactional
     private void insert(String entityTable, String value, long objectId, long organizationId, long internalOrganizationId) {
         ObjectCorrection correction = new ObjectCorrection();
@@ -168,6 +258,11 @@ public class AddressCorrectionBean extends CorrectionBean {
         insertBuilding(correction);
     }
 
+    /**
+     * Вставка коррекции дома.
+     * Если значение корпуса дома null, то вставляется пустая строка.
+     * @param correction
+     */
     @Transactional
     public void insertBuilding(BuildingCorrection correction) {
         if (correction.getCorrectionCorp() == null) {
@@ -184,6 +279,17 @@ public class AddressCorrectionBean extends CorrectionBean {
         insert("city", city, objectId, organizationId, internalOrganizationId);
     }
 
+    /**
+     * Найти id внутреннего объекта системы. Поиск идет по сущности(entity), коррекции(correction),
+     * типу атрибута по которому сравнивать коррекцию(attributeTypeId), id родильского обьекта(parentId), типу сущности(entityTypeId).
+     * При поиске к значению коррекции(correction) применяются SQL функции TRIM() и TO_CYRILLIC()
+     * @param entity
+     * @param correction
+     * @param attributeTypeId
+     * @param parentId
+     * @param entityTypeId
+     * @return
+     */
     private Long findInternalObjectId(String entity, String correction, long attributeTypeId, Long parentId, Long entityTypeId) {
         Map<String, Object> params = Maps.newHashMap();
         params.put("entity", entity);
@@ -198,16 +304,41 @@ public class AddressCorrectionBean extends CorrectionBean {
         return null;
     }
 
+    /**
+     * Найти город в локальной адресной базе.
+     * См. findInternalObjectId()
+     * 
+     * @param city
+     * @return
+     */
     @Transactional
     public Long findInternalCity(String city) {
         return findInternalObjectId("city", city, 400, null, null);
     }
 
+    /**
+     * Найти улицу в локальной адресной базе.
+     * См. findInternalObjectId()
+     *
+     * @param street
+     * @param cityId
+     * @param entityTypeId
+     * @return
+     */
     @Transactional
     public Long findInternalStreet(String street, Long cityId, Long entityTypeId) {
         return findInternalObjectId("street", street, 300, cityId, entityTypeId);
     }
 
+    /**
+     * Найти дом в локальной адресной базе.
+     * При поиске к значению номера(buildingNumber) и корпуса(buildingCorp) дома применяются SQL функции TRIM() и TO_CYRILLIC()
+     * @param buildingNumber
+     * @param buildingCorp
+     * @param streetId
+     * @param cityId
+     * @return
+     */
     @Transactional
     public Long findInternalBuilding(String buildingNumber, String buildingCorp, Long streetId, Long cityId) {
         Map<String, Object> params = Maps.newHashMap();
@@ -224,6 +355,11 @@ public class AddressCorrectionBean extends CorrectionBean {
         return null;
     }
 
+    /**
+     * Удалить ВСЕ(не только начальные и конечные) пробелы в номере и корпусе дома
+     * @param data номер либо корпус дома
+     * @return
+     */
     private String prepareBuildingData(String data) {
         char[] chars = data.toCharArray();
         StringBuilder result = new StringBuilder();

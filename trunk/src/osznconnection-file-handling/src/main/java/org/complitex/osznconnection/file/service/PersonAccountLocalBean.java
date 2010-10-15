@@ -15,7 +15,7 @@ import org.complitex.osznconnection.file.entity.PaymentDBF;
 import org.complitex.osznconnection.file.entity.example.PersonAccountExample;
 
 /**
- *
+ * Класс для работы с локальной таблицей номеров л/c person_account.
  * @author Artem
  */
 @Stateless
@@ -39,6 +39,14 @@ public class PersonAccountLocalBean extends AbstractBean {
         }
     }
 
+    /**
+     * Найти номер л/c в локальной таблице. Поиск идет по ФИО и адресу ОСЗН, текущему ЦН и ОСЗН,
+     * причем для элементов адреса при поиске применяется SQL функция TRIM().
+     * Если найдено более одной записи удовлетворяющей условиям поиска, то выбрасывается исключение.
+     * @param payment
+     * @param calculationCenterId
+     * @return
+     */
     @Transactional
     public String findLocalAccountNumber(Payment payment, long calculationCenterId) {
         PersonAccount example = new PersonAccount((String) payment.getField(PaymentDBF.F_NAM),
@@ -57,6 +65,13 @@ public class PersonAccountLocalBean extends AbstractBean {
         }
     }
 
+    /**
+     * Сохранить номер л/c локально. Данные о ФИО и адресе сохраняются как есть, т.е. без применения функций TRIM или TO_CYRILLIC.
+     * Перед вставкой проверяется - есть ли уже такая запись методом findLocalAccountNumber, и если есть, то обновляется, если нет - вставляется.
+     * Если при проверке найдено более одной записи удовлетворяющей условиям поиска, то выбрасывается исключение.
+     * @param payment
+     * @param calculationCenterId
+     */
     @Transactional
     public void saveOrUpdate(Payment payment, long calculationCenterId) {
         PersonAccount param = new PersonAccount((String) payment.getField(PaymentDBF.F_NAM),
@@ -86,6 +101,11 @@ public class PersonAccountLocalBean extends AbstractBean {
         return sqlSession().selectList(MAPPING_NAMESPACE + ".find", example);
     }
 
+    /**
+     * Вставить новую запись PersonAccount.
+     * Если значение корпуса null, то сохраняется пустая строка.
+     * @param personAccount
+     */
     @Transactional
     public void insert(PersonAccount personAccount) {
         if (personAccount.getBuildingCorp() == null) {

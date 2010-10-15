@@ -187,7 +187,7 @@
         </foreach>
     </select>
 
-    <update id="updateStatusForFile" parameterType="hashmap">
+    <update id="updateBindingStatus" parameterType="hashmap">
         UPDATE `benefit` b SET b.`status` =
         CASE IFNULL(
             (SELECT DISTINCT p.`status` FROM `payment` p, `request_file` bf, `request_file` pf

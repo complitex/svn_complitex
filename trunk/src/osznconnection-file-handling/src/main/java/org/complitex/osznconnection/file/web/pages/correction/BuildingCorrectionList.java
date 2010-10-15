@@ -14,7 +14,7 @@ import org.complitex.osznconnection.file.service.AddressCorrectionBean;
 import org.complitex.osznconnection.file.web.pages.util.BuildingFormatter;
 
 /**
- *
+ * Список коррекций домов.
  * @author Artem
  */
 public class BuildingCorrectionList extends AddressCorrectionList {

@@ -5,7 +5,7 @@
 package org.complitex.osznconnection.file.entity;
 
 /**
- *
+ * Объект коррекции типа сущности
  * @author Artem
  */
 public class EntityTypeCorrection extends ObjectCorrection {

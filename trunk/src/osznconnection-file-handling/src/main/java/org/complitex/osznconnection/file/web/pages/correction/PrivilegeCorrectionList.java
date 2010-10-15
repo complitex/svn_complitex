@@ -8,7 +8,7 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
 
 /**
- *
+ * Список коррекций привилегий.
  * @author Artem
  */
 public class PrivilegeCorrectionList extends AbstractCorrectionList {

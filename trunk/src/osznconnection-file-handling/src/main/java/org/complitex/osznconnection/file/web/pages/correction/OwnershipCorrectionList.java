@@ -8,7 +8,7 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
 
 /**
- *
+ * Список коррекций форм власти.
  * @author Artem
  */
 public class OwnershipCorrectionList extends AbstractCorrectionList {

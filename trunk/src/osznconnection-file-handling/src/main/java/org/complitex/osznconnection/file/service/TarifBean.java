@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Класс для работы с тарифами.
+ *
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 10.09.2010 18:16:17
  */
@@ -40,6 +42,12 @@ public class TarifBean extends AbstractBean {
         sqlSession().delete(MAPPING_NAMESPACE + ".deleteTarifs", requestFile.getId());
     }
 
+    /**
+     * Получить значение поля T11_CODE2 из таблицы тарифов по коду тарифа в ЦН и ОСЗН.
+     * @param T11_CS_UNI Код тарифа, который пришел из ЦН.
+     * @param organizationId ОСЗН
+     * @return
+     */
     @SuppressWarnings({"unchecked"})
     @Transactional
     public Integer getCODE2_1(Double T11_CS_UNI, long organizationId) {
