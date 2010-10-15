@@ -32,7 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
+ * Абстрактная панель для редактирования коррекций.
  * @author Artem
  */
 public abstract class AbstractCorrectionEditPanel extends Panel {

@@ -30,7 +30,7 @@ import org.complitex.osznconnection.file.service.CorrectionBean;
 import org.complitex.osznconnection.file.web.component.correction.edit.AbstractCorrectionEditPanel;
 
 /**
- *
+ * Страница для редактирования коррекций типов сущностей.
  * @author Artem
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)

@@ -35,7 +35,7 @@ import org.complitex.osznconnection.file.service.PersonAccountLocalBean;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 
 /**
- *
+ * Список записей в локальной таблице номеров л/c.
  * @author Artem
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)

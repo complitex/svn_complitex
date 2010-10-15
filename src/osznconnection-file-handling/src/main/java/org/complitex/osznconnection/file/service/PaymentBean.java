@@ -107,6 +107,12 @@ public class PaymentBean extends AbstractBean {
         return (Payment) sqlSession().selectOne(MAPPING_NAMESPACE + ".findById", id);
     }
 
+    /**
+     * Получить все payment записи в файле с id из списка ids
+     * @param fileId
+     * @param ids
+     * @return
+     */
     @Transactional
     @SuppressWarnings({"unchecked"})
     public List<Payment> findForOperation(long fileId, List<Long> ids) {
@@ -116,34 +122,60 @@ public class PaymentBean extends AbstractBean {
         return sqlSession().selectList(MAPPING_NAMESPACE + ".findForOperation", params);
     }
 
+    /**
+     * Получить все id payment записей в файле
+     * @param fileId
+     * @return
+     */
     @SuppressWarnings({"unchecked"})
     private List<Long> findIdsForOperation(long fileId) {
-//        Map<String, Object> params = new HashMap<String, Object>();
-//        params.put("requestFileId", fileId);
-//        params.put("statuses", statuses);
         return sqlSession().selectList(MAPPING_NAMESPACE + ".findIdsForOperation", fileId);
     }
 
+    /**
+     * Получить все id payment записей в файле для связывания
+     * @param fileId
+     * @return
+     */
     @Transactional
     public List<Long> findIdsForBinding(long fileId) {
-//        List<RequestStatus> bindingStatuses = RequestStatus.notBoundStatuses();
         return findIdsForOperation(fileId);
     }
 
+     /**
+     * Получить все id payment записей в файле для обработки
+     * @param fileId
+     * @return
+     */
     @Transactional
     public List<Long> findIdsForProcessing(long fileId) {
-//        List<RequestStatus> processingStatuses = RequestStatus.notProcessedStatuses();
         return findIdsForOperation(fileId);
     }
 
+    /**
+     * Возвращает кол-во несвязанных записей в файле.
+     * @param fileId
+     * @return
+     */
     private int boundCount(long fileId) {
         return countByFile(fileId, RequestStatus.notBoundStatuses());
     }
 
+    /**
+     * Возвращает кол-во необработанных записей
+     * @param fileId
+     * @return
+     */
     private int processedCount(long fileId) {
         return countByFile(fileId, RequestStatus.notProcessedStatuses());
     }
 
+    /**
+     * Возвращает кол-во записей со статусами из списка statuses
+     * @param fileId
+     * @param statuses
+     * @return
+     */
     private int countByFile(long fileId, List<RequestStatus> statuses) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("requestFileId", fileId);
@@ -151,15 +183,30 @@ public class PaymentBean extends AbstractBean {
         return (Integer) sqlSession().selectOne(MAPPING_NAMESPACE + ".countByFile", params);
     }
 
+    /**
+     * @param fileId
+     * @return Связан ли файл
+     */
     @Transactional
     public boolean isPaymentFileBound(long fileId) {
         return boundCount(fileId) == 0;
     }
 
+    /**
+     *
+     * @param fileId
+     * @return Обработан ли файл
+     */
     @Transactional
     public boolean isPaymentFileProcessed(long fileId) {
         return processedCount(fileId) == 0;
     }
+
+    /**
+     * Группа методов для обновления статуса для payment записей
+     * Когда в UI для отдельного payment корректирруется элемент адреса, например город, то статус всех payment записей с таким же городом должнен
+     * обновиться в ADDRESS_CORRECTED и id откоррекированного города нужно проставить всем payment записям.
+     */
 
     @Transactional
     public void correctCity(long fileId, String city, long objectId) {
@@ -215,6 +262,10 @@ public class PaymentBean extends AbstractBean {
         sqlSession().update(MAPPING_NAMESPACE + ".correct", params);
     }
 
+    /**
+     * Обновляет номер л/c для payment записи, всех связанных benefit записей, и записывает в локальную таблицу номеров л/c.
+     * @param payment
+     */
     @Transactional
     public void updateAccountNumber(Payment payment) {
         sqlSession().update(MAPPING_NAMESPACE + ".updateAccountNumber", payment);
@@ -223,19 +274,27 @@ public class PaymentBean extends AbstractBean {
         personAccountLocalBean.saveOrUpdate(payment, calculationCenterId);
     }
 
+    /**
+     * очищает колонки которые заполняются во время связывания и обработки для записей payment
+     * @param fileId
+     */
     @Transactional
-    public void clearBeforeBinding(long fileId){
+    public void clearBeforeBinding(long fileId) {
         Payment parameter = new Payment();
         parameter.setRequestFileId(fileId);
         parameter.setStatus(RequestStatus.CITY_UNRESOLVED_LOCALLY);
-        sqlSession().update(MAPPING_NAMESPACE+".clearBeforeBinding", parameter);
+        sqlSession().update(MAPPING_NAMESPACE + ".clearBeforeBinding", parameter);
     }
 
+    /**
+     * очищает колонки которые заполняются во время обработки для записей payment
+     * @param fileId
+     */
     @Transactional
-    public void clearBeforeProcessing(long fileId){
+    public void clearBeforeProcessing(long fileId) {
         Map<String, Object> params = Maps.newHashMap();
         params.put("statuses", RequestStatus.notBoundStatuses());
         params.put("fileId", fileId);
-        sqlSession().update(MAPPING_NAMESPACE+".clearBeforeProcessing", params);
+        sqlSession().update(MAPPING_NAMESPACE + ".clearBeforeProcessing", params);
     }
 }

@@ -5,7 +5,7 @@
 package org.complitex.osznconnection.file.entity;
 
 /**
- *
+ * Объект коррекции дома
  * @author Artem
  */
 public class BuildingCorrection extends ObjectCorrection {

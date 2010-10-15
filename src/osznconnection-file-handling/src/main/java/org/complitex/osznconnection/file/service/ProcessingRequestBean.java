@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
+ * Класс для обработки пары payment-benefit фалйов.
  * @author Artem
  */
 @Stateless
@@ -48,36 +48,59 @@ public class ProcessingRequestBean extends AbstractBean {
     @EJB
     private RequestFileBean requestFileBean;
 
+    /**
+     * Обрабатывает payment.
+     * Алгоритм:
+     * Если статус payment записи указывает на то что запись даже не связана, то пропускаем запись.(Такая ситуация возможна т.к. существует требование
+     * обрабатывать файла, которые связаны с ошибками)
+     * Иначе вызываем org.complitex.osznconnection.file.calculation.adapter.DefaultCalculationCenterAdapter.processPaymentAndBenefit() для заполнения
+     * некоторых полей в payment и benefit записях. Наконец, обновляем payment и соответсвующие ему benefit записи(BenefitBean.populateBenefit()).
+     * 
+     * @param payment
+     * @param adapter
+     * @param calculationCenterId
+     */
     private void process(Payment payment, ICalculationCenterAdapter adapter, long calculationCenterId) {
         if (RequestStatus.notBoundStatuses().contains(payment.getStatus())) {
             return;
         }
         Benefit benefit = new Benefit();
-        RequestStatus oldStatus = payment.getStatus();
         adapter.processPaymentAndBenefit(payment, benefit, calculationCenterId);
-//        if (payment.getStatus() != oldStatus) {
         paymentBean.update(payment);
         benefitBean.populateBenefit(payment.getId(), benefit);
-//        }
     }
 
+    /**
+     * Обрабатывает пару payment-benefit файлов.
+     * @param paymentFile
+     * @param benefitFile
+     */
     public void processPaymentAndBenefit(RequestFile paymentFile, RequestFile benefitFile) {
+        //очищаем колонки которые заполняются во время обработки для записей в таблицах payment и benefit
         paymentBean.clearBeforeProcessing(paymentFile.getId());
         benefitBean.clearBeforeProcessing(benefitFile.getId());
+        //обработка файла payment
         processPayment(paymentFile);
+        //обработка файла benefit
         processBenefit(benefitFile);
     }
 
+    /**
+     * Обработать payment файл.
+     * @param paymentFile
+     */
     private void processPayment(RequestFile paymentFile) {
         try {
+            //получаем информацию о текущем центре начисления(его id и экземпляр класса адаптера для взаимодействия с центром начислений)
             CalculationCenterInfo calculationCenterInfo = calculationCenterBean.getCurrentCalculationCenterInfo();
             ICalculationCenterAdapter adapter = calculationCenterInfo.getAdapterInstance();
 
+            //изменить статус файла на RequestFile.STATUS.PROCESSING
             paymentFile.setStatus(RequestFile.STATUS.PROCESSING);
             requestFileBean.save(paymentFile);
 
+            //извлечь из базы все id подлежащие обработке для файла payment и доставать записи порциями по BATCH_SIZE штук.
             List<Long> notResolvedPaymentIds = paymentBean.findIdsForProcessing(paymentFile.getId());
-
             List<Long> batch = Lists.newArrayList();
             while (notResolvedPaymentIds.size() > 0) {
                 batch.clear();
@@ -87,8 +110,10 @@ public class ProcessingRequestBean extends AbstractBean {
 
                 try {
                     getSqlSessionManager().startManagedSession(false);
+                    //достать из базы очередную порцию записей
                     List<Payment> payments = paymentBean.findForOperation(paymentFile.getId(), batch);
                     for (Payment payment : payments) {
+                        //обработать payment запись
                         process(payment, adapter, calculationCenterInfo.getId());
                     }
                     getSqlSessionManager().commit();
@@ -108,11 +133,13 @@ public class ProcessingRequestBean extends AbstractBean {
                 }
             }
 
+            //проверить все ли записи в payment файле обработались и на основе этой информации обновить статус файла
             boolean processed = paymentBean.isPaymentFileProcessed(paymentFile.getId());
             paymentFile.setStatus(processed ? RequestFile.STATUS.PROCESSED : RequestFile.STATUS.PROCESSED_WITH_ERRORS);
             requestFileBean.save(paymentFile);
         } catch (RuntimeException e) {
             try {
+                //в случае ошибки изменить статус на RequestFile.STATUS.PROCESSED_WITH_ERRORS
                 paymentFile.setStatus(RequestFile.STATUS.PROCESSED_WITH_ERRORS);
                 requestFileBean.save(paymentFile);
             } catch (Exception ex) {
@@ -122,22 +149,34 @@ public class ProcessingRequestBean extends AbstractBean {
         }
     }
 
+    /**
+     * Обрабоать benefit файл.
+     * Алгоритм:
+     * Извлечь все не null account numbers в benefit файле(BenefitBean.getAllAccountNumbers()).
+     * Для каждого account number достаем из базы benefit записи с таким account number(BenefitBean.findByAccountNumber().
+     * Методом BenefitBean.findDat1() достает дату из поля DAT1 в записи payment, у которой account number такой же(т.е. payment соответсвующий данной группе benefit записей) и
+     * кроме того поле FROG больше 0(только benefit записи соответствующие таким payment записям нужно обрабатывать).
+     * Дата нужна как параметр для вызова
+     * org.complitex.osznconnection.file.calculation.adapter.DefaultCalculationCenterAdapter.processBenefit(). И если дата не null, то
+     * вызываем processBenefit() для заполнения полей в benefit записях. У тех групп benefit записей, у которых дата не нашлась, т.е. соотвествующий payment
+     * имеет в поле FROG значение 0, проставляем статус RequestStatus.PROCESSED. Наконец, обновляем все benefit записи.
+     *
+     * @param benefitFile
+     */
     private void processBenefit(RequestFile benefitFile) {
         try {
+            //получаем информацию о текущем центре начисления(его id и экземпляр класса адаптера для взаимодействия с центром начислений)
             CalculationCenterInfo calculationCenterInfo = calculationCenterBean.getCurrentCalculationCenterInfo();
             ICalculationCenterAdapter adapter = calculationCenterInfo.getAdapterInstance();
 
             benefitFile.setStatus(RequestFile.STATUS.PROCESSING);
             requestFileBean.save(benefitFile);
 
+
             List<String> allAccountNumbers = benefitBean.getAllAccountNumbers(benefitFile.getId());
             for (String accountNumber : allAccountNumbers) {
                 List<Benefit> benefits = benefitBean.findByAccountNumber(accountNumber, benefitFile.getId());
                 if (benefits != null && !benefits.isEmpty()) {
-                    Map<Long, RequestStatus> statuses = Maps.newHashMap();
-                    for (Benefit benefit : benefits) {
-                        statuses.put(benefit.getId(), benefit.getStatus());
-                    }
                     Date dat1 = benefitBean.findDat1(accountNumber, benefitFile.getId());
                     if (dat1 != null) {
                         adapter.processBenefit(dat1, benefits, calculationCenterInfo.getId());
@@ -147,10 +186,7 @@ public class ProcessingRequestBean extends AbstractBean {
                         }
                     }
                     for (Benefit benefit : benefits) {
-                        RequestStatus oldStatus = statuses.get(benefit.getId());
-//                        if (oldStatus != benefit.getStatus()) {
                         benefitBean.update(benefit);
-//                        }
                     }
                 }
             }

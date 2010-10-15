@@ -31,7 +31,7 @@ import org.complitex.osznconnection.file.web.component.correction.edit.AbstractC
 import org.complitex.osznconnection.privilege.strategy.PrivilegeStrategy;
 
 /**
- *
+ * Страница для редактирования коррекций привилегий.
  * @author Artem
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)

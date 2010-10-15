@@ -11,7 +11,7 @@ import org.complitex.osznconnection.file.entity.Benefit;
 import org.complitex.osznconnection.file.entity.Payment;
 
 /**
- *
+ * Базовый интерфейс для реализаций адаптера взаимодействия с ЦН.
  * @author Artem
  */
 public interface ICalculationCenterAdapter {

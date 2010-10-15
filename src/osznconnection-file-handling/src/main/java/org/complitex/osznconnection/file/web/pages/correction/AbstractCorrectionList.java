@@ -39,7 +39,7 @@ import org.complitex.osznconnection.file.entity.example.ObjectCorrectionExample;
 import org.complitex.osznconnection.file.service.CorrectionBean;
 
 /**
- *
+ * Абстрактный класс для списка коррекций.
  * @author Artem
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)

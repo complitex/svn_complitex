@@ -7,7 +7,7 @@ package org.complitex.osznconnection.file.entity;
 import java.io.Serializable;
 
 /**
- *
+ * Запись в локальной таблице номеров л/c person_account.
  * @author Artem
  */
 public class PersonAccount implements Serializable {

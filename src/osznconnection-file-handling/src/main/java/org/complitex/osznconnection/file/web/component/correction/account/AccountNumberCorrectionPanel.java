@@ -18,7 +18,8 @@ import org.complitex.dictionaryfw.util.ResourceUtil;
 import org.complitex.osznconnection.file.entity.AccountDetail;
 
 /**
- *
+ * Панель для показа возможных вариантов выбора л/c по детальной информации,
+ * когда больше одного человека в ЦН, имеющие разные номера л/c, привязаны к одному адресу.
  * @author Artem
  */
 public abstract class AccountNumberCorrectionPanel extends Panel {

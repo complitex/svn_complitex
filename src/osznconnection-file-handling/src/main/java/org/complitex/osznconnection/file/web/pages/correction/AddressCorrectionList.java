@@ -8,7 +8,7 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
 
 /**
- *
+ * Страница для списка коррекций элементов адреса(город, улица).
  * @author Artem
  */
 public class AddressCorrectionList extends AbstractCorrectionList {

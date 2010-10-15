@@ -10,7 +10,10 @@ import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.entity.CalculationCenterInfo;
 
 /**
- *
+ * Возвращает информацию о текущем ЦН, которая хранится в таблице calculation_center_preference.
+ * Из таблицы достается только одна строчка, так что если в таблице более одной записи - какая из них будет текущей не определено, и такая
+ * ситуация считается ошибкой настройки системы.
+ * 
  * @author Artem
  */
 @Stateless

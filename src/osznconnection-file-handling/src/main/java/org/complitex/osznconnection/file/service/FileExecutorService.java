@@ -22,7 +22,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- *
+ * Класс для запуска потоков на связывание и обработку payment and benefit файлов.
  * @author Artem
  */
 public class FileExecutorService {
@@ -179,6 +179,10 @@ public class FileExecutorService {
         }
     }
 
+    /**
+     * Запускает процесс связывания файлов.
+     * @param requestFiles
+     */
     public void bind(List<RequestFile> requestFiles) {
         List<RequestFile> suitedFiles = Lists.newArrayList(Iterables.filter(requestFiles, new Predicate<RequestFile>() {
 
@@ -213,13 +217,17 @@ public class FileExecutorService {
         }
     }
 
+    /**
+     * Запускает процесс обработки файлов
+     * @param requestFiles
+     */
     public void process(List<RequestFile> requestFiles) {
         List<RequestFile> suitedFiles = Lists.newArrayList(Iterables.filter(requestFiles, new Predicate<RequestFile>() {
 
             @Override
             public boolean apply(RequestFile requestFile) {
                 return (requestFile.getType() == RequestFile.TYPE.PAYMENT || requestFile.getType() == RequestFile.TYPE.BENEFIT)
-                        && (requestFile.getStatus() != RequestFile.STATUS.LOADED) && (requestFile.getStatus() != RequestFile.STATUS.LOAD_ERROR);
+                        && (requestFile.getStatus() != RequestFile.STATUS.SAVED) && (requestFile.getStatus() != RequestFile.STATUS.SAVE_ERROR);
             }
         }));
         for (final RequestFile file : suitedFiles) {

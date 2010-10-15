@@ -7,7 +7,7 @@ package org.complitex.osznconnection.file.entity;
 import java.io.Serializable;
 
 /**
- *
+ * Объект коррекции
  * @author Artem
  */
 public class ObjectCorrection implements Serializable {

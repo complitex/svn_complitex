@@ -13,7 +13,7 @@ import org.complitex.osznconnection.file.entity.example.ObjectCorrectionExample;
 import org.complitex.osznconnection.file.service.CorrectionBean;
 
 /**
- *
+ * Список коррекций типов сущностей.
  * @author Artem
  */
 public class EntityTypesCorrectionList extends AbstractCorrectionList {

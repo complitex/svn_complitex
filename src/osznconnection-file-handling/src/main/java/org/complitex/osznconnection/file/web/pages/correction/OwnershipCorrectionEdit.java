@@ -28,7 +28,7 @@ import org.complitex.osznconnection.file.web.component.correction.edit.AbstractC
 import org.complitex.osznconnection.ownership.strategy.OwnershipStrategy;
 
 /**
- *
+ * Страница для редактирования коррекций форм власти.
  * @author Artem
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)

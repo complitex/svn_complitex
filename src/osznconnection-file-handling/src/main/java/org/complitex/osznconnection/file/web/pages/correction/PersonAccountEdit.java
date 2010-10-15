@@ -35,7 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
+ * Страница для редактирования записей в локальной таблице номеров л/c.
  * @author Artem
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)
