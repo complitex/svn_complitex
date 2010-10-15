@@ -4,11 +4,6 @@
  */
 package org.complitex.osznconnection.file.service;
 
-import java.util.List;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
@@ -16,7 +11,13 @@ import org.complitex.osznconnection.file.calculation.service.CalculationCenterBe
 import org.complitex.osznconnection.file.entity.AccountDetail;
 import org.complitex.osznconnection.file.entity.CalculationCenterInfo;
 import org.complitex.osznconnection.file.entity.Payment;
-import org.complitex.osznconnection.file.entity.Status;
+import org.complitex.osznconnection.file.entity.RequestStatus;
+
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import java.util.List;
 
 /**
  *
@@ -25,10 +26,10 @@ import org.complitex.osznconnection.file.entity.Status;
 @Stateless
 public class PaymentLookupBean extends AbstractBean {
 
-    @EJB
+    @EJB(beanName = "AddressService")
     private AddressService addressService;
 
-    @EJB
+    @EJB(beanName = "CalculationCenterBean")
     private CalculationCenterBean calculationCenterBean;
 
     @Transactional
@@ -46,9 +47,9 @@ public class PaymentLookupBean extends AbstractBean {
         ICalculationCenterAdapter adapter = calculationCenterInfo.getAdapterInstance();
         List<AccountDetail> accounts = adapter.acquireAccountCorrectionDetails(payment);
         if (accounts == null || accounts.isEmpty()) {
-            payment.setStatus(Status.ACCOUNT_NUMBER_NOT_FOUND);
+            payment.setStatus(RequestStatus.ACCOUNT_NUMBER_NOT_FOUND);
         } else {
-            payment.setStatus(Status.ACCOUNT_NUMBER_RESOLVED);
+            payment.setStatus(RequestStatus.ACCOUNT_NUMBER_RESOLVED);
         }
         return accounts;
     }

@@ -5,13 +5,10 @@
 package org.complitex.osznconnection.file.web.pages.correction;
 
 import com.google.common.collect.ImmutableList;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import javax.ejb.EJB;
+import com.google.common.collect.Lists;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -24,16 +21,26 @@ import org.complitex.dictionaryfw.strategy.StrategyFactory;
 import org.complitex.dictionaryfw.web.component.search.ISearchCallback;
 import org.complitex.dictionaryfw.web.component.search.SearchComponent;
 import org.complitex.dictionaryfw.web.component.search.SearchComponentState;
+import org.complitex.osznconnection.commons.web.component.toolbar.DeleteItemButton;
+import org.complitex.osznconnection.commons.web.component.toolbar.ToolbarButton;
+import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.FormTemplatePage;
 import org.complitex.osznconnection.file.entity.BuildingCorrection;
 import org.complitex.osznconnection.file.entity.ObjectCorrection;
 import org.complitex.osznconnection.file.service.AddressCorrectionBean;
 import org.complitex.osznconnection.file.web.component.correction.edit.AbstractCorrectionEditPanel;
 
+import javax.ejb.EJB;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
 /**
  *
  * @author Artem
  */
+@AuthorizeInstantiation(SecurityRole.AUTHORIZED)
 public class AddressCorrectionEdit extends FormTemplatePage {
 
     public static final String CORRECTED_ENTITY = "entity";
@@ -106,8 +113,7 @@ public class AddressCorrectionEdit extends FormTemplatePage {
         protected DomainObject findObject(long objectId, String entity) {
             DomainObjectExample example = new DomainObjectExample();
             example.setId(objectId);
-            DomainObject object = getStrategy(entity).find(example).get(0);
-            return object;
+            return getStrategy(entity).find(example).get(0);
         }
 
         protected List<String> getSearchFilters(String entity) {
@@ -147,14 +153,14 @@ public class AddressCorrectionEdit extends FormTemplatePage {
         }
 
         @Override
-        protected BuildingCorrection initModel(String entity, long correctionId) {
+        protected BuildingCorrection initObjectCorrection(String entity, long correctionId) {
             BuildingCorrection correction = addressCorrectionBean.findBuildingById(correctionId);
             correction.setEntity("building");
             return correction;
         }
 
         @Override
-        protected BuildingCorrection newModel() {
+        protected BuildingCorrection newObjectCorrection() {
             BuildingCorrection correction = new BuildingCorrection();
             correction.setEntity("building");
             return correction;
@@ -163,7 +169,6 @@ public class AddressCorrectionEdit extends FormTemplatePage {
         @Override
         protected void init() {
             super.init();
-
             TextField<String> correctionCorp = new TextField<String>("correctionCorp", new PropertyModel<String>(getModel(), "correctionCorp"));
             getFormContainer().add(correctionCorp);
         }
@@ -184,13 +189,39 @@ public class AddressCorrectionEdit extends FormTemplatePage {
         protected void update() {
             addressCorrectionBean.updateBuilding(getModel());
         }
+
+        @Override
+        protected void delete() {
+            addressCorrectionBean.deleteBuilding(getModel());
+        }
     }
+
+    private AbstractCorrectionEditPanel addressEditPanel;
 
     public AddressCorrectionEdit(PageParameters params) {
         String entity = params.getString(CORRECTED_ENTITY);
         Long correctionId = params.getAsLong(CORRECTION_ID);
-        add(entity.equals("building") ? new BuildingCorrectionEditPanel("addressEditPanel", correctionId)
-                : new AddressCorrectionEditPanel("addressEditPanel", entity, correctionId));
+        addressEditPanel = entity.equals("building") ? new BuildingCorrectionEditPanel("addressEditPanel", correctionId)
+                : new AddressCorrectionEditPanel("addressEditPanel", entity, correctionId);
+        add(addressEditPanel);
+    }
+
+    @Override
+    protected List<? extends ToolbarButton> getToolbarButtons(String id) {
+        List<ToolbarButton> toolbar = Lists.newArrayList();
+        toolbar.add(new DeleteItemButton(id) {
+
+            @Override
+            protected void onClick() {
+                addressEditPanel.executeDeletion();
+            }
+
+            @Override
+            public boolean isVisible() {
+                return !addressEditPanel.isNew();
+            }
+        });
+        return toolbar;
     }
 }
 

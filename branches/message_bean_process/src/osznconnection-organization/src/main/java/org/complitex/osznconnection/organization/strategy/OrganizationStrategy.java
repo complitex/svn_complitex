@@ -16,6 +16,7 @@ import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.entity.description.EntityAttributeType;
 import org.complitex.dictionaryfw.entity.example.AttributeExample;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
+import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.StringCultureBean;
 import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.strategy.web.AbstractComplexAttributesPanel;
@@ -25,6 +26,8 @@ import org.complitex.dictionaryfw.web.component.search.ISearchCallback;
 import org.complitex.osznconnection.commons.web.pages.DomainObjectEdit;
 import org.complitex.osznconnection.commons.web.pages.DomainObjectList;
 import org.complitex.osznconnection.commons.web.pages.HistoryPage;
+import org.complitex.osznconnection.information.strategy.district.DistrictStrategy;
+import org.complitex.osznconnection.organization.strategy.web.OrganizationEditComponent;
 import org.complitex.osznconnection.organization.strategy.web.OrganizationValidator;
 
 import javax.ejb.EJB;
@@ -33,9 +36,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import org.complitex.dictionaryfw.mybatis.Transactional;
-import org.complitex.osznconnection.information.strategy.district.DistrictStrategy;
-import org.complitex.osznconnection.organization.strategy.web.OrganizationEditComponent;
 
 /**
  *
@@ -47,6 +47,8 @@ public class OrganizationStrategy extends Strategy {
     public static final String RESOURCE_BUNDLE = OrganizationStrategy.class.getName();
 
     private static final String MAPPING_NAMESPACE = OrganizationStrategy.class.getPackage().getName() + ".Organization";
+
+    public static final long ITSELF_ORGANIZATION_OBJECT_ID = 0;
 
     /**
      * Attribute type ids
@@ -70,6 +72,7 @@ public class OrganizationStrategy extends Strategy {
     @EJB(beanName = "DistrictStrategy")
     private DistrictStrategy districtStrategy;
 
+    @SuppressWarnings({"unchecked"})
     @Override
     @Transactional
     public DomainObject findById(Long id) {
@@ -160,7 +163,7 @@ public class OrganizationStrategy extends Strategy {
     @Override
     public void configureExample(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
         if (!Strings.isEmpty(searchTextInput)) {
-            AttributeExample attrExample = null;
+            AttributeExample attrExample;
             try {
                 attrExample = Iterables.find(example.getAttributeExamples(), new Predicate<AttributeExample>() {
 
@@ -235,11 +238,17 @@ public class OrganizationStrategy extends Strategy {
         return OrganizationEditComponent.class;
     }
 
-    public List<DomainObject> getAll() {
-        DomainObjectExample example = new DomainObjectExample();
-        example.setOrderByAttribureTypeId(OrganizationStrategy.NAME);
-        configureExample(example, ImmutableMap.<String, Long>of(), null);
-        return find(example);
+    public List<DomainObject> getAllOuterOrganizations() {
+        List<DomainObject> result = Lists.newArrayList();
+        List<DomainObject> oszns = getAllOSZNs();
+        if(oszns != null){
+            result.addAll(oszns);
+        }
+        List<DomainObject> calculationCentres = getAllCalculationCentres();
+        if(calculationCentres != null){
+            result.addAll(calculationCentres);
+        }
+        return result;
     }
 
     public List<DomainObject> getAllOSZNs() {
@@ -279,5 +288,12 @@ public class OrganizationStrategy extends Strategy {
 
     public String getDistrictCode(Long objectId) {
         return getDistrictCode(findById(objectId));
+    }
+
+    public DomainObject getItselfOrganization(){
+        DomainObjectExample example = new DomainObjectExample();
+        example.setId(ITSELF_ORGANIZATION_OBJECT_ID);
+        configureExample(example, ImmutableMap.<String, Long>of(), null);
+        return find(example).get(0);
     }
 }

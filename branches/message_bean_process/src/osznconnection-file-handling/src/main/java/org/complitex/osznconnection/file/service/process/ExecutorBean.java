@@ -77,7 +77,7 @@ public class ExecutorBean {
 
         runningThread.incrementAndGet();
 
-        log.debug("Обработка группы файлов {}", group);
+        log.debug("Начата обработка группы файлов {}", group);
 
         taskBean.asyncExecute(group, new ITaskListener(){
             @Override

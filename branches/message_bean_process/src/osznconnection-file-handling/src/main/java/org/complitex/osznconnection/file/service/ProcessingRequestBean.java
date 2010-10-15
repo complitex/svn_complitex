@@ -6,6 +6,7 @@ package org.complitex.osznconnection.file.service;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
 import org.complitex.osznconnection.file.calculation.service.CalculationCenterBean;
@@ -48,8 +49,11 @@ public class ProcessingRequestBean extends AbstractBean {
     private RequestFileBean requestFileBean;
 
     private void processPayment(Payment payment, ICalculationCenterAdapter adapter, long calculationCenterId) {
+        if(payment.getField(PaymentDBF.DAT1) == null || Strings.isEmpty(payment.getAccountNumber())){
+            return ;
+        }
         Benefit benefit = new Benefit();
-        Status oldStatus = payment.getStatus();
+        RequestStatus oldStatus = payment.getStatus();
         adapter.processPaymentAndBenefit(payment, benefit, calculationCenterId);
 //        if (payment.getStatus() != oldStatus) {
             paymentBean.update(payment);
@@ -123,7 +127,7 @@ public class ProcessingRequestBean extends AbstractBean {
             for (String accountNumber : allAccountNumbers) {
                 List<Benefit> benefits = benefitBean.findByAccountNumber(accountNumber, benefitFile.getId());
                 if (benefits != null && !benefits.isEmpty()) {
-                    Map<Long, Status> statuses = Maps.newHashMap();
+                    Map<Long, RequestStatus> statuses = Maps.newHashMap();
                     for (Benefit benefit : benefits) {
                         statuses.put(benefit.getId(), benefit.getStatus());
                     }
@@ -132,11 +136,11 @@ public class ProcessingRequestBean extends AbstractBean {
                         adapter.processBenefit(dat1, benefits, calculationCenterInfo.getId());
                     } else {
                         for (Benefit benefit : benefits) {
-                            benefit.setStatus(Status.PROCESSED);
+                            benefit.setStatus(RequestStatus.PROCESSED);
                         }
                     }
                     for (Benefit benefit : benefits) {
-                        Status oldStatus = statuses.get(benefit.getId());
+                        RequestStatus oldStatus = statuses.get(benefit.getId());
 //                        if (oldStatus != benefit.getStatus()) {
                             benefitBean.update(benefit);
 //                        }

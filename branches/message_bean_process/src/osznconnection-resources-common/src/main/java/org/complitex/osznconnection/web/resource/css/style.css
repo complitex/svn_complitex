@@ -236,16 +236,21 @@ table.bookContentHeader{
     width:100%;    
 }
 
-/* отчеты */
+/* Dialog styles */
 
-.vertical{
-    height: 100px;
-    width: 35px;
-    vertical-align: top;
-    padding-left: 0px !important;
-    padding-right: 0px !important;
+.ui-dialog{
+    padding: 0px 0px 0px 0px !important;
 }
 
-.meatBold{
-    font-weight: bold;
+.ui-corner-all {
+    -moz-border-radius: 0px !important;
+    -webkit-border-radius: 0px !important;
+}
+
+.ui-widget-content{
+    background:#C4CDD4 url('../images/formFrame-t.gif') repeat-x scroll 0 0 !important;
+}
+
+.ui-widget input[type="button"] {
+    font-size: 12px;
 }

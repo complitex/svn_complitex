@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns:wicket="http://wicket.apache.org">
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
     <head>
         <wicket:head>
             <title wicket:id="title"></title>
@@ -10,7 +10,7 @@
         <wicket:panel>
             <h2 wicket:id="label" style="margin-bottom: 20px;"></h2>
             <div wicket:id="messages"></div>
-            <form wicket:id="form">
+            <form wicket:id="form" action="#">
                 <table class="tbForm" cellpadding="0" cellspacing="0" border="0">
                     <tr>
                         <th>
@@ -30,7 +30,7 @@
                     </tr>
                     <tr>
                         <th>
-                            <wicket:message key="code"/> <b class="blue">*</b> :
+                            <wicket:message key="code"/> :
                         </th>
                         <td>
                             <input type="text" wicket:id="code"/>
@@ -42,6 +42,16 @@
                         </th>
                         <td>
                             <select wicket:id="organization">
+                                <option></option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <wicket:message key="internal_organization"/> <b class="blue">*</b> :
+                        </th>
+                        <td>
+                            <select wicket:id="internalOrganization">
                                 <option></option>
                             </select>
                         </td>

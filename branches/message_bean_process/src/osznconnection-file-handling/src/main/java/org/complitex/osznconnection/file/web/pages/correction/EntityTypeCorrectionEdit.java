@@ -7,10 +7,8 @@ package org.complitex.osznconnection.file.web.pages.correction;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import java.util.List;
-import java.util.Locale;
-import javax.ejb.EJB;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -20,15 +18,23 @@ import org.complitex.dictionaryfw.service.EntityBean;
 import org.complitex.dictionaryfw.service.StringCultureBean;
 import org.complitex.dictionaryfw.web.component.DisableAwareDropDownChoice;
 import org.complitex.dictionaryfw.web.component.IDisableAwareChoiceRenderer;
+import org.complitex.osznconnection.commons.web.component.toolbar.DeleteItemButton;
+import org.complitex.osznconnection.commons.web.component.toolbar.ToolbarButton;
+import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.FormTemplatePage;
 import org.complitex.osznconnection.file.entity.EntityTypeCorrection;
 import org.complitex.osznconnection.file.service.CorrectionBean;
 import org.complitex.osznconnection.file.web.component.correction.edit.AbstractCorrectionEditPanel;
 
+import javax.ejb.EJB;
+import java.util.List;
+import java.util.Locale;
+
 /**
  *
  * @author Artem
  */
+@AuthorizeInstantiation(SecurityRole.AUTHORIZED)
 public class EntityTypeCorrectionEdit extends FormTemplatePage {
 
     public static final String CORRECTION_ID = "correction_id";
@@ -95,9 +101,11 @@ public class EntityTypeCorrectionEdit extends FormTemplatePage {
         }
     }
 
+    private AbstractCorrectionEditPanel correctionEditPanel;
+
     public EntityTypeCorrectionEdit(PageParameters params) {
         Long correctionId = params.getAsLong(CORRECTION_ID);
-        add(new AbstractCorrectionEditPanel("correctionEditPanel", null, correctionId) {
+        add(correctionEditPanel = new AbstractCorrectionEditPanel("correctionEditPanel", null, correctionId) {
 
             @EJB(name = "CorrectionBean")
             private CorrectionBean correctionBean;
@@ -108,12 +116,12 @@ public class EntityTypeCorrectionEdit extends FormTemplatePage {
             }
 
             @Override
-            protected EntityTypeCorrection initModel(String entity, long correctionId) {
+            protected EntityTypeCorrection initObjectCorrection(String entity, long correctionId) {
                 return correctionBean.findEntityTypeById(correctionId);
             }
 
             @Override
-            protected EntityTypeCorrection newModel() {
+            protected EntityTypeCorrection newObjectCorrection() {
                 return new EntityTypeCorrection();
             }
 
@@ -143,7 +151,30 @@ public class EntityTypeCorrectionEdit extends FormTemplatePage {
             protected void update() {
                 correctionBean.updateEntityType(getModel());
             }
+
+            @Override
+            protected void delete() {
+                correctionBean.delete(getModel());
+            }
         });
+    }
+
+    @Override
+    protected List<? extends ToolbarButton> getToolbarButtons(String id) {
+        List<ToolbarButton> toolbar = Lists.newArrayList();
+        toolbar.add(new DeleteItemButton(id) {
+
+            @Override
+            protected void onClick() {
+                correctionEditPanel.executeDeletion();
+            }
+
+            @Override
+            public boolean isVisible() {
+                return !correctionEditPanel.isNew();
+            }
+        });
+        return toolbar;
     }
 }
 

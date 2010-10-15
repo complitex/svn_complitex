@@ -5,11 +5,6 @@
 package org.complitex.osznconnection.file.calculation.adapter;
 
 import com.google.common.collect.Maps;
-import java.io.IOException;
-import java.io.Reader;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -17,7 +12,13 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.osznconnection.file.entity.AccountDetail;
 import org.complitex.osznconnection.file.entity.Payment;
-import org.complitex.osznconnection.file.entity.Status;
+import org.complitex.osznconnection.file.entity.RequestStatus;
+
+import java.io.IOException;
+import java.io.Reader;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -55,6 +56,7 @@ public class AcquireAccountCorrectionDetailsTest {
                 return sqlSessionFactory.openSession(false);
             }
 
+            @SuppressWarnings({"unchecked"})
             @Override
             public List<AccountDetail> acquireAccountCorrectionDetails(Payment payment) {
                 List<AccountDetail> accountCorrectionDetails = null;
@@ -90,7 +92,7 @@ public class AcquireAccountCorrectionDetailsTest {
                         }
 //                }
                     } catch (Exception e) {
-                        payment.setStatus(Status.ACCOUNT_NUMBER_NOT_FOUND);
+                        payment.setStatus(RequestStatus.ACCOUNT_NUMBER_NOT_FOUND);
                     }
 
                     session.commit();
@@ -119,7 +121,6 @@ public class AcquireAccountCorrectionDetailsTest {
     }
 
     private static Payment newPayment() {
-        Payment p = new Payment();
-        return p;
+        return new Payment();
     }
 }

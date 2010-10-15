@@ -109,17 +109,7 @@ public class SaveTaskBean extends AbstractTaskBean{
     protected void execute(RequestFileGroup group) throws ExecuteException {
         //сохранение начислений
         save(group.getPaymentFile());
-
-        if (group.getPaymentFile().getStatus().equals(RequestFile.STATUS.SAVED)){
-            //сохранение льгот
-            save(group.getBenefitFile());
-
-            if (!group.getBenefitFile().getStatus().equals(RequestFile.STATUS.SAVED)){
-                throw new ExecuteException();
-            }
-        } else{
-            throw new ExecuteException();
-        }
+        save(group.getBenefitFile());
     }
 
     @SuppressWarnings({"EjbProhibitedPackageUsageInspection"})

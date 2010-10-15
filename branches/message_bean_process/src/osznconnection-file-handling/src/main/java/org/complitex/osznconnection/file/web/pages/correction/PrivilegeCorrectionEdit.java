@@ -5,12 +5,10 @@
 package org.complitex.osznconnection.file.web.pages.correction;
 
 import com.google.common.collect.ImmutableList;
-import java.io.Serializable;
-import java.util.Locale;
-import java.util.Map;
-import javax.ejb.EJB;
+import com.google.common.collect.Lists;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
@@ -19,15 +17,25 @@ import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.web.component.search.ISearchCallback;
 import org.complitex.dictionaryfw.web.component.search.SearchComponent;
 import org.complitex.dictionaryfw.web.component.search.SearchComponentState;
+import org.complitex.osznconnection.commons.web.component.toolbar.DeleteItemButton;
+import org.complitex.osznconnection.commons.web.component.toolbar.ToolbarButton;
+import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.FormTemplatePage;
 import org.complitex.osznconnection.file.entity.ObjectCorrection;
 import org.complitex.osznconnection.file.web.component.correction.edit.AbstractCorrectionEditPanel;
 import org.complitex.osznconnection.privilege.strategy.PrivilegeStrategy;
 
+import javax.ejb.EJB;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
 /**
  *
  * @author Artem
  */
+@AuthorizeInstantiation(SecurityRole.AUTHORIZED)
 public final class PrivilegeCorrectionEdit extends FormTemplatePage {
 
     public static final String CORRECTION_ID = "correction_id";
@@ -52,10 +60,12 @@ public final class PrivilegeCorrectionEdit extends FormTemplatePage {
         }
     }
 
+    private AbstractCorrectionEditPanel correctionEditPanel;
+
     public PrivilegeCorrectionEdit(PageParameters params) {
         Long correctionId = params.getAsLong(CORRECTION_ID);
 
-        add(new AbstractCorrectionEditPanel("correctionEditPanel", privilegeStrategy.getEntityTable(), correctionId) {
+        add(correctionEditPanel = new AbstractCorrectionEditPanel("correctionEditPanel", privilegeStrategy.getEntityTable(), correctionId) {
 
             @Override
             protected IModel<String> internalObjectLabel(Locale locale) {
@@ -86,8 +96,12 @@ public final class PrivilegeCorrectionEdit extends FormTemplatePage {
             private DomainObject findPrivilege(long privilegeId) {
                 DomainObjectExample example = new DomainObjectExample();
                 example.setId(privilegeId);
-                DomainObject object = privilegeStrategy.find(example).get(0);
-                return object;
+                return privilegeStrategy.find(example).get(0);
+            }
+
+            @Override
+            protected boolean isOrganizationCodeRequired() {
+                return true;
             }
 
             @Override
@@ -97,6 +111,24 @@ public final class PrivilegeCorrectionEdit extends FormTemplatePage {
                 setResponsePage(PrivilegeCorrectionList.class, parameters);
             }
         });
+    }
+
+    @Override
+    protected List<? extends ToolbarButton> getToolbarButtons(String id) {
+        List<ToolbarButton> toolbar = Lists.newArrayList();
+        toolbar.add(new DeleteItemButton(id) {
+
+            @Override
+            protected void onClick() {
+                correctionEditPanel.executeDeletion();
+            }
+
+            @Override
+            public boolean isVisible() {
+                return !correctionEditPanel.isNew();
+            }
+        });
+        return toolbar;
     }
 }
 

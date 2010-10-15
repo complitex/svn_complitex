@@ -115,7 +115,7 @@ public class FillTaskBean extends AbstractTaskBean{
             for (String accountNumber : allAccountNumbers) {
                 List<Benefit> benefits = benefitBean.findByAccountNumber(accountNumber, benefitFile.getId());
                 if (benefits != null && !benefits.isEmpty()) {
-                    Map<Long, Status> statuses = Maps.newHashMap();
+                    Map<Long, RequestStatus> statuses = Maps.newHashMap();
 
                     for (Benefit benefit : benefits) {
                         statuses.put(benefit.getId(), benefit.getStatus());
@@ -127,7 +127,7 @@ public class FillTaskBean extends AbstractTaskBean{
                         adapter.processBenefit(dat1, benefits, calculationCenterInfo.getId());
                     } else {
                         for (Benefit benefit : benefits) {
-                            benefit.setStatus(Status.PROCESSED);
+                            benefit.setStatus(RequestStatus.PROCESSED);
                         }
                     }
 

@@ -5,13 +5,11 @@
 package org.complitex.osznconnection.file.web.pages.correction;
 
 import com.google.common.collect.ImmutableList;
-import java.util.Iterator;
-import java.util.List;
-import javax.ejb.EJB;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
@@ -31,15 +29,21 @@ import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
 import org.complitex.osznconnection.commons.web.component.toolbar.AddItemButton;
 import org.complitex.osznconnection.commons.web.component.toolbar.ToolbarButton;
+import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.TemplatePage;
 import org.complitex.osznconnection.file.entity.ObjectCorrection;
 import org.complitex.osznconnection.file.entity.example.ObjectCorrectionExample;
 import org.complitex.osznconnection.file.service.CorrectionBean;
 
+import javax.ejb.EJB;
+import java.util.Iterator;
+import java.util.List;
+
 /**
  *
  * @author Artem
  */
+@AuthorizeInstantiation(SecurityRole.AUTHORIZED)
 public abstract class AbstractCorrectionList extends TemplatePage {
 
     public static final String CORRECTED_ENTITY = "entity";
@@ -137,6 +141,7 @@ public abstract class AbstractCorrectionList extends TemplatePage {
         filterForm.add(new TextField<String>("correctionFilter", new PropertyModel<String>(example, "correction")));
         filterForm.add(new TextField<String>("codeFilter", new PropertyModel<String>(example, "code")));
         filterForm.add(new TextField<String>("internalObjectFilter", new PropertyModel<String>(example, "internalObject")));
+        filterForm.add(new TextField<String>("internalOrganizationFilter", new PropertyModel<String>(example, "internalOrganization")));
 
         AjaxLink reset = new AjaxLink("reset") {
 
@@ -172,7 +177,8 @@ public abstract class AbstractCorrectionList extends TemplatePage {
                 item.add(new Label("code", code));
 
                 item.add(new Label("internalObject", correction.getInternalObject()));
-                item.add(new BookmarkablePageLink("edit", getEditPage(), getEditPageParams(correction.getId())));
+                item.add(new Label("internalOrganization", correction.getInternalOrganization()));
+                item.add(new BookmarkablePageLink<WebPage>("edit", getEditPage(), getEditPageParams(correction.getId())));
             }
         };
         filterForm.add(data);
@@ -181,6 +187,8 @@ public abstract class AbstractCorrectionList extends TemplatePage {
         filterForm.add(new ArrowOrderByBorder("correctionHeader", CorrectionBean.OrderBy.CORRECTION.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("codeHeader", CorrectionBean.OrderBy.CODE.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("internalObjectHeader", getInternalObjectOrderByExpression(), dataProvider, data, content));
+        filterForm.add(new ArrowOrderByBorder("internalOrganizationHeader", CorrectionBean.OrderBy.INTERNAL_ORGANIZATION.getOrderBy(), dataProvider,
+                data, content));
 
         content.add(new PagingNavigator("navigator", data, getClass().getName() + entity, content));
     }

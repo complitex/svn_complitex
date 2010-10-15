@@ -6,9 +6,7 @@ package org.complitex.osznconnection.file.web.component.correction.edit;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import java.util.List;
-import java.util.Locale;
-import javax.ejb.EJB;
+import com.google.common.collect.Lists;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
@@ -27,12 +25,20 @@ import org.complitex.dictionaryfw.web.component.DomainObjectDisableAwareRenderer
 import org.complitex.osznconnection.file.entity.ObjectCorrection;
 import org.complitex.osznconnection.file.service.CorrectionBean;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.ejb.EJB;
+import java.util.List;
+import java.util.Locale;
 
 /**
  *
  * @author Artem
  */
 public abstract class AbstractCorrectionEditPanel extends Panel {
+
+    private static final Logger log = LoggerFactory.getLogger(AbstractCorrectionEditPanel.class);
 
     @EJB(name = "CorrectionBean")
     private CorrectionBean correctionBean;
@@ -44,7 +50,7 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
 
     private Long correctionId;
 
-    private ObjectCorrection newCorrection;
+    private ObjectCorrection objectCorrection;
 
     private WebMarkupContainer form;
 
@@ -53,31 +59,31 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
         this.entity = entity;
         this.correctionId = correctionId;
         if (isNew()) {
-            newCorrection = newModel();
+            objectCorrection = newObjectCorrection();
         } else {
-            newCorrection = initModel(this.entity, this.correctionId);
+            objectCorrection = initObjectCorrection(this.entity, this.correctionId);
         }
         init();
     }
 
-    protected boolean isNew() {
+    public boolean isNew() {
         return correctionId == null;
     }
 
-    protected ObjectCorrection initModel(String entity, long correctionId) {
+    protected ObjectCorrection initObjectCorrection(String entity, long correctionId) {
         ObjectCorrection correction = correctionBean.findById(entity, correctionId);
         correction.setEntity(entity);
         return correction;
     }
 
-    protected ObjectCorrection newModel() {
+    protected ObjectCorrection newObjectCorrection() {
         ObjectCorrection correction = new ObjectCorrection();
         correction.setEntity(entity);
         return correction;
     }
 
     protected ObjectCorrection getModel() {
-        return newCorrection;
+        return objectCorrection;
     }
 
     protected String getEntity() {
@@ -95,23 +101,47 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
     protected abstract void back();
 
     protected void saveOrUpdate() {
-        if (isNew()) {
-            save();
-        } else {
-            update();
+        try {
+            if (isNew()) {
+                save();
+            } else {
+                update();
+            }
+            back();
+        } catch (Exception e) {
+            error(getString("db_error"));
+            log.error("", e);
         }
     }
 
     protected void save() {
-        correctionBean.insert(newCorrection);
+        correctionBean.insert(objectCorrection);
     }
 
     protected void update() {
-        correctionBean.update(newCorrection);
+        correctionBean.update(objectCorrection);
+    }
+
+    protected void delete() {
+        correctionBean.delete(objectCorrection);
+    }
+
+    public void executeDeletion() {
+        try {
+            delete();
+            back();
+        } catch (Exception e) {
+            error(getString("db_error"));
+            log.error("", e);
+        }
     }
 
     protected WebMarkupContainer getFormContainer() {
         return form;
+    }
+
+    protected boolean isOrganizationCodeRequired() {
+        return false;
     }
 
     protected void init() {
@@ -125,22 +155,25 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
         form = new Form("form");
         add(form);
 
-        TextField<String> correction = new TextField<String>("correction", new PropertyModel<String>(newCorrection, "correction"));
+        TextField<String> correction = new TextField<String>("correction", new PropertyModel<String>(objectCorrection, "correction"));
         correction.setRequired(true);
         form.add(correction);
 
-        TextField<String> code = new TextField<String>("code", new PropertyModel<String>(newCorrection, "code"));
-        code.setRequired(true);
+        WebMarkupContainer codeRequiredContainer = new WebMarkupContainer("codeRequiredContainer");
+        form.add(codeRequiredContainer);
+        boolean isOrganizationCodeRequired = isOrganizationCodeRequired();
+        codeRequiredContainer.setVisible(isOrganizationCodeRequired);
+        TextField<String> code = new TextField<String>("code", new PropertyModel<String>(objectCorrection, "code"));
+        code.setRequired(isOrganizationCodeRequired);
         form.add(code);
 
-        final List<DomainObject> allOrganizations = organizationStrategy.getAll();
-        IModel<DomainObject> organizationModel = new Model<DomainObject>() {
+        abstract class OrganizationModel extends Model<DomainObject> {
 
             @Override
             public DomainObject getObject() {
-                final Long organizationId = getModel().getOrganizationId();
+                final Long organizationId = getOrganizationId(objectCorrection);
                 if (organizationId != null) {
-                    return Iterables.find(allOrganizations, new Predicate<DomainObject>() {
+                    return Iterables.find(getOrganizations(), new Predicate<DomainObject>() {
 
                         @Override
                         public boolean apply(DomainObject object) {
@@ -153,7 +186,32 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
 
             @Override
             public void setObject(DomainObject object) {
-                getModel().setOrganizationId(object.getId());
+                setOrganizationId(objectCorrection, object.getId());
+            }
+
+            public abstract Long getOrganizationId(ObjectCorrection objectCorrection);
+
+            public abstract void setOrganizationId(ObjectCorrection objectCorrection, Long organizationId);
+
+            public abstract List<DomainObject> getOrganizations();
+        }
+
+        final List<DomainObject> allOuterOrganizations = organizationStrategy.getAllOuterOrganizations();
+        IModel<DomainObject> outerOrganizationModel = new OrganizationModel() {
+
+            @Override
+            public Long getOrganizationId(ObjectCorrection objectCorrection) {
+                return objectCorrection.getOrganizationId();
+            }
+
+            @Override
+            public void setOrganizationId(ObjectCorrection objectCorrection, Long organizationId) {
+                objectCorrection.setOrganizationId(organizationId);
+            }
+
+            @Override
+            public List<DomainObject> getOrganizations() {
+                return allOuterOrganizations;
             }
         };
         DomainObjectDisableAwareRenderer renderer = new DomainObjectDisableAwareRenderer() {
@@ -164,9 +222,35 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
             }
         };
         DisableAwareDropDownChoice<DomainObject> organization = new DisableAwareDropDownChoice<DomainObject>("organization",
-                organizationModel, allOrganizations, renderer);
+                outerOrganizationModel, allOuterOrganizations, renderer);
         organization.setRequired(true);
         form.add(organization);
+
+        if (isNew()) {
+            objectCorrection.setInternalOrganizationId(OrganizationStrategy.ITSELF_ORGANIZATION_OBJECT_ID);
+        }
+        final List<DomainObject> internalOrganizations = Lists.newArrayList(organizationStrategy.getItselfOrganization());
+        IModel<DomainObject> internalOrganizationModel = new OrganizationModel() {
+
+            @Override
+            public Long getOrganizationId(ObjectCorrection objectCorrection) {
+                return objectCorrection.getInternalOrganizationId();
+            }
+
+            @Override
+            public void setOrganizationId(ObjectCorrection objectCorrection, Long organizationId) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public List<DomainObject> getOrganizations() {
+                return internalOrganizations;
+            }
+        };
+        DisableAwareDropDownChoice<DomainObject> internalOrganization = new DisableAwareDropDownChoice<DomainObject>("internalOrganization",
+                internalOrganizationModel, internalOrganizations, renderer);
+        internalOrganization.setEnabled(false);
+        form.add(internalOrganization);
 
         Label internalObjectLabel = new Label("internalObjectLabel", internalObjectLabel(getLocale()));
         form.add(internalObjectLabel);
@@ -180,7 +264,7 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
             public void onSubmit() {
                 if (AbstractCorrectionEditPanel.this.validate()) {
                     saveOrUpdate();
-                    back();
+
                 }
             }
         };

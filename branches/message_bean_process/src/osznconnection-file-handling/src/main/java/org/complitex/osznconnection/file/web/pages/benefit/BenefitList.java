@@ -4,14 +4,11 @@
  */
 package org.complitex.osznconnection.file.web.pages.benefit;
 
-import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
-import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
-import org.complitex.osznconnection.commons.web.security.SecurityRole;
-import org.complitex.osznconnection.file.entity.example.BenefitExample;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -27,19 +24,22 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
+import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
+import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.TemplatePage;
 import org.complitex.osznconnection.file.entity.Benefit;
 import org.complitex.osznconnection.file.entity.BenefitDBF;
-import org.complitex.osznconnection.file.entity.Status;
+import org.complitex.osznconnection.file.entity.RequestFile;
+import org.complitex.osznconnection.file.entity.RequestStatus;
+import org.complitex.osznconnection.file.entity.example.BenefitExample;
 import org.complitex.osznconnection.file.service.BenefitBean;
 import org.complitex.osznconnection.file.service.RequestFileBean;
-import org.complitex.osznconnection.file.web.RequestFileList;
+import org.complitex.osznconnection.file.web.RequestFileGroupList;
 import org.complitex.osznconnection.file.web.component.StatusRenderer;
 
 import javax.ejb.EJB;
 import java.util.Arrays;
 import java.util.Iterator;
-import org.complitex.osznconnection.file.web.RequestFileGroupList;
 
 /**
  *
@@ -76,8 +76,10 @@ public final class BenefitList extends TemplatePage {
     }
 
     private void init() {
-        String fileName = requestFileBean.findById(fileId).getName();
-        IModel<String> labelModel = new StringResourceModel("label", this, null, new Object[]{fileName});
+        RequestFile requestFile = requestFileBean.findById(fileId);
+        String fileName = requestFile.getName();
+        String directory = requestFile.getDirectory();
+        IModel<String> labelModel = new StringResourceModel("label", this, null, new Object[]{fileName, directory});
         add(new Label("title", labelModel));
         add(new Label("label", labelModel));
 
@@ -124,8 +126,8 @@ public final class BenefitList extends TemplatePage {
         filterForm.add(new TextField<String>("buildingFilter", new PropertyModel<String>(example, "building")));
         filterForm.add(new TextField<String>("corpFilter", new PropertyModel<String>(example, "corp")));
         filterForm.add(new TextField<String>("apartmentFilter", new PropertyModel<String>(example, "apartment")));
-        filterForm.add(new DropDownChoice<Status>("statusFilter", new PropertyModel<Status>(example, "status"),
-                Arrays.asList(Status.values()), new StatusRenderer()));
+        filterForm.add(new DropDownChoice<RequestStatus>("statusFilter", new PropertyModel<RequestStatus>(example, "status"),
+                Arrays.asList(RequestStatus.values()), new StatusRenderer()));
 
         AjaxLink reset = new AjaxLink("reset") {
 

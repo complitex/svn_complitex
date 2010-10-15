@@ -14,8 +14,6 @@ import org.complitex.osznconnection.commons.web.template.ResourceTemplateMenu;
 import org.complitex.osznconnection.information.BookEntities;
 import org.complitex.osznconnection.information.resource.CommonResources;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -61,13 +59,6 @@ public class InformationTemplateMenu extends ResourceTemplateMenu {
                 }
             });
         }
-        Collections.sort(links, new Comparator<ITemplateLink>() {
-
-            @Override
-            public int compare(ITemplateLink o1, ITemplateLink o2) {
-                return o1.getLabel(locale).compareTo(o2.getLabel(locale));
-            }
-        });
         return links;
     }
 

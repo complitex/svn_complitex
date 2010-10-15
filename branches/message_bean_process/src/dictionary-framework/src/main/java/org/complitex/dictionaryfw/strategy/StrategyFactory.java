@@ -15,7 +15,7 @@ import javax.naming.InitialContext;
  *
  * @author Artem
  */
-@Singleton
+@Singleton(name = "StrategyFactory")
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 public class StrategyFactory {
 

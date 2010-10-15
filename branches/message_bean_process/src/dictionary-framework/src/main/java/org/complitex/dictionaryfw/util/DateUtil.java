@@ -132,6 +132,10 @@ public class DateUtil {
     }
 
     public static Date getMax(Date date1, Date date2){
+        if (date2 == null){
+            return date1;
+        }
+
         return date1.compareTo(date2) > 0 ? date1 : date2;       
     }
 

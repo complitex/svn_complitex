@@ -5,11 +5,6 @@
 package org.complitex.osznconnection.file.service;
 
 import com.google.common.collect.Maps;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.mybatis.Transactional;
@@ -22,6 +17,12 @@ import org.complitex.osznconnection.file.entity.example.ObjectCorrectionExample;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
 /**
  *
  * @author Artem
@@ -33,12 +34,12 @@ public class CorrectionBean extends AbstractBean {
 
     private static final String MAPPING_NAMESPACE = CorrectionBean.class.getName();
 
-    @EJB
+    @EJB(beanName = "StrategyFactory")
     private StrategyFactory strategyFactory;
 
     public static enum OrderBy {
 
-        CORRECTION("correction"), CODE("organization_code"), ORGANIZATION("organization");
+        CORRECTION("correction"), CODE("organization_code"), ORGANIZATION("organization"), INTERNAL_ORGANIZATION("internalOrganization");
 
         private String orderBy;
 
@@ -51,11 +52,13 @@ public class CorrectionBean extends AbstractBean {
         }
     }
 
+    @SuppressWarnings({"unchecked"})
     @Transactional
     public List<ObjectCorrection> find(ObjectCorrectionExample example) {
         return (List<ObjectCorrection>) find(example, MAPPING_NAMESPACE + ".find");
     }
 
+    @SuppressWarnings({"unchecked"})
     protected List<? extends ObjectCorrection> find(ObjectCorrectionExample example, String queryId) {
         Strategy strategy = strategyFactory.getStrategy(example.getEntity());
         List<ObjectCorrection> results = sqlSession().selectList(queryId, example);
@@ -75,6 +78,7 @@ public class CorrectionBean extends AbstractBean {
         return (Integer) sqlSession().selectOne(MAPPING_NAMESPACE + ".count", example);
     }
 
+    @SuppressWarnings({"unchecked"})
     @Transactional
     public ObjectCorrection findById(String entity, long correctionId) {
         Map<String, Object> params = Maps.newHashMap();
@@ -107,6 +111,7 @@ public class CorrectionBean extends AbstractBean {
         sqlSession().insert(MAPPING_NAMESPACE + ".insertEntityType", correction);
     }
 
+    @SuppressWarnings({"unchecked"})
     @Transactional
     public List<EntityTypeCorrection> findEntityTypes(ObjectCorrectionExample example) {
         return sqlSession().selectList(MAPPING_NAMESPACE + ".findEntityTypes", example);
@@ -117,6 +122,7 @@ public class CorrectionBean extends AbstractBean {
         return (Integer) sqlSession().selectOne(MAPPING_NAMESPACE + ".countEntityTypes", example);
     }
 
+    @SuppressWarnings({"unchecked"})
     @Transactional
     public EntityTypeCorrection findEntityTypeById(long entityTypeCorrectionId) {
         List<EntityTypeCorrection> corrections = sqlSession().selectList(MAPPING_NAMESPACE + ".findEntityTypeById", entityTypeCorrectionId);
@@ -124,5 +130,15 @@ public class CorrectionBean extends AbstractBean {
             return corrections.get(0);
         }
         return null;
+    }
+
+    @Transactional
+    public void delete(ObjectCorrection objectCorrection) {
+        sqlSession().delete(MAPPING_NAMESPACE + ".delete", objectCorrection);
+    }
+
+    @Transactional
+    public void delete(EntityTypeCorrection entityTypeCorrection) {
+        sqlSession().delete(MAPPING_NAMESPACE + ".deleteEntityType", entityTypeCorrection);
     }
 }

@@ -51,6 +51,18 @@ public class RequestFileBean extends AbstractBean {
     }
 
     @Transactional
+    public void updateStatus(RequestFile requestFile, RequestFile.STATUS status){
+        updateStatus(requestFile, status, null);
+    }
+
+    @Transactional
+    public void updateStatus(RequestFile requestFile, RequestFile.STATUS status, RequestFile.STATUS_DETAIL detail){
+        requestFile.setStatus(status, detail);
+                
+        sqlSession().update(MAPPING_NAMESPACE + ".updateRequestFile", requestFile);
+    }
+
+    @Transactional
     public void delete(RequestFile requestFile){
         switch (requestFile.getType()){
             case BENEFIT:

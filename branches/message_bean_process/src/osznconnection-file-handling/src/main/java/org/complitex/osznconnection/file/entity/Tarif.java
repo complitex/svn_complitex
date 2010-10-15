@@ -21,7 +21,7 @@ public class Tarif extends AbstractRequest{
         try {
             return TarifDBF.valueOf(name).getType();
         } catch (IllegalArgumentException e) {
-            throw new FieldNotFoundException(e);
+            throw new FieldNotFoundException(name);
         }
     }
 

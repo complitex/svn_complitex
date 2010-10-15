@@ -7,7 +7,7 @@ import org.complitex.osznconnection.file.calculation.service.CalculationCenterBe
 import org.complitex.osznconnection.file.entity.CalculationCenterInfo;
 import org.complitex.osznconnection.file.entity.Payment;
 import org.complitex.osznconnection.file.entity.RequestFile;
-import org.complitex.osznconnection.file.entity.Status;
+import org.complitex.osznconnection.file.entity.RequestStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,16 +56,16 @@ public class BindingRequestBean extends AbstractBean {
 
     private boolean resolveLocalAccount(Payment payment, long calculationCenterId) {
         personAccountService.resolveLocalAccount(payment, calculationCenterId);
-        return payment.getStatus() == Status.ACCOUNT_NUMBER_RESOLVED;
+        return payment.getStatus() == RequestStatus.ACCOUNT_NUMBER_RESOLVED;
     }
 
     private boolean resolveRemoteAccountNumber(Payment payment, long calculationCenterId, ICalculationCenterAdapter adapter) {
         personAccountService.resolveRemoteAccount(payment, calculationCenterId, adapter);
-        return payment.getStatus() == Status.ACCOUNT_NUMBER_RESOLVED;
+        return payment.getStatus() == RequestStatus.ACCOUNT_NUMBER_RESOLVED;
     }
 
     private void bind(Payment payment, long calculationCenterId, ICalculationCenterAdapter adapter) {
-        Status oldStatus = payment.getStatus();
+        RequestStatus oldStatus = payment.getStatus(); //todo [UnusedDeclaration] Variable 'oldStatus' is never used
         if (!resolveLocalAccount(payment, calculationCenterId)) {
             if (resolveAddress(payment, calculationCenterId, adapter)) {
                 if (resolveRemoteAccountNumber(payment, calculationCenterId, adapter)) {

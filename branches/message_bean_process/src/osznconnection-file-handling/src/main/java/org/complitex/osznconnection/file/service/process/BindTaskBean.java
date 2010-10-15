@@ -46,12 +46,12 @@ public class BindTaskBean extends AbstractTaskBean{
 
     private boolean resolveLocalAccount(Payment payment, long calculationCenterId) {
         personAccountService.resolveLocalAccount(payment, calculationCenterId);
-        return payment.getStatus() == Status.ACCOUNT_NUMBER_RESOLVED;
+        return payment.getStatus() == RequestStatus.ACCOUNT_NUMBER_RESOLVED;
     }
 
     private boolean resolveRemoteAccountNumber(Payment payment, long calculationCenterId, ICalculationCenterAdapter adapter) {
         personAccountService.resolveRemoteAccount(payment, calculationCenterId, adapter);
-        return payment.getStatus() == Status.ACCOUNT_NUMBER_RESOLVED;
+        return payment.getStatus() == RequestStatus.ACCOUNT_NUMBER_RESOLVED;
     }
 
 

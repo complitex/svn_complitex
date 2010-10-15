@@ -129,7 +129,7 @@ public class  LoadTaskBean {
 
                 request.setRequestFileId(requestFile.getId());
                 request.setOrganizationId(requestFile.getOrganizationId());
-                request.setStatus(Status.CITY_UNRESOLVED_LOCALLY);
+                request.setStatus(RequestStatus.CITY_UNRESOLVED_LOCALLY);
 
                 batch.add(request);
 

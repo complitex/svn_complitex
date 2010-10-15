@@ -90,7 +90,7 @@ public class LoadTaskBean extends AbstractTaskBean{
         }
     }
 
-    protected void execute(RequestFileGroup requestFileGroup) {
+    protected void execute(RequestFileGroup requestFileGroup) throws ExecuteException {
         try {
             requestFileGroupBean.save(requestFileGroup);
 
@@ -108,8 +108,8 @@ public class LoadTaskBean extends AbstractTaskBean{
         }        
     }
 
-    @SuppressWarnings({"EjbProhibitedPackageUsageInspection", "ConstantConditions"})
-    private void load(RequestFile requestFile){
+    @SuppressWarnings({"EjbProhibitedPackageUsageInspection", "ConstantConditions", "ThrowableInstanceNeverThrown"})
+    private void load(RequestFile requestFile) throws ExecuteException {
         String currentFieldName = "-1";
         int index = 0;
         int batchSize = configBean.getInteger(Config.LOAD_RECORD_BATCH_SIZE, true);
@@ -179,7 +179,7 @@ public class LoadTaskBean extends AbstractTaskBean{
 
                 request.setRequestFileId(requestFile.getId());
                 request.setOrganizationId(requestFile.getOrganizationId());
-                request.setStatus(Status.CITY_UNRESOLVED_LOCALLY);
+                request.setStatus(RequestStatus.CITY_UNRESOLVED_LOCALLY);
 
                 batch.add(request);
 
@@ -202,54 +202,27 @@ public class LoadTaskBean extends AbstractTaskBean{
             }
 
             //Загрузка завершена
-            requestFile.setStatus(LOADED);
-        }catch (FieldNotFoundException e){
-            requestFile.setStatus(LOAD_ERROR, FIELD_NOT_FOUND);
-            log.error("Поле не найдено " + requestFile.getAbsolutePath() + ", строка: " + index + ", колонка " + currentFieldName, e);
-            error(requestFile, "Поле {0} не найдено в файле {1}, строка: {2}, колонка: {3}", e.getMessage(), requestFile.getName(), index, currentFieldName);
-        } catch (FieldWrongTypeException e) {
-            requestFile.setStatus(LOAD_ERROR, FIELD_WRONG_TYPE);
-            log.error("Недопустимый тип поля " + requestFile.getAbsolutePath()+ ", колонка: " + currentFieldName, e);
-            error(requestFile, "Неверный тип поля {0} в файле {1}, колонка: {2}", e.getMessage(), requestFile.getName(), currentFieldName);
-        } catch (FieldWrongSizeException e) {
-            requestFile.setStatus(LOAD_ERROR, FIELD_WRONG_SIZE);
-            log.error("Недопустимый размер поля " + requestFile.getAbsolutePath()+ ", строка: " + index, e);
-            error(requestFile, "Неверный размер поля {0} в файле {1}, строка: {2}, колонка: {3}",
-                    e.getMessage(), requestFile.getName(), index, currentFieldName);
-        } catch (AlreadyLoadedException e) {
+            requestFile.setLoaded(DateUtil.getCurrentDate());
+            requestFileBean.updateStatus(requestFile, LOADED);
+            log.info("Файл успешно загружен {}", requestFile.getName());
+            info(requestFile, "Файл успешно загружен {0}", requestFile.getName());
+        }catch (AlreadyLoadedException e) {
             requestFile.setStatus(SKIPPED, ALREADY_LOADED);
             log.warn("Файл уже загружен {}", requestFile.getAbsolutePath());
             info(requestFile, "Файл уже загружен {0}", requestFile.getName());
-        } catch (SqlSessionException e){
-            requestFile.setStatus(LOAD_ERROR, SQL_SESSION);
-            log.error("Ошибка сохранения в базу данных при обработке файла " + requestFile.getAbsolutePath() + ", строка: " + index, e);
-            error(requestFile, "Ошибка сохранения в базу данных файла {0}. {1}, строка: {2}", requestFile.getName(), e.getMessage(), index);
+            throw new LoadException(new SkipException(), requestFile, index, currentFieldName);
+        } catch (FieldNotFoundException e){
+            executionError(new LoadException(e, requestFile, index, currentFieldName), LOAD_ERROR, FIELD_NOT_FOUND);
+        } catch (FieldWrongTypeException e) {
+            executionError(new LoadException(e, requestFile, index, currentFieldName), LOAD_ERROR, FIELD_WRONG_TYPE);
+        } catch (FieldWrongSizeException e) {
+            executionError(new LoadException(e, requestFile, index, currentFieldName), LOAD_ERROR, FIELD_WRONG_SIZE);
+        }  catch (SqlSessionException e){
+            executionError(new LoadException(e, requestFile, index, currentFieldName), LOAD_ERROR, SQL_SESSION);
         } catch (DBFException e){
-            requestFile.setStatus(LOAD_ERROR, DBF);
-            log.error("Ошибка формата файла " + requestFile.getAbsolutePath()+ ", строка: " + index, e);
-            error(requestFile, "Ошибка формата файла {0} {1}, строка: {2}", requestFile.getName(), e.getMessage(), index, currentFieldName);
-        } catch (Throwable t){
-            requestFile.setStatus(LOAD_ERROR, CRITICAL);
-            log.error("Критическая ошибка загрузки файла " + requestFile.getAbsolutePath()+ ", строка: " + index + ", колонка: " + currentFieldName, t);
-            error(requestFile, "Критическая ошибка загрузки файла {0}, строка: {1}, колонка: {2}", requestFile.getName(), index, currentFieldName);
-        } finally {
-            if (requestFile.getStatusDetail() != ALREADY_LOADED) {
-                requestFile.setLoaded(DateUtil.getCurrentDate());
-
-                try {
-                    if (requestFile.getId() != null) { //update status
-                        requestFileBean.save(requestFile);
-                    }
-                } catch (Exception e) {
-                    log.error("Ошибка сохранения в базу данных при обработке файла " + requestFile.getAbsolutePath(), e);
-                    error(requestFile, "Ошибка сохранения в базу данных файла {0}. {1}", requestFile.getName(), e.getMessage());
-                }
-
-                if (requestFile.getStatus() == LOADED){
-                    log.info("Файл успешно загружен {}", requestFile.getName());
-                    info(requestFile, "Файл успешно загружен {0}", requestFile.getName());
-                }
-            }
+            executionError(new LoadException(e, requestFile, index, currentFieldName), LOAD_ERROR, DBF);
+        } catch (Exception e){
+            executionError(new LoadException(e, requestFile, index, currentFieldName), LOAD_ERROR, CRITICAL);
         }
     }
 }

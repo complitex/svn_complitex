@@ -5,7 +5,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import java.io.Serializable;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AbstractAutoCompleteTextRenderer;
@@ -19,17 +18,19 @@ import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.complitex.dictionaryfw.entity.DomainObject;
+import org.complitex.dictionaryfw.entity.example.ComparisonType;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.service.StringCultureBean;
+import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.complitex.dictionaryfw.strategy.Strategy;
 
 /**
  *
@@ -91,10 +92,10 @@ public final class SearchComponent extends Panel {
 
     /**
      * Used where some filters must have distinct from others settings. For example, some filters must be disabled but others not.
-     * @param id
-     * @param componentState
-     * @param searchFilterSettings
-     * @param callback
+     * @param id String
+     * @param componentState SearchComponentState
+     * @param searchFilterSettings List<SearchFilterSettings>
+     * @param callback ISearchCallback
      */
     public SearchComponent(String id, SearchComponentState componentState, List<SearchFilterSettings> searchFilterSettings,
             ISearchCallback callback) {
@@ -201,24 +202,39 @@ public final class SearchComponent extends Panel {
                         if (!isComplete(previousInfo)) {
                             return Collections.emptyList();
                         }
+                        
+                        List<DomainObject> choiceList = Lists.newArrayList();
 
-                        DomainObjectExample example = new DomainObjectExample();
-                        example.setTable(entity);
-                        Strategy strategy = strategyFactory.getStrategy(entity);
-                        strategy.configureExample(example, SearchComponent.<Long>transformObjects(previousInfo), searchTextInput);
-                        example.setOrderByExpression(strategy.getOrderByExpression("e.`object_id`", getLocale().getLanguage(),
-                                transformObjects(previousInfo)));
-                        example.setAsc(true);
-                        example.setStart(0);
-                        example.setSize(AUTO_COMPLETE_SIZE);
-                        example.setLocale(getLocale().getLanguage());
-                        List<DomainObject> list = strategyFactory.getStrategy(entity).find(example);
+                        List<DomainObject> equalToExample = findByExample(entity, searchTextInput, previousInfo, ComparisonType.EQUALITY,
+                                AUTO_COMPLETE_SIZE);
+                        if (equalToExample.size() == AUTO_COMPLETE_SIZE) {
+                            choiceList.addAll(equalToExample);
+                        } else {
+                            choiceList.addAll(equalToExample);
+                            List<DomainObject> likeExample = findByExample(entity, searchTextInput, previousInfo, ComparisonType.LIKE,
+                                    AUTO_COMPLETE_SIZE);
+                            if (equalToExample.isEmpty()) {
+                                choiceList.addAll(likeExample);
+                            } else {
+                                for (DomainObject likeObject : likeExample) {
+                                    boolean isAddedAlready = false;
+                                    for (DomainObject equalObject : equalToExample) {
+                                        if (equalObject.getId().equals(likeObject.getId())) {
+                                            isAddedAlready = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!isAddedAlready) {
+                                        choiceList.add(likeObject);
+                                    }
+                                }
+                            }
+                        }
 
                         DomainObject notSpecified = new DomainObject();
                         notSpecified.setId(-1L);
-                        list.add(notSpecified);
-
-                        return list;
+                        choiceList.add(notSpecified);
+                        return choiceList;
                     }
                 };
 
@@ -268,6 +284,7 @@ public final class SearchComponent extends Panel {
                             });
                         }
 
+                        @SuppressWarnings({"unchecked"})
                         private void setFocusOnNextFilter(AjaxRequestTarget target) {
                             ListItem<String> nextItem = (ListItem<String>) ((ListView) item.getParent()).get(index + 1);
                             target.focusComponent(nextItem.get("filter"));
@@ -314,6 +331,7 @@ public final class SearchComponent extends Panel {
     private static <T> Map<String, T> transformObjects(Map<String, DomainObject> objects) {
         return Maps.transformValues(objects, new Function<DomainObject, T>() {
 
+            @SuppressWarnings({"unchecked"})
             @Override
             public T apply(DomainObject from) {
                 return from != null ? (T) from.getId() : null;
@@ -334,5 +352,22 @@ public final class SearchComponent extends Panel {
         } else {
             textField.setEnabled(enabled);
         }
+    }
+
+    private List<DomainObject> findByExample(String entity, String searchTextInput, Map<String, DomainObject> previousInfo,
+            ComparisonType comparisonType, int size) {
+        Strategy strategy = strategyFactory.getStrategy(entity);
+
+        DomainObjectExample example = new DomainObjectExample();
+        strategy.configureExample(example, SearchComponent.<Long>transformObjects(previousInfo), searchTextInput);
+        if (comparisonType == ComparisonType.LIKE) {
+            example.setOrderByExpression(strategy.getOrderByExpression("e.`object_id`", getLocale().getLanguage(),
+                    transformObjects(previousInfo)));
+            example.setAsc(true);
+        }
+        example.setSize(size);
+        example.setLocale(getLocale().getLanguage());
+        example.setComparisonType(comparisonType.name());
+        return strategy.find(example);
     }
 }

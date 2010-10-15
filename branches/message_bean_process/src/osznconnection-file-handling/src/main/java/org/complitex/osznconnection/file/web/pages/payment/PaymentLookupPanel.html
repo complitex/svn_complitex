@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns:wicket>
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
     <head>
         <title></title>
     </head>
     <body>
         <wicket:panel>
-            <div wicket:id="dialog">
+            <div wicket:id="dialog" style="display: none" wicket:message="title:title">
 
                 <div wicket:id="messages"></div>
 
@@ -37,14 +37,7 @@
                         <div style="margin-top: 10px;">
                             <input type="button" class="btnMiddle" wicket:id="lookupByAddress" wicket:message="value:lookup"/>
                         </div>
-                        <div wicket:id="chooseAccountNumberContainer">
-                            <div>
-                                <wicket:message key="choose_account_number"/>
-                            </div>
-                            <span wicket:id="accountDetails">
-                                <input type="radio"></input>
-                            </span>
-                        </div>
+                        <span wicket:id="accountNumberCorrectionPanel"></span>
                     </div>
 
                     <h3><a href="#lookupByOwnNumSr"><wicket:message key="lookup_by_own_num_sr"/></a></h3>
@@ -82,7 +75,7 @@
                     </div>
                 </div>
                 <h3>
-                    <wicket:message key="account_number"/>: <span wicket:id="accountNumber"></span>
+                    <wicket:message key="account_info"/>: <span wicket:id="accountInfo"></span>
                 </h3>
                 <div style="margin-top: 10px;">
                     <input type="button" wicket:message="value:save" wicket:id="save" class="btnMiddle"/>

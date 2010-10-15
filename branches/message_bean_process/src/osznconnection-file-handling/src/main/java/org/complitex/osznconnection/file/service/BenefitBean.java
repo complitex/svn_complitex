@@ -9,7 +9,10 @@ import org.complitex.osznconnection.file.entity.example.BenefitExample;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Обработка записей файла запроса возмещения по льготам 
@@ -52,7 +55,7 @@ public class BenefitBean extends AbstractBean {
     }
 
     private int boundCount(long fileId) {
-        return countByFile(fileId, Status.notBoundStatuses());
+        return countByFile(fileId, RequestStatus.notBoundStatuses());
     }
 
     @Transactional
@@ -100,11 +103,11 @@ public class BenefitBean extends AbstractBean {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("paymentId", paymentId);
         params.put("accountNumber", accountNumber);
-        params.put("status", Status.ACCOUNT_NUMBER_RESOLVED.name());
+        params.put("status", RequestStatus.ACCOUNT_NUMBER_RESOLVED);
         sqlSession().update(MAPPING_NAMESPACE + ".updateAccountNumber", params);
     }
 
-    private void updateStatusForFile(long fileId, List<Status> statuses) {
+    private void updateStatusForFile(long fileId, List<RequestStatus> statuses) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("fileId", fileId);
         params.put("statuses", statuses);
@@ -113,7 +116,7 @@ public class BenefitBean extends AbstractBean {
 
     @Transactional
     public void updateBindingStatus(long fileId) {
-        updateStatusForFile(fileId, Status.notBoundStatuses());
+        updateStatusForFile(fileId, RequestStatus.notBoundStatuses());
     }
 
     @Transactional
@@ -124,7 +127,7 @@ public class BenefitBean extends AbstractBean {
     }
 
     private int processedCount(long fileId) {
-        return countByFile(fileId, Status.notProcessedStatuses());
+        return countByFile(fileId, RequestStatus.notProcessedStatuses());
     }
 
     @Transactional
@@ -132,7 +135,7 @@ public class BenefitBean extends AbstractBean {
         return processedCount(fileId) == 0;
     }
 
-    private int countByFile(long fileId, List<Status> statuses) {
+    private int countByFile(long fileId, List<RequestStatus> statuses) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("requestFileId", fileId);
         params.put("statuses", statuses);
@@ -147,11 +150,13 @@ public class BenefitBean extends AbstractBean {
         return (Date) sqlSession().selectOne(MAPPING_NAMESPACE + ".findDat1", params);
     }
 
+    @SuppressWarnings({"unchecked"})
     @Transactional
     public List<String> getAllAccountNumbers(long fileId) {
         return sqlSession().selectList(MAPPING_NAMESPACE + ".allAccountNumbers", fileId);
     }
 
+    @SuppressWarnings({"unchecked"})
     @Transactional
     public List<Benefit> findByAccountNumber(String accountNumber, long fileId) {
         Map<String, Object> params = Maps.newHashMap();

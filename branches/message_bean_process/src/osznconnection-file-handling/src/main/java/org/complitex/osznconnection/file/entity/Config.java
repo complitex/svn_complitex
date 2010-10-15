@@ -13,7 +13,7 @@ public enum Config {
         FILL_THREADS_SIZE("10"),
         SAVE_THREADS_SIZE("2"),
 
-        LOAD_RECORD_BATCH_SIZE("64"),
+        LOAD_RECORD_BATCH_SIZE("32"),
         BIND_RECORD_BATCH_SIZE("64"),
         FILL_RECORD_BATCH_SIZE("64"),
 

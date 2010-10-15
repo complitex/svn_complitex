@@ -7,6 +7,8 @@ import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.entity.RequestFileGroup;
 import org.complitex.osznconnection.file.service.*;
 import org.complitex.osznconnection.file.service.exception.ExecuteException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
@@ -16,6 +18,8 @@ import javax.ejb.EJB;
  *         Date: 08.10.2010 16:08:40
  */
 public abstract class AbstractTaskBean{
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
     @EJB(beanName = "LogBean")
     protected LogBean logBean;
 
@@ -51,29 +55,31 @@ public abstract class AbstractTaskBean{
 
     protected abstract void execute(RequestFileGroup group) throws ExecuteException;
 
+    /**
+     * Update log and throw next.
+     * Обновляет статус файла в базе данных, логирует в лог и в журнал событий выбрасывает исключение
+     * @param e Ошибка выполнения задачи
+     * @param status Статус
+     * @param detail Описание статуса
+     * @throws ExecuteException Обвертка исключения
+     */
+    protected void executionError(ExecuteException e, RequestFile.STATUS status, RequestFile.STATUS_DETAIL detail) 
+            throws ExecuteException {
+        requestFileBean.updateStatus(e.getRequestFile(), status, detail);
+
+        log.error(e.getMessage(), e);
+        error(e.getRequestFile(), e.getMessage() + ". Причина: " + e.getCause().getMessage());
+
+        throw e;
+    }
+
     protected void info(RequestFile requestFile, String decs, Object... args){
-        logBean.info(
-                Module.NAME,
-                getClass(),
-                RequestFile.class,
-                null,
-                requestFile.getId(),
-                Log.EVENT.CREATE,
-                requestFile.getLogChangeList(),
-                decs,
-                args);
+        logBean.info(Module.NAME, getClass(), RequestFile.class, null, requestFile.getId(), Log.EVENT.EDIT,
+                requestFile.getLogChangeList(), decs, args);
     }
 
     protected void error(RequestFile requestFile, String decs, Object... args){
-        logBean.error(
-                Module.NAME,
-                getClass(),
-                RequestFile.class,
-                null,
-                requestFile.getId(),
-                Log.EVENT.CREATE,
-                requestFile.getLogChangeList(),
-                decs,
-                args);
+        logBean.error(Module.NAME, getClass(), RequestFile.class, null, requestFile.getId(), Log.EVENT.EDIT,
+                requestFile.getLogChangeList(), decs, args);
     }
 }

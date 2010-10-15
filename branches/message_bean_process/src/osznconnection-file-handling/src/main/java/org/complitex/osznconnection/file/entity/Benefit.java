@@ -41,7 +41,7 @@ public class Benefit extends AbstractRequest {
         try {
             return BenefitDBF.valueOf(name).getType();
         } catch (IllegalArgumentException e) {
-            throw new FieldNotFoundException(e);
+            throw new FieldNotFoundException(name);
         }
     }
 

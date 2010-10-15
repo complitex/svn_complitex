@@ -4,14 +4,12 @@
  */
 package org.complitex.osznconnection.file.web.pages.payment;
 
-import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
-import org.complitex.osznconnection.commons.web.security.SecurityRole;
-import org.complitex.osznconnection.file.entity.example.PaymentExample;
-import com.google.common.collect.ImmutableMap;
+import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -19,7 +17,6 @@ import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.IModel;
@@ -27,21 +24,25 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.util.string.Strings;
+import org.complitex.dictionaryfw.util.CloneUtil;
 import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
+import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.TemplatePage;
 import org.complitex.osznconnection.file.entity.Payment;
 import org.complitex.osznconnection.file.entity.PaymentDBF;
-import org.complitex.osznconnection.file.entity.Status;
+import org.complitex.osznconnection.file.entity.RequestFile;
+import org.complitex.osznconnection.file.entity.RequestStatus;
+import org.complitex.osznconnection.file.entity.example.PaymentExample;
+import org.complitex.osznconnection.file.service.AddressService;
 import org.complitex.osznconnection.file.service.PaymentBean;
 import org.complitex.osznconnection.file.service.RequestFileBean;
+import org.complitex.osznconnection.file.web.RequestFileGroupList;
 import org.complitex.osznconnection.file.web.component.StatusRenderer;
 
 import javax.ejb.EJB;
 import java.util.Arrays;
 import java.util.Iterator;
-import org.complitex.dictionaryfw.util.CloneUtil;
-import org.complitex.osznconnection.file.web.RequestFileGroupList;
 
 /**
  *
@@ -57,6 +58,9 @@ public final class PaymentList extends TemplatePage {
 
     @EJB(name = "RequestFileBean")
     private RequestFileBean requestFileBean;
+
+    @EJB(name = "AddressService")
+    private AddressService addressService;
 
     private IModel<PaymentExample> example;
 
@@ -78,8 +82,10 @@ public final class PaymentList extends TemplatePage {
     }
 
     private void init() {
-        String fileName = requestFileBean.findById(fileId).getName();
-        IModel<String> labelModel = new StringResourceModel("label", this, null, new Object[]{fileName});
+        RequestFile requestFile = requestFileBean.findById(fileId);
+        String fileName = requestFile.getName();
+        String directory = requestFile.getDirectory();
+        IModel<String> labelModel = new StringResourceModel("label", this, null, new Object[]{fileName, directory});
         add(new Label("title", labelModel));
         add(new Label("label", labelModel));
 
@@ -126,8 +132,8 @@ public final class PaymentList extends TemplatePage {
         filterForm.add(new TextField<String>("buildingFilter", new PropertyModel<String>(example, "building")));
         filterForm.add(new TextField<String>("corpFilter", new PropertyModel<String>(example, "corp")));
         filterForm.add(new TextField<String>("apartmentFilter", new PropertyModel<String>(example, "apartment")));
-        filterForm.add(new DropDownChoice<Status>("statusFilter", new PropertyModel<Status>(example, "status"),
-                Arrays.asList(Status.values()), new StatusRenderer()));
+        filterForm.add(new DropDownChoice<RequestStatus>("statusFilter", new PropertyModel<RequestStatus>(example, "status"),
+                Arrays.asList(RequestStatus.values()), new StatusRenderer()));
 
         AjaxLink reset = new AjaxLink("reset") {
 
@@ -170,13 +176,39 @@ public final class PaymentList extends TemplatePage {
                         break;
                 }
                 item.add(new Label("statusDetails", statusDetails));
-                BookmarkablePageLink addressCorrectionLink = new BookmarkablePageLink<PaymentAddressCorrection>("addressCorrectionLink",
-                        PaymentAddressCorrection.class, new PageParameters(ImmutableMap.of(PaymentAddressCorrection.PAYMENT_ID, payment.getId())));
+
+                final AddressCorrectionPanel addressCorrectionPanel = new AddressCorrectionPanel("addressCorrectionPanel", payment,
+                        new MarkupContainer[]{content}) {
+
+                    @Override
+                    protected void correctAddress(Long cityId, Long streetId, Long streetTypeId, Long buildingId, Long apartmentId) {
+                        addressService.correctLocalAddress(payment, cityId, streetId, streetTypeId, buildingId, apartmentId);
+                    }
+                };
+                addressCorrectionPanel.setVisible(payment.getStatus().isLocalAddressCorrected());
+                item.add(addressCorrectionPanel);
+                AjaxLink addressCorrectionLink = new AjaxLink("addressCorrectionLink") {
+
+                    @Override
+                    public void onClick(AjaxRequestTarget target) {
+                        addressCorrectionPanel.open(target);
+                    }
+                };
                 addressCorrectionLink.setVisible(payment.getStatus().isLocalAddressCorrected());
                 item.add(addressCorrectionLink);
-                BookmarkablePageLink accountCorrectionLink = new BookmarkablePageLink<PaymentAccountNumberCorrection>("accountCorrectionLink",
-                        PaymentAccountNumberCorrection.class, new PageParameters(ImmutableMap.of(PaymentAccountNumberCorrection.PAYMENT_ID, payment.getId())));
-                accountCorrectionLink.setVisible(payment.getStatus() == Status.MORE_ONE_ACCOUNTS);
+
+                final PaymentAccountNumberCorrectionPanel paymentAccountNumberCorrectionPanel =
+                        new PaymentAccountNumberCorrectionPanel("paymentAccountNumberCorrectionPanel", payment, new MarkupContainer[]{content});
+                paymentAccountNumberCorrectionPanel.setVisible(payment.getStatus() == RequestStatus.MORE_ONE_ACCOUNTS);
+                item.add(paymentAccountNumberCorrectionPanel);
+                AjaxLink accountCorrectionLink = new AjaxLink("accountCorrectionLink") {
+
+                    @Override
+                    public void onClick(AjaxRequestTarget target) {
+                        paymentAccountNumberCorrectionPanel.open(target);
+                    }
+                };
+                accountCorrectionLink.setVisible(payment.getStatus() == RequestStatus.MORE_ONE_ACCOUNTS);
                 item.add(accountCorrectionLink);
 
                 final Payment lookupPayment = CloneUtil.cloneObject(payment);
@@ -185,7 +217,7 @@ public final class PaymentList extends TemplatePage {
                     @Override
                     protected void updateAccountNumber(String accountNumber) {
                         payment.setAccountNumber(accountNumber);
-                        payment.setStatus(Status.ACCOUNT_NUMBER_RESOLVED);
+                        payment.setStatus(RequestStatus.ACCOUNT_NUMBER_RESOLVED);
                         paymentBean.updateAccountNumber(payment);
                     }
                 };
