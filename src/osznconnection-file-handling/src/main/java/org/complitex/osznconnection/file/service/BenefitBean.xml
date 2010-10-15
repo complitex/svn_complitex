@@ -277,5 +277,35 @@
         `id` = #{id}
     </update>
 
+    <update id="clearBeforeBinding" parameterType="org.complitex.osznconnection.file.entity.Benefit">
+        UPDATE `benefit` SET
+        `status` = #{status},
+        `ORD_FAM` = #{dbfFields.ORD_FAM},
+        `PRIV_CAT` = #{dbfFields.PRIV_CAT},
+        `CM_AREA` = #{dbfFields.CM_AREA},
+        `OWN_FRM` = #{dbfFields.OWN_FRM},
+        `HOSTEL` = #{dbfFields.HOSTEL},
+        `account_number` = #{accountNumber}
+        WHERE
+        `request_file_id` = #{requestFileId}
+    </update>
+
+    <update id="clearBeforeProcessing" parameterType="org.complitex.osznconnection.file.entity.Benefit">
+        UPDATE `benefit` b SET
+        b.`ORD_FAM` = NULL,
+        b.`PRIV_CAT` = NULL,
+        b.`CM_AREA` = NULL,
+        b.`OWN_FRM` = NULL,
+        b.`HOSTEL` = NULL,
+        b.`status` = CASE b.`status`
+                        <foreach collection="statuses" item="status">
+                            WHEN #{status} THEN #{status}
+                        </foreach>
+                        ELSE 214
+                     END
+        WHERE
+        `request_file_id` = #{fileId}
+    </update>
+
 
 </mapper>

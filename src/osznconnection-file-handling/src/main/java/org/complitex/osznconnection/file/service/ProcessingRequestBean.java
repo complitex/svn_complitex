@@ -13,14 +13,12 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
-import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
 import org.complitex.osznconnection.file.calculation.service.CalculationCenterBean;
 import org.complitex.osznconnection.file.entity.Benefit;
 import org.complitex.osznconnection.file.entity.CalculationCenterInfo;
 import org.complitex.osznconnection.file.entity.Payment;
-import org.complitex.osznconnection.file.entity.PaymentDBF;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.entity.RequestStatus;
 import org.slf4j.Logger;
@@ -50,20 +48,28 @@ public class ProcessingRequestBean extends AbstractBean {
     @EJB
     private RequestFileBean requestFileBean;
 
-    private void processPayment(Payment payment, ICalculationCenterAdapter adapter, long calculationCenterId) {
-        if(payment.getField(PaymentDBF.DAT1) == null || Strings.isEmpty(payment.getAccountNumber())){
-            return ;
+    private void process(Payment payment, ICalculationCenterAdapter adapter, long calculationCenterId) {
+        log.info("Payment status: {}, is not bound: {}", payment.getStatus(), RequestStatus.notBoundStatuses().contains(payment.getStatus()));
+        if (RequestStatus.notBoundStatuses().contains(payment.getStatus())) {
+            return;
         }
         Benefit benefit = new Benefit();
         RequestStatus oldStatus = payment.getStatus();
         adapter.processPaymentAndBenefit(payment, benefit, calculationCenterId);
 //        if (payment.getStatus() != oldStatus) {
-            paymentBean.update(payment);
-            benefitBean.populateBenefit(payment.getId(), benefit);
+        paymentBean.update(payment);
+        benefitBean.populateBenefit(payment.getId(), benefit);
 //        }
     }
 
-    public void processPayment(RequestFile paymentFile) {
+    public void processPaymentAndBenefit(RequestFile paymentFile, RequestFile benefitFile) {
+        paymentBean.clearBeforeProcessing(paymentFile.getId());
+        benefitBean.clearBeforeProcessing(benefitFile.getId());
+        processPayment(paymentFile);
+        processBenefit(benefitFile);
+    }
+
+    private void processPayment(RequestFile paymentFile) {
         try {
             CalculationCenterInfo calculationCenterInfo = calculationCenterBean.getCurrentCalculationCenterInfo();
             ICalculationCenterAdapter adapter = calculationCenterInfo.getAdapterInstance();
@@ -84,7 +90,7 @@ public class ProcessingRequestBean extends AbstractBean {
                     getSqlSessionManager().startManagedSession(false);
                     List<Payment> payments = paymentBean.findForOperation(paymentFile.getId(), batch);
                     for (Payment payment : payments) {
-                        processPayment(payment, adapter, calculationCenterInfo.getId());
+                        process(payment, adapter, calculationCenterInfo.getId());
                     }
                     getSqlSessionManager().commit();
                 } catch (Exception e) {
@@ -117,7 +123,7 @@ public class ProcessingRequestBean extends AbstractBean {
         }
     }
 
-    public void processBenefit(RequestFile benefitFile) {
+    private void processBenefit(RequestFile benefitFile) {
         try {
             CalculationCenterInfo calculationCenterInfo = calculationCenterBean.getCurrentCalculationCenterInfo();
             ICalculationCenterAdapter adapter = calculationCenterInfo.getAdapterInstance();
@@ -144,7 +150,7 @@ public class ProcessingRequestBean extends AbstractBean {
                     for (Benefit benefit : benefits) {
                         RequestStatus oldStatus = statuses.get(benefit.getId());
 //                        if (oldStatus != benefit.getStatus()) {
-                            benefitBean.update(benefit);
+                        benefitBean.update(benefit);
 //                        }
                     }
                 }
