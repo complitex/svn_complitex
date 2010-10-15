@@ -49,7 +49,6 @@ public class ProcessingRequestBean extends AbstractBean {
     private RequestFileBean requestFileBean;
 
     private void process(Payment payment, ICalculationCenterAdapter adapter, long calculationCenterId) {
-        log.info("Payment status: {}, is not bound: {}", payment.getStatus(), RequestStatus.notBoundStatuses().contains(payment.getStatus()));
         if (RequestStatus.notBoundStatuses().contains(payment.getStatus())) {
             return;
         }
