@@ -1,5 +1,6 @@
 package org.complitex.osznconnection.file.service;
 
+import com.google.common.collect.Maps;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.entity.*;
@@ -116,25 +117,23 @@ public class PaymentBean extends AbstractBean {
     }
 
     @SuppressWarnings({"unchecked"})
-    private List<Long> findIdsForOperation(long fileId, List<RequestStatus> statuses) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("requestFileId", fileId);
-        params.put("statuses", statuses);
-        return sqlSession().selectList(MAPPING_NAMESPACE + ".findIdsForOperation", params);
+    private List<Long> findIdsForOperation(long fileId) {
+//        Map<String, Object> params = new HashMap<String, Object>();
+//        params.put("requestFileId", fileId);
+//        params.put("statuses", statuses);
+        return sqlSession().selectList(MAPPING_NAMESPACE + ".findIdsForOperation", fileId);
     }
 
     @Transactional
     public List<Long> findIdsForBinding(long fileId) {
-        List<RequestStatus> bindingStatuses = RequestStatus.notBoundStatuses();
-        bindingStatuses.add(RequestStatus.ACCOUNT_NUMBER_RESOLVED);
-        return findIdsForOperation(fileId, bindingStatuses);
+//        List<RequestStatus> bindingStatuses = RequestStatus.notBoundStatuses();
+        return findIdsForOperation(fileId);
     }
 
     @Transactional
     public List<Long> findIdsForProcessing(long fileId) {
-        List<RequestStatus> processingStatuses = RequestStatus.notProcessedStatuses();
-        processingStatuses.add(RequestStatus.PROCESSED);
-        return findIdsForOperation(fileId, processingStatuses);
+//        List<RequestStatus> processingStatuses = RequestStatus.notProcessedStatuses();
+        return findIdsForOperation(fileId);
     }
 
     private int boundCount(long fileId) {
@@ -222,5 +221,21 @@ public class PaymentBean extends AbstractBean {
         benefitBean.updateAccountNumber(payment.getId(), payment.getAccountNumber());
         long calculationCenterId = calculationCenterBean.getCurrentCalculationCenterInfo().getId();
         personAccountLocalBean.saveOrUpdate(payment, calculationCenterId);
+    }
+
+    @Transactional
+    public void clearBeforeBinding(long fileId){
+        Payment parameter = new Payment();
+        parameter.setRequestFileId(fileId);
+        parameter.setStatus(RequestStatus.CITY_UNRESOLVED_LOCALLY);
+        sqlSession().update(MAPPING_NAMESPACE+".clearBeforeBinding", parameter);
+    }
+
+    @Transactional
+    public void clearBeforeProcessing(long fileId){
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("statuses", RequestStatus.notBoundStatuses());
+        params.put("fileId", fileId);
+        sqlSession().update(MAPPING_NAMESPACE+".clearBeforeProcessing", params);
     }
 }

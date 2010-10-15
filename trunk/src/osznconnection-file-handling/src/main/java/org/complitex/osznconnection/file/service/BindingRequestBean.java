@@ -74,7 +74,14 @@ public class BindingRequestBean extends AbstractBean {
 //        }
     }
 
-    public void bindPaymentFile(RequestFile paymentFile) {
+    public void bindPaymentAndBenefit(RequestFile paymentFile, RequestFile benefitFile) {
+        paymentBean.clearBeforeBinding(paymentFile.getId());
+        benefitBean.clearBeforeBinding(benefitFile.getId());
+        bindPaymentFile(paymentFile);
+        bindBenefitFile(benefitFile);
+    }
+
+    private void bindPaymentFile(RequestFile paymentFile) {
         try {
             CalculationCenterInfo calculationCenterInfo = calculationCenterBean.getCurrentCalculationCenterInfo();
             long calculationCenterId = calculationCenterInfo.getId();
@@ -128,7 +135,7 @@ public class BindingRequestBean extends AbstractBean {
         }
     }
 
-    public void bindBenefitFile(RequestFile benefitFile) {
+    private void bindBenefitFile(RequestFile benefitFile) {
         try {
             benefitFile.setStatus(RequestFile.STATUS.BINDING);
             requestFileBean.save(benefitFile);

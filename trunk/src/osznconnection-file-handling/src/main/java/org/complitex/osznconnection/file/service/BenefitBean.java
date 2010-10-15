@@ -171,4 +171,20 @@ public class BenefitBean extends AbstractBean {
     public void update(Benefit benefit) {
         sqlSession().update(MAPPING_NAMESPACE + ".update", benefit);
     }
+
+    @Transactional
+    public void clearBeforeBinding(long fileId) {
+        Benefit parameter = new Benefit();
+        parameter.setRequestFileId(fileId);
+        parameter.setStatus(RequestStatus.CITY_UNRESOLVED_LOCALLY);
+        sqlSession().update(MAPPING_NAMESPACE + ".clearBeforeBinding", parameter);
+    }
+
+    @Transactional
+    public void clearBeforeProcessing(long fileId) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("statuses", RequestStatus.notBoundStatuses());
+        params.put("fileId", fileId);
+        sqlSession().update(MAPPING_NAMESPACE + ".clearBeforeProcessing", params);
+    }
 }

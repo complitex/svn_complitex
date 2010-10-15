@@ -369,7 +369,10 @@ public class RequestFileGroupList extends TemplatePage {
                     if (selectModels.get(requestFileGroup).getObject()) {
                         for (RequestFile requestFile : requestFileGroup.getRequestFiles()) {
                             requestFiles.add(requestFile);
-                            if (requestFile.getStatus() == RequestFile.STATUS.BINDED) {
+                            if (requestFile.getStatus() == RequestFile.STATUS.BINDED || requestFile.getStatus() == RequestFile.STATUS.PROCESSED
+                                    || requestFile.getStatus() == RequestFile.STATUS.PROCESSED_WITH_ERRORS
+                                    || requestFile.getStatus() == RequestFile.STATUS.SAVED
+                                    || requestFile.getStatus() == RequestFile.STATUS.SAVE_ERROR) {
                                 warn(getStringFormat("has_been_bound", requestFile.getName(), requestFile.getDirectory(), File.separator));
                             }
                         }
@@ -399,7 +402,8 @@ public class RequestFileGroupList extends TemplatePage {
                     if (selectModels.get(requestFileGroup).getObject()) {
                         for (RequestFile requestFile : requestFileGroup.getRequestFiles()) {
                             requestFiles.add(requestFile);
-                            if (requestFile.getStatus() == RequestFile.STATUS.PROCESSED) {
+                            if (requestFile.getStatus() == RequestFile.STATUS.PROCESSED || requestFile.getStatus() == RequestFile.STATUS.SAVED
+                                    || requestFile.getStatus() == RequestFile.STATUS.SAVE_ERROR) {
                                 warn(getStringFormat("has_been_processed", requestFile.getName(), requestFile.getDirectory(), File.separator));
                             }
                         }

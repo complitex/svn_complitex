@@ -25,8 +25,7 @@ public enum RequestStatus implements IEnumCode {
     PROCESSED(215, false, false),
     TARIF_CODE2_1_NOT_FOUND(216, false, false),
     WRONG_ACCOUNT_NUMBER(217, false, false),
-    BENEFIT_NOT_FOUND(218, false, false),
-    UNLOADED(219, false, false);
+    BENEFIT_NOT_FOUND(218, false, false);
 
     private boolean localAddressCorrected;
 
