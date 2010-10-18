@@ -6,7 +6,9 @@ import org.complitex.osznconnection.file.Module;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.entity.RequestFileGroup;
 import org.complitex.osznconnection.file.service.*;
-import org.complitex.osznconnection.file.service.exception.ExecuteException;
+import org.complitex.osznconnection.file.service.exception.AbstractExecuteException;
+import org.complitex.osznconnection.file.service.exception.AbstractFormatException;
+import org.complitex.osznconnection.file.service.exception.AbstractSkippedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,29 +48,45 @@ public abstract class AbstractTaskBean{
         try {
             execute(group);
             listener.complete(group);
-        } catch (ExecuteException e){
+        } catch (AbstractExecuteException e){
             listener.error(group, e); //handled exception
         } catch (Exception e){
             listener.error(group, e); //critical exception
         }
     }
 
-    protected abstract void execute(RequestFileGroup group) throws ExecuteException;
+    protected abstract void execute(RequestFileGroup group) throws AbstractExecuteException, AbstractSkippedException;
 
     /**
-     * Update log and throw next.
-     * Обновляет статус файла в базе данных, логирует в лог и в журнал событий выбрасывает исключение
+     * Обновляет статус файла в базе данных, логирует в лог и в журнал событий, выбрасывает исключение
      * @param e Ошибка выполнения задачи
      * @param status Статус
      * @param detail Описание статуса
-     * @throws ExecuteException Обвертка исключения
+     * @throws AbstractExecuteException Ошибка выполнения задачи
      */
-    protected void executionError(ExecuteException e, RequestFile.STATUS status, RequestFile.STATUS_DETAIL detail) 
-            throws ExecuteException {
+    protected void executionError(AbstractExecuteException e, RequestFile.STATUS status, RequestFile.STATUS_DETAIL detail)
+            throws AbstractExecuteException {
         requestFileBean.updateStatus(e.getRequestFile(), status, detail);
 
         log.error(e.getMessage(), e);
-        error(e.getRequestFile(), e.getMessage() + ". Причина: " + e.getCause().getMessage());
+        error(e.getRequestFile(), e.getMessage());
+
+        throw e;
+    }
+
+    /**
+     * Обновляет статус файла, логирует в лог и в журнал событий, выбрасывает исключение
+     * @param e Выполнение задачи пропущено
+     * @param status Статус
+     * @param detail Описание статуса
+     * @throws AbstractSkippedException Задача пропущена
+     */
+    protected void executionSkip(AbstractSkippedException e, RequestFile.STATUS status, RequestFile.STATUS_DETAIL detail)
+            throws AbstractSkippedException {
+        e.getRequestFile().setStatus(status, detail);
+
+        log.warn(e.getMessage());
+        info(e.getRequestFile(), e.getMessage());
 
         throw e;
     }

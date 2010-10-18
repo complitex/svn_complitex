@@ -4,7 +4,7 @@ package org.complitex.osznconnection.file.service.exception;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 07.09.2010 17:11:51
  */
-public class FieldNotFoundException extends AbstractException{
+public class FieldNotFoundException extends AbstractFormatException {
     private final static String MESSAGE_PATTERN = "Поле '{0}' не найдено";
 
     public FieldNotFoundException(String fieldName) {

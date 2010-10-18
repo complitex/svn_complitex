@@ -2,6 +2,8 @@ package org.complitex.osznconnection.file.service.process;
 
 import org.complitex.osznconnection.file.entity.RequestFileGroup;
 import org.complitex.osznconnection.file.service.AbstractProcessBean;
+import org.complitex.osznconnection.file.service.exception.AbstractExecuteException;
+import org.complitex.osznconnection.file.service.exception.AbstractSkippedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +32,7 @@ public class ExecutorBean {
     protected STATUS status = STATUS.NEW;
 
     protected int processedCount = 0;
+    protected int skippedCount = 0;
     protected int errorCount = 0;
 
     protected List<RequestFileGroup> processed = new CopyOnWriteArrayList<RequestFileGroup>();
@@ -93,13 +96,24 @@ public class ExecutorBean {
             }
 
             @Override
+            public void skip(RequestFileGroup group, AbstractSkippedException e) {
+                //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
             public void error(RequestFileGroup group, Exception e) {
-                errorCount++;
                 processed.add(group);
 
                 runningThread.decrementAndGet();
 
-                log.error("Критическая ошибка выполнения процесса", e);
+                if (e instanceof AbstractSkippedException){
+                    skippedCount++;
+                } else if (e instanceof AbstractExecuteException){
+                    errorCount++;
+                }else{ //необработанное исключение
+                    log.error("Критическая ошибка выполнения процесса", e);
+                    return;
+                }
 
                 executeNext(queue, taskBean, maxErrors);
             }
@@ -116,6 +130,7 @@ public class ExecutorBean {
         status = STATUS.RUNNING;
 
         processedCount = 0;
+        skippedCount = 0;
         errorCount = 0;
 
         processed.clear();

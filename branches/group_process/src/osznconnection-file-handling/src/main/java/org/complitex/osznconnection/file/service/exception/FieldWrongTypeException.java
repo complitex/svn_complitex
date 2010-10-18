@@ -4,7 +4,7 @@ package org.complitex.osznconnection.file.service.exception;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 27.08.2010 12:47:41
  */
-public class FieldWrongTypeException extends AbstractException{
+public class FieldWrongTypeException extends AbstractFormatException {
     private final static String MESSAGE_PATTERN = "Недопустимый тип поля '{0}', текущий '{1}', ожидаемый '{2}'";
 
     public FieldWrongTypeException(String fieldName, Class currentType, Class requiredType) {

@@ -7,7 +7,7 @@ import org.complitex.osznconnection.file.entity.*;
 import org.complitex.osznconnection.file.service.BenefitBean;
 import org.complitex.osznconnection.file.service.PaymentBean;
 import org.complitex.osznconnection.file.service.RequestFileBean;
-import org.complitex.osznconnection.file.service.exception.ExecuteException;
+import org.complitex.osznconnection.file.service.exception.AbstractExecuteException;
 import org.complitex.osznconnection.file.service.exception.SqlSessionException;
 import org.complitex.osznconnection.file.storage.RequestFileStorage;
 import org.slf4j.Logger;
@@ -106,7 +106,7 @@ public class SaveTaskBean extends AbstractTaskBean{
     }
 
     @Override
-    protected void execute(RequestFileGroup group) throws ExecuteException {
+    protected void execute(RequestFileGroup group) throws AbstractExecuteException {
         //сохранение начислений
         save(group.getPaymentFile());
         save(group.getBenefitFile());

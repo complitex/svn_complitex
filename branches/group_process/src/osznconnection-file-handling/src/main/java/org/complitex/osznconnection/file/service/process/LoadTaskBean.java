@@ -90,7 +90,7 @@ public class LoadTaskBean extends AbstractTaskBean{
         }
     }
 
-    protected void execute(RequestFileGroup requestFileGroup) throws ExecuteException {
+    protected void execute(RequestFileGroup requestFileGroup) throws AbstractExecuteException, AbstractSkippedException {
         try {
             requestFileGroupBean.save(requestFileGroup);
 
@@ -109,7 +109,7 @@ public class LoadTaskBean extends AbstractTaskBean{
     }
 
     @SuppressWarnings({"EjbProhibitedPackageUsageInspection", "ConstantConditions", "ThrowableInstanceNeverThrown"})
-    private void load(RequestFile requestFile) throws ExecuteException {
+    private void load(RequestFile requestFile) throws AbstractExecuteException, AbstractSkippedException {
         String currentFieldName = "-1";
         int index = 0;
         int batchSize = configBean.getInteger(Config.LOAD_RECORD_BATCH_SIZE, true);
@@ -166,7 +166,7 @@ public class LoadTaskBean extends AbstractTaskBean{
 
                     //проверка загружен ли файл
                     if (requestFileBean.checkLoaded(requestFile)){
-                        throw new AlreadyLoadedException();
+                        throw new AlreadyLoadedException(requestFile);
                     }
 
                     //сохранение
@@ -207,10 +207,7 @@ public class LoadTaskBean extends AbstractTaskBean{
             log.info("Файл успешно загружен {}", requestFile.getName());
             info(requestFile, "Файл успешно загружен {0}", requestFile.getName());
         }catch (AlreadyLoadedException e) {
-            requestFile.setStatus(SKIPPED, ALREADY_LOADED);
-            log.warn("Файл уже загружен {}", requestFile.getAbsolutePath());
-            info(requestFile, "Файл уже загружен {0}", requestFile.getName());
-            throw new LoadException(new SkipException(), requestFile, index, currentFieldName);
+            executionSkip(new LoadSkippedException(e, requestFile), SKIPPED, ALREADY_LOADED);
         } catch (FieldNotFoundException e){
             executionError(new LoadException(e, requestFile, index, currentFieldName), LOAD_ERROR, FIELD_NOT_FOUND);
         } catch (FieldWrongTypeException e) {

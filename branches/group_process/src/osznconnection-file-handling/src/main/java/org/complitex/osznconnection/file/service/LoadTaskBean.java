@@ -116,7 +116,7 @@ public class  LoadTaskBean {
 
                     //проверка загружен ли файл
                     if (requestFileBean.checkLoaded(requestFile)){
-                        throw new AlreadyLoadedException();
+                        throw new AlreadyLoadedException(requestFile);
                     }
 
                     //сохранение

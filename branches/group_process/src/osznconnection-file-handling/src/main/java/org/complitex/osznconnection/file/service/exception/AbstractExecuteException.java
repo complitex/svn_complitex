@@ -6,10 +6,10 @@ import org.complitex.osznconnection.file.entity.RequestFile;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 13.10.2010 17:58:41
  */
-public class ExecuteException extends AbstractException{
+public abstract class AbstractExecuteException extends AbstractFormatException {
     private RequestFile requestFile;
         
-    public ExecuteException(Throwable cause, RequestFile requestFile, String pattern, Object... arguments) {
+    public AbstractExecuteException(Throwable cause, RequestFile requestFile, String pattern, Object... arguments) {
         super(cause, pattern, arguments);
         this.requestFile = requestFile;
     }
