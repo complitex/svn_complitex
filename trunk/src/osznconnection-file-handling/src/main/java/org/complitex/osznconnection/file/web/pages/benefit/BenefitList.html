@@ -23,6 +23,7 @@
                                 <th wicket:id="streetHeader"><wicket:message key="street"/></th>
                                 <th wicket:id="buildingHeader"><wicket:message key="building"/></th>
                                 <th wicket:id="corpHeader"><wicket:message key="corp"/></th>
+                                <th><wicket:message key="ord_fam"/></th>
                                 <th wicket:id="apartmentHeader"><wicket:message key="apartment"/></th>
                                 <th wicket:id="statusHeader"><wicket:message key="status"/></th>
                                 <th>
@@ -38,6 +39,7 @@
                                 <td class="filter-td"><input type="text" wicket:id="streetFilter"/></td>
                                 <td class="filter-td"><input type="text" wicket:id="buildingFilter"/></td>
                                 <td class="filter-td"><input type="text" wicket:id="corpFilter"/></td>
+                                <td class="filter-td"><input type="text"/></td>
                                 <td class="filter-td"><input type="text" wicket:id="apartmentFilter"/></td>
                                 <td class="filter-td">
                                     <select wicket:id="statusFilter" style="width: 100%;">
@@ -59,10 +61,12 @@
                                 <td><span wicket:id="street"></span></td>
                                 <td><span wicket:id="building"></span></td>
                                 <td><span wicket:id="corp"></span></td>
+                                <td><span wicket:id="ord_fam"></span></td>
                                 <td><span wicket:id="apartment"></span></td>
-                                <td><span wicket:id="status"></span></td>
-                                <td>
-                                </td>
+                                <td colspan="2">
+                                    <span wicket:id="status"></span>
+                                    <a href="#" wicket:id="connect"><wicket:message key="connect"/></a>
+                                </td>                                
                             </tr>
                         </tbody>
                     </table>
@@ -74,6 +78,8 @@
                 </form>
                 <div wicket:id="navigator"></div>
             </div>
+
+            <div wicket:id="benefitConnectPanel"></div>
         </wicket:extend>
     </body>
 </html>

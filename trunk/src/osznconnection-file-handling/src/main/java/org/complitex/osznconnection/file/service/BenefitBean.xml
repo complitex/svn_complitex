@@ -154,7 +154,7 @@
         SELECT
             DISTINCT b.`id` id, b.`request_file_id`, b.`OWN_NUM_SR`, b.`F_NAM`, b.`M_NAM`, b.`SUR_NAM`, b.`status`,
             p.`N_NAME` city, p.`VUL_NAME` street, p.`BLD_NUM` building_number, p.`CORP_NUM` building_corp,
-            p.`FLAT` apartment
+            p.`FLAT` apartment, bf.`organization_id` organization_id 
         FROM
             `benefit` b
             JOIN `request_file` bf ON b.`request_file_id` = bf.`id`

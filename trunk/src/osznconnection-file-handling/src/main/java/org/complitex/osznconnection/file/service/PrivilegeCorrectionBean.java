@@ -4,19 +4,20 @@
  */
 package org.complitex.osznconnection.file.service;
 
-import java.util.List;
-import javax.ejb.Stateless;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.entity.ObjectCorrection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ejb.Stateless;
+import java.util.List;
+
 /**
  * Класс для работы с коррекциями привилегий.
  * @author Artem
  */
-@Stateless
+@Stateless(name = "PrivilegeCorrectionBean")
 public class PrivilegeCorrectionBean extends AbstractBean {
 
     private static final Logger log = LoggerFactory.getLogger(PrivilegeCorrectionBean.class);

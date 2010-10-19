@@ -4,14 +4,11 @@
  */
 package org.complitex.osznconnection.file.web.pages.benefit;
 
-import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
-import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
-import org.complitex.osznconnection.commons.web.security.SecurityRole;
-import org.complitex.osznconnection.file.entity.example.BenefitExample;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -27,19 +24,22 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
+import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
+import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.TemplatePage;
 import org.complitex.osznconnection.file.entity.Benefit;
 import org.complitex.osznconnection.file.entity.BenefitDBF;
+import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.entity.RequestStatus;
+import org.complitex.osznconnection.file.entity.example.BenefitExample;
 import org.complitex.osznconnection.file.service.BenefitBean;
 import org.complitex.osznconnection.file.service.RequestFileBean;
+import org.complitex.osznconnection.file.web.RequestFileGroupList;
 import org.complitex.osznconnection.file.web.component.StatusRenderer;
 
 import javax.ejb.EJB;
 import java.util.Arrays;
 import java.util.Iterator;
-import org.complitex.osznconnection.file.entity.RequestFile;
-import org.complitex.osznconnection.file.web.RequestFileGroupList;
 
 /**
  *
@@ -148,11 +148,14 @@ public final class BenefitList extends TemplatePage {
         };
         filterForm.add(submit);
 
+        final BenefitConnectPanel benefitConnectPanel = new BenefitConnectPanel("benefitConnectPanel", content);
+        add(benefitConnectPanel);
+
         DataView<Benefit> data = new DataView<Benefit>("data", dataProvider, 1) {
 
             @Override
             protected void populateItem(Item<Benefit> item) {
-                Benefit benefit = item.getModelObject();
+                final Benefit benefit = item.getModelObject();
 
                 item.add(new Label("account", (String) benefit.getField(BenefitDBF.OWN_NUM_SR)));
                 item.add(new Label("firstName", (String) benefit.getField(BenefitDBF.F_NAM)));
@@ -163,7 +166,20 @@ public final class BenefitList extends TemplatePage {
                 item.add(new Label("building", benefit.getBuildingNumber()));
                 item.add(new Label("corp", benefit.getBuildingCorp()));
                 item.add(new Label("apartment", benefit.getApartment()));
+                item.add(new Label("ord_fam", (String) benefit.getField(BenefitDBF.ORD_FAM)));
                 item.add(new Label("status", StatusRenderer.displayValue(benefit.getStatus())));
+                item.add(new AjaxLink("connect"){
+
+                    @Override
+                    public void onClick(AjaxRequestTarget target) {
+                        benefitConnectPanel.open(target, benefit);
+                    }
+
+                    @Override
+                    public boolean isVisible() {
+                        return RequestStatus.WRONG_ACCOUNT_NUMBER.equals(benefit.getStatus());
+                    }
+                });
             }
         };
         filterForm.add(data);
