@@ -9,7 +9,10 @@ import org.complitex.osznconnection.file.entity.example.BenefitExample;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Обработка записей файла запроса возмещения по льготам 
@@ -196,6 +199,15 @@ public class BenefitBean extends AbstractBean {
         params.put("fileId", fileId);
         params.put("accountNumber", accountNumber);
         return (Date) sqlSession().selectOne(MAPPING_NAMESPACE + ".findDat1", params);
+    }
+
+    @Transactional
+    public Date findDat1(final Benefit benefit) {
+        return (Date) sqlSession().selectOne(MAPPING_NAMESPACE + ".findDat1",
+                new HashMap<String, Object>(){{
+                    put("fileId", benefit.getRequestFileId());
+                    put("accountNumber", benefit.getAccountNumber());
+                }});
     }
 
     /**

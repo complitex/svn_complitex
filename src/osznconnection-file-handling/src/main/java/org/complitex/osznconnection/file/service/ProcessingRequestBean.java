@@ -5,22 +5,20 @@
 package org.complitex.osznconnection.file.service;
 
 import com.google.common.collect.Lists;
-import java.util.Date;
-import java.util.List;
+import org.complitex.dictionaryfw.service.AbstractBean;
+import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
+import org.complitex.osznconnection.file.calculation.entity.BenefitData;
+import org.complitex.osznconnection.file.calculation.service.CalculationCenterBean;
+import org.complitex.osznconnection.file.entity.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
-import org.complitex.dictionaryfw.service.AbstractBean;
-import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
-import org.complitex.osznconnection.file.calculation.service.CalculationCenterBean;
-import org.complitex.osznconnection.file.entity.Benefit;
-import org.complitex.osznconnection.file.entity.CalculationCenterInfo;
-import org.complitex.osznconnection.file.entity.Payment;
-import org.complitex.osznconnection.file.entity.RequestFile;
-import org.complitex.osznconnection.file.entity.RequestStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Класс для обработки пары payment-benefit фалйов.
@@ -34,25 +32,29 @@ public class ProcessingRequestBean extends AbstractBean {
 
     private static final int BATCH_SIZE = 100;
 
-    @EJB
+    @EJB(beanName = "PaymentBean")
     private PaymentBean paymentBean;
 
-    @EJB
+    @EJB(beanName = "BenefitBean")
     private BenefitBean benefitBean;
 
-    @EJB
+    @EJB(beanName = "CalculationCenterBean")
     private CalculationCenterBean calculationCenterBean;
 
-    @EJB
+    @EJB(beanName = "RequestFileBean")
     private RequestFileBean requestFileBean;
+
+    @EJB(beanName = "PrivilegeCorrectionBean")
+    private PrivilegeCorrectionBean privilegeCorrectionBean;
 
     /**
      * Обрабатывает payment.
      * Алгоритм:
-     * Если статус payment записи указывает на то что запись даже не связана, то пропускаем запись.(Такая ситуация возможна т.к. существует требование
-     * обрабатывать файла, которые связаны с ошибками)
-     * Иначе вызываем org.complitex.osznconnection.file.calculation.adapter.DefaultCalculationCenterAdapter.processPaymentAndBenefit() для заполнения
-     * некоторых полей в payment и benefit записях. Наконец, обновляем payment и соответсвующие ему benefit записи(BenefitBean.populateBenefit()).
+     * Если статус payment записи указывает на то что запись даже не связана, то пропускаем запись.(Такая ситуация
+     * возможна т.к. существует требование обрабатывать файла, которые связаны с ошибками)
+     * Иначе вызываем DefaultCalculationCenterAdapter.processPaymentAndBenefit() для заполнения
+     * некоторых полей в payment и benefit записях. Наконец, обновляем payment и соответствующие ему benefit
+     * записи(BenefitBean.populateBenefit()).
      * 
      * @param payment
      * @param adapter
@@ -89,7 +91,8 @@ public class ProcessingRequestBean extends AbstractBean {
      */
     private void processPayment(RequestFile paymentFile) {
         try {
-            //получаем информацию о текущем центре начисления(его id и экземпляр класса адаптера для взаимодействия с центром начислений)
+            //получаем информацию о текущем центре начисления(его id и экземпляр класса адаптера для взаимодействия
+            //с центром начислений)
             CalculationCenterInfo calculationCenterInfo = calculationCenterBean.getCurrentCalculationCenterInfo();
             ICalculationCenterAdapter adapter = calculationCenterInfo.getAdapterInstance();
 
@@ -148,16 +151,18 @@ public class ProcessingRequestBean extends AbstractBean {
     }
 
     /**
-     * Обрабоать benefit файл.
+     * Обработать benefit файл.
      * Алгоритм:
      * Извлечь все не null account numbers в benefit файле(BenefitBean.getAllAccountNumbers()).
      * Для каждого account number достаем из базы benefit записи с таким account number(BenefitBean.findByAccountNumber().
-     * Методом BenefitBean.findDat1() достает дату из поля DAT1 в записи payment, у которой account number такой же(т.е. payment соответсвующий данной группе benefit записей) и
+     * Методом BenefitBean.findDat1() достает дату из поля DAT1 в записи payment, у которой account number такой же
+     * (т.е. payment соответствующий данной группе benefit записей) и
      * кроме того поле FROG больше 0(только benefit записи соответствующие таким payment записям нужно обрабатывать).
      * Дата нужна как параметр для вызова
-     * org.complitex.osznconnection.file.calculation.adapter.DefaultCalculationCenterAdapter.processBenefit(). И если дата не null, то
-     * вызываем processBenefit() для заполнения полей в benefit записях. У тех групп benefit записей, у которых дата не нашлась, т.е. соотвествующий payment
-     * имеет в поле FROG значение 0, проставляем статус RequestStatus.PROCESSED. Наконец, обновляем все benefit записи.
+     * org.complitex.osznconnection.file.calculation.adapter.DefaultCalculationCenterAdapter.processBenefit().
+     * И если дата не null, то вызываем processBenefit() для заполнения полей в benefit записях. У тех групп benefit
+     * записей, у которых дата не нашлась, т.е. соответствующий payment имеет в поле FROG значение 0, проставляем
+     * статус RequestStatus.PROCESSED. Наконец, обновляем все benefit записи.
      *
      * @param benefitFile
      */
@@ -201,5 +206,45 @@ public class ProcessingRequestBean extends AbstractBean {
             }
             throw e;
         }
+    }
+
+    public List<BenefitData> getBenefitData(Benefit benefit){
+        List<BenefitData> list = calculationCenterBean.getCurrentCalculationCenterInfo().getAdapterInstance()
+                .getBenefitData(benefit.getAccountNumber(), benefitBean.findDat1(benefit));
+
+        List<Benefit> benefits = benefitBean.findByAccountNumber(benefit.getAccountNumber(), benefit.getRequestFileId());
+
+        for (Benefit b : benefits){
+            for (int i=0; i < list.size(); ++i){
+                if (b.getField(BenefitDBF.ORD_FAM) != null && b.getField(BenefitDBF.ORD_FAM).equals(list.get(i).getCode())){
+                    list.remove(i);
+                    i--;
+                }
+            }
+        }
+
+         return list;
+    }
+
+    public void connectBenefit(Benefit benefit, BenefitData benefitData){                                                                                    
+        String osznBenefitCode = privilegeCorrectionBean.getOSZNPrivilegeCode(benefitData.getCode(),
+                calculationCenterBean.getCurrentCalculationCenterInfo().getId(), benefit.getOrganizationId());
+
+        if (osznBenefitCode == null) {
+            benefit.setStatus(RequestStatus.BENEFIT_NOT_FOUND);
+        } else {
+            benefit.setField(BenefitDBF.PRIV_CAT, osznBenefitCode);
+            benefit.setField(BenefitDBF.ORD_FAM, benefitData.getCode());
+            benefit.setStatus(RequestStatus.PROCESSED);
+        }
+
+        benefitBean.update(benefit);
+
+        updateBenefitFileStatus(benefit.getRequestFileId());
+    }
+
+    private void updateBenefitFileStatus(Long requestFileId){
+        requestFileBean.updateStatus(requestFileId, benefitBean.isBenefitFileProcessed(requestFileId)?
+                RequestFile.STATUS.PROCESSED : RequestFile.STATUS.PROCESSED_WITH_ERRORS);
     }
 }

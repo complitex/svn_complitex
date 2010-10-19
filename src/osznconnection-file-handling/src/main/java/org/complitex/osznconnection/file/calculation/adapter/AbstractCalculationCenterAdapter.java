@@ -4,16 +4,18 @@
  */
 package org.complitex.osznconnection.file.calculation.adapter;
 
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.complitex.osznconnection.file.calculation.mybatis.RemoteSqlSessionFactoryBean;
+
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 /**
  *
  * @author Artem
  */
+//todo может было удобней использовать как EJB с инъекцией зависимостей
 public abstract class AbstractCalculationCenterAdapter implements ICalculationCenterAdapter {
 
     protected SqlSession openSession() {

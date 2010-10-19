@@ -139,4 +139,8 @@
     <select id="selectTarifFiles" parameterType="long" resultMap="requestFileResultMap">
         select * from `request_file` where organization_id = #{organizationId} and `type` = 'TARIF'
     </select>
+
+    <update id="updateStatus" parameterType="map">
+        update `request_file` set `status` = #{status}, `status_detail` = #{detail} where `id` = #{id}        
+    </update>
 </mapper>
