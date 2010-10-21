@@ -6,15 +6,11 @@ package org.complitex.osznconnection.file.web.pages.correction;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import javax.ejb.EJB;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
@@ -35,6 +31,12 @@ import org.complitex.osznconnection.file.entity.ObjectCorrection;
 import org.complitex.osznconnection.file.service.AddressCorrectionBean;
 import org.complitex.osznconnection.file.web.component.correction.edit.AbstractCorrectionEditPanel;
 
+import javax.ejb.EJB;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
 /**
  * Страница для редактирования коррекций адресов.
  * @author Artem
@@ -45,6 +47,8 @@ public class AddressCorrectionEdit extends FormTemplatePage {
     public static final String CORRECTED_ENTITY = "entity";
 
     public static final String CORRECTION_ID = "correction_id";
+
+    public static enum ADDRESS_ENTITY{city, district, street, building}
 
     @EJB(name = "StrategyFactory")
     private StrategyFactory strategyFactory;
@@ -77,6 +81,40 @@ public class AddressCorrectionEdit extends FormTemplatePage {
 
         public AddressCorrectionEditPanel(String id, String entity, Long correctionId) {
             super(id, entity, correctionId);
+        }
+
+        @Override
+        protected Panel correctionParentPanel(String id) {
+            final ObjectCorrection correction = getModel();
+            final String parentEntity = getParentEntity(correction.getEntity());
+
+            if (parentEntity == null){
+                return new EmptyPanel(id);
+            }
+
+            SearchComponentState componentState = new SearchComponentState();
+
+            Long parentId = correction.getCorrectionParentId();
+
+            if (!isNew() && parentId != null) {
+                Strategy.RestrictedObjectInfo info = getStrategy(parentEntity).findParentInSearchComponent(parentId, null);
+
+                if (info != null) {
+                    componentState = getStrategy(parentEntity).getSearchComponentStateForParent(info.getId(), info.getEntityTable(), null);
+                    componentState.put(parentEntity, findObject(parentId, parentEntity));
+                }
+            }
+
+            return new SearchComponent(id, componentState, getSearchFilters(parentEntity),
+                    new ISearchCallback(){
+                        @Override
+                        public void found(SearchComponent component, Map<String, Long> ids, AjaxRequestTarget target) {
+                            Long id = ids.get(parentEntity);
+                            if (id != null && id > 0) {
+                                correction.setCorrectionParentId(id);
+                            }
+                        }
+                    }, true);
         }
 
         @Override
@@ -233,6 +271,12 @@ public class AddressCorrectionEdit extends FormTemplatePage {
             }
         });
         return toolbar;
+    }
+
+    public String getParentEntity(String entity){
+        ADDRESS_ENTITY ae = ADDRESS_ENTITY.valueOf(entity);
+
+        return ae.ordinal() > 0 ? ADDRESS_ENTITY.values()[ae.ordinal()-1].name() : null;
     }
 }
 

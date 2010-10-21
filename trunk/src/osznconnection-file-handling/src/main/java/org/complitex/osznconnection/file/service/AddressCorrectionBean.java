@@ -6,12 +6,8 @@ package org.complitex.osznconnection.file.service;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import java.util.List;
-import java.util.Map;
-import org.complitex.dictionaryfw.mybatis.Transactional;
-
-import javax.ejb.Stateless;
 import org.apache.wicket.util.string.Strings;
+import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.osznconnection.file.entity.BuildingCorrection;
 import org.complitex.osznconnection.file.entity.EntityTypeCorrection;
 import org.complitex.osznconnection.file.entity.ObjectCorrection;
@@ -19,11 +15,15 @@ import org.complitex.osznconnection.file.entity.example.ObjectCorrectionExample;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ejb.Stateless;
+import java.util.List;
+import java.util.Map;
+
 /**
  * Класс для работы с коррекциями адресов.
  * @author Artem
  */
-@Stateless
+@Stateless(name = "AddressCorrectionBean")
 public class AddressCorrectionBean extends CorrectionBean {
 
     private static final Logger log = LoggerFactory.getLogger(AddressCorrectionBean.class);
@@ -37,21 +37,19 @@ public class AddressCorrectionBean extends CorrectionBean {
      * @param entityTable
      * @param value
      * @param organizationId
-     * @param parentId
+     * @param internalParentId
      * @return
      */
     @Transactional
-    private Long findCorrectionAddressId(String entityTable, String value, long organizationId, Long parentId) {
+    private ObjectCorrection findCorrectionAddress(String entityTable, String value, long organizationId, Long internalParentId) {
         ObjectCorrection parameter = new ObjectCorrection();
+
         parameter.setEntity(entityTable);
         parameter.setCorrection(value);
         parameter.setOrganizationId(organizationId);
-        parameter.setInternalParentId(parentId);
-        List<Long> ids = sqlSession().selectList(MAPPING_NAMESPACE + ".findCorrectionAddressId", parameter);
-        if (ids != null && ids.size() == 1) {
-            return ids.get(0);
-        }
-        return null;
+        parameter.setInternalParentId(internalParentId);
+
+        return (ObjectCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".findCorrectionAddressId", parameter);
     }
 
     /**
@@ -61,8 +59,8 @@ public class AddressCorrectionBean extends CorrectionBean {
      * @param organizationId
      * @return
      */
-    public Long findCorrectionCity(String city, long organizationId) {
-        return findCorrectionAddressId("city", city, organizationId, null);
+    public ObjectCorrection findCorrectionCity(String city, long organizationId) {
+        return findCorrectionAddress("city", city, organizationId, null);
     }
 
     /**
@@ -73,8 +71,8 @@ public class AddressCorrectionBean extends CorrectionBean {
      * @param organizationId
      * @return
      */
-    public Long findCorrectionStreet(long cityId, String street, long organizationId) {
-        return findCorrectionAddressId("street", street, organizationId, cityId);
+    public ObjectCorrection findCorrectionStreet(long cityId, String street, long organizationId) {
+        return findCorrectionAddress("street", street, organizationId, cityId);
     }
 
     /**
@@ -88,18 +86,16 @@ public class AddressCorrectionBean extends CorrectionBean {
      * @return
      */
     @Transactional
-    public Long findCorrectionBuilding(long cityId, Long streetId, String buildingNumber, String buildingCorp, long organizationId) {
+    public BuildingCorrection findCorrectionBuilding(long cityId, Long streetId, String buildingNumber, String buildingCorp, long organizationId) {
         BuildingCorrection parameter = new BuildingCorrection();
+
         parameter.setCorrection(buildingNumber);
         parameter.setCorrectionCorp(buildingCorp);
         parameter.setOrganizationId(organizationId);
         parameter.setInternalParentId(cityId);
         parameter.setInternalStreetId(streetId);
-        List<Long> ids = sqlSession().selectList(MAPPING_NAMESPACE + ".findCorrectionBuilding", parameter);
-        if (ids != null && ids.size() == 1) {
-            return ids.get(0);
-        }
-        return null;
+
+        return (BuildingCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".findCorrectionBuilding", parameter);
     }
 
 //    public Long findCorrectionApartment(long buildingId, String apartment, long organizationId) {
@@ -303,6 +299,8 @@ public class AddressCorrectionBean extends CorrectionBean {
         }
         return null;
     }
+
+
 
     /**
      * Найти город в локальной адресной базе.

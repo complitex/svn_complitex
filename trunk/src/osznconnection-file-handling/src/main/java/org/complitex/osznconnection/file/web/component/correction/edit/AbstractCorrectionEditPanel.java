@@ -7,15 +7,13 @@ package org.complitex.osznconnection.file.web.component.correction.edit;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import java.util.List;
-import java.util.Locale;
-import javax.ejb.EJB;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -30,6 +28,10 @@ import org.complitex.osznconnection.file.service.CorrectionBean;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.ejb.EJB;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Абстрактная панель для редактирования коррекций.
@@ -92,6 +94,10 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
     protected abstract IModel<String> internalObjectLabel(Locale locale);
 
     protected abstract Panel internalObjectPanel(String id);
+
+    protected Panel correctionParentPanel(String id){
+        return new EmptyPanel(id);
+    }
 
     protected boolean validate() {
         return true;
@@ -158,12 +164,18 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
         correction.setRequired(true);
         form.add(correction);
 
+        form.add(correctionParentPanel("correctionParent"));
+
         WebMarkupContainer codeRequiredContainer = new WebMarkupContainer("codeRequiredContainer");
         form.add(codeRequiredContainer);
+
         boolean isOrganizationCodeRequired = isOrganizationCodeRequired();
+
         codeRequiredContainer.setVisible(isOrganizationCodeRequired);
+
         TextField<String> code = new TextField<String>("code", new PropertyModel<String>(objectCorrection, "code"));
         code.setRequired(isOrganizationCodeRequired);
+
         form.add(code);
 
         abstract class OrganizationModel extends Model<DomainObject> {
@@ -228,6 +240,7 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
         if (isNew()) {
             objectCorrection.setInternalOrganizationId(OrganizationStrategy.ITSELF_ORGANIZATION_OBJECT_ID);
         }
+
         final List<DomainObject> internalOrganizations = Lists.newArrayList(organizationStrategy.getItselfOrganization());
         IModel<DomainObject> internalOrganizationModel = new OrganizationModel() {
 
@@ -251,10 +264,8 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
         internalOrganization.setEnabled(false);
         form.add(internalOrganization);
 
-        Label internalObjectLabel = new Label("internalObjectLabel", internalObjectLabel(getLocale()));
-        form.add(internalObjectLabel);
-        Panel internalObject = internalObjectPanel("internalObject");
-        form.add(internalObject);
+        form.add(new Label("internalObjectLabel", internalObjectLabel(getLocale())));
+        form.add(internalObjectPanel("internalObject"));
 
         //save-cancel functional
         Button submit = new Button("submit") {
