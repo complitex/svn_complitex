@@ -55,7 +55,7 @@ public class ProcessingRequestBean extends AbstractBean {
      * Иначе вызываем DefaultCalculationCenterAdapter.processPaymentAndBenefit() для заполнения
      * некоторых полей в payment и benefit записях. Наконец, обновляем payment и соответствующие ему benefit
      * записи(BenefitBean.populateBenefit()).
-     * 
+     *
      * @param payment
      * @param adapter
      * @param calculationCenterId
@@ -223,10 +223,10 @@ public class ProcessingRequestBean extends AbstractBean {
             }
         }
 
-         return list;
+        return list;
     }
 
-    public void connectBenefit(Benefit benefit, BenefitData benefitData){                                                                                    
+    public void connectBenefit(Benefit benefit, BenefitData benefitData){
         String osznBenefitCode = privilegeCorrectionBean.getOSZNPrivilegeCode(benefitData.getCode(),
                 calculationCenterBean.getCurrentCalculationCenterInfo().getId(), benefit.getOrganizationId());
 

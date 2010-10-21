@@ -34,6 +34,8 @@ public class ObjectCorrection implements Serializable {
 
     private String entity;
 
+    private Long correctionParentId;
+
     public ObjectCorrection() {
     }
 
@@ -123,5 +125,13 @@ public class ObjectCorrection implements Serializable {
 
     public void setInternalOrganization(String internalOrganization) {
         this.internalOrganization = internalOrganization;
+    }
+
+    public Long getCorrectionParentId() {
+        return correctionParentId;
+    }
+
+    public void setCorrectionParentId(Long correctionParentId) {
+        this.correctionParentId = correctionParentId;
     }
 }
