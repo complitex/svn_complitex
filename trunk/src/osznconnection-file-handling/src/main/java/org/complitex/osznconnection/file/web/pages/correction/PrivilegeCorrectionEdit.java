@@ -6,11 +6,6 @@ package org.complitex.osznconnection.file.web.pages.correction;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import javax.ejb.EJB;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
@@ -26,9 +21,15 @@ import org.complitex.osznconnection.commons.web.component.toolbar.DeleteItemButt
 import org.complitex.osznconnection.commons.web.component.toolbar.ToolbarButton;
 import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.FormTemplatePage;
-import org.complitex.osznconnection.file.entity.ObjectCorrection;
+import org.complitex.osznconnection.file.entity.Correction;
 import org.complitex.osznconnection.file.web.component.correction.edit.AbstractCorrectionEditPanel;
 import org.complitex.osznconnection.privilege.strategy.PrivilegeStrategy;
+
+import javax.ejb.EJB;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * Страница для редактирования коррекций привилегий.
@@ -44,9 +45,9 @@ public final class PrivilegeCorrectionEdit extends FormTemplatePage {
 
     private class PrivilegeCallback implements ISearchCallback, Serializable {
 
-        private ObjectCorrection correction;
+        private Correction correction;
 
-        public PrivilegeCallback(ObjectCorrection correction) {
+        public PrivilegeCallback(Correction correction) {
             this.correction = correction;
         }
 
@@ -74,7 +75,7 @@ public final class PrivilegeCorrectionEdit extends FormTemplatePage {
             @Override
             protected Panel internalObjectPanel(String id) {
                 SearchComponentState componentState = new SearchComponentState();
-                ObjectCorrection correction = getModel();
+                Correction correction = getModel();
                 if (!isNew()) {
                     componentState.put(privilegeStrategy.getEntityTable(), findPrivilege(correction.getInternalObjectId()));
                 }

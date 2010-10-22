@@ -4,21 +4,21 @@
  */
 package org.complitex.osznconnection.file.service;
 
-import java.util.List;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
-import org.complitex.osznconnection.file.entity.PersonAccount;
-
-import javax.ejb.Stateless;
 import org.complitex.osznconnection.file.entity.Payment;
 import org.complitex.osznconnection.file.entity.PaymentDBF;
+import org.complitex.osznconnection.file.entity.PersonAccount;
 import org.complitex.osznconnection.file.entity.example.PersonAccountExample;
+
+import javax.ejb.Stateless;
+import java.util.List;
 
 /**
  * Класс для работы с локальной таблицей номеров л/c person_account.
  * @author Artem
  */
-@Stateless
+@Stateless(name = "PersonAccountLocalBean")
 public class PersonAccountLocalBean extends AbstractBean {
 
     private static final String MAPPING_NAMESPACE = PersonAccountLocalBean.class.getName();

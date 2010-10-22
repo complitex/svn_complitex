@@ -9,13 +9,14 @@ import com.google.common.collect.Maps;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.osznconnection.file.entity.BuildingCorrection;
+import org.complitex.osznconnection.file.entity.Correction;
 import org.complitex.osznconnection.file.entity.EntityTypeCorrection;
-import org.complitex.osznconnection.file.entity.ObjectCorrection;
-import org.complitex.osznconnection.file.entity.example.ObjectCorrectionExample;
+import org.complitex.osznconnection.file.entity.example.CorrectionExample;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,21 +36,22 @@ public class AddressCorrectionBean extends CorrectionBean {
      * по коррекции(value), сущности(entityTable), ОСЗН(organizationId) и id родительского объекта.
      * При поиске для значения коррекции применяется SQL функция TRIM().
      * @param entityTable
-     * @param value
+     * @param correction
      * @param organizationId
-     * @param internalParentId
+     * @param parentId
      * @return
      */
     @Transactional
-    private ObjectCorrection findCorrectionAddress(String entityTable, String value, long organizationId, Long internalParentId) {
-        ObjectCorrection parameter = new ObjectCorrection();
+    private Correction findCorrectionAddress(final String entityTable, final Long parentId, final String correction,
+                                             final long organizationId) {
+        Map<String, Object> params = new HashMap<String, Object>(){{
+            put("entityTable", entityTable);
+            put("parentId", parentId);
+            put("correction", correction);
+            put("organizationId", organizationId);
+        }};
 
-        parameter.setEntity(entityTable);
-        parameter.setCorrection(value);
-        parameter.setOrganizationId(organizationId);
-        parameter.setInternalParentId(internalParentId);
-
-        return (ObjectCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".findCorrectionAddressId", parameter);
+        return (Correction) sqlSession().selectOne(MAPPING_NAMESPACE + ".findCorrectionAddress", params);
     }
 
     /**
@@ -59,43 +61,41 @@ public class AddressCorrectionBean extends CorrectionBean {
      * @param organizationId
      * @return
      */
-    public ObjectCorrection findCorrectionCity(String city, long organizationId) {
-        return findCorrectionAddress("city", city, organizationId, null);
+    public Correction findCorrectionCity(String city, long organizationId) {
+        return findCorrectionAddress("city", null, city, organizationId);
     }
 
     /**
      * Найти id локальной улицы в таблице коррекций.
      * См. findCorrectionAddressId()
-     * @param cityId
+     * @param parent
      * @param street
-     * @param organizationId
+     * @param parent
      * @return
      */
-    public ObjectCorrection findCorrectionStreet(long cityId, String street, long organizationId) {
-        return findCorrectionAddress("street", street, organizationId, cityId);
+    public Correction findCorrectionStreet(Correction parent, String street) {
+        return findCorrectionAddress("street", parent.getId(), street, parent.getOrganizationId());
     }
 
     /**
      * Найти id локального дома в таблице коррекций.
      * При поиске для номера и корпуса дома применяется SQL функция TRIM().
-     * @param cityId
-     * @param streetId
-     * @param buildingNumber
-     * @param buildingCorp
-     * @param organizationId
+     * @param parent
+     * @param correction
+     * @param correctionCorp
      * @return
      */
     @Transactional
-    public BuildingCorrection findCorrectionBuilding(long cityId, Long streetId, String buildingNumber, String buildingCorp, long organizationId) {
-        BuildingCorrection parameter = new BuildingCorrection();
+    public BuildingCorrection findCorrectionBuilding(final Correction parent, final String correction,
+                                                     final String correctionCorp) {
+         Map<String, Object> params = new HashMap<String, Object>(){{
+            put("parentId", parent.getId());
+            put("correction", correction);
+            put("correctionCorp", correctionCorp);
+            put("organizationId", parent.getId());
+        }};
 
-        parameter.setCorrection(buildingNumber);
-        parameter.setCorrectionCorp(buildingCorp);
-        parameter.setOrganizationId(organizationId);
-        parameter.setInternalParentId(cityId);
-        parameter.setInternalStreetId(streetId);
-
-        return (BuildingCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".findCorrectionBuilding", parameter);
+        return (BuildingCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".findCorrectionBuilding", params);
     }
 
 //    public Long findCorrectionApartment(long buildingId, String apartment, long organizationId) {
@@ -110,14 +110,14 @@ public class AddressCorrectionBean extends CorrectionBean {
      * @return
      */
     @Transactional
-    private ObjectCorrection findOutgoingAddress(String entityTable, long organizationId, long internalObjectId) {
-        ObjectCorrection parameter = new ObjectCorrection();
+    private Correction findOutgoingAddress(String entityTable, long organizationId, long internalObjectId) {
+        Correction parameter = new Correction();
         parameter.setOrganizationId(organizationId);
         parameter.setEntity(entityTable);
         parameter.setInternalObjectId(internalObjectId);
-        List<ObjectCorrection> corrections = sqlSession().selectList(MAPPING_NAMESPACE + ".findOutgoingAddress", parameter);
+        List<Correction> corrections = sqlSession().selectList(MAPPING_NAMESPACE + ".findOutgoingAddress", parameter);
         if (corrections != null && corrections.size() == 1) {
-            ObjectCorrection result = corrections.get(0);
+            Correction result = corrections.get(0);
             if (result.getCorrection() != null) {
                 return result;
             }
@@ -132,7 +132,7 @@ public class AddressCorrectionBean extends CorrectionBean {
      * @param internalCityId
      * @return
      */
-    public ObjectCorrection findOutgoingCity(long organizationId, long internalCityId) {
+    public Correction findOutgoingCity(long organizationId, long internalCityId) {
         return findOutgoingAddress("city", organizationId, internalCityId);
     }
 
@@ -143,7 +143,7 @@ public class AddressCorrectionBean extends CorrectionBean {
      * @param internalStreetId
      * @return
      */
-    public ObjectCorrection findOutgoingStreet(long organizationId, long internalStreetId) {
+    public Correction findOutgoingStreet(long organizationId, long internalStreetId) {
         return findOutgoingAddress("street", organizationId, internalStreetId);
     }
 
@@ -168,7 +168,7 @@ public class AddressCorrectionBean extends CorrectionBean {
         return null;
     }
 
-//    public ObjectCorrection findOutgoingApartment(long organizationId, long internalApartmentId) {
+//    public Correction findOutgoingApartment(long organizationId, long internalApartmentId) {
 //        return findOutgoingAddress("apartment", organizationId, internalApartmentId);
 //    }
     /**
@@ -178,11 +178,11 @@ public class AddressCorrectionBean extends CorrectionBean {
      * @return
      */
     @Transactional
-    public ObjectCorrection findOutgoingDistrict(long calculationCenterId, long osznId) {
+    public Correction findOutgoingDistrict(long calculationCenterId, long osznId) {
         Map<String, Long> params = ImmutableMap.of("calculationCenterId", calculationCenterId, "osznId", osznId);
-        List<ObjectCorrection> corrections = sqlSession().selectList(MAPPING_NAMESPACE + ".findOutgoingDistrict", params);
+        List<Correction> corrections = sqlSession().selectList(MAPPING_NAMESPACE + ".findOutgoingDistrict", params);
         if (corrections != null && corrections.size() == 1) {
-            ObjectCorrection result = corrections.get(0);
+            Correction result = corrections.get(0);
             if (result.getCorrection() != null) {
                 return result;
             }
@@ -229,28 +229,34 @@ public class AddressCorrectionBean extends CorrectionBean {
      * @param internalOrganizationId
      */
     @Transactional
-    private void insert(String entityTable, String value, long objectId, long organizationId, long internalOrganizationId) {
-        ObjectCorrection correction = new ObjectCorrection();
+    private void insert(String entityTable, Long parentId, String value, long objectId, long organizationId, long internalOrganizationId) {
+        Correction correction = new Correction();
+
+        correction.setParentId(parentId);
         correction.setCorrection(value);
         correction.setOrganizationId(organizationId);
         correction.setInternalOrganizationId(internalOrganizationId);
         correction.setInternalObjectId(objectId);
         correction.setEntity(entityTable);
+
         insert(correction);
     }
 
-    public void insertCorrectionApartment(String apartment, long objectId, long organizationId, long internalOrganizationId) {
-        insert("apartment", apartment, objectId, organizationId, internalOrganizationId);
+    public void insertCorrectionApartment(long parentId, String apartment, long objectId, long organizationId, long internalOrganizationId) {
+        insert("apartment", parentId, apartment, objectId, organizationId, internalOrganizationId);
     }
 
     @Transactional
-    public void insertCorrectionBuilding(String buildingNumber, String buildingCorp, long objectId, long organizationId, long internalOrganizationId) {
+    public void insertCorrectionBuilding(Correction parent, String buildingNumber, String buildingCorp, long objectId) {
         BuildingCorrection correction = new BuildingCorrection();
+
+        correction.setParentId(parent.getId());
         correction.setCorrection(buildingNumber);
         correction.setCorrectionCorp(buildingCorp);
-        correction.setOrganizationId(organizationId);
-        correction.setInternalOrganizationId(internalOrganizationId);
+        correction.setOrganizationId(parent.getOrganizationId());
+        correction.setInternalOrganizationId(parent.getInternalOrganizationId());
         correction.setInternalObjectId(objectId);
+
         insertBuilding(correction);
     }
 
@@ -264,15 +270,16 @@ public class AddressCorrectionBean extends CorrectionBean {
         if (correction.getCorrectionCorp() == null) {
             correction.setCorrectionCorp("");
         }
+
         sqlSession().insert(MAPPING_NAMESPACE + ".insertBuilding", correction);
     }
 
-    public void insertCorrectionStreet(String street, long objectId, long organizationId, long internalOrganizationId) {
-        insert("street", street, objectId, organizationId, internalOrganizationId);
+    public void insertCorrectionStreet(Correction parent, String street, long objectId) {
+        insert("street", parent.getParentId(),  street, objectId, parent.getOrganizationId(), parent.getInternalOrganizationId());
     }
 
     public void insertCorrectionCity(String city, long objectId, long organizationId, long internalOrganizationId) {
-        insert("city", city, objectId, organizationId, internalOrganizationId);
+        insert("city", null,  city, objectId, organizationId, internalOrganizationId);
     }
 
     /**
@@ -387,7 +394,7 @@ public class AddressCorrectionBean extends CorrectionBean {
     }
 
     @Transactional
-    public List<BuildingCorrection> findBuildings(ObjectCorrectionExample example) {
+    public List<BuildingCorrection> findBuildings(CorrectionExample example) {
         return (List<BuildingCorrection>) super.find(example, MAPPING_NAMESPACE + ".findBuildings");
     }
 

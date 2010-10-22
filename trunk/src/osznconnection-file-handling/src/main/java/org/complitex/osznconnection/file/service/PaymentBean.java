@@ -3,19 +3,19 @@ package org.complitex.osznconnection.file.service;
 import com.google.common.collect.Maps;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
+import org.complitex.osznconnection.file.calculation.service.CalculationCenterBean;
 import org.complitex.osznconnection.file.entity.*;
 import org.complitex.osznconnection.file.entity.example.PaymentExample;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.ejb.EJB;
-import org.complitex.osznconnection.file.calculation.service.CalculationCenterBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Обработка записей файла запроса начислений
@@ -54,13 +54,13 @@ public class PaymentBean extends AbstractBean {
         }
     }
 
-    @EJB
+    @EJB(beanName = "BenefitBean")
     private BenefitBean benefitBean;
 
-    @EJB
+    @EJB(beanName = "CalculationCenterBean")
     private CalculationCenterBean calculationCenterBean;
 
-    @EJB
+    @EJB(beanName = "PersonAccountLocalBean")
     private PersonAccountLocalBean personAccountLocalBean;
 
     @Transactional

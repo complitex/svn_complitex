@@ -7,9 +7,6 @@ package org.complitex.osznconnection.file.web.pages.correction;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import java.util.List;
-import java.util.Locale;
-import javax.ejb.EJB;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -23,9 +20,13 @@ import org.complitex.osznconnection.commons.web.component.toolbar.DeleteItemButt
 import org.complitex.osznconnection.commons.web.component.toolbar.ToolbarButton;
 import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.FormTemplatePage;
-import org.complitex.osznconnection.file.entity.ObjectCorrection;
+import org.complitex.osznconnection.file.entity.Correction;
 import org.complitex.osznconnection.file.web.component.correction.edit.AbstractCorrectionEditPanel;
 import org.complitex.osznconnection.ownership.strategy.OwnershipStrategy;
+
+import javax.ejb.EJB;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Страница для редактирования коррекций форм власти.
@@ -41,7 +42,7 @@ public final class OwnershipCorrectionEdit extends FormTemplatePage {
         @EJB(name = "OwnershipStrategy")
         private OwnershipStrategy ownershipStrategy;
 
-        public OwnershipCorrectionEditPanel(String id, final ObjectCorrection ownershipCorrection) {
+        public OwnershipCorrectionEditPanel(String id, final Correction ownershipCorrection) {
             super(id);
 
             final List<DomainObject> allOwnerships = ownershipStrategy.getAll();

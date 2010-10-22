@@ -3,68 +3,29 @@
 <mapper namespace="org.complitex.osznconnection.file.service.AddressCorrectionBean">
 
     <resultMap id="buildingCorrection" type="org.complitex.osznconnection.file.entity.BuildingCorrection"
-               extends="org.complitex.osznconnection.file.service.CorrectionBean.objectCorrection">
+               extends="org.complitex.osznconnection.file.service.CorrectionBean.correction">
         <result column="correction_corp" property="correctionCorp"/>
     </resultMap>
 
-    <select id="findCorrectionAddress" parameterType="org.complitex.osznconnection.file.entity.ObjectCorrection"
-             resultMap="org.complitex.osznconnection.file.service.CorrectionBean.objectCorrection">
+    <select id="findCorrectionAddress" parameterType="map"
+             resultMap="org.complitex.osznconnection.file.service.CorrectionBean.correction">
         SELECT
-            c.`id`,
-            c.`internal_organization_id`,
-            c.`object_id`
-            c.`parent_id`
-            c.`correction`
-            c.`organization_code`
+            *
         FROM
-            `${entity}_correction` c
+            `${entity}_correction`
         WHERE
-            c.`organization_id` = #{organizationId} AND TRIM(c.`correction`) = TRIM(#{correction})
-            <if test="internalParentId != null">
-                AND EXISTS(SELECT 1 FROM `${entity}` e WHERE e.`object_id` = c.`object_id`
-                    AND e.`status` = 'ACTIVE' AND e.`parent_id` = #{internalParentId})
-            </if>
+            `organization_id` = #{organizationId} AND TRIM(`correction`) = TRIM(#{correction}) AND `parent_id` = #{parendId}
         LIMIT 1
     </select>
 
-    <select id="findCorrectionBuilding" parameterType="org.complitex.osznconnection.file.entity.BuildingCorrection"
-            resultMap="buildingCorrection">
+    <select id="findCorrectionBuilding" parameterType="map" resultMap="buildingCorrection">
         SELECT
-            c.`id`,
-            c.`internal_organization_id`,
-            c.`object_id`
-            c.`parent_id`
-            c.`correction`
-            c.`organization_code`
+            *
         FROM
-            `building_correction` c
+            `building_correction`
         WHERE
-            c.`organization_id` = #{organizationId} AND TRIM(c.`correction`) = TRIM(#{correction})
-            <choose>
-                <when test="correctionCorp == null">
-                    AND c.`correction_corp` IS NULL
-                </when>
-                <otherwise>
-                    AND TRIM(c.`correction_corp`) = TRIM(#{correctionCorp})
-                </otherwise>
-            </choose>
-            <if test="internalParentId != null">
-                AND EXISTS(SELECT 1 FROM `building` e WHERE e.`object_id` = c.`object_id` AND e.`status` = 'ACTIVE'
-                    AND e.`parent_id` = #{internalParentId}
-                <choose>
-                    <when test="internalStreetId != null">
-                        AND EXISTS(SELECT 1 FROM `building_attribute` a_street
-                            WHERE e.`object_id` = a_street.`object_id` AND a_street.`attribute_type_id` = 503 AND a_street.`status` = 'ACTIVE'
-                            AND a_street.`value_id` = #{internalStreetId})
-                    </when>
-                    <otherwise>
-                        AND EXISTS(SELECT 1 FROM `building_attribute` a_street
-                            WHERE e.`object_id` = a_street.`object_id` AND a_street.`attribute_type_id` = 503 AND a_street.`status` = 'ACTIVE'
-                            AND a_street.`value_id` IS NULL)
-                    </otherwise>
-                </choose>
-                )
-            </if>
+            `organization_id` = #{organizationId} AND TRIM(`correction`) = TRIM(#{correction})
+                AND TRIM(`correction_corp`) = TRIM(#{correctionCorp}) AND `parent_id` = #{parendId}
         LIMIT 1
     </select>
 
@@ -81,8 +42,8 @@
         (#{organizationId}, #{correction}, #{correctionCorp}, #{internalObjectId}, #{code}, #{internalOrganizationId})
     </insert>
 
-    <select id="findOutgoingAddress" resultMap="org.complitex.osznconnection.file.service.CorrectionBean.objectCorrection"
-            parameterType="org.complitex.osznconnection.file.entity.ObjectCorrection">
+    <select id="findOutgoingAddress" resultMap="org.complitex.osznconnection.file.service.CorrectionBean.correction"
+            parameterType="org.complitex.osznconnection.file.entity.Correction">
         SELECT c.`correction`, c.`organization_code` FROM `${entity}_correction` c
         WHERE c.`organization_id` = #{organizationId}
         AND c.`object_id` = #{internalObjectId}
@@ -103,7 +64,7 @@
         AND etc.`entity_type_id` = #{internalObjectId}
     </select>
 
-    <select id="findOutgoingDistrict" resultMap="org.complitex.osznconnection.file.service.CorrectionBean.objectCorrection"
+    <select id="findOutgoingDistrict" resultMap="org.complitex.osznconnection.file.service.CorrectionBean.correction"
             parameterType="hashmap">
         SELECT c.`correction`, c.`organization_code` FROM `district_correction` c
         WHERE c.`organization_id` = #{calculationCenterId}
@@ -175,7 +136,7 @@
         FROM `building_correction` c WHERE c.`id` = #{id}
     </select>
 
-    <select id="findBuildings" parameterType="org.complitex.osznconnection.file.entity.example.ObjectCorrectionExample"
+    <select id="findBuildings" parameterType="org.complitex.osznconnection.file.entity.example.CorrectionExample"
             resultMap="org.complitex.osznconnection.file.service.AddressCorrectionBean.buildingCorrection">
         SELECT c.`id`,
         c.`correction`,

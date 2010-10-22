@@ -13,7 +13,6 @@ import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -23,7 +22,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.web.component.DisableAwareDropDownChoice;
 import org.complitex.dictionaryfw.web.component.DomainObjectDisableAwareRenderer;
-import org.complitex.osznconnection.file.entity.ObjectCorrection;
+import org.complitex.osznconnection.file.entity.Correction;
 import org.complitex.osznconnection.file.service.CorrectionBean;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 import org.slf4j.Logger;
@@ -51,7 +50,7 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
 
     private Long correctionId;
 
-    private ObjectCorrection objectCorrection;
+    private Correction correction;
 
     private WebMarkupContainer form;
 
@@ -60,9 +59,9 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
         this.entity = entity;
         this.correctionId = correctionId;
         if (isNew()) {
-            objectCorrection = newObjectCorrection();
+            correction = newObjectCorrection();
         } else {
-            objectCorrection = initObjectCorrection(this.entity, this.correctionId);
+            correction = initObjectCorrection(this.entity, this.correctionId);
         }
         init();
     }
@@ -71,33 +70,29 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
         return correctionId == null;
     }
 
-    protected ObjectCorrection initObjectCorrection(String entity, long correctionId) {
-        ObjectCorrection correction = correctionBean.findById(entity, correctionId);
-        correction.setEntity(entity);
-        return correction;
+    protected Correction initObjectCorrection(String entity, Long correctionId) {
+        return correctionBean.findById(entity, correctionId);
     }
 
-    protected ObjectCorrection newObjectCorrection() {
-        ObjectCorrection correction = new ObjectCorrection();
-        correction.setEntity(entity);
-        return correction;
+    protected Correction newObjectCorrection() {
+        return new Correction(entity);
     }
 
-    protected ObjectCorrection getModel() {
-        return objectCorrection;
+    protected Correction getModel() {
+        return correction;
     }
 
     protected String getEntity() {
         return entity;
     }
 
+    protected String getDisplayCorrection(){
+        return correction.getCorrection();
+    }
+
     protected abstract IModel<String> internalObjectLabel(Locale locale);
 
     protected abstract Panel internalObjectPanel(String id);
-
-    protected Panel correctionParentPanel(String id){
-        return new EmptyPanel(id);
-    }
 
     protected boolean validate() {
         return true;
@@ -120,15 +115,15 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
     }
 
     protected void save() {
-        correctionBean.insert(objectCorrection);
+        correctionBean.insert(correction);
     }
 
     protected void update() {
-        correctionBean.update(objectCorrection);
+        correctionBean.update(correction);
     }
 
     protected void delete() {
-        correctionBean.delete(objectCorrection);
+        correctionBean.delete(correction);
     }
 
     public void executeDeletion() {
@@ -160,11 +155,7 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
         form = new Form("form");
         add(form);
 
-        TextField<String> correction = new TextField<String>("correction", new PropertyModel<String>(objectCorrection, "correction"));
-        correction.setRequired(true);
-        form.add(correction);
-
-        form.add(correctionParentPanel("correctionParent"));
+        form.add(new Label("correction", getDisplayCorrection()));
 
         WebMarkupContainer codeRequiredContainer = new WebMarkupContainer("codeRequiredContainer");
         form.add(codeRequiredContainer);
@@ -173,7 +164,7 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
 
         codeRequiredContainer.setVisible(isOrganizationCodeRequired);
 
-        TextField<String> code = new TextField<String>("code", new PropertyModel<String>(objectCorrection, "code"));
+        TextField<String> code = new TextField<String>("code", new PropertyModel<String>(this.correction, "code"));
         code.setRequired(isOrganizationCodeRequired);
 
         form.add(code);
@@ -182,7 +173,7 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
 
             @Override
             public DomainObject getObject() {
-                final Long organizationId = getOrganizationId(objectCorrection);
+                final Long organizationId = getOrganizationId(AbstractCorrectionEditPanel.this.correction);
                 if (organizationId != null) {
                     return Iterables.find(getOrganizations(), new Predicate<DomainObject>() {
 
@@ -197,12 +188,12 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
 
             @Override
             public void setObject(DomainObject object) {
-                setOrganizationId(objectCorrection, object.getId());
+                setOrganizationId(AbstractCorrectionEditPanel.this.correction, object.getId());
             }
 
-            public abstract Long getOrganizationId(ObjectCorrection objectCorrection);
+            public abstract Long getOrganizationId(Correction objectCorrection);
 
-            public abstract void setOrganizationId(ObjectCorrection objectCorrection, Long organizationId);
+            public abstract void setOrganizationId(Correction objectCorrection, Long organizationId);
 
             public abstract List<DomainObject> getOrganizations();
         }
@@ -211,12 +202,12 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
         IModel<DomainObject> outerOrganizationModel = new OrganizationModel() {
 
             @Override
-            public Long getOrganizationId(ObjectCorrection objectCorrection) {
+            public Long getOrganizationId(Correction objectCorrection) {
                 return objectCorrection.getOrganizationId();
             }
 
             @Override
-            public void setOrganizationId(ObjectCorrection objectCorrection, Long organizationId) {
+            public void setOrganizationId(Correction objectCorrection, Long organizationId) {
                 objectCorrection.setOrganizationId(organizationId);
             }
 
@@ -238,19 +229,19 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
         form.add(organization);
 
         if (isNew()) {
-            objectCorrection.setInternalOrganizationId(OrganizationStrategy.ITSELF_ORGANIZATION_OBJECT_ID);
+            this.correction.setInternalOrganizationId(OrganizationStrategy.ITSELF_ORGANIZATION_OBJECT_ID);
         }
 
         final List<DomainObject> internalOrganizations = Lists.newArrayList(organizationStrategy.getItselfOrganization());
         IModel<DomainObject> internalOrganizationModel = new OrganizationModel() {
 
             @Override
-            public Long getOrganizationId(ObjectCorrection objectCorrection) {
+            public Long getOrganizationId(Correction objectCorrection) {
                 return objectCorrection.getInternalOrganizationId();
             }
 
             @Override
-            public void setOrganizationId(ObjectCorrection objectCorrection, Long organizationId) {
+            public void setOrganizationId(Correction objectCorrection, Long organizationId) {
                 throw new UnsupportedOperationException();
             }
 

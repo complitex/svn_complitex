@@ -2,11 +2,11 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.complitex.osznconnection.file.service.PrivilegeCorrectionBean">
 
-     <select id="findInternalPrivilege" resultType="long" parameterType="org.complitex.osznconnection.file.entity.ObjectCorrection">
+     <select id="findInternalPrivilege" resultType="long" parameterType="org.complitex.osznconnection.file.entity.Correction">
         SELECT c.`object_id` FROM `privilege_correction` c WHERE c.`organization_id` = #{organizationId} AND c.`organization_code` = #{code}
     </select>
 
-    <select id="findPrivilegeCode" resultType="string" parameterType="org.complitex.osznconnection.file.entity.ObjectCorrection">
+    <select id="findPrivilegeCode" resultType="string" parameterType="org.complitex.osznconnection.file.entity.Correction">
         SELECT c.`organization_code` FROM `privilege_correction` c WHERE c.`organization_id` = #{organizationId} AND c.`object_id` = #{internalObjectId}
     </select>
 
