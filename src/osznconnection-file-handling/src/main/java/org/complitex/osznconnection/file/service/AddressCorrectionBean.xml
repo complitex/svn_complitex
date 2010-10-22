@@ -12,7 +12,7 @@
         SELECT
             *
         FROM
-            `${entity}_correction`
+            `${entityTable}_correction`
         WHERE
             `organization_id` = #{organizationId} AND TRIM(`correction`) = TRIM(#{correction}) AND `parent_id` = #{parendId}
         LIMIT 1

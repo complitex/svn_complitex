@@ -56,11 +56,9 @@ public class AddressService extends AbstractBean {
     private void resolveLocalAddress(Payment payment) {
         //осзн id
         long organizationId = payment.getOrganizationId();
-        Long cityId;
-        Long streetId = null;
-        Long buildingId = null;
 
         //Связывание города
+        Long cityId;
         String city = (String) payment.getField(PaymentDBF.N_NAME);
 
         Correction cityCorrection = addressCorrectionBean.findCorrectionCity(city, organizationId);
@@ -91,6 +89,7 @@ public class AddressService extends AbstractBean {
         }
 
         //Связывание улицы
+        Long streetId;
         String street = (String) payment.getField(PaymentDBF.VUL_NAME);
 
         Correction streetCorrection = addressCorrectionBean.findCorrectionStreet(cityCorrection, street);
@@ -118,6 +117,7 @@ public class AddressService extends AbstractBean {
         }
 
         //Связывание дома
+        Long buildingId;
         String buildingNumber = (String) payment.getField(PaymentDBF.BLD_NUM);
         String buildingCorp = (String) payment.getField(PaymentDBF.CORP_NUM);
 

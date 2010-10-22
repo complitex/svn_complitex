@@ -92,7 +92,7 @@ public class AddressCorrectionBean extends CorrectionBean {
             put("parentId", parent.getId());
             put("correction", correction);
             put("correctionCorp", correctionCorp);
-            put("organizationId", parent.getId());
+            put("organizationId", parent.getOrganizationId());
         }};
 
         return (BuildingCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".findCorrectionBuilding", params);
