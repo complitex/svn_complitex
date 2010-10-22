@@ -1281,8 +1281,8 @@ DROP TABLE IF EXISTS `city_correction`;
 
 CREATE TABLE `city_correction` (
     `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
-    `object_id` BIGINT(20) NOT NULL,
     `parent_id` BIGINT(20),
+    `object_id` BIGINT(20) NOT NULL,
     `correction` VARCHAR(100) NOT NULL,
     `organization_id` BIGINT(20) NOT NULL,
     `organization_code` VARCHAR(100),
@@ -1301,8 +1301,8 @@ DROP TABLE IF EXISTS `district_correction`;
 
 CREATE TABLE `district_correction` (
     `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
-    `object_id` BIGINT(20) NOT NULL,
     `parent_id` BIGINT(20),
+    `object_id` BIGINT(20) NOT NULL,
     `correction` VARCHAR(100) NOT NULL,
     `organization_id` BIGINT(20) NOT NULL,
     `organization_code` VARCHAR(100),
@@ -1314,7 +1314,7 @@ CREATE TABLE `district_correction` (
     KEY `key_organization_id` (`organization_id`),
     KEY `key_internal_organization_id` (`internal_organization_id`),
     CONSTRAINT `fk_district_correction__district` FOREIGN KEY (`object_id`) REFERENCES `district` (`object_id`),
-    CONSTRAINT `fk_district_correction__city` FOREIGN KEY (`parent_id`) REFERENCES `city` (`object_id`),
+    CONSTRAINT `fk_district_correction__city_correction` FOREIGN KEY (`parent_id`) REFERENCES `city_correction` (`id`),
     CONSTRAINT `fk_district_correction__internal_organization` FOREIGN KEY (`internal_organization_id`) REFERENCES `organization` (`object_id`),
     CONSTRAINT `fk_district_correction__organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -1323,8 +1323,8 @@ DROP TABLE IF EXISTS `street_correction`;
 
 CREATE TABLE `street_correction` (
     `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
-    `object_id` BIGINT(20) NOT NULL,
     `parent_id` BIGINT(20),
+    `object_id` BIGINT(20) NOT NULL,
     `correction` VARCHAR(100) NOT NULL,
     `organization_id` BIGINT(20) NOT NULL,
     `organization_code` VARCHAR(100),
@@ -1336,7 +1336,7 @@ CREATE TABLE `street_correction` (
     KEY `key_organization_id` (`organization_id`),
     KEY `key_internal_organization_id` (`internal_organization_id`),
     CONSTRAINT `fk_street_correction__street` FOREIGN KEY (`object_id`) REFERENCES `street` (`object_id`),
-    CONSTRAINT `fk_street_correction__district` FOREIGN KEY (`parent_id`) REFERENCES `district` (`object_id`),
+    CONSTRAINT `fk_street_correction__district_correction` FOREIGN KEY (`parent_id`) REFERENCES `district_correction` (`id`),
     CONSTRAINT `fk_street_correction__internal_organization` FOREIGN KEY (`internal_organization_id`) REFERENCES `organization` (`object_id`),
     CONSTRAINT `fk_street_correction__organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -1345,8 +1345,8 @@ DROP TABLE IF EXISTS `building_correction`;
 
 CREATE TABLE `building_correction` (
     `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
-    `object_id` BIGINT(20) NOT NULL,
     `parent_id` BIGINT(20),
+    `object_id` BIGINT(20) NOT NULL,
     `correction` VARCHAR(20) NOT NULL,
     `correction_corp` VARCHAR(20),
     `organization_id` BIGINT(20) NOT NULL,
@@ -1359,7 +1359,7 @@ CREATE TABLE `building_correction` (
     KEY `key_organization_id` (`organization_id`),
     KEY `key_internal_organization_id` (`internal_organization_id`),
     CONSTRAINT `fk_building_correction__building` FOREIGN KEY (`object_id`) REFERENCES `building` (`object_id`),
-    CONSTRAINT `fk_building_correction__street` FOREIGN KEY (`parent_id`) REFERENCES `street` (`object_id`),
+    CONSTRAINT `fk_building_correction__street_correction` FOREIGN KEY (`parent_id`) REFERENCES `street_correction` (`id`),
     CONSTRAINT `fk_building_correction__internal_organization` FOREIGN KEY (`internal_organization_id`) REFERENCES `organization` (`object_id`),
     CONSTRAINT `fk_building_correction__organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -1368,8 +1368,8 @@ DROP TABLE IF EXISTS `apartment_correction`;
 
 CREATE TABLE `apartment_correction` (
     `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
-    `object_id` BIGINT(20) NOT NULL,
     `parent_id` BIGINT(20),
+    `object_id` BIGINT(20) NOT NULL,
     `correction` VARCHAR(100) NOT NULL,
     `organization_id` BIGINT(20) NOT NULL,
     `organization_code` VARCHAR(100),
