@@ -10,7 +10,7 @@ import java.io.Serializable;
  *
  * @author Artem
  */
-public class ObjectCorrectionExample implements Serializable {
+public class CorrectionExample implements Serializable {
 
     private String correction;
 

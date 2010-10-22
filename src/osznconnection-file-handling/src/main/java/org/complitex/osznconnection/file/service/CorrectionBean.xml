@@ -2,12 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.complitex.osznconnection.file.service.CorrectionBean">
 
-    <resultMap id="objectCorrection" type="org.complitex.osznconnection.file.entity.ObjectCorrection">
+    <resultMap id="correction" type="org.complitex.osznconnection.file.entity.Correction">
         <result column="id" property="id"/>
         <result column="internal_organization_id" property="internalOrganizationId"/>
         <result column="organization_id" property="organizationId"/>
         <result column="object_id" property="internalObjectId"/>
-        <result column="parent_id" property="correctionParentId"/>
+        <result column="parent_id" property="parentId"/>
         <result column="correction" property="correction"/>
         <result column="organization_code" property="code"/>
         <result column="entity" property="entity"/>
@@ -17,15 +17,16 @@
         <result column="internalOrganization" property="internalOrganization"/>
     </resultMap>
 
-    <resultMap id="entityTypeCorrection" extends="org.complitex.osznconnection.file.service.CorrectionBean.objectCorrection"
+    <resultMap id="entityTypeCorrection" extends="org.complitex.osznconnection.file.service.CorrectionBean.correction"
                 type="org.complitex.osznconnection.file.entity.EntityTypeCorrection">
     </resultMap>
 
-    <insert id="insert" parameterType="org.complitex.osznconnection.file.entity.ObjectCorrection">
+    <insert id="insert" parameterType="org.complitex.osznconnection.file.entity.Correction"
+            keyProperty="id" useGeneratedKeys="true">
         INSERT INTO `${entity}_correction`
             (`organization_id`, `correction`, `object_id`, `organization_code`, `internal_organization_id`, `parent_id`)
          VALUES
-            (#{organizationId}, #{correction}, #{internalObjectId}, #{code}, #{internalOrganizationId}, #{correctionParentId})
+            (#{organizationId}, #{correction}, #{internalObjectId}, #{code}, #{internalOrganizationId}, #{parentId})
     </insert>
 
     <insert id="insertEntityType" parameterType="org.complitex.osznconnection.file.entity.EntityTypeCorrection">
@@ -60,8 +61,8 @@
         </where>
     </sql>
 
-    <select id="find" parameterType="org.complitex.osznconnection.file.entity.example.ObjectCorrectionExample"
-            resultMap="org.complitex.osznconnection.file.service.CorrectionBean.objectCorrection">
+    <select id="find" parameterType="org.complitex.osznconnection.file.entity.example.CorrectionExample"
+            resultMap="org.complitex.osznconnection.file.service.CorrectionBean.correction">
         SELECT c.`id`,
         c.`correction`,
         c.`organization_code`,
@@ -98,27 +99,27 @@
         LIMIT #{start},#{size}
     </select>
 
-     <select id="count" resultType="int" parameterType="org.complitex.osznconnection.file.entity.example.ObjectCorrectionExample">
+     <select id="count" resultType="int" parameterType="org.complitex.osznconnection.file.entity.example.CorrectionExample">
         SELECT COUNT(*) FROM `${entity}_correction` c
         <include refid="org.complitex.osznconnection.file.service.CorrectionBean.filter"/>
     </select>
 
     <select id="findById" parameterType="hashmap"
-                resultMap="org.complitex.osznconnection.file.service.CorrectionBean.objectCorrection">
+                resultMap="org.complitex.osznconnection.file.service.CorrectionBean.correction">
         SELECT c.`id`,
         c.`correction`,
         c.`organization_code`,
         c.`organization_id`,
         c.`object_id`,
         c.`internal_organization_id`,
-        c.`parent_id` correctionParentId
+        c.`parent_id` parentId
         FROM `${entity}_correction` c WHERE c.`id` = #{id}
     </select>
 
-    <update id="update" parameterType="org.complitex.osznconnection.file.entity.ObjectCorrection">
+    <update id="update" parameterType="org.complitex.osznconnection.file.entity.Correction">
         UPDATE `${entity}_correction` SET `organization_id` = #{organizationId}, `correction` = #{correction},
         `object_id` = #{internalObjectId}, `organization_code` = #{code}, `internal_organization_id` = #{internalOrganizationId},
-        `parent_id` = #{correctionParentId}
+        `parent_id` = #{parentId}
         WHERE `id` = #{id}
     </update>
 
@@ -148,7 +149,7 @@
     </sql>
 
     <select id="findEntityTypes" resultMap="org.complitex.osznconnection.file.service.CorrectionBean.entityTypeCorrection"
-            parameterType="org.complitex.osznconnection.file.entity.example.ObjectCorrectionExample">
+            parameterType="org.complitex.osznconnection.file.entity.example.CorrectionExample">
         SELECT etc.`id`,
             etc.`type` correction,
             etc.`organization_type_code` organization_code,
@@ -189,13 +190,14 @@
         LIMIT #{start},#{size}
     </select>
 
-    <select id="countEntityTypes" resultType="int" parameterType="org.complitex.osznconnection.file.entity.example.ObjectCorrectionExample">
+    <select id="countEntityTypes" resultType="int"
+            parameterType="org.complitex.osznconnection.file.entity.example.CorrectionExample">
         SELECT COUNT(*) FROM `entity_type_correction` etc
         <include refid="org.complitex.osznconnection.file.service.CorrectionBean.filterEntityTypes"/>
     </select>
 
     <select id="findEntityTypeById" parameterType="_long"
-                resultMap="org.complitex.osznconnection.file.service.CorrectionBean.entityTypeCorrection">
+            resultMap="org.complitex.osznconnection.file.service.CorrectionBean.entityTypeCorrection">
         SELECT c.`id`,
         c.`type` correction,
         c.`organization_type_code` organization_code,
@@ -211,7 +213,7 @@
         WHERE `id` = #{id}
     </update>
 
-    <delete id="delete" parameterType="org.complitex.osznconnection.file.entity.ObjectCorrection">
+    <delete id="delete" parameterType="org.complitex.osznconnection.file.entity.Correction">
         DELETE FROM `${entity}_correction` WHERE `id` = #{id}
     </delete>
 

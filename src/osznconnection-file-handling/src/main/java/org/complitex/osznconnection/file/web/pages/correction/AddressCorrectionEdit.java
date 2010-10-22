@@ -10,7 +10,6 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
@@ -27,7 +26,7 @@ import org.complitex.osznconnection.commons.web.component.toolbar.ToolbarButton;
 import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.FormTemplatePage;
 import org.complitex.osznconnection.file.entity.BuildingCorrection;
-import org.complitex.osznconnection.file.entity.ObjectCorrection;
+import org.complitex.osznconnection.file.entity.Correction;
 import org.complitex.osznconnection.file.service.AddressCorrectionBean;
 import org.complitex.osznconnection.file.web.component.correction.edit.AbstractCorrectionEditPanel;
 
@@ -48,18 +47,16 @@ public class AddressCorrectionEdit extends FormTemplatePage {
 
     public static final String CORRECTION_ID = "correction_id";
 
-    public static enum ADDRESS_ENTITY{city, district, street, building}
-
     @EJB(name = "StrategyFactory")
     private StrategyFactory strategyFactory;
 
     private class Callback implements ISearchCallback, Serializable {
 
-        private ObjectCorrection correction;
+        private Correction correction;
 
         private String entity;
 
-        public Callback(ObjectCorrection correction, String entity) {
+        public Callback(Correction correction, String entity) {
             this.correction = correction;
             this.entity = entity;
         }
@@ -84,47 +81,13 @@ public class AddressCorrectionEdit extends FormTemplatePage {
         }
 
         @Override
-        protected Panel correctionParentPanel(String id) {
-            final ObjectCorrection correction = getModel();
-            final String parentEntity = getParentEntity(correction.getEntity());
-
-            if (parentEntity == null){
-                return new EmptyPanel(id);
-            }
-
-            SearchComponentState componentState = new SearchComponentState();
-
-            Long parentId = correction.getCorrectionParentId();
-
-            if (!isNew() && parentId != null) {
-                Strategy.RestrictedObjectInfo info = getStrategy(parentEntity).findParentInSearchComponent(parentId, null);
-
-                if (info != null) {
-                    componentState = getStrategy(parentEntity).getSearchComponentStateForParent(info.getId(), info.getEntityTable(), null);
-                    componentState.put(parentEntity, findObject(parentId, parentEntity));
-                }
-            }
-
-            return new SearchComponent(id, componentState, getSearchFilters(parentEntity),
-                    new ISearchCallback(){
-                        @Override
-                        public void found(SearchComponent component, Map<String, Long> ids, AjaxRequestTarget target) {
-                            Long id = ids.get(parentEntity);
-                            if (id != null && id > 0) {
-                                correction.setCorrectionParentId(id);
-                            }
-                        }
-                    }, true);
-        }
-
-        @Override
         protected IModel<String> internalObjectLabel(Locale locale) {
             return new ResourceModel("address");
         }
 
         @Override
         protected Panel internalObjectPanel(String id) {
-            ObjectCorrection correction = getModel();
+            Correction correction = getModel();
             String entity = correction.getEntity();
             SearchComponentState componentState = new SearchComponentState();
             if (!isNew()) {
@@ -149,6 +112,18 @@ public class AddressCorrectionEdit extends FormTemplatePage {
 
         protected Strategy getStrategy(String entity) {
             return strategyFactory.getStrategy(entity);
+        }
+
+        @Override
+        protected String getDisplayCorrection() {
+            Correction correction = getModel();
+
+            if ("street".equals(correction.getEntity()) && correction.getParent() != null){
+                return correction.getParent().getCorrection() +
+                        ", " + correction.getCorrection();
+            }
+
+            return super.getDisplayCorrection();
         }
 
         protected DomainObject findObject(long objectId, String entity) {
@@ -198,17 +173,26 @@ public class AddressCorrectionEdit extends FormTemplatePage {
         }
 
         @Override
-        protected BuildingCorrection initObjectCorrection(String entity, long correctionId) {
-            BuildingCorrection correction = addressCorrectionBean.findBuildingById(correctionId);
-            correction.setEntity("building");
-            return correction;
+        protected BuildingCorrection initObjectCorrection(String entity, Long correctionId) {
+            return addressCorrectionBean.findBuildingById(correctionId);
         }
 
         @Override
         protected BuildingCorrection newObjectCorrection() {
-            BuildingCorrection correction = new BuildingCorrection();
-            correction.setEntity("building");
-            return correction;
+            return new BuildingCorrection();
+        }
+
+        @Override
+        protected String getDisplayCorrection() {
+            Correction correction = getModel();
+
+            if (correction.getParent() != null && correction.getParent().getParent() != null){
+                return correction.getParent().getParent().getCorrection()
+                        + ", " + correction.getParent().getCorrection()
+                        + ", " + correction.getCorrection();
+            }
+
+            return super.getDisplayCorrection();
         }
 
         @Override
@@ -271,12 +255,6 @@ public class AddressCorrectionEdit extends FormTemplatePage {
             }
         });
         return toolbar;
-    }
-
-    public String getParentEntity(String entity){
-        ADDRESS_ENTITY ae = ADDRESS_ENTITY.valueOf(entity);
-
-        return ae.ordinal() > 0 ? ADDRESS_ENTITY.values()[ae.ordinal()-1].name() : null;
     }
 }
 
