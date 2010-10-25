@@ -51,7 +51,7 @@ public class OwnershipCorrectionBean extends AbstractBean {
     @Transactional
     private String findOwnershipCode(long objectId, long organizationId) {
         Correction example = new Correction();
-        example.setInternalObjectId(objectId);
+        example.setObjectId(objectId);
         example.setOrganizationId(organizationId);
         List<String> codes = sqlSession().selectList(MAPPING_NAMESPACE + ".findOwnershipCode", example);
         if (codes != null && !codes.isEmpty()) {

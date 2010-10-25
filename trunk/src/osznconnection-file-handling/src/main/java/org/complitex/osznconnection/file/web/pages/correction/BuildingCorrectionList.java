@@ -34,7 +34,14 @@ public class BuildingCorrectionList extends AddressCorrectionList {
 
     @Override
     protected String displayCorrection(Correction correction) {
-        BuildingCorrection buildingCorrection = (BuildingCorrection) correction;
-        return BuildingFormatter.formatBuilding(buildingCorrection.getCorrection(), buildingCorrection.getCorrectionCorp(), getLocale());
+        String parentAddress = "";
+        if (correction.getParent() != null && correction.getParent() != null){
+            parentAddress = correction.getParent().getParent().getCorrection() +
+                    ", " + correction.getParent().getCorrection() +
+                    ", ";
+        }
+
+        BuildingCorrection bc = (BuildingCorrection) correction;
+        return parentAddress + BuildingFormatter.formatBuilding(bc.getCorrection(), bc.getCorrectionCorp(), getLocale());
     }
 }

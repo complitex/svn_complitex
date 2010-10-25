@@ -7,7 +7,7 @@
     </select>
 
     <select id="findPrivilegeCode" resultType="string" parameterType="org.complitex.osznconnection.file.entity.Correction">
-        SELECT c.`organization_code` FROM `privilege_correction` c WHERE c.`organization_id` = #{organizationId} AND c.`object_id` = #{internalObjectId}
+        SELECT c.`organization_code` FROM `privilege_correction` c WHERE c.`organization_id` = #{organizationId} AND c.`object_id` = #{objectId}
     </select>
 
 </mapper>

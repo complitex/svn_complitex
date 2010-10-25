@@ -65,7 +65,7 @@ public class AddressCorrectionEdit extends FormTemplatePage {
         public void found(SearchComponent component, Map<String, Long> ids, AjaxRequestTarget target) {
             Long id = ids.get(entity);
             if (id != null && id > 0) {
-                correction.setInternalObjectId(id);
+                correction.setObjectId(id);
             }
         }
     }
@@ -75,6 +75,8 @@ public class AddressCorrectionEdit extends FormTemplatePage {
      * Подходит для города, улицы.
      */
     private class AddressCorrectionEditPanel extends AbstractCorrectionEditPanel {
+        @EJB(name = "AddressCorrectionBean")
+        private AddressCorrectionBean addressCorrectionBean;
 
         public AddressCorrectionEditPanel(String id, String entity, Long correctionId) {
             super(id, entity, correctionId);
@@ -91,7 +93,7 @@ public class AddressCorrectionEdit extends FormTemplatePage {
             String entity = correction.getEntity();
             SearchComponentState componentState = new SearchComponentState();
             if (!isNew()) {
-                long objectId = correction.getInternalObjectId();
+                long objectId = correction.getObjectId();
                 Strategy.RestrictedObjectInfo info = getStrategy(entity).findParentInSearchComponent(objectId, null);
                 if (info != null) {
                     componentState = getStrategy(entity).getSearchComponentStateForParent(info.getId(), info.getEntityTable(), null);
@@ -103,7 +105,7 @@ public class AddressCorrectionEdit extends FormTemplatePage {
 
         @Override
         protected boolean validate() {
-            boolean valid = getModel().getInternalObjectId() != null;
+            boolean valid = getModel().getObjectId() != null;
             if (!valid) {
                 error(getString("address_required"));
             }
@@ -115,11 +117,27 @@ public class AddressCorrectionEdit extends FormTemplatePage {
         }
 
         @Override
+        protected Correction initObjectCorrection(String entity, Long correctionId) {
+            if ("city".equals(entity)){
+                return addressCorrectionBean.getCityCorrection(correctionId);
+            }else if ("street".equals(entity)){
+                return addressCorrectionBean.getStreetCorrection(correctionId);
+            }
+
+            return super.initObjectCorrection(entity, correctionId);
+        }
+
+        @Override
         protected String getDisplayCorrection() {
             Correction correction = getModel();
 
             if ("street".equals(correction.getEntity()) && correction.getParent() != null){
                 return correction.getParent().getCorrection() +
+                        ", " + correction.getCorrection();
+            }else if ("building".equals(correction.getEntity()) && correction.getParent() != null &&
+                    correction.getParent().getParent() != null){
+                return correction.getParent().getParent().getCorrection() +
+                        ", " + correction.getParent().getCorrection() +
                         ", " + correction.getCorrection();
             }
 
@@ -129,8 +147,7 @@ public class AddressCorrectionEdit extends FormTemplatePage {
         protected DomainObject findObject(long objectId, String entity) {
             DomainObjectExample example = new DomainObjectExample();
             example.setId(objectId);
-            DomainObject object = getStrategy(entity).find(example).get(0);
-            return object;
+            return getStrategy(entity).find(example).get(0);
         }
 
         protected List<String> getSearchFilters(String entity) {
@@ -174,7 +191,7 @@ public class AddressCorrectionEdit extends FormTemplatePage {
 
         @Override
         protected BuildingCorrection initObjectCorrection(String entity, Long correctionId) {
-            return addressCorrectionBean.findBuildingById(correctionId);
+            return addressCorrectionBean.getBuildingCorrection(correctionId);
         }
 
         @Override

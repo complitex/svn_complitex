@@ -1,11 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.complitex.osznconnection.file.service.AddressCorrectionBean">
+    <resultMap id="cityCorrection" type="org.complitex.osznconnection.file.entity.Correction"
+               extends="org.complitex.osznconnection.file.service.CorrectionBean.correction">
+    </resultMap>
+
+    <resultMap id="streetCorrection" type="org.complitex.osznconnection.file.entity.Correction"
+               extends="org.complitex.osznconnection.file.service.CorrectionBean.correction">
+        <association property="parent" column="parent_id" select="selectCityCorrection"
+                javaType="org.complitex.osznconnection.file.entity.Correction"/>
+    </resultMap>
 
     <resultMap id="buildingCorrection" type="org.complitex.osznconnection.file.entity.BuildingCorrection"
                extends="org.complitex.osznconnection.file.service.CorrectionBean.correction">
         <result column="correction_corp" property="correctionCorp"/>
+
+        <association property="parent" column="parent_id" select="selectStreetCorrection"
+                     javaType="org.complitex.osznconnection.file.entity.Correction"/>
     </resultMap>
+
+    <select id="selectCityCorrection" resultMap="cityCorrection" parameterType="long">
+        select * from `city_correction` where `id` = #{id}
+    </select>
+
+    <select id="selectStreetCorrection" resultMap="streetCorrection" parameterType="long">
+        select * from `street_correction` where `id` = #{id}
+    </select>
+
+    <select id="selectBuildingCorrection" resultMap="buildingCorrection" parameterType="long">
+        select * from `building_correction` where `id` = #{id}
+    </select>
 
     <select id="findCorrectionAddress" parameterType="map"
              resultMap="org.complitex.osznconnection.file.service.CorrectionBean.correction">
@@ -42,7 +66,7 @@
     <insert id="insertBuilding" parameterType="org.complitex.osznconnection.file.entity.BuildingCorrection">
         INSERT INTO `building_correction`(`organization_id`, `parent_id`, `correction`, `correction_corp`, `object_id`,
             `organization_code`, `internal_organization_id`)
-         VALUES (#{organizationId}, #{parentId}, #{correction}, #{correctionCorp}, #{internalObjectId}, #{code},
+         VALUES (#{organizationId}, #{parentId}, #{correction}, #{correctionCorp}, #{objectId}, #{code},
             #{internalOrganizationId})
     </insert>
 
@@ -50,14 +74,14 @@
             parameterType="org.complitex.osznconnection.file.entity.Correction">
         SELECT c.`correction`, c.`organization_code` FROM `${entity}_correction` c
         WHERE c.`organization_id` = #{organizationId}
-        AND c.`object_id` = #{internalObjectId}
+        AND c.`object_id` = #{objectId}
     </select>
 
     <select id="findOutgoingBuilding" resultMap="org.complitex.osznconnection.file.service.AddressCorrectionBean.buildingCorrection"
             parameterType="org.complitex.osznconnection.file.entity.BuildingCorrection">
         SELECT c.`correction`, c.`correction_corp`, c.`organization_code` FROM `building_correction` c
         WHERE c.`organization_id` = #{organizationId}
-        AND c.`object_id` = #{internalObjectId}
+        AND c.`object_id` = #{objectId}
     </select>
 
     <select id="findOutgoingEntityType" resultMap="org.complitex.osznconnection.file.service.CorrectionBean.entityTypeCorrection"
@@ -65,7 +89,7 @@
         SELECT etc.`type` correction, etc.`organization_type_code` code
         FROM `entity_type_correction` etc
         WHERE etc.`organization_id` = #{organizationId}
-        AND etc.`entity_type_id` = #{internalObjectId}
+        AND etc.`entity_type_id` = #{objectId}
     </select>
 
     <select id="findOutgoingDistrict" resultMap="org.complitex.osznconnection.file.service.CorrectionBean.correction"
@@ -124,42 +148,29 @@
 
     <update id="updateBuilding" parameterType="org.complitex.osznconnection.file.entity.BuildingCorrection">
         UPDATE `building_correction` SET `organization_id` = #{organizationId}, `correction` = #{correction}, `correction_corp` = #{correctionCorp},
-        `object_id` = #{internalObjectId}, `organization_code` = #{code}, `internal_organization_id` = #{internalOrganizationId}
+        `object_id` = #{objectId}, `organization_code` = #{code}, `internal_organization_id` = #{internalOrganizationId}
         WHERE `id` = #{id}
     </update>
 
-    <select id="findBuildingById" parameterType="_long"
-            resultMap="org.complitex.osznconnection.file.service.AddressCorrectionBean.buildingCorrection">
-        SELECT c.`id`,
-        c.`correction`,
-        c.`correction_corp`,
-        c.`organization_code`,
-        c.`organization_id`,
-        c.`internal_organization_id`,
-        c.`object_id` internalObjectId
-        FROM `building_correction` c WHERE c.`id` = #{id}
+    <select id="findBuildingById" parameterType="_long" resultMap="buildingCorrection">
+        SELECT * FROM `building_correction` WHERE `id` = #{id}
     </select>
 
     <select id="findBuildings" parameterType="org.complitex.osznconnection.file.entity.example.CorrectionExample"
-            resultMap="org.complitex.osznconnection.file.service.AddressCorrectionBean.buildingCorrection">
-        SELECT c.`id`,
-        c.`correction`,
-        c.`correction_corp`,
-        c.`organization_code`,
-        c.`organization_id`,
-        c.`internal_organization_id`,
+            resultMap="buildingCorrection">
+        SELECT c.*,
         (SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale` = #{locale} AND osc.`id` IN
-        (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE' AND oa.`object_id` = c.`organization_id`
-        AND oa.`attribute_type_id` = 900)) organization,
-        c.`internal_organization_id`,
+            (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE'
+             AND oa.`object_id` = c.`organization_id` AND oa.`attribute_type_id` = 900)
+        ) organization,
         IFNULL((SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale` = #{locale} AND osc.`id` IN
-        (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE' AND oa.`object_id` = c.`internal_organization_id`
-        AND oa.`attribute_type_id` = 900)),
-        (SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale` = (SELECT l.`locale` FROM `locales` l WHERE l.`system` = 1)
-        AND osc.`id` IN (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE' AND oa.`object_id` = c.`internal_organization_id`
-        AND oa.`attribute_type_id` = 900))
-        ) internalOrganization,
-        c.`object_id` internalObjectId
+            (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE'
+                AND oa.`object_id` = c.`internal_organization_id` AND oa.`attribute_type_id` = 900)),
+            (SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale` =
+                (SELECT l.`locale` FROM `locales` l WHERE l.`system` = 1) AND osc.`id` IN (SELECT oa.`value_id`
+                FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE'
+                AND oa.`object_id` = c.`internal_organization_id` AND oa.`attribute_type_id` = 900))
+        ) internalOrganization
         FROM `building_correction` c
         <include refid="org.complitex.osznconnection.file.service.CorrectionBean.filter"/>
         <if test="orderByClause != null">

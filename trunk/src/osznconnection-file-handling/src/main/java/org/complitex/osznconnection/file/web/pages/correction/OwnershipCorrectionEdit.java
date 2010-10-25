@@ -50,7 +50,7 @@ public final class OwnershipCorrectionEdit extends FormTemplatePage {
 
                 @Override
                 public DomainObject getObject() {
-                    final Long ownershipId = ownershipCorrection.getInternalObjectId();
+                    final Long ownershipId = ownershipCorrection.getObjectId();
                     if (ownershipId != null) {
                         return Iterables.find(allOwnerships, new Predicate<DomainObject>() {
 
@@ -65,7 +65,7 @@ public final class OwnershipCorrectionEdit extends FormTemplatePage {
 
                 @Override
                 public void setObject(DomainObject object) {
-                    ownershipCorrection.setInternalObjectId(object.getId());
+                    ownershipCorrection.setObjectId(object.getId());
                 }
             };
             DomainObjectDisableAwareRenderer renderer = new DomainObjectDisableAwareRenderer() {
