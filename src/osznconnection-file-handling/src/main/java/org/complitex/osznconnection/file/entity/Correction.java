@@ -22,7 +22,7 @@ public class Correction implements Serializable {
     private Long organizationId;
     private String organization;
 
-    private Long internalObjectId;
+    private Long objectId;
     private String internalObject;
     private Long internalParentId;
 
@@ -31,6 +31,8 @@ public class Correction implements Serializable {
 
     private Long parentId;
     private Correction parent;
+
+    private String displayObject;
 
     public Correction() {
     }
@@ -87,12 +89,12 @@ public class Correction implements Serializable {
         this.organization = organization;
     }
 
-    public Long getInternalObjectId() {
-        return internalObjectId;
+    public Long getObjectId() {
+        return objectId;
     }
 
-    public void setInternalObjectId(Long internalObjectId) {
-        this.internalObjectId = internalObjectId;
+    public void setObjectId(Long objectId) {
+        this.objectId = objectId;
     }
 
     public String getInternalObject() {
@@ -141,5 +143,13 @@ public class Correction implements Serializable {
 
     public void setParent(Correction parent) {
         this.parent = parent;
+    }
+
+    public String getDisplayObject() {
+        return displayObject;
+    }
+
+    public void setDisplayObject(String displayObject) {
+        this.displayObject = displayObject;
     }
 }

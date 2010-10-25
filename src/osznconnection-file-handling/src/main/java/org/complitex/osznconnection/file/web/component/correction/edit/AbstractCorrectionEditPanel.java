@@ -62,6 +62,7 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
             correction = newObjectCorrection();
         } else {
             correction = initObjectCorrection(this.entity, this.correctionId);
+            correction.setEntity(entity);
         }
         init();
     }

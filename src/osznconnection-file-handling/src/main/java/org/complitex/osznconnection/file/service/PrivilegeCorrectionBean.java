@@ -51,7 +51,7 @@ public class PrivilegeCorrectionBean extends AbstractBean {
     @Transactional
     private String findPrivilegeCode(long objectId, long organizationId) {
         Correction example = new Correction();
-        example.setInternalObjectId(objectId);
+        example.setObjectId(objectId);
         example.setOrganizationId(organizationId);
         List<String> codes = sqlSession().selectList(MAPPING_NAMESPACE + ".findPrivilegeCode", example);
         if (codes != null && !codes.isEmpty()) {

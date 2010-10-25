@@ -15,6 +15,6 @@ public class EntityTypeCorrection extends Correction {
 
     public EntityTypeCorrection(long organizationId, long entityTypeId) {
         setOrganizationId(organizationId);
-        setInternalObjectId(entityTypeId);
+        setObjectId(entityTypeId);
     }
 }

@@ -55,7 +55,7 @@ public final class PrivilegeCorrectionEdit extends FormTemplatePage {
         public void found(SearchComponent component, Map<String, Long> ids, AjaxRequestTarget target) {
             Long id = ids.get(privilegeStrategy.getEntityTable());
             if (id != null && id > 0) {
-                correction.setInternalObjectId(id);
+                correction.setObjectId(id);
             }
         }
     }
@@ -77,7 +77,7 @@ public final class PrivilegeCorrectionEdit extends FormTemplatePage {
                 SearchComponentState componentState = new SearchComponentState();
                 Correction correction = getModel();
                 if (!isNew()) {
-                    componentState.put(privilegeStrategy.getEntityTable(), findPrivilege(correction.getInternalObjectId()));
+                    componentState.put(privilegeStrategy.getEntityTable(), findPrivilege(correction.getObjectId()));
                 }
 
                 return new SearchComponent(id, componentState, ImmutableList.of(privilegeStrategy.getEntityTable()),
@@ -86,7 +86,7 @@ public final class PrivilegeCorrectionEdit extends FormTemplatePage {
 
             @Override
             protected boolean validate() {
-                boolean valid = getModel().getInternalObjectId() != null;
+                boolean valid = getModel().getObjectId() != null;
                 if (!valid) {
                     error(getString("privilege_required"));
                 }

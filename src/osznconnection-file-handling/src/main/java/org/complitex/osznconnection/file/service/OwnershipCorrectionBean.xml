@@ -7,7 +7,7 @@
     </select>
 
     <select id="findOwnershipCode" resultType="string" parameterType="org.complitex.osznconnection.file.entity.Correction">
-        SELECT oc.`organization_code` FROM `ownership_correction` oc WHERE oc.`organization_id` = #{organizationId} AND oc.`object_id` = #{internalObjectId}
+        SELECT oc.`organization_code` FROM `ownership_correction` oc WHERE oc.`organization_id` = #{organizationId} AND oc.`object_id` = #{objectId}
     </select>
 
 </mapper>

@@ -87,6 +87,10 @@ public abstract class AbstractCorrectionList extends TemplatePage {
         return correction.getCorrection();
     }
 
+    protected String displayInternalObject(Correction correction){
+        return correction.getInternalObject();
+    }
+
     protected abstract Class<? extends WebPage> getEditPage();
 
     protected abstract PageParameters getEditPageParams(Long objectCorrectionId);
@@ -174,7 +178,7 @@ public abstract class AbstractCorrectionList extends TemplatePage {
                 }
                 item.add(new Label("code", code));
 
-                item.add(new Label("internalObject", correction.getInternalObject()));
+                item.add(new Label("internalObject", displayInternalObject(correction)));
                 item.add(new Label("internalOrganization", correction.getInternalOrganization()));
                 item.add(new BookmarkablePageLink("edit", getEditPage(), getEditPageParams(correction.getId())));
             }

@@ -31,12 +31,10 @@ import java.util.Map;
 public class CorrectionBean extends AbstractBean {
     private static final Logger log = LoggerFactory.getLogger(CorrectionBean.class);
 
-    private static final String MAPPING_NAMESPACE = CorrectionBean.class.getName();
-
-    private static enum ENTITY{city, street, building}
+    public static final String MAPPING_NAMESPACE = CorrectionBean.class.getName();
 
     @EJB(beanName = "StrategyFactory")
-    private StrategyFactory strategyFactory;
+    protected StrategyFactory strategyFactory;
 
     public static enum OrderBy {
 
@@ -63,7 +61,7 @@ public class CorrectionBean extends AbstractBean {
         List<Correction> results = sqlSession().selectList(queryId, example);
         for (Correction correction : results) {
             DomainObjectExample domainObjectExample = new DomainObjectExample();
-            domainObjectExample.setId(correction.getInternalObjectId());
+            domainObjectExample.setId(correction.getObjectId());
             List<DomainObject> objects = strategy.find(domainObjectExample);
             if (objects != null && !objects.isEmpty()) {
                 correction.setInternalObject(strategy.displayDomainObject(objects.get(0), new Locale(example.getLocale())));
@@ -87,22 +85,9 @@ public class CorrectionBean extends AbstractBean {
 
         if (correction != null){
             correction.setEntity(entity);
-            loadParents(correction);
         }
 
         return correction;
-    }
-
-    @Transactional
-    public void loadParents(Correction correction){
-        if (ENTITY.street.name().equals(correction.getEntity())){
-            correction.setParent(findById(ENTITY.city.name(), correction.getParentId()));
-        }else if (ENTITY.building.name().equals(correction.getEntity())){
-            Correction street = findById(ENTITY.street.name(), correction.getParentId());
-            street.setParent(findById(ENTITY.city.name(), correction.getParentId()));
-
-            correction.setParent(street);
-        }
     }
 
     @Transactional

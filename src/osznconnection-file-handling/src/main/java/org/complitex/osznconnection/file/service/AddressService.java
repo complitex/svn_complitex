@@ -63,7 +63,7 @@ public class AddressService extends AbstractBean {
         Correction cityCorrection = addressCorrectionBean.findCorrectionCity(city, organizationId);
 
         if (cityCorrection != null){
-            cityId = cityCorrection.getInternalObjectId();
+            cityId = cityCorrection.getObjectId();
         } else{
             cityId = addressCorrectionBean.findInternalCity(city);
 
@@ -87,7 +87,7 @@ public class AddressService extends AbstractBean {
         Correction streetCorrection = addressCorrectionBean.findCorrectionStreet(cityCorrection, street);
 
         if (streetCorrection != null){
-            streetId = streetCorrection.getInternalObjectId();
+            streetId = streetCorrection.getObjectId();
         }else{
             streetId = addressCorrectionBean.findInternalStreet(street, cityId, null);
 
@@ -117,7 +117,7 @@ public class AddressService extends AbstractBean {
                 buildingNumber, buildingCorp);
 
         if (buildingCorrection != null){
-            buildingId = buildingCorrection.getInternalObjectId();
+            buildingId = buildingCorrection.getObjectId();
         }else {
             buildingId = addressCorrectionBean.findInternalBuilding(buildingNumber, buildingCorp, streetId, cityId);
 
