@@ -6,7 +6,6 @@ package org.complitex.osznconnection.file.service;
 
 import org.complitex.dictionaryfw.entity.Attribute;
 import org.complitex.dictionaryfw.entity.DomainObject;
-import org.complitex.dictionaryfw.entity.StringCulture;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
@@ -66,18 +65,11 @@ public class AddressService extends AbstractBean {
         if (cityCorrection != null){
             cityId = cityCorrection.getInternalObjectId();
         } else{
-            cityId = addressCorrectionBean.findInternalCity(city); //todo debug
+            cityId = addressCorrectionBean.findInternalCity(city);
 
             if (cityId != null) {
-                cityCorrection = new Correction();
-
-                cityCorrection.setCorrection(city);
-                cityCorrection.setOrganizationId(organizationId);
-                cityCorrection.setInternalOrganizationId(OrganizationStrategy.ITSELF_ORGANIZATION_OBJECT_ID);
-                cityCorrection.setInternalObjectId(cityId);
-                cityCorrection.setEntity("city");
-
-                addressCorrectionBean.insert(cityCorrection);
+                cityCorrection = addressCorrectionBean.insertCorrectionCity(city, cityId, organizationId,
+                        OrganizationStrategy.ITSELF_ORGANIZATION_OBJECT_ID);
             }
         }
 
@@ -97,10 +89,10 @@ public class AddressService extends AbstractBean {
         if (streetCorrection != null){
             streetId = streetCorrection.getInternalObjectId();
         }else{
-            streetId = addressCorrectionBean.findInternalStreet(street, cityId, null); //todo bedug
+            streetId = addressCorrectionBean.findInternalStreet(street, cityId, null);
 
             if (streetId != null) {
-                addressCorrectionBean.insertCorrectionStreet(cityCorrection, street, streetId);
+                streetCorrection = addressCorrectionBean.insertCorrectionStreet(cityCorrection, street, streetId);
             }
         }
 
@@ -127,7 +119,7 @@ public class AddressService extends AbstractBean {
         if (buildingCorrection != null){
             buildingId = buildingCorrection.getInternalObjectId();
         }else {
-            buildingId = addressCorrectionBean.findInternalBuilding(buildingNumber, buildingCorp, streetId, cityId); //todo debug
+            buildingId = addressCorrectionBean.findInternalBuilding(buildingNumber, buildingCorp, streetId, cityId);
 
             if (buildingId != null) {
                 addressCorrectionBean.insertCorrectionBuilding(streetCorrection, buildingNumber, buildingCorp, buildingId);
@@ -139,11 +131,9 @@ public class AddressService extends AbstractBean {
 
             payment.setInternalCityId(buildingObject.getParentId());
 
-            for (Attribute a : buildingObject.getAttributes()){ //todo add easy getStreet
+            for (Attribute a : buildingObject.getAttributes()){
                 if (a.getAttributeTypeId() == 503){
-                    for (StringCulture sc : a.getLocalizedValues()){
-                        payment.setInternalStreetId(Long.valueOf(sc.getValue()));
-                    }
+                    payment.setInternalStreetId(a.getValueId());
                 }
             }
 
