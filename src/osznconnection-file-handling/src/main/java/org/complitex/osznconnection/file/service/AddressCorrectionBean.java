@@ -229,7 +229,7 @@ public class AddressCorrectionBean extends CorrectionBean {
      * @param internalOrganizationId
      */
     @Transactional
-    private void insert(String entityTable, Long parentId, String value, long objectId, long organizationId, long internalOrganizationId) {
+    private Correction insert(String entityTable, Long parentId, String value, long objectId, long organizationId, long internalOrganizationId) {
         Correction correction = new Correction();
 
         correction.setParentId(parentId);
@@ -240,6 +240,8 @@ public class AddressCorrectionBean extends CorrectionBean {
         correction.setEntity(entityTable);
 
         insert(correction);
+
+        return correction;
     }
 
     public void insertCorrectionApartment(long parentId, String apartment, long objectId, long organizationId, long internalOrganizationId) {
@@ -274,12 +276,12 @@ public class AddressCorrectionBean extends CorrectionBean {
         sqlSession().insert(MAPPING_NAMESPACE + ".insertBuilding", correction);
     }
 
-    public void insertCorrectionStreet(Correction parent, String street, long objectId) {
-        insert("street", parent.getParentId(),  street, objectId, parent.getOrganizationId(), parent.getInternalOrganizationId());
+    public Correction insertCorrectionStreet(Correction parent, String street, long objectId) {
+        return insert("street", parent.getId(),  street, objectId, parent.getOrganizationId(), parent.getInternalOrganizationId());
     }
 
-    public void insertCorrectionCity(String city, long objectId, long organizationId, long internalOrganizationId) {
-        insert("city", null,  city, objectId, organizationId, internalOrganizationId);
+    public Correction insertCorrectionCity(String city, long objectId, long organizationId, long internalOrganizationId) {
+        return insert("city", null,  city, objectId, organizationId, internalOrganizationId);
     }
 
     /**

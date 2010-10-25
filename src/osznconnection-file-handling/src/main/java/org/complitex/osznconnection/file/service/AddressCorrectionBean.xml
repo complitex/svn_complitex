@@ -13,8 +13,11 @@
             *
         FROM
             `${entityTable}_correction`
-        WHERE
-            `organization_id` = #{organizationId} AND TRIM(`correction`) = TRIM(#{correction}) AND `parent_id` = #{parendId}
+        <where>
+            `organization_id` = #{organizationId} AND TRIM(`correction`) = TRIM(#{correction})
+            <if test="parentId != null">AND `parent_id` = #{parentId}</if>
+        </where>
+
         LIMIT 1
     </select>
 
@@ -25,7 +28,7 @@
             `building_correction`
         WHERE
             `organization_id` = #{organizationId} AND TRIM(`correction`) = TRIM(#{correction})
-                AND TRIM(`correction_corp`) = TRIM(#{correctionCorp}) AND `parent_id` = #{parendId}
+                AND TRIM(`correction_corp`) = TRIM(#{correctionCorp}) AND `parent_id` = #{parentId}
         LIMIT 1
     </select>
 
@@ -37,9 +40,10 @@
     </select>
 
     <insert id="insertBuilding" parameterType="org.complitex.osznconnection.file.entity.BuildingCorrection">
-        INSERT INTO `building_correction`(`organization_id`, `correction`, `correction_corp`, `object_id`, `organization_code`,
-        `internal_organization_id`) VALUES
-        (#{organizationId}, #{correction}, #{correctionCorp}, #{internalObjectId}, #{code}, #{internalOrganizationId})
+        INSERT INTO `building_correction`(`organization_id`, `parent_id`, `correction`, `correction_corp`, `object_id`,
+            `organization_code`, `internal_organization_id`)
+         VALUES (#{organizationId}, #{parentId}, #{correction}, #{correctionCorp}, #{internalObjectId}, #{code},
+            #{internalOrganizationId})
     </insert>
 
     <select id="findOutgoingAddress" resultMap="org.complitex.osznconnection.file.service.CorrectionBean.correction"

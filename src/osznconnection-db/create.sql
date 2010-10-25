@@ -1336,7 +1336,7 @@ CREATE TABLE `street_correction` (
     KEY `key_organization_id` (`organization_id`),
     KEY `key_internal_organization_id` (`internal_organization_id`),
     CONSTRAINT `fk_street_correction__street` FOREIGN KEY (`object_id`) REFERENCES `street` (`object_id`),
-    CONSTRAINT `fk_street_correction__district_correction` FOREIGN KEY (`parent_id`) REFERENCES `district_correction` (`id`),
+    CONSTRAINT `fk_street_correction__city_correction` FOREIGN KEY (`parent_id`) REFERENCES `city_correction` (`id`),
     CONSTRAINT `fk_street_correction__internal_organization` FOREIGN KEY (`internal_organization_id`) REFERENCES `organization` (`object_id`),
     CONSTRAINT `fk_street_correction__organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
