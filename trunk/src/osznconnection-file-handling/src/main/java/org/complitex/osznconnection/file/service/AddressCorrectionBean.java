@@ -113,6 +113,7 @@ public class AddressCorrectionBean extends CorrectionBean {
      * @param internalObjectId
      * @return
      */
+    @SuppressWarnings({"unchecked"})
     @Transactional
     private Correction findOutgoingAddress(String entityTable, long organizationId, long internalObjectId) {
         Correction parameter = new Correction();
@@ -157,6 +158,7 @@ public class AddressCorrectionBean extends CorrectionBean {
      * @param internalBuildingId
      * @return
      */
+    @SuppressWarnings({"unchecked"})
     @Transactional
     public BuildingCorrection findOutgoingBuilding(long organizationId, long internalBuildingId) {
         BuildingCorrection parameter = new BuildingCorrection();
@@ -181,6 +183,7 @@ public class AddressCorrectionBean extends CorrectionBean {
      * @param osznId
      * @return
      */
+    @SuppressWarnings({"unchecked"})
     @Transactional
     public Correction findOutgoingDistrict(long calculationCenterId, long osznId) {
         Map<String, Long> params = ImmutableMap.of("calculationCenterId", calculationCenterId, "osznId", osznId);
@@ -200,6 +203,7 @@ public class AddressCorrectionBean extends CorrectionBean {
      * @param calculationCenterId
      * @return
      */
+    @SuppressWarnings({"unchecked"})
     @Transactional
     private EntityTypeCorrection findOutgoingEntityType(long entityTypeId, long calculationCenterId) {
         EntityTypeCorrection parameter = new EntityTypeCorrection(calculationCenterId, entityTypeId);
@@ -437,7 +441,7 @@ public class AddressCorrectionBean extends CorrectionBean {
             DomainObjectExample domainObjectExample;
             if (c.getParent() != null && c.getParent().getParent() != null) {
                 domainObjectExample = new DomainObjectExample();
-                domainObjectExample.setId(c.getParent().getParentId());
+                domainObjectExample.setId(c.getParent().getParent().getObjectId());
                 List<DomainObject> objects = city.find(domainObjectExample);
                 if (objects != null && !objects.isEmpty()) {
                     parent += city.displayDomainObject(objects.get(0), new Locale(example.getLocale())) + ", ";
@@ -447,7 +451,7 @@ public class AddressCorrectionBean extends CorrectionBean {
             //street
             if (c.getParent() != null) {
                 domainObjectExample = new DomainObjectExample();
-                domainObjectExample.setId(c.getParentId());
+                domainObjectExample.setId(c.getParent().getObjectId());
                 List<DomainObject> objects = street.find(domainObjectExample);
                 if (objects != null && !objects.isEmpty()) {
                     parent += street.displayDomainObject(objects.get(0), new Locale(example.getLocale())) + ", ";
@@ -475,7 +479,7 @@ public class AddressCorrectionBean extends CorrectionBean {
 
             for (Correction c : list){
                 DomainObjectExample domainObjectExample = new DomainObjectExample();
-                domainObjectExample.setId(c.getParentId());
+                domainObjectExample.setId(c.getObjectId());
                 List<DomainObject> objects = strategy.find(domainObjectExample);
                 if (objects != null && !objects.isEmpty()) {
                     String parent = strategy.displayDomainObject(objects.get(0), new Locale(example.getLocale()));

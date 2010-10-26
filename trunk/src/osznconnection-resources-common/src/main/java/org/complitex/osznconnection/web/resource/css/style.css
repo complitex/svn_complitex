@@ -204,11 +204,11 @@ input.btnCenter{
 
 /* стили для справочников */
 table.bookContentHeader{
-    width: 100%;
+    /*width: 100%;*/
     padding-bottom: 6px;
 }
 .bookContent td {
-    text-align: center !important;
+    /*text-align: center !important;*/
 }
 .bookContent th {
     text-align: center  !important;
