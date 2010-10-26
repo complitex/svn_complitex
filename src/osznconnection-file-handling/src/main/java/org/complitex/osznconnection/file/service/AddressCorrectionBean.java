@@ -401,7 +401,9 @@ public class AddressCorrectionBean extends CorrectionBean {
     public Correction getCityCorrection(Long id) {
         Correction correction = (Correction) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectCityCorrection", id);
 
-        correction.setEntity("city");
+        if (correction != null) {
+            correction.setEntity("city");
+        }
 
         return correction;
     }
@@ -411,7 +413,9 @@ public class AddressCorrectionBean extends CorrectionBean {
     public Correction getStreetCorrection(Long id) {
         Correction correction =  (Correction) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectStreetCorrection", id);
 
-        correction.setEntity("street");
+        if (correction != null) {
+            correction.setEntity("street");
+        }
 
         return correction;
     }
@@ -421,7 +425,9 @@ public class AddressCorrectionBean extends CorrectionBean {
     public BuildingCorrection getBuildingCorrection(Long id) {
         BuildingCorrection correction =  (BuildingCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectBuildingCorrection", id);
 
-        correction.setEntity("building");
+        if (correction != null) {
+            correction.setEntity("building");
+        }
 
         return correction;
     }
@@ -478,13 +484,19 @@ public class AddressCorrectionBean extends CorrectionBean {
             Strategy strategy = strategyFactory.getStrategy("city");
 
             for (Correction c : list){
-                DomainObjectExample domainObjectExample = new DomainObjectExample();
-                domainObjectExample.setId(c.getObjectId());
-                List<DomainObject> objects = strategy.find(domainObjectExample);
-                if (objects != null && !objects.isEmpty()) {
-                    String parent = strategy.displayDomainObject(objects.get(0), new Locale(example.getLocale()));
+                Correction cityCorrection = getCityCorrection(c.getParentId());
 
-                    c.setDisplayObject(parent + ", " + c.getInternalObject());
+                if (cityCorrection != null) {
+                    c.setParent(cityCorrection);
+
+                    DomainObjectExample domainObjectExample = new DomainObjectExample();
+                    domainObjectExample.setId(cityCorrection.getObjectId());
+                    List<DomainObject> objects = strategy.find(domainObjectExample);
+                    if (objects != null && !objects.isEmpty()) {
+                        String parent = strategy.displayDomainObject(objects.get(0), new Locale(example.getLocale()));
+
+                        c.setDisplayObject(parent + ", " + c.getInternalObject());
+                    }
                 }
             }
         }
