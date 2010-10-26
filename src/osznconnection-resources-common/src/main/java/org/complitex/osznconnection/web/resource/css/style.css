@@ -210,9 +210,14 @@ table.bookContentHeader{
 .bookContent td {
     /*text-align: center !important;*/
 }
-.bookContent th {
-    text-align: center  !important;
+.bookContent th span {
+    /*text-align: center  !important;*/
 }
+
+.wicket_orderNone{
+    text-align: center !important;
+}
+
 .filter-td input[type="text"]{
     width:100%;
 }
