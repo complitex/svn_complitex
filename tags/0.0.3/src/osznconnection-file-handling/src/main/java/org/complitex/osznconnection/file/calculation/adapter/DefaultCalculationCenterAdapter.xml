@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.complitex.osznconnection.file.calculation.adapter.DefaultCalculationCenterAdapter">
+
+    <select id="acquirePersonAccount" parameterType="hashmap" resultType="string">
+        select Z$RUNTIME_SZ_UTL.GETMNCODEBYADDRESS(
+        #{pDistrName, javaType=string, jdbcType=VARCHAR},
+        #{pStSortName, javaType=string, jdbcType=VARCHAR},
+        #{pStreetName, javaType=string, jdbcType=VARCHAR},
+        #{pHouseNum, javaType=string, jdbcType=VARCHAR},
+        #{pHousePart, javaType=string, jdbcType=VARCHAR},
+        #{pFlatNum, javaType=string, jdbcType=VARCHAR},
+        #{dat1, javaType=date, jdbcType=DATE})
+        as account_number from dual
+    </select>
+
+    <resultMap id="accountCorrectionDetail" type="org.complitex.osznconnection.file.entity.AccountDetail">
+        <result property="accountNumber" column="acc_code" javaType="string" jdbcType="VARCHAR"/>
+        <result property="ownerName" column="owner_fio" javaType="string" jdbcType="VARCHAR"/>
+        <result property="ownerINN" column="owner_inn" javaType="string" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="acquireAccountCorrectionDetails" statementType="CALLABLE" parameterType="hashmap">
+        <![CDATA[
+         {#{resultCode, mode=OUT, javaType=int, jdbcType=NUMERIC} = call COMP.Z$RUNTIME_SZ_UTL.GETACCATTRS(
+            #{pDistrName, mode=IN, javaType=string, jdbcType=VARCHAR},
+            #{pStSortName, mode=IN, javaType=string, jdbcType=VARCHAR},
+            #{pStreetName, mode=IN, javaType=string, jdbcType=VARCHAR},
+            #{pHouseNum, mode=IN, javaType=string, jdbcType=VARCHAR},
+            #{pHousePart, mode=IN, javaType=string, jdbcType=VARCHAR},
+            #{pFlatNum, mode=IN, javaType=string, jdbcType=VARCHAR},
+            #{dat1, mode=IN, javaType=date, jdbcType=DATE},
+            #{details, mode=OUT, jdbcType=CURSOR, javaType=java.sql.ResultSet, resultMap=accountCorrectionDetail})
+        }
+        ]]>
+    </select>
+
+    <resultMap id="data" type="hashmap">
+        <result column="lodg_cnt" property="NUMB" javaType="int" jdbcType="INTEGER"/>
+        <result column="usr_cnt" property="MARK" javaType="int" jdbcType="INTEGER"/>
+        <result column="pct" property="FROG" javaType="double" jdbcType="NUMERIC"/>
+        <result column="charge" property="FL_PAY" javaType="double" jdbcType="NUMERIC"/>
+        <result column="norm_charge" property="NM_PAY" javaType="double" jdbcType="NUMERIC"/>
+        <result column="saldo_in" property="DEBT" javaType="double" jdbcType="NUMERIC"/>
+        <result column="ts" property="NORM_F_1" javaType="double" jdbcType="NUMERIC"/>
+        <result column="rc" property="HOSTEL" javaType="int" jdbcType="INTEGER"/>
+        <result column="own" property="OWN_FRM" javaType="string" jdbcType="VARCHAR"/>
+        <result column="b_tarif" property="T11_CS_UNI" javaType="double" jdbcType="NUMERIC"/>
+    </resultMap>
+
+    <select id="processPaymentAndBenefit" statementType="CALLABLE" parameterType="hashmap">
+        <![CDATA[
+         {#{resultCode, mode=OUT, javaType=int, jdbcType=NUMERIC} = call COMP.Z$RUNTIME_SZ_UTL.GETCHARGEANDPARAMS(
+            #{accountNumber, mode=IN, javaType=string, jdbcType=VARCHAR},
+            #{dat1, mode=IN, javaType=date, jdbcType=DATE},
+            #{data, mode=OUT, jdbcType=CURSOR, javaType=java.sql.ResultSet,
+                resultMap=org.complitex.osznconnection.file.calculation.adapter.DefaultCalculationCenterAdapter.data})
+        }
+        ]]>
+    </select>
+
+    <resultMap id="benefitData" type="hashmap">
+        <result column="ln" property="LAST_NAME" javaType="string" jdbcType="VARCHAR"/>
+        <result column="fn" property="FIRST_NAME" javaType="string" jdbcType="VARCHAR"/>
+        <result column="mn" property="MIDDLE_NAME" javaType="string" jdbcType="VARCHAR"/>
+        <result column="inn" property="INN" javaType="string" jdbcType="VARCHAR"/>
+        <result column="ps" property="SERIAL_NUMBER" javaType="string" jdbcType="VARCHAR"/>
+        <result column="pn" property="PASSPORT_NUMBER" javaType="string" jdbcType="VARCHAR"/>
+        <result column="ord" property="ORD_FAM" javaType="int" jdbcType="INTEGER"/>
+        <result column="cc" property="BENEFIT_CODE" javaType="string" jdbcType="VARCHAR"/>
+        <result column="uc" property="USER_COUNT" javaType="int" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <select id="processBenefit" statementType="CALLABLE" parameterType="hashmap">
+        <![CDATA[
+         {#{resultCode, mode=OUT, javaType=int, jdbcType=NUMERIC} = call COMP.Z$RUNTIME_SZ_UTL.GETPRIVS(
+            #{accountNumber, mode=IN, javaType=string, jdbcType=VARCHAR},
+            #{dat1, mode=IN, javaType=date, jdbcType=DATE},
+            #{benefitData, mode=OUT, jdbcType=CURSOR, javaType=java.sql.ResultSet,
+                resultMap=org.complitex.osznconnection.file.calculation.adapter.DefaultCalculationCenterAdapter.benefitData})
+        }
+        ]]>
+    </select>
+
+     <resultMap id="benefitDataResultMap" type="org.complitex.osznconnection.file.calculation.entity.BenefitData">
+        <result column="ln" property="lastName"/>
+        <result column="fn" property="firstName"/>
+        <result column="mn" property="middleName"/>
+        <result column="inn" property="inn"/>
+        <result column="ps" property="passportSerial"/>
+        <result column="pn" property="passportNumber"/>
+        <result column="ord" property="orderFamily"/>
+        <result column="cc" property="code"/>
+        <result column="uc" property="userCount"/>
+    </resultMap>
+
+    <select id="callBenefitData" statementType="CALLABLE" parameterType="hashmap">
+        <![CDATA[
+         {#{resultCode, mode=OUT, javaType=int, jdbcType=NUMERIC} = call COMP.Z$RUNTIME_SZ_UTL.GETPRIVS(
+            #{accountNumber, mode=IN, javaType=string, jdbcType=VARCHAR},
+            #{dat1, mode=IN, javaType=date, jdbcType=DATE},
+            #{benefitData, mode=OUT, jdbcType=CURSOR, javaType=java.sql.ResultSet,
+                resultMap=benefitDataResultMap})
+        }
+        ]]>
+    </select>
+
+</mapper>

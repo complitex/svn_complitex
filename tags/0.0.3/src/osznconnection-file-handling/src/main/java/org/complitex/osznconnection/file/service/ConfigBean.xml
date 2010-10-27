@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.complitex.osznconnection.file.service.ConfigBean">
+    <resultMap id="configResultMap" type="org.complitex.osznconnection.file.entity.ConfigName">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="name" property="name"/>
+    </resultMap>
+    
+    <insert id="insertConfig" parameterType="map">
+        insert into `config` (`name`, `value`) values (#{name}, #{value})
+    </insert>
+
+    <update id="updateConfig" parameterType="map">
+        update `config` set `value` = #{value} where `name` = #{name}
+    </update>
+
+    <select id="isExistConfig" parameterType="string" resultType="boolean">
+        select count(*) > 0 from `config` where `name` = #{name}
+    </select>
+
+    <select id="selectConfigValue" parameterType="string" resultType="string">
+        select `value` from `config` where `name` = #{name}
+    </select>
+</mapper>
