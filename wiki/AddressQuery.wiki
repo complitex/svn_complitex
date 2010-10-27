@@ -12,10 +12,13 @@ from
   left join `region` on (`region`.`parent_id` = `country`.`object_id`)
     left join `region_attribute` on (`region_attribute`.`object_id` = `region`.`object_id`)
     left join `region_string_culture` on (`region_string_culture`.`id` = `region_attribute`.`value_id`)
-  /*Город*/
+  /*Населенный пункт*/
   left join `city` on (`city`.`parent_id` = `region`.`object_id`)
     left join `city_attribute` on (`city_attribute`.`object_id` = `city`.`object_id`)
     left join `city_string_culture` on (`city_string_culture`.`id` = `city_attribute`.`value_id`)
+  /*Тип населенного пункта*/
+  left join `entity_type` city_type on (city_type.`id` = `city`.`entity_type_id`)
+    left join `string_culture` city_type_sc on (city_type_sc.`id` = city_type.`entity_type_name_id`)
   /*Район*/
   left join `district` on (`district`.`parent_id` = `city`.`object_id`)
     left join `district_attribute` on (`district_attribute`.`object_id` = `district`.`object_id`)
@@ -24,8 +27,9 @@ from
   left join `street` on (`street`.`parent_id` = `city`.`object_id`)
     left join `street_attribute` on (`street_attribute`.`object_id` = `street`.`object_id`)
     left join `street_string_culture` on (`street_string_culture`.`id` = `street_attribute`.`value_id`)
-
-
+  /*Тип улица*/
+  left join `entity_type` street_type on (street_type.`id` = `street`.`entity_type_id`)
+    left join `string_culture` street_type_sc on (street_type_sc.`id` = street_type.`entity_type_name_id`)
   /*Дом*/
   left join `building` on (`building`.`parent_id` = `city`.`object_id`)
     /*Номер дома*/
@@ -45,6 +49,7 @@ from
 where
   `country_string_culture`.`value` like 'УКРАИНА'
   and `region_string_culture`.`value` like 'ХАРЬКОВСКАЯ ОБЛАСТЬ'
+  and street_type_sc.`value` like 'ПРОСП'
   and `city_string_culture`.`value` like 'ХАРЬКОВ'
   and `district_string_culture`.`value` like 'ОРДЖОНИКИДЗЕВСКИЙ'
   and `street_string_culture`.`value` like 'ЛЕНИНА'
