@@ -49,6 +49,10 @@ public class Correction implements Serializable {
         this.id = id;
     }
 
+    @Deprecated
+    /**
+     * todo: confusion about the choice of wicket component entity or correction entity
+     */
     public String getEntity() {
         return entity;
     }
