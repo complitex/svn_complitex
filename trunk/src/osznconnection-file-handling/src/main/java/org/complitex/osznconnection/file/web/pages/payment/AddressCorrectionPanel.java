@@ -207,17 +207,17 @@ public abstract class AddressCorrectionPanel extends Panel {
             return ImmutableList.of(new SearchComponent.SearchFilterSettings("city", true));
         }
         if (searchAddressEntity.equalsIgnoreCase("street")) {
-            return ImmutableList.of(new SearchComponent.SearchFilterSettings("city", false),
+            return ImmutableList.of(new SearchComponent.SearchFilterSettings("city", true),
                     new SearchComponent.SearchFilterSettings("street", true));
         }
         if (searchAddressEntity.equalsIgnoreCase("building")) {
-            return ImmutableList.of(new SearchComponent.SearchFilterSettings("city", false),
-                    new SearchComponent.SearchFilterSettings("street", false),
+            return ImmutableList.of(new SearchComponent.SearchFilterSettings("city", true),
+                    new SearchComponent.SearchFilterSettings("street", true),
                     new SearchComponent.SearchFilterSettings("building", true));
         }
-        return ImmutableList.of(new SearchComponent.SearchFilterSettings("city", false),
-                new SearchComponent.SearchFilterSettings("street", false),
-                new SearchComponent.SearchFilterSettings("building", false),
+        return ImmutableList.of(new SearchComponent.SearchFilterSettings("city", true),
+                new SearchComponent.SearchFilterSettings("street", true),
+                new SearchComponent.SearchFilterSettings("building", true),
                 new SearchComponent.SearchFilterSettings("apartment", true));
     }
 
