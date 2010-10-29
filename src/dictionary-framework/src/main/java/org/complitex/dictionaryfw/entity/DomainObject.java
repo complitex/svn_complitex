@@ -35,6 +35,16 @@ public class DomainObject implements Serializable {
 
     private List<Attribute> attributes = new ArrayList<Attribute>();
 
+    public Attribute getAttribute(Long attributeTypeId){
+        for (Attribute a : attributes){
+            if (a.getAttributeTypeId().equals(attributeTypeId)){
+                return a;
+            }
+        }
+
+        return null;
+    }
+
     public Date getEndDate() {
         return endDate;
     }

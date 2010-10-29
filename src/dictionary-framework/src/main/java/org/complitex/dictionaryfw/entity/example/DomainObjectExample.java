@@ -51,6 +51,13 @@ public class DomainObjectExample implements Serializable {
 
     private String status = ShowMode.ALL.name();
 
+    public DomainObjectExample() {
+    }
+
+    public DomainObjectExample(Long id) {
+        this.id = id;
+    }
+
     public int getSize() {
         return size;
     }

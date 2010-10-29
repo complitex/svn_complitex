@@ -8,7 +8,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.entity.DomainObject;
-import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.osznconnection.file.entity.BuildingCorrection;
@@ -437,34 +436,25 @@ public class AddressCorrectionBean extends CorrectionBean {
     public List<BuildingCorrection> findBuildings(CorrectionExample example) {
         List<BuildingCorrection> list =  (List<BuildingCorrection>) super.find(example, MAPPING_NAMESPACE + ".findBuildings");
 
-        Strategy city = strategyFactory.getStrategy("city");
-        Strategy street = strategyFactory.getStrategy("street");
+        Strategy cityStrategy = strategyFactory.getStrategy("city");
+        Strategy streetStrategy = strategyFactory.getStrategy("street");
+        Strategy buildingStrategy = strategyFactory.getStrategy("building");
 
         for (Correction c : list){
-            String parent = "";
+            try {
+                DomainObject building = buildingStrategy.findById(c.getObjectId());
+                DomainObject street = streetStrategy.findById(building.getAttribute(503L).getValueId());
+                DomainObject city = cityStrategy.findById(street.getParentId());
 
-            //city
-            DomainObjectExample domainObjectExample;
-            if (c.getParent() != null && c.getParent().getParent() != null) {
-                domainObjectExample = new DomainObjectExample();
-                domainObjectExample.setId(c.getParent().getParent().getObjectId());
-                List<DomainObject> objects = city.find(domainObjectExample);
-                if (objects != null && !objects.isEmpty()) {
-                    parent += city.displayDomainObject(objects.get(0), new Locale(example.getLocale())) + ", ";
-                }
+                String displayBuilding = buildingStrategy.displayDomainObject(building, new Locale(example.getLocale()));
+                String displayStreet = streetStrategy.displayDomainObject(street, new Locale(example.getLocale()));
+                String displayCity = cityStrategy.displayDomainObject(city, new Locale(example.getLocale()));
+
+                c.setDisplayObject(displayCity + ", " + displayStreet + ", " + displayBuilding);
+            } catch (Exception e) {
+                log.warn("[Полный адрес не найден]" ,e);
+                c.setDisplayObject("[Полный адрес не найден]");
             }
-
-            //street
-            if (c.getParent() != null) {
-                domainObjectExample = new DomainObjectExample();
-                domainObjectExample.setId(c.getParent().getObjectId());
-                List<DomainObject> objects = street.find(domainObjectExample);
-                if (objects != null && !objects.isEmpty()) {
-                    parent += street.displayDomainObject(objects.get(0), new Locale(example.getLocale())) + ", ";
-                }
-            }
-
-            c.setDisplayObject(parent + c.getInternalObject());
         }
 
         return list;
@@ -481,22 +471,24 @@ public class AddressCorrectionBean extends CorrectionBean {
         List<Correction> list = (List<Correction>) super.find(example, CorrectionBean.MAPPING_NAMESPACE + ".find");
 
         if ("street".equals(example.getEntity())){
-            Strategy strategy = strategyFactory.getStrategy("city");
+            Strategy streetStrategy = strategyFactory.getStrategy("street");
+            Strategy cityStrategy = strategyFactory.getStrategy("city");
 
             for (Correction c : list){
-                Correction cityCorrection = getCityCorrection(c.getParentId());
+                //load city
+                c.setParent(getCityCorrection(c.getParentId()));
 
-                if (cityCorrection != null) {
-                    c.setParent(cityCorrection);
+                try {
+                    DomainObject street = streetStrategy.findById(c.getObjectId());
+                    DomainObject city = cityStrategy.findById(street.getParentId());
 
-                    DomainObjectExample domainObjectExample = new DomainObjectExample();
-                    domainObjectExample.setId(cityCorrection.getObjectId());
-                    List<DomainObject> objects = strategy.find(domainObjectExample);
-                    if (objects != null && !objects.isEmpty()) {
-                        String parent = strategy.displayDomainObject(objects.get(0), new Locale(example.getLocale()));
+                    String displayStreet = streetStrategy.displayDomainObject(street, new Locale(example.getLocale()));
+                    String displayCity = cityStrategy.displayDomainObject(city, new Locale(example.getLocale()));
 
-                        c.setDisplayObject(parent + ", " + c.getInternalObject());
-                    }
+                    c.setDisplayObject(displayCity + ", " + displayStreet);
+                } catch (Exception e) {
+                    log.warn("[Полный адрес не найден]" ,e);
+                    c.setDisplayObject("[Полный адрес не найден]");
                 }
             }
         }
