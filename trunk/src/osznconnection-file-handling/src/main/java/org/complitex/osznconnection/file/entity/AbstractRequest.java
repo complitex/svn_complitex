@@ -58,12 +58,12 @@ public abstract class AbstractRequest implements Serializable {
 
         try {
             if (!getFieldType(name).equals(type)){
-                throw new FieldWrongTypeException(name);                
+                throw new FieldWrongTypeException(name, type, getFieldType(name));
             }
 
             dbfFields.put(name, value);
         } catch (IllegalArgumentException e) {
-            throw new FieldNotFoundException(e);
+            throw new FieldNotFoundException(name);
         }
     }
 

@@ -40,7 +40,7 @@ public class Payment extends AbstractRequest {
         try {
             return PaymentDBF.valueOf(name).getType();
         } catch (IllegalArgumentException e) {
-            throw new FieldNotFoundException(e);
+            throw new FieldNotFoundException(name);
         }
     }
 

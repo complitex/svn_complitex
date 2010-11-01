@@ -2,7 +2,6 @@ package org.complitex.osznconnection.file.web;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import java.io.File;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -33,13 +32,17 @@ import org.complitex.osznconnection.commons.web.template.TemplatePage;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.entity.RequestFileFilter;
 import org.complitex.osznconnection.file.entity.RequestFileGroup;
-import org.complitex.osznconnection.file.service.*;
+import org.complitex.osznconnection.file.service.FileExecutorService;
+import org.complitex.osznconnection.file.service.LoadRequestBean;
+import org.complitex.osznconnection.file.service.RequestFileGroupBean;
+import org.complitex.osznconnection.file.service.SaveRequestBean;
 import org.complitex.osznconnection.file.web.pages.benefit.BenefitList;
 import org.complitex.osznconnection.file.web.pages.payment.PaymentList;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 import org.complitex.osznconnection.web.resource.WebCommonResourceInitializer;
 
 import javax.ejb.EJB;
+import java.io.File;
 import java.util.*;
 
 /**
@@ -288,9 +291,9 @@ public class RequestFileGroupList extends TemplatePage {
 
                 //status
                 String detail = "";
-                if (rfg.getStatusDetail() != null){
-                    detail = ": " + getStringOrKey(rfg.getStatusDetail());                                                            
-                }
+//                if (rfg.getStatusDetail() != null){
+//                    detail = ": " + getStringOrKey(rfg.getStatusDetail());
+//                }
 
                 if (rfg.isProcessing()){
                     if (FileExecutorService.get().isBinding()){

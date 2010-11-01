@@ -48,7 +48,12 @@
 
     <insert id="insertRequestFileGroup"  parameterType="org.complitex.osznconnection.file.entity.RequestFileGroup"
             keyProperty="id" useGeneratedKeys="true">
-        insert into `request_file_group` value ()
+        insert into `request_file_group` (`status`) value (#{status})
+    </insert>
+
+    <insert id="updateRequestFileGroup"  parameterType="org.complitex.osznconnection.file.entity.RequestFileGroup"
+            keyProperty="id" useGeneratedKeys="true">
+        update `request_file_group` set `status` = #{status} where `id` = #{id}
     </insert>
 
     <delete id="deleteRequestFileGroup" parameterType="long">
