@@ -15,9 +15,10 @@ import java.util.List;
 public class RequestFileGroup implements ILoggable{
 
     public static enum STATUS implements IEnumCode {
+        SKIPPED(10),
         LOADING(111),   LOAD_ERROR(101),    LOADED(100),
-        BINDING(222),   BIND_ERRORS(202),   BINDED(200),
-        FILLING(333),   FILL_ERRORS(303),   FILLED(300),
+        BINDING(222),   BIND_ERROR(202),   BOUND(200),
+        FILLING(333),   FILL_ERROR(303),   FILLED(300),
         SAVING(444),    SAVE_ERROR(404),    SAVED(400);
 
         private int code;
@@ -163,5 +164,21 @@ public class RequestFileGroup implements ILoggable{
 
     public void setStatus(STATUS status) {
         this.status = status;
+    }
+
+    public String getName(){
+        if (paymentFile != null){
+            return paymentFile.getName().substring(2,8);
+        }
+
+        return null;
+    }
+
+    public String getDirectory(){
+        if (paymentFile != null){
+            return paymentFile.getDirectory();
+        }
+
+        return null;
     }
 }

@@ -104,20 +104,12 @@ public class ProcessManagerBean {
         return Collections.unmodifiableList(list);
     }
 
-    public int getCount(RequestFileGroup.STATUS status){
-        int count = 0;
-
-        for (RequestFileGroup group : executorBean.getProcessed()){
-            if (group.getStatus().equals(status)){
-                count++;
-            }
-        }
-
-        return count;
-    }
-
     public int getSuccessCount() {
         return executorBean.getSuccessCount();
+    }
+
+    public int getSkippedCount(){
+        return executorBean.getSkippedCount();
     }
 
     public int getErrorCount() {
