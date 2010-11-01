@@ -21,7 +21,7 @@ import org.complitex.osznconnection.commons.web.component.toolbar.DeleteItemButt
 import org.complitex.osznconnection.commons.web.component.toolbar.ToolbarButton;
 import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.FormTemplatePage;
-import org.complitex.osznconnection.file.entity.ObjectCorrection;
+import org.complitex.osznconnection.file.entity.Correction;
 import org.complitex.osznconnection.file.web.component.correction.edit.AbstractCorrectionEditPanel;
 import org.complitex.osznconnection.privilege.strategy.PrivilegeStrategy;
 
@@ -32,7 +32,7 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- *
+ * Страница для редактирования коррекций привилегий.
  * @author Artem
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)
@@ -45,9 +45,9 @@ public final class PrivilegeCorrectionEdit extends FormTemplatePage {
 
     private class PrivilegeCallback implements ISearchCallback, Serializable {
 
-        private ObjectCorrection correction;
+        private Correction correction;
 
-        public PrivilegeCallback(ObjectCorrection correction) {
+        public PrivilegeCallback(Correction correction) {
             this.correction = correction;
         }
 
@@ -55,7 +55,7 @@ public final class PrivilegeCorrectionEdit extends FormTemplatePage {
         public void found(SearchComponent component, Map<String, Long> ids, AjaxRequestTarget target) {
             Long id = ids.get(privilegeStrategy.getEntityTable());
             if (id != null && id > 0) {
-                correction.setInternalObjectId(id);
+                correction.setObjectId(id);
             }
         }
     }
@@ -75,9 +75,9 @@ public final class PrivilegeCorrectionEdit extends FormTemplatePage {
             @Override
             protected Panel internalObjectPanel(String id) {
                 SearchComponentState componentState = new SearchComponentState();
-                ObjectCorrection correction = getModel();
+                Correction correction = getModel();
                 if (!isNew()) {
-                    componentState.put(privilegeStrategy.getEntityTable(), findPrivilege(correction.getInternalObjectId()));
+                    componentState.put(privilegeStrategy.getEntityTable(), findPrivilege(correction.getObjectId()));
                 }
 
                 return new SearchComponent(id, componentState, ImmutableList.of(privilegeStrategy.getEntityTable()),
@@ -86,7 +86,7 @@ public final class PrivilegeCorrectionEdit extends FormTemplatePage {
 
             @Override
             protected boolean validate() {
-                boolean valid = getModel().getInternalObjectId() != null;
+                boolean valid = getModel().getObjectId() != null;
                 if (!valid) {
                     error(getString("privilege_required"));
                 }

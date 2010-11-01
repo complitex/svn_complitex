@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- *
+ * Страница для редактирования коррекций типов сущностей.
  * @author Artem
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)
@@ -60,17 +60,17 @@ public class EntityTypeCorrectionEdit extends FormTemplatePage {
 
                 @Override
                 public void setObject(EntityType entityType) {
-                    entityTypeCorrection.setInternalObjectId(entityType.getId());
+                    entityTypeCorrection.setObjectId(entityType.getId());
                 }
 
                 @Override
                 public EntityType getObject() {
-                    if (entityTypeCorrection.getInternalObjectId() != null) {
+                    if (entityTypeCorrection.getObjectId() != null) {
                         return Iterables.find(entityTypes, new Predicate<EntityType>() {
 
                             @Override
                             public boolean apply(EntityType entityType) {
-                                return entityType.getId().equals(entityTypeCorrection.getInternalObjectId());
+                                return entityType.getId().equals(entityTypeCorrection.getObjectId());
                             }
                         });
                     } else {
@@ -116,7 +116,7 @@ public class EntityTypeCorrectionEdit extends FormTemplatePage {
             }
 
             @Override
-            protected EntityTypeCorrection initObjectCorrection(String entity, long correctionId) {
+            protected EntityTypeCorrection initObjectCorrection(String entity, Long correctionId) {
                 return correctionBean.findEntityTypeById(correctionId);
             }
 

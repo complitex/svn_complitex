@@ -1,6 +1,6 @@
 package org.complitex.osznconnection.file.entity;
 
-import org.complitex.dictionaryfw.service.LogChangeList;
+import org.complitex.dictionaryfw.entity.LogChangeList;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -108,9 +108,8 @@ public class RequestFile implements Serializable {
     }
 
     public LogChangeList getLogChangeList(){
-        LogChangeList logChangeList = new LogChangeList();
-
-        logChangeList.add("id", getId())
+        return new LogChangeList()
+                .add("id", getId())
                 .add("loaded", getLoaded())
                 .add("name", getName())
                 .add("organizationId", getOrganizationId())
@@ -121,8 +120,6 @@ public class RequestFile implements Serializable {
                 .add("checkSum", getCheckSum())
                 .add("loadedRecordCount", getLoadedRecordCount())
                 .add("bindedRecordCount", getBindedRecordCount());
-
-        return logChangeList;
     }
 
     public Long getId() {

@@ -25,7 +25,7 @@ import javax.ejb.EJB;
 import java.util.List;
 
 /**
- *
+ * Панель для корректировки номера л/c вручную, когда больше одного человека в ЦН, имеющие разные номера л/c, привязаны к одному адресу.
  * @author Artem
  */
 public class PaymentAccountNumberCorrectionPanel extends Panel {

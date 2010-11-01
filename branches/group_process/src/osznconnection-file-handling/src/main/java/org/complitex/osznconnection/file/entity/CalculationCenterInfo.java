@@ -8,7 +8,7 @@ import java.io.Serializable;
 import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
 
 /**
- *
+ * Хранит информацию о текущем ЦН: id, класс адаптера для взаимодействия с ЦН, метод для получения экземпляра адаптера.
  * @author Artem
  */
 public class CalculationCenterInfo implements Serializable {

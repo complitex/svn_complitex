@@ -132,6 +132,7 @@ public class DateUtil {
     }
 
     public static Date getMax(Date date1, Date date2){
+
         if (date2 == null){
             return date1;
         }

@@ -23,7 +23,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- *
+ * Класс для запуска потоков на связывание и обработку payment and benefit файлов.
  * @author Artem
  */
 @Deprecated
@@ -111,25 +111,16 @@ public class FileExecutorService {
 
                 BindingRequestBean bindingRequestBean = getBindingBean();
 
-                if (paymentFile != null) {
+                if (paymentFile != null && benefitFile != null) {
                     inBinding.add(paymentFile);
-
-                    try {
-                        bindingRequestBean.bindPaymentFile(paymentFile);
-                    } catch (Exception e) {
-                        log.error("", e);
-                    }
-                }
-
-                if (benefitFile != null) {
                     inBinding.add(benefitFile);
-
                     try {
-                        bindingRequestBean.bindBenefitFile(benefitFile);
+                        bindingRequestBean.bindPaymentAndBenefit(paymentFile, benefitFile);
                     } catch (Exception e) {
                         log.error("", e);
                     }
                 }
+
             } catch (Exception e) {
                 log.error("", e);
             } finally {
@@ -164,19 +155,11 @@ public class FileExecutorService {
                 processingCounter.incrementAndGet();
 
                 ProcessingRequestBean processRequestBean = getProcessBean();
-                if (paymentFile != null) {
+                if (paymentFile != null && benefitFile != null) {
                     inProcessing.add(paymentFile);
-                    try {
-                        processRequestBean.processPayment(paymentFile);
-                    } catch (Exception e) {
-                        log.error("", e);
-                    }
-                }
-
-                if (benefitFile != null) {
                     inProcessing.add(benefitFile);
                     try {
-                        processRequestBean.processBenefit(benefitFile);
+                        processRequestBean.processPaymentAndBenefit(paymentFile, benefitFile);
                     } catch (Exception e) {
                         log.error("", e);
                     }
@@ -198,14 +181,16 @@ public class FileExecutorService {
         }
     }
 
+    /**
+     * Запускает процесс связывания файлов.
+     * @param requestFiles
+     */
     public void bind(List<RequestFile> requestFiles) {
         List<RequestFile> suitedFiles = Lists.newArrayList(Iterables.filter(requestFiles, new Predicate<RequestFile>() {
 
             @Override
             public boolean apply(RequestFile requestFile) {
-                return (requestFile.getType() == RequestFile.TYPE.PAYMENT || requestFile.getType() == RequestFile.TYPE.BENEFIT)
-                        && (requestFile.getStatus() == RequestFile.STATUS.LOADED || requestFile.getStatus() == RequestFile.STATUS.BOUND_WITH_ERRORS
-                        || requestFile.getStatus() == RequestFile.STATUS.BINDED);
+                return requestFile.getType() == RequestFile.TYPE.PAYMENT || requestFile.getType() == RequestFile.TYPE.BENEFIT;
             }
         }));
         for (final RequestFile file : suitedFiles) {
@@ -233,18 +218,19 @@ public class FileExecutorService {
                 bindingThreadPool.submit(new BindTask(file, benefitFile));
             }
         }
-
     }
 
+    /**
+     * Запускает процесс обработки файлов
+     * @param requestFiles
+     */
     public void process(List<RequestFile> requestFiles) {
         List<RequestFile> suitedFiles = Lists.newArrayList(Iterables.filter(requestFiles, new Predicate<RequestFile>() {
 
             @Override
             public boolean apply(RequestFile requestFile) {
                 return (requestFile.getType() == RequestFile.TYPE.PAYMENT || requestFile.getType() == RequestFile.TYPE.BENEFIT)
-                        && (requestFile.getStatus() == RequestFile.STATUS.BOUND_WITH_ERRORS || requestFile.getStatus() == RequestFile.STATUS.BINDED
-                        || requestFile.getStatus() == RequestFile.STATUS.PROCESSED_WITH_ERRORS
-                        || requestFile.getStatus() == RequestFile.STATUS.PROCESSED);
+                        && (requestFile.getStatus() != RequestFile.STATUS.SAVED) && (requestFile.getStatus() != RequestFile.STATUS.SAVE_ERROR);
             }
         }));
         for (final RequestFile file : suitedFiles) {

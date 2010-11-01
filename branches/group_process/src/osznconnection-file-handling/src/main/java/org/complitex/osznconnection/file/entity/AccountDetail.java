@@ -7,7 +7,7 @@ package org.complitex.osznconnection.file.entity;
 import java.io.Serializable;
 
 /**
- *
+ * Класс хранящий детальную информацию о клиентах ЦН(л/c, ФИО, ИНН).
  * @author Artem
  */
 public class AccountDetail implements Serializable {

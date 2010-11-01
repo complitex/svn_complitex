@@ -20,7 +20,7 @@ import org.complitex.osznconnection.commons.web.component.toolbar.DeleteItemButt
 import org.complitex.osznconnection.commons.web.component.toolbar.ToolbarButton;
 import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.FormTemplatePage;
-import org.complitex.osznconnection.file.entity.ObjectCorrection;
+import org.complitex.osznconnection.file.entity.Correction;
 import org.complitex.osznconnection.file.web.component.correction.edit.AbstractCorrectionEditPanel;
 import org.complitex.osznconnection.ownership.strategy.OwnershipStrategy;
 
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- *
+ * Страница для редактирования коррекций форм власти.
  * @author Artem
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)
@@ -42,7 +42,7 @@ public final class OwnershipCorrectionEdit extends FormTemplatePage {
         @EJB(name = "OwnershipStrategy")
         private OwnershipStrategy ownershipStrategy;
 
-        public OwnershipCorrectionEditPanel(String id, final ObjectCorrection ownershipCorrection) {
+        public OwnershipCorrectionEditPanel(String id, final Correction ownershipCorrection) {
             super(id);
 
             final List<DomainObject> allOwnerships = ownershipStrategy.getAll();
@@ -50,7 +50,7 @@ public final class OwnershipCorrectionEdit extends FormTemplatePage {
 
                 @Override
                 public DomainObject getObject() {
-                    final Long ownershipId = ownershipCorrection.getInternalObjectId();
+                    final Long ownershipId = ownershipCorrection.getObjectId();
                     if (ownershipId != null) {
                         return Iterables.find(allOwnerships, new Predicate<DomainObject>() {
 
@@ -65,7 +65,7 @@ public final class OwnershipCorrectionEdit extends FormTemplatePage {
 
                 @Override
                 public void setObject(DomainObject object) {
-                    ownershipCorrection.setInternalObjectId(object.getId());
+                    ownershipCorrection.setObjectId(object.getId());
                 }
             };
             DomainObjectDisableAwareRenderer renderer = new DomainObjectDisableAwareRenderer() {

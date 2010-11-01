@@ -182,7 +182,7 @@ public final class PaymentList extends TemplatePage {
 
                     @Override
                     protected void correctAddress(Long cityId, Long streetId, Long streetTypeId, Long buildingId, Long apartmentId) {
-                        addressService.correctLocalAddress(payment, cityId, streetId, streetTypeId, buildingId, apartmentId);
+                        addressService.correctLocalAddress(payment, cityId, streetId, streetTypeId, buildingId);
                     }
                 };
                 addressCorrectionPanel.setVisible(payment.getStatus().isLocalAddressCorrected());

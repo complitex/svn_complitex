@@ -5,6 +5,7 @@ import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.entity.RequestFileGroup;
 import org.complitex.osznconnection.file.service.ConfigBean;
 import org.complitex.osznconnection.file.service.RequestFileBean;
+import org.complitex.osznconnection.file.service.executor.ExecutorBean;
 import org.complitex.osznconnection.file.storage.StorageNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +25,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 @Singleton(name = "ProcessManagerBean")
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
-public class ProcessManagerBean {
+    public class ProcessManagerBean {
     private static final Logger log = LoggerFactory.getLogger(BindTaskBean.class);
 
     public static enum PROCESS {
@@ -98,18 +99,18 @@ public class ProcessManagerBean {
     public int getCount(RequestFile.STATUS status){
         int count = 0;
 
-        for (RequestFileGroup group : executorBean.getProcessed()){
-            if (group.getStatus().equals(status)){
-                count++;
-            }
-        }
+//        for (RequestFileGroup group : executorBean.getProcessed()){
+//            if (group.getStatus().equals(status)){
+//                count++;
+//            }
+//        }
 
         return count;
     }
 
-    public int getProcessedCount() {
-        return executorBean.getProcessedCount();
-    }
+//    public int getProcessedCount() {
+//        return executorBean.getProcessedCount();
+//    }
 
     public int getErrorCount() {
         return executorBean.getErrorCount();
@@ -141,10 +142,10 @@ public class ProcessManagerBean {
 
             pretreatment = false;
 
-            executorBean.execute(loadParameter.getRequestFileGroups(),
-                    loadTaskBean,
-                    configBean.getInteger(Config.LOAD_THREADS_SIZE, true),
-                    configBean.getInteger(Config.LOAD_MAX_ERROR_COUNT, true));
+//            executorBean.execute(loadParameter.getRequestFileGroups(),
+//                    loadTaskBean,
+//                    configBean.getInteger(Config.LOAD_THREADS_SIZE, true),
+//                    configBean.getInteger(Config.LOAD_MAX_ERROR_COUNT, true));
         } catch (StorageNotFoundException e) {
             log.error("Директория файлов для загрузки не найдена", e);
         }
@@ -155,10 +156,10 @@ public class ProcessManagerBean {
         process = PROCESS.BIND;
         processedIndex.clear();
 
-        executorBean.execute(groups,
-                bindTaskBean,
-                configBean.getInteger(Config.BIND_THREADS_SIZE, true),
-                configBean.getInteger(Config.BIND_MAX_ERROR_COUNT, true));
+//        executorBean.execute(groups,
+//                bindTaskBean,
+//                configBean.getInteger(Config.BIND_THREADS_SIZE, true),
+//                configBean.getInteger(Config.BIND_MAX_ERROR_COUNT, true));
     }
 
     @Asynchronous
@@ -166,10 +167,10 @@ public class ProcessManagerBean {
         process = PROCESS.FILL;
         processedIndex.clear();
 
-        executorBean.execute(groups,
-                fillTaskBean,
-                configBean.getInteger(Config.FILL_THREADS_SIZE, true),
-                configBean.getInteger(Config.FILL_MAX_ERROR_COUNT, true));
+//        executorBean.execute(groups,
+//                fillTaskBean,
+//                configBean.getInteger(Config.FILL_THREADS_SIZE, true),
+//                configBean.getInteger(Config.FILL_MAX_ERROR_COUNT, true));
     }
 
     @Asynchronous
@@ -177,9 +178,9 @@ public class ProcessManagerBean {
         process = PROCESS.SAVE;
         processedIndex.clear();
 
-        executorBean.execute(groups,
-                saveTaskBean,
-                configBean.getInteger(Config.SAVE_THREADS_SIZE, true),
-                configBean.getInteger(Config.SAVE_MAX_ERROR_COUNT, true));
+//        executorBean.execute(groups,
+//                saveTaskBean,
+//                configBean.getInteger(Config.SAVE_THREADS_SIZE, true),
+//                configBean.getInteger(Config.SAVE_MAX_ERROR_COUNT, true));
     }
 }

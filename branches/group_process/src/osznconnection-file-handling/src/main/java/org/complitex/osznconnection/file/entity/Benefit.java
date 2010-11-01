@@ -64,14 +64,54 @@ public class Benefit extends AbstractRequest {
         }
     }
 
+    public String getDisplayName(){
+        String name = "";
+
+        if (getField(BenefitDBF.SUR_NAM) != null){
+            name += getField(BenefitDBF.SUR_NAM);
+        }
+
+        if (getField(BenefitDBF.F_NAM) != null){
+            name += " " + getField(BenefitDBF.F_NAM);
+        }
+
+        if (getField(BenefitDBF.M_NAM) != null){
+            name += " " + getField(BenefitDBF.M_NAM);
+        }
+
+        return name;
+    }
+        
+    public String getDisplayAddress(){
+        String address = "";
+
+        if (city != null){
+            address += "г. " + city;
+        }
+
+        if (street != null){
+            address += " ул. " + street;
+        }
+
+        if (buildingNumber != null){
+            address += " д. " + buildingNumber;
+        }
+
+        if (buildingCorp != null){
+            address += " корп. " + buildingCorp;
+        }
+
+        if (apartment != null){
+            address += " кв. " + apartment;
+        }
+
+        return address;
+    }
+
     private String city;
-
     private String street;
-
     private String buildingNumber;
-
     private String buildingCorp;
-
     private String apartment;
 
     public String getApartment() {

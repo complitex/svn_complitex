@@ -4,16 +4,17 @@
  */
 package org.complitex.osznconnection.file.web.pages.correction;
 
-import java.util.List;
-import javax.ejb.EJB;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
-import org.complitex.osznconnection.file.entity.ObjectCorrection;
-import org.complitex.osznconnection.file.entity.example.ObjectCorrectionExample;
+import org.complitex.osznconnection.file.entity.Correction;
+import org.complitex.osznconnection.file.entity.example.CorrectionExample;
 import org.complitex.osznconnection.file.service.CorrectionBean;
 
+import javax.ejb.EJB;
+import java.util.List;
+
 /**
- *
+ * Список коррекций типов сущностей.
  * @author Artem
  */
 public class EntityTypesCorrectionList extends AbstractCorrectionList {
@@ -26,12 +27,12 @@ public class EntityTypesCorrectionList extends AbstractCorrectionList {
     }
 
     @Override
-    protected int count(ObjectCorrectionExample example) {
+    protected int count(CorrectionExample example) {
         return correctionBean.countEntityTypes(example);
     }
 
     @Override
-    protected List<? extends ObjectCorrection> find(ObjectCorrectionExample example) {
+    protected List<? extends Correction> find(CorrectionExample example) {
         return correctionBean.findEntityTypes(example);
     }
 

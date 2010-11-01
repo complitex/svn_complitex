@@ -36,7 +36,7 @@ import javax.ejb.EJB;
 import java.util.Iterator;
 
 /**
- *
+ * Список записей в локальной таблице номеров л/c.
  * @author Artem
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)

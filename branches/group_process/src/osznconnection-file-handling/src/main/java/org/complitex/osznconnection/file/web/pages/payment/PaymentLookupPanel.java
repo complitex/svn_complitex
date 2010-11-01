@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
+ * Панель для поиска номера л/c по различным параметрам: по адресу, по номеру лиц. счета, по номеру в мегабанке.
  * @author Artem
  */
 public abstract class PaymentLookupPanel extends Panel {

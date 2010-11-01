@@ -7,20 +7,25 @@ package org.complitex.osznconnection.file.service;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import org.apache.wicket.util.string.Strings;
+import org.complitex.dictionaryfw.entity.DomainObject;
+import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.mybatis.Transactional;
+import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.osznconnection.file.entity.BuildingCorrection;
+import org.complitex.osznconnection.file.entity.Correction;
 import org.complitex.osznconnection.file.entity.EntityTypeCorrection;
-import org.complitex.osznconnection.file.entity.ObjectCorrection;
-import org.complitex.osznconnection.file.entity.example.ObjectCorrectionExample;
+import org.complitex.osznconnection.file.entity.example.CorrectionExample;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
- *
+ * Класс для работы с коррекциями адресов.
  * @author Artem
  */
 @Stateless(name = "AddressCorrectionBean")
@@ -30,58 +35,94 @@ public class AddressCorrectionBean extends CorrectionBean {
 
     private static final String MAPPING_NAMESPACE = AddressCorrectionBean.class.getName();
 
-    @SuppressWarnings({"unchecked"})
+    /**
+     * Находит id внутреннего объекта системы в таблице коррекций
+     * по коррекции(value), сущности(entityTable), ОСЗН(organizationId) и id родительского объекта.
+     * При поиске для значения коррекции применяется SQL функция TRIM().
+     * @param entityTable
+     * @param correction
+     * @param organizationId
+     * @param parentId
+     * @return
+     */
     @Transactional
-    private Long findCorrectionAddressId(String entityTable, String value, long organizationId, Long parentId) {
-        ObjectCorrection parameter = new ObjectCorrection();
-        parameter.setEntity(entityTable);
-        parameter.setCorrection(value);
-        parameter.setOrganizationId(organizationId);
-        parameter.setInternalParentId(parentId);
-        List<Long> ids = sqlSession().selectList(MAPPING_NAMESPACE + ".findCorrectionAddressId", parameter);
-        if (ids != null && ids.size() == 1) {
-            return ids.get(0);
-        }
-        return null;
+    private Correction findCorrectionAddress(final String entityTable, final Long parentId, final String correction,
+                                             final long organizationId) {
+        Map<String, Object> params = new HashMap<String, Object>(){{
+            put("entityTable", entityTable);
+            put("parentId", parentId);
+            put("correction", correction);
+            put("organizationId", organizationId);
+        }};
+
+        return (Correction) sqlSession().selectOne(MAPPING_NAMESPACE + ".findCorrectionAddress", params);
     }
 
-    public Long findCorrectionCity(String city, long organizationId) {
-        return findCorrectionAddressId("city", city, organizationId, null);
+    /**
+     * Найти id локального города в таблице коррекций.
+     * См. findCorrectionAddressId()
+     * @param city
+     * @param organizationId
+     * @return
+     */
+    public Correction findCorrectionCity(String city, long organizationId) {
+        return findCorrectionAddress("city", null, city, organizationId);
     }
 
-    public Long findCorrectionStreet(long cityId, String street, long organizationId) {
-        return findCorrectionAddressId("street", street, organizationId, cityId);
+    /**
+     * Найти id локальной улицы в таблице коррекций.
+     * См. findCorrectionAddressId()
+     * @param parent
+     * @param street
+     * @param parent
+     * @return
+     */
+    public Correction findCorrectionStreet(Correction parent, String street) {
+        return findCorrectionAddress("street", parent.getId(), street, parent.getOrganizationId());
     }
 
-    @SuppressWarnings({"unchecked"})
+    /**
+     * Найти id локального дома в таблице коррекций.
+     * При поиске для номера и корпуса дома применяется SQL функция TRIM().
+     * @param parent
+     * @param correction
+     * @param correctionCorp
+     * @return
+     */
     @Transactional
-    public Long findCorrectionBuilding(long cityId, Long streetId, String buildingNumber, String buildingCorp, long organizationId) {
-        BuildingCorrection parameter = new BuildingCorrection();
-        parameter.setCorrection(buildingNumber);
-        parameter.setCorrectionCorp(buildingCorp);
-        parameter.setOrganizationId(organizationId);
-        parameter.setInternalParentId(cityId);
-        parameter.setInternalStreetId(streetId);
-        List<Long> ids = sqlSession().selectList(MAPPING_NAMESPACE + ".findCorrectionBuilding", parameter);
-        if (ids != null && ids.size() == 1) {
-            return ids.get(0);
-        }
-        return null;
+    public BuildingCorrection findCorrectionBuilding(final Correction parent, final String correction,
+                                                     final String correctionCorp) {
+         Map<String, Object> params = new HashMap<String, Object>(){{
+            put("parentId", parent.getId());
+            put("correction", correction);
+            put("correctionCorp", correctionCorp);
+            put("organizationId", parent.getOrganizationId());
+        }};
+
+        return (BuildingCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".findCorrectionBuilding", params);
     }
 
 //    public Long findCorrectionApartment(long buildingId, String apartment, long organizationId) {
 //        return findCorrectionAddressId("apartment", apartment, organizationId, buildingId);
 //    }
+    /**
+     * Находит данные о коррекции(полное название, код) по сущности(entityTable), ОСЗН(organizationId) и id внутреннего объекта системы(internalObjectId)
+     * Используется для разрешения адреса для ЦН.
+     * @param entityTable
+     * @param organizationId
+     * @param internalObjectId
+     * @return
+     */
     @SuppressWarnings({"unchecked"})
     @Transactional
-    private ObjectCorrection findOutgoingAddress(String entityTable, long organizationId, long internalObjectId) {
-        ObjectCorrection parameter = new ObjectCorrection();
+    private Correction findOutgoingAddress(String entityTable, long organizationId, long internalObjectId) {
+        Correction parameter = new Correction();
         parameter.setOrganizationId(organizationId);
         parameter.setEntity(entityTable);
-        parameter.setInternalObjectId(internalObjectId);
-        List<ObjectCorrection> corrections = sqlSession().selectList(MAPPING_NAMESPACE + ".findOutgoingAddress", parameter);
+        parameter.setObjectId(internalObjectId);
+        List<Correction> corrections = sqlSession().selectList(MAPPING_NAMESPACE + ".findOutgoingAddress", parameter);
         if (corrections != null && corrections.size() == 1) {
-            ObjectCorrection result = corrections.get(0);
+            Correction result = corrections.get(0);
             if (result.getCorrection() != null) {
                 return result;
             }
@@ -89,20 +130,40 @@ public class AddressCorrectionBean extends CorrectionBean {
         return null;
     }
 
-    public ObjectCorrection findOutgoingCity(long organizationId, long internalCityId) {
+    /**
+     * Найти данные о коррекции для города.
+     * См. findOutgoingAddress()
+     * @param organizationId
+     * @param internalCityId
+     * @return
+     */
+    public Correction findOutgoingCity(long organizationId, long internalCityId) {
         return findOutgoingAddress("city", organizationId, internalCityId);
     }
 
-    public ObjectCorrection findOutgoingStreet(long organizationId, long internalStreetId) {
+    /**
+     * Найти данные о коррекции для улицы.
+     * См. findOutgoingAddress()
+     * @param organizationId
+     * @param internalStreetId
+     * @return
+     */
+    public Correction findOutgoingStreet(long organizationId, long internalStreetId) {
         return findOutgoingAddress("street", organizationId, internalStreetId);
     }
 
+    /**
+     * Найти данные о коррекции для дома.
+     * @param organizationId
+     * @param internalBuildingId
+     * @return
+     */
     @SuppressWarnings({"unchecked"})
     @Transactional
     public BuildingCorrection findOutgoingBuilding(long organizationId, long internalBuildingId) {
         BuildingCorrection parameter = new BuildingCorrection();
         parameter.setOrganizationId(organizationId);
-        parameter.setInternalObjectId(internalBuildingId);
+        parameter.setObjectId(internalBuildingId);
         List<BuildingCorrection> corrections = sqlSession().selectList(MAPPING_NAMESPACE + ".findOutgoingBuilding", parameter);
         if (corrections != null && corrections.size() == 1) {
             BuildingCorrection result = corrections.get(0);
@@ -113,16 +174,22 @@ public class AddressCorrectionBean extends CorrectionBean {
         return null;
     }
 
-//    public ObjectCorrection findOutgoingApartment(long organizationId, long internalApartmentId) {
+//    public Correction findOutgoingApartment(long organizationId, long internalApartmentId) {
 //        return findOutgoingAddress("apartment", organizationId, internalApartmentId);
 //    }
+    /**
+     * Найти данные о коррекции для района.
+     * @param calculationCenterId
+     * @param osznId
+     * @return
+     */
     @SuppressWarnings({"unchecked"})
     @Transactional
-    public ObjectCorrection findOutgoingDistrict(long calculationCenterId, long osznId) {
+    public Correction findOutgoingDistrict(long calculationCenterId, long osznId) {
         Map<String, Long> params = ImmutableMap.of("calculationCenterId", calculationCenterId, "osznId", osznId);
-        List<ObjectCorrection> corrections = sqlSession().selectList(MAPPING_NAMESPACE + ".findOutgoingDistrict", params);
+        List<Correction> corrections = sqlSession().selectList(MAPPING_NAMESPACE + ".findOutgoingDistrict", params);
         if (corrections != null && corrections.size() == 1) {
-            ObjectCorrection result = corrections.get(0);
+            Correction result = corrections.get(0);
             if (result.getCorrection() != null) {
                 return result;
             }
@@ -130,6 +197,12 @@ public class AddressCorrectionBean extends CorrectionBean {
         return null;
     }
 
+    /**
+     * Найти данные о коррекции для типа объекта.
+     * @param entityTypeId
+     * @param calculationCenterId
+     * @return
+     */
     @SuppressWarnings({"unchecked"})
     @Transactional
     private EntityTypeCorrection findOutgoingEntityType(long entityTypeId, long calculationCenterId) {
@@ -144,52 +217,92 @@ public class AddressCorrectionBean extends CorrectionBean {
         return null;
     }
 
+    /**
+     * Найти данные о коррекции для типа улицы.
+     * @param calculationCenterId
+     * @param internalStreetTypeId
+     * @return
+     */
     public EntityTypeCorrection findOutgoingStreetType(long calculationCenterId, long internalStreetTypeId) {
         return findOutgoingEntityType(internalStreetTypeId, calculationCenterId);
     }
 
+    /**
+     * Сохранить коррекцию в базу.
+     * Значение коррекции(value) сохраняется как есть, т.е. без применения SQL функций TRIM() и TO_CYRYLLIC()
+     * @param entityTable
+     * @param value
+     * @param objectId
+     * @param organizationId
+     * @param internalOrganizationId
+     */
     @Transactional
-    private void insert(String entityTable, String value, long objectId, long organizationId, long internalOrganizationId) {
-        ObjectCorrection correction = new ObjectCorrection();
+    private Correction insert(String entityTable, Long parentId, String value, long objectId, long organizationId, long internalOrganizationId) {
+        Correction correction = new Correction();
+
+        correction.setParentId(parentId);
         correction.setCorrection(value);
         correction.setOrganizationId(organizationId);
         correction.setInternalOrganizationId(internalOrganizationId);
-        correction.setInternalObjectId(objectId);
+        correction.setObjectId(objectId);
         correction.setEntity(entityTable);
+
         insert(correction);
+
+        return correction;
     }
 
-    public void insertCorrectionApartment(String apartment, long objectId, long organizationId, long internalOrganizationId) {
-        insert("apartment", apartment, objectId, organizationId, internalOrganizationId);
+    public void insertCorrectionApartment(long parentId, String apartment, long objectId, long organizationId, long internalOrganizationId) {
+        insert("apartment", parentId, apartment, objectId, organizationId, internalOrganizationId);
     }
 
     @Transactional
-    public void insertCorrectionBuilding(String buildingNumber, String buildingCorp, long objectId, long organizationId, long internalOrganizationId) {
+    public void insertCorrectionBuilding(Correction parent, String buildingNumber, String buildingCorp, long objectId) {
         BuildingCorrection correction = new BuildingCorrection();
+
+        correction.setParentId(parent.getId());
         correction.setCorrection(buildingNumber);
         correction.setCorrectionCorp(buildingCorp);
-        correction.setOrganizationId(organizationId);
-        correction.setInternalOrganizationId(internalOrganizationId);
-        correction.setInternalObjectId(objectId);
+        correction.setOrganizationId(parent.getOrganizationId());
+        correction.setInternalOrganizationId(parent.getInternalOrganizationId());
+        correction.setObjectId(objectId);
+
         insertBuilding(correction);
     }
 
+    /**
+     * Вставка коррекции дома.
+     * Если значение корпуса дома null, то вставляется пустая строка.
+     * @param correction
+     */
     @Transactional
     public void insertBuilding(BuildingCorrection correction) {
         if (correction.getCorrectionCorp() == null) {
             correction.setCorrectionCorp("");
         }
+
         sqlSession().insert(MAPPING_NAMESPACE + ".insertBuilding", correction);
     }
 
-    public void insertCorrectionStreet(String street, long objectId, long organizationId, long internalOrganizationId) {
-        insert("street", street, objectId, organizationId, internalOrganizationId);
+    public Correction insertCorrectionStreet(Correction parent, String street, long objectId) {
+        return insert("street", parent.getId(),  street, objectId, parent.getOrganizationId(), parent.getInternalOrganizationId());
     }
 
-    public void insertCorrectionCity(String city, long objectId, long organizationId, long internalOrganizationId) {
-        insert("city", city, objectId, organizationId, internalOrganizationId);
+    public Correction insertCorrectionCity(String city, long objectId, long organizationId, long internalOrganizationId) {
+        return insert("city", null,  city, objectId, organizationId, internalOrganizationId);
     }
 
+    /**
+     * Найти id внутреннего объекта системы. Поиск идет по сущности(entity), коррекции(correction),
+     * типу атрибута по которому сравнивать коррекцию(attributeTypeId), id родильского обьекта(parentId), типу сущности(entityTypeId).
+     * При поиске к значению коррекции(correction) применяются SQL функции TRIM() и TO_CYRILLIC()
+     * @param entity
+     * @param correction
+     * @param attributeTypeId
+     * @param parentId
+     * @param entityTypeId
+     * @return
+     */
     @SuppressWarnings({"unchecked"})
     private Long findInternalObjectId(String entity, String correction, long attributeTypeId, Long parentId, Long entityTypeId) {
         Map<String, Object> params = Maps.newHashMap();
@@ -205,16 +318,43 @@ public class AddressCorrectionBean extends CorrectionBean {
         return null;
     }
 
+
+
+    /**
+     * Найти город в локальной адресной базе.
+     * См. findInternalObjectId()
+     * 
+     * @param city
+     * @return
+     */
     @Transactional
     public Long findInternalCity(String city) {
         return findInternalObjectId("city", city, 400, null, null);
     }
 
+    /**
+     * Найти улицу в локальной адресной базе.
+     * См. findInternalObjectId()
+     *
+     * @param street
+     * @param cityId
+     * @param entityTypeId
+     * @return
+     */
     @Transactional
     public Long findInternalStreet(String street, Long cityId, Long entityTypeId) {
         return findInternalObjectId("street", street, 300, cityId, entityTypeId);
     }
 
+    /**
+     * Найти дом в локальной адресной базе.
+     * При поиске к значению номера(buildingNumber) и корпуса(buildingCorp) дома применяются SQL функции TRIM() и TO_CYRILLIC()
+     * @param buildingNumber
+     * @param buildingCorp
+     * @param streetId
+     * @param cityId
+     * @return
+     */
     @SuppressWarnings({"unchecked"})
     @Transactional
     public Long findInternalBuilding(String buildingNumber, String buildingCorp, Long streetId, Long cityId) {
@@ -232,6 +372,11 @@ public class AddressCorrectionBean extends CorrectionBean {
         return null;
     }
 
+    /**
+     * Удалить ВСЕ(не только начальные и конечные) пробелы в номере и корпусе дома
+     * @param data номер либо корпус дома
+     * @return
+     */
     private String prepareBuildingData(String data) {
         char[] chars = data.toCharArray();
         StringBuilder result = new StringBuilder();
@@ -253,22 +398,109 @@ public class AddressCorrectionBean extends CorrectionBean {
 
     @SuppressWarnings({"unchecked"})
     @Transactional
-    public BuildingCorrection findBuildingById(long buildingCorrectionId) {
-        List<BuildingCorrection> corrections = sqlSession().selectList(MAPPING_NAMESPACE + ".findBuildingById", buildingCorrectionId);
-        if (corrections != null && (corrections.size() == 1)) {
-            return corrections.get(0);
+    public Correction getCityCorrection(Long id) {
+        Correction correction = (Correction) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectCityCorrection", id);
+
+        if (correction != null) {
+            correction.setEntity("city");
         }
-        return null;
+
+        return correction;
     }
 
     @SuppressWarnings({"unchecked"})
     @Transactional
-    public List<BuildingCorrection> findBuildings(ObjectCorrectionExample example) {
-        return (List<BuildingCorrection>) super.find(example, MAPPING_NAMESPACE + ".findBuildings");
+    public Correction getStreetCorrection(Long id) {
+        Correction correction =  (Correction) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectStreetCorrection", id);
+
+        if (correction != null) {
+            correction.setEntity("street");
+        }
+
+        return correction;
+    }
+
+    @SuppressWarnings({"unchecked"})
+    @Transactional
+    public BuildingCorrection getBuildingCorrection(Long id) {
+        BuildingCorrection correction =  (BuildingCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectBuildingCorrection", id);
+
+        if (correction != null) {
+            correction.setEntity("building");
+        }
+
+        return correction;
+    }
+
+    @SuppressWarnings({"unchecked"})
+    @Transactional
+    public List<BuildingCorrection> findBuildings(CorrectionExample example) {
+        List<BuildingCorrection> list =  (List<BuildingCorrection>) super.find(example, MAPPING_NAMESPACE + ".findBuildings");
+
+        Strategy city = strategyFactory.getStrategy("city");
+        Strategy street = strategyFactory.getStrategy("street");
+
+        for (Correction c : list){
+            String parent = "";
+
+            //city
+            DomainObjectExample domainObjectExample;
+            if (c.getParent() != null && c.getParent().getParent() != null) {
+                domainObjectExample = new DomainObjectExample();
+                domainObjectExample.setId(c.getParent().getParent().getObjectId());
+                List<DomainObject> objects = city.find(domainObjectExample);
+                if (objects != null && !objects.isEmpty()) {
+                    parent += city.displayDomainObject(objects.get(0), new Locale(example.getLocale())) + ", ";
+                }
+            }
+
+            //street
+            if (c.getParent() != null) {
+                domainObjectExample = new DomainObjectExample();
+                domainObjectExample.setId(c.getParent().getObjectId());
+                List<DomainObject> objects = street.find(domainObjectExample);
+                if (objects != null && !objects.isEmpty()) {
+                    parent += street.displayDomainObject(objects.get(0), new Locale(example.getLocale())) + ", ";
+                }
+            }
+
+            c.setDisplayObject(parent + c.getInternalObject());
+        }
+
+        return list;
     }
 
     @Transactional
     public void deleteBuilding(BuildingCorrection buildingCorrection) {
         sqlSession().delete(MAPPING_NAMESPACE + ".deleteBuilding", buildingCorrection);
+    }
+
+    @SuppressWarnings({"unchecked"})
+    @Transactional
+    public List<Correction> find(CorrectionExample example) {
+        List<Correction> list = (List<Correction>) super.find(example, CorrectionBean.MAPPING_NAMESPACE + ".find");
+
+        if ("street".equals(example.getEntity())){
+            Strategy strategy = strategyFactory.getStrategy("city");
+
+            for (Correction c : list){
+                Correction cityCorrection = getCityCorrection(c.getParentId());
+
+                if (cityCorrection != null) {
+                    c.setParent(cityCorrection);
+
+                    DomainObjectExample domainObjectExample = new DomainObjectExample();
+                    domainObjectExample.setId(cityCorrection.getObjectId());
+                    List<DomainObject> objects = strategy.find(domainObjectExample);
+                    if (objects != null && !objects.isEmpty()) {
+                        String parent = strategy.displayDomainObject(objects.get(0), new Locale(example.getLocale()));
+
+                        c.setDisplayObject(parent + ", " + c.getInternalObject());
+                    }
+                }
+            }
+        }
+
+        return list;
     }
 }

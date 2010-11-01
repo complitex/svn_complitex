@@ -6,6 +6,7 @@ import com.linuxense.javadbf.DBFReader;
 import org.complitex.dictionaryfw.util.DateUtil;
 import org.complitex.osznconnection.file.entity.*;
 import org.complitex.osznconnection.file.service.exception.*;
+import org.complitex.osznconnection.file.service.executor.ExecuteException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +91,7 @@ public class LoadTaskBean extends AbstractTaskBean{
         }
     }
 
-    protected void execute(RequestFileGroup requestFileGroup) throws AbstractExecuteException, AbstractSkippedException {
+    protected void execute(RequestFileGroup requestFileGroup) throws ExecuteException, AbstractSkippedException {
         try {
             requestFileGroupBean.save(requestFileGroup);
 
@@ -109,7 +110,7 @@ public class LoadTaskBean extends AbstractTaskBean{
     }
 
     @SuppressWarnings({"EjbProhibitedPackageUsageInspection", "ConstantConditions", "ThrowableInstanceNeverThrown"})
-    private void load(RequestFile requestFile) throws AbstractExecuteException, AbstractSkippedException {
+    private void load(RequestFile requestFile) throws ExecuteException, AbstractSkippedException {
         String currentFieldName = "-1";
         int index = 0;
         int batchSize = configBean.getInteger(Config.LOAD_RECORD_BATCH_SIZE, true);

@@ -6,9 +6,9 @@ import org.complitex.osznconnection.file.Module;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.entity.RequestFileGroup;
 import org.complitex.osznconnection.file.service.*;
-import org.complitex.osznconnection.file.service.exception.AbstractExecuteException;
-import org.complitex.osznconnection.file.service.exception.AbstractFormatException;
+import org.complitex.osznconnection.file.service.executor.ExecuteException;
 import org.complitex.osznconnection.file.service.exception.AbstractSkippedException;
+import org.complitex.osznconnection.file.service.executor.ITaskListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,31 +45,31 @@ public abstract class AbstractTaskBean{
 
     @Asynchronous
     public void asyncExecute(RequestFileGroup group, ITaskListener listener) {
-        try {
-            execute(group);
-            listener.complete(group);
-        } catch (AbstractExecuteException e){
-            listener.error(group, e); //handled exception
-        } catch (Exception e){
-            listener.error(group, e); //critical exception
-        }
+//        try {
+//            execute(group);
+//            listener.complete(group);
+//        } catch (ExecuteException e){
+//            listener.error(group, e); //handled exception
+//        } catch (Exception e){
+//            listener.error(group, e); //critical exception
+//        }
     }
 
-    protected abstract void execute(RequestFileGroup group) throws AbstractExecuteException, AbstractSkippedException;
+    protected abstract void execute(RequestFileGroup group) throws ExecuteException, AbstractSkippedException;
 
     /**
      * Обновляет статус файла в базе данных, логирует в лог и в журнал событий, выбрасывает исключение
      * @param e Ошибка выполнения задачи
      * @param status Статус
      * @param detail Описание статуса
-     * @throws AbstractExecuteException Ошибка выполнения задачи
+     * @throws org.complitex.osznconnection.file.service.executor.ExecuteException Ошибка выполнения задачи
      */
-    protected void executionError(AbstractExecuteException e, RequestFile.STATUS status, RequestFile.STATUS_DETAIL detail)
-            throws AbstractExecuteException {
-        requestFileBean.updateStatus(e.getRequestFile(), status, detail);
+    protected void executionError(ExecuteException e, RequestFile.STATUS status, RequestFile.STATUS_DETAIL detail)
+            throws ExecuteException {
+//        requestFileBean.updateStatus(e.getRequestFile(), status, detail);
 
         log.error(e.getMessage(), e);
-        error(e.getRequestFile(), e.getMessage());
+//        error(e.getRequestFile(), e.getMessage());
 
         throw e;
     }

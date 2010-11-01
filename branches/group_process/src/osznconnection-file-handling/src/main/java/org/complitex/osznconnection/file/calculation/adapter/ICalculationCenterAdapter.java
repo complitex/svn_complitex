@@ -4,14 +4,16 @@
  */
 package org.complitex.osznconnection.file.calculation.adapter;
 
-import java.util.Date;
-import java.util.List;
+import org.complitex.osznconnection.file.calculation.entity.BenefitData;
 import org.complitex.osznconnection.file.entity.AccountDetail;
 import org.complitex.osznconnection.file.entity.Benefit;
 import org.complitex.osznconnection.file.entity.Payment;
 
+import java.util.Date;
+import java.util.List;
+
 /**
- *
+ * Базовый интерфейс для реализаций адаптера взаимодействия с ЦН.
  * @author Artem
  */
 public interface ICalculationCenterAdapter {
@@ -35,4 +37,6 @@ public interface ICalculationCenterAdapter {
     public void processPaymentAndBenefit(Payment payment, Benefit benefit, long calculationCenterId);
 
     public void processBenefit(Date dat1, List<Benefit> benefits, long calculationCenterId);
+
+    public List<BenefitData> getBenefitData(String accountNumber, Date dat1);
 }

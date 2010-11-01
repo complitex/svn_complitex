@@ -11,9 +11,9 @@ import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
+import org.complitex.osznconnection.file.entity.Correction;
 import org.complitex.osznconnection.file.entity.EntityTypeCorrection;
-import org.complitex.osznconnection.file.entity.ObjectCorrection;
-import org.complitex.osznconnection.file.entity.example.ObjectCorrectionExample;
+import org.complitex.osznconnection.file.entity.example.CorrectionExample;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,18 +24,17 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- *
+ * Обобщенный класс для работы с коррекциями.
  * @author Artem
  */
 @Stateless
 public class CorrectionBean extends AbstractBean {
-
     private static final Logger log = LoggerFactory.getLogger(CorrectionBean.class);
 
-    private static final String MAPPING_NAMESPACE = CorrectionBean.class.getName();
+    public static final String MAPPING_NAMESPACE = CorrectionBean.class.getName();
 
     @EJB(beanName = "StrategyFactory")
-    private StrategyFactory strategyFactory;
+    protected StrategyFactory strategyFactory;
 
     public static enum OrderBy {
 
@@ -54,17 +53,16 @@ public class CorrectionBean extends AbstractBean {
 
     @SuppressWarnings({"unchecked"})
     @Transactional
-    public List<ObjectCorrection> find(ObjectCorrectionExample example) {
-        return (List<ObjectCorrection>) find(example, MAPPING_NAMESPACE + ".find");
+    public List<Correction> find(CorrectionExample example) {
+        return (List<Correction>) find(example, MAPPING_NAMESPACE + ".find");
     }
 
-    @SuppressWarnings({"unchecked"})
-    protected List<? extends ObjectCorrection> find(ObjectCorrectionExample example, String queryId) {
+    protected List<? extends Correction> find(CorrectionExample example, String queryId) {
         Strategy strategy = strategyFactory.getStrategy(example.getEntity());
-        List<ObjectCorrection> results = sqlSession().selectList(queryId, example);
-        for (ObjectCorrection correction : results) {
+        List<Correction> results = sqlSession().selectList(queryId, example);
+        for (Correction correction : results) {
             DomainObjectExample domainObjectExample = new DomainObjectExample();
-            domainObjectExample.setId(correction.getInternalObjectId());
+            domainObjectExample.setId(correction.getObjectId());
             List<DomainObject> objects = strategy.find(domainObjectExample);
             if (objects != null && !objects.isEmpty()) {
                 correction.setInternalObject(strategy.displayDomainObject(objects.get(0), new Locale(example.getLocale())));
@@ -74,30 +72,33 @@ public class CorrectionBean extends AbstractBean {
     }
 
     @Transactional
-    public int count(ObjectCorrectionExample example) {
+    public int count(CorrectionExample example) {
         return (Integer) sqlSession().selectOne(MAPPING_NAMESPACE + ".count", example);
     }
 
     @SuppressWarnings({"unchecked"})
     @Transactional
-    public ObjectCorrection findById(String entity, long correctionId) {
+    public Correction findById(String entity, Long correctionId) {
         Map<String, Object> params = Maps.newHashMap();
         params.put("entity", entity);
         params.put("id", correctionId);
-        List<ObjectCorrection> corrections = sqlSession().selectList(MAPPING_NAMESPACE + ".findById", params);
-        if (corrections != null && (corrections.size() == 1)) {
-            return corrections.get(0);
+
+        Correction correction = (Correction) sqlSession().selectOne(MAPPING_NAMESPACE + ".findById", params);
+
+        if (correction != null){
+            correction.setEntity(entity);
         }
-        return null;
+
+        return correction;
     }
 
     @Transactional
-    public void update(ObjectCorrection correction) {
+    public void update(Correction correction) {
         sqlSession().update(MAPPING_NAMESPACE + ".update", correction);
     }
 
     @Transactional
-    public void insert(ObjectCorrection correction) {
+    public void insert(Correction correction) {
         sqlSession().insert(MAPPING_NAMESPACE + ".insert", correction);
     }
 
@@ -113,28 +114,24 @@ public class CorrectionBean extends AbstractBean {
 
     @SuppressWarnings({"unchecked"})
     @Transactional
-    public List<EntityTypeCorrection> findEntityTypes(ObjectCorrectionExample example) {
+    public List<EntityTypeCorrection> findEntityTypes(CorrectionExample example) {
         return sqlSession().selectList(MAPPING_NAMESPACE + ".findEntityTypes", example);
     }
 
     @Transactional
-    public int countEntityTypes(ObjectCorrectionExample example) {
+    public int countEntityTypes(CorrectionExample example) {
         return (Integer) sqlSession().selectOne(MAPPING_NAMESPACE + ".countEntityTypes", example);
     }
 
     @SuppressWarnings({"unchecked"})
     @Transactional
-    public EntityTypeCorrection findEntityTypeById(long entityTypeCorrectionId) {
-        List<EntityTypeCorrection> corrections = sqlSession().selectList(MAPPING_NAMESPACE + ".findEntityTypeById", entityTypeCorrectionId);
-        if (corrections != null && (corrections.size() == 1)) {
-            return corrections.get(0);
-        }
-        return null;
+    public EntityTypeCorrection findEntityTypeById(Long entityTypeCorrectionId) {
+        return (EntityTypeCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".findEntityTypeById", entityTypeCorrectionId);
     }
 
     @Transactional
-    public void delete(ObjectCorrection objectCorrection) {
-        sqlSession().delete(MAPPING_NAMESPACE + ".delete", objectCorrection);
+    public void delete(Correction correction) {
+        sqlSession().delete(MAPPING_NAMESPACE + ".delete", correction);
     }
 
     @Transactional

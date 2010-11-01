@@ -2,6 +2,7 @@ package org.complitex.osznconnection.file.web;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import java.io.File;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -160,6 +161,9 @@ public class RequestFileGroupList extends TemplatePage {
         //Связано записей
         filterForm.add(new TextField<Integer>("bindedRecordCount", new Model<Integer>(), Integer.class));
 
+        //Обработано записей
+        filterForm.add(new TextField<Integer>("filledRecordCount", new Model<Integer>(), Integer.class));
+
         //Статус
         filterForm.add(new DropDownChoice<RequestFile.STATUS>("status",
                 Arrays.asList(RequestFile.STATUS.values()),
@@ -279,9 +283,10 @@ public class RequestFileGroupList extends TemplatePage {
                     item.add(new Label("benefitName", "—"));
                 }
 
-                //loaded and binding count
+                //loaded, binding filled count
                 item.add(new Label("loaded_record_count", StringUtil.valueOf(rfg.getLoadedRecordCount())));
                 item.add(new Label("binded_record_count", StringUtil.valueOf(rfg.getBindedRecordCount())));
+                item.add(new Label("filled_record_count", StringUtil.valueOf(rfg.getFilledRecordCount())));
 
                 //status
                 String detail = "";
@@ -316,6 +321,7 @@ public class RequestFileGroupList extends TemplatePage {
         filterForm.add(new ArrowOrderByBorder("header.benefitName", "benefitName", dataProvider, dataView, filterForm));
         filterForm.add(new ArrowOrderByBorder("header.loaded_record_count", "loaded_record_count", dataProvider, dataView, filterForm));
         filterForm.add(new ArrowOrderByBorder("header.binded_record_count", "binded_record_count", dataProvider, dataView, filterForm));
+        filterForm.add(new ArrowOrderByBorder("header.filled_record_count", "filled_record_count", dataProvider, dataView, filterForm));
         filterForm.add(new ArrowOrderByBorder("header.status", "status", dataProvider, dataView, filterForm));
 
         //Постраничная навигация
@@ -493,8 +499,8 @@ public class RequestFileGroupList extends TemplatePage {
             }
 
             //todo skipped
-            info(completeInfo + ". " + getStringFormat("info.completed_detail", processManagerBean.getProcessedCount(),
-                    processManagerBean.getCount(RequestFile.STATUS.SKIPPED), processManagerBean.getErrorCount()));
+//            info(completeInfo + ". " + getStringFormat("info.completed_detail", processManagerBean.getProcessedCount(),
+//                    processManagerBean.getCount(RequestFile.STATUS.SKIPPED), processManagerBean.getErrorCount()));
 
             completedDisplayed = true;
         }

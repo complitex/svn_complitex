@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -106,6 +107,22 @@ public class RequestFileBean extends AbstractBean {
         for (RequestFile tarif : tarifs){
             delete(tarif);
         }
+    }
+
+    public void updateStatus(final Long id, final RequestFile.STATUS status){
+        sqlSession().update(MAPPING_NAMESPACE + ".updateStatus", new HashMap<String, Object>(){{
+            put("id", id);
+            put("status", status);
+            put("detail", null);            
+        }});
+    }
+
+    public void updateStatus(final Long id, final RequestFile.STATUS status, final RequestFile.STATUS_DETAIL detail){
+        sqlSession().update(MAPPING_NAMESPACE + ".updateStatus", new HashMap<String, Object>(){{
+            put("id", id);
+            put("status", status);
+            put("detail", detail);
+        }});
     }
 
 }

@@ -4,7 +4,6 @@
  */
 package org.complitex.osznconnection.file.web.pages.correction;
 
-import com.google.common.collect.ImmutableList;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -27,12 +26,11 @@ import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
 import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
-import org.complitex.osznconnection.commons.web.component.toolbar.AddItemButton;
 import org.complitex.osznconnection.commons.web.component.toolbar.ToolbarButton;
 import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.TemplatePage;
-import org.complitex.osznconnection.file.entity.ObjectCorrection;
-import org.complitex.osznconnection.file.entity.example.ObjectCorrectionExample;
+import org.complitex.osznconnection.file.entity.Correction;
+import org.complitex.osznconnection.file.entity.example.CorrectionExample;
 import org.complitex.osznconnection.file.service.CorrectionBean;
 
 import javax.ejb.EJB;
@@ -40,7 +38,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- *
+ * Абстрактный класс для списка коррекций.
  * @author Artem
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)
@@ -56,7 +54,7 @@ public abstract class AbstractCorrectionList extends TemplatePage {
 
     private String entity;
 
-    private IModel<ObjectCorrectionExample> example;
+    private IModel<CorrectionExample> example;
 
     public AbstractCorrectionList(PageParameters params) {
         entity = params.getString(CORRECTED_ENTITY);
@@ -71,22 +69,26 @@ public abstract class AbstractCorrectionList extends TemplatePage {
         example.setObject(newExample());
     }
 
-    protected ObjectCorrectionExample newExample() {
-        ObjectCorrectionExample objectCorrectionExample = new ObjectCorrectionExample();
-        objectCorrectionExample.setEntity(entity);
-        return objectCorrectionExample;
+    protected CorrectionExample newExample() {
+        CorrectionExample correctionExample = new CorrectionExample();
+        correctionExample.setEntity(entity);
+        return correctionExample;
     }
 
-    protected List<? extends ObjectCorrection> find(ObjectCorrectionExample example) {
+    protected List<? extends Correction> find(CorrectionExample example) {
         return correctionBean.find(example);
     }
 
-    protected int count(ObjectCorrectionExample example) {
+    protected int count(CorrectionExample example) {
         return correctionBean.count(example);
     }
 
-    protected String displayCorrection(ObjectCorrection correction) {
+    protected String displayCorrection(Correction correction) {
         return correction.getCorrection();
+    }
+
+    protected String displayInternalObject(Correction correction){
+        return correction.getInternalObject();
     }
 
     protected abstract Class<? extends WebPage> getEditPage();
@@ -108,12 +110,12 @@ public abstract class AbstractCorrectionList extends TemplatePage {
         final Form filterForm = new Form("filterForm");
         content.add(filterForm);
 
-        example = new Model<ObjectCorrectionExample>(newExample());
+        example = new Model<CorrectionExample>(newExample());
 
-        final SortableDataProvider<ObjectCorrection> dataProvider = new SortableDataProvider<ObjectCorrection>() {
+        final SortableDataProvider<Correction> dataProvider = new SortableDataProvider<Correction>() {
 
             @Override
-            public Iterator<? extends ObjectCorrection> iterator(int first, int count) {
+            public Iterator<? extends Correction> iterator(int first, int count) {
                 example.getObject().setAsc(getSort().isAscending());
                 if (!Strings.isEmpty(getSort().getProperty())) {
                     example.getObject().setOrderByClause(getSort().getProperty());
@@ -131,8 +133,8 @@ public abstract class AbstractCorrectionList extends TemplatePage {
             }
 
             @Override
-            public IModel<ObjectCorrection> model(ObjectCorrection object) {
-                return new Model<ObjectCorrection>(object);
+            public IModel<Correction> model(Correction object) {
+                return new Model<Correction>(object);
             }
         };
         dataProvider.setSort("", true);
@@ -162,11 +164,11 @@ public abstract class AbstractCorrectionList extends TemplatePage {
         };
         filterForm.add(submit);
 
-        DataView<ObjectCorrection> data = new DataView<ObjectCorrection>("data", dataProvider, 1) {
+        DataView<Correction> data = new DataView<Correction>("data", dataProvider, 1) {
 
             @Override
-            protected void populateItem(Item<ObjectCorrection> item) {
-                ObjectCorrection correction = item.getModelObject();
+            protected void populateItem(Item<Correction> item) {
+                Correction correction = item.getModelObject();
                 item.add(new Label("organization", correction.getOrganization()));
                 item.add(new Label("correction", displayCorrection(correction)));
 
@@ -176,7 +178,7 @@ public abstract class AbstractCorrectionList extends TemplatePage {
                 }
                 item.add(new Label("code", code));
 
-                item.add(new Label("internalObject", correction.getInternalObject()));
+                item.add(new Label("internalObject", displayInternalObject(correction)));
                 item.add(new Label("internalOrganization", correction.getInternalOrganization()));
                 item.add(new BookmarkablePageLink<WebPage>("edit", getEditPage(), getEditPageParams(correction.getId())));
             }
@@ -195,13 +197,15 @@ public abstract class AbstractCorrectionList extends TemplatePage {
 
     @Override
     protected List<? extends ToolbarButton> getToolbarButtons(String id) {
-        return ImmutableList.of(new AddItemButton(id) {
+//        return ImmutableList.of(new AddItemButton(id) {
+//
+//            @Override
+//            protected void onClick() {
+//                setResponsePage(getEditPage(), getEditPageParams(null));
+//            }
+//        });
 
-            @Override
-            protected void onClick() {
-                setResponsePage(getEditPage(), getEditPageParams(null));
-            }
-        });
+        return null;
     }
 }
 

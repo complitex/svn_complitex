@@ -5,16 +5,16 @@
 package org.complitex.osznconnection.file.entity;
 
 /**
- *
+ * Объект коррекции типа сущности
  * @author Artem
  */
-public class EntityTypeCorrection extends ObjectCorrection {
+public class EntityTypeCorrection extends Correction {
 
     public EntityTypeCorrection() {
     }
 
     public EntityTypeCorrection(long organizationId, long entityTypeId) {
         setOrganizationId(organizationId);
-        setInternalObjectId(entityTypeId);
+        setObjectId(entityTypeId);
     }
 }

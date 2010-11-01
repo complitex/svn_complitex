@@ -26,7 +26,7 @@ import org.complitex.osznconnection.commons.web.component.toolbar.ToolbarButton;
 import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.FormTemplatePage;
 import org.complitex.osznconnection.file.entity.BuildingCorrection;
-import org.complitex.osznconnection.file.entity.ObjectCorrection;
+import org.complitex.osznconnection.file.entity.Correction;
 import org.complitex.osznconnection.file.service.AddressCorrectionBean;
 import org.complitex.osznconnection.file.web.component.correction.edit.AbstractCorrectionEditPanel;
 
@@ -37,7 +37,7 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- *
+ * Страница для редактирования коррекций адресов.
  * @author Artem
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)
@@ -52,11 +52,11 @@ public class AddressCorrectionEdit extends FormTemplatePage {
 
     private class Callback implements ISearchCallback, Serializable {
 
-        private ObjectCorrection correction;
+        private Correction correction;
 
         private String entity;
 
-        public Callback(ObjectCorrection correction, String entity) {
+        public Callback(Correction correction, String entity) {
             this.correction = correction;
             this.entity = entity;
         }
@@ -65,12 +65,18 @@ public class AddressCorrectionEdit extends FormTemplatePage {
         public void found(SearchComponent component, Map<String, Long> ids, AjaxRequestTarget target) {
             Long id = ids.get(entity);
             if (id != null && id > 0) {
-                correction.setInternalObjectId(id);
+                correction.setObjectId(id);
             }
         }
     }
 
+    /**
+     * Стандартная панель редактирования коррекции элемента адреса.
+     * Подходит для города, улицы.
+     */
     private class AddressCorrectionEditPanel extends AbstractCorrectionEditPanel {
+        @EJB(name = "AddressCorrectionBean")
+        private AddressCorrectionBean addressCorrectionBean;
 
         public AddressCorrectionEditPanel(String id, String entity, Long correctionId) {
             super(id, entity, correctionId);
@@ -83,11 +89,11 @@ public class AddressCorrectionEdit extends FormTemplatePage {
 
         @Override
         protected Panel internalObjectPanel(String id) {
-            ObjectCorrection correction = getModel();
+            Correction correction = getModel();
             String entity = correction.getEntity();
             SearchComponentState componentState = new SearchComponentState();
             if (!isNew()) {
-                long objectId = correction.getInternalObjectId();
+                long objectId = correction.getObjectId();
                 Strategy.RestrictedObjectInfo info = getStrategy(entity).findParentInSearchComponent(objectId, null);
                 if (info != null) {
                     componentState = getStrategy(entity).getSearchComponentStateForParent(info.getId(), info.getEntityTable(), null);
@@ -99,7 +105,7 @@ public class AddressCorrectionEdit extends FormTemplatePage {
 
         @Override
         protected boolean validate() {
-            boolean valid = getModel().getInternalObjectId() != null;
+            boolean valid = getModel().getObjectId() != null;
             if (!valid) {
                 error(getString("address_required"));
             }
@@ -108,6 +114,34 @@ public class AddressCorrectionEdit extends FormTemplatePage {
 
         protected Strategy getStrategy(String entity) {
             return strategyFactory.getStrategy(entity);
+        }
+
+        @Override
+        protected Correction initObjectCorrection(String entity, Long correctionId) {
+            if ("city".equals(entity)){
+                return addressCorrectionBean.getCityCorrection(correctionId);
+            }else if ("street".equals(entity)){
+                return addressCorrectionBean.getStreetCorrection(correctionId);
+            }
+
+            return super.initObjectCorrection(entity, correctionId);
+        }
+
+        @Override
+        protected String getDisplayCorrection() {
+            Correction correction = getModel();
+
+            if ("street".equals(correction.getEntity()) && correction.getParent() != null){
+                return correction.getParent().getCorrection() +
+                        ", " + correction.getCorrection();
+            }else if ("building".equals(correction.getEntity()) && correction.getParent() != null &&
+                    correction.getParent().getParent() != null){
+                return correction.getParent().getParent().getCorrection() +
+                        ", " + correction.getParent().getCorrection() +
+                        ", " + correction.getCorrection();
+            }
+
+            return super.getDisplayCorrection();
         }
 
         protected DomainObject findObject(long objectId, String entity) {
@@ -138,6 +172,9 @@ public class AddressCorrectionEdit extends FormTemplatePage {
         }
     }
 
+    /**
+     * Панель редактирования коррекции дома.
+     */
     private class BuildingCorrectionEditPanel extends AddressCorrectionEditPanel {
 
         @EJB(name = "AddressCorrectionBean")
@@ -153,17 +190,26 @@ public class AddressCorrectionEdit extends FormTemplatePage {
         }
 
         @Override
-        protected BuildingCorrection initObjectCorrection(String entity, long correctionId) {
-            BuildingCorrection correction = addressCorrectionBean.findBuildingById(correctionId);
-            correction.setEntity("building");
-            return correction;
+        protected BuildingCorrection initObjectCorrection(String entity, Long correctionId) {
+            return addressCorrectionBean.getBuildingCorrection(correctionId);
         }
 
         @Override
         protected BuildingCorrection newObjectCorrection() {
-            BuildingCorrection correction = new BuildingCorrection();
-            correction.setEntity("building");
-            return correction;
+            return new BuildingCorrection();
+        }
+
+        @Override
+        protected String getDisplayCorrection() {
+            Correction correction = getModel();
+
+            if (correction.getParent() != null && correction.getParent().getParent() != null){
+                return correction.getParent().getParent().getCorrection()
+                        + ", " + correction.getParent().getCorrection()
+                        + ", " + correction.getCorrection();
+            }
+
+            return super.getDisplayCorrection();
         }
 
         @Override

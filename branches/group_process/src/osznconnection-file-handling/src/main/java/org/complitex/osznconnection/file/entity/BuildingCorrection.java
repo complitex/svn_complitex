@@ -5,16 +5,16 @@
 package org.complitex.osznconnection.file.entity;
 
 /**
- *
+ * Объект коррекции дома
  * @author Artem
  */
-public class BuildingCorrection extends ObjectCorrection {
-
+public class BuildingCorrection extends Correction {
     private String correctionCorp;
 
     private Long internalStreetId;
 
     public BuildingCorrection() {
+        setEntity("building");
     }
 
     public String getCorrectionCorp() {

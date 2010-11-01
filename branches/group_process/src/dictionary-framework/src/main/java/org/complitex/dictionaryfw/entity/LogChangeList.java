@@ -1,9 +1,6 @@
-package org.complitex.dictionaryfw.service;
-
-import org.complitex.dictionaryfw.entity.LogChange;
+package org.complitex.dictionaryfw.entity;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 /**

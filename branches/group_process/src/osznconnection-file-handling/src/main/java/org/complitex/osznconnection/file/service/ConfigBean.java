@@ -43,7 +43,15 @@ public class ConfigBean extends AbstractBean{
      */
     public String getString(Config configName, boolean flush){
         if (flush){
-            configs.put(configName, getValue(configName.name()));
+            String value = getValue(configName.name());
+
+            if (value == null){
+                value = configName.getDefaultValue();
+
+                log.warn("Нет значений в таблице настроек, а по-хорошему должны быть...");
+            }
+
+            configs.put(configName, value);
         }
 
         return configs.get(configName);

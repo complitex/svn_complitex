@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
+ * Панель для корректировки адреса вручную, когда нет соответствующей коррекции и поиск по локальной адресной базе не дал результатов.
  * @author Artem
  */
 public abstract class AddressCorrectionPanel extends Panel {
@@ -70,7 +70,7 @@ public abstract class AddressCorrectionPanel extends Panel {
     private void init() {
         dialog = new Dialog("dialog");
         dialog.setModal(true);
-        dialog.setWidth(500);
+        dialog.setWidth(600);
         dialog.setOpenEvent(JsScopeUiEvent.quickScope(new JsStatement().self().chain("parents", "'.ui-dialog:first'").
                 chain("find", "'.ui-dialog-titlebar-close'").
                 chain("hide").render()));

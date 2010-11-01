@@ -19,7 +19,8 @@ import org.complitex.osznconnection.file.entity.AccountDetail;
 import java.util.List;
 
 /**
- *
+ * Панель для показа возможных вариантов выбора л/c по детальной информации,
+ * когда больше одного человека в ЦН, имеющие разные номера л/c, привязаны к одному адресу.
  * @author Artem
  */
 public abstract class AccountNumberCorrectionPanel extends Panel {

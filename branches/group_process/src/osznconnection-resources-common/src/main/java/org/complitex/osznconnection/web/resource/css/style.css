@@ -204,15 +204,20 @@ input.btnCenter{
 
 /* стили для справочников */
 table.bookContentHeader{
-    width: 100%;
+    /*width: 100%;*/
     padding-bottom: 6px;
 }
 .bookContent td {
+    /*text-align: center !important;*/
+}
+.bookContent th span {
+    /*text-align: center  !important;*/
+}
+
+.wicket_orderNone{
     text-align: center !important;
 }
-.bookContent th {
-    text-align: center  !important;
-}
+
 .filter-td input[type="text"]{
     width:100%;
 }
