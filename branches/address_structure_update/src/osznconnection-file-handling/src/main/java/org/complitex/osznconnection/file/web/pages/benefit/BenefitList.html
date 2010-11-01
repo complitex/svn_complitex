@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:wicket="http://wicket.apache.org">
+    <head>
+        <wicket:head>
+            <title wicket:id="title"></title>
+        </wicket:head>
+    </head>
+    <body>
+        <wicket:extend>
+            <h2 wicket:id="label" style="margin-bottom: 20px;"></h2>
+
+            <div wicket:id="content">
+                <form action="#" wicket:id="filterForm">
+                    <table class="tbColor bookContent" cellpadding="0" cellspacing="0" border="0">
+                        <thead>
+                            <tr>
+                                <th wicket:id="accountHeader"><wicket:message key="account"/></th>
+                                <th wicket:id="lastNameHeader"><wicket:message key="last_name"/></th>
+                                <th wicket:id="firstNameHeader"><wicket:message key="first_name"/></th>
+                                <th wicket:id="middleNameHeader"><wicket:message key="middle_name"/></th>
+                                <th wicket:id="cityHeader"><wicket:message key="city"/></th>
+                                <th wicket:id="streetHeader"><wicket:message key="street"/></th>
+                                <th wicket:id="buildingHeader"><wicket:message key="building"/></th>
+                                <th wicket:id="corpHeader"><wicket:message key="corp"/></th>
+                                <th><wicket:message key="ord_fam"/></th>
+                                <th wicket:id="apartmentHeader"><wicket:message key="apartment"/></th>
+                                <th wicket:id="statusHeader"><wicket:message key="status"/></th>
+                                <th>
+                                    <input wicket:id="reset" type="button" wicket:message="value:reset" class="btnSmall"/>
+                                </th>
+                            </tr>
+                            <tr>
+                                <td class="filter-td"><input type="text" wicket:id="accountFilter"/></td>
+                                <td class="filter-td"><input type="text" wicket:id="lastNameFilter"/></td>
+                                <td class="filter-td"><input type="text" wicket:id="firstNameFilter"/></td>
+                                <td class="filter-td"><input type="text" wicket:id="middleNameFilter"/></td>
+                                <td class="filter-td"><input type="text" wicket:id="cityFilter"/></td>
+                                <td class="filter-td"><input type="text" wicket:id="streetFilter"/></td>
+                                <td class="filter-td"><input type="text" wicket:id="buildingFilter"/></td>
+                                <td class="filter-td"><input type="text" wicket:id="corpFilter"/></td>
+                                <td class="filter-td"><input type="text"/></td>
+                                <td class="filter-td"><input type="text" wicket:id="apartmentFilter"/></td>
+                                <td class="filter-td">
+                                    <select wicket:id="statusFilter" style="width: 100%;">
+                                        <option></option>
+                                    </select>
+                                </td>
+                                <td class="filter-td">
+                                    <input wicket:id="submit" type="submit" wicket:message="value:find" class="btnSmall default"/>
+                                </td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr wicket:id="data">
+                                <td><span wicket:id="account"></span></td>
+                                <td><span wicket:id="lastName"></span></td>
+                                <td><span wicket:id="firstName"></span></td>
+                                <td><span wicket:id="middleName"></span></td>
+                                <td><span wicket:id="city"></span></td>
+                                <td><span wicket:id="street"></span></td>
+                                <td><span wicket:id="building"></span></td>
+                                <td><span wicket:id="corp"></span></td>
+                                <td><span wicket:id="ord_fam"></span></td>
+                                <td><span wicket:id="apartment"></span></td>
+                                <td colspan="2">
+                                    <span wicket:id="status"></span>
+                                    <a href="#" wicket:id="connect"><wicket:message key="connect"/></a>
+                                </td>                                
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div style="margin-top:10px">
+                        <input type="submit" class="btnMiddle" wicket:id="back" wicket:message="value:back"/>
+                    </div>
+
+                </form>
+                <div wicket:id="navigator"></div>
+            </div>
+
+            <div wicket:id="benefitConnectPanel"></div>
+        </wicket:extend>
+    </body>
+</html>

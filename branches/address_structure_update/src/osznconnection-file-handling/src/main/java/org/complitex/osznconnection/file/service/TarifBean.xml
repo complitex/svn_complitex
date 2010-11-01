@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.complitex.osznconnection.file.service.TarifBean">
+    <resultMap id="tarifResultMap" type="org.complitex.osznconnection.file.entity.Tarif">
+        <id column="id" property="id"/>
+        <result column="request_file_id" property="requestFileId"/>
+        <result column="status" property="status"/>
+
+        <association property="dbfFields" javaType="map">
+            <result column="T11_DATA_T" property="T11_DATA_T"/>
+            <result column="T11_DATA_E" property="T11_DATA_E"/>
+            <result column="T11_DATA_R" property="T11_DATA_R"/>
+            <result column="T11_MARK" property="T11_MARK"/>
+            <result column="T11_TARN" property="T11_TARN"/>
+            <result column="T11_CODE1" property="T11_CODE1"/>
+            <result column="T11_CODE2" property="T11_CODE2"/>
+            <result column="T11_COD_NA" property="T11_COD_NA"/>
+            <result column="T11_CODE3" property="T11_CODE3"/>
+            <result column="T11_NORM_U" property="T11_NORM_U"/>
+            <result column="T11_NOR_US" property="T11_NOR_US"/>
+            <result column="T11_CODE_N" property="T11_CODE_N"/>
+            <result column="T11_COD_ND" property="T11_COD_ND"/>
+            <result column="T11_CD_UNI" property="T11_CD_UNI"/>
+            <result column="T11_CS_UNI" property="T11_CS_UNI"/>
+            <result column="T11_NORM" property="T11_NORM"/>
+            <result column="T11_NRM_DO" property="T11_NRM_DO"/>
+            <result column="T11_NRM_MA" property="T11_NRM_MA"/>
+            <result column="T11_K_NADL" property="T11_K_NADL"/>
+        </association>
+    </resultMap>
+
+    <insert id="insertTarif" parameterType="org.complitex.osznconnection.file.entity.Tarif">
+        insert into `tarif`
+        (
+        <trim suffixOverrides=",">
+            `request_file_id`, `status`,
+            <foreach collection="dbfFields.keys" item="key">
+                `${key}`,
+            </foreach>
+        </trim>
+        )
+        values
+        (
+        <trim suffixOverrides=",">
+            #{requestFileId}, #{status},
+            <foreach collection="dbfFields.keys" item="key">
+                #{dbfFields.${key}},
+            </foreach>
+        </trim>
+        )
+    </insert>
+
+    <delete id="deleteTarifs" parameterType="long">
+        delete from `tarif` where `request_file_id` = #{id};
+    </delete>
+
+    <select id="getCODE2_1" parameterType="hashmap" resultType="int">
+        SELECT DISTINCT t.`T11_CODE2` FROM `tarif` t WHERE t.`T11_CS_UNI` = #{T11_CS_UNI} AND t.`T11_CODE1` = 1 AND t.`request_file_id` IN
+            (SELECT f.`id` FROM `request_file` f WHERE f.`type` = 'TARIF' AND f.`organization_id` = #{organizationId})
+        LIMIT 0,1
+    </select>
+</mapper>
