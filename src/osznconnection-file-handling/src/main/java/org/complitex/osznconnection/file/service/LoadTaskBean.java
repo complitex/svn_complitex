@@ -33,6 +33,7 @@ import static org.complitex.osznconnection.file.entity.RequestFile.STATUS_DETAIL
  * @see org.complitex.osznconnection.file.service.LoadRequestBean
  * @see org.complitex.osznconnection.file.service.ConfigBean
  */
+@Deprecated
 @Stateless(name = "LoadTaskBean")
 @SuppressWarnings({"EjbProhibitedPackageUsageInspection"})
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
@@ -61,7 +62,7 @@ public class  LoadTaskBean {
     public Future<RequestFile> load(RequestFile requestFile){
         String currentFieldName = "-1";
         int index = 0;
-        int batchSize = configBean.getInteger(ConfigName.LOAD_RECORD_BATCH_SIZE, true);
+        int batchSize = configBean.getInteger(Config.LOAD_RECORD_BATCH_SIZE, true);
 
         try {
             //Инициализация парсера
@@ -115,7 +116,7 @@ public class  LoadTaskBean {
 
                     //проверка загружен ли файл
                     if (requestFileBean.checkLoaded(requestFile)){
-                        throw new AlreadyLoadedException();
+                        throw new AlreadyLoadedException(requestFile);
                     }
 
                     //сохранение

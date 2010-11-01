@@ -12,7 +12,7 @@ import java.util.List;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 29.09.2010 14:32:05
  */
-@Stateless
+@Stateless(name = "RequestFileGroupBean")
 public class RequestFileGroupBean extends AbstractBean{
     public static final String MAPPING_NAMESPACE = RequestFileGroupBean.class.getName();
 
@@ -35,8 +35,13 @@ public class RequestFileGroupBean extends AbstractBean{
         sqlSession().delete(MAPPING_NAMESPACE + ".deleteRequestFileGroup", requestFileGroup);
     }
 
-    public void save(RequestFileGroup requestFileGroup){
-        sqlSession().insert(MAPPING_NAMESPACE + ".insertRequestFileGroup", requestFileGroup);
+    public void save(RequestFileGroup group){
+        if (group.getId() == null){
+            sqlSession().insert(MAPPING_NAMESPACE + ".insertRequestFileGroup", group);
+        }else {
+            sqlSession().update(MAPPING_NAMESPACE + ".updateRequestFileGroup", group);
+        }
+
     }
 
     public void clearEmptyGroup(){

@@ -1002,13 +1002,14 @@ CREATE TABLE `log_change` (
 
 
 -- ------------------------------
--- Request File
+-- Request File Group
 -- ------------------------------
 DROP TABLE IF EXISTS `request_file_group`;
 
 CREATE TABLE `request_file_group` (
     `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
     `created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `status` INTEGER COMMENT 'См. таблицу status_description и RequestFileGroup$STATUS',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
