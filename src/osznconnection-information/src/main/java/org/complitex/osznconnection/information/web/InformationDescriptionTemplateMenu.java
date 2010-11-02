@@ -30,7 +30,7 @@ public class InformationDescriptionTemplateMenu extends ResourceTemplateMenu {
     @Override
     public List<ITemplateLink> getTemplateLinks(final Locale locale) {
         List<ITemplateLink> links = Lists.newArrayList();
-        for (final String bookEntity : BookEntities.getEntities()) {
+        for (final String bookEntity : BookEntities.getEntityDescriptions()) {
             links.add(new ITemplateLink() {
 
                 @Override
