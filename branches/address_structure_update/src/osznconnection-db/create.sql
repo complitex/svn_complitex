@@ -372,6 +372,76 @@ CREATE TABLE `city_string_culture` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ------------------------------
+-- City Type
+-- ------------------------------
+
+DROP TABLE IF EXISTS `city_type`;
+
+CREATE TABLE `city_type` (
+  `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `object_id` BIGINT(20) NOT NULL,
+  `parent_id` BIGINT(20),
+  `parent_entity_id` BIGINT(20),
+  `entity_type_id` BIGINT(20),
+  `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `end_date` TIMESTAMP NULL DEFAULT NULL,
+  `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+  PRIMARY KEY (`pk_id`),
+  UNIQUE KEY `unique_object_id__start_date` (`object_id`,`start_date`),
+  KEY `key_object_id` (object_id),
+  KEY `key_parent_id` (`parent_id`),
+  KEY `key_entity_type_id` (`entity_type_id`),
+  KEY `key_parent_entity_id` (`parent_entity_id`),
+  KEY `key_start_date` (`start_date`),
+  KEY `key_end_date` (`end_date`),
+  KEY `key_status` (`status`),
+  CONSTRAINT `fk_city_type__entity_type` FOREIGN KEY (`entity_type_id`) REFERENCES `entity_type` (`id`),
+  CONSTRAINT `fk_city_type__entity` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `city_type_attribute`;
+
+CREATE TABLE `city_type_attribute` (
+  `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `attribute_id` BIGINT(20) NOT NULL,
+  `object_id` BIGINT(20) NOT NULL,
+  `attribute_type_id` BIGINT(20) NOT NULL,
+  `value_id` BIGINT(20),
+  `value_type_id` BIGINT(20) NOT NULL,
+  `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `end_date` TIMESTAMP NULL DEFAULT NULL,
+  `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+  PRIMARY KEY (`pk_id`),
+  UNIQUE KEY `unique_id` (`attribute_id`,`object_id`,`attribute_type_id`, `start_date`),
+  KEY `key_object_id` (`object_id`),
+  KEY `key_attribute_type_id` (`attribute_type_id`),
+  KEY `key_value_id` (`value_id`),
+  KEY `key_value_type_id` (`value_type_id`),
+  KEY `key_start_date` (`start_date`),
+  KEY `key_end_date` (`end_date`),
+  KEY `key_status` (`status`),
+  CONSTRAINT `fk_city_type_attribute__city_type` FOREIGN KEY (`object_id`) REFERENCES `city_type`(`object_id`),
+  CONSTRAINT `fk_city_type_attribute__entity_attribute_type` FOREIGN KEY (`attribute_type_id`)
+    REFERENCES `entity_attribute_type` (`id`),
+  CONSTRAINT `fk_city_type_attribute__entity_attribute_value_type` FOREIGN KEY (`value_type_id`)
+    REFERENCES `entity_attribute_value_type` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `city_type_string_culture`;
+
+CREATE TABLE `city_type_string_culture` (
+  `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `id` BIGINT(20) NOT NULL,
+  `locale` VARCHAR(2) NOT NULL,
+  `value` VARCHAR(1000),
+  PRIMARY KEY (`pk_id`),
+  UNIQUE KEY `unique_id__locale` (`id`,`locale`),
+  KEY `key_locale` (`locale`),
+  KEY `key_value` (`value`),
+  CONSTRAINT `fk_city_type_string_culture__locales` FOREIGN KEY (`locale`) REFERENCES `locales` (`locale`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ------------------------------
 -- Building
 -- ------------------------------
 DROP TABLE IF EXISTS `building`;
@@ -1295,6 +1365,27 @@ CREATE TABLE `city_correction` (
     CONSTRAINT `fk_city_correction__city` FOREIGN KEY (`object_id`) REFERENCES `city` (`object_id`),
     CONSTRAINT `fk_city_correction__internal_organization` FOREIGN KEY (`internal_organization_id`) REFERENCES `organization` (`object_id`),
     CONSTRAINT `fk_city_correction__organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`object_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `city_type_correction`;
+
+CREATE TABLE `city_type_correction` (
+    `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+    `parent_id` BIGINT(20),
+    `object_id` BIGINT(20) NOT NULL,
+    `correction` VARCHAR(100) NOT NULL,
+    `organization_id` BIGINT(20) NOT NULL,
+    `organization_code` VARCHAR(100),
+    `internal_organization_id` BIGINT(20) NOT NULL,
+    PRIMARY KEY (`id`),
+    KEY `key_object_id` (`object_id`),
+    KEY `key_parent_id` (`parent_id`),
+    KEY `key_correction` (`correction`),
+    KEY `key_organization_id` (`organization_id`),
+    KEY `key_internal_organization_id` (`internal_organization_id`),
+    CONSTRAINT `fk_city_type_correction__city_type` FOREIGN KEY (`object_id`) REFERENCES `city_type` (`object_id`),
+    CONSTRAINT `fk_city_type_correction__internal_organization` FOREIGN KEY (`internal_organization_id`) REFERENCES `organization` (`object_id`),
+    CONSTRAINT `fk_city_type_correction__organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `district_correction`;

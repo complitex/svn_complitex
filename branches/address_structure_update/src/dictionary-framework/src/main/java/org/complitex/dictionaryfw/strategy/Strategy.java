@@ -72,7 +72,26 @@ public abstract class Strategy extends AbstractBean {
 
     public abstract String getEntityTable();
 
-    public abstract boolean isSimpleAttributeType(EntityAttributeType attributeType);
+    public boolean isSimpleAttributeType(EntityAttributeType entityAttributeType) {
+        return Lists.newArrayList(Iterables.filter(entityAttributeType.getEntityAttributeValueTypes(), new Predicate<EntityAttributeValueType>() {
+
+            @Override
+            public boolean apply(EntityAttributeValueType entityAttributeValueType) {
+                return !SimpleTypes.isSimpleType(entityAttributeValueType.getValueType());
+            }
+        })).isEmpty();
+    }
+
+    public boolean isSimpleAttribute(final Attribute attribute) {
+        EntityAttributeType entityAttributeType = Iterables.find(getEntity().getEntityAttributeTypes(), new Predicate<EntityAttributeType>() {
+
+            @Override
+            public boolean apply(EntityAttributeType entityAttributeType) {
+                return entityAttributeType.getId().equals(attribute.getAttributeTypeId());
+            }
+        });
+        return isSimpleAttributeType(entityAttributeType);
+    }
 
     @Transactional
     public void disable(DomainObject object) {
@@ -120,6 +139,12 @@ public abstract class Strategy extends AbstractBean {
         example.setId(id);
         example.setTable(getEntityTable());
         DomainObject object = (DomainObject) sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + "." + FIND_BY_ID_OPERATION, example);
+        for (Attribute attribute : object.getAttributes()) {
+            if (!isSimpleAttribute(attribute)) {
+                //link to another entity object
+                attribute.setLocalizedValues(null);
+            }
+        }
 
         updateForNewAttributeTypes(object);
         updateStringsForNewLocales(object);
@@ -169,7 +194,16 @@ public abstract class Strategy extends AbstractBean {
     @Transactional
     public List<DomainObject> find(DomainObjectExample example) {
         example.setTable(getEntityTable());
-        return sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + "." + FIND_OPERATION, example);
+        List<DomainObject> objects = sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + "." + FIND_OPERATION, example);
+        for (DomainObject object : objects) {
+            for (Attribute attribute : object.getAttributes()) {
+                if (!isSimpleAttribute(attribute)) {
+                    //link to another entity object
+                    attribute.setLocalizedValues(null);
+                }
+            }
+        }
+        return objects;
     }
 
     @Transactional
