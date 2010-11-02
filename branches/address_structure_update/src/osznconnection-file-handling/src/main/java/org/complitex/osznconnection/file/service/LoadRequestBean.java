@@ -3,11 +3,11 @@ package org.complitex.osznconnection.file.service;
 import org.complitex.dictionaryfw.entity.Log;
 import org.complitex.dictionaryfw.service.LogBean;
 import org.complitex.osznconnection.file.Module;
-import org.complitex.osznconnection.file.entity.ConfigName;
+import org.complitex.osznconnection.file.entity.Config;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.entity.RequestFileGroup;
-import org.complitex.osznconnection.file.storage.RequestFileStorage;
-import org.complitex.osznconnection.file.storage.StorageNotFoundException;
+import org.complitex.osznconnection.file.service.exception.StorageNotFoundException;
+import org.complitex.osznconnection.file.service.process.RequestFileStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +15,10 @@ import javax.annotation.PostConstruct;
 import javax.ejb.*;
 import java.io.File;
 import java.io.FileFilter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.regex.Pattern;
 
@@ -29,6 +32,7 @@ import java.util.regex.Pattern;
  * @see org.complitex.osznconnection.file.service.LoadTaskBean
  * @see org.complitex.osznconnection.file.service.ConfigBean
  */
+@Deprecated
 @Singleton
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
@@ -90,12 +94,12 @@ public class LoadRequestBean extends AbstractProcessBean {
 
     @Override
     protected int getMaxErrorCount() {
-        return configBean.getInteger(ConfigName.LOAD_MAX_ERROR_FILE_COUNT, true);
+        return configBean.getInteger(Config.LOAD_MAX_ERROR_COUNT, true);
     }
 
     @Override
     protected int getThreadSize() {
-        return configBean.getInteger(ConfigName.LOAD_THREADS_SIZE, true);
+        return configBean.getInteger(Config.LOAD_THREAD_SIZE, true);
     }
 
     @Override

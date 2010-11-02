@@ -24,6 +24,7 @@ import java.util.List;
  * Класс для обработки пары payment-benefit фалйов.
  * @author Artem
  */
+@Deprecated
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)
 public class ProcessingRequestBean extends AbstractBean {

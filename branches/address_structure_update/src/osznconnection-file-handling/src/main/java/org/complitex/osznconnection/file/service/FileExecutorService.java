@@ -7,16 +7,17 @@ package org.complitex.osznconnection.file.service;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-
-import java.util.*;
-
-import org.complitex.osznconnection.file.entity.ConfigName;
+import org.complitex.osznconnection.file.entity.Config;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -25,6 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Класс для запуска потоков на связывание и обработку payment and benefit файлов.
  * @author Artem
  */
+@Deprecated
 public class FileExecutorService {
 
     private static final Logger log = LoggerFactory.getLogger(FileExecutorService.class);
@@ -52,7 +54,7 @@ public class FileExecutorService {
     private ExecutorService bindingThreadPool = initBindingThreadPool();
 
     private static ExecutorService initBindingThreadPool() {
-        return Executors.newFixedThreadPool(ConfigStatic.get().getInteger(ConfigName.BINDING_THREAD_SIZE, true));
+        return Executors.newFixedThreadPool(ConfigStatic.get().getInteger(Config.BIND_THREAD_SIZE, true));
     }
 
     public boolean isBinding() {
@@ -62,7 +64,7 @@ public class FileExecutorService {
     private ExecutorService processingThreadPool = initProcessingThreadPool();
 
     private static ExecutorService initProcessingThreadPool() {
-        return Executors.newFixedThreadPool(ConfigStatic.get().getInteger(ConfigName.PROCESSING_THREAD_SIZE, true));
+        return Executors.newFixedThreadPool(ConfigStatic.get().getInteger(Config.FILL_THREAD_SIZE, true));
     }
 
     public boolean isProcessing() {

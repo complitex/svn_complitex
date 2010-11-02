@@ -12,6 +12,7 @@ import java.util.Date;
  * Информация о файле запроса: имя, дата загрузки, организация, дата, количество записей, размер файла, статус.
  */
 public class RequestFile implements Serializable {
+    @Deprecated
     public static enum STATUS implements IEnumCode { //внимание! используется порядок по ordinal
         NEW(1), SKIPPED(2),
         LOADING(3), LOAD_ERROR(4), LOADED(5),
@@ -31,6 +32,7 @@ public class RequestFile implements Serializable {
         }
     }
 
+    @Deprecated
     public static enum STATUS_DETAIL implements IEnumCode {
         FIELD_NOT_FOUND(100), FIELD_WRONG_TYPE(101), FIELD_WRONG_SIZE(102), ALREADY_LOADED(103), CANCEL_LOADING(104), SQL_SESSION(105), DBF(106),
         CRITICAL(107), CANCEL_SAVING(108), LINKED_FILE_NOT_FOUND(109);
@@ -221,6 +223,7 @@ public class RequestFile implements Serializable {
         this.checkSum = checkSum;
     }
 
+    @Deprecated
     public STATUS getStatus() {
         return status;
     }

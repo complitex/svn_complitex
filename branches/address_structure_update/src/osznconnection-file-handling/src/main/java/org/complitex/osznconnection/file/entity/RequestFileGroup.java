@@ -1,16 +1,38 @@
 package org.complitex.osznconnection.file.entity;
 
+import org.complitex.dictionaryfw.entity.ILoggable;
+import org.complitex.dictionaryfw.service.LogChangeList;
 import org.complitex.dictionaryfw.util.DateUtil;
-import org.complitex.dictionaryfw.util.StringUtil;
 
-import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 29.09.2010 14:31:02
  */
-public class RequestFileGroup implements Serializable{
+public class RequestFileGroup implements ILoggable{
+
+    public static enum STATUS implements IEnumCode {
+        SKIPPED(10),
+        LOADING(111),   LOAD_ERROR(101),    LOADED(100),
+        BINDING(222),   BIND_ERROR(202),   BOUND(200),
+        FILLING(333),   FILL_ERROR(303),   FILLED(300),
+        SAVING(444),    SAVE_ERROR(404),    SAVED(400);
+
+        private int code;
+
+        private STATUS(int code) {
+            this.code = code;
+        }
+
+        @Override
+        public int getCode() {
+            return code;
+        }
+    }
+
     private Long id;
 
     private RequestFile benefitFile;
@@ -19,6 +41,26 @@ public class RequestFileGroup implements Serializable{
     private int loadedRecordCount;
     private int bindedRecordCount;
     private int filledRecordCount;
+
+    private STATUS status;
+
+    @Override
+    public String getLogObjectName() {
+        if (paymentFile != null){
+            return paymentFile.getName();
+        }
+
+        return null;
+    }
+
+    @Override
+    public LogChangeList getLogChangeList() {
+        if (paymentFile != null){
+            return paymentFile.getLogChangeList();
+        }
+
+        return null;
+    }
 
     public boolean isProcessing() {
        return benefitFile != null && benefitFile.isProcessing()
@@ -68,36 +110,6 @@ public class RequestFileGroup implements Serializable{
         return list;
     }
 
-    public RequestFile.STATUS getStatus(){
-        if (paymentFile != null && benefitFile != null){
-            if (paymentFile.getStatus().ordinal() <  benefitFile.getStatus().ordinal()){
-                return paymentFile.getStatus();
-            }else{
-                return benefitFile.getStatus();
-            }            
-        }
-
-        if (paymentFile != null) return paymentFile.getStatus();
-        if (benefitFile != null) return benefitFile.getStatus();
-
-        return null;
-    }
-
-    public RequestFile.STATUS_DETAIL getStatusDetail(){
-        if (paymentFile != null && benefitFile != null){
-            if (paymentFile.getStatus().ordinal() < benefitFile.getStatus().ordinal()){
-                return paymentFile.getStatusDetail();
-            }else{
-                return benefitFile.getStatusDetail();
-            }
-        }
-
-        if (paymentFile != null) return paymentFile.getStatusDetail();
-        if (benefitFile != null) return benefitFile.getStatusDetail();
-
-        return null;
-    }
-
     public Long getId() {
         return id;
     }
@@ -144,5 +156,29 @@ public class RequestFileGroup implements Serializable{
 
     public void setFilledRecordCount(int filledRecordCount) {
         this.filledRecordCount = filledRecordCount;
+    }
+
+    public STATUS getStatus() {
+        return status;
+    }
+
+    public void setStatus(STATUS status) {
+        this.status = status;
+    }
+
+    public String getName(){
+        if (paymentFile != null){
+            return paymentFile.getName().substring(2,8);
+        }
+
+        return null;
+    }
+
+    public String getDirectory(){
+        if (paymentFile != null){
+            return paymentFile.getDirectory();
+        }
+
+        return null;
     }
 }
