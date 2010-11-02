@@ -70,10 +70,25 @@ INSERT INTO `entity`(`id`, `entity_table`, `entity_name_id`, `strategy_factory`)
 INSERT INTO `string_culture`(`id`, `locale`, `value`) VALUES (401, 'ru', UPPER('Наименование населенного пункта')), (401, 'uk', UPPER('Найменування населеного пункту'));
 INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (400, 400, 1, 401, 1);
 INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (400, 400, UPPER('string_culture'));
-INSERT INTO `string_culture`(`id`, `locale`, `value`) VALUES
-(402, 'ru', UPPER('город')), (402, 'uk', UPPER('місто')),
-(403, 'ru', UPPER('деревня')), (403, 'uk', UPPER('село'));
-INSERT INTO `entity_type`(`id`, `entity_id`, `entity_type_name_id`) VALUES (400, 400, 402), (401, 400, 403);
+INSERT INTO `string_culture`(`id`, `locale`, `value`) VALUES (402, 'ru', UPPER('Тип населенного пункта')),
+                                                             (402, 'uk', UPPER('Тип населенного пункта'));
+INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (401, 400, 1, 402, 1);
+INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (401, 401, 'city_type');
+
+-- --------------------------------
+-- City Type
+-- --------------------------------
+
+INSERT INTO `string_culture`(`id`, `locale`, `value`) VALUES (1300, 'ru', 'Тип нас. пункта'), (1300, 'uk', 'Тип населенного пункта');
+INSERT INTO `entity`(`id`, `entity_table`, `entity_name_id`, `strategy_factory`) VALUES (1300, 'city_type', 1300, '');
+INSERT INTO `string_culture`(`id`, `locale`, `value`) VALUES (1301, 'ru', UPPER('Название')), (1301, 'uk', UPPER('Назва'));
+INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (1300, 1300, 1, 1301, 1);
+INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (1300, 1300, UPPER('string_culture'));
+
+INSERT INTO `city_type_string_culture`(`id`, `locale`, `value`) VALUES (1,'ru','ГОРОД'), (1,'uk','МIСТО'), (2,'ru','ДЕРЕВНЯ'), (2,'uk','СЕЛО');
+INSERT INTO `city_type` (`object_id`) VALUES (1), (2);
+INSERT INTO `city_type_attribute`(`attribute_id`, `object_id`, `attribute_type_id`, `value_id`, `value_type_id`) VALUES (1,1,1300,1,1300),
+(1,2,1300,2,1300);
 
 -- --------------------------------
 -- Building
