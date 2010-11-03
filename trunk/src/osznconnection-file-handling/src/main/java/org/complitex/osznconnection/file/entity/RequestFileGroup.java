@@ -1,7 +1,7 @@
 package org.complitex.osznconnection.file.entity;
 
 import org.complitex.dictionaryfw.entity.ILoggable;
-import org.complitex.dictionaryfw.service.LogChangeList;
+import org.complitex.dictionaryfw.entity.LogChangeList;
 import org.complitex.dictionaryfw.util.DateUtil;
 
 import java.util.ArrayList;
@@ -55,11 +55,17 @@ public class RequestFileGroup implements ILoggable{
 
     @Override
     public LogChangeList getLogChangeList() {
+        LogChangeList logChangeList = new LogChangeList();
+
         if (paymentFile != null){
-            return paymentFile.getLogChangeList();
+            logChangeList.addAll(paymentFile.getLogChangeList("payment"));
         }
 
-        return null;
+        if (benefitFile != null){
+            logChangeList.addAll(benefitFile.getLogChangeList("benefit"));
+        }
+
+        return logChangeList;
     }
 
     public boolean isProcessing() {

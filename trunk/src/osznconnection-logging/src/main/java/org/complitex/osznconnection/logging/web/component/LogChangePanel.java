@@ -23,7 +23,7 @@ public class LogChangePanel extends Panel {
                 LogChange logChange = item.getModelObject();
 
                 item.add(new Label("attribute_id", StringUtil.valueOf(logChange.getAttributeId())));
-//                item.add(new Label("collection", StringUtil.valueOf(logChange.getCollection())));
+                item.add(new Label("collection", StringUtil.valueOf(logChange.getCollection())));
                 item.add(new Label("property", StringUtil.valueOf(logChange.getProperty())));
                 item.add(new Label("old_value", StringUtil.valueOf(logChange.getOldValue())));
                 item.add(new Label("new_value", StringUtil.valueOf(logChange.getNewValue())));

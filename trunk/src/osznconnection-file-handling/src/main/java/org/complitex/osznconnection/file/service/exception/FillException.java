@@ -10,7 +10,7 @@ import org.complitex.osznconnection.file.entity.RequestFile;
 public class FillException extends ExecuteException{
     private final static String MESSAGE_PATTERN = "Ошибка обработки файла запроса {0}";
 
-    public FillException(RequestFile requestFile) {
-        super(MESSAGE_PATTERN, requestFile.getName());
+    public FillException(boolean warn, RequestFile requestFile) {
+        super(warn, MESSAGE_PATTERN, requestFile.getName());
     }
 }

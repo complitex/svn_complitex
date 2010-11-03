@@ -1,7 +1,7 @@
 package org.complitex.osznconnection.file.entity;
 
 import org.complitex.dictionaryfw.entity.ILoggable;
-import org.complitex.dictionaryfw.service.LogChangeList;
+import org.complitex.dictionaryfw.entity.LogChangeList;
 
 import java.util.Date;
 
@@ -64,19 +64,23 @@ public class RequestFile implements ILoggable {
     }
 
     public LogChangeList getLogChangeList(){
+        return getLogChangeList(null);
+    }
+
+    public LogChangeList getLogChangeList(String collection){
         LogChangeList logChangeList = new LogChangeList();
 
-        logChangeList.add("id", getId())
-                .add("loaded", getLoaded())
-                .add("name", getName())
-                .add("organizationId", getOrganizationId())
-                .add("month", getMonth())
-                .add("year", getYear())
-                .add("dbfRecordCount", getDbfRecordCount())
-                .add("length", getLength())
-                .add("checkSum", getCheckSum())
-                .add("loadedRecordCount", getLoadedRecordCount())
-                .add("bindedRecordCount", getBindedRecordCount());
+        logChangeList.add(collection, "id", getId())
+                .add(collection, "loaded", getLoaded())
+                .add(collection, "name", getName())
+                .add(collection, "organizationId", getOrganizationId())
+                .add(collection, "month", getMonth())
+                .add(collection, "year", getYear())
+                .add(collection, "dbfRecordCount", getDbfRecordCount())
+                .add(collection, "length", getLength())
+                .add(collection, "checkSum", getCheckSum())
+                .add(collection, "loadedRecordCount", getLoadedRecordCount())
+                .add(collection, "bindedRecordCount", getBindedRecordCount());
 
         return logChangeList;
     }

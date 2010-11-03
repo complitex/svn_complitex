@@ -153,9 +153,6 @@ public class TarifFileList extends TemplatePage {
         //Загружено записей
         filterForm.add(new TextField<Integer>("loadedRecordCount", new Model<Integer>(), Integer.class));
 
-        //Связано записей
-        filterForm.add(new TextField<Integer>("bindedRecordCount", new Model<Integer>(), Integer.class));
-
         //Модель выбранных элементов списка
         final Map<RequestFile, IModel<Boolean>> selectModels = new HashMap<RequestFile, IModel<Boolean>>();
 
@@ -236,7 +233,6 @@ public class TarifFileList extends TemplatePage {
                 item.add(new Label("year", StringUtil.valueOf(rf.getYear())));
                 item.add(new Label("dbf_record_count", StringUtil.valueOf(rf.getDbfRecordCount())));
                 item.add(new Label("loaded_record_count", StringUtil.valueOf(rf.getLoadedRecordCount(), rf.getDbfRecordCount())));
-                item.add(new Label("binded_record_count", StringUtil.valueOf(rf.getBindedRecordCount(), rf.getDbfRecordCount())));
 
                 String status = "";
 
@@ -283,7 +279,6 @@ public class TarifFileList extends TemplatePage {
         filterForm.add(new ArrowOrderByBorder("header.year", "year", dataProvider, dataView, filterForm));
         filterForm.add(new ArrowOrderByBorder("header.dbf_record_count", "dbf_record_count", dataProvider, dataView, filterForm));
         filterForm.add(new ArrowOrderByBorder("header.loaded_record_count", "loaded_record_count", dataProvider, dataView, filterForm));
-        filterForm.add(new ArrowOrderByBorder("header.binded_record_count", "binded_record_count", dataProvider, dataView, filterForm));
         filterForm.add(new ArrowOrderByBorder("header.status", "status", dataProvider, dataView, filterForm));
 
         //Постраничная навигация
@@ -297,8 +292,7 @@ public class TarifFileList extends TemplatePage {
                 for (RequestFile requestFile : selectModels.keySet()) {
                     if (selectModels.get(requestFile).getObject()) {
                         requestFileBean.delete(requestFile);
-                        info(getStringFormat("info.deleted", requestFile.getType().ordinal(), requestFile.getName(), requestFile.getDirectory(),
-                                File.separator));
+                        info(getStringFormat("info.deleted", requestFile.getDirectory(), File.separator, requestFile.getName()));
                     }
                 }
             }

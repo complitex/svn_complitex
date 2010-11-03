@@ -1,9 +1,6 @@
-package org.complitex.dictionaryfw.service;
-
-import org.complitex.dictionaryfw.entity.LogChange;
+package org.complitex.dictionaryfw.entity;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 /**
@@ -21,6 +18,14 @@ public class LogChangeList extends ArrayList<LogChange>{
     public LogChangeList add(String property, Object newValue){
         if (newValue != null){
             add(new LogChange(property, null, newValue.toString()));
+        }
+
+        return this;
+    }
+
+    public LogChangeList add(String collection, String property, Object newValue){
+        if (newValue != null){
+            add(new LogChange(collection, property, null, newValue.toString()));
         }
 
         return this;

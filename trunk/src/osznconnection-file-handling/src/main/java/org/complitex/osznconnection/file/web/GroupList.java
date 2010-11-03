@@ -69,7 +69,7 @@ public class GroupList extends TemplatePage {
 
     public GroupList(PageParameters parameters){
         super();
-        init(parameters.getAsLong("request_file_id"));
+        init(parameters.getAsLong("group_id"));
     }
 
     public GroupList() {
@@ -77,7 +77,7 @@ public class GroupList extends TemplatePage {
         init(null);
     }
 
-    private void init(Long requestFileId) {
+    private void init(Long groupId) {
         add(JavascriptPackageResource.getHeaderContribution(WebCommonResourceInitializer.HIGHLIGHT_JS));
 
         add(new Label("title", getString("title")));
@@ -93,7 +93,7 @@ public class GroupList extends TemplatePage {
             setFilterObject(groupFilterObject);
         }
 
-        groupFilterObject.setId(requestFileId);
+        groupFilterObject.setId(groupId);
 
         final IModel<RequestFileGroupFilter> filterModel = new CompoundPropertyModel<RequestFileGroupFilter>(groupFilterObject);
 

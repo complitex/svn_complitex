@@ -1,7 +1,5 @@
 package org.complitex.dictionaryfw.entity;
 
-import org.complitex.dictionaryfw.service.LogChangeList;
-
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 29.10.10 18:48
