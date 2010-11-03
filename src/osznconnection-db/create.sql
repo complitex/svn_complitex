@@ -1103,8 +1103,6 @@ CREATE TABLE `request_file` (
     `length` BIGINT(20),
     `check_sum` VARCHAR(32),
     `type` VARCHAR(50),
-    `status` INTEGER NULL COMMENT 'См. таблицу status_description и org.complitex.osznconnection.file.entity.RequestFile$STATUS',
-    `status_detail` INTEGER NULL COMMENT 'См. таблицу status_description и org.complitex.osznconnection.file.entity.RequestFile$STATUS_DETAIL',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_id` (`name`, `organization_id`, `registry`, `month`, `year`), 
     KEY `key_group_id` (`group_id`),
@@ -1115,8 +1113,6 @@ CREATE TABLE `request_file` (
     KEY `key_month` (`month`),
     KEY `key_year` (`year`) ,
     KEY `key_type` (`type`) ,
-    KEY `key_status` (`status`) ,
-    KEY `key_status_detail` (`status_detail`),
     CONSTRAINT `fk_request_file__request_file_group` FOREIGN KEY (`group_id`) REFERENCES `request_file_group` (`id`),
     CONSTRAINT `fk_request_file__organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
