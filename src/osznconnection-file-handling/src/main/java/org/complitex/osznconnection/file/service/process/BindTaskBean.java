@@ -195,7 +195,7 @@ public class BindTaskBean implements ITaskBean<RequestFileGroup>{
 
         //проверить все ли записи в payment файле связались
         if(!paymentBean.isPaymentFileBound(paymentFile.getId())){
-            throw new BindException(paymentFile);
+            throw new BindException(true, paymentFile);
         }
     }
 
@@ -210,7 +210,7 @@ public class BindTaskBean implements ITaskBean<RequestFileGroup>{
 
         //проверить все ли записи в benefit файле связались
         if (!benefitBean.isBenefitFileBound(benefitFile.getId())){
-            throw new BindException(benefitFile);
+            throw new BindException(true, benefitFile);
         }
     }
 }

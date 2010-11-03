@@ -158,7 +158,7 @@ public class FillTaskBean implements ITaskBean<RequestFileGroup>{
 
         //проверить все ли записи в payment файле обработались
         if (!paymentBean.isPaymentFileProcessed(paymentFile.getId())){
-            throw new FillException(paymentFile);
+            throw new FillException(true, paymentFile);
         }
     }
 
@@ -203,7 +203,7 @@ public class FillTaskBean implements ITaskBean<RequestFileGroup>{
         }
 
         if (!benefitBean.isBenefitFileProcessed(benefitFile.getId())){
-            throw new FillException(benefitFile);
+            throw new FillException(true, benefitFile);
         }
     }
 }

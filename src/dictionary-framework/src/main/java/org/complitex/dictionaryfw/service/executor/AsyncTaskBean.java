@@ -28,6 +28,7 @@ public class AsyncTaskBean {
             listener.done(object, completed ? ITaskListener.STATUS.SUCCESS : ITaskListener.STATUS.SKIPPED);
 
             log.debug("Процесс {} завершен успешно.", task);
+            logInfo(object, task, null);
         } catch (ExecuteException e) {
             try {
                 task.onError(object);
@@ -37,7 +38,12 @@ public class AsyncTaskBean {
 
             listener.done(object, ITaskListener.STATUS.ERROR);
 
-            log.error(e.getMessage(), e);
+            if (e.isWarn()) {
+                log.warn(e.getMessage());
+            }else{
+                log.error(e.getMessage(), e);
+            }
+
             logError(object,task, e.getMessage());
         } catch (Exception e){
             try {
@@ -64,6 +70,11 @@ public class AsyncTaskBean {
 
     private <T extends ILoggable> void logError(T object, ITaskBean<T> task, String decs, Object... args){
         logBean.error(task.getModuleName(), task.getControllerClass(),  object.getClass(), null, object.getId(),
+                Log.EVENT.EDIT, object.getLogChangeList(), decs, args);
+    }
+
+     private <T extends ILoggable> void logInfo(T object, ITaskBean<T> task, String decs, Object... args){
+        logBean.info(task.getModuleName(), task.getControllerClass(), object.getClass(), null, object.getId(),
                 Log.EVENT.EDIT, object.getLogChangeList(), decs, args);
     }
 }

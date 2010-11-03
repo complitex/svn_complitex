@@ -43,7 +43,7 @@ public class LoadRequestFileBean {
     @SuppressWarnings({"EjbProhibitedPackageUsageInspection", "ConstantConditions"})
     public boolean load(RequestFile requestFile, ILoadRequestFile loadRequestFile) throws ExecuteException {
         String currentFieldName = "-1";
-        int index = 0;
+        int index = -1;
         int batchSize = configBean.getInteger(Config.LOAD_BATCH_SIZE, true);
 
         requestFile.setLoadedRecordCount(0);
@@ -77,6 +77,8 @@ public class LoadRequestFileBean {
             List<AbstractRequest> batch = new ArrayList<AbstractRequest>();
 
             while((rowObjects = reader.nextRecord()) != null) {
+                index++;
+
                 AbstractRequest request = loadRequestFile.newObject();
 
                 //Заполнение колонок записи
@@ -94,7 +96,7 @@ public class LoadRequestFileBean {
                 }
 
                 //обработка первой строки
-                if (index++ == 0){
+                if (index == 0){
                     //установка номера реестра
                     Integer registry = (Integer) request.getDbfFields().get(PaymentDBF.REE_NUM.name());
                     if (registry != null){
