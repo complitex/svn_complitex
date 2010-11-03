@@ -34,7 +34,7 @@ import org.complitex.osznconnection.file.entity.RequestStatus;
 import org.complitex.osznconnection.file.entity.example.BenefitExample;
 import org.complitex.osznconnection.file.service.BenefitBean;
 import org.complitex.osznconnection.file.service.RequestFileBean;
-import org.complitex.osznconnection.file.web.RequestFileGroupList;
+import org.complitex.osznconnection.file.web.GroupList;
 import org.complitex.osznconnection.file.web.component.StatusRenderer;
 
 import javax.ejb.EJB;
@@ -199,7 +199,7 @@ public final class BenefitList extends TemplatePage {
 
             @Override
             public void onSubmit() {
-                setResponsePage(RequestFileGroupList.class);
+                setResponsePage(GroupList.class);
             }
         };
         back.setDefaultFormProcessing(false);

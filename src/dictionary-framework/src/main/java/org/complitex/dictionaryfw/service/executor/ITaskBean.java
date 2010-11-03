@@ -16,4 +16,6 @@ public interface ITaskBean<T> {
     public void onError(T object);
 
     public String getModuleName();
+
+    public Class getControllerClass();
 }

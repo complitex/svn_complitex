@@ -16,10 +16,10 @@ public class RequestFileGroup implements ILoggable{
 
     public static enum STATUS implements IEnumCode {
         SKIPPED(10),
-        LOADING(111),   LOAD_ERROR(101),    LOADED(100),
-        BINDING(222),   BIND_ERROR(202),   BOUND(200),
-        FILLING(333),   FILL_ERROR(303),   FILLED(300),
-        SAVING(444),    SAVE_ERROR(404),    SAVED(400);
+        LOADING(112),   LOAD_ERROR(111),   LOADED(110),
+        BINDING(122),   BIND_ERROR(121),   BOUND(120),
+        FILLING(132),   FILL_ERROR(131),   FILLED(130),
+        SAVING(142),    SAVE_ERROR(141),   SAVED(140);
 
         private int code;
 
@@ -63,8 +63,10 @@ public class RequestFileGroup implements ILoggable{
     }
 
     public boolean isProcessing() {
-       return benefitFile != null && benefitFile.isProcessing()
-               || paymentFile != null && paymentFile.isProcessing();
+       return STATUS.LOADING.equals(status)
+               || STATUS.BINDING.equals(status)
+               || STATUS.FILLING.equals(status)
+               || STATUS.SAVING.equals(status);
     }
 
     public Date getLoaded(){

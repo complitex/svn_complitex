@@ -16,7 +16,7 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.complitex.osznconnection.file.calculation.entity.BenefitData;
 import org.complitex.osznconnection.file.entity.Benefit;
-import org.complitex.osznconnection.file.service.ProcessingRequestBean;
+import org.complitex.osznconnection.file.service.BenefitFillService;
 import org.odlabs.wiquery.ui.dialog.Dialog;
 
 import javax.ejb.EJB;
@@ -28,8 +28,8 @@ import java.util.List;
  *         Date: 18.10.2010 14:46:58
  */
 public class BenefitConnectPanel extends Panel {
-    @EJB(name = "ProcessingRequestBean")
-    private ProcessingRequestBean processingRequestBean;
+    @EJB(name = "BenefitFillService")
+    private BenefitFillService benefitFillService;
 
     private Dialog dialog;
     private Benefit benefit;
@@ -75,7 +75,7 @@ public class BenefitConnectPanel extends Panel {
             @Override
             protected List<BenefitData> load() {
                 if (benefit != null){
-                    return processingRequestBean.getBenefitData(benefit);
+                    return benefitFillService.getBenefitData(benefit);
                 }
 
                 return Collections.emptyList();
@@ -107,7 +107,7 @@ public class BenefitConnectPanel extends Panel {
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
                 dialog.close(target);
                 if (benefit != null && radioGroup.getModelObject() != null){
-                    processingRequestBean.connectBenefit(benefit, radioGroup.getModelObject());
+                    benefitFillService.connectBenefit(benefit, radioGroup.getModelObject());
                 }                                                                                              
             }
         };

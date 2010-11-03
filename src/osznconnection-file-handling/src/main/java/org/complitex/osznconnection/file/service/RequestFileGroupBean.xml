@@ -4,6 +4,7 @@
     <resultMap id="requestFileGroupResultMap" type="org.complitex.osznconnection.file.entity.RequestFileGroup">
         <id column="gid" property="id"/>
 
+        <result column="status" property="status"/>
         <result column="loaded_record_count" property="loadedRecordCount"/>
         <result column="binded_record_count" property="bindedRecordCount"/>
         <result column="filled_record_count" property="filledRecordCount"/>
@@ -22,8 +23,6 @@
             <result column="b_length" property="length"/>
             <result column="b_check_sum" property="checkSum"/>
             <result column="b_type" property="type"/>
-            <result column="b_status" property="status"/>
-            <result column="b_status_detail" property="statusDetail"/>
             <result column="b_loaded_record_count" property="loadedRecordCount"/>
             <result column="b_binded_record_count" property="bindedRecordCount"/>
         </association>
@@ -41,8 +40,6 @@
             <result column="p_length" property="length"/>
             <result column="p_check_sum" property="checkSum"/>
             <result column="p_type" property="type"/>
-            <result column="p_status" property="status"/>
-            <result column="p_status_detail" property="statusDetail"/>
         </association>
     </resultMap>
 
@@ -51,10 +48,14 @@
         insert into `request_file_group` (`status`) value (#{status})
     </insert>
 
-    <insert id="updateRequestFileGroup"  parameterType="org.complitex.osznconnection.file.entity.RequestFileGroup"
-            keyProperty="id" useGeneratedKeys="true">
+    <update id="updateRequestFileGroup"  parameterType="org.complitex.osznconnection.file.entity.RequestFileGroup">
         update `request_file_group` set `status` = #{status} where `id` = #{id}
-    </insert>
+    </update>
+
+    <update id="updateStatus" parameterType="map">
+        update `request_file_group` set `status` = #{status} where `id` = #{id}
+    </update>
+
 
     <delete id="deleteRequestFileGroup" parameterType="long">
         delete from `request_file_group` where `id` = #{id}
@@ -82,10 +83,7 @@
             <if test="year != null">and p.`year` = #{year}</if>
             <if test="month != null">and p.`month` = #{month}</if>
             <if test="dbfRecordCount != null">and p.`dbf_record_count` like CONCAT('%',#{dbfRecordCount},'%')</if>
-            <if test="status != null">
-                and ((p.`status` = #{status} and b.`status` >= p.`status`)
-                    or (b.`status` = #{status} and p.`status` >= b.`status`))
-            </if>
+            <if test="status != null">and g.`status` = #{status}</if>
             <if test="loadedRecordCount != null">and loaded_record_count = #{loadedRecordCount}</if>
             <if test="bindedRecordCount != null">and binded_record_count = #{bindedRecordCount}</if>
         </where>
@@ -95,14 +93,13 @@
             resultMap="requestFileGroupResultMap">
         select
             g.id as gid,
+            g.status as status,
             b.id as b_id, b.loaded as b_loaded, b.name as b_name, b.directory as b_directory, b.organization_id as b_organization_id,
             b.registry as b_registry, b.month as b_month, b.year as b_year, b.dbf_record_count as b_dbf_record_count,
-            b.length as b_length, b.check_sum as b_check_sum, b.type as b_type, b.status as b_status,
-            b.status_detail as b_status_detail,
+            b.length as b_length, b.check_sum as b_check_sum, b.type as b_type,
             p.id as p_id, p.loaded as p_loaded, p.name as p_name, p.directory as p_directory, p.organization_id as p_organization_id, 
             p.registry as p_registry, p.month as p_month, p.year as p_year, p.dbf_record_count as p_dbf_record_count,
-            p.length as p_length, p.check_sum as p_check_sum, p.type as p_type, p.status as p_status,
-            p.status_detail as p_status_detail,            
+            p.length as p_length, p.check_sum as p_check_sum, p.type as p_type,
             (select count(*) from `payment` where `request_file_id` = p.`id`)
                 as loaded_record_count,
             (select count(*) from `payment` where `request_file_id` = p.`id` and `account_number` is not null)

@@ -14,9 +14,7 @@
         <result column="dbf_record_count" property="dbfRecordCount"/>
         <result column="length" property="length"/>
         <result column="checkSum" property="checkSum"/>
-        <result column="type" property="type"/>        
-        <result column="status" property="status"/>
-        <result column="status_detail" property="statusDetail"/>
+        <result column="type" property="type"/>
         <result column="loaded_record_count" property="loadedRecordCount"/>
         <result column="binded_record_count" property="bindedRecordCount"/>
     </resultMap>
@@ -29,18 +27,16 @@
             keyProperty="id" useGeneratedKeys="true">
         insert into `request_file`
             (`group_id`, `organization_id`, `name`, `directory`, `registry`, `month`, `year`, `dbf_record_count`, `length`, `check_sum`,
-            `type`, `status`, `status_detail`, `loaded`)
+            `type`, `loaded`)
         values
             (#{groupId}, #{organizationId}, #{name}, #{directory}, #{registry}, #{month}, #{year}, #{dbfRecordCount}, #{length}, #{checkSum},
-                #{type}, #{status}, #{statusDetail}, #{loaded});
+                #{type}, #{loaded});
     </insert>
 
     <update id="updateRequestFile" parameterType="org.complitex.osznconnection.file.entity.RequestFile">
         update `request_file`
         <set>
             <if test="registry != null">`registry` = #{registry},</if>
-            <if test="status != null">`status` = #{status},</if>
-            <if test="statusDetail != null">`status_detail` = #{statusDetail}</if>
         </set>
         where `id` = #{id}
     </update>
@@ -66,7 +62,6 @@
             <if test="month != null">and `month` = #{month}</if>
             <if test="dbfRecordCount != null">and `dbf_record_count` like CONCAT('%',#{dbfRecordCount},'%')</if>
             <if test="type != null">and `type` = #{type}</if>
-            <if test="status != null">and `status` = #{status}</if>
             <if test="loadedRecordCount != null">
                 loaded_record_count = #{loadedRecordCount}
             </if>
@@ -128,19 +123,7 @@
         limit 1
     </select>
 
-    <update id="cancelLoading">
-        update `request_file` set `status` = 4, `status_detail` = 104 where `status` = 3
-    </update>
-
-    <update id="cancelSaving">
-        update `request_file` set `status` = 10, `status_detail` = 108 where `status` = 9
-    </update>
-
     <select id="selectTarifFiles" parameterType="long" resultMap="requestFileResultMap">
         select * from `request_file` where organization_id = #{organizationId} and `type` = 'TARIF'
     </select>
-
-    <update id="updateStatus" parameterType="map">
-        update `request_file` set `status` = #{status}, `status_detail` = #{detail} where `id` = #{id}        
-    </update>
 </mapper>

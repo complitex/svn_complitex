@@ -7,7 +7,7 @@ import org.complitex.dictionaryfw.service.AbstractException;
  *         Date: 04.10.2010 15:58:50
  */
 public class FieldWrongSizeException extends AbstractException {
-    private final static String MESSAGE_PATTERN = "Недопустимый размер поля '{0}'";
+    private final static String MESSAGE_PATTERN = "Недопустимый размер поля {0}";
 
     public FieldWrongSizeException(String fieldName) {
         super(MESSAGE_PATTERN, fieldName);

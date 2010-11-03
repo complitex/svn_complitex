@@ -13,6 +13,8 @@ import org.complitex.osznconnection.file.service.exception.SqlSessionException;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import java.io.FileInputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -24,6 +26,7 @@ import java.util.List;
  *         Date: 01.11.10 16:03
  */
 @Stateless(name = "LoadRequestFileBean")
+@TransactionManagement(TransactionManagementType.BEAN)
 public class LoadRequestFileBean {
     public interface ILoadRequestFile{
         public Enum[] getFieldNames();
@@ -41,7 +44,9 @@ public class LoadRequestFileBean {
     public boolean load(RequestFile requestFile, ILoadRequestFile loadRequestFile) throws ExecuteException {
         String currentFieldName = "-1";
         int index = 0;
-        int batchSize = configBean.getInteger(Config.LOAD_RECORD_BATCH_SIZE, true);
+        int batchSize = configBean.getInteger(Config.LOAD_BATCH_SIZE, true);
+
+        requestFile.setLoadedRecordCount(0);
 
         try {
             //Инициализация парсера
@@ -135,9 +140,10 @@ public class LoadRequestFileBean {
 
             //Загрузка завершена
             requestFile.setLoaded(DateUtil.getCurrentDate());
+            requestFile.setLoadedRecordCount(index + 1);
             requestFileBean.save(requestFile);
         }catch (Exception e) {
-            throw new LoadException(e, requestFile, index, currentFieldName);
+            throw new LoadException(e, requestFile, index + 1, currentFieldName);
         }
 
         return true;

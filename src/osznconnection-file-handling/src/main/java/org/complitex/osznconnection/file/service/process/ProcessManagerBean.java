@@ -14,7 +14,6 @@ import org.complitex.osznconnection.file.service.exception.StorageNotFoundExcept
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -40,6 +39,9 @@ public class ProcessManagerBean {
     @EJB(beanName = "LoadGroupTaskBean")
     private ITaskBean<RequestFileGroup> loadGroupTaskBean;
 
+    @EJB(beanName = "LoadTarifTaskBean")
+    private ITaskBean<RequestFile> loadTarifTaskBean;
+
     @EJB(beanName = "BindTaskBean")
     private ITaskBean<RequestFileGroup> bindTaskBean;
 
@@ -50,7 +52,7 @@ public class ProcessManagerBean {
     private ITaskBean<RequestFileGroup> saveTaskBean;
 
     @EJB(beanName = "ExecutorBean")
-    private ExecutorBean<RequestFileGroup> executorBean;
+    private ExecutorBean executorBean;
 
     @EJB(beanName = "ConfigBean")
     private ConfigBean configBean;
@@ -69,12 +71,6 @@ public class ProcessManagerBean {
 
     private boolean preprocess = false;
 
-    @PostConstruct
-    public void init(){
-        requestFileBean.cancelLoading();
-        requestFileBean.cancelSaving();
-    }
-
     public PROCESS getProcess() {
         return process;
     }
@@ -90,14 +86,43 @@ public class ProcessManagerBean {
         return Collections.unmodifiableList(list);
     }
 
-    public List<RequestFileGroup> getProcessed(Object queryKey){
+    public List<RequestFileGroup> getProcessedGroups(Object queryKey){
         List<RequestFileGroup> list = new ArrayList<RequestFileGroup>();
 
         Integer index = processedIndex.get(queryKey);
 
         int size = executorBean.getProcessed().size();
 
-        list.addAll(executorBean.getProcessed().subList(index != null ? index : 0, size));
+        List processed = executorBean.getProcessed().subList(index != null ? index : 0, size);
+
+        for (Object obj : processed){
+            if (obj instanceof RequestFileGroup){
+                list.add((RequestFileGroup) obj);
+            }
+        }
+
+        processedIndex.put(queryKey, size);
+
+        return Collections.unmodifiableList(list);
+    }
+
+    public List<RequestFile> getProcessedTarifFiles(Object queryKey){
+        List<RequestFile> list = new ArrayList<RequestFile>();
+
+        Integer index = processedIndex.get(queryKey);
+
+        int size = executorBean.getProcessed().size();
+
+        List processed = executorBean.getProcessed().subList(index != null ? index : 0, size);
+
+        for (Object obj : processed){
+            if (obj instanceof RequestFile){
+                RequestFile requestFile = (RequestFile) obj;
+                if (RequestFile.TYPE.TARIF.equals(requestFile.getType())) {
+                    list.add(requestFile);
+                }
+            }
+        }
 
         processedIndex.put(queryKey, size);
 
@@ -130,13 +155,14 @@ public class ProcessManagerBean {
 
     @Asynchronous
     public void loadGroup(Long organizationId, String districtCode, int monthFrom, int monthTo, int year){
-        process = PROCESS.LOAD;
-        processedIndex.clear();
-
         try {
+            process = PROCESS.LOAD;
+
             preprocess = true; // предобработка
 
-            LoadUtil.LoadParameter loadParameter = LoadUtil.getLoadParameter(organizationId, districtCode, monthFrom, monthTo, year);
+            processedIndex.clear();
+
+            LoadUtil.LoadGroupParameter loadParameter = LoadUtil.getLoadParameter(organizationId, districtCode, monthFrom, monthTo, year);
 
             linkError.addAll(loadParameter.getLinkError());
 
@@ -144,6 +170,28 @@ public class ProcessManagerBean {
 
             executorBean.execute(loadParameter.getRequestFileGroups(),
                     loadGroupTaskBean,
+                    configBean.getInteger(Config.LOAD_THREAD_SIZE, true),
+                    configBean.getInteger(Config.LOAD_MAX_ERROR_COUNT, true));
+        } catch (StorageNotFoundException e) {
+            log.error("Ошибка процесса загрузки файлов.", e);
+            logBean.error(Module.NAME, ProcessManagerBean.class, RequestFileGroup.class, null,
+                    Log.EVENT.CREATE, "Ошибка процесса загрузки файлов. Причина: {0}", e.getMessage());
+        }
+    }
+
+    @Asynchronous
+    public void loadTarif(Long organizationId, String districtCode, int monthFrom, int monthTo, int year){
+        try {
+            process = PROCESS.LOAD;
+
+            preprocess = true; // предобработка
+
+            processedIndex.clear();
+
+            preprocess = false;
+
+            executorBean.execute(LoadUtil.getTarifs(organizationId, districtCode, monthFrom, monthTo, year),
+                    loadTarifTaskBean,
                     configBean.getInteger(Config.LOAD_THREAD_SIZE, true),
                     configBean.getInteger(Config.LOAD_MAX_ERROR_COUNT, true));
         } catch (StorageNotFoundException e) {

@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -33,13 +32,13 @@ public class RequestFileBean extends AbstractBean {
 
     @Transactional
     @SuppressWarnings({"unchecked"})
-    public List<RequestFile> getRequestFiles(RequestFileFilter filter){
-        return sqlSession().selectList(MAPPING_NAMESPACE + ".selectRequestFiles", filter);
+    public List<RequestFile> getRequestFiles(RequestFileFilter groupFilter){
+        return sqlSession().selectList(MAPPING_NAMESPACE + ".selectRequestFiles", groupFilter);
     }
 
     @Transactional
-    public int size(RequestFileFilter filter){
-        return (Integer) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectRequestFilesCount", filter);
+    public int size(RequestFileFilter groupFilter){
+        return (Integer) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectRequestFilesCount", groupFilter);
     }
 
     @Transactional
@@ -80,14 +79,6 @@ public class RequestFileBean extends AbstractBean {
         return false;
     }
 
-    public void cancelLoading(){
-        sqlSession().update(MAPPING_NAMESPACE + ".cancelLoading");
-    }
-    
-     public void cancelSaving() {
-        sqlSession().update(MAPPING_NAMESPACE + ".cancelSaving");
-    }
-
     @Transactional
     @SuppressWarnings({"unchecked"})
     public void deleteTarif(Long organizationId){
@@ -96,21 +87,4 @@ public class RequestFileBean extends AbstractBean {
             delete(tarif);
         }
     }
-
-    public void updateStatus(final Long id, final RequestFile.STATUS status){
-        sqlSession().update(MAPPING_NAMESPACE + ".updateStatus", new HashMap<String, Object>(){{
-            put("id", id);
-            put("status", status);
-            put("detail", null);            
-        }});
-    }
-
-    public void updateStatus(final Long id, final RequestFile.STATUS status, final RequestFile.STATUS_DETAIL detail){
-        sqlSession().update(MAPPING_NAMESPACE + ".updateStatus", new HashMap<String, Object>(){{
-            put("id", id);
-            put("status", status);
-            put("detail", detail);
-        }});
-    }
-
 }

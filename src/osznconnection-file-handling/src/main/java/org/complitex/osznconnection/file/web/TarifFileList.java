@@ -1,8 +1,5 @@
 package org.complitex.osznconnection.file.web;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import java.io.File;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ResourceReference;
@@ -34,23 +31,23 @@ import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.TemplatePage;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.entity.RequestFileFilter;
-import org.complitex.osznconnection.file.service.*;
+import org.complitex.osznconnection.file.service.RequestFileBean;
+import org.complitex.osznconnection.file.service.process.ProcessManagerBean;
 import org.complitex.osznconnection.file.web.pages.benefit.BenefitList;
 import org.complitex.osznconnection.file.web.pages.payment.PaymentList;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 import org.complitex.osznconnection.web.resource.WebCommonResourceInitializer;
 
 import javax.ejb.EJB;
+import java.io.File;
 import java.util.*;
-
-import static org.complitex.osznconnection.file.entity.RequestFile.STATUS.LOAD_ERROR;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 25.08.2010 13:35:35
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)
-public class RequestFileList extends TemplatePage {
+public class TarifFileList extends TemplatePage {
 
     private final static String IMAGE_AJAX_LOADER = "images/ajax-loader2.gif";
 
@@ -60,22 +57,21 @@ public class RequestFileList extends TemplatePage {
     @EJB(name = "OrganizationStrategy")
     private OrganizationStrategy organizationStrategy;
 
-    @EJB(name = "LoadRequestBean")
-    private LoadRequestBean loadRequestBean;
-
-    @EJB(name = "SaveRequestBean")
-    private SaveRequestBean saveRequestBean;
+    @EJB(name = "ProcessManagerBean")
+    private ProcessManagerBean processManagerBean;
 
     private int waitForStopTimer;
 
+    private boolean completedDisplayed = true;
+
     private final static String ITEM_ID_PREFIX = "item";
 
-    public RequestFileList(PageParameters parameters) {
+    public TarifFileList(PageParameters parameters) {
         super();
         init(parameters.getAsLong("request_file_id"));
     }
 
-    public RequestFileList() {
+    public TarifFileList() {
         super();
         init(null);
     }
@@ -93,6 +89,8 @@ public class RequestFileList extends TemplatePage {
         RequestFileFilter filterObject = (RequestFileFilter) getFilterObject(null);
         if (filterObject == null) {
             filterObject = new RequestFileFilter();
+            filterObject.setType(RequestFile.TYPE.TARIF);
+
             setFilterObject(filterObject);
         }
 
@@ -110,10 +108,11 @@ public class RequestFileList extends TemplatePage {
             public void onClick() {
                 filterForm.clearInput();
 
-                RequestFileFilter filterObject = new RequestFileFilter();
+                RequestFileFilter groupFilterObject = new RequestFileFilter();
+                groupFilterObject.setType(RequestFile.TYPE.TARIF);
 
-                setFilterObject(filterObject);
-                filterModel.setObject(filterObject);
+                setFilterObject(groupFilterObject);
+                filterModel.setObject(groupFilterObject);
             }
         };
         filterForm.add(filter_reset);
@@ -157,22 +156,6 @@ public class RequestFileList extends TemplatePage {
         //Связано записей
         filterForm.add(new TextField<Integer>("bindedRecordCount", new Model<Integer>(), Integer.class));
 
-        //Статус
-        filterForm.add(new DropDownChoice<RequestFile.STATUS>("status",
-                Arrays.asList(RequestFile.STATUS.values()),
-                new IChoiceRenderer<RequestFile.STATUS>() {
-
-                    @Override
-                    public Object getDisplayValue(RequestFile.STATUS object) {
-                        return getStringOrKey(object.name());
-                    }
-
-                    @Override
-                    public String getIdValue(RequestFile.STATUS object, int index) {
-                        return object.name();
-                    }
-                }));
-
         //Модель выбранных элементов списка
         final Map<RequestFile, IModel<Boolean>> selectModels = new HashMap<RequestFile, IModel<Boolean>>();
 
@@ -188,7 +171,7 @@ public class RequestFileList extends TemplatePage {
                 setSortOrder(getSort().isAscending());
                 setSortProperty(getSort().getProperty());
 
-                //prepare filter object
+                //prepare groupFilter object
                 filter.setFirst(first);
                 filter.setCount(count);
                 filter.setSortProperty(getSort().getProperty());
@@ -232,12 +215,12 @@ public class RequestFileList extends TemplatePage {
                 item.setMarkupId(ITEM_ID_PREFIX + rf.getId());
 
                 CheckBox checkBox = new CheckBox("selected", selectModels.get(rf));
-                checkBox.setVisible(!rf.isProcessing());
+                checkBox.setVisible(!isLoading(rf));
                 checkBox.setEnabled(!isProcessing());
                 item.add(checkBox);
 
                 Image processing = new Image("processing", new ResourceReference(IMAGE_AJAX_LOADER));
-                processing.setVisible(rf.isProcessing());
+                processing.setVisible(isLoading(rf));
                 item.add(processing);
 
                 item.add(new Label("id", StringUtil.valueOf(rf.getId())));
@@ -255,7 +238,17 @@ public class RequestFileList extends TemplatePage {
                 item.add(new Label("loaded_record_count", StringUtil.valueOf(rf.getLoadedRecordCount(), rf.getDbfRecordCount())));
                 item.add(new Label("binded_record_count", StringUtil.valueOf(rf.getBindedRecordCount(), rf.getDbfRecordCount())));
 
-                item.add(new Label("status", getStringOrKey(rf.getStatus() != LOAD_ERROR ? rf.getStatus() : rf.getStatusDetail())));
+                String status = "";
+
+                if (isLoaded(rf)){
+                    status = getStringOrKey("status.loaded");
+                }else if (isLoading(rf)){
+                    status = getStringOrKey("status.loading");
+                }else if (isLoadError(rf)){
+                    status = getStringOrKey("status.load_error");
+                }
+
+                item.add(new Label("status", status));
 
                 Class<? extends Page> page = null;
                 if (rf.isPayment()) {
@@ -277,6 +270,7 @@ public class RequestFileList extends TemplatePage {
         showMessages();
 
         if (isProcessing()) {
+            completedDisplayed = false;
             dataViewContainer.add(newTimer(filterForm, messages));
         }
 
@@ -315,193 +309,58 @@ public class RequestFileList extends TemplatePage {
             }
         };
         filterForm.add(delete);
-
-        //Связать
-        Button bind = new Button("bind") {
-
-            @Override
-            public void onSubmit() {
-                List<RequestFile> requestFiles = new ArrayList<RequestFile>();
-
-                for (RequestFile requestFile : selectModels.keySet()) {
-                    if (selectModels.get(requestFile).getObject()) {
-                        requestFiles.add(requestFile);
-                        if (requestFile.getStatus() == RequestFile.STATUS.BINDED) {
-                            warn(getStringFormat("has_been_bound", requestFile.getName(), requestFile.getDirectory(), File.separator));
-                        }
-                    }
-                }
-
-                FileExecutorService.get().bind(requestFiles);
-                selectModels.clear();
-                addTimer(dataViewContainer, filterForm, messages);
-            }
-
-            @Override
-            public boolean isVisible() {
-                return !isProcessing();
-            }
-        };
-        filterForm.add(bind);
-
-        //Process
-        Button process = new Button("process") {
-
-            @Override
-            public void onSubmit() {
-                List<RequestFile> requestFiles = new ArrayList<RequestFile>();
-
-                for (RequestFile requestFile : selectModels.keySet()) {
-                    if (selectModels.get(requestFile).getObject()) {
-                        requestFiles.add(requestFile);
-                        if (requestFile.getStatus() == RequestFile.STATUS.PROCESSED) {
-                            warn(getStringFormat("has_been_processed", requestFile.getName(), requestFile.getDirectory(), File.separator));
-                        }
-                    }
-                }
-
-                FileExecutorService.get().process(requestFiles);
-                selectModels.clear();
-                addTimer(dataViewContainer, filterForm, messages);
-            }
-
-            @Override
-            public boolean isVisible() {
-                return !isProcessing();
-            }
-        };
-        filterForm.add(process);
-
-        //Выгрузить
-        Button save = new Button("save") {
-
-            @Override
-            public void onSubmit() {
-                List<RequestFile> requestFiles = new ArrayList<RequestFile>();
-
-                for (RequestFile requestFile : selectModels.keySet()) {
-                    if (selectModels.get(requestFile).getObject() && (requestFile.isBenefit() || requestFile.isPayment())) {
-                        requestFiles.add(requestFile);
-                    }
-                }
-
-                info(getString("info.start_saving"));
-
-                saveRequestBean.save(requestFiles);
-
-                selectModels.clear();
-                addTimer(dataViewContainer, filterForm, messages);
-            }
-
-            @Override
-            public boolean isVisible() {
-                return !isProcessing();
-            }
-        };
-        filterForm.add(save);
     }
 
     private boolean isProcessing() {
-        return loadRequestBean.isProcessing()
-                || FileExecutorService.get().isBinding()
-                || FileExecutorService.get().isProcessing()
-                || saveRequestBean.isProcessing();
+        return processManagerBean.isProcessing();
+    }
+
+    private boolean isLoading(RequestFile requestFile){
+        return processManagerBean.isProcessing()
+                && ProcessManagerBean.PROCESS.LOAD.equals(processManagerBean.getProcess())
+                && requestFile.getLoadedRecordCount() < requestFile.getDbfRecordCount();
+    }
+
+    private boolean isLoaded(RequestFile requestFile){
+        return requestFile.getLoadedRecordCount().equals(requestFile.getDbfRecordCount())
+                && requestFile.getDbfRecordCount() != 0;
+    }
+
+    private boolean isLoadError(RequestFile requestFile){
+        return !processManagerBean.isProcessing() && !isLoaded(requestFile);
     }
 
     private void showMessages() {
-        if (loadRequestBean.isError(true)) {
-            error(getString("error.load.process"));
-        }
 
         showMessages(null);
     }
 
     private void showMessages(AjaxRequestTarget target) {
-        //Load
-        for (RequestFile rf : loadRequestBean.getProcessed(true)) {
-            switch (rf.getStatus()) {
-                case LOADED:
-                    highlightProcessed(target, rf);
-                    info(getStringFormat("info.loaded", rf.getType().ordinal(), rf.getName(), rf.getDirectory(), File.separator));
-                    break;
-                case SKIPPED:                    
-                    info(getStringFormat("info.already_loaded", rf.getType().ordinal(), rf.getName(), rf.getDirectory(), File.separator, rf.getYear()));
-                    break;
-                case LOAD_ERROR:
-                    highlightError(target, rf);
-                    error(getStringOrKey(rf.getStatus())
-                            + " " + getStringFormat("error.load.common", rf.getType().ordinal(), rf.getName(), rf.getDirectory(), File.separator)
-                            + ": " + getStringOrKey(rf.getStatusDetail()));
+        for (RequestFile rf : processManagerBean.getProcessedTarifFiles(TarifFileList.class)){
 
-                    break;
+            if (rf.getLoadedRecordCount().equals(rf.getDbfRecordCount()) && rf.getDbfRecordCount() != 0){
+                info(getStringFormat("tarif.loaded", rf.getDirectory(), File.separator, rf.getName()));
+                highlightProcessed(target, rf);
+            }else {
+                error(getStringFormat("tarif.load_error", rf.getDirectory(), File.separator, rf.getName()));
+                highlightError(target, rf);
             }
         }
 
-        //Load Error
-        if (loadRequestBean.isError(true)) {
-            error(getString("error.load.process"));
+        //Process completed
+        if (processManagerBean.isCompleted() && !completedDisplayed) {
+            info(getStringFormat("process.done", processManagerBean.getSuccessCount(),
+                    processManagerBean.getSkippedCount(), processManagerBean.getErrorCount()));
+
+            completedDisplayed = true;
         }
 
-        //Load completed
-        if (loadRequestBean.isCompleted(true)) {
-            info(getStringFormat("info.load_completed", loadRequestBean.getProcessedCount(),
-                    loadRequestBean.getSkippedCount(), loadRequestBean.getErrorCount()));
-        }
+        //Process error
+        if (processManagerBean.isCriticalError() && !completedDisplayed) {
+            error(getStringFormat("process.critical_error", processManagerBean.getSuccessCount(),
+                    processManagerBean.getSkippedCount(), processManagerBean.getErrorCount()));
 
-        //Save
-        for (RequestFile rf : saveRequestBean.getProcessed(true)) {
-            switch (rf.getStatus()) {
-                case SAVED:
-                    highlightProcessed(target, rf);
-                    info(getStringFormat("info.saved", rf.getType().ordinal(), rf.getName(), rf.getDirectory(), File.separator));
-                    break;
-                case SAVE_ERROR:
-                    highlightError(target, rf);
-                    error(getStringFormat("error.save.common", rf.getType().ordinal(), rf.getName(), rf.getDirectory(), File.separator));
-                    break;
-            }
-        }
-
-        //Save Error
-        if (saveRequestBean.isError(true)) {
-            error(getString("error.save.process"));
-        }
-
-        //Save completed
-        if (saveRequestBean.isCompleted(true)) {
-            info(getStringFormat("info.save_completed", saveRequestBean.getProcessedCount(), saveRequestBean.getErrorCount()));
-        }
-
-        //show messages for binding operation
-        for (RequestFile bindingFile : FileExecutorService.get().getInBinding(true)) {
-            switch (bindingFile.getStatus()) {
-                case BINDED: {
-                    highlightProcessed(target, bindingFile);
-                    info(getStringFormat("bound.success", bindingFile.getName(), bindingFile.getDirectory(), File.separator));
-                    break;
-                }
-                case BOUND_WITH_ERRORS: {
-                    highlightError(target, bindingFile);
-                    error(getStringFormat("bound.error", bindingFile.getName(), bindingFile.getDirectory(), File.separator));
-                    break;
-                }
-            }
-        }
-
-        //show messages for process operation
-        for (RequestFile processingFile : FileExecutorService.get().getInProcessing(true)) {
-            switch (processingFile.getStatus()) {
-                case PROCESSED: {
-                    highlightProcessed(target, processingFile);
-                    info(getStringFormat("processed.success", processingFile.getName(), processingFile.getDirectory(), File.separator));
-                    break;
-                }
-                case PROCESSED_WITH_ERRORS: {
-                    highlightError(target, processingFile);
-                    error(getStringFormat("processed.error", processingFile.getName(), processingFile.getDirectory(), File.separator));
-                    break;
-                }
-            }
+            completedDisplayed = true;
         }
     }
 
@@ -518,24 +377,6 @@ public class RequestFileList extends TemplatePage {
             target.appendJavascript("$('#" + ITEM_ID_PREFIX + requestFile.getId() + "')"
                     + ".animate({ backgroundColor: 'darksalmon' }, 300)"
                     + ".animate({ backgroundColor: '#E0E4E9' }, 700)");
-        }
-    }
-
-    private void addTimer(WebMarkupContainer dataViewContainer, Form<?> filterForm, AjaxFeedbackPanel messages) {
-        boolean needCreateNewTimer = true;
-
-        List<AjaxSelfUpdatingTimerBehavior> timers = null;
-        timers = Lists.newArrayList(Iterables.filter(dataViewContainer.getBehaviors(), AjaxSelfUpdatingTimerBehavior.class));
-        if (timers != null && !timers.isEmpty()) {
-            for (AjaxSelfUpdatingTimerBehavior timer : timers) {
-                if (!timer.isStopped()) {
-                    needCreateNewTimer = false;
-                    break;
-                }
-            }
-        }
-        if (needCreateNewTimer) {
-            dataViewContainer.add(newTimer(filterForm, messages));
         }
     }
 

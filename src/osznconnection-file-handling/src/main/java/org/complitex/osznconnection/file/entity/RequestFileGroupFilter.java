@@ -7,10 +7,9 @@ import java.util.Date;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
- *         Date: 03.11.2010 13:26:00
- *
+ *         Date: 03.11.10 13:24
  */
-public class RequestFileFilter extends AbstractFilter{
+public class RequestFileGroupFilter  extends AbstractFilter {
     private Long id;
     private Long groupId;
     private Date loaded;
@@ -24,10 +23,9 @@ public class RequestFileFilter extends AbstractFilter{
     private Integer dbfRecordCount;
     private Integer loadedRecordCount;
     private Integer bindedRecordCount;
-    private Long length;
-    private String checkSum;
     private DomainObject organization;
     private RequestFile.TYPE type;
+    private RequestFileGroup.STATUS status;
 
     public Long getId() {
         return id;
@@ -133,22 +131,6 @@ public class RequestFileFilter extends AbstractFilter{
         this.bindedRecordCount = bindedRecordCount;
     }
 
-    public Long getLength() {
-        return length;
-    }
-
-    public void setLength(Long length) {
-        this.length = length;
-    }
-
-    public String getCheckSum() {
-        return checkSum;
-    }
-
-    public void setCheckSum(String checkSum) {
-        this.checkSum = checkSum;
-    }
-
     public DomainObject getOrganization() {
         return organization;
     }
@@ -163,5 +145,13 @@ public class RequestFileFilter extends AbstractFilter{
 
     public void setType(RequestFile.TYPE type) {
         this.type = type;
+    }
+
+    public RequestFileGroup.STATUS getStatus() {
+        return status;
+    }
+
+    public void setStatus(RequestFileGroup.STATUS status) {
+        this.status = status;
     }
 }

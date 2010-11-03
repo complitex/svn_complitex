@@ -15,13 +15,10 @@ import org.complitex.dictionaryfw.web.component.YearDropDownChoice;
 import org.complitex.osznconnection.commons.web.pages.welcome.WelcomePage;
 import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.FormTemplatePage;
-import org.complitex.osznconnection.file.entity.RequestFile;
-import org.complitex.osznconnection.file.service.LoadRequestBean;
+import org.complitex.osznconnection.file.service.process.ProcessManagerBean;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 
 import javax.ejb.EJB;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -30,8 +27,8 @@ import java.util.List;
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)
 public class RequestFileLoad extends FormTemplatePage {
 
-    @EJB(name = "LoadRequestBean")
-    private LoadRequestBean loadRequestBean;
+    @EJB(name = "ProcessManagerBean")
+    private ProcessManagerBean processManagerBean;
 
     @EJB(name = "OrganizationStrategy")
     private OrganizationStrategy organizationStrategy;
@@ -92,16 +89,16 @@ public class RequestFileLoad extends FormTemplatePage {
                     return;
                 }
 
-                if (!loadRequestBean.isProcessing()) {
+                if (!processManagerBean.isProcessing()) {
                     DomainObject oszn = organizationModel.getObject();
-                    loadRequestBean.load(oszn.getId(), organizationStrategy.getDistrictCode(oszn), f, t,
+                    processManagerBean.loadGroup(oszn.getId(), organizationStrategy.getDistrictCode(oszn), f, t,
                             year.getModelObject());
                     getSession().info(getString("info.start_loading"));
                 } else {
                     getSession().error(getString("error.loading_in_progress"));
                 }
 
-                setResponsePage(RequestFileGroupList.class);
+                setResponsePage(GroupList.class);
             }
         };
         form.add(load);
@@ -119,16 +116,16 @@ public class RequestFileLoad extends FormTemplatePage {
                     return;
                 }
 
-                if (!loadRequestBean.isProcessing()) {
+                if (!processManagerBean.isProcessing()) {
                     DomainObject oszn = organizationModel.getObject();
-                    loadRequestBean.loadTarif(oszn.getId(), organizationStrategy.getDistrictCode(oszn), f, t,
+                    processManagerBean.loadTarif(oszn.getId(), organizationStrategy.getDistrictCode(oszn), f, t,
                             year.getModelObject());
-                    getSession().info(getString("info.start_loading"));
+                    getSession().info(getString("info.tarif_start_loading"));
                 } else {
                     getSession().error(getString("error.loading_in_progress"));
                 }
 
-                setResponsePage(RequestFileList.class);
+                setResponsePage(TarifFileList.class);
             }
         };
         form.add(loadTarif);

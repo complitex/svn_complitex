@@ -21,7 +21,10 @@ public final class EnumCodeManager {
         throw new IllegalArgumentException("For code " + code + " don't exist status value.");
     }
 
+    @SuppressWarnings({"unchecked"})
     private static Class<? extends IEnumCode>[] getSupportedEnums() {
-        return new Class[]{RequestStatus.class, RequestFile.STATUS.class, RequestFile.STATUS_DETAIL.class};
+        return new Class[]{
+                RequestStatus.class,
+                RequestFileGroup.STATUS.class};
     }
 }

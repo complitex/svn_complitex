@@ -20,11 +20,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @Singleton(name = "ExecutorBean")
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
-public class ExecutorBean <T extends ILoggable> {
+public class ExecutorBean {
     private static final Logger log = LoggerFactory.getLogger(ExecutorBean.class);
 
     @EJB(beanName = "AsyncTaskBean")
-    private AsyncTaskBean<T> asyncTaskBean;
+    private AsyncTaskBean asyncTaskBean;
 
     public static enum STATUS {
         NEW, RUNNING, COMPLETED, CRITICAL_ERROR
@@ -36,12 +36,16 @@ public class ExecutorBean <T extends ILoggable> {
     protected int skippedCount = 0;
     protected int errorCount = 0;
 
-    protected List<T> processed = new CopyOnWriteArrayList<T>();
+    protected List<ILoggable> processed = new CopyOnWriteArrayList<ILoggable>();
 
     private AtomicInteger runningThread = new AtomicInteger(0);
 
     public STATUS getStatus() {
         return status;
+    }
+
+    public void setStatus(STATUS status) {
+        this.status = status;
     }
 
     public int getSuccessCount() {
@@ -56,11 +60,11 @@ public class ExecutorBean <T extends ILoggable> {
         return errorCount;
     }
 
-    public List<T> getProcessed() {
+    public List<ILoggable> getProcessed() {
         return processed;
     }
 
-    private void executeNext(final Queue<T> queue, final ITaskBean<T> task, final int maxErrors){
+    private <T extends ILoggable> void executeNext(final Queue<T> queue, final ITaskBean<T> task, final int maxErrors){
         T object = queue.poll();
 
         //Все задачи выполнены
@@ -91,6 +95,11 @@ public class ExecutorBean <T extends ILoggable> {
 
             @Override
             public void done(T object, STATUS status) {
+                boolean next = true;
+
+                processed.add(object);
+                runningThread.decrementAndGet();
+
                 switch (status){
                     case SUCCESS:
                         successCount++;
@@ -102,21 +111,21 @@ public class ExecutorBean <T extends ILoggable> {
                         errorCount++;
                         break;
                     case CRITICAL_ERROR:
-                        errorCount++;
+                        setStatus(ExecutorBean.STATUS.CRITICAL_ERROR);
+                        next = false;
                         break;
                 }
 
-                processed.add(object);
-                runningThread.decrementAndGet();
-
-                executeNext(queue, task, maxErrors);
+                if (next) {
+                    executeNext(queue, task, maxErrors);
+                }
             }
         });
 
         log.debug("Обработка объекта {}", object);
     }
 
-    public void execute(List<T> objects, final ITaskBean<T> task, int maxThread, final int maxErrors){
+    public <T extends ILoggable> void execute(List<T> objects, final ITaskBean<T> task, int maxThread, final int maxErrors){
         if (status.equals(STATUS.RUNNING)){
             throw new IllegalStateException();
         }

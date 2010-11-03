@@ -17,7 +17,6 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.util.string.Strings;
-import org.complitex.dictionaryfw.web.DictionaryFwSession;
 import org.complitex.osznconnection.commons.web.component.LocalePicker;
 import org.complitex.osznconnection.commons.web.component.toolbar.HelpButton;
 import org.complitex.osznconnection.commons.web.component.toolbar.ToolbarButton;

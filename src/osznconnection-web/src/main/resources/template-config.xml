@@ -4,7 +4,7 @@
           xsi:schemaLocation="http://www.complitex.org/web/template http://www.complitex.org/web/template/complitex-template.xsd">
     <sidebar>
         <menu class="org.complitex.osznconnection.admin.web.AdminTemplateMenu"/>
-        <menu class="org.complitex.osznconnection.file.web.FileHandlingTemplateMenu"/>
+        <menu class="org.complitex.osznconnection.file.web.FileHandlingMenu"/>
         <menu class="org.complitex.osznconnection.information.web.InformationTemplateMenu"/>
         <menu class="org.complitex.osznconnection.file.web.pages.correction.CorrectionMenu"/>
         <menu class="org.complitex.osznconnection.organization.web.OrganizationTemplateMenu"/>

@@ -1,8 +1,8 @@
 package org.complitex.osznconnection.file.entity;
 
+import org.complitex.dictionaryfw.entity.ILoggable;
 import org.complitex.dictionaryfw.service.LogChangeList;
 
-import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -11,44 +11,7 @@ import java.util.Date;
  *
  * Информация о файле запроса: имя, дата загрузки, организация, дата, количество записей, размер файла, статус.
  */
-public class RequestFile implements Serializable {
-    @Deprecated
-    public static enum STATUS implements IEnumCode { //внимание! используется порядок по ordinal
-        NEW(1), SKIPPED(2),
-        LOADING(3), LOAD_ERROR(4), LOADED(5),
-        BINDING(6), BOUND_WITH_ERRORS(7), BINDED(8),
-        SAVING(9), SAVE_ERROR(10), SAVED(11),
-        PROCESSING(12), PROCESSED_WITH_ERRORS(13), PROCESSED(14);
-
-        private int code;
-
-        private STATUS(int code) {
-            this.code = code;
-        }
-
-        @Override
-        public int getCode() {
-            return code;
-        }
-    }
-
-    @Deprecated
-    public static enum STATUS_DETAIL implements IEnumCode {
-        FIELD_NOT_FOUND(100), FIELD_WRONG_TYPE(101), FIELD_WRONG_SIZE(102), ALREADY_LOADED(103), CANCEL_LOADING(104), SQL_SESSION(105), DBF(106),
-        CRITICAL(107), CANCEL_SAVING(108), LINKED_FILE_NOT_FOUND(109);
-
-        private int code;
-
-        private STATUS_DETAIL(int code) {
-            this.code = code;
-        }
-
-        @Override
-        public int getCode() {
-            return code;
-        }
-    }
-
+public class RequestFile implements ILoggable {
     public static enum TYPE {
         BENEFIT, PAYMENT, TARIF
     }
@@ -70,8 +33,6 @@ public class RequestFile implements Serializable {
     private Long length;
     private String checkSum;
     private TYPE type;
-    private STATUS status = STATUS.NEW;
-    private STATUS_DETAIL statusDetail;
 
     private Integer loadedRecordCount = 0;
     private Integer bindedRecordCount = 0;
@@ -97,16 +58,9 @@ public class RequestFile implements Serializable {
         }
     }
 
-    public boolean isProcessing() {
-        return status.equals(STATUS.LOADING)
-                || status.equals(STATUS.BINDING)
-                || status.equals(STATUS.PROCESSING)
-                || status.equals(STATUS.SAVING);
-    }
-
-    public void setStatus(STATUS status, STATUS_DETAIL statusDetail) {
-        this.status = status;
-        this.statusDetail = statusDetail;
+    @Override
+    public String getLogObjectName() {
+        return name;
     }
 
     public LogChangeList getLogChangeList(){
@@ -223,29 +177,12 @@ public class RequestFile implements Serializable {
         this.checkSum = checkSum;
     }
 
-    @Deprecated
-    public STATUS getStatus() {
-        return status;
-    }
-
-    public void setStatus(STATUS status) {
-        this.status = status;
-    }
-
     public TYPE getType() {
         return type;
     }
 
     public void setType(TYPE type) {
         this.type = type;
-    }
-
-    public STATUS_DETAIL getStatusDetail() {
-        return statusDetail;
-    }
-
-    public void setStatusDetail(STATUS_DETAIL statusDetail) {
-        this.statusDetail = statusDetail;
     }
 
     public Integer getLoadedRecordCount() {
