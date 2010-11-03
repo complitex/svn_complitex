@@ -30,9 +30,8 @@ import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
 import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.TemplatePage;
 import org.complitex.osznconnection.file.entity.RequestFile;
-import org.complitex.osznconnection.file.entity.RequestFileFilter;
 import org.complitex.osznconnection.file.entity.RequestFileGroup;
-import org.complitex.osznconnection.file.service.FileExecutorService;
+import org.complitex.osznconnection.file.entity.RequestFileGroupFilter;
 import org.complitex.osznconnection.file.service.RequestFileGroupBean;
 import org.complitex.osznconnection.file.service.process.ProcessManagerBean;
 import org.complitex.osznconnection.file.web.pages.benefit.BenefitList;
@@ -64,7 +63,7 @@ public class GroupList extends TemplatePage {
 
     private int waitForStopTimer;
     private int timerIndex = 0;
-    private boolean completedDisplayed = false;
+    private boolean completedDisplayed;
 
     private final static String ITEM_GROUP_ID_PREFIX = "item";
 
@@ -88,18 +87,18 @@ public class GroupList extends TemplatePage {
         add(messages);
 
         //Фильтр модель
-        RequestFileFilter filterObject = (RequestFileFilter) getFilterObject(null);
-        if (filterObject == null){
-            filterObject = new RequestFileFilter();
-            setFilterObject(filterObject);
+        RequestFileGroupFilter groupFilterObject = (RequestFileGroupFilter) getFilterObject(null);
+        if (groupFilterObject == null){
+            groupFilterObject = new RequestFileGroupFilter();
+            setFilterObject(groupFilterObject);
         }
 
-        filterObject.setId(requestFileId);
+        groupFilterObject.setId(requestFileId);
 
-        final IModel<RequestFileFilter> filterModel = new CompoundPropertyModel<RequestFileFilter>(filterObject);
+        final IModel<RequestFileGroupFilter> filterModel = new CompoundPropertyModel<RequestFileGroupFilter>(groupFilterObject);
 
         //Фильтр форма
-        final Form<RequestFileFilter> filterForm = new Form<RequestFileFilter>("filter_form", filterModel);
+        final Form<RequestFileGroupFilter> filterForm = new Form<RequestFileGroupFilter>("filter_form", filterModel);
         add(filterForm);
 
         Link filter_reset = new Link("filter_reset") {
@@ -108,10 +107,10 @@ public class GroupList extends TemplatePage {
             public void onClick() {
                 filterForm.clearInput();
 
-                RequestFileFilter filterObject = new RequestFileFilter();
+                RequestFileGroupFilter groupFilterObject = new RequestFileGroupFilter();
 
-                setFilterObject(filterObject);
-                filterModel.setObject(filterObject);
+                setFilterObject(groupFilterObject);
+                filterModel.setObject(groupFilterObject);
             }
         };
         filterForm.add(filter_reset);
@@ -162,17 +161,17 @@ public class GroupList extends TemplatePage {
         filterForm.add(new TextField<Integer>("filledRecordCount", new Model<Integer>(), Integer.class));
 
         //Статус
-        filterForm.add(new DropDownChoice<RequestFile.STATUS>("status",
-                Arrays.asList(RequestFile.STATUS.values()),
-                new IChoiceRenderer<RequestFile.STATUS>() {
+        filterForm.add(new DropDownChoice<RequestFileGroup.STATUS>("status",
+                Arrays.asList(RequestFileGroup.STATUS.values()),
+                new IChoiceRenderer<RequestFileGroup.STATUS>() {
 
                     @Override
-                    public Object getDisplayValue(RequestFile.STATUS object) {
+                    public Object getDisplayValue(RequestFileGroup.STATUS object) {
                         return getStringOrKey(object.name());
                     }
 
                     @Override
-                    public String getIdValue(RequestFile.STATUS object, int index) {
+                    public String getIdValue(RequestFileGroup.STATUS object, int index) {
                         return object.name();
                     }
                 }));
@@ -185,20 +184,20 @@ public class GroupList extends TemplatePage {
 
             @Override
             public Iterator<? extends RequestFileGroup> iterator(int first, int count) {
-                RequestFileFilter filter = filterModel.getObject();
+                RequestFileGroupFilter groupFilter = filterModel.getObject();
 
                 //save preferences to session
-                setFilterObject(filter);
+                setFilterObject(groupFilter);
                 setSortOrder(getSort().isAscending());
                 setSortProperty(getSort().getProperty());
 
-                //prepare filter object
-                filter.setFirst(first);
-                filter.setCount(count);
-                filter.setSortProperty(getSort().getProperty());
-                filter.setAscending(getSort().isAscending());
+                //prepare groupFilter object
+                groupFilter.setFirst(first);
+                groupFilter.setCount(count);
+                groupFilter.setSortProperty(getSort().getProperty());
+                groupFilter.setAscending(getSort().isAscending());
 
-                List<RequestFileGroup> requestFileGroups = requestFileGroupBean.getRequestFileGroups(filter);
+                List<RequestFileGroup> requestFileGroups = requestFileGroupBean.getRequestFileGroups(groupFilter);
 
                 selectModels.clear();
                 for (RequestFileGroup rfg : requestFileGroups) {
@@ -230,80 +229,74 @@ public class GroupList extends TemplatePage {
 
             @Override
             protected void populateItem(Item<RequestFileGroup> item) {
-                RequestFileGroup rfg = item.getModelObject();
+                RequestFileGroup group = item.getModelObject();
 
                 item.setOutputMarkupId(true);
-                item.setMarkupId(ITEM_GROUP_ID_PREFIX + rfg.getId());
+                item.setMarkupId(ITEM_GROUP_ID_PREFIX + group.getId());
 
                 //checkbox
-                CheckBox checkBox = new CheckBox("selected", selectModels.get(rfg));
-                checkBox.setVisible(!rfg.isProcessing());
+                CheckBox checkBox = new CheckBox("selected", selectModels.get(group));
+                checkBox.setVisible(!group.isProcessing());
                 checkBox.setEnabled(!isProcessing());
                 item.add(checkBox);
 
                 //processing image
                 Image processing = new Image("processing", new ResourceReference(IMAGE_AJAX_LOADER));
-                processing.setVisible(rfg.isProcessing());
+                processing.setVisible(group.isProcessing());
                 item.add(processing);
 
                 //id
-                item.add(new Label("id", StringUtil.valueOf(rfg.getId())));
+                item.add(new Label("id", StringUtil.valueOf(group.getId())));
 
                 //loaded date
-                item.add(DateLabel.forDatePattern("loaded", new Model<Date>(rfg.getLoaded()),
-                        DateUtil.isCurrentDay(rfg.getLoaded()) ? "HH:mm:ss" : "dd.MM.yy HH:mm:ss"));
+                item.add(DateLabel.forDatePattern("loaded", new Model<Date>(group.getLoaded()),
+                        DateUtil.isCurrentDay(group.getLoaded()) ? "HH:mm:ss" : "dd.MM.yy HH:mm:ss"));
 
                 //organization
-                DomainObject domainObject = organizationStrategy.findById(rfg.getOrganizationId());
+                DomainObject domainObject = organizationStrategy.findById(group.getOrganizationId());
                 String organization = domainObject != null
                         ? organizationStrategy.displayDomainObject(domainObject, getLocale())
                         : "—";
                 item.add(new Label("organization", organization));
 
                 //registry, month, year
-                item.add(new Label("registry", StringUtil.valueOf(rfg.getRegistry())));
-                item.add(new Label("month", DateUtil.displayMonth(rfg.getMonth(), getLocale())));
-                item.add(new Label("year", StringUtil.valueOf(rfg.getYear())));
+                item.add(new Label("registry", StringUtil.valueOf(group.getRegistry())));
+                item.add(new Label("month", DateUtil.displayMonth(group.getMonth(), getLocale())));
+                item.add(new Label("year", StringUtil.valueOf(group.getYear())));
 
                 //payment name link
-                if (rfg.getPaymentFile() != null){
-                    item.add(new BookmarkablePageLinkPanel<RequestFile>("paymentName", rfg.getPaymentFile().getName(),
-                            PaymentList.class, new PageParameters("request_file_id=" + rfg.getPaymentFile().getId())));
+                if (group.getPaymentFile() != null){
+                    item.add(new BookmarkablePageLinkPanel<RequestFile>("paymentName", group.getPaymentFile().getName(),
+                            PaymentList.class, new PageParameters("request_file_id=" + group.getPaymentFile().getId())));
                 }else{
                     item.add(new Label("paymentName", "—"));
                 }
 
                 //benefit name link
-                if (rfg.getBenefitFile() != null){
-                    item.add(new BookmarkablePageLinkPanel<RequestFile>("benefitName", rfg.getBenefitFile().getName(),
-                            BenefitList.class, new PageParameters("request_file_id=" + rfg.getBenefitFile().getId())));
+                if (group.getBenefitFile() != null){
+                    item.add(new BookmarkablePageLinkPanel<RequestFile>("benefitName", group.getBenefitFile().getName(),
+                            BenefitList.class, new PageParameters("request_file_id=" + group.getBenefitFile().getId())));
                 }else{
                     item.add(new Label("benefitName", "—"));
                 }
 
                 //loaded, binding filled count
-                item.add(new Label("loaded_record_count", StringUtil.valueOf(rfg.getLoadedRecordCount())));
-                item.add(new Label("binded_record_count", StringUtil.valueOf(rfg.getBindedRecordCount())));
-                item.add(new Label("filled_record_count", StringUtil.valueOf(rfg.getFilledRecordCount())));
+                item.add(new Label("loaded_record_count", StringUtil.valueOf(group.getLoadedRecordCount())));
+                item.add(new Label("binded_record_count", StringUtil.valueOf(group.getBindedRecordCount())));
+                item.add(new Label("filled_record_count", StringUtil.valueOf(group.getFilledRecordCount())));
 
                 String dots = "";
-                if (rfg.isProcessing()){
+                if (group.isProcessing()){
                     if (processManagerBean.isProcessing()){
                         dots += StringUtil.getDots(timerIndex%7);
                     }
                 }
 
-                item.add(new Label("status", getStringOrKey(rfg.getStatus()) + dots));
+                item.add(new Label("status", getStringOrKey(group.getStatus()) + dots));
 
             }
         };
         dataViewContainer.add(dataView);
-
-        showMessages();
-
-        if (isProcessing()) {
-            dataViewContainer.add(newTimer(filterForm, messages));
-        }
 
         //Сортировка
         filterForm.add(new ArrowOrderByBorder("header.id", "id", dataProvider, dataView, filterForm));
@@ -327,17 +320,11 @@ public class GroupList extends TemplatePage {
 
             @Override
             public void onSubmit() {
-                for (RequestFileGroup requestFileGroup : selectModels.keySet()) {
-                    if (selectModels.get(requestFileGroup).getObject()) {
-                        requestFileGroupBean.delete(requestFileGroup);
-                        if (requestFileGroup.getBenefitFile() != null){
-                            info(getStringFormat("info.deleted", RequestFile.TYPE.BENEFIT.ordinal(),
-                                    requestFileGroup.getBenefitFile().getName(), requestFileGroup.getBenefitFile().getDirectory(), File.separator));
-                        }
-                        if (requestFileGroup.getPaymentFile() != null){
-                            info(getStringFormat("info.deleted", RequestFile.TYPE.PAYMENT.ordinal(),
-                                    requestFileGroup.getPaymentFile().getName(), requestFileGroup.getPaymentFile().getDirectory(), File.separator));
-                        }
+                for (RequestFileGroup group : selectModels.keySet()) {
+                    if (selectModels.get(group).getObject()) {
+                        requestFileGroupBean.delete(group);
+
+                        info(getStringFormat("group.deleted", group.getDirectory(), File.separator, group.getName()));
                     }
                 }
             }
@@ -349,28 +336,24 @@ public class GroupList extends TemplatePage {
         };
         filterForm.add(delete);
 
-       //Связать
+        //Связать
         Button bind = new Button("bind") {
 
             @Override
             public void onSubmit() {
-                List<RequestFile> requestFiles = new ArrayList<RequestFile>();
+                List<RequestFileGroup> groups = new ArrayList<RequestFileGroup>();
 
-                for (RequestFileGroup requestFileGroup : selectModels.keySet()) {
-                    if (selectModels.get(requestFileGroup).getObject()) {
-                        for (RequestFile requestFile : requestFileGroup.getRequestFiles()) {
-                            requestFiles.add(requestFile);
-                            if (requestFile.getStatus() == RequestFile.STATUS.BINDED || requestFile.getStatus() == RequestFile.STATUS.PROCESSED
-                                    || requestFile.getStatus() == RequestFile.STATUS.PROCESSED_WITH_ERRORS
-                                    || requestFile.getStatus() == RequestFile.STATUS.SAVED
-                                    || requestFile.getStatus() == RequestFile.STATUS.SAVE_ERROR) {
-                                warn(getStringFormat("has_been_bound", requestFile.getName(), requestFile.getDirectory(), File.separator));
-                            }
-                        }
+                for (RequestFileGroup g : selectModels.keySet()) {
+                    if (selectModels.get(g).getObject()) {
+                        groups.add(g);
+                        //todo add has been bound
                     }
                 }
 
-                FileExecutorService.get().bind(requestFiles);
+                completedDisplayed = false;
+
+                processManagerBean.bind(groups);
+
                 selectModels.clear();
                 addTimer(dataViewContainer, filterForm, messages);
             }
@@ -387,21 +370,20 @@ public class GroupList extends TemplatePage {
 
             @Override
             public void onSubmit() {
-                List<RequestFile> requestFiles = new ArrayList<RequestFile>();
+                List<RequestFileGroup> groups = new ArrayList<RequestFileGroup>();
 
-                for (RequestFileGroup requestFileGroup : selectModels.keySet()) {
-                    if (selectModels.get(requestFileGroup).getObject()) {
-                        for (RequestFile requestFile : requestFileGroup.getRequestFiles()) {
-                            requestFiles.add(requestFile);
-                            if (requestFile.getStatus() == RequestFile.STATUS.PROCESSED || requestFile.getStatus() == RequestFile.STATUS.SAVED
-                                    || requestFile.getStatus() == RequestFile.STATUS.SAVE_ERROR) {
-                                warn(getStringFormat("has_been_processed", requestFile.getName(), requestFile.getDirectory(), File.separator));
-                            }
-                        }
+
+                for (RequestFileGroup g : selectModels.keySet()) {
+                    if (selectModels.get(g).getObject()) {
+                        groups.add(g);
+                        //todo add has been filled
                     }
                 }
 
-                FileExecutorService.get().process(requestFiles);
+                completedDisplayed = false;
+
+                processManagerBean.fill(groups);
+
                 selectModels.clear();
                 addTimer(dataViewContainer, filterForm, messages);
             }
@@ -426,7 +408,7 @@ public class GroupList extends TemplatePage {
                     }
                 }
 
-                info(getString("info.start_saving"));
+                completedDisplayed = false;
 
                 processManagerBean.save(groups);
 
@@ -440,6 +422,15 @@ public class GroupList extends TemplatePage {
             }
         };
         filterForm.add(save);
+
+        //Отобразить сообщения
+        showMessages();
+
+        //Запуск таймера
+        if (isProcessing()) {
+            completedDisplayed = false;
+            dataViewContainer.add(newTimer(filterForm, messages));
+        }
     }
 
     private boolean isProcessing() {
@@ -451,7 +442,7 @@ public class GroupList extends TemplatePage {
     }
 
     private void showMessages(AjaxRequestTarget target) {
-        for (RequestFileGroup group : processManagerBean.getProcessed(this)){
+        for (RequestFileGroup group : processManagerBean.getProcessedGroups(GroupList.class)){
             switch (group.getStatus()){
                 case SKIPPED:
                 case LOADED:
@@ -466,7 +457,7 @@ public class GroupList extends TemplatePage {
                 case BIND_ERROR:
                 case FILL_ERROR:
                 case SAVE_ERROR:
-                    highlightProcessed(target, group);
+                    highlightError(target, group);
                     info(getStringFormat("group.process_error", group.getDirectory(), File.separator, group.getName(),
                             processManagerBean.getProcess().ordinal()));
                     break;
@@ -484,7 +475,7 @@ public class GroupList extends TemplatePage {
 
         //Process error
         if (processManagerBean.isCriticalError() && !completedDisplayed) {
-            info(getStringFormat("process.critical_error", processManagerBean.getSuccessCount(),
+            error(getStringFormat("process.critical_error", processManagerBean.getSuccessCount(),
                     processManagerBean.getSkippedCount(), processManagerBean.getErrorCount(),
                     processManagerBean.getProcess().ordinal()));
 
@@ -493,7 +484,7 @@ public class GroupList extends TemplatePage {
     }
 
     private void highlightProcessed(AjaxRequestTarget target, RequestFileGroup group){
-        if (target != null) {            
+        if (target != null) {
             target.appendJavascript("$('#" + ITEM_GROUP_ID_PREFIX + group.getId() + "')"
                     + ".animate({ backgroundColor: 'lightgreen' }, 300)"
                     + ".animate({ backgroundColor: '#E0E4E9' }, 700)");

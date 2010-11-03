@@ -14,9 +14,7 @@
         <typeHandler handler="org.complitex.osznconnection.file.mybatis.EnumCodeTypeHandler" 
                     javaType="org.complitex.osznconnection.file.entity.RequestStatus"/>
         <typeHandler handler="org.complitex.osznconnection.file.mybatis.EnumCodeTypeHandler"
-                    javaType="org.complitex.osznconnection.file.entity.RequestFile$STATUS"/>
-        <typeHandler handler="org.complitex.osznconnection.file.mybatis.EnumCodeTypeHandler"
-                    javaType="org.complitex.osznconnection.file.entity.RequestFile$STATUS_DETAIL"/>
+                    javaType="org.complitex.osznconnection.file.entity.RequestFileGroup$STATUS"/>
     </typeHandlers>
 
     <environments default="local">        

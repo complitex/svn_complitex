@@ -37,7 +37,7 @@ import org.complitex.osznconnection.file.entity.example.PaymentExample;
 import org.complitex.osznconnection.file.service.AddressService;
 import org.complitex.osznconnection.file.service.PaymentBean;
 import org.complitex.osznconnection.file.service.RequestFileBean;
-import org.complitex.osznconnection.file.web.RequestFileGroupList;
+import org.complitex.osznconnection.file.web.GroupList;
 import org.complitex.osznconnection.file.web.component.StatusRenderer;
 
 import javax.ejb.EJB;
@@ -250,7 +250,7 @@ public final class PaymentList extends TemplatePage {
 
             @Override
             public void onSubmit() {
-                setResponsePage(RequestFileGroupList.class);
+                setResponsePage(GroupList.class);
             }
         };
         back.setDefaultFormProcessing(false);

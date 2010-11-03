@@ -247,6 +247,7 @@ public class BenefitBean extends AbstractBean {
     }
 
     /**
+     * todo change parameter as Benefit object
      * очищает колонки которые заполняются во время связывания и обработки для записей benefit
      * @param fileId
      */

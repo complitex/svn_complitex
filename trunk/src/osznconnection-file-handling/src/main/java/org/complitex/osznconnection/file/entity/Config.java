@@ -13,12 +13,14 @@ public enum Config {
     FILL_THREAD_SIZE("4"),
     SAVE_THREAD_SIZE("4"),
 
+    LOAD_BATCH_SIZE("64"),
+    BIND_BATCH_SIZE("64"),
+    FILL_BATCH_SIZE("64"),
+
     LOAD_MAX_ERROR_COUNT("10"),
     BIND_MAX_ERROR_COUNT("10"),
     FILL_MAX_ERROR_COUNT("10"),
-    SAVE_MAX_ERROR_COUNT("10"),
-
-    LOAD_RECORD_BATCH_SIZE("64");
+    SAVE_MAX_ERROR_COUNT("10");
 
     private String defaultValue;
 

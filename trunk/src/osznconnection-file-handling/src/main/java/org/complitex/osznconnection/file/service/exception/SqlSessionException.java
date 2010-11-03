@@ -10,6 +10,6 @@ public class SqlSessionException extends AbstractException {
     private final static String MESSAGE_PATTERN = "Ошибка сохранения в базу данных";
 
     public SqlSessionException(Throwable cause) {
-        super(cause, MESSAGE_PATTERN);
+        super(true, cause, MESSAGE_PATTERN);
     }
 }

@@ -22,7 +22,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.complitex.dictionaryfw.entity.Log;
 import org.complitex.dictionaryfw.service.LogManager;
-import org.complitex.dictionaryfw.util.StringUtil;
 import org.complitex.dictionaryfw.web.component.DatePicker;
 import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;

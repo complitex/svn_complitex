@@ -17,11 +17,11 @@ import java.util.regex.Pattern;
  *         Date: 01.11.10 12:57
  */
 public class LoadUtil {
-    public static class LoadParameter {
+    public static class LoadGroupParameter {
         List<RequestFileGroup> requestFileGroups;
         List<RequestFile> linkError;
 
-        public LoadParameter(List<RequestFileGroup> requestFileGroups, List<RequestFile> linkError) {
+        public LoadGroupParameter(List<RequestFileGroup> requestFileGroups, List<RequestFile> linkError) {
             this.requestFileGroups = requestFileGroups;
             this.linkError = linkError;
         }
@@ -89,7 +89,7 @@ public class LoadUtil {
         return requestFile;
     }
 
-    public static LoadParameter getLoadParameter(Long organizationId, String districtCode, int monthFrom, int monthTo, int year)
+    public static LoadGroupParameter getLoadParameter(Long organizationId, String districtCode, int monthFrom, int monthTo, int year)
             throws StorageNotFoundException {
         List<File> files = getFiles(districtCode, monthFrom, monthTo);
 
@@ -136,9 +136,6 @@ public class LoadUtil {
                     }
                 }
 
-                requestFile.setStatus(RequestFile.STATUS.LOAD_ERROR);
-                requestFile.setStatusDetail(RequestFile.STATUS_DETAIL.LINKED_FILE_NOT_FOUND);
-
                 linkError.add(requestFile);
             }
         }
@@ -152,14 +149,37 @@ public class LoadUtil {
                 }else{
                     RequestFile payment = group.getPaymentFile();
 
-                    payment.setStatus(RequestFile.STATUS.LOAD_ERROR);
-                    payment.setStatusDetail(RequestFile.STATUS_DETAIL.LINKED_FILE_NOT_FOUND);
-
                     linkError.add(payment);
                 }
             }
         }
 
-        return new LoadParameter(requestFileGroups, linkError);
+        return new LoadGroupParameter(requestFileGroups, linkError);
+    }
+
+    public static List<RequestFile> getTarifs(Long organizationId, String districtCode, int monthFrom, int monthTo, int year)
+            throws StorageNotFoundException {
+        List<File> files = getFiles(districtCode, monthFrom, monthTo);
+
+        List<RequestFile> tarifs = new ArrayList<RequestFile>();
+
+        for (File file : files) {
+            if(file.getName().indexOf(RequestFile.TARIF_FILE_PREFIX) == 0){
+
+                //fill fields
+                RequestFile requestFile = new RequestFile();
+
+                requestFile.setName(file.getName());
+                requestFile.setLength(file.length());
+                requestFile.setAbsolutePath(file.getAbsolutePath());
+                requestFile.setDirectory(RequestFileStorage.getInstance().getRelativeParent(file));
+                requestFile.setOrganizationId(organizationId);
+                requestFile.setYear(year);
+                requestFile.updateTypeByName();
+
+                tarifs.add(requestFile);
+            }
+        }
+        return tarifs;
     }
 }

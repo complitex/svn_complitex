@@ -6,23 +6,22 @@ import org.complitex.dictionaryfw.service.LogBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.Asynchronous;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
+import javax.ejb.*;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 29.10.10 18:56
  */
 @Stateless(name = "AsyncTaskBean")
-public class AsyncTaskBean<T extends ILoggable> {
+@TransactionManagement(TransactionManagementType.BEAN)
+public class AsyncTaskBean {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     @EJB(beanName = "LogBean")
     protected LogBean logBean;
 
     @Asynchronous
-    public void execute(T object, ITaskBean<T> task, ITaskListener<T> listener){
+    public <T extends ILoggable> void execute(T object, ITaskBean<T> task, ITaskListener<T> listener){
         try {
             boolean completed = task.execute(object);
 
@@ -30,23 +29,41 @@ public class AsyncTaskBean<T extends ILoggable> {
 
             log.debug("Процесс {} завершен успешно.", task);
         } catch (ExecuteException e) {
-            task.onError(object);
+            try {
+                task.onError(object);
+            } catch (Exception e1) {
+                log.error("Критическая ошибка", e1);
+            }
+
             listener.done(object, ITaskListener.STATUS.ERROR);
 
             log.error(e.getMessage(), e);
             logError(object,task, e.getMessage());
         } catch (Exception e){
-            task.onError(object);
+            try {
+                task.onError(object);
+            } catch (Exception e1) {
+                log.error("Критическая ошибка", e1);
+            }
+
             listener.done(object, ITaskListener.STATUS.CRITICAL_ERROR);
 
             log.error("Критическая ошибка", e);
-            logError(object, task, "Критическая ошибка. Имя объекта: {0}. Причина: {1}", object.getLogObjectName(),
-                    e.getMessage() + ". " + (e.getCause() != null ? e.getCause().getMessage() : ""));
+            logError(object, task, "Критическая ошибка. Имя объекта: {0}. Причина: {1}",
+                    object.getLogObjectName(), getInitialCause(e));
         }
     }
 
-    private void logError(T object, ITaskBean<T> task, String decs, Object... args){
-        logBean.error(task.getModuleName(), task.getClass(), object.getClass(), null, object.getId(),
+    private String getInitialCause(Throwable t){
+        while (t.getCause() != null){
+            t = t.getCause();
+        }
+
+        return t.getMessage();
+    }
+
+    private <T extends ILoggable> void logError(T object, ITaskBean<T> task, String decs, Object... args){
+        logBean.error(task.getModuleName(), task.getControllerClass(),  object.getClass(), null, object.getId(),
                 Log.EVENT.EDIT, object.getLogChangeList(), decs, args);
     }
 }

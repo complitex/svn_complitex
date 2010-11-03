@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import java.util.List;
 
 /**
@@ -20,7 +22,7 @@ import java.util.List;
  *         Date: 01.11.10 12:57
  */
 @Stateless(name = "LoadGroupTaskBean")
-//@TransactionManagement(TransactionManagementType.BEAN)
+@TransactionManagement(TransactionManagementType.BEAN)
 public class LoadGroupTaskBean implements ITaskBean<RequestFileGroup>{
     private static final Logger log = LoggerFactory.getLogger(LoadGroupTaskBean.class);
 
@@ -105,5 +107,10 @@ public class LoadGroupTaskBean implements ITaskBean<RequestFileGroup>{
     @Override
     public String getModuleName() {
         return Module.NAME;
+    }
+
+    @Override
+    public Class getControllerClass() {
+        return LoadGroupTaskBean.class;
     }
 }
