@@ -137,10 +137,10 @@ insert into organization_attribute(attribute_id, object_id, attribute_type_id, v
 
 -- Files
 insert into request_file_group(id) values (1);
-insert into `request_file`(id, group_id, organization_id, `name`, `directory`, `registry`, `month`, `year`, `loaded`, status, `type`) values
-(1,1,1,'A_123405.dbf', 'AB', 1, 10, 2010, CURRENT_TIMESTAMP, 5, 'PAYMENT'),
-(2,1,1,'AF123405.dbf', 'CE', 1, 10, 2010, CURRENT_TIMESTAMP, 5, 'BENEFIT'),
-(3,null,1,'TARIF12.dbf', 'MO', 1, 10, 2010, CURRENT_TIMESTAMP, 5, 'TARIF');
+insert into `request_file`(id, group_id, organization_id, `name`, `directory`, `registry`, `month`, `year`, `loaded`, `type`) values
+(1,1,1,'A_123405.dbf', 'AB', 1, 10, 2010, CURRENT_TIMESTAMP, 'PAYMENT'),
+(2,1,1,'AF123405.dbf', 'CE', 1, 10, 2010, CURRENT_TIMESTAMP, 'BENEFIT'),
+(3,null,1,'TARIF12.dbf', 'MO', 1, 10, 2010, CURRENT_TIMESTAMP, 'TARIF');
 
 -- Benefit
 insert into benefit(own_num_sr, OZN, f_nam, m_nam, sur_nam, request_file_id, IND_COD, PSP_NUM)
