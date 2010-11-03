@@ -60,6 +60,19 @@ INSERT INTO `entity`(`id`, `entity_table`, `entity_name_id`, `strategy_factory`)
 INSERT INTO `string_culture`(`id`, `locale`, `value`) VALUES (301, 'ru', UPPER('Наименование улицы')), (301, 'uk', UPPER('Найменування вулиці'));
 INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (300, 300, 1, 301, 1);
 INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (300, 300, UPPER('string_culture'));
+INSERT INTO `string_culture`(`id`, `locale`, `value`) VALUES (302, 'ru', UPPER('Тип улицы')),(302, 'uk', UPPER('Тип улицы'));
+INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (301, 300, 1, 302, 1);
+INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (301, 301, 'street_type');
+
+-- --------------------------------
+-- Street Type
+-- --------------------------------
+
+INSERT INTO `string_culture`(`id`, `locale`, `value`) VALUES (1400, 'ru', 'Тип улицы'), (1400, 'uk', 'Тип улицы');
+INSERT INTO `entity`(`id`, `entity_table`, `entity_name_id`, `strategy_factory`) VALUES (1400, 'street_type', 1400, '');
+INSERT INTO `string_culture`(`id`, `locale`, `value`) VALUES (1401, 'ru', UPPER('Название')), (1401, 'uk', UPPER('Назва'));
+INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (1400, 1400, 1, 1401, 1);
+INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (1400, 1400, UPPER('string_culture'));
 
 -- --------------------------------
 -- City
@@ -84,11 +97,6 @@ INSERT INTO `entity`(`id`, `entity_table`, `entity_name_id`, `strategy_factory`)
 INSERT INTO `string_culture`(`id`, `locale`, `value`) VALUES (1301, 'ru', UPPER('Название')), (1301, 'uk', UPPER('Назва'));
 INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (1300, 1300, 1, 1301, 1);
 INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (1300, 1300, UPPER('string_culture'));
-
-INSERT INTO `city_type_string_culture`(`id`, `locale`, `value`) VALUES (1,'ru','ГОРОД'), (1,'uk','МIСТО'), (2,'ru','ДЕРЕВНЯ'), (2,'uk','СЕЛО');
-INSERT INTO `city_type` (`object_id`) VALUES (1), (2);
-INSERT INTO `city_type_attribute`(`attribute_id`, `object_id`, `attribute_type_id`, `value_id`, `value_type_id`) VALUES (1,1,1300,1,1300),
-(1,2,1300,2,1300);
 
 -- --------------------------------
 -- Building

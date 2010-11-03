@@ -14,7 +14,8 @@ import java.util.List;
  */
 public final class BookEntities {
 
-    private static final List<String> BOOK_ENTITIES = ImmutableList.of("country", "region", "city", "city_type", "district", "street", "building");
+    private static final List<String> BOOK_ENTITIES = ImmutableList.of("country", "region", "city", "city_type", "district", "street", "street_type",
+            "building");
 
     private static final List<String> BOOK_ENTITY_DESCRIPTIONS = ImmutableList.of("country", "region", "city", "district", "street", "building");
 
@@ -25,7 +26,7 @@ public final class BookEntities {
         return BOOK_ENTITIES;
     }
 
-    public static List<String> getEntityDescriptions(){
+    public static List<String> getEntityDescriptions() {
         return BOOK_ENTITY_DESCRIPTIONS;
     }
 }

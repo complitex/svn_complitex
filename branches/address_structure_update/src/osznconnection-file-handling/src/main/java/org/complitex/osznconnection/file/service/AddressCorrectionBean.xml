@@ -106,9 +106,6 @@
         <if test="internalParentId != null">
             AND e.`parent_id` = #{parentId}
         </if>
-        <if test="entityTypeId != null">
-            AND e.`entity_type_id` = #{entityTypeId}
-        </if>
         AND EXISTS(
         SELECT 1 FROM `${entity}_attribute` attr WHERE attr.`status` = 'ACTIVE' AND e.`object_id` = attr.`object_id`
         AND attr.`attribute_type_id` = #{attributeTypeId}
