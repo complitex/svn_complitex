@@ -11,20 +11,20 @@ import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
 import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
 import org.complitex.osznconnection.file.entity.*;
+import org.complitex.osznconnection.information.strategy.building.BuildingStrategy;
+import org.complitex.osznconnection.information.strategy.street.StreetStrategy;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import org.complitex.osznconnection.information.strategy.building.BuildingStrategy;
-import org.complitex.osznconnection.information.strategy.street.StreetStrategy;
 
 /**
  * Класс разрешает адрес.
  * @author Artem
  */
-@Stateless
+@Stateless(name = "AddressService")
 public class AddressService extends AbstractBean {
 
     private static final Logger log = LoggerFactory.getLogger(AddressService.class);

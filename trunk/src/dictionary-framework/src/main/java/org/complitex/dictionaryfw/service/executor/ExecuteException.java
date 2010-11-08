@@ -7,7 +7,7 @@ import org.complitex.dictionaryfw.service.AbstractException;
  *         Date: 29.10.10 18:55
  */
 public class ExecuteException extends AbstractException{
-    private boolean warn;
+    private boolean warn = false;
 
     public ExecuteException(Throwable cause, String pattern, Object... arguments) {
         super(cause, pattern, arguments);

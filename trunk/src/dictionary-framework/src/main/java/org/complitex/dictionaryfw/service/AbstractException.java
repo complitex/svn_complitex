@@ -25,7 +25,7 @@ public class AbstractException extends Exception{
     @Override
     public String getMessage() {
         if (getCause() != null){
-            return super.getMessage() + ". Причина: " + (initial ? getInitialCause(this) : getCause().getMessage());
+            return super.getMessage() + ". Причина: " + (displayInitial() ? getInitialCause(this) : getCause().getMessage());
         }
 
         return super.getMessage();
@@ -37,5 +37,9 @@ public class AbstractException extends Exception{
         }
 
         return t.getMessage();
+    }
+
+    private boolean displayInitial(){
+        return initial || getCause().getMessage() == null;
     }
 }

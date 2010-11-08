@@ -111,6 +111,7 @@ public class ExecutorBean {
                         errorCount++;
                         break;
                     case CRITICAL_ERROR:
+                        errorCount++;
                         setStatus(ExecutorBean.STATUS.CRITICAL_ERROR);
                         next = false;
                         break;

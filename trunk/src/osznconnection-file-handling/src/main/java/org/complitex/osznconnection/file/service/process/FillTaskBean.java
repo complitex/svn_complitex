@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import org.complitex.dictionaryfw.service.executor.ExecuteException;
 import org.complitex.dictionaryfw.service.executor.ITaskBean;
 import org.complitex.osznconnection.file.Module;
+import org.complitex.osznconnection.file.calculation.adapter.AccountNotFoundException;
 import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
 import org.complitex.osznconnection.file.calculation.service.CalculationCenterBean;
 import org.complitex.osznconnection.file.entity.*;
@@ -108,8 +109,15 @@ public class FillTaskBean implements ITaskBean<RequestFileGroup>{
         if (RequestStatus.notBoundStatuses().contains(payment.getStatus())) {
             return;
         }
-        Benefit benefit = new Benefit();
-        adapter.processPaymentAndBenefit(payment, benefit, calculationCenterId);
+
+        Benefit benefit = new Benefit(); //todo add null benefit process
+
+        try {
+            adapter.processPaymentAndBenefit(payment, benefit, calculationCenterId);
+        } catch (AccountNotFoundException e) {
+            payment.setStatus(RequestStatus.ACCOUNT_NUMBER_NOT_FOUND);
+        }
+
         paymentBean.update(payment);
         benefitBean.populateBenefit(payment.getId(), benefit);
     }
@@ -121,8 +129,8 @@ public class FillTaskBean implements ITaskBean<RequestFileGroup>{
      */
     private void processPayment(RequestFile paymentFile) throws FillException {
         //получаем информацию о текущем центре начисления
-        CalculationCenterInfo calculationCenterInfo = calculationCenterBean.getCurrentCalculationCenterInfo();
-        ICalculationCenterAdapter adapter = calculationCenterInfo.getAdapterInstance();
+        Long calculationCenterId = calculationCenterBean.getCurrentCalculationCenterInfo().getCalculationCenterId();
+        ICalculationCenterAdapter adapter = calculationCenterBean.getDefaultCalculationCenterAdapter();
 
         //извлечь из базы все id подлежащие обработке для файла payment и доставать записи порциями по BATCH_SIZE штук.
         List<Long> notResolvedPaymentIds = paymentBean.findIdsForProcessing(paymentFile.getId());
@@ -143,10 +151,10 @@ public class FillTaskBean implements ITaskBean<RequestFileGroup>{
                 List<Payment> payments = paymentBean.findForOperation(paymentFile.getId(), batch);
                 for (Payment payment : payments) {
                     //обработать payment запись
-                    process(payment, adapter, calculationCenterInfo.getId());
+                    process(payment, adapter, calculationCenterId);
                 }
                 userTransaction.commit();
-            } catch (Exception e) {
+            } catch (Exception e) {    //todo add throw up exception
                 try {
                     userTransaction.rollback();
                 } catch (Exception exc) {
@@ -181,8 +189,8 @@ public class FillTaskBean implements ITaskBean<RequestFileGroup>{
      */
     private void processBenefit(RequestFile benefitFile) throws FillException {
         //получаем информацию о текущем центре начисления
-        CalculationCenterInfo calculationCenterInfo = calculationCenterBean.getCurrentCalculationCenterInfo();
-        ICalculationCenterAdapter adapter = calculationCenterInfo.getAdapterInstance();
+        Long calculationCenterId = calculationCenterBean.getCurrentCalculationCenterInfo().getCalculationCenterId();
+        ICalculationCenterAdapter adapter = calculationCenterBean.getDefaultCalculationCenterAdapter();
 
         List<String> allAccountNumbers = benefitBean.getAllAccountNumbers(benefitFile.getId());
         for (String accountNumber : allAccountNumbers) {
@@ -190,7 +198,13 @@ public class FillTaskBean implements ITaskBean<RequestFileGroup>{
             if (benefits != null && !benefits.isEmpty()) {
                 Date dat1 = benefitBean.findDat1(accountNumber, benefitFile.getId());
                 if (dat1 != null) {
-                    adapter.processBenefit(dat1, benefits, calculationCenterInfo.getId());
+                    try {
+                        adapter.processBenefit(dat1, benefits, calculationCenterId);
+                    } catch (AccountNotFoundException e) {
+                        for (Benefit benefit : benefits){
+                            benefit.setStatus(RequestStatus.ACCOUNT_NUMBER_NOT_FOUND);
+                        }
+                    }
                 } else {
                     for (Benefit benefit : benefits) {
                         benefit.setStatus(RequestStatus.PROCESSED);

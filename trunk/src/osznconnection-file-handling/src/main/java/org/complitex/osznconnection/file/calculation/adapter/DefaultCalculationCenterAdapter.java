@@ -8,7 +8,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.apache.ibatis.session.SqlSession;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.osznconnection.file.calculation.entity.BenefitData;
 import org.complitex.osznconnection.file.entity.*;
@@ -18,17 +17,32 @@ import org.complitex.osznconnection.file.service.TarifBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import java.util.*;
 
 /**
  * Класс по умолчанию для взаимодействия с ЦН.
  * @author Artem
  */
-public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAdapter {
 
+@Stateless(name = "org.complitex.osznconnection.file.calculation.adapter.DefaultCalculationCenterAdapter")
+@TransactionManagement(TransactionManagementType.BEAN)
+public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAdapter {
     protected static final Logger log = LoggerFactory.getLogger(DefaultCalculationCenterAdapter.class);
 
     protected static final String MAPPING_NAMESPACE = DefaultCalculationCenterAdapter.class.getName();
+
+    @EJB(beanName = "OwnershipCorrectionBean")
+    private OwnershipCorrectionBean ownershipCorrectionBean;
+
+    @EJB(beanName = "TarifBean")
+    private TarifBean tarifBean;
+
+    @EJB(beanName = "PrivilegeCorrectionBean")
+    private PrivilegeCorrectionBean privilegeCorrectionBean;
 
     /**
      * Группа методов для проставления "внешнего адреса", т.е. адреса для ЦН, по полному названию и коду коррекции
@@ -80,46 +94,25 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
 
     /**
      * Получить номер личного счета в ЦН.
-     * @param payment
+     * @param payment запрос начислений
      */
     @Override
     public void acquirePersonAccount(Payment payment) {
-        SqlSession session = null;
-        try {
-            session = openSession();
 
-            Map<String, Object> params = Maps.newHashMap();
-            params.put("pDistrName", payment.getOutgoingDistrict());
-            params.put("pStSortName", payment.getOutgoingStreetType());
-            params.put("pStreetName", payment.getOutgoingStreet());
-            params.put("pHouseNum", payment.getOutgoingBuildingNumber());
-            params.put("pHousePart", payment.getOutgoingBuildingCorp());
-            params.put("pFlatNum", payment.getOutgoingApartment());
-            params.put("dat1", (Date) payment.getField(PaymentDBF.DAT1));
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("pDistrName", payment.getOutgoingDistrict());
+        params.put("pStSortName", payment.getOutgoingStreetType());
+        params.put("pStreetName", payment.getOutgoingStreet());
+        params.put("pHouseNum", payment.getOutgoingBuildingNumber());
+        params.put("pHousePart", payment.getOutgoingBuildingCorp());
+        params.put("pFlatNum", payment.getOutgoingApartment());
+        params.put("dat1", payment.getField(PaymentDBF.DAT1));
 
-            String result = (String) session.selectOne(MAPPING_NAMESPACE + ".acquirePersonAccount", params);
-            log.info("acquirePersonAccount, parameters : {}, account number : {}", params, result);
-            processPersonAccountResult(payment, result);
+        String result = (String) sqlSession().selectOne(MAPPING_NAMESPACE + ".acquirePersonAccount", params);
 
-            session.commit();
-        } catch (Exception e) {
-            try {
-                if (session != null) {
-                    session.rollback();
-                }
-            } catch (Exception exc) {
-                log.error("", exc);
-            }
-            log.error("", e);
-        } finally {
-            try {
-                if (session != null) {
-                    session.close();
-                }
-            } catch (Exception e) {
-                log.error("", e);
-            }
-        }
+        processPersonAccountResult(payment, result);
+
+        log.info("acquirePersonAccount, parameters : {}, account number : {}", params, result);
     }
 
     /**
@@ -134,8 +127,8 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
      * -7 - нет района,
      * остальное - номер л/с
      * 
-     * @param payment
-     * @param result
+     * @param payment запрос начислений
+     * @param result результат
      */
     protected void processPersonAccountResult(Payment payment, String result) {
         if (result.equals("0")) {
@@ -179,62 +172,42 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
      * @param payment
      * @return
      */
+    @SuppressWarnings({"unchecked"})
     @Override
-    public List<AccountDetail> acquireAccountCorrectionDetails(Payment payment) {
-        List<AccountDetail> accountCorrectionDetails = null;
-        SqlSession session = null;
+    public List<AccountDetail> acquireAccountCorrectionDetails(Payment payment) throws AccountNotFoundException {
+        Map<String, Object> params = Maps.newHashMap();
+
+        params.put("pDistrName", payment.getOutgoingDistrict());
+        params.put("pStSortName", payment.getOutgoingStreetType());
+        params.put("pStreetName", payment.getOutgoingStreet());
+        params.put("pHouseNum", payment.getOutgoingBuildingNumber());
+        params.put("pHousePart", payment.getOutgoingBuildingCorp());
+        params.put("pFlatNum", payment.getOutgoingApartment());
+        params.put("dat1", payment.getField(PaymentDBF.DAT1));
+
         try {
-            session = openSession();
-
-            Map<String, Object> params = Maps.newHashMap();
-            params.put("pDistrName", payment.getOutgoingDistrict());
-            params.put("pStSortName", payment.getOutgoingStreetType());
-            params.put("pStreetName", payment.getOutgoingStreet());
-            params.put("pHouseNum", payment.getOutgoingBuildingNumber());
-            params.put("pHousePart", payment.getOutgoingBuildingCorp());
-            params.put("pFlatNum", payment.getOutgoingApartment());
-            params.put("dat1", (Date) payment.getField(PaymentDBF.DAT1));
-
-            try {
-                session.selectOne(MAPPING_NAMESPACE + ".acquireAccountCorrectionDetails", params);
-                accountCorrectionDetails = (List<AccountDetail>) params.get("details");
-                log.info("acquireAccountCorrectionDetails, parameters : {}", params);
-                if (accountCorrectionDetails != null) {
-                    boolean isIncorrectResult = false;
-                    for (AccountDetail detail : accountCorrectionDetails) {
-                        if (Strings.isEmpty(detail.getAccountNumber())) {
-                            isIncorrectResult = true;
-                            break;
-                        }
-                    }
-                    if (isIncorrectResult) {
-                        accountCorrectionDetails = null;
-                    }
-                }
-            } catch (Exception e) {
-                log.error("", e);
-                payment.setStatus(RequestStatus.ACCOUNT_NUMBER_NOT_FOUND);
-            }
-
-            session.commit();
+            sqlSession().selectOne(MAPPING_NAMESPACE + ".acquireAccountCorrectionDetails", params);
         } catch (Exception e) {
-            try {
-                if (session != null) {
-                    session.rollback();
+            throw new AccountNotFoundException(e, payment);
+        }
+
+        List<AccountDetail> accountCorrectionDetails = (List<AccountDetail>) params.get("details");
+
+        log.info("acquireAccountCorrectionDetails, parameters : {}", params);
+
+        if (accountCorrectionDetails != null) {
+            boolean isIncorrectResult = false;
+            for (AccountDetail detail : accountCorrectionDetails) {
+                if (Strings.isEmpty(detail.getAccountNumber())) {
+                    isIncorrectResult = true;
+                    break;
                 }
-            } catch (Exception exc) {
-                log.error("", exc);
             }
-            log.error("", e);
-        } finally {
-            try {
-                if (session != null) {
-                    session.close();
-                }
-            } catch (Exception e) {
-                log.error("", e);
+            if (isIncorrectResult) {
+                accountCorrectionDetails = null;
             }
         }
+
         return accountCorrectionDetails;
     }
 
@@ -251,58 +224,30 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
      * @param benefit
      * @param calculationCenterId
      */
+    @SuppressWarnings({"unchecked"})
     @Override
-    public void processPaymentAndBenefit(Payment payment, Benefit benefit, long calculationCenterId) {
-        SqlSession session = null;
+    public void processPaymentAndBenefit(Payment payment, Benefit benefit, long calculationCenterId) throws AccountNotFoundException {
+        payment.setField(PaymentDBF.OPP, "00000001");
+
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("accountNumber", payment.getAccountNumber());
+        params.put("dat1", payment.getField(PaymentDBF.DAT1));
+
         try {
-            payment.setField(PaymentDBF.OPP, "00000001");
-            session = openSession();
-
-            Map<String, Object> params = Maps.newHashMap();
-            params.put("accountNumber", payment.getAccountNumber());
-            params.put("dat1", (Date) payment.getField(PaymentDBF.DAT1));
-
-            try {
-                session.selectOne(MAPPING_NAMESPACE + ".processPaymentAndBenefit", params);
-                List<Map<String, Object>> data = (List<Map<String, Object>>) params.get("data");
-                log.info("processPaymentAndBenefit, parameters : {}", params);
-                if (data != null && (data.size() == 1)) {
-                    processData(calculationCenterId, payment, benefit, data.get(0));
-                } else {
-                    payment.setStatus(RequestStatus.ACCOUNT_NUMBER_NOT_FOUND);
-                }
-            } catch (Exception e) {
-                log.error("", e);
-                payment.setStatus(RequestStatus.ACCOUNT_NUMBER_NOT_FOUND);
-            }
-
-            session.commit();
+            sqlSession().selectOne(MAPPING_NAMESPACE + ".processPaymentAndBenefit", params);
         } catch (Exception e) {
-            try {
-                if (session != null) {
-                    session.rollback();
-                }
-            } catch (Exception exc) {
-                log.error("", exc);
-            }
-            log.error("", e);
-        } finally {
-            try {
-                if (session != null) {
-                    session.close();
-                }
-            } catch (Exception e) {
-                log.error("", e);
-            }
+            throw new AccountNotFoundException(e, payment);
         }
-    }
 
-    protected OwnershipCorrectionBean getOwnershipCorrectionBean() {
-        return getEjbBean(OwnershipCorrectionBean.class);
-    }
+        List<Map<String, Object>> data = (List<Map<String, Object>>) params.get("data");
 
-    protected TarifBean getTarifBean() {
-        return getEjbBean(TarifBean.class);
+        log.info("processPaymentAndBenefit, parameters : {}", params);
+
+        if (data != null && (data.size() == 1)) {
+            processData(calculationCenterId, payment, benefit, data.get(0));
+        } else {
+            throw new AccountNotFoundException(null, payment);
+        }
     }
 
     /**
@@ -361,13 +306,7 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
      * @return
      */
     protected String getOSZNOwnershipCode(String calculationCenterOwnership, long calculationCenterId, long osznId) {
-        try {
-            OwnershipCorrectionBean ownershipCorrectionBean = getOwnershipCorrectionBean();
-            return ownershipCorrectionBean.getOSZNOwnershipCode(calculationCenterOwnership, calculationCenterId, osznId);
-        } catch (Exception e) {
-            log.error("", e);
-        }
-        return null;
+        return ownershipCorrectionBean.getOSZNOwnershipCode(calculationCenterOwnership, calculationCenterId, osznId);
     }
 
     /**
@@ -379,13 +318,7 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
      * @return
      */
     protected Integer getCODE2_1(Double T11_CS_UNI, long organizationId) {
-        try {
-            TarifBean tarifBean = getTarifBean();
-            return tarifBean.getCODE2_1(T11_CS_UNI, organizationId);
-        } catch (Exception e) {
-            log.error("", e);
-        }
-        return null;
+        return tarifBean.getCODE2_1(T11_CS_UNI, organizationId);
     }
 
     /**
@@ -401,78 +334,42 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
      * @param benefits группа benefit записей
      * @param calculationCenterId id ЦН
      */
+    @SuppressWarnings({"unchecked"})
     @Override
-    public void processBenefit(Date dat1, List<Benefit> benefits, long calculationCenterId) {
-        SqlSession session = null;
+    public void processBenefit(Date dat1, List<Benefit> benefits, long calculationCenterId) throws AccountNotFoundException {
+        String accountNumber = benefits.get(0).getAccountNumber();
+
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("accountNumber", accountNumber);
+        params.put("dat1", dat1);
+
         try {
-            session = openSession();
-
-            String accountNumber = benefits.get(0).getAccountNumber();
-            Map<String, Object> params = Maps.newHashMap();
-            params.put("accountNumber", accountNumber);
-            params.put("dat1", dat1);
-
-            try {
-                session.selectOne(MAPPING_NAMESPACE + ".processBenefit", params);
-                List<Map<String, Object>> data = (List<Map<String, Object>>) params.get("benefitData");
-                log.info("processBenefit, parameters : {}", params);
-                if (data != null && !data.isEmpty()) {
-                    processBenefitData(calculationCenterId, benefits, data);
-                } else {
-                    setStatus(benefits, RequestStatus.ACCOUNT_NUMBER_NOT_FOUND);
-                }
-            } catch (Exception e) {
-                log.error("", e);
-                setStatus(benefits, RequestStatus.ACCOUNT_NUMBER_NOT_FOUND);
-            }
-            session.commit();
+            sqlSession().selectOne(MAPPING_NAMESPACE + ".processBenefit", params);
         } catch (Exception e) {
-            try {
-                if (session != null) {
-                    session.rollback();
-                }
-            } catch (Exception exc) {
-                log.error("", exc);
-            }
-            log.error("", e);
-        } finally {
-            try {
-                if (session != null) {
-                    session.close();
-                }
-            } catch (Exception e) {
-                log.error("", e);
-            }
+            throw new AccountNotFoundException(e, benefits);
+        }
+
+        List<Map<String, Object>> data = (List<Map<String, Object>>) params.get("benefitData");
+
+        log.info("processBenefit, parameters : {}", params);
+
+        if (data != null && !data.isEmpty()) {
+            processBenefitData(calculationCenterId, benefits, data);
+        } else {
+            throw new AccountNotFoundException(null, benefits);
         }
     }
 
     @SuppressWarnings({"unchecked"})
     @Override
     public List<BenefitData> getBenefitData(String accountNumber, Date dat1) {
-        SqlSession session = null;
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put("accountNumber", accountNumber);
+        params.put("dat1", new Date());
 
-        try {
-            session = openSession();
+        sqlSession().selectOne(MAPPING_NAMESPACE + ".callBenefitData", params);
 
-            HashMap<String, Object> params = new HashMap<String, Object>();
-            params.put("accountNumber", accountNumber);
-            params.put("dat1", new Date());
-
-            session.selectOne(MAPPING_NAMESPACE + ".callBenefitData", params);
-
-            return (List<BenefitData>) params.get("benefitData");
-        } catch (Exception e) {
-            try {
-                if (session != null){
-                    session.rollback();
-                    session.close();
-                }
-            } catch (Exception e1) {
-                //nothing
-            }
-
-            return Collections.emptyList();
-        }
+        return (List<BenefitData>) params.get("benefitData");
     }
 
     /**
@@ -512,7 +409,7 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
 
             if (!processed.contains(inn)) {
                 List<Map<String, Object>> theSameMan;
-                //todo предполагается что инн и паспорт уникален для группы льгот
+                //предполагается что инн и паспорт уникален для группы льгот
                 List<Benefit> theSameBenefits = findByINN(benefits, inn);
                 if (!theSameBenefits.isEmpty()) {
                     theSameMan = Lists.newArrayList(Iterables.filter(data, new Predicate<Map<String, Object>>() {
@@ -596,7 +493,7 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
     }
 
     protected String getOSZNPrivilegeCode(String calculationCenterPrivilege, long calculationCenterId, long osznId) {
-        return getEjbBean(PrivilegeCorrectionBean.class).getOSZNPrivilegeCode(calculationCenterPrivilege, calculationCenterId, osznId);
+        return privilegeCorrectionBean.getOSZNPrivilegeCode(calculationCenterPrivilege, calculationCenterId, osznId);
     }
 
     protected List<Benefit> findByPassportNumber(List<Benefit> benefits, final String passportNumber) {

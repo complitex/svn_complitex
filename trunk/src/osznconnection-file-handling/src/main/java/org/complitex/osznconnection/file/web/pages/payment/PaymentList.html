@@ -65,29 +65,15 @@
                                     <span wicket:id="statusDetails"></span>
                                 </td>
                                 <td>
-                                    <table>
-                                        <tr>
-                                            <td>
-                                                <a wicket:id="addressCorrectionLink">
-                                                    <wicket:message key="correctAddress"/>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <a wicket:id="accountCorrectionLink">
-                                                    <wicket:message key="correctAccount"/>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <a wicket:id="lookup">
-                                                    <wicket:message key="lookup"/>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    </table>
+                                    <a wicket:id="addressCorrectionLink">
+                                        <span><wicket:message key="correctAddress"/></span>
+                                    </a>
+                                    <a wicket:id="accountCorrectionLink">
+                                        <span><wicket:message key="correctAccount"/></span>
+                                    </a>
+                                    <a wicket:id="lookup">
+                                        <span><wicket:message key="lookup"/></span>
+                                    </a>
                                     <span wicket:id="addressCorrectionPanel"></span>
                                     <span wicket:id="paymentAccountNumberCorrectionPanel"></span>
                                     <span wicket:id="lookupPanel"></span>
