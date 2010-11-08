@@ -212,7 +212,7 @@ public class TarifFileList extends TemplatePage {
                 item.setMarkupId(ITEM_ID_PREFIX + rf.getId());
 
                 CheckBox checkBox = new CheckBox("selected", selectModels.get(rf));
-                checkBox.setVisible(!isLoading(rf));
+                checkBox.setVisible(!isLoading(rf) || !isProcessing());
                 checkBox.setEnabled(!isProcessing());
                 item.add(checkBox);
 

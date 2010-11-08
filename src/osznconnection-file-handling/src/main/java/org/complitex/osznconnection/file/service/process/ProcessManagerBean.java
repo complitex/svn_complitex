@@ -70,6 +70,7 @@ public class ProcessManagerBean {
     private PROCESS process;
 
     private boolean preprocess = false;
+    private int preprocessError = 0;
 
     public PROCESS getProcess() {
         return process;
@@ -138,7 +139,7 @@ public class ProcessManagerBean {
     }
 
     public int getErrorCount() {
-        return executorBean.getErrorCount();
+        return executorBean.getErrorCount() + preprocessError;
     }
 
     public boolean isProcessing(){
@@ -165,6 +166,8 @@ public class ProcessManagerBean {
             LoadUtil.LoadGroupParameter loadParameter = LoadUtil.getLoadParameter(organizationId, districtCode, monthFrom, monthTo, year);
 
             linkError.addAll(loadParameter.getLinkError());
+
+            preprocessError = linkError.size();
 
             preprocess = false;
 
