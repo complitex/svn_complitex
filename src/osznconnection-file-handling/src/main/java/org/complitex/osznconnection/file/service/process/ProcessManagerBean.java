@@ -161,7 +161,7 @@ public class ProcessManagerBean {
 
             preprocess = true; // предобработка
 
-            processedIndex.clear();
+            init();
 
             LoadUtil.LoadGroupParameter loadParameter = LoadUtil.getLoadParameter(organizationId, districtCode, monthFrom, monthTo, year);
 
@@ -192,12 +192,7 @@ public class ProcessManagerBean {
     public void loadTarif(Long organizationId, String districtCode, int monthFrom, int monthTo, int year){
         try {
             process = PROCESS.LOAD;
-
-            preprocess = true; // предобработка
-
-            processedIndex.clear();
-
-            preprocess = false;
+            init();
 
             executorBean.execute(LoadUtil.getTarifs(organizationId, districtCode, monthFrom, monthTo, year),
                     loadTarifTaskBean,
@@ -213,7 +208,7 @@ public class ProcessManagerBean {
     @Asynchronous
     public void bind(List<RequestFileGroup> groups){
         process = PROCESS.BIND;
-        processedIndex.clear();
+        init();
 
         executorBean.execute(groups,
                 bindTaskBean,
@@ -224,7 +219,7 @@ public class ProcessManagerBean {
     @Asynchronous
     public void fill(List<RequestFileGroup> groups){
         process = PROCESS.FILL;
-        processedIndex.clear();
+        init();
 
         executorBean.execute(groups,
                 fillTaskBean,
@@ -235,11 +230,17 @@ public class ProcessManagerBean {
     @Asynchronous
     public void save(List<RequestFileGroup> groups){
         process = PROCESS.SAVE;
-        processedIndex.clear();
+        init();
 
         executorBean.execute(groups,
                 saveTaskBean,
                 configBean.getInteger(Config.SAVE_THREAD_SIZE, true),
                 configBean.getInteger(Config.SAVE_MAX_ERROR_COUNT, true));
+    }
+
+    private void init(){
+        processedIndex.clear();
+        linkError.clear();
+        preprocessError = 0;
     }
 }

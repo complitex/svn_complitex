@@ -22,6 +22,8 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.time.Duration;
 import org.complitex.dictionaryfw.entity.DomainObject;
+import org.complitex.dictionaryfw.entity.Log;
+import org.complitex.dictionaryfw.service.LogBean;
 import org.complitex.dictionaryfw.util.DateUtil;
 import org.complitex.dictionaryfw.util.StringUtil;
 import org.complitex.dictionaryfw.web.component.*;
@@ -29,8 +31,10 @@ import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
 import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.TemplatePage;
+import org.complitex.osznconnection.file.Module;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.entity.RequestFileFilter;
+import org.complitex.osznconnection.file.entity.RequestFileGroup;
 import org.complitex.osznconnection.file.service.RequestFileBean;
 import org.complitex.osznconnection.file.service.process.ProcessManagerBean;
 import org.complitex.osznconnection.file.web.pages.benefit.BenefitList;
@@ -39,7 +43,6 @@ import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 import org.complitex.osznconnection.web.resource.WebCommonResourceInitializer;
 
 import javax.ejb.EJB;
-import java.io.File;
 import java.util.*;
 
 /**
@@ -59,6 +62,9 @@ public class TarifFileList extends TemplatePage {
 
     @EJB(name = "ProcessManagerBean")
     private ProcessManagerBean processManagerBean;
+
+    @EJB(name = "LogBean")
+    private LogBean logBean;
 
     private int waitForStopTimer;
 
@@ -223,7 +229,7 @@ public class TarifFileList extends TemplatePage {
                 item.add(new Label("id", StringUtil.valueOf(rf.getId())));
 
                 item.add(DateLabel.forDatePattern("loaded", new Model<Date>(rf.getLoaded()), "dd.MM.yy HH:mm:ss"));
-                item.add(new Label("name", rf.getName()));
+                item.add(new Label("name", rf.getFullName()));
 
                 DomainObject domainObject = organizationStrategy.findById(rf.getOrganizationId());
                 String organization = organizationStrategy.displayDomainObject(domainObject, getLocale());
@@ -291,8 +297,22 @@ public class TarifFileList extends TemplatePage {
             public void onSubmit() {
                 for (RequestFile requestFile : selectModels.keySet()) {
                     if (selectModels.get(requestFile).getObject()) {
-                        requestFileBean.delete(requestFile);
-                        info(getStringFormat("info.deleted", requestFile.getDirectory(), File.separator, requestFile.getName()));
+                        try {
+                            requestFileBean.delete(requestFile);
+
+                            info(getStringFormat("info.deleted", requestFile.getFullName()));
+
+                            logBean.info(Module.NAME, TarifFileList.class, RequestFileGroup.class, null, requestFile.getId(),
+                                    Log.EVENT.REMOVE, requestFile.getLogChangeList(), "Файл удален успешно. Имя объекта: {0}",
+                                    requestFile.getLogObjectName());
+                        } catch (Exception e) {
+                            error(getStringFormat("error.delete", requestFile.getFullName()));
+
+                            logBean.error(Module.NAME, GroupList.class, RequestFileGroup.class, null, requestFile.getId(),
+                                    Log.EVENT.REMOVE, requestFile.getLogChangeList(), "Ошибка удаления. Имя объекта: {0}",
+                                    requestFile.getLogObjectName());
+                            break;
+                        }
                     }
                 }
             }
@@ -333,10 +353,10 @@ public class TarifFileList extends TemplatePage {
         for (RequestFile rf : processManagerBean.getProcessedTarifFiles(TarifFileList.class)){
 
             if (rf.getLoadedRecordCount().equals(rf.getDbfRecordCount()) && rf.getDbfRecordCount() != 0){
-                info(getStringFormat("tarif.loaded", rf.getDirectory(), File.separator, rf.getName()));
+                info(getStringFormat("tarif.loaded", rf.getFullName()));
                 highlightProcessed(target, rf);
             }else {
-                error(getStringFormat("tarif.load_error", rf.getDirectory(), File.separator, rf.getName()));
+                error(getStringFormat("tarif.load_error", rf.getFullName()));
                 highlightError(target, rf);
             }
         }
