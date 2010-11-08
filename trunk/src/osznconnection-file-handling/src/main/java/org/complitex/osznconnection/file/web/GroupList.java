@@ -43,7 +43,6 @@ import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 import org.complitex.osznconnection.web.resource.WebCommonResourceInitializer;
 
 import javax.ejb.EJB;
-import java.io.File;
 import java.util.*;
 
 /**
@@ -272,8 +271,7 @@ public class GroupList extends TemplatePage {
 
                 //payment name link
                 if (group.getPaymentFile() != null){
-                    String name = group.getDirectory() + File.separator + group.getPaymentFile().getName();
-                    item.add(new BookmarkablePageLinkPanel<RequestFile>("paymentName", name,
+                    item.add(new BookmarkablePageLinkPanel<RequestFile>("paymentName", group.getPaymentFile().getFullName(),
                             PaymentList.class, new PageParameters("request_file_id=" + group.getPaymentFile().getId())));
                 }else{
                     item.add(new Label("paymentName", "—"));
@@ -281,8 +279,7 @@ public class GroupList extends TemplatePage {
 
                 //benefit name link
                 if (group.getBenefitFile() != null){
-                    String name = group.getDirectory() + File.separator + group.getBenefitFile().getName();
-                    item.add(new BookmarkablePageLinkPanel<RequestFile>("benefitName", name,
+                    item.add(new BookmarkablePageLinkPanel<RequestFile>("benefitName", group.getBenefitFile().getFullName(),
                             BenefitList.class, new PageParameters("request_file_id=" + group.getBenefitFile().getId())));
                 }else{
                     item.add(new Label("benefitName", "—"));
@@ -333,17 +330,18 @@ public class GroupList extends TemplatePage {
                         try {
                             requestFileGroupBean.delete(group);
 
-                            info(getStringFormat("group.deleted", group.getDirectory(), File.separator, group.getName()));
+                            info(getStringFormat("group.deleted", group.getFullName()));
 
                             logBean.info(Module.NAME, GroupList.class, RequestFileGroup.class, null, group.getId(),
                                     Log.EVENT.REMOVE, group.getLogChangeList(), "Файлы удалены успешно. Имя объекта: {0}",
                                     group.getLogObjectName());
                         } catch (Exception e) {
-                            error(getStringFormat("group.delete_error", group.getDirectory(), File.separator, group.getName()));
+                            error(getStringFormat("group.delete_error", group.getFullName()));
 
                             logBean.error(Module.NAME, GroupList.class, RequestFileGroup.class, null, group.getId(),
                                     Log.EVENT.REMOVE, group.getLogChangeList(), "Ошибка удаления. Имя объекта: {0}",
                                     group.getLogObjectName());
+                            break;
                         }
                     }
                 }
@@ -470,22 +468,20 @@ public class GroupList extends TemplatePage {
                 case FILLED:
                 case SAVED:
                     highlightProcessed(target, group);
-                    info(getStringFormat("group.processed", group.getDirectory(), File.separator, group.getName(),
-                            processManagerBean.getProcess().ordinal()));
+                    info(getStringFormat("group.processed", group.getFullName(), processManagerBean.getProcess().ordinal()));
                     break;
                 case LOAD_ERROR:
                 case BIND_ERROR:
                 case FILL_ERROR:
                 case SAVE_ERROR:
                     highlightError(target, group);
-                    info(getStringFormat("group.process_error", group.getDirectory(), File.separator, group.getName(),
-                            processManagerBean.getProcess().ordinal()));
+                    info(getStringFormat("group.process_error", group.getFullName(), processManagerBean.getProcess().ordinal()));
                     break;
             }
         }
 
         for (RequestFile rf : processManagerBean.getLinkError(true)){
-            error(getStringFormat("request_file.link_error", rf.getDirectory(), File.separator, rf.getName()));
+            error(getStringFormat("request_file.link_error", rf.getFullName()));
         }
 
         //Process completed

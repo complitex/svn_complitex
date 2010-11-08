@@ -131,7 +131,7 @@ public class ExecutorBean {
             throw new IllegalStateException();
         }
 
-        log.info("Начат процесс обработки {}, количество объектов: {}", task, objects.size());
+        log.info("Начат процесс обработки {}, количество объектов: {}", task.getControllerClass().getSimpleName(), objects.size());
 
         status = STATUS.RUNNING;
 
