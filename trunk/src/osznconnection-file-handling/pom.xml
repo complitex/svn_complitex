@@ -66,6 +66,11 @@
 
         <dependency>
             <groupId>org.complitex.osznconnection</groupId>
+            <artifactId>osznconnection-information</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.complitex.osznconnection</groupId>
             <artifactId>osznconnection-resources-common</artifactId>
         </dependency>
 

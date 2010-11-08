@@ -222,8 +222,8 @@ public class AddressCorrectionBean extends CorrectionBean {
      * @param internalStreetTypeId
      * @return
      */
-    public EntityTypeCorrection findOutgoingStreetType(long calculationCenterId, long internalStreetTypeId) {
-        return findOutgoingEntityType(internalStreetTypeId, calculationCenterId);
+    public Correction findOutgoingStreetType(long calculationCenterId, long internalStreetTypeId) {
+        return findOutgoingAddress("street_type", calculationCenterId, internalStreetTypeId);
     }
 
     /**
@@ -303,13 +303,12 @@ public class AddressCorrectionBean extends CorrectionBean {
      * @return
      */
     @SuppressWarnings({"unchecked"})
-    private Long findInternalObjectId(String entity, String correction, long attributeTypeId, Long parentId, Long entityTypeId) {
+    private Long findInternalObjectId(String entity, String correction, long attributeTypeId, Long parentId) {
         Map<String, Object> params = Maps.newHashMap();
         params.put("entity", entity);
         params.put("correction", correction != null ? correction.trim() : correction);
         params.put("attributeTypeId", attributeTypeId);
         params.put("parentId", parentId);
-        params.put("entityTypeId", entityTypeId);
         List<Long> ids = sqlSession().selectList(MAPPING_NAMESPACE + ".findInternalObjectId", params);
         if (ids != null && (ids.size() == 1)) {
             return ids.get(0);
@@ -328,7 +327,7 @@ public class AddressCorrectionBean extends CorrectionBean {
      */
     @Transactional
     public Long findInternalCity(String city) {
-        return findInternalObjectId("city", city, 400, null, null);
+        return findInternalObjectId("city", city, 400, null);
     }
 
     /**
@@ -341,8 +340,8 @@ public class AddressCorrectionBean extends CorrectionBean {
      * @return
      */
     @Transactional
-    public Long findInternalStreet(String street, Long cityId, Long entityTypeId) {
-        return findInternalObjectId("street", street, 300, cityId, entityTypeId);
+    public Long findInternalStreet(String street, Long cityId) {
+        return findInternalObjectId("street", street, 300, cityId);
     }
 
     /**
