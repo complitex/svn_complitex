@@ -1,6 +1,7 @@
 package org.complitex.osznconnection.file.service.process;
 
 import com.google.common.collect.Lists;
+import org.complitex.dictionaryfw.entity.Log;
 import org.complitex.dictionaryfw.service.executor.ExecuteException;
 import org.complitex.dictionaryfw.service.executor.ITaskBean;
 import org.complitex.osznconnection.file.Module;
@@ -91,6 +92,11 @@ public class FillTaskBean implements ITaskBean<RequestFileGroup>{
     @Override
     public Class getControllerClass() {
         return FillTaskBean.class;
+    }
+
+    @Override
+    public Log.EVENT getEvent() {
+        return Log.EVENT.EDIT;
     }
 
     /**

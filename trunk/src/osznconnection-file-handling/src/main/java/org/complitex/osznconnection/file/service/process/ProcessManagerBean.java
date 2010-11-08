@@ -169,6 +169,12 @@ public class ProcessManagerBean {
 
             preprocessError = linkError.size();
 
+            for (RequestFile rf : linkError){
+                logBean.error(Module.NAME, ProcessManagerBean.class, RequestFileGroup.class, null, rf.getId(),
+                        Log.EVENT.CREATE, rf.getLogChangeList(), "Связанный файл не найден для объекта {0}",
+                        rf.getLogObjectName());
+            }
+
             preprocess = false;
 
             executorBean.execute(loadParameter.getRequestFileGroups(),

@@ -1,5 +1,7 @@
 package org.complitex.dictionaryfw.service.executor;
 
+import org.complitex.dictionaryfw.entity.Log;
+
 import javax.ejb.Local;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
@@ -18,4 +20,6 @@ public interface ITaskBean<T> {
     public String getModuleName();
 
     public Class getControllerClass();
+
+    public Log.EVENT getEvent();
 }

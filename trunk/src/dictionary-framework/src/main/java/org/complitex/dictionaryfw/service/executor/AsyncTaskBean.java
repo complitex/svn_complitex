@@ -1,7 +1,6 @@
 package org.complitex.dictionaryfw.service.executor;
 
 import org.complitex.dictionaryfw.entity.ILoggable;
-import org.complitex.dictionaryfw.entity.Log;
 import org.complitex.dictionaryfw.service.LogBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +26,8 @@ public class AsyncTaskBean {
 
             listener.done(object, completed ? ITaskListener.STATUS.SUCCESS : ITaskListener.STATUS.SKIPPED);
 
-            log.debug("Процесс {} завершен успешно.", task);
-            logInfo(object, task, null);
+            log.debug("Задача {} завершена успешно.", task);
+            logInfo(object, task, "Задача завершена успешно. Имя объекта: {0}", object.getLogObjectName());
         } catch (ExecuteException e) {
             try {
                 task.onError(object);
@@ -70,11 +69,11 @@ public class AsyncTaskBean {
 
     private <T extends ILoggable> void logError(T object, ITaskBean<T> task, String decs, Object... args){
         logBean.error(task.getModuleName(), task.getControllerClass(),  object.getClass(), null, object.getId(),
-                Log.EVENT.EDIT, object.getLogChangeList(), decs, args);
+                task.getEvent(), object.getLogChangeList(), decs, args);
     }
 
      private <T extends ILoggable> void logInfo(T object, ITaskBean<T> task, String decs, Object... args){
         logBean.info(task.getModuleName(), task.getControllerClass(), object.getClass(), null, object.getId(),
-                Log.EVENT.EDIT, object.getLogChangeList(), decs, args);
+                task.getEvent(), object.getLogChangeList(), decs, args);
     }
 }

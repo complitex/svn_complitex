@@ -2,6 +2,7 @@ package org.complitex.osznconnection.file.service.process;
 
 import com.linuxense.javadbf.DBFField;
 import com.linuxense.javadbf.DBFWriter;
+import org.complitex.dictionaryfw.entity.Log;
 import org.complitex.dictionaryfw.service.executor.ExecuteException;
 import org.complitex.dictionaryfw.service.executor.ITaskBean;
 import org.complitex.osznconnection.file.Module;
@@ -71,6 +72,11 @@ public class SaveTaskBean implements ITaskBean<RequestFileGroup>{
     @Override
     public Class getControllerClass() {
         return SaveTaskBean.class;
+    }
+
+    @Override
+    public Log.EVENT getEvent() {
+        return Log.EVENT.VIEW;
     }
 
     private byte getDataType(Class type){

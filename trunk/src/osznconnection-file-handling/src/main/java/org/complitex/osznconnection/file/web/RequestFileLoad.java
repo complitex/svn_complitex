@@ -99,6 +99,12 @@ public class RequestFileLoad extends FormTemplatePage {
                 }
 
                 setResponsePage(GroupList.class);
+
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    //eh...
+                }
             }
         };
         form.add(load);
@@ -126,6 +132,12 @@ public class RequestFileLoad extends FormTemplatePage {
                 }
 
                 setResponsePage(TarifFileList.class);
+
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    //eh...
+                }
             }
         };
         form.add(loadTarif);

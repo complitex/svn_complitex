@@ -22,6 +22,8 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.time.Duration;
 import org.complitex.dictionaryfw.entity.DomainObject;
+import org.complitex.dictionaryfw.entity.Log;
+import org.complitex.dictionaryfw.service.LogBean;
 import org.complitex.dictionaryfw.util.DateUtil;
 import org.complitex.dictionaryfw.util.StringUtil;
 import org.complitex.dictionaryfw.web.component.*;
@@ -29,6 +31,7 @@ import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
 import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.TemplatePage;
+import org.complitex.osznconnection.file.Module;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.entity.RequestFileGroup;
 import org.complitex.osznconnection.file.entity.RequestFileGroupFilter;
@@ -60,6 +63,9 @@ public class GroupList extends TemplatePage {
 
     @EJB(name = "ProcessManagerBean")
     private ProcessManagerBean processManagerBean;
+
+    @EJB(name = "LogBean")
+    private LogBean logBean;
 
     private int waitForStopTimer;
     private int timerIndex = 0;
@@ -324,9 +330,21 @@ public class GroupList extends TemplatePage {
             public void onSubmit() {
                 for (RequestFileGroup group : selectModels.keySet()) {
                     if (selectModels.get(group).getObject()) {
-                        requestFileGroupBean.delete(group);
+                        try {
+                            requestFileGroupBean.delete(group);
 
-                        info(getStringFormat("group.deleted", group.getDirectory(), File.separator, group.getName()));
+                            info(getStringFormat("group.deleted", group.getDirectory(), File.separator, group.getName()));
+
+                            logBean.info(Module.NAME, GroupList.class, RequestFileGroup.class, null, group.getId(),
+                                    Log.EVENT.REMOVE, group.getLogChangeList(), "Файлы удалены успешно. Имя объекта: {0}",
+                                    group.getLogObjectName());
+                        } catch (Exception e) {
+                            error(getStringFormat("group.delete_error", group.getDirectory(), File.separator, group.getName()));
+
+                            logBean.error(Module.NAME, GroupList.class, RequestFileGroup.class, null, group.getId(),
+                                    Log.EVENT.REMOVE, group.getLogChangeList(), "Ошибка удаления. Имя объекта: {0}",
+                                    group.getLogObjectName());
+                        }
                     }
                 }
             }
