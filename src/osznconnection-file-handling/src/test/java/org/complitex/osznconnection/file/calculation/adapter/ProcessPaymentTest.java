@@ -4,9 +4,6 @@
  */
 package org.complitex.osznconnection.file.calculation.adapter;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.util.Date;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -15,6 +12,10 @@ import org.complitex.osznconnection.file.entity.Benefit;
 import org.complitex.osznconnection.file.entity.BenefitDBF;
 import org.complitex.osznconnection.file.entity.Payment;
 import org.complitex.osznconnection.file.entity.PaymentDBF;
+
+import java.io.IOException;
+import java.io.Reader;
+import java.util.Date;
 
 /**
  *
@@ -47,7 +48,7 @@ public class ProcessPaymentTest {
 
         ICalculationCenterAdapter adapter = new DefaultCalculationCenterAdapter() {
 
-            @Override
+//            @Override
             protected SqlSession openSession() {
                 return sqlSessionFactory.openSession(false);
             }
@@ -69,7 +70,11 @@ public class ProcessPaymentTest {
         p.setAccountNumber("1000460875");
         p.setOrganizationId(1L);
         p.setField(PaymentDBF.DAT1, new Date());
-        adapter.processPaymentAndBenefit(p, b, 2);
+        try {
+            adapter.processPaymentAndBenefit(p, b, 2);
+        } catch (AccountNotFoundException e) {
+            e.printStackTrace();
+        }
         System.out.println("Status : " + p.getStatus() + ", FROG : " + p.getField(PaymentDBF.FROG) + ", FL_PAY : " + p.getField(PaymentDBF.FL_PAY)
                 + ", NM_PAY : " + p.getField(PaymentDBF.NM_PAY) + ", DEBT : " + p.getField(PaymentDBF.DEBT) + ", NORM_F_1 : "
                 + p.getField(PaymentDBF.NORM_F_1) + ", NUMB : " + p.getField(PaymentDBF.NUMB) + ", CODE2_1 : " + p.getField(PaymentDBF.CODE2_1)

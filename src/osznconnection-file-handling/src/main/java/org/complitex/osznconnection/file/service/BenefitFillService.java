@@ -32,7 +32,7 @@ public class BenefitFillService {
     private RequestFileGroupBean requestFileGroupBean;
 
     public List<BenefitData> getBenefitData(Benefit benefit){
-        List<BenefitData> list = calculationCenterBean.getCurrentCalculationCenterInfo().getAdapterInstance()
+        List<BenefitData> list = calculationCenterBean.getDefaultCalculationCenterAdapter()
                 .getBenefitData(benefit.getAccountNumber(), benefitBean.findDat1(benefit));
 
         List<Benefit> benefits = benefitBean.findByAccountNumber(benefit.getAccountNumber(), benefit.getRequestFileId());
@@ -51,7 +51,8 @@ public class BenefitFillService {
 
     public void connectBenefit(Benefit benefit, BenefitData benefitData){
         String osznBenefitCode = privilegeCorrectionBean.getOSZNPrivilegeCode(benefitData.getCode(),
-                calculationCenterBean.getCurrentCalculationCenterInfo().getId(), benefit.getOrganizationId());
+                calculationCenterBean.getCurrentCalculationCenterInfo().getCalculationCenterId(),
+                benefit.getOrganizationId());
 
         if (osznBenefitCode == null) {
             benefit.setStatus(RequestStatus.BENEFIT_NOT_FOUND);

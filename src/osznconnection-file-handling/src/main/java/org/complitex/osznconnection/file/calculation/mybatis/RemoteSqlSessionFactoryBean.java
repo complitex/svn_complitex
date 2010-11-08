@@ -1,6 +1,7 @@
 package org.complitex.osznconnection.file.calculation.mybatis;
 
 import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.SqlSessionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,8 +12,6 @@ import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import java.io.IOException;
 import java.io.Reader;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
 /**
  *
@@ -27,14 +26,14 @@ public class RemoteSqlSessionFactoryBean {
 
     public static final String CONFIGURATION_FILE = "mybatis-config.xml";
 
-    private SqlSessionFactory sqlSessionFactory;
+    private SqlSessionManager sqlSessionManager;
 
     @PostConstruct
     private void init() {
         Reader reader = null;
         try {
             reader = Resources.getResourceAsReader(CONFIGURATION_FILE);
-            sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader, "remote");
+            sqlSessionManager = SqlSessionManager.newInstance(reader, "remote");
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
@@ -48,7 +47,7 @@ public class RemoteSqlSessionFactoryBean {
         }
     }
 
-    public SqlSessionFactory getSqlSessionFactory() {
-        return sqlSessionFactory;
+    public SqlSessionManager getSqlSessionManager() {
+        return sqlSessionManager;
     }
 }

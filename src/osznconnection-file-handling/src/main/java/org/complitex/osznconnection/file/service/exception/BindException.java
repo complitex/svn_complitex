@@ -11,6 +11,10 @@ public class BindException extends ExecuteException{
     private final static String MESSAGE_PATTERN = "Ошибка связывания файла запроса {0}";
 
     public BindException(boolean warn, RequestFile requestFile) {
-        super(warn, MESSAGE_PATTERN, requestFile.getName());
+        super(warn, MESSAGE_PATTERN, requestFile.getFullName());
+    }
+
+    public BindException(Throwable cause, RequestFile requestFile) {
+        super(cause, MESSAGE_PATTERN, requestFile.getFullName());
     }
 }

@@ -4,20 +4,22 @@
  */
 package org.complitex.osznconnection.file.service;
 
-import java.util.List;
+import org.apache.wicket.util.string.Strings;
+import org.complitex.dictionaryfw.mybatis.Transactional;
+import org.complitex.dictionaryfw.service.AbstractBean;
+import org.complitex.osznconnection.file.calculation.adapter.AccountNotFoundException;
+import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
+import org.complitex.osznconnection.file.calculation.service.CalculationCenterBean;
+import org.complitex.osznconnection.file.entity.AccountDetail;
+import org.complitex.osznconnection.file.entity.Payment;
+import org.complitex.osznconnection.file.entity.RequestStatus;
+
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import org.apache.wicket.util.string.Strings;
-import org.complitex.dictionaryfw.mybatis.Transactional;
-import org.complitex.dictionaryfw.service.AbstractBean;
-import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
-import org.complitex.osznconnection.file.calculation.service.CalculationCenterBean;
-import org.complitex.osznconnection.file.entity.AccountDetail;
-import org.complitex.osznconnection.file.entity.CalculationCenterInfo;
-import org.complitex.osznconnection.file.entity.Payment;
-import org.complitex.osznconnection.file.entity.RequestStatus;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Разрешает номер л/c
@@ -26,16 +28,16 @@ import org.complitex.osznconnection.file.entity.RequestStatus;
 @Stateless
 public class PersonAccountService extends AbstractBean {
 
-    @EJB
+    @EJB(beanName = "PersonAccountLocalBean")
     private PersonAccountLocalBean personAccountLocalBean;
 
-    @EJB
+    @EJB(beanName = "BenefitBean")
     private BenefitBean benefitBean;
 
-    @EJB
+    @EJB(beanName = "PaymentBean")
     private PaymentBean paymentBean;
 
-    @EJB
+    @EJB(beanName = "CalculationCenterBean")
     private CalculationCenterBean calculationCenterBean;
 
     /**
@@ -104,8 +106,10 @@ public class PersonAccountService extends AbstractBean {
     @Transactional
     @TransactionAttribute(TransactionAttributeType.NEVER)
     public List<AccountDetail> acquireAccountCorrectionDetails(Payment payment) {
-        CalculationCenterInfo calculationCenterInfo = calculationCenterBean.getCurrentCalculationCenterInfo();
-        ICalculationCenterAdapter adapter = calculationCenterInfo.getAdapterInstance();
-        return adapter.acquireAccountCorrectionDetails(payment);
+        try {
+            return calculationCenterBean.getDefaultCalculationCenterAdapter().acquireAccountCorrectionDetails(payment);
+        } catch (AccountNotFoundException e) {
+            return Collections.emptyList();
+        }
     }
 }

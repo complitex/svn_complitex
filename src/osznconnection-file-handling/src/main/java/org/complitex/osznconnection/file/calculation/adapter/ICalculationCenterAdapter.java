@@ -9,6 +9,7 @@ import org.complitex.osznconnection.file.entity.AccountDetail;
 import org.complitex.osznconnection.file.entity.Benefit;
 import org.complitex.osznconnection.file.entity.Payment;
 
+import javax.ejb.Local;
 import java.util.Date;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import java.util.List;
  * Базовый интерфейс для реализаций адаптера взаимодействия с ЦН.
  * @author Artem
  */
+@Local
 public interface ICalculationCenterAdapter {
 
     void prepareCity(Payment payment, String city, String cityCode);
@@ -32,11 +34,11 @@ public interface ICalculationCenterAdapter {
 
     void acquirePersonAccount(Payment payment);
 
-    public List<AccountDetail> acquireAccountCorrectionDetails(Payment payment);
+    public List<AccountDetail> acquireAccountCorrectionDetails(Payment payment) throws AccountNotFoundException;
 
-    public void processPaymentAndBenefit(Payment payment, Benefit benefit, long calculationCenterId);
+    public void processPaymentAndBenefit(Payment payment, Benefit benefit, long calculationCenterId) throws AccountNotFoundException;
 
-    public void processBenefit(Date dat1, List<Benefit> benefits, long calculationCenterId);
+    public void processBenefit(Date dat1, List<Benefit> benefits, long calculationCenterId) throws AccountNotFoundException;
 
     public List<BenefitData> getBenefitData(String accountNumber, Date dat1);
 }

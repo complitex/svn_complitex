@@ -266,7 +266,8 @@ public class GroupList extends TemplatePage {
 
                 //payment name link
                 if (group.getPaymentFile() != null){
-                    item.add(new BookmarkablePageLinkPanel<RequestFile>("paymentName", group.getPaymentFile().getName(),
+                    String name = group.getDirectory() + File.separator + group.getPaymentFile().getName();
+                    item.add(new BookmarkablePageLinkPanel<RequestFile>("paymentName", name,
                             PaymentList.class, new PageParameters("request_file_id=" + group.getPaymentFile().getId())));
                 }else{
                     item.add(new Label("paymentName", "—"));
@@ -274,7 +275,8 @@ public class GroupList extends TemplatePage {
 
                 //benefit name link
                 if (group.getBenefitFile() != null){
-                    item.add(new BookmarkablePageLinkPanel<RequestFile>("benefitName", group.getBenefitFile().getName(),
+                    String name = group.getDirectory() + File.separator + group.getBenefitFile().getName();
+                    item.add(new BookmarkablePageLinkPanel<RequestFile>("benefitName", name,
                             BenefitList.class, new PageParameters("request_file_id=" + group.getBenefitFile().getId())));
                 }else{
                     item.add(new Label("benefitName", "—"));

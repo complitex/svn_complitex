@@ -4,19 +4,20 @@
  */
 package org.complitex.osznconnection.file.service;
 
-import java.util.List;
+import org.complitex.dictionaryfw.mybatis.Transactional;
+import org.complitex.dictionaryfw.service.AbstractBean;
+import org.complitex.osznconnection.file.calculation.adapter.AccountNotFoundException;
+import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
+import org.complitex.osznconnection.file.calculation.service.CalculationCenterBean;
+import org.complitex.osznconnection.file.entity.AccountDetail;
+import org.complitex.osznconnection.file.entity.Payment;
+import org.complitex.osznconnection.file.entity.RequestStatus;
+
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import org.complitex.dictionaryfw.mybatis.Transactional;
-import org.complitex.dictionaryfw.service.AbstractBean;
-import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
-import org.complitex.osznconnection.file.calculation.service.CalculationCenterBean;
-import org.complitex.osznconnection.file.entity.AccountDetail;
-import org.complitex.osznconnection.file.entity.CalculationCenterInfo;
-import org.complitex.osznconnection.file.entity.Payment;
-import org.complitex.osznconnection.file.entity.RequestStatus;
+import java.util.List;
 
 /**
  * Вспомогательный для PaymentLookupPanel бин.
@@ -25,10 +26,10 @@ import org.complitex.osznconnection.file.entity.RequestStatus;
 @Stateless
 public class PaymentLookupBean extends AbstractBean {
 
-    @EJB
+    @EJB(beanName = "AddressService")
     private AddressService addressService;
 
-    @EJB
+    @EJB(beanName = "CalculationCenterBean")
     private CalculationCenterBean calculationCenterBean;
 
     /**
@@ -38,15 +39,15 @@ public class PaymentLookupBean extends AbstractBean {
      */
     @Transactional
     public void resolveOutgoingAddress(Payment payment) {
-        CalculationCenterInfo calculationCenterInfo = calculationCenterBean.getCurrentCalculationCenterInfo();
-        long calculationCenterId = calculationCenterInfo.getId();
-        ICalculationCenterAdapter adapter = calculationCenterInfo.getAdapterInstance();
+        Long calculationCenterId = calculationCenterBean.getCurrentCalculationCenterInfo().getCalculationCenterId();
+        ICalculationCenterAdapter adapter = calculationCenterBean.getDefaultCalculationCenterAdapter();
+
         addressService.resolveOutgoingAddress(payment, calculationCenterId, adapter);
     }
 
     /**
      * Получить детальную информацию о клиентах ЦН.
-     * Вся работа по поиску делегируется адаптеру зваимодействия с ЦН.
+     * Вся работа по поиску делегируется адаптеру взаимодействия с ЦН.
      * См. org.complitex.osznconnection.file.calculation.adapter.DefaultCalculationCenterAdapter.acquireAccountCorrectionDetails()
      * @param payment
      * @return
@@ -54,14 +55,22 @@ public class PaymentLookupBean extends AbstractBean {
     @Transactional
     @TransactionAttribute(TransactionAttributeType.NEVER)
     public List<AccountDetail> getAccounts(Payment payment) {
-        CalculationCenterInfo calculationCenterInfo = calculationCenterBean.getCurrentCalculationCenterInfo();
-        ICalculationCenterAdapter adapter = calculationCenterInfo.getAdapterInstance();
-        List<AccountDetail> accounts = adapter.acquireAccountCorrectionDetails(payment);
+        ICalculationCenterAdapter adapter = calculationCenterBean.getDefaultCalculationCenterAdapter();
+
+        List<AccountDetail> accounts = null;
+
+        try {
+            accounts = adapter.acquireAccountCorrectionDetails(payment);
+        } catch (AccountNotFoundException e) {
+            //todo add log
+        }
+
         if (accounts == null || accounts.isEmpty()) {
             payment.setStatus(RequestStatus.ACCOUNT_NUMBER_NOT_FOUND);
         } else {
             payment.setStatus(RequestStatus.ACCOUNT_NUMBER_RESOLVED);
         }
+
         return accounts;
     }
 }

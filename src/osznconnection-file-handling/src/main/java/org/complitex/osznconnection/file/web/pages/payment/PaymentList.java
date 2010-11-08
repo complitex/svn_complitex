@@ -22,7 +22,6 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.util.CloneUtil;
 import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
@@ -41,6 +40,7 @@ import org.complitex.osznconnection.file.web.GroupList;
 import org.complitex.osznconnection.file.web.component.StatusRenderer;
 
 import javax.ejb.EJB;
+import java.io.File;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -83,11 +83,11 @@ public final class PaymentList extends TemplatePage {
 
     private void init() {
         RequestFile requestFile = requestFileBean.findById(fileId);
-        String fileName = requestFile.getName();
-        String directory = requestFile.getDirectory();
-        IModel<String> labelModel = new StringResourceModel("label", this, null, new Object[]{fileName, directory});
-        add(new Label("title", labelModel));
-        add(new Label("label", labelModel));
+
+        String label = getStringFormat("label", requestFile.getDirectory(), File.separator, requestFile.getName());
+
+        add(new Label("title", label));
+        add(new Label("label", label));
 
         final WebMarkupContainer content = new WebMarkupContainer("content");
         content.setOutputMarkupId(true);

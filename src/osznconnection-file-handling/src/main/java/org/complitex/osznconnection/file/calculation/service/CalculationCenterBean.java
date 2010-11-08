@@ -6,8 +6,11 @@ package org.complitex.osznconnection.file.calculation.service;
 
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
-import org.complitex.osznconnection.file.entity.CalculationCenterInfo;
+import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
+import org.complitex.osznconnection.file.entity.CalculationCenterPreference;
 
+import javax.annotation.Resource;
+import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 
 /**
@@ -19,11 +22,17 @@ import javax.ejb.Stateless;
  */
 @Stateless(name = "CalculationCenterBean")
 public class CalculationCenterBean extends AbstractBean {
+    @Resource
+    private SessionContext sessionContext;
 
     private static final String MAPPING_NAMESPACE = CalculationCenterBean.class.getName();
 
     @Transactional
-    public CalculationCenterInfo getCurrentCalculationCenterInfo() {
-        return (CalculationCenterInfo) sqlSession().selectOne(MAPPING_NAMESPACE + ".getCurrentCenterInfo");
+    public CalculationCenterPreference getCurrentCalculationCenterInfo() {
+        return (CalculationCenterPreference) sqlSession().selectOne(MAPPING_NAMESPACE + ".getCurrentCenterInfo");
+    }
+
+    public ICalculationCenterAdapter getDefaultCalculationCenterAdapter(){
+        return (ICalculationCenterAdapter) sessionContext.lookup("java:module/" + getCurrentCalculationCenterInfo().getAdapterClass());
     }
 }

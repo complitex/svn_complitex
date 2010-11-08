@@ -3,6 +3,7 @@ package org.complitex.osznconnection.file.entity;
 import org.complitex.dictionaryfw.entity.ILoggable;
 import org.complitex.dictionaryfw.entity.LogChangeList;
 
+import java.io.File;
 import java.util.Date;
 
 /**
@@ -83,6 +84,10 @@ public class RequestFile implements ILoggable {
                 .add(collection, "bindedRecordCount", getBindedRecordCount());
 
         return logChangeList;
+    }
+
+    public String getFullName(){
+        return directory + File.separator + name;
     }
 
     public Long getId() {

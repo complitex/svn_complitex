@@ -17,6 +17,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
+import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 import java.util.List;
 
@@ -156,9 +157,8 @@ public class BindTaskBean implements ITaskBean<RequestFileGroup>{
      */
     private void bindPaymentFile(RequestFile paymentFile) throws BindException {
         //получаем информацию о текущем центре начисления
-        CalculationCenterInfo calculationCenterInfo = calculationCenterBean.getCurrentCalculationCenterInfo();
-        long calculationCenterId = calculationCenterInfo.getId();
-        ICalculationCenterAdapter adapter = calculationCenterInfo.getAdapterInstance();
+        Long calculationCenterId = calculationCenterBean.getCurrentCalculationCenterInfo().getCalculationCenterId();
+        ICalculationCenterAdapter adapter = calculationCenterBean.getDefaultCalculationCenterAdapter();
 
         //извлечь из базы все id подлежащие связыванию для файла payment и доставать записи порциями по BATCH_SIZE штук.
         List<Long> notResolvedPaymentIds = paymentBean.findIdsForBinding(paymentFile.getId());
@@ -186,10 +186,11 @@ public class BindTaskBean implements ITaskBean<RequestFileGroup>{
             } catch (Exception e) {
                 try {
                     userTransaction.rollback();
-                } catch (Exception exc) {
-                    log.error("", exc);
+                } catch (SystemException e1) {
+                    throw new RuntimeException(e1);
                 }
-                log.error("", e);
+
+                throw new RuntimeException(e);
             }
         }
 

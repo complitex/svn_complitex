@@ -5,14 +5,15 @@
 package org.complitex.osznconnection.file.calculation.adapter;
 
 import com.google.common.collect.Lists;
-import java.io.IOException;
-import java.io.Reader;
-import java.util.Date;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.complitex.osznconnection.file.entity.Benefit;
+
+import java.io.IOException;
+import java.io.Reader;
+import java.util.Date;
 
 /**
  *
@@ -45,7 +46,7 @@ public class ProcessBenefitTest {
 
         ICalculationCenterAdapter adapter = new DefaultCalculationCenterAdapter() {
 
-            @Override
+//            @Override
             protected SqlSession openSession() {
                 return sqlSessionFactory.openSession(false);
             }
@@ -59,7 +60,11 @@ public class ProcessBenefitTest {
         Benefit b = new Benefit();
         b.setAccountNumber("1000460875");
         b.setOrganizationId(1L);
-        adapter.processBenefit(new Date(), Lists.newArrayList(b), 2);
+        try {
+            adapter.processBenefit(new Date(), Lists.newArrayList(b), 2);
+        } catch (AccountNotFoundException e) {
+            e.printStackTrace();
+        }
         System.out.println("Status : " + b.getStatus());
     }
 }

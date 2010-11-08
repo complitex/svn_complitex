@@ -270,7 +270,9 @@ public class PaymentBean extends AbstractBean {
     public void updateAccountNumber(Payment payment) {
         sqlSession().update(MAPPING_NAMESPACE + ".updateAccountNumber", payment);
         benefitBean.updateAccountNumber(payment.getId(), payment.getAccountNumber());
-        long calculationCenterId = calculationCenterBean.getCurrentCalculationCenterInfo().getId();
+
+        long calculationCenterId = calculationCenterBean.getCurrentCalculationCenterInfo().getCalculationCenterId();
+
         personAccountLocalBean.saveOrUpdate(payment, calculationCenterId);
     }
 

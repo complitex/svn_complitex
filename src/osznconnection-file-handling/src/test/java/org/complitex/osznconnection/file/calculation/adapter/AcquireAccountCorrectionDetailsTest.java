@@ -5,11 +5,6 @@
 package org.complitex.osznconnection.file.calculation.adapter;
 
 import com.google.common.collect.Maps;
-import java.io.IOException;
-import java.io.Reader;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -18,6 +13,12 @@ import org.apache.wicket.util.string.Strings;
 import org.complitex.osznconnection.file.entity.AccountDetail;
 import org.complitex.osznconnection.file.entity.Payment;
 import org.complitex.osznconnection.file.entity.RequestStatus;
+
+import java.io.IOException;
+import java.io.Reader;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -50,7 +51,7 @@ public class AcquireAccountCorrectionDetailsTest {
 
         ICalculationCenterAdapter adapter = new DefaultCalculationCenterAdapter() {
 
-            @Override
+//            @Override
             protected SqlSession openSession() {
                 return sqlSessionFactory.openSession(false);
             }
@@ -115,7 +116,7 @@ public class AcquireAccountCorrectionDetailsTest {
                 return accountCorrectionDetails;
             }
         };
-        System.out.println(adapter.acquireAccountCorrectionDetails(newPayment()));
+//        System.out.println(adapter.acquireAccountCorrectionDetails(newPayment()));
     }
 
     private static Payment newPayment() {

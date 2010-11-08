@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.complitex.osznconnection.file.calculation.service.CalculationCenterBean">
-    <resultMap id="calculationCenterInfo" type="org.complitex.osznconnection.file.entity.CalculationCenterInfo">
-        <constructor>
-            <arg column="calculation_center_id" javaType="_long"/>
-            <arg column="adapter_class" javaType="string"/>
-        </constructor>
+    <resultMap id="calculationCenterPreference" type="org.complitex.osznconnection.file.entity.CalculationCenterPreference">
+        <id column="calculation_center_id" property="calculationCenterId"/>
+        <result column="adapter_class" property="adapterClass"/>
     </resultMap>
 
-    <select id="getCurrentCenterInfo" resultMap="calculationCenterInfo">
-        SELECT ccp.`calculation_center_id`, ccp.`adapter_class` FROM `calculation_center_preference` ccp LIMIT 0,1
+    <select id="getCurrentCenterInfo" resultMap="calculationCenterPreference">
+        SELECT * FROM `calculation_center_preference` LIMIT 1
     </select>
 
 </mapper>
