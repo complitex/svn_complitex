@@ -31,6 +31,7 @@ import javax.ejb.EJB;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import org.complitex.osznconnection.information.strategy.street.StreetStrategy;
 
 /**
  * Панель для корректировки адреса вручную, когда нет соответствующей коррекции и поиск по локальной адресной базе не дал результатов.
@@ -114,7 +115,7 @@ public abstract class AddressCorrectionPanel extends Panel {
                 if (validate(componentState)) {
                     correctAddress(getObjectId(componentState.get("city")),
                             getObjectId(componentState.get("street")),
-                            getObjectTypeId(componentState.get("street")),
+                            getStreetTypeId(componentState.get("street")),
                             getObjectId(componentState.get("building")),
                             getObjectId(componentState.get("apartment")));
 
@@ -144,8 +145,8 @@ public abstract class AddressCorrectionPanel extends Panel {
         return object == null ? null : object.getId();
     }
 
-    private static Long getObjectTypeId(DomainObject object) {
-        return object == null ? null : object.getEntityTypeId();
+    private static Long getStreetTypeId(DomainObject streetObject) {
+        return streetObject == null ? null : StreetStrategy.getStreetType(streetObject);
     }
 
     protected abstract void correctAddress(Long cityId, Long streetId, Long streetTypeId, Long buildingId, Long apartmentId);

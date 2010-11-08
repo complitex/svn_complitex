@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import org.complitex.dictionaryfw.service.EntityBean;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
 import org.complitex.osznconnection.information.strategy.city.web.edit.CityTypeComponent;
 
@@ -47,9 +46,6 @@ public class CityStrategy extends Strategy {
 
     @EJB
     private StringCultureBean stringBean;
-
-    @EJB
-    private EntityBean entityBean;
 
     @EJB
     private StrategyFactory strategyFactory;

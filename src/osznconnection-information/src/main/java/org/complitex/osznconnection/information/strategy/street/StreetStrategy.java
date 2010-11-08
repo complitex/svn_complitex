@@ -2,6 +2,7 @@ package org.complitex.osznconnection.information.strategy.street;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.wicket.PageParameters;
@@ -33,8 +34,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import org.complitex.dictionaryfw.entity.description.EntityType;
-import org.complitex.dictionaryfw.service.EntityBean;
+import org.complitex.dictionaryfw.strategy.StrategyFactory;
+import org.complitex.dictionaryfw.strategy.web.AbstractComplexAttributesPanel;
+import org.complitex.osznconnection.information.strategy.street.web.edit.StreetTypeComponent;
 
 /**
  *
@@ -43,18 +45,20 @@ import org.complitex.dictionaryfw.service.EntityBean;
 @Stateless
 public class StreetStrategy extends Strategy {
 
-    @EJB(beanName = "StringCultureBean")
+    private static final String STREET_NAMESPACE = StreetStrategy.class.getPackage().getName() + ".Street";
+
+    @EJB
     private StringCultureBean stringBean;
 
     @EJB
-    private EntityBean entityBean;
+    private StrategyFactory strategyFactory;
 
     /*
      * Attribute type ids
      */
-    private static final long NAME = 300L;
+    private static final long NAME = 300;
 
-    private static final String STREET_NAMESPACE = StreetStrategy.class.getPackage().getName() + ".Street";
+    public static final long STREET_TYPE_ATTRIBUTE = 301;
 
     @Override
     public String getEntityTable() {
@@ -62,15 +66,25 @@ public class StreetStrategy extends Strategy {
     }
 
     @Override
+    public DomainObject newInstance() {
+        DomainObject object = super.newInstance();
+        newStreetTypeAttribute(object);
+        return object;
+    }
+
+    private void newStreetTypeAttribute(DomainObject object) {
+        Attribute districtAttr = new Attribute();
+        districtAttr.setAttributeId(1L);
+        districtAttr.setAttributeTypeId(STREET_TYPE_ATTRIBUTE);
+        districtAttr.setValueTypeId(STREET_TYPE_ATTRIBUTE);
+        object.addAttribute(districtAttr);
+    }
+
+    @Override
     @Transactional
     public List<DomainObject> find(DomainObjectExample example) {
         example.setTable(getEntityTable());
         return sqlSession().selectList(STREET_NAMESPACE + "." + FIND_OPERATION, example);
-    }
-
-    @Override
-    public boolean isSimpleAttributeType(EntityAttributeType attributeDescription) {
-        return attributeDescription.getId() >= NAME;
     }
 
     @Override
@@ -86,26 +100,26 @@ public class StreetStrategy extends Strategy {
 
     @Override
     public String displayDomainObject(DomainObject object, Locale locale) {
-        String name = stringBean.displayValue(Iterables.find(object.getAttributes(), new Predicate<Attribute>() {
+        String streetName = stringBean.displayValue(Iterables.find(object.getAttributes(), new Predicate<Attribute>() {
 
             @Override
             public boolean apply(Attribute attr) {
                 return attr.getAttributeTypeId().equals(NAME);
             }
         }).getLocalizedValues(), locale);
-        final Long entityTypeId = object.getEntityTypeId();
-        if (entityTypeId != null) {
-            String streetTypeName = stringBean.displayValue(Iterables.find(entityBean.getFullEntity(getEntityTable()).getEntityTypes(), new Predicate<EntityType>() {
-
-                @Override
-                public boolean apply(EntityType entityType) {
-                    return entityType.getId().equals(entityTypeId);
-                }
-            }).getEntityTypeNames(), locale);
-            return streetTypeName + " " + name;
-        } else {
-            return name;
+        Long streetTypeId = getStreetType(object);
+        if (streetTypeId != null) {
+            Strategy streetTypeStrategy = strategyFactory.getStrategy("street_type");
+            DomainObjectExample example = new DomainObjectExample(streetTypeId);
+            streetTypeStrategy.configureExample(example, ImmutableMap.<String, Long>of(), null);
+            List<DomainObject> objects = streetTypeStrategy.find(example);
+            if (objects.size() == 1) {
+                DomainObject streetType = objects.get(0);
+                String streetTypeName = streetTypeStrategy.displayDomainObject(streetType, locale);
+                return streetTypeName + " " + streetName;
+            }
         }
+        return streetName;
     }
 
     @Override
@@ -206,6 +220,11 @@ public class StreetStrategy extends Strategy {
     }
 
     @Override
+    public Class<? extends AbstractComplexAttributesPanel> getComplexAttributesPanelClass() {
+        return StreetTypeComponent.class;
+    }
+
+    @Override
     public Class<? extends WebPage> getListPage() {
         return DomainObjectList.class;
     }
@@ -233,5 +252,19 @@ public class StreetStrategy extends Strategy {
         params.put(HistoryPage.ENTITY, getEntityTable());
         params.put(HistoryPage.OBJECT_ID, objectId);
         return params;
+    }
+
+    public static Long getStreetType(DomainObject streetObject) {
+        try {
+            return Iterables.find(streetObject.getAttributes(), new Predicate<Attribute>() {
+
+                @Override
+                public boolean apply(Attribute attr) {
+                    return attr.getAttributeTypeId().equals(STREET_TYPE_ATTRIBUTE);
+                }
+            }).getValueId();
+        } catch (NoSuchElementException e) {
+            return null;
+        }
     }
 }

@@ -1,10 +1,21 @@
--- Street types
-insert into `string_culture`(`id`, `locale`, `value`) values
-(302, 'ru', UPPER('ул')), (302, 'uk', UPPER('вулиця')),
-(303, 'ru', UPPER('пр-т')), (303, 'uk', UPPER('проспект')),
-(304, 'ru', UPPER('пер-к')), (304, 'uk', UPPER('провулок'));
-insert into `entity_type` (`id`, `entity_id`, `entity_type_name_id`) values
-(300, 300, 302), (301, 300, 303), (302, 300, 304);
+-- City Types
+INSERT INTO `city_type_string_culture`(`id`, `locale`, `value`) VALUES (1,'ru','ГОРОД'), (1,'uk','МIСТО'), (2,'ru','ДЕРЕВНЯ'), (2,'uk','СЕЛО');
+INSERT INTO `city_type` (`object_id`) VALUES (1), (2);
+INSERT INTO `city_type_attribute`(`attribute_id`, `object_id`, `attribute_type_id`, `value_id`, `value_type_id`) VALUES (1,1,1300,1,1300),
+(1,2,1300,2,1300);
+
+-- Street Types
+INSERT INTO `street_type_string_culture`(`id`, `locale`, `value`) VALUES (10000,'ru','Б-Р'), (10001,'ru','М'), (10002,'ru','М-Н'),
+(10003,'ru','ПЕР'), (10004,'ru','ПЛ'), (10005,'ru','П'), (10006,'ru','ПОС'), (10007,'ru','ПР-Д'), (10008,'ru','ПРОСП'), (10009,'ru','СП'),
+(10010,'ru','Т'), (10011,'ru','ТУП'), (10012,'ru','УЛ'), (10013,'ru','ШОССЕ'), (10014,'ru','НАБ'), (10015,'ru','В-Д'), (10016,'ru','СТ');
+
+INSERT INTO `street_type` (`object_id`) VALUES (10000), (10001), (10002), (10003), (10004), (10005), (10006), (10007), (10008), (10009), (10010),
+(10011), (10012), (10013), (10014), (10015), (10016);
+INSERT INTO `street_type_attribute`(`attribute_id`, `object_id`, `attribute_type_id`, `value_id`, `value_type_id`) VALUES (1,10000,1400,10000,1400),
+(1,10001,1400,10001,1400), (1,10002,1400,10002,1400), (1,10003,1400,10003,1400), (1,10004,1400,10004,1400), (1,10005,1400,10005,1400),
+(1,10006,1400,10006,1400), (1,10007,1400,10007,1400), (1,10008,1400,10008,1400), (1,10009,1400,10009,1400), (1,10010,1400,10010,1400),
+(1,10011,1400,10011,1400), (1,10012,1400,10012,1400), (1,10013,1400,10013,1400), (1,10014,1400,10014,1400), (1,10015,1400,10015,1400)
+, (1,10016,1400,10016,1400);
 
 
 -- Rooms
@@ -77,13 +88,13 @@ insert into street_string_culture(id, locale, value) values (1, 'ru', UPPER('Т�
                                                             (3, 'ru', UPPER('Морской')), (3,'uk', UPPER('Morskoy')),
                                                             (4, 'ru', UPPER('КОСИОРА')), (4,'uk', UPPER('КОСИОРА')),
                                                             (5, 'ru', UPPER('ФРАНТИШЕКА КРАЛА')), (5,'uk', UPPER('ФРАНТИШЕКА КРАЛА'));
-insert into street(object_id, parent_id, parent_entity_id, entity_type_id) values (1,1,400,300), (2,2,400,300), (3,1,400,300), (4,3,400,301), (5,3,400,300);
+insert into street(object_id, parent_id, parent_entity_id) values (1,1,400), (2,2,400), (3,1,400), (4,3,400), (5,3,400);
 insert into street_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
-(1,1,300,1,300),
-(1,2,300,2,300),
-(1,3,300,3,300),
-(1,4,300,4,300),
-(1,5,300,5,300);
+(1,1,300,1,300),(1,1,301,10012,301),
+(1,2,300,2,300),(1,2,301,10012,301),
+(1,3,300,3,300),(1,3,301,10008,301),
+(1,4,300,4,300),(1,4,301,10012,301),
+(1,5,300,5,300),(1,5,301,10012,301);
 
 -- Districts
 insert into district_string_culture(id, locale, value) values (1, 'ru', UPPER('Ленинский')), (1, 'uk',UPPER('Leninsky')),
@@ -161,8 +172,10 @@ values
 (4,'Матвей', 'Матвеевич', 'Матвеев', 'Харьков', 'ФРАНТИШЕКА КРАЛА', '  2 5А','  ', '19', '2010-09-09',1);
 
 -- Address corrections
-insert into entity_type_correction(organization_id, `type`, entity_type_id, internal_organization_id) values (2,UPPER('ул'),300,0);
-insert into entity_type_correction(organization_id, `type`, entity_type_id, internal_organization_id) values (2,UPPER('пр-т'),301,0);
+INSERT INTO `street_type_correction`(`object_id`, `correction`, `organization_id`, `organization_code`, `internal_organization_id`) VALUES
+(10000,'Б-Р',2,'1',0), (10001,'М',2,'1',0), (10002,'М-Н',2,'1',0), (10003,'ПЕР',2,'1',0), (10004,'ПЛ',2,'1',0), (10005,'П',2,'1',0)
+, (10006,'ПОС',2,'1',0), (10007,'ПР-Д',2,'1',0), (10008,'ПРОСП',2,'1',0), (10009,'СП',2,'1',0), (10010,'Т',2,'1',0), (10011,'ТУП',2,'1',0)
+, (10012,'УЛ',2,'1',0), (10013,'ШОССЕ',2,'1',0), (10014,'НАБ',2,'1',0), (10015,'В-Д',2,'1',0), (10016,'СТ',2,'1',0);
 
 insert into city_correction(organization_id, correction, object_id, internal_organization_id) values (2,UPPER('Новосибирск'),1,0);
 insert into street_correction(organization_id, correction, object_id, internal_organization_id) values (2,UPPER('Терешковой'),1,0);
