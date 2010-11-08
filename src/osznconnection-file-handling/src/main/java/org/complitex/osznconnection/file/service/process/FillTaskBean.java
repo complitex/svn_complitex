@@ -18,6 +18,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
+import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 import java.util.Date;
 import java.util.List;
@@ -157,10 +158,10 @@ public class FillTaskBean implements ITaskBean<RequestFileGroup>{
             } catch (Exception e) {    //todo add throw up exception
                 try {
                     userTransaction.rollback();
-                } catch (Exception exc) {
-                    log.error("", exc);
+                } catch (SystemException e1) {
+                    throw new RuntimeException(e1);
                 }
-                log.error("", e);
+                throw new RuntimeException(e);
             }
         }
 
