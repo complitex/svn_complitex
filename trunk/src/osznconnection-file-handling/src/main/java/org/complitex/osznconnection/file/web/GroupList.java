@@ -236,7 +236,7 @@ public class GroupList extends TemplatePage {
 
                 //checkbox
                 CheckBox checkBox = new CheckBox("selected", selectModels.get(group));
-                checkBox.setVisible(!group.isProcessing());
+                checkBox.setVisible(!group.isProcessing() || !isProcessing());
                 checkBox.setEnabled(!isProcessing());
                 item.add(checkBox);
 
@@ -462,6 +462,10 @@ public class GroupList extends TemplatePage {
                             processManagerBean.getProcess().ordinal()));
                     break;
             }
+        }
+
+        for (RequestFile rf : processManagerBean.getLinkError(true)){
+            error(getStringFormat("request_file.link_error", rf.getDirectory(), File.separator, rf.getName()));
         }
 
         //Process completed
