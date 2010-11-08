@@ -61,7 +61,7 @@ public class RequestFile implements ILoggable {
 
     @Override
     public String getLogObjectName() {
-        return name;
+        return getFullName();
     }
 
     public LogChangeList getLogChangeList(){
@@ -73,6 +73,7 @@ public class RequestFile implements ILoggable {
 
         logChangeList.add(collection, "id", getId())
                 .add(collection, "loaded", getLoaded())
+                .add(collection, "directory", getDirectory())
                 .add(collection, "name", getName())
                 .add(collection, "organizationId", getOrganizationId())
                 .add(collection, "month", getMonth())

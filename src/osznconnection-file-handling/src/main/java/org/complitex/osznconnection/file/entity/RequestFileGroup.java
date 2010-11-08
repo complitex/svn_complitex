@@ -4,6 +4,7 @@ import org.complitex.dictionaryfw.entity.ILoggable;
 import org.complitex.dictionaryfw.entity.LogChangeList;
 import org.complitex.dictionaryfw.util.DateUtil;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -46,11 +47,7 @@ public class RequestFileGroup implements ILoggable{
 
     @Override
     public String getLogObjectName() {
-        if (paymentFile != null){
-            return paymentFile.getName();
-        }
-
-        return null;
+        return getFullName();
     }
 
     @Override
@@ -66,6 +63,10 @@ public class RequestFileGroup implements ILoggable{
         }
 
         return logChangeList;
+    }
+
+    public String getFullName(){
+        return getDirectory() + File.separator + getName();
     }
 
     public boolean isProcessing() {

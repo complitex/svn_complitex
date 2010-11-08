@@ -1,5 +1,6 @@
 package org.complitex.osznconnection.file.service.process;
 
+import org.complitex.dictionaryfw.entity.Log;
 import org.complitex.dictionaryfw.service.executor.ExecuteException;
 import org.complitex.dictionaryfw.service.executor.ITaskBean;
 import org.complitex.osznconnection.file.Module;
@@ -71,5 +72,10 @@ public class LoadTarifTaskBean implements ITaskBean<RequestFile>{
     @Override
     public Class getControllerClass() {
         return LoadTarifTaskBean.class;
+    }
+
+    @Override
+    public Log.EVENT getEvent() {
+        return Log.EVENT.CREATE;
     }
 }
