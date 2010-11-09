@@ -150,6 +150,9 @@ public class GroupList extends TemplatePage {
         //Год
         filterForm.add(new YearDropDownChoice("year"));
 
+        //Директория
+        filterForm.add(new TextField<String>("directory"));
+
         //Имя файла начислений
         filterForm.add(new TextField<String>("paymentName"));
 
@@ -269,9 +272,12 @@ public class GroupList extends TemplatePage {
                 item.add(new Label("month", DateUtil.displayMonth(group.getMonth(), getLocale())));
                 item.add(new Label("year", StringUtil.valueOf(group.getYear())));
 
+                //Директория
+                item.add(new Label("directory", group.getDirectory()));
+
                 //payment name link
                 if (group.getPaymentFile() != null){
-                    item.add(new BookmarkablePageLinkPanel<RequestFile>("paymentName", group.getPaymentFile().getFullName(),
+                    item.add(new BookmarkablePageLinkPanel<RequestFile>("paymentName", group.getPaymentFile().getName(),
                             PaymentList.class, new PageParameters("request_file_id=" + group.getPaymentFile().getId())));
                 }else{
                     item.add(new Label("paymentName", "—"));
@@ -279,7 +285,7 @@ public class GroupList extends TemplatePage {
 
                 //benefit name link
                 if (group.getBenefitFile() != null){
-                    item.add(new BookmarkablePageLinkPanel<RequestFile>("benefitName", group.getBenefitFile().getFullName(),
+                    item.add(new BookmarkablePageLinkPanel<RequestFile>("benefitName", group.getBenefitFile().getName(),
                             BenefitList.class, new PageParameters("request_file_id=" + group.getBenefitFile().getId())));
                 }else{
                     item.add(new Label("benefitName", "—"));
@@ -310,6 +316,7 @@ public class GroupList extends TemplatePage {
         filterForm.add(new ArrowOrderByBorder("header.registry", "registry", dataProvider, dataView, filterForm));
         filterForm.add(new ArrowOrderByBorder("header.month", "month", dataProvider, dataView, filterForm));
         filterForm.add(new ArrowOrderByBorder("header.year", "year", dataProvider, dataView, filterForm));
+        filterForm.add(new ArrowOrderByBorder("header.directory", "directory", dataProvider, dataView, filterForm));
         filterForm.add(new ArrowOrderByBorder("header.paymentName", "paymentName", dataProvider, dataView, filterForm));
         filterForm.add(new ArrowOrderByBorder("header.benefitName", "benefitName", dataProvider, dataView, filterForm));
         filterForm.add(new ArrowOrderByBorder("header.loaded_record_count", "loaded_record_count", dataProvider, dataView, filterForm));
@@ -441,6 +448,23 @@ public class GroupList extends TemplatePage {
         };
         filterForm.add(save);
 
+        //Отменить
+        Button cancel = new Button("cancel") {
+
+            @Override
+            public void onSubmit() {
+                processManagerBean.cancel();
+
+                info(getStringOrKey("process.cancel"));
+            }
+
+            @Override
+            public boolean isVisible() {
+                return isProcessing() && !processManagerBean.isStop();
+            }
+        };
+        filterForm.add(cancel);
+
         //Отобразить сообщения
         showMessages();
 
@@ -487,6 +511,15 @@ public class GroupList extends TemplatePage {
         //Process completed
         if (processManagerBean.isCompleted() && !completedDisplayed) {
             info(getStringFormat("process.done", processManagerBean.getSuccessCount(),
+                    processManagerBean.getSkippedCount(), processManagerBean.getErrorCount(),
+                    processManagerBean.getProcess().ordinal()));
+
+            completedDisplayed = true;
+        }
+
+        //Process canceled
+        if (processManagerBean.isCanceled() && !completedDisplayed) {
+            info(getStringFormat("process.canceled", processManagerBean.getSuccessCount(),
                     processManagerBean.getSkippedCount(), processManagerBean.getErrorCount(),
                     processManagerBean.getProcess().ordinal()));
 

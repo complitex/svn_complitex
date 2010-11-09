@@ -154,6 +154,18 @@ public class ProcessManagerBean {
         return executorBean.getStatus().equals(ExecutorBean.STATUS.COMPLETED);
     }
 
+    public boolean isCanceled(){
+        return executorBean.getStatus().equals(ExecutorBean.STATUS.CANCELED);
+    }
+
+    public boolean isStop(){
+        return executorBean.isStop();
+    }
+
+    public void cancel(){
+        executorBean.cancel();
+    }
+
     @Asynchronous
     public void loadGroup(Long organizationId, String districtCode, int monthFrom, int monthTo, int year){
         try {

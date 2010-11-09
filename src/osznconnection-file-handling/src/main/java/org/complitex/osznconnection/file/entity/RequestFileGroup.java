@@ -190,4 +190,17 @@ public class RequestFileGroup implements ILoggable{
 
         return null;
     }
+
+    @Override
+    public String toString() {
+        return "RequestFileGroup{" +
+                "id=" + id +
+                ", benefitFile=" + benefitFile +
+                ", paymentFile=" + paymentFile +
+                ", loadedRecordCount=" + loadedRecordCount +
+                ", bindedRecordCount=" + bindedRecordCount +
+                ", filledRecordCount=" + filledRecordCount +
+                ", status=" + status +
+                '}';
+    }
 }

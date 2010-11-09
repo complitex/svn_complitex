@@ -8,7 +8,7 @@ import org.complitex.osznconnection.file.entity.RequestFile;
  *         Date: 15.10.2010 16:45:30
  */
 public class SaveException extends ExecuteException {
-    private final static String MESSAGE_PATTERN = "Ошибка выгрузки файла {1}";
+    private final static String MESSAGE_PATTERN = "Ошибка выгрузки файла {0}";
 
     public SaveException(Throwable cause, RequestFile requestFile) {
         super(cause, MESSAGE_PATTERN, requestFile.getAbsolutePath());
