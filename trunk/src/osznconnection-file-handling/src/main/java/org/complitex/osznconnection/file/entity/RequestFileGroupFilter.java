@@ -18,6 +18,7 @@ public class RequestFileGroupFilter  extends AbstractFilter {
     private Integer registry;
     private Integer year;
     private Integer month;
+    private String directory;
     private String paymentName;
     private String benefitName;
     private Integer dbfRecordCount;
@@ -89,6 +90,14 @@ public class RequestFileGroupFilter  extends AbstractFilter {
 
     public void setMonth(Integer month) {
         this.month = month;
+    }
+
+    public String getDirectory() {
+        return directory;
+    }
+
+    public void setDirectory(String directory) {
+        this.directory = directory;
     }
 
     public String getPaymentName() {

@@ -34,6 +34,7 @@
                     <th class="center" wicket:id="header.registry"><wicket:message key="registry"/></th>
                     <th class="center" wicket:id="header.month"><wicket:message key="month"/></th>
                     <th class="center" wicket:id="header.year"><wicket:message key="year"/></th>
+                    <th class="center" wicket:id="header.directory"><wicket:message key="directory"/></th>
                     <th class="center" wicket:id="header.paymentName"><wicket:message key="paymentName"/></th>
                     <th class="center" wicket:id="header.benefitName"><wicket:message key="benefitName"/></th>                    
                     <th class="center" wicket:id="header.loaded_record_count"><wicket:message key="loaded_record_count"/></th>
@@ -56,6 +57,7 @@
                     <th class="center"><input type="text" wicket:id="registry"/></th>
                     <th class="center"><select wicket:id="month"></select></th>
                     <th class="center"><select wicket:id="year"></select></th>
+                    <th class="center"><input type="text" wicket:id="directory"/></th>
                     <th class="center"><input type="text" wicket:id="paymentName"/></th>
                     <th class="center"><input type="text" wicket:id="benefitName"/></th>
                     <th class="center"><input type="text" wicket:id="loadedRecordCount"/></th>
@@ -79,6 +81,7 @@
                     <td><span wicket:id="registry"></span></td>
                     <td><span wicket:id="month"></span></td>
                     <td><span wicket:id="year"></span></td>
+                    <td><span wicket:id="directory"></span></td>
                     <td><span wicket:id="paymentName"></span></td>
                     <td><span wicket:id="benefitName"></span></td>
                     <td><span wicket:id="loaded_record_count"></span></td>
@@ -97,6 +100,7 @@
                 <input type="submit" class="btnBig" wicket:id="save" wicket:message="value:save"/>
                 <input type="submit" class="btnMiddle" wicket:id="delete" wicket:message="value:delete"
                        onclick="return confirm('Удалить выбранные файлы?');"/>
+                <input type="submit" class="btnBig" wicket:id="cancel" wicket:message="value:cancel"/>
             </div>
         </form>
     </div>

@@ -76,6 +76,7 @@
             (p.`id` is not null or b.`id` is not null) 
             <if test="id != null">and g.`id` = #{id}</if>
             <if test="loaded != null">and YEAR(p.`loaded`) = YEAR(#{loaded}) and DAY(p.`loaded`) = DAY(#{loaded})</if>
+            <if test="directory != null">and p.`directory` like CONCAT('%',#{directory},'%')</if>
             <if test="paymentName != null">and p.`name` like CONCAT('%',#{paymentName},'%')</if>
             <if test="benefitName != null">and b.`name` like CONCAT('%',#{benefitName},'%')</if>            
             <if test="organization != null">and p.`organization_id` = #{organization.id}</if>

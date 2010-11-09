@@ -88,6 +88,10 @@ public class RequestFile implements ILoggable {
     }
 
     public String getFullName(){
+        if (name == null){
+            return null;
+        }
+
         return directory + File.separator + name;
     }
 
@@ -217,5 +221,27 @@ public class RequestFile implements ILoggable {
 
     public void setAbsolutePath(String absolutePath) {
         this.absolutePath = absolutePath;
+    }
+
+    @Override
+    public String toString() {
+        return "RequestFile{" +
+                "id=" + id +
+                ", groupId=" + groupId +
+                ", loaded=" + loaded +
+                ", name='" + name + '\'' +
+                ", directory='" + directory + '\'' +
+                ", organizationId=" + organizationId +
+                ", registry=" + registry +
+                ", month=" + month +
+                ", year=" + year +
+                ", dbfRecordCount=" + dbfRecordCount +
+                ", length=" + length +
+                ", checkSum='" + checkSum + '\'' +
+                ", type=" + type +
+                ", loadedRecordCount=" + loadedRecordCount +
+                ", bindedRecordCount=" + bindedRecordCount +
+                ", absolutePath='" + absolutePath + '\'' +
+                '}';
     }
 }
