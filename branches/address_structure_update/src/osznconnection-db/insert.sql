@@ -20,12 +20,15 @@ INSERT INTO `sequence` (`sequence_name`, `sequence_value`) VALUES
 ('string_culture',1),
 ('apartment',1), ('apartment_string_culture',1),
 ('building',1), ('building_string_culture',1),
+('building_address',1), ('building_address_string_culture',1),
 ('country',1), ('country_string_culture',1),
 ('district',1), ('district_string_culture',1),
 ('city',1), ('city_string_culture',1),
+('city_type',1), ('city_type_string_culture',1),
 ('region',1), ('region_string_culture',1),
 ('room',1), ('room_string_culture',1),
 ('street',1), ('street_string_culture',1),
+('street_type',1), ('street_type_string_culture',1),
 ('organization',1), ('organization_string_culture',1),
 ('user_info', 1), ('user_info_string_culture', 1),
 ('ownership',1), ('ownership_string_culture',1),
@@ -104,21 +107,31 @@ INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_
 
 INSERT INTO `string_culture`(`id`, `locale`, `value`) VALUES (500, 'ru', 'Дом'), (500, 'uk', 'Будинок');
 INSERT INTO `entity`(`id`, `entity_table`, `entity_name_id`, `strategy_factory`) VALUES (500, 'building', 500, '');
-INSERT INTO `string_culture`(`id`, `locale`, `value`) VALUES (501, 'ru', UPPER('Номер дома')), (501, 'uk', UPPER('Номер будинку'));
-INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (500, 500, 1, 501, 1);
-INSERT INTO `string_culture`(`id`, `locale`, `value`) VALUES (502, 'ru', UPPER('Корпус')), (502, 'uk', UPPER('Корпус'));
+INSERT INTO `string_culture`(`id`, `locale`, `value`) VALUES (501, 'ru', UPPER('Район')), (501, 'uk', UPPER('Район'));
+INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (500, 500, 0, 501, 1);
+INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (500, 500, 'district');
+INSERT INTO `string_culture`(`id`, `locale`, `value`) VALUES (502, 'ru', UPPER('Альтернативный адрес')), (502, 'uk', UPPER('Альтернативный адрес'));
 INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (501, 500, 0, 502, 1);
-INSERT INTO `string_culture`(`id`, `locale`, `value`) VALUES (503, 'ru', UPPER('Строение')), (503, 'uk', UPPER('Будова'));
-INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (502, 500, 0, 503, 1);
-INSERT INTO `string_culture`(`id`, `locale`, `value`) VALUES (504, 'ru', UPPER('Улица')), (504, 'uk', UPPER('Вулиця'));
-INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (503, 500, 0, 504, 1);
-INSERT INTO `string_culture`(`id`, `locale`, `value`) VALUES (505, 'ru', UPPER('Район')), (505, 'uk', UPPER('Район'));
-INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (504, 500, 0, 505, 1);
-INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (500, 500, UPPER('string_culture'));
-INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (501, 501, UPPER('string_culture'));
-INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (502, 502, UPPER('string_culture'));
-INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (503, 503, 'street');
-INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (504, 504, 'district');
+INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (501, 501, 'building_address');
+
+
+-- --------------------------------
+-- Building Address
+-- --------------------------------
+
+INSERT INTO `string_culture`(`id`, `locale`, `value`) VALUES (1500, 'ru', 'Адрес здания'), (1500, 'uk', 'Адрес здания');
+INSERT INTO `entity`(`id`, `entity_table`, `entity_name_id`, `strategy_factory`) VALUES (1500, 'building_address', 1500, '');
+INSERT INTO `string_culture`(`id`, `locale`, `value`) VALUES (1501, 'ru', UPPER('Номер дома')), (1501, 'uk', UPPER('Номер будинку'));
+INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (1500, 1500, 1, 1501, 1);
+INSERT INTO `string_culture`(`id`, `locale`, `value`) VALUES (1502, 'ru', UPPER('Корпус')), (1502, 'uk', UPPER('Корпус'));
+INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (1501, 1500, 0, 1502, 1);
+INSERT INTO `string_culture`(`id`, `locale`, `value`) VALUES (1503, 'ru', UPPER('Строение')), (1503, 'uk', UPPER('Будова'));
+INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (1502, 1500, 0, 1503, 1);
+INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (1500, 1500, UPPER('string_culture'));
+INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (1501, 1501, UPPER('string_culture'));
+INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (1502, 1502, UPPER('string_culture'));
+--INSERT INTO `string_culture`(`id`, `locale`, `value`) VALUES (504, 'ru', UPPER('Улица')), (504, 'uk', UPPER('Вулиця'));
+--INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (503, 500, 0, 504, 1);
 
 -- --------------------------------
 -- District

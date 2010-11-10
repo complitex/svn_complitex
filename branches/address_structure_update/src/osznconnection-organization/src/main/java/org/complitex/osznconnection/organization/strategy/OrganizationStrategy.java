@@ -255,7 +255,7 @@ public class OrganizationStrategy extends Strategy {
         example.setEntityTypeId(OSZN);
         example.setOrderByAttribureTypeId(OrganizationStrategy.NAME);
         configureExample(example, ImmutableMap.<String, Long>of(), null);
-        return find(example);
+        return (List<DomainObject>)find(example);
     }
 
     public List<DomainObject> getAllCalculationCentres() {
@@ -263,7 +263,7 @@ public class OrganizationStrategy extends Strategy {
         example.setEntityTypeId(CALCULATION_CENTER);
         example.setOrderByAttribureTypeId(OrganizationStrategy.NAME);
         configureExample(example, ImmutableMap.<String, Long>of(), null);
-        return find(example);
+        return (List<DomainObject>)find(example);
     }
 
     public Attribute getDistrictAttribute(DomainObject organization) {

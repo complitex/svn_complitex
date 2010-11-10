@@ -4,7 +4,6 @@
  */
 package org.complitex.osznconnection.file.service;
 
-import org.complitex.dictionaryfw.entity.Attribute;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
@@ -18,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import org.complitex.osznconnection.information.strategy.building.BuildingStrategy;
+import org.complitex.osznconnection.information.strategy.building.entity.Building;
 import org.complitex.osznconnection.information.strategy.street.StreetStrategy;
 
 /**
@@ -40,6 +40,9 @@ public class AddressService extends AbstractBean {
 
     @EJB(beanName = "StrategyFactory")
     private StrategyFactory strategyFactory;
+
+    @EJB
+    private BuildingStrategy buildingStrategy;
 
     /**
      * Разрешить переход "ОСЗН адрес -> локальная адресная база"
@@ -129,15 +132,13 @@ public class AddressService extends AbstractBean {
 
         if (buildingId != null) {
             payment.setInternalBuildingId(buildingId);
-            DomainObject buildingObject = strategyFactory.getStrategy("building").findById(buildingId);
-            payment.setInternalCityId(buildingObject.getParentId());
-
-            for (Attribute attribute : buildingObject.getAttributes()) {
-                if (attribute.getAttributeTypeId().equals(BuildingStrategy.STREET)) {
-                    payment.setInternalStreetId(attribute.getValueId());
-                    break;
-                }
+            Building building = buildingStrategy.findById(buildingId);
+            Long internalStreetId = building.getPrimaryStreetId();
+            if (streetId != null) {
+                payment.setInternalStreetId(internalStreetId);
             }
+            //TODO: add setInternalCityId
+
             payment.setStatus(RequestStatus.CITY_UNRESOLVED);
         } else {
             payment.setStatus(RequestStatus.BUILDING_UNRESOLVED_LOCALLY);

@@ -46,7 +46,7 @@ public class StreetTypeCorrectionEdit extends FormTemplatePage {
         public StreetTypeChoicePanel(String id, final Correction streetTypeCorrection) {
             super(id);
 
-            final List<DomainObject> allStreetTypes = getEntityTypes();
+            final List<? extends DomainObject> allStreetTypes = getEntityTypes();
             IModel<DomainObject> entityTypeModel = new Model<DomainObject>() {
 
                 @Override
@@ -82,7 +82,7 @@ public class StreetTypeCorrectionEdit extends FormTemplatePage {
             add(streetType);
         }
 
-        private List<DomainObject> getEntityTypes() {
+        private List<? extends DomainObject> getEntityTypes() {
             DomainObjectExample example = new DomainObjectExample();
             streetTypeStrategy.configureExample(example, ImmutableMap.<String, Long>of(), null);
             return streetTypeStrategy.find(example);

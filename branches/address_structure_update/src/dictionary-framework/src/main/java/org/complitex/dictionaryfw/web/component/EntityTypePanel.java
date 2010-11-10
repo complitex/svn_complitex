@@ -45,7 +45,7 @@ public class EntityTypePanel extends Panel {
     }
 
     private void init() {
-        final List<DomainObject> entityTypes = getEntityTypes();
+        final List<? extends DomainObject> entityTypes = getEntityTypes();
         IModel<DomainObject> entityTypeModel = new Model<DomainObject>() {
 
             @Override
@@ -104,7 +104,7 @@ public class EntityTypePanel extends Panel {
         findEntityTypeAttribute().setValueId(entityTypeObjectId);
     }
 
-    private List<DomainObject> getEntityTypes() {
+    private List<? extends DomainObject> getEntityTypes() {
         Strategy strategy = getEntityTypeStrategy();
         DomainObjectExample example = new DomainObjectExample();
         strategy.configureExample(example, ImmutableMap.<String, Long>of(), null);

@@ -80,6 +80,8 @@ public final class SearchComponent extends Panel {
 
     private boolean enabled;
 
+    private List<IModel<DomainObject>> filterModels;
+
     public SearchComponent(String id, SearchComponentState componentState, List<String> searchFilters, ISearchCallback callback, boolean enabled) {
         super(id);
         setOutputMarkupId(true);
@@ -172,12 +174,17 @@ public final class SearchComponent extends Panel {
         };
         searchPanel.add(columns);
 
-        final List<IModel<DomainObject>> filterModels = Lists.newArrayList(Iterables.transform(searchFilters,
+        filterModels = Lists.newArrayList(Iterables.transform(searchFilters,
                 new Function<String, IModel<DomainObject>>() {
 
                     @Override
                     public IModel<DomainObject> apply(final String entity) {
-                        return new Model<DomainObject>();
+                        IModel<DomainObject> model = new Model<DomainObject>();
+                        DomainObject fromComponentState = componentState.get(entity);
+                        if (fromComponentState != null) {
+                            model.setObject(fromComponentState);
+                        }
+                        return model;
                     }
                 }));
 
@@ -189,10 +196,10 @@ public final class SearchComponent extends Panel {
                 final int index = item.getIndex();
                 Renderer renderer = new Renderer(entity);
                 final IModel<DomainObject> model = filterModels.get(index);
-                DomainObject fromComponentState = componentState.get(entity);
-                if (fromComponentState != null) {
-                    model.setObject(fromComponentState);
-                }
+//                DomainObject fromComponentState = componentState.get(entity);
+//                if (fromComponentState != null) {
+//                    model.setObject(fromComponentState);
+//                }
                 AutoCompleteTextField filter = new AutoCompleteTextField("filter", new FilterModel(model, entity),
                         renderer, settings, strategyFactory.getStrategy(entity).getSearchTextFieldSize()) {
 
@@ -202,16 +209,16 @@ public final class SearchComponent extends Panel {
                         if (!isComplete(previousInfo)) {
                             return Collections.emptyList();
                         }
-                        
+
                         List<DomainObject> choiceList = Lists.newArrayList();
 
-                        List<DomainObject> equalToExample = findByExample(entity, searchTextInput, previousInfo, ComparisonType.EQUALITY,
+                        List<? extends DomainObject> equalToExample = findByExample(entity, searchTextInput, previousInfo, ComparisonType.EQUALITY,
                                 AUTO_COMPLETE_SIZE);
                         if (equalToExample.size() == AUTO_COMPLETE_SIZE) {
                             choiceList.addAll(equalToExample);
                         } else {
                             choiceList.addAll(equalToExample);
-                            List<DomainObject> likeExample = findByExample(entity, searchTextInput, previousInfo, ComparisonType.LIKE,
+                            List<? extends DomainObject> likeExample = findByExample(entity, searchTextInput, previousInfo, ComparisonType.LIKE,
                                     AUTO_COMPLETE_SIZE);
                             if (equalToExample.isEmpty()) {
                                 choiceList.addAll(likeExample);
@@ -241,7 +248,7 @@ public final class SearchComponent extends Panel {
                 setEnable(entity, filter);
                 filter.setOutputMarkupId(true);
                 if (index == searchFilters.size() - 1) {
-                    invokeCallbackIfNecessary(index, filterModels, null);
+//                    invokeCallbackIfNecessary(index, filterModels, null);
 
                     filter.add(new AjaxFormComponentUpdatingBehavior("onblur") {
 
@@ -318,6 +325,10 @@ public final class SearchComponent extends Panel {
         return true;
     }
 
+    public void invokeCallback() {
+        invokeCallbackIfNecessary(searchFilters.size() - 1, filterModels, null);
+    }
+
     private void invokeCallbackIfNecessary(int index, List<IModel<DomainObject>> filterModels, AjaxRequestTarget target) {
         Map<String, DomainObject> finalState = getState(index, filterModels);
         if (isComplete(finalState)) {
@@ -352,7 +363,7 @@ public final class SearchComponent extends Panel {
         }
     }
 
-    private List<DomainObject> findByExample(String entity, String searchTextInput, Map<String, DomainObject> previousInfo,
+    private List<? extends DomainObject> findByExample(String entity, String searchTextInput, Map<String, DomainObject> previousInfo,
             ComparisonType comparisonType, int size) {
         Strategy strategy = strategyFactory.getStrategy(entity);
 

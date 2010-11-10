@@ -62,7 +62,7 @@ public class CorrectionBean extends AbstractBean {
         for (Correction correction : results) {
             DomainObjectExample domainObjectExample = new DomainObjectExample();
             domainObjectExample.setId(correction.getObjectId());
-            List<DomainObject> objects = strategy.find(domainObjectExample);
+            List<? extends DomainObject> objects = strategy.find(domainObjectExample);
             if (objects != null && !objects.isEmpty()) {
                 correction.setInternalObject(strategy.displayDomainObject(objects.get(0), new Locale(example.getLocale())));
             }

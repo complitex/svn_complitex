@@ -161,6 +161,6 @@ public class OwnershipStrategy extends Strategy {
         DomainObjectExample example = new DomainObjectExample();
         example.setOrderByAttribureTypeId(NAME);
         configureExample(example, ImmutableMap.<String, Long>of(), null);
-        return find(example);
+        return (List<DomainObject>)find(example);
     }
 }

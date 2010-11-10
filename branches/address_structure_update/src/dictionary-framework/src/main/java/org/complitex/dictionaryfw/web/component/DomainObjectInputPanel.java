@@ -349,6 +349,8 @@ public class DomainObjectInputPanel extends Panel {
 
         WebMarkupContainer parentContainer = new WebMarkupContainer("parentContainer");
         add(parentContainer);
+        Label parent = new Label("parent", getParentLabelModel());
+        parentContainer.add(parent);
         List<String> parentFilters = getStrategy().getParentSearchFilters();
         ISearchCallback parentSearchCallback = getStrategy().getParentSearchCallback();
         Component parentSearch = null;
@@ -406,5 +408,9 @@ public class DomainObjectInputPanel extends Panel {
             searchComponentSessionState.put(entity, componentState);
         }
         return componentState;
+    }
+
+    protected IModel<String> getParentLabelModel(){
+        return new ResourceModel("parent");
     }
 }

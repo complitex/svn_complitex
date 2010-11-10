@@ -105,7 +105,7 @@ public abstract class Strategy extends AbstractBean {
                 example.setStatus(StatusType.ACTIVE.name());
                 Strategy childStrategy = strategyFactory.getStrategy(childEntity);
                 childStrategy.configureExample(example, ImmutableMap.of(getEntityTable(), object.getId()), null);
-                List<DomainObject> children = childStrategy.find(example);
+                List<? extends DomainObject> children = childStrategy.find(example);
                 for (DomainObject child : children) {
                     childStrategy.disable(child);
                 }
@@ -125,7 +125,7 @@ public abstract class Strategy extends AbstractBean {
                 DomainObjectExample example = new DomainObjectExample();
                 example.setStatus(StatusType.INACTIVE.name());
                 childStrategy.configureExample(example, ImmutableMap.of(getEntityTable(), object.getId()), null);
-                List<DomainObject> children = childStrategy.find(example);
+                List<? extends DomainObject> children = childStrategy.find(example);
                 for (DomainObject child : children) {
                     childStrategy.enable(child);
                 }
@@ -140,7 +140,7 @@ public abstract class Strategy extends AbstractBean {
         example.setTable(getEntityTable());
         DomainObject object = (DomainObject) sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + "." + FIND_BY_ID_OPERATION, example);
         for (Attribute attribute : object.getAttributes()) {
-            if (!isSimpleAttribute(attribute)) {
+          if (!isSimpleAttribute(attribute)) {
                 //link to another entity object
                 attribute.setLocalizedValues(null);
             }
@@ -192,7 +192,7 @@ public abstract class Strategy extends AbstractBean {
 
     @SuppressWarnings({"unchecked"})
     @Transactional
-    public List<DomainObject> find(DomainObjectExample example) {
+    public List<? extends DomainObject> find(DomainObjectExample example) {
         example.setTable(getEntityTable());
         List<DomainObject> objects = sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + "." + FIND_OPERATION, example);
         for (DomainObject object : objects) {
@@ -550,27 +550,24 @@ public abstract class Strategy extends AbstractBean {
                 ids.put(currentParentEntity, currentParentId);
                 parentData = strategyFactory.getStrategy(currentParentEntity).findParentInSearchComponent(currentParentId, date);
             }
-            List<String> searchFilters = getSearchFilters();
+            List<String> searchFilters = getParentSearchFilters();
             if (searchFilters != null && !searchFilters.isEmpty()) {
-                for (String searchFilter : getSearchFilters()) {
+                for (String searchFilter : searchFilters) {
                     Long idForFilter = ids.get(searchFilter);
                     if (idForFilter == null) {
                         ids.put(searchFilter, -1L);
                     }
                 }
 
-                for (String searchFilter : getSearchFilters()) {
+                for (String searchFilter : searchFilters) {
                     DomainObject object = new DomainObject();
                     object.setId(-1L);
                     if (date == null) {
-                        DomainObjectExample example = new DomainObjectExample();
+                        DomainObjectExample example = new DomainObjectExample(ids.get(searchFilter));
                         example.setTable(searchFilter);
-                        example.setId(ids.get(searchFilter));
-                        example.setStart(0);
-                        example.setSize(1);
 
                         strategyFactory.getStrategy(searchFilter).configureExample(example, ids, null);
-                        List<DomainObject> objects = strategyFactory.getStrategy(searchFilter).find(example);
+                        List<? extends DomainObject> objects = strategyFactory.getStrategy(searchFilter).find(example);
                         if (objects != null && !objects.isEmpty()) {
                             object = objects.get(0);
                         }

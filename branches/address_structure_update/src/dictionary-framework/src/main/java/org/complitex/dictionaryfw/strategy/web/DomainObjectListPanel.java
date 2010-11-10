@@ -3,7 +3,6 @@ package org.complitex.dictionaryfw.strategy.web;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -112,30 +111,32 @@ public class DomainObjectListPanel extends Panel {
 
         //Search
         List<String> searchFilters = getStrategy().getSearchFilters();
-        Component searchComponent;
+        content.setVisible(searchFilters == null || searchFilters.isEmpty());
+        add(content);
+
         if (searchFilters == null || searchFilters.isEmpty()) {
-            searchComponent = new EmptyPanel("searchComponent");
+            add(new EmptyPanel("searchComponent"));
         } else {
             SearchComponentState componentState = getSearchComponentStateFromSession();
-            searchComponent = new SearchComponent("searchComponent", componentState, searchFilters, getStrategy().getSearchCallback(), true);
+            SearchComponent searchComponent = new SearchComponent("searchComponent", componentState, searchFilters, getStrategy().getSearchCallback(), true);
+            add(searchComponent);
+            searchComponent.invokeCallback();
         }
-        add(searchComponent);
-        add(content);
 
         //Column List
         final List<EntityAttributeType> attributeTypes = getStrategy().getListColumns();
         for (EntityAttributeType eat : attributeTypes) {
             example.addAttributeExample(new AttributeExample(eat.getId()));
         }
-        
+
         //Configure example from component state session
         if (searchFilters != null) {
             Map<String, Long> ids = new HashMap<String, Long>();
 
-            for(String entity : searchFilters){
-                DomainObject domainObject = getSearchComponentStateFromSession().get(entity);
-                if (domainObject != null){
-                    ids.put(entity, domainObject.getId());
+            for (String filterEntity : searchFilters) {
+                DomainObject domainObject = getSearchComponentStateFromSession().get(filterEntity);
+                if (domainObject != null) {
+                    ids.put(filterEntity, domainObject.getId());
                 }
             }
             getStrategy().configureExample(example, ids, null);
@@ -415,9 +416,6 @@ public class DomainObjectListPanel extends Panel {
 
         //Navigator
         content.add(new PagingNavigator("navigator", dataView, getClass().getName() + entity, content));
-
-        //установка видимости после навигатора, чтобы то посчитал getPageCount
-        content.setVisible(searchFilters == null || searchFilters.isEmpty());
     }
 
     protected DictionaryFwSession getDictionaryFwSession() {

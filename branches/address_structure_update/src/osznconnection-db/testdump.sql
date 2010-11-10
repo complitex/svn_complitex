@@ -34,53 +34,33 @@ insert into apartment_string_culture(id, locale, value) values (1, 'ru', UPPER('
 insert into apartment_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
 (1,1,100,1,100), (1,2,100,2,100), (1,3,100,3,100), (1,4,100,4,100), (1,5,100,5,100);
 
--- Buildings
-insert into building(object_id, parent_id, parent_entity_id) values (1,1,400), (2,1,400), (3,1,400), (4,2,400), (5,2,400), (6,3,400), (7,3,400);
-insert into building_string_culture(id, locale, value) values
+-- Building Addresses
+insert into building_address(object_id, parent_id, parent_entity_id) values (1,1,300), (2,3,300), (3,1,300), (4,1,300), (5,2,300), (6,2,300),
+(7,4,300), (8,5,300);
+insert into building_address_string_culture(id, locale, value) values
 (1, 'ru', UPPER('8')), (2, 'ru', UPPER('28')), (3,'ru',UPPER('18')), (4,'ru',UPPER('12')), (5,'ru',UPPER('21')), (6,'ru',UPPER('100')),
 (1, 'uk', UPPER('8')), (2, 'uk', UPPER('28')), (3,'uk',UPPER('18')), (4,'uk',UPPER('12')), (5,'uk',UPPER('21')), (6,'uk',UPPER('100')),
-(19,'ru',UPPER('154A')), (19,'uk',UPPER('154А')),
-(22,'ru',UPPER('25A')), (22,'uk',UPPER('25А'));
+(7,'ru',UPPER('154A')), (7,'uk',UPPER('154А')),(8,'ru',UPPER('25A')), (8,'uk',UPPER('25А'));
+insert into building_address_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
+(1,1,1500,1,1500),(1,1,1501,null,1501),(1,1,1502,null,1502),
+(1,2,1500,6,1500),(1,2,1501,null,1501),(1,2,1502,null,1502),
+(1,3,1500,2,1500),(1,3,1501,null,1501),(1,3,1502,null,1502),
+(1,4,1500,3,1500),(1,4,1501,null,1501),(1,4,1502,null,1502),
+(1,5,1500,4,1500),(1,5,1501,null,1501),(1,5,1502,null,1502),
+(1,6,1500,5,1500),(1,6,1501,null,1501),(1,6,1502,null,1502),
+(1,7,1500,7,1500),(1,7,1501,null,1501),(1,7,1502,null,1502),
+(1,8,1500,8,1500),(1,8,1501,null,1501),(1,8,1502,null,1502);
+
+-- Buildings
+insert into building(object_id, parent_id, parent_entity_id) values (1,1,1500), (2,3,1500), (3,4,1500), (4,5,1500), (5,6,1500), (6,7,1500), (7,8,1500);
 insert into building_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
-(1,1,500,1,500),
-(1,1,501,7,501),
-(1,1,502,8,502),
-(1,1,503,1,503),
-(1,1,504,2,504),
-(2,1,500,6,500),
-(2,1,501,9,501),
-(2,1,502,10,502),
-(2,1,503,3,503),
-(1,2,500,2,500),
-(1,2,501,11,501),
-(1,2,502,12,502),
-(1,2,503,1,503),
-(1,2,504,2,504),
-(1,3,500,3,500),
-(1,3,501,13,501),
-(1,3,502,14,502),
-(1,3,503,1,503),
-(1,3,504,2,504),
-(1,4,500,4,500),
-(1,4,501,15,501),
-(1,4,502,16,502),
-(1,4,503,2,503),
-(1,4,504,1,504),
-(1,5,500,5,500),
-(1,5,501,17,501),
-(1,5,502,18,502),
-(1,5,503,2,503),
-(1,5,504,1,504),
-(1,6,500,19,500),
-(1,6,501,20,501),
-(1,6,502,21,502),
-(1,6,503,4,503),
-(1,6,504,3,504),
-(1,7,500,22,500),
-(1,7,501,23,501),
-(1,7,502,24,502),
-(1,7,503,5,503),
-(1,7,504,3,504);
+(1,1,500,2,500),(1,1,501,2,501),
+(1,2,500,null,500),
+(1,3,500,2,500),
+(1,4,500,1,500),
+(1,5,500,1,500),
+(1,6,500,3,500),
+(1,7,500,3,500);
 
 -- Streets
 insert into street_string_culture(id, locale, value) values (1, 'ru', UPPER('Терешковой')), (1,'uk',UPPER('Tereshkovoy')),
