@@ -83,7 +83,7 @@ public class ExecutorBean {
                 status = STATUS.COMPLETED;
 
                 log.info("Процесс обработки {} завершен", task);
-                logInfo(object, task, "Процесс обработки {0} завершен", task);
+                logInfo(task, "Процесс обработки {0} завершен", task.getControllerClass());
             }
 
             return;
@@ -95,7 +95,7 @@ public class ExecutorBean {
                 status = STATUS.CANCELED;
 
                 log.warn("Процесс обработки {} отменен пользователем", task);
-                logError(object, task, "Процесс обработки {0} отменен пользователем", task);
+                logError(object, task, "Процесс обработки {0} отменен пользователем", task.getControllerClass());
             }
 
             return;
@@ -107,7 +107,7 @@ public class ExecutorBean {
                 status = STATUS.CRITICAL_ERROR;
 
                 log.error("Превышено количество ошибок в процессе {}", task);
-                logError(object, task, "Превышено количество ошибок в процессе {0}", task);
+                logError(object, task, "Превышено количество ошибок в процессе {0}", task.getControllerClass());
             }
 
             return;
@@ -196,5 +196,9 @@ public class ExecutorBean {
 
     private <T extends ILoggable> void logInfo(Class modelClass, ITaskBean<T> task, String decs, Object... args){
         logBean.info(task.getModuleName(), task.getControllerClass(), modelClass, null, task.getEvent(), decs, args);
+    }
+
+    private <T extends ILoggable> void logInfo(ITaskBean<T> task, String decs, Object... args){
+        logBean.info(task.getModuleName(), task.getControllerClass(), null, null, task.getEvent(), decs, args);
     }
 }
