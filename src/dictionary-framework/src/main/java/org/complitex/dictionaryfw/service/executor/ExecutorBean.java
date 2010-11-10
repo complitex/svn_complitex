@@ -82,8 +82,8 @@ public class ExecutorBean {
             if (STATUS.RUNNING.equals(status) && runningThread.get() == 0){
                 status = STATUS.COMPLETED;
 
-                log.info("Процесс обработки {} завершен", task);
-                logInfo(task, "Процесс обработки {0} завершен", task.getControllerClass());
+                log.info("Процесс {} завершен", task.getControllerClass());
+                logInfo(task, "Процесс {0} завершен", task.getControllerClass().getSimpleName());
             }
 
             return;
@@ -94,8 +94,8 @@ public class ExecutorBean {
             if (STATUS.RUNNING.equals(status)) {
                 status = STATUS.CANCELED;
 
-                log.warn("Процесс обработки {} отменен пользователем", task);
-                logError(object, task, "Процесс обработки {0} отменен пользователем", task.getControllerClass());
+                log.warn("Процесс {} отменен пользователем", task.getControllerClass());
+                logError(object, task, "Процесс {0} отменен пользователем", task.getControllerClass().getSimpleName());
             }
 
             return;
@@ -106,8 +106,8 @@ public class ExecutorBean {
             if (STATUS.RUNNING.equals(status) && runningThread.get() == 0){
                 status = STATUS.CRITICAL_ERROR;
 
-                log.error("Превышено количество ошибок в процессе {}", task);
-                logError(object, task, "Превышено количество ошибок в процессе {0}", task.getControllerClass());
+                log.error("Превышено количество ошибок в процессе {}", task.getControllerClass());
+                logError(object, task, "Превышено количество ошибок в процессе {0}", task.getControllerClass().getSimpleName());
             }
 
             return;
@@ -147,7 +147,7 @@ public class ExecutorBean {
             }
         });
 
-        log.info("Обработка объекта {}", object);
+        log.info("Выполнение процесса {} над объектом {}", task.getControllerClass().getSimpleName(), object);
     }
 
     public <T extends ILoggable> void execute(List<T> objects, final ITaskBean<T> task, int maxThread, final int maxErrors){
@@ -159,8 +159,8 @@ public class ExecutorBean {
             throw new IllegalStateException();
         }
 
-        log.info("Начат процесс обработки {}, количество объектов: {}", task.getControllerClass().getSimpleName(), objects.size());
-        logInfo(objects.get(0).getClass(), task, "Начат процесс обработки {0}, количество объектов: {1}",
+        log.info("Начат процесс {}, количество объектов: {}", task.getControllerClass().getSimpleName(), objects.size());
+        logInfo(objects.get(0).getClass(), task, "Начат процесс {0}, количество объектов: {1}",
                 task.getControllerClass().getSimpleName(), objects.size());
 
         status = STATUS.RUNNING;
