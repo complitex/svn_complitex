@@ -14,9 +14,7 @@ import org.complitex.osznconnection.file.service.exception.StorageNotFoundExcept
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.Asynchronous;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
+import javax.ejb.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +26,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 01.11.10 12:55
  */
-@Stateless(name = "ProcessManagerBean")
+@Singleton(name = "ProcessManagerBean")
+@ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 public class ProcessManagerBean {
     private static final Logger log = LoggerFactory.getLogger(ProcessManagerBean.class);
 
