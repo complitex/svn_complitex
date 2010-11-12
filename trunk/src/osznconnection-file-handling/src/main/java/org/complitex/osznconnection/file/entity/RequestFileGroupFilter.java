@@ -24,6 +24,7 @@ public class RequestFileGroupFilter  extends AbstractFilter {
     private Integer dbfRecordCount;
     private Integer loadedRecordCount;
     private Integer bindedRecordCount;
+    private Integer filledRecordCount;
     private DomainObject organization;
     private RequestFile.TYPE type;
     private RequestFileGroup.STATUS status;
@@ -138,6 +139,14 @@ public class RequestFileGroupFilter  extends AbstractFilter {
 
     public void setBindedRecordCount(Integer bindedRecordCount) {
         this.bindedRecordCount = bindedRecordCount;
+    }
+
+    public Integer getFilledRecordCount() {
+        return filledRecordCount;
+    }
+
+    public void setFilledRecordCount(Integer filledRecordCount) {
+        this.filledRecordCount = filledRecordCount;
     }
 
     public DomainObject getOrganization() {

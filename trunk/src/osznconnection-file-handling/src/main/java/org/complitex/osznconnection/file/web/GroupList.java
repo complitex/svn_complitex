@@ -160,13 +160,13 @@ public class GroupList extends TemplatePage {
         filterForm.add(new TextField<String>("benefitName"));
 
         //Загружено записей
-        filterForm.add(new TextField<Integer>("loadedRecordCount", new Model<Integer>(), Integer.class));
+        filterForm.add(new TextField<Integer>("loadedRecordCount", Integer.class));
 
         //Связано записей
-        filterForm.add(new TextField<Integer>("bindedRecordCount", new Model<Integer>(), Integer.class));
+        filterForm.add(new TextField<Integer>("bindedRecordCount", Integer.class));
 
         //Обработано записей
-        filterForm.add(new TextField<Integer>("filledRecordCount", new Model<Integer>(), Integer.class));
+        filterForm.add(new TextField<Integer>("filledRecordCount", Integer.class));
 
         //Статус
         filterForm.add(new DropDownChoice<RequestFileGroup.STATUS>("status",
