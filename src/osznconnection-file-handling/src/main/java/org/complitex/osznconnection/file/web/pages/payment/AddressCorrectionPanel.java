@@ -9,11 +9,11 @@ import com.google.common.collect.Maps;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
@@ -22,7 +22,9 @@ import org.complitex.dictionaryfw.web.component.search.SearchComponent;
 import org.complitex.dictionaryfw.web.component.search.SearchComponentState;
 import org.complitex.osznconnection.file.entity.Payment;
 import org.complitex.osznconnection.file.entity.PaymentDBF;
+import org.complitex.osznconnection.file.service.AddressService;
 import org.complitex.osznconnection.file.web.pages.util.BuildingFormatter;
+import org.complitex.osznconnection.information.strategy.street.StreetStrategy;
 import org.odlabs.wiquery.core.javascript.JsStatement;
 import org.odlabs.wiquery.ui.core.JsScopeUiEvent;
 import org.odlabs.wiquery.ui.dialog.Dialog;
@@ -31,28 +33,31 @@ import javax.ejb.EJB;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-import org.complitex.osznconnection.information.strategy.street.StreetStrategy;
 
 /**
  * Панель для корректировки адреса вручную, когда нет соответствующей коррекции и поиск по локальной адресной базе не дал результатов.
  * @author Artem
  */
-public abstract class AddressCorrectionPanel extends Panel {
+public class AddressCorrectionPanel extends Panel {
 
     @EJB(name = "StrategyFactory")
     private StrategyFactory strategyFactory;
 
-    private String searchAddressEntity;
+    @EJB(name = "AddressService")
+    private AddressService addressService;
 
-    private IModel<Payment> paymentModel;
+    private String searchAddressEntity;
 
     private Dialog dialog;
 
     private SearchComponent searchComponent;
+    private SearchComponentState componentState;
 
     private FeedbackPanel messages;
 
-    private MarkupContainer[] toUpdate;
+    private WebMarkupContainer container;
+
+    private Payment payment;
 
     private static class FakeSearchCallback implements ISearchCallback, Serializable {
 
@@ -61,14 +66,10 @@ public abstract class AddressCorrectionPanel extends Panel {
         }
     }
 
-    public AddressCorrectionPanel(String id, Payment payment, MarkupContainer[] toUpdate) {
+    public AddressCorrectionPanel(String id, final MarkupContainer... toUpdate) {
         super(id);
-        paymentModel = new Model<Payment>(payment);
-        this.toUpdate = toUpdate;
-        init();
-    }
 
-    private void init() {
+        //Диалог
         dialog = new Dialog("dialog");
         dialog.setModal(true);
         dialog.setWidth(600);
@@ -76,50 +77,72 @@ public abstract class AddressCorrectionPanel extends Panel {
                 chain("find", "'.ui-dialog-titlebar-close'").
                 chain("hide").render()));
         dialog.setCloseOnEscape(false);
+        dialog.setOutputMarkupId(true);
         add(dialog);
 
-        String name = paymentModel.getObject().getField(PaymentDBF.SUR_NAM) + " "
-                + paymentModel.getObject().getField(PaymentDBF.F_NAM) + " "
-                + paymentModel.getObject().getField(PaymentDBF.M_NAM);
-        String address = paymentModel.getObject().getField(PaymentDBF.N_NAME) + ", "
-                + paymentModel.getObject().getField(PaymentDBF.VUL_NAME) + ", "
-                + BuildingFormatter.formatBuilding((String) paymentModel.getObject().getField(PaymentDBF.BLD_NUM),
-                (String) paymentModel.getObject().getField(PaymentDBF.CORP_NUM), getLocale())
-                + ", " + paymentModel.getObject().getField(PaymentDBF.FLAT);
-        Long cityId = paymentModel.getObject().getInternalCityId();
-        Long streetId = paymentModel.getObject().getInternalStreetId();
-        Long buildingId = paymentModel.getObject().getInternalBuildingId();
-        Long apartmentId = paymentModel.getObject().getInternalApartmentId();
+        //Контейнер для ajax
+        container = new WebMarkupContainer("container");
+        container.setOutputMarkupId(true);
+        dialog.add(container);
 
-        dialog.add(new Label("name", name));
-        dialog.add(new Label("address", address));
-
+        //Панель обратной связи
         messages = new FeedbackPanel("messages");
         messages.setOutputMarkupId(true);
-        dialog.add(messages);
+        container.add(messages);
 
-        searchAddressEntity = initSearchAddressEntity(cityId, streetId, buildingId);
+        container.add(new Label("name", new LoadableDetachableModel<String>() {
 
-        final SearchComponentState componentState = initSearchComponentState(cityId, streetId, buildingId, apartmentId);
-        List<SearchComponent.SearchFilterSettings> searchFilterSettings = initFilters();
+            @Override
+            protected String load() {
+                if (payment == null) {
+                    return "";
+                }
 
-        searchComponent = new SearchComponent("searchComponent", componentState, searchFilterSettings, new FakeSearchCallback());
+                return payment.getField(PaymentDBF.SUR_NAM) + " "
+                        + payment.getField(PaymentDBF.F_NAM) + " "
+                        + payment.getField(PaymentDBF.M_NAM);
+            }
+        }));
+
+        container.add(new Label("address", new LoadableDetachableModel<String>() {
+
+            @Override
+            protected String load() {
+                if (payment == null) {
+                    return "";
+                }
+
+                return payment.getField(PaymentDBF.N_NAME) + ", "
+                        + payment.getField(PaymentDBF.VUL_NAME) + ", "
+                        + BuildingFormatter.formatBuilding((String) payment.getField(PaymentDBF.BLD_NUM),
+                        (String) payment.getField(PaymentDBF.CORP_NUM), getLocale()) + ", "
+                        + payment.getField(PaymentDBF.FLAT);
+            }
+        }));
+
+        searchAddressEntity = "apartment";
+
+        componentState = new SearchComponentState();
+
+        searchComponent = new SearchComponent("searchComponent", componentState, initFilters(), new FakeSearchCallback());
         searchComponent.setOutputMarkupPlaceholderTag(true);
-        searchComponent.setVisible(false);
-        dialog.add(searchComponent);
+
+        container.add(searchComponent);
 
         AjaxLink save = new AjaxLink("save") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
                 if (validate(componentState)) {
+                    closeDialog(target);
+
                     correctAddress(getObjectId(componentState.get("city")),
                             getObjectId(componentState.get("street")),
                             getStreetTypeId(componentState.get("street")),
                             getObjectId(componentState.get("building")),
                             getObjectId(componentState.get("apartment")));
 
-                    closeDialog(target);
+
                     if (toUpdate != null) {
                         for (MarkupContainer container : toUpdate) {
                             target.addComponent(container);
@@ -130,7 +153,8 @@ public abstract class AddressCorrectionPanel extends Panel {
                 }
             }
         };
-        dialog.add(save);
+        container.add(save);
+
         AjaxLink cancel = new AjaxLink("cancel") {
 
             @Override
@@ -138,7 +162,26 @@ public abstract class AddressCorrectionPanel extends Panel {
                 closeDialog(target);
             }
         };
-        dialog.add(cancel);
+        container.add(cancel);
+    }
+
+    private void init(Payment payment){
+        this.payment = payment;
+
+        Long cityId = payment.getInternalCityId();
+        Long streetId = payment.getInternalStreetId();
+        Long buildingId = payment.getInternalBuildingId();
+        Long apartmentId = payment.getInternalApartmentId();
+
+        searchAddressEntity = initSearchAddressEntity(cityId, streetId, buildingId);
+
+        componentState = initSearchComponentState(cityId, streetId, buildingId, apartmentId);
+
+        searchComponent = new SearchComponent("searchComponent", componentState, initFilters(), new FakeSearchCallback());
+
+        //todo update SearchComponent object
+        container.remove("searchComponent");
+        container.add(searchComponent);
     }
 
     private static Long getObjectId(DomainObject object) {
@@ -149,7 +192,9 @@ public abstract class AddressCorrectionPanel extends Panel {
         return streetObject == null ? null : StreetStrategy.getStreetType(streetObject);
     }
 
-    protected abstract void correctAddress(Long cityId, Long streetId, Long streetTypeId, Long buildingId, Long apartmentId);
+    protected void correctAddress(Long cityId, Long streetId, Long streetTypeId, Long buildingId, Long apartmentId){
+        addressService.correctLocalAddress(payment, cityId, streetId, streetTypeId, buildingId);
+    }
 
     protected boolean validate(SearchComponentState componentState) {
         boolean validated = componentState.get(searchAddressEntity) != null && componentState.get(searchAddressEntity).getId() > 0;
@@ -236,14 +281,14 @@ public abstract class AddressCorrectionPanel extends Panel {
     }
 
     private void closeDialog(AjaxRequestTarget target) {
-        searchComponent.setVisible(false);
-        target.addComponent(searchComponent);
         dialog.close(target);
     }
 
-    public void open(AjaxRequestTarget target) {
-        searchComponent.setVisible(true);
-        target.addComponent(searchComponent);
+    public void open(AjaxRequestTarget target, Payment payment) {
+        init(payment);
+
+        target.addComponent(container);
+
         dialog.open(target);
     }
 }
