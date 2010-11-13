@@ -12,6 +12,7 @@ import java.util.Locale;
 import org.apache.wicket.Component;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.service.StringCultureBean;
 import org.complitex.dictionaryfw.strategy.Strategy;
@@ -20,12 +21,16 @@ import org.complitex.dictionaryfw.strategy.web.IValidator;
 import org.complitex.osznconnection.information.strategy.building.BuildingStrategy;
 import org.complitex.osznconnection.information.strategy.building.entity.Building;
 import org.complitex.osznconnection.information.strategy.building_address.BuildingAddressStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author Artem
  */
 public class BuildingValidator2 implements IValidator {
+
+    private static final Logger log = LoggerFactory.getLogger(BuildingValidator2.class);
 
     private BuildingStrategy buildingStrategy;
 
@@ -42,8 +47,12 @@ public class BuildingValidator2 implements IValidator {
     @Override
     public boolean validate(DomainObject object, Component component) {
         boolean valid = validateParents((Building) object, component);
-        valid &= validateCity((Building) object, component);
-        valid &= validateAdresses((Building) object, component);
+        if (valid) {
+            valid &= validateCity((Building) object, component);
+            if (valid) {
+                valid &= validateAdresses((Building) object, component);
+            }
+        }
         return valid;
     }
 
@@ -92,7 +101,7 @@ public class BuildingValidator2 implements IValidator {
         }
 
         if (!valid) {
-            error("parent_required", component);
+            error("parent_not_specified", component);
         }
         return valid;
     }
@@ -127,9 +136,7 @@ public class BuildingValidator2 implements IValidator {
     }
 
     private boolean validateAdresses(Building building, Component component) {
-        List<DomainObject> addresses = Lists.newArrayList();
-        addresses.add(building.getPrimaryAddress());
-        addresses.addAll(building.getAlternativeAddresses());
+        List<DomainObject> addresses = building.getAllAddresses();
 
         boolean valid = true;
 
@@ -138,9 +145,9 @@ public class BuildingValidator2 implements IValidator {
             String corp = stringBean.displayValue(address.getAttribute(BuildingAddressStrategy.CORP).getLocalizedValues(), systemLocale);
             String structure = stringBean.displayValue(address.getAttribute(BuildingAddressStrategy.STRUCTURE).getLocalizedValues(), systemLocale);
 
-            Long existingBuildingId = buildingStrategy.checkForExistingAddress(number, corp, structure, address.getParentEntityId(),
-                    address.getParentId());
-            if (existingBuildingId != null) {
+            Long existingBuildingId = buildingStrategy.checkForExistingAddress(number, Strings.isEmpty(corp) ? null : corp,
+                    Strings.isEmpty(structure) ? null : structure, address.getParentEntityId(), address.getParentId(), systemLocale);
+            if (existingBuildingId != null && !existingBuildingId.equals(building.getId())) {
                 valid = false;
 
                 Long parentEntityId = address.getParentEntityId();

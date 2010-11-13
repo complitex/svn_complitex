@@ -133,21 +133,52 @@ public abstract class Strategy extends AbstractBean {
         }
     }
 
+    protected void loadAttributes(DomainObject object) {
+        Map<String, Object> params = ImmutableMap.<String, Object>builder().
+                put("table", getEntityTable()).
+                put("id", object.getId()).
+                build();
+
+        List<Attribute> attributes = sqlSession().selectList(ATTRIBUTE_NAMESPACE + "." + FIND_OPERATION, params);
+        loadStringCultures(attributes);
+        object.setAttributes(attributes);
+    }
+
+    protected void loadStringCultures(List<Attribute> attributes) {
+        for (Attribute attribute : attributes) {
+            if (isSimpleAttribute(attribute)) {
+                if (attribute.getValueId() != null) {
+                    loadStringCultures(attribute);
+                } else {
+                    List<StringCulture> strings = Lists.newArrayList();
+                    attribute.setLocalizedValues(strings);
+                }
+            }
+        }
+    }
+
+    protected void loadStringCultures(Attribute attribute) {
+        List<StringCulture> strings = stringBean.findStrings(attribute.getValueId(), getEntityTable());
+        attribute.setLocalizedValues(strings);
+    }
+
     @Transactional
     public DomainObject findById(Long id) {
         DomainObjectExample example = new DomainObjectExample();
         example.setId(id);
         example.setTable(getEntityTable());
         DomainObject object = (DomainObject) sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + "." + FIND_BY_ID_OPERATION, example);
-        for (Attribute attribute : object.getAttributes()) {
-          if (!isSimpleAttribute(attribute)) {
-                //link to another entity object
-                attribute.setLocalizedValues(null);
-            }
+        if (object != null) {
+//            for (Attribute attribute : object.getAttributes()) {
+//                if (!isSimpleAttribute(attribute)) {
+//                    //link to another entity object
+//                    attribute.setLocalizedValues(null);
+//                }
+//            }
+            loadAttributes(object);
+            updateForNewAttributeTypes(object);
+            updateStringsForNewLocales(object);
         }
-
-        updateForNewAttributeTypes(object);
-        updateStringsForNewLocales(object);
 
         return object;
     }
@@ -196,12 +227,13 @@ public abstract class Strategy extends AbstractBean {
         example.setTable(getEntityTable());
         List<DomainObject> objects = sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + "." + FIND_OPERATION, example);
         for (DomainObject object : objects) {
-            for (Attribute attribute : object.getAttributes()) {
-                if (!isSimpleAttribute(attribute)) {
-                    //link to another entity object
-                    attribute.setLocalizedValues(null);
-                }
-            }
+//            for (Attribute attribute : object.getAttributes()) {
+//                if (!isSimpleAttribute(attribute)) {
+//                    //link to another entity object
+//                    attribute.setLocalizedValues(null);
+//                }
+//            }
+            loadAttributes(object);
         }
         return objects;
     }
@@ -282,13 +314,11 @@ public abstract class Strategy extends AbstractBean {
     }
 
     @Transactional
-    public void update(DomainObject oldEntity, DomainObject newEntity) {
-        Date updateDate = new Date();
-
+    public void update(DomainObject oldObject, DomainObject newObject, Date updateDate) {
         //attributes comparison
-        for (Attribute oldAttr : oldEntity.getAttributes()) {
+        for (Attribute oldAttr : oldObject.getAttributes()) {
             boolean removed = true;
-            for (Attribute newAttr : newEntity.getAttributes()) {
+            for (Attribute newAttr : newObject.getAttributes()) {
                 if (oldAttr.getAttributeTypeId().equals(newAttr.getAttributeTypeId()) && oldAttr.getAttributeId().equals(newAttr.getAttributeId())) {
                     //the same attribute_type and the same attribute_id
                     removed = false;
@@ -375,9 +405,9 @@ public abstract class Strategy extends AbstractBean {
             }
         }
 
-        for (Attribute newAttr : newEntity.getAttributes()) {
+        for (Attribute newAttr : newObject.getAttributes()) {
             boolean added = true;
-            for (Attribute oldAttr : oldEntity.getAttributes()) {
+            for (Attribute oldAttr : oldObject.getAttributes()) {
                 if (oldAttr.getAttributeTypeId().equals(newAttr.getAttributeTypeId()) && oldAttr.getAttributeId().equals(newAttr.getAttributeId())) {
                     //the same attribute_type and the same attribute_id
                     added = false;
@@ -387,7 +417,7 @@ public abstract class Strategy extends AbstractBean {
 
             if (added) {
                 newAttr.setStartDate(updateDate);
-                newAttr.setObjectId(newEntity.getId());
+                newAttr.setObjectId(newObject.getId());
                 insertAttribute(newAttr);
             }
         }
@@ -395,32 +425,45 @@ public abstract class Strategy extends AbstractBean {
         boolean needToUpdateObject = false;
 
         //entity type comparison
-        Long oldEntityTypeId = oldEntity.getEntityTypeId();
-        Long newEntityTypeId = newEntity.getEntityTypeId();
+        Long oldEntityTypeId = oldObject.getEntityTypeId();
+        Long newEntityTypeId = newObject.getEntityTypeId();
         if (!Numbers.isEqual(oldEntityTypeId, newEntityTypeId)) {
             needToUpdateObject = true;
         }
 
         //parent comparison
-        Long oldParentId = oldEntity.getParentId();
-        Long oldParentEntityId = oldEntity.getParentEntityId();
-        Long newParentId = newEntity.getParentId();
-        Long newParentEntityId = newEntity.getParentEntityId();
+        Long oldParentId = oldObject.getParentId();
+        Long oldParentEntityId = oldObject.getParentEntityId();
+        Long newParentId = newObject.getParentId();
+        Long newParentEntityId = newObject.getParentEntityId();
 
         if (!Numbers.isEqual(oldParentId, newParentId) || !Numbers.isEqual(oldParentEntityId, newParentEntityId)) {
             needToUpdateObject = true;
         }
 
         if (needToUpdateObject) {
-            oldEntity.setStatus(StatusType.ARCHIVE);
-            oldEntity.setEndDate(updateDate);
-            sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new InsertParameter(getEntityTable(), oldEntity));
-            insertDomainObject(newEntity, updateDate);
+            oldObject.setStatus(StatusType.ARCHIVE);
+            oldObject.setEndDate(updateDate);
+            sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new InsertParameter(getEntityTable(), oldObject));
+            insertDomainObject(newObject, updateDate);
         }
     }
 
+    public void archive(DomainObject object) {
+        Date endDate = new Date();
+        object.setStatus(StatusType.ARCHIVE);
+        object.setEndDate(endDate);
+        sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new InsertParameter(getEntityTable(), object));
+
+        Map<String, Object> params = ImmutableMap.<String, Object>builder().
+                put("table", getEntityTable()).
+                put("endDate", endDate).
+                put("objectId", object.getId()).build();
+        sqlSession().update(ATTRIBUTE_NAMESPACE + ".archiveObjectAttributes", params);
+    }
+
     public void update(DomainObject domainObject) {
-        update(findById(domainObject.getId()), domainObject);
+        update(findById(domainObject.getId()), domainObject, new Date());
     }
 
     /*
@@ -519,9 +562,8 @@ public abstract class Strategy extends AbstractBean {
     @SuppressWarnings({"unchecked"})
     @Transactional
     public RestrictedObjectInfo findParentInSearchComponent(long id, Date date) {
-        DomainObjectExample example = new DomainObjectExample();
+        DomainObjectExample example = new DomainObjectExample(id);
         example.setTable(getEntityTable());
-        example.setId(id);
         example.setStartDate(date);
         Map<String, Object> result = (Map<String, Object>) sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + "." + FIND_PARENT_IN_SEARCH_COMPONENT_OPERATION,
                 example);
@@ -600,35 +642,22 @@ public abstract class Strategy extends AbstractBean {
 
     public abstract PageParameters getHistoryPageParams(long objectId);
 
-    @Transactional
-    public boolean hasHistory(Long objectId) {
-        if (objectId == null) {
-            return false;
-        }
-        DomainObjectExample example = new DomainObjectExample();
-        example.setTable(getEntityTable());
-        example.setId(objectId);
-        return sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + "." + HAS_HISTORY_OPERATION, example) != null;
-    }
+//    @Transactional
+//    public boolean hasHistory(Long objectId) {
+//        if (objectId == null) {
+//            return false;
+//        }
+//        DomainObjectExample example = new DomainObjectExample(objectId);
+//        example.setTable(getEntityTable());
+//        return sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + "." + HAS_HISTORY_OPERATION, example) != null;
+//    }
 
     @Transactional
     public List<History> getHistory(long objectId) {
         List<History> historyList = Lists.newArrayList();
 
-        DomainObjectExample example = new DomainObjectExample();
-        example.setTable(getEntityTable());
-        example.setId(objectId);
-
-        List<Date> allDates = Lists.newArrayList(Sets.newTreeSet(Iterables.filter(sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + ".historyDates", example),
-                new Predicate<Date>() {
-
-                    @Override
-                    public boolean apply(Date input) {
-                        return input != null;
-                    }
-                })));
-
-        for (final Date date : allDates) {
+        TreeSet<Date> historyDates = getHistoryDates(objectId);
+        for (final Date date : historyDates) {
             DomainObject historyObject = findHistoryObject(objectId, date);
             History history = new History(date, historyObject);
             historyList.add(history);
@@ -636,11 +665,24 @@ public abstract class Strategy extends AbstractBean {
         return historyList;
     }
 
+    public TreeSet<Date> getHistoryDates(long objectId) {
+        DomainObjectExample example = new DomainObjectExample(objectId);
+        example.setTable(getEntityTable());
+
+        return Sets.newTreeSet(Iterables.filter(sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + ".historyDates", example),
+                new Predicate<Date>() {
+
+                    @Override
+                    public boolean apply(Date input) {
+                        return input != null;
+                    }
+                }));
+    }
+
     @Transactional
     public DomainObject findHistoryObject(long objectId, Date date) {
-        DomainObjectExample example = new DomainObjectExample();
+        DomainObjectExample example = new DomainObjectExample(objectId);
         example.setTable(getEntityTable());
-        example.setId(objectId);
         example.setStartDate(date);
 
         DomainObject object = (DomainObject) sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + "." + FIND_HISTORY_OBJECT_OPERATION, example);
@@ -648,8 +690,9 @@ public abstract class Strategy extends AbstractBean {
             return null;
         }
 
-        List<Attribute> allAttributes = loadHistoryAttributes(objectId, date);
-        object.getAttributes().addAll(allAttributes);
+        List<Attribute> historyAttributes = loadHistoryAttributes(objectId, date);
+        loadStringCultures(historyAttributes);
+        object.setAttributes(historyAttributes);
         updateStringsForNewLocales(object);
         return object;
     }
@@ -657,9 +700,8 @@ public abstract class Strategy extends AbstractBean {
     @SuppressWarnings({"unchecked"})
     @Transactional
     protected List<Attribute> loadHistoryAttributes(long objectId, Date date) {
-        DomainObjectExample example = new DomainObjectExample();
+        DomainObjectExample example = new DomainObjectExample(objectId);
         example.setTable(getEntityTable());
-        example.setId(objectId);
         example.setStartDate(date);
         return sqlSession().selectList(ATTRIBUTE_NAMESPACE + "." + FIND_HISTORY_ATTRIBUTES_OPERATION, example);
     }

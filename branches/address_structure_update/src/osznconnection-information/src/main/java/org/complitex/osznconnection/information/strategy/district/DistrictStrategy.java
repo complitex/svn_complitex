@@ -48,11 +48,6 @@ public class DistrictStrategy extends Strategy {
     public static final long DISTRICT_CODE = 601;
 
     @Override
-    public boolean isSimpleAttributeType(EntityAttributeType attributeDescription) {
-        return attributeDescription.getId() >= DISTRICT_NAME;
-    }
-
-    @Override
     public List<EntityAttributeType> getListColumns() {
         return Lists.newArrayList(Iterables.filter(getEntity().getEntityAttributeTypes(), new Predicate<EntityAttributeType>() {
 

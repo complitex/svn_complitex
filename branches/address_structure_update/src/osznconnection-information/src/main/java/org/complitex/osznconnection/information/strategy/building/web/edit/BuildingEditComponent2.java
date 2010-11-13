@@ -9,14 +9,14 @@ import java.io.Serializable;
 import java.util.Map;
 import javax.ejb.EJB;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.AbstractReadOnlyModel;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.ResourceModel;
 import org.complitex.dictionaryfw.entity.Attribute;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.service.StringCultureBean;
@@ -77,10 +77,27 @@ public final class BuildingEditComponent2 extends AbstractComplexAttributesPanel
         super(id, disabled);
     }
 
+    private FeedbackPanel messages;
+
+    private FeedbackPanel findFeedbackPanel() {
+        if (messages == null) {
+            getPage().visitChildren(FeedbackPanel.class, new IVisitor<FeedbackPanel>() {
+
+                @Override
+                public Object component(FeedbackPanel feedbackPanel) {
+                    messages = feedbackPanel;
+                    return STOP_TRAVERSAL;
+                }
+            });
+        }
+        return messages;
+    }
+
     private Attribute districtAttribute;
 
     @Override
     protected void init() {
+        final FeedbackPanel feedbackPanel = findFeedbackPanel();
         final WebMarkupContainer attributesContainer = new WebMarkupContainer("attributesContainer");
         attributesContainer.setOutputMarkupId(true);
         add(attributesContainer);
@@ -112,44 +129,53 @@ public final class BuildingEditComponent2 extends AbstractComplexAttributesPanel
                 !isDisabled() && CanEditUtil.canEdit(building)));
 
         //primary building address
-        DomainObject primaryBuildingAddress = building.getPrimaryAddress();
+        final DomainObject primaryBuildingAddress = building.getPrimaryAddress();
         DomainObjectInputPanel primaryAddressPanel = new DomainObjectInputPanel("primaryAddress", primaryBuildingAddress, "building_address",
-                null, null) {
+                null, null, getInputPanel().getDate()) {
 
             @Override
-            protected IModel<String> getParentLabelModel() {
-                return new ResourceModel("street");
-            }
-
-            @Override
-            public SearchComponentState getParentSearchComponentState() {
-                final SearchComponentState superSearchComponentState = super.getParentSearchComponentState();
-
-                return new SearchComponentState() {
+            public SearchComponentState initParentSearchComponentState() {
+                final SearchComponentState superComponentState = super.initParentSearchComponentState();
+                SearchComponentState primaryAddressComponentState = new SearchComponentState() {
 
                     @Override
                     public void clear() {
-                        superSearchComponentState.clear();
+                        superComponentState.clear();
                     }
 
                     @Override
                     public DomainObject get(String entity) {
-                        return superSearchComponentState.get(entity);
-                    }
-
-                    @Override
-                    public void put(String entity, DomainObject object) {
-                        superSearchComponentState.put(entity, object);
-                        if ("street".equals(entity) && object != null) {
-                            building.setPrimaryStreet(object);
-                        }
+                        return superComponentState.get(entity);
                     }
 
                     @Override
                     public void updateState(Map<String, DomainObject> state) {
-                        superSearchComponentState.updateState(state);
+                        superComponentState.updateState(state);
+                    }
+
+                    @Override
+                    public void put(String entity, DomainObject object) {
+                        superComponentState.put(entity, object);
+                        if ("street".equals(entity) && object != null) {
+                            building.setPrimaryStreet(object);
+                        }
                     }
                 };
+                if (primaryBuildingAddress.getId() == null) {
+                    for (String entity : buildingAddressStrategy.getParentSearchFilters()) {
+                        DomainObject object = parentSearchComponentState.get(entity);
+                        if (object != null) {
+                            primaryAddressComponentState.put(entity, object);
+                        }
+                    }
+                } else {
+                    DomainObject street = primaryAddressComponentState.get("street");
+                    if (street != null) {
+                        building.setPrimaryStreet(street);
+                    }
+                }
+
+                return primaryAddressComponentState;
             }
         };
         attributesContainer.add(primaryAddressPanel);
@@ -160,28 +186,49 @@ public final class BuildingEditComponent2 extends AbstractComplexAttributesPanel
 
             @Override
             protected void populateItem(ListItem<DomainObject> item) {
-                DomainObject address = item.getModelObject();
+                final DomainObject address = item.getModelObject();
 
-                DomainObjectInputPanel alternativeAddess = new DomainObjectInputPanel("alternativeAddess", address, "building_address", null, null) {
+                DomainObjectInputPanel alternativeAddess = new DomainObjectInputPanel("alternativeAddess", address, "building_address", null, null,
+                        getInputPanel().getDate()) {
 
                     @Override
-                    protected IModel<String> getParentLabelModel() {
-                        return new ResourceModel("street");
+                    public SearchComponentState initParentSearchComponentState() {
+                        SearchComponentState alternativeAddressComponentState;
+                        if (address.getId() == null) {
+                            alternativeAddressComponentState = new SearchComponentState();
+                            for (String entity : buildingAddressStrategy.getParentSearchFilters()) {
+                                DomainObject object = parentSearchComponentState.get(entity);
+                                if (!"street".equals(entity) && (object != null)) {
+                                    alternativeAddressComponentState.put(entity, object);
+                                }
+                            }
+                        } else {
+                            alternativeAddressComponentState = super.initParentSearchComponentState();
+                        }
+                        return alternativeAddressComponentState;
                     }
                 };
                 item.add(alternativeAddess);
-                addRemoveLink("remove", item, null, attributesContainer).setVisible(!isDisabled() && CanEditUtil.canEdit(building));
+                addRemoveSubmitLink("remove", findParent(Form.class), item, null, attributesContainer, feedbackPanel).
+                        setVisible(!isDisabled() && CanEditUtil.canEdit(building));
             }
         };
         attributesContainer.add(alternativeAdresses);
 
-        AjaxLink add = new AjaxLink("add") {
+        AjaxSubmitLink add = new AjaxSubmitLink("add") {
 
             @Override
-            public void onClick(AjaxRequestTarget target) {
+            protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
                 DomainObject newBuildingAddress = buildingAddressStrategy.newInstance();
                 building.addAlternativeAddress(newBuildingAddress);
+
                 target.addComponent(attributesContainer);
+                target.addComponent(feedbackPanel);
+            }
+
+            @Override
+            protected void onError(AjaxRequestTarget target, Form<?> form) {
+                target.addComponent(feedbackPanel);
             }
         };
         add.setVisible(!isDisabled() && CanEditUtil.canEdit(building));

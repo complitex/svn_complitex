@@ -14,14 +14,12 @@ import org.complitex.dictionaryfw.service.StringCultureBean;
 import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.util.ResourceUtil;
 import org.complitex.dictionaryfw.web.component.search.ISearchCallback;
-import org.complitex.dictionaryfw.web.component.search.SearchComponentState;
 import org.complitex.osznconnection.information.resource.CommonResources;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.util.*;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.complitex.dictionaryfw.entity.Attribute;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.web.component.DomainObjectInputPanel;
 import org.complitex.dictionaryfw.web.component.search.SearchComponent;
@@ -37,21 +35,12 @@ public class BuildingAddressStrategy extends Strategy {
 
     private static final Logger log = LoggerFactory.getLogger(BuildingAddressStrategy.class);
 
-    public static final String RESOURCE_BUNDLE = BuildingAddressStrategy.class.getPackage().getName() + ".BuildingAddress";
-
     public static final long NUMBER = 1500;
 
     public static final long CORP = 1501;
 
     public static final long STRUCTURE = 1502;
 
-    private static final String BUILDING_ADDRESS_NAMESPACE = BuildingAddressStrategy.class.getPackage().getName() + ".BuildingAddress";
-
-    @EJB(beanName = "StringCultureBean")
-    private StringCultureBean stringBean;
-
-    @EJB(beanName = "LocaleBean")
-    private LocaleBean localeBean;
 
     @Override
     public String getEntityTable() {
@@ -97,6 +86,11 @@ public class BuildingAddressStrategy extends Strategy {
             buildingAddressExample.setParentEntity("city");
         }
         return buildingAddressExample;
+    }
+
+    @Override
+    public DomainObject findById(Long id) {
+        return super.findById(id);
     }
 
     private static void configureExampleImpl(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {

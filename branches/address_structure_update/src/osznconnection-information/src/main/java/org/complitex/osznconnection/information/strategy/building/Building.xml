@@ -13,8 +13,20 @@
         <result column="parent_entity_id" property="parentEntityId"/>
         <result column="parent_entity" property="parentEntity"/>
         <result column="entity_type_id" property="entityTypeId"/>
-        <collection ofType="Attribute" property="attributes" column="{table = table_name, id = object_id, startDate = start_date}"
-                    select="org.complitex.dictionaryfw.entity.Attribute.find"/>
+        <!--<collection ofType="Attribute" property="attributes" column="{table = table_name, id = object_id, startDate = start_date}"
+                    select="org.complitex.dictionaryfw.entity.Attribute.find"/>-->
+    </resultMap>
+
+    <resultMap id="HistoryBuilding" type="org.complitex.osznconnection.information.strategy.building.entity.Building">
+        <id column="object_id" property="id"/>
+        <id column="start_date" property="startDate"/>
+        <result column="entity_id" property="entityId"/>
+        <result column="end_date" property="endDate"/>
+        <result column="status" property="status"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="parent_entity_id" property="parentEntityId"/>
+        <result column="parent_entity" property="parentEntity"/>
+        <result column="entity_type_id" property="entityTypeId"/>
     </resultMap>
 
     <!--<resultMap id="StreetOrDistrict" type="Attribute">
@@ -46,7 +58,7 @@
 
 
 
-    <sql id="orderBy">
+    <!--<sql id="orderBy">
         <choose>
             <when test="additionalParams != null and additionalParams['orderByAttribute'] != null">
                 <choose>
@@ -93,17 +105,17 @@
             </otherwise>
         </choose>
 
-    </sql>
+    </sql>-->
 
-    <sql id="from">
+    <!--<sql id="from">
         FROM `building` e
         JOIN `building_address` addr ON ((e.`parent_id` = addr.`object_id` OR
             EXISTS(SELECT 1 FROM `building_attribute` ba WHERE ba.`status` = 'ACTIVE' AND ba.`object_id` = e.`object_id` AND ba.`attribute_type_id` = 501
              AND ba.`value_id` = addr.`object_id`))
             AND (addr.`status` = 'ACTIVE' OR addr.`status` = 'INACTIVE'))
-    </sql>
+    </sql>-->
 
-    <!--<select id="find2" resultMap="org.complitex.osznconnection.information.strategy.building.Building.Building" parameterType="DomainObjectExample">
+    <select id="find2" resultMap="org.complitex.osznconnection.information.strategy.building.Building.Building" parameterType="DomainObjectExample">
         SELECT DISTINCT e.`object_id`, e.`start_date`, e.`end_date`, e.`status`, e.`parent_id`,
         (SELECT ent.`id` FROM `entity` ent WHERE ent.`entity_table` = #{table}) as entity_id,
         e.`parent_entity_id`, e.`entity_type_id`, '${locale}' as locale, '${table}' as table_name
@@ -114,9 +126,9 @@
                 AND ba.`value_id` = #{additionalParams.buildingAddressId}
             )
             )
-    </select>-->
+    </select>
 
-    <select id="find" resultMap="org.complitex.osznconnection.information.strategy.building.Building.Building" parameterType="DomainObjectExample">
+    <!--<select id="find" resultMap="org.complitex.osznconnection.information.strategy.building.Building.Building" parameterType="DomainObjectExample">
         SELECT DISTINCT e.`object_id`, e.`start_date`, e.`end_date`, e.`status`, e.`parent_id`,
         (SELECT ent.`id` FROM `entity` ent WHERE ent.`entity_table` = #{table}) as entity_id,
         e.`parent_entity_id`, e.`entity_type_id`, '${locale}' as locale, '${table}' as table_name
@@ -189,15 +201,15 @@
                     </if>
             </otherwise>
         </choose>
-    </sql>
+    </sql>-->
 
-    <select id="count" resultType="integer" parameterType="DomainObjectExample">
+    <!--<select id="count" resultType="integer" parameterType="DomainObjectExample">
         SELECT COUNT(*)
         <include refid="org.complitex.osznconnection.information.strategy.building.Building.from"/>
         WHERE
         <include refid="org.complitex.dictionaryfw.entity.DomainObject.statusFilter"/>
         <include refid="org.complitex.osznconnection.information.strategy.building.Building.filter"/>
-    </select>
+    </select>-->
 
     <!--<select id="findStreetInSearchComponent" parameterType="long" resultType="long">
         SELECT ba.`parent_id` FROM `building_address` ba WHERE (ba.`status` = 'ACTIVE' OR ba.`status` = 'INACTIVE')
@@ -250,5 +262,36 @@
         attr.`status`
         FROM `building_attribute` attr WHERE attr.`object_id` = #{id} AND attr.`status` = 'ACTIVE' AND attr.`attribute_type_id` IN (503, 504)
     </select>-->
+
+    <!-- history -->
+
+    <!--<select id="historyDates" resultType="date" parameterType="DomainObjectExample">
+        SELECT e.`start_date` FROM `${table}` e WHERE e.`object_id`= #{id}
+        UNION
+        SELECT e.`end_date` FROM `${table}` e WHERE e.`object_id`= #{id}
+        UNION
+        SELECT aa.`start_date` FROM `${table}_attribute` aa WHERE aa.`object_id`= #{id}
+        UNION
+        SELECT aa.`end_date` FROM `${table}_attribute` aa WHERE aa.`object_id`= #{id}
+    </select>-->
+
+    <select id="findBuildingAddresses" parameterType="long" resultType="long">
+        SELECT addr.`object_id` FROM `building_address` addr WHERE addr.`object_id` IN
+            (SELECT b.`parent_id` FROM `building` b WHERE b.`object_id` = #{buildingId})
+        UNION
+        SELECT addr.`object_id` FROM `building_address` addr WHERE
+            EXISTS(SELECT 1 FROM `building_attribute` ba WHERE ba.`object_id` = #{buildingId} AND ba.`attribute_type_id` = 501 AND ba.`value_id` = addr.`object_id`)
+    </select>
+
+    <select id="findHistoryObject" parameterType="DomainObjectExample" resultMap="HistoryBuilding">
+        SELECT e.`object_id`, e.`start_date`, e.`end_date`, e.`status`, e.`parent_id`,
+        (SELECT ent.`id` FROM `entity` ent WHERE ent.`entity_table` = #{table}) as entity_id,
+        (SELECT ent.`entity_table` FROM `entity` ent WHERE ent.`id` = e.`parent_entity_id`) as parent_entity,
+        e.`parent_entity_id`, e.`entity_type_id`, '${table}' as table_name
+        FROM `${table}` e WHERE e.`object_id` = #{id}
+        AND e.`start_date` = (SELECT MAX(e1.`start_date`) FROM `${table}` e1 WHERE e1.`object_id` = #{id} AND e1.`start_date`
+        <![CDATA[ <= ]]>
+        #{startDate})
+    </select>
 
 </mapper>

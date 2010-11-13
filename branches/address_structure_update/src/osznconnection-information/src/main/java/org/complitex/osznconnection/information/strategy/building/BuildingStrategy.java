@@ -1,8 +1,12 @@
 package org.complitex.osznconnection.information.strategy.building;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.util.string.Strings;
@@ -22,9 +26,10 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.text.MessageFormat;
 import java.util.*;
+import org.complitex.dictionaryfw.entity.History;
 import org.complitex.dictionaryfw.entity.description.EntityAttributeType;
 import org.complitex.dictionaryfw.entity.description.EntityAttributeValueType;
-import org.complitex.dictionaryfw.service.SequenceBean;
+import org.complitex.dictionaryfw.entity.example.AttributeExample;
 import org.complitex.dictionaryfw.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionaryfw.strategy.web.IValidator;
 import org.complitex.osznconnection.commons.web.pages.DomainObjectEdit;
@@ -33,6 +38,8 @@ import org.complitex.osznconnection.information.strategy.building.web.edit.Build
 import org.complitex.osznconnection.information.strategy.building.web.edit.BuildingValidator2;
 import org.complitex.osznconnection.information.strategy.building.web.list.BuildingList;
 import org.complitex.osznconnection.information.strategy.building_address.BuildingAddressStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -41,8 +48,7 @@ import org.complitex.osznconnection.information.strategy.building_address.Buildi
 @Stateless(name = "BuildingStrategy")
 public class BuildingStrategy extends Strategy {
 
-    @EJB
-    private SequenceBean sequenceBean;
+    private static final Logger log = LoggerFactory.getLogger(BuildingStrategy.class);
 
     public static final String RESOURCE_BUNDLE = BuildingStrategy.class.getPackage().getName() + ".Building";
 
@@ -60,16 +66,16 @@ public class BuildingStrategy extends Strategy {
      */
     public static enum OrderBy {
 
-        NUMBER("number"), CORP("corp"), STRUCTURE("structure");
+        NUMBER(1500L), CORP(1501L), STRUCTURE(1502L);
 
-        private String orderByAttribute;
+        private Long orderByAttributeId;
 
-        private OrderBy(String orderBy) {
-            this.orderByAttribute = orderBy;
+        private OrderBy(Long orderByAttributeId) {
+            this.orderByAttributeId = orderByAttributeId;
         }
 
-        public String getOrderByAttribute() {
-            return orderByAttribute;
+        public Long getOrderByAttributeId() {
+            return orderByAttributeId;
         }
     }
 
@@ -106,39 +112,134 @@ public class BuildingStrategy extends Strategy {
     @Transactional
     public List<Building> find(DomainObjectExample example) {
         example.setTable(getEntityTable());
-        List<Building> buildings = sqlSession().selectList(BUILDING_NAMESPACE + "." + FIND_OPERATION, example);
-        for (Building building : buildings) {
-            for (Attribute attribute : building.getAttributes()) {
-                if (!isSimpleAttribute(attribute)) {
-                    //link to another entity object
-                    attribute.setLocalizedValues(null);
+
+        List<Building> buildings = Lists.newArrayList();
+
+        if (example.getId() != null) {
+            Building building = findById(example.getId());
+            Long streetId = (Long) example.getAdditionalParam(STREET);
+            if (streetId != null) {
+                DomainObject address = building.getAddress(streetId);
+                building.setAccompaniedAddress(address);
+            }
+            buildings.add(building);
+        } else {
+            String number = (String) example.getAdditionalParam(NUMBER);
+            String corp = (String) example.getAdditionalParam(CORP);
+            String structure = (String) example.getAdditionalParam(STRUCTURE);
+
+            DomainObjectExample addressExample = new DomainObjectExample();
+            addressExample.setAsc(example.isAsc());
+            addressExample.setComparisonType(example.getComparisonType());
+            addressExample.setLocale(example.getLocale());
+            addressExample.setOrderByAttribureTypeId(example.getOrderByAttribureTypeId());
+            if (!Strings.isEmpty(example.getOrderByExpression())) {
+                addressExample.setOrderByExpression(buildingAddressStrategy.getOrderByExpression("e.`object_id`", example.getLocale(), null));
+            }
+            addressExample.setStart(example.getStart());
+            addressExample.setSize(example.getSize());
+            addressExample.setStatus(example.getStatus());
+
+            AttributeExample numberExample = new AttributeExample(BuildingAddressStrategy.NUMBER);
+            numberExample.setValue(number);
+            addressExample.addAttributeExample(numberExample);
+            AttributeExample corpExample = new AttributeExample(BuildingAddressStrategy.CORP);
+            corpExample.setValue(corp);
+            addressExample.addAttributeExample(corpExample);
+            AttributeExample structureExample = new AttributeExample(BuildingAddressStrategy.STRUCTURE);
+            structureExample.setValue(structure);
+            addressExample.addAttributeExample(structureExample);
+            Map<String, Long> ids = Maps.newHashMap();
+            ids.put("street", (Long) example.getAdditionalParam(STREET));
+            ids.put("city", (Long) example.getAdditionalParam(CITY));
+            buildingAddressStrategy.configureExample(addressExample, ids, null);
+
+            List<? extends DomainObject> addresses = buildingAddressStrategy.find(addressExample);
+            for (DomainObject address : addresses) {
+                example.addAdditionalParam("buildingAddressId", address.getId());
+                List<Building> result = sqlSession().selectList(BUILDING_NAMESPACE + ".find2", example);
+                if (result.size() == 1) {
+                    Building building = result.get(0);
+                    building.setAccompaniedAddress(address);
+                    loadAttributes(building);
+                    buildings.add(building);
+                } else {
+                    //TODO: throw error exception
                 }
             }
-            setPrimaryAddress(building);
-            setAlternativeAddresses(building);
         }
         return buildings;
+
+
+
+//        List<Building> buildings = sqlSession().selectList(BUILDING_NAMESPACE + "." + FIND_OPERATION, example);
+//        for (Building building : buildings) {
+//            for (Attribute attribute : building.getAttributes()) {
+//                if (!isSimpleAttribute(attribute)) {
+//                    //link to another entity object
+//                    attribute.setLocalizedValues(null);
+//                }
+//            }
+//            setPrimaryAddress(building);
+//            setAlternativeAddresses(building);
+//        }
+//        return buildings;
     }
 
     @Override
     @Transactional
     public int count(DomainObjectExample example) {
-        example.setTable(getEntityTable());
-        return (Integer) sqlSession().selectOne(BUILDING_NAMESPACE + "." + COUNT_OPERATION, example);
+        if (example.getId() != null) {
+            Building building = findById(example.getId());
+            return building == null ? 0 : 1;
+        } else {
+            String number = (String) example.getAdditionalParam(NUMBER);
+            String corp = (String) example.getAdditionalParam(CORP);
+            String structure = (String) example.getAdditionalParam(STRUCTURE);
+
+            DomainObjectExample addressExample = new DomainObjectExample();
+            addressExample.setComparisonType(example.getComparisonType());
+            addressExample.setLocale(example.getLocale());
+            addressExample.setStatus(example.getStatus());
+
+            AttributeExample numberExample = new AttributeExample(BuildingAddressStrategy.NUMBER);
+            numberExample.setValue(number);
+            addressExample.addAttributeExample(numberExample);
+            AttributeExample corpExample = new AttributeExample(BuildingAddressStrategy.CORP);
+            corpExample.setValue(corp);
+            addressExample.addAttributeExample(corpExample);
+            AttributeExample structureExample = new AttributeExample(BuildingAddressStrategy.STRUCTURE);
+            structureExample.setValue(structure);
+            addressExample.addAttributeExample(structureExample);
+            Map<String, Long> ids = Maps.newHashMap();
+            ids.put("street", (Long) example.getAdditionalParam(STREET));
+            ids.put("city", (Long) example.getAdditionalParam(CITY));
+            buildingAddressStrategy.configureExample(addressExample, ids, null);
+
+            int count = buildingAddressStrategy.count(addressExample);
+            return count;
+        }
+
+//        example.setTable(getEntityTable());
+//        return (Integer) sqlSession().selectOne(BUILDING_NAMESPACE + "." + COUNT_OPERATION, example);
     }
 
-    private DomainObject findBuildingAddress(long id) {
-        return buildingAddressStrategy.findById(id);
+    private DomainObject findBuildingAddress(long id, Date date) {
+        if (date == null) {
+            return buildingAddressStrategy.findById(id);
+        } else {
+            return buildingAddressStrategy.findHistoryObject(id, date);
+        }
     }
 
-    private void setPrimaryAddress(Building building) {
-        building.setPrimaryAddress(findBuildingAddress(building.getParentId()));
+    private void setPrimaryAddress(Building building, Date date) {
+        building.setPrimaryAddress(findBuildingAddress(building.getParentId(), date));
     }
 
-    private void setAlternativeAddresses(Building building) {
+    private void setAlternativeAddresses(Building building, Date date) {
         for (Attribute attr : building.getAttributes()) {
             if (attr.getAttributeTypeId().equals(BUILDING_ADDRESS)) {
-                DomainObject alternativeAddress = findBuildingAddress(attr.getValueId());
+                DomainObject alternativeAddress = findBuildingAddress(attr.getValueId(), date);
                 if (alternativeAddress != null) {
                     building.addAlternativeAddress(alternativeAddress);
                 }
@@ -161,17 +262,20 @@ public class BuildingStrategy extends Strategy {
 //        super.updateStringsForNewLocales(object);
 //        return object;
         Building building = (Building) sqlSession().selectOne(BUILDING_NAMESPACE + "." + FIND_BY_ID_OPERATION, example);
-        for (Attribute attribute : building.getAttributes()) {
-            if (!isSimpleAttribute(attribute)) {
-                //link to another entity object
-                attribute.setLocalizedValues(null);
-            }
-        }
-        setPrimaryAddress(building);
-        setAlternativeAddresses(building);
+        if (building != null) {
+//            for (Attribute attribute : building.getAttributes()) {
+//                if (!isSimpleAttribute(attribute)) {
+//                    //link to another entity object
+//                    attribute.setLocalizedValues(null);
+//                }
+//            }
+            loadAttributes(building);
+            setPrimaryAddress(building, null);
+            setAlternativeAddresses(building, null);
 
-        updateForNewAttributeTypes(building);
-        updateStringsForNewLocales(building);
+            updateForNewAttributeTypes(building);
+            updateStringsForNewLocales(building);
+        }
 
         return building;
     }
@@ -241,7 +345,7 @@ public class BuildingStrategy extends Strategy {
     @Override
     public String displayDomainObject(DomainObject object, Locale locale) {
         Building building = (Building) object;
-        return displayBuilding(building.getPrimaryNumber(locale), building.getPrimaryCorp(locale), building.getPrimaryCorp(locale), locale);
+        return displayBuilding(building.getAccompaniedNumber(locale), building.getAccompaniedCorp(locale), building.getAccompaniedStructure(locale), locale);
     }
 
     private String displayBuilding(String number, String corp, String structure, Locale locale) {
@@ -337,12 +441,11 @@ public class BuildingStrategy extends Strategy {
         return null;
     }
 
-    @Override
-    public List<String> getParentSearchFilters() {
-        return ImmutableList.of("country", "region", "city");
-//        return null;
-    }
-
+//    @Override
+//    public List<String> getParentSearchFilters() {
+//        return ImmutableList.of("country", "region", "city", "street");
+////        return null;
+//    }
 //    private static class ParentSearchCallback implements ISearchCallback, Serializable {
 //
 //        @Override
@@ -469,29 +572,26 @@ public class BuildingStrategy extends Strategy {
 //
 //
 //    }
-
     @Override
     protected void insertDomainObject(DomainObject object, Date startDate) {
         Building building = (Building) object;
-        List<DomainObject> addresses = Lists.newArrayList();
-        addresses.add(building.getPrimaryAddress());
-        addresses.addAll(building.getAlternativeAddresses());
-        for(DomainObject buildingAddress : addresses){
+        for (DomainObject buildingAddress : building.getAllAddresses()) {
             buildingAddressStrategy.insert(buildingAddress);
         }
-        building.enhanceBuildingAddressAttributes();
+        building.enhanceAlternativeAddressAttributes();
+        building.setParentId(building.getPrimaryAddress().getId());
+        building.setParentEntityId(1500L);
         super.insertDomainObject(object, startDate);
     }
 
-
-
-    public Long checkForExistingAddress(String number, String corp, String structure, Long parentEntityId, Long parentId) {
+    public Long checkForExistingAddress(String number, String corp, String structure, Long parentEntityId, Long parentId, Locale locale) {
         Map<String, Object> params = Maps.newHashMap();
         params.put("number", number);
         params.put("corp", corp);
         params.put("structure", structure);
         params.put("parentEntityId", parentEntityId);
         params.put("parentId", parentId);
+        params.put("locale", locale.getLanguage());
         List<Long> buildingIds = sqlSession().selectList(BUILDING_NAMESPACE + ".checkBuildingAddress", params);
         if (!buildingIds.isEmpty()) {
             return buildingIds.get(0);
@@ -500,15 +600,214 @@ public class BuildingStrategy extends Strategy {
     }
 
     @Override
+    public void update(DomainObject oldObject, DomainObject newObject, Date updateDate) {
+        Building oldBuilding = (Building) oldObject;
+        Building newBuilding = (Building) newObject;
+
+        List<DomainObject> removedAddresses = determineRemovedAddresses(oldBuilding, newBuilding);
+        List<DomainObject> addedAddresses = determineAddedAddresses(newBuilding);
+        Map<DomainObject, DomainObject> updatedAddressesMap = determineUpdatedAddresses(oldBuilding, newBuilding);
+
+        if (removedAddresses != null) {
+            for (DomainObject removedAddress : removedAddresses) {
+                log.info("Removed addrs: {}", removedAddress.getId());
+                buildingAddressStrategy.archive(removedAddress);
+            }
+        }
+        if (addedAddresses != null) {
+            for (DomainObject newAddress : addedAddresses) {
+                log.info("Added addrs: {}", newAddress);
+                buildingAddressStrategy.insert(newAddress);
+            }
+        }
+
+        if (updatedAddressesMap != null) {
+            for (Map.Entry<DomainObject, DomainObject> updatedAddress : updatedAddressesMap.entrySet()) {
+                DomainObject oldAddress = updatedAddress.getKey();
+                log.info("Updated address id: {}", oldAddress.getId());
+                DomainObject newAddress = updatedAddress.getValue();
+                buildingAddressStrategy.update(oldAddress, newAddress, updateDate);
+            }
+        }
+
+        newBuilding.enhanceAlternativeAddressAttributes();
+
+        super.update(oldBuilding, newBuilding, updateDate);
+    }
+
+    private List<DomainObject> determineRemovedAddresses(Building oldBuilding, Building newBuilding) {
+        List<DomainObject> removedAddresses = Lists.newArrayList();
+
+        List<DomainObject> oldAddresses = oldBuilding.getAllAddresses();
+        List<DomainObject> newAddresses = newBuilding.getAllAddresses();
+
+        for (DomainObject oldAddress : oldAddresses) {
+            boolean removed = true;
+            for (DomainObject newAddress : newAddresses) {
+                if (oldAddress.getId().equals(newAddress.getId())) {
+                    removed = false;
+                    break;
+                }
+            }
+            if (removed) {
+                removedAddresses.add(oldAddress);
+            }
+        }
+        return removedAddresses;
+    }
+
+    private List<DomainObject> determineAddedAddresses(Building newBuilding) {
+        List<DomainObject> addedAddresses = Lists.newArrayList();
+
+        List<DomainObject> newAddresses = newBuilding.getAllAddresses();
+
+        for (DomainObject newAddress : newAddresses) {
+            if (newAddress.getId() == null) {
+                addedAddresses.add(newAddress);
+            }
+        }
+        return addedAddresses;
+    }
+
+    private Map<DomainObject, DomainObject> determineUpdatedAddresses(Building oldBuilding, Building newBuilding) {
+        Map<DomainObject, DomainObject> updatedAddressesMap = Maps.newHashMap();
+
+        List<DomainObject> oldAddresses = oldBuilding.getAllAddresses();
+        List<DomainObject> newAddresses = newBuilding.getAllAddresses();
+
+        for (DomainObject oldAddress : oldAddresses) {
+            for (DomainObject newAddress : newAddresses) {
+                if (oldAddress.getId().equals(newAddress.getId())) {
+                    updatedAddressesMap.put(oldAddress, newAddress);
+                    break;
+                }
+            }
+        }
+        return updatedAddressesMap;
+    }
+
+    @Override
     public String getOrderByExpression(String objectIdReference, String locale, Map<String, Object> params) {
         StringBuilder orderByBuilder = new StringBuilder();
         orderByBuilder.append("(SELECT sc.`value` FROM `building_address_string_culture` sc WHERE sc.`locale` = '").
                 append(locale).
-                append("' AND sc.`id` = (SELECT attr.`value_id` FROM `building_address_attribute` attr WHERE attr.`object_id` = "
-                + "(SELECT b.`parent_id` FROM `building` b WHERE b.`object_id` = ").append(objectIdReference).
-                append(") AND attr.`status` = 'ACTIVE' AND attr.`attribute_type_id` = ").
-                append(BuildingAddressStrategy.NUMBER).append("))");
+                append("' AND sc.`id` = (SELECT attr.`value_id` FROM `building_address_attribute` attr WHERE ").
+                append("attr.`status` = 'ACTIVE' AND attr.`attribute_type_id` = ").append(BuildingAddressStrategy.NUMBER).
+                append(" AND attr.`object_id` = (SELECT addr.`object_id` FROM `building_address` addr WHERE "
+                + "(addr.`status` = 'ACTIVE' OR addr.`status` = 'INACTIVE') AND (addr.`object_id` = (SELECT b.`parent_id` FROM `building` b WHERE "
+                + "(b.`status` = 'ACTIVE' OR b.`status` = 'INACTIVE') AND b.`object_id` = ").append(objectIdReference).
+                append(") OR addr.`object_id` IN (SELECT ba.`value_id` FROM `building_attribute` ba WHERE "
+                + "ba.`status` = 'ACTIVE' AND ba.`attribute_type_id` = ").append(BuildingStrategy.BUILDING_ADDRESS).append("))");
+        Long parentId = null;
+        Long parentEntityId = null;
+        if (params != null) {
+            Long streetId = (Long) params.get("street");
+            Long cityId = (Long) params.get("city");
+            parentId = streetId != null ? streetId : cityId;
+            parentEntityId = streetId != null ? 300L : 400L;
+        }
+        if (parentId != null && parentEntityId != null) {
+            orderByBuilder.append(" AND addr.`parent_id` = ").append(parentId).append(" AND addr.`parent_entity_id` = ").append(parentEntityId);
+        }
+        orderByBuilder.append(")))");
 
         return orderByBuilder.toString();
+    }
+
+//    @Override
+//    public boolean hasHistory(Long objectId) {
+//        if (objectId == null) {
+//            return false;
+//        } else {
+//            return true;
+//        }
+//
+////        Building building = findById(objectId);
+////        boolean hasHistory = false;
+////
+////        for (DomainObject address : building.getAllAddresses()) {
+////            if (buildingAddressStrategy.hasHistory(address.getId())) {
+////                hasHistory = true;
+////                break;
+////            }
+////        }
+////
+////        return hasHistory || super.hasHistory(objectId);
+//    }
+
+    @Override
+    public TreeSet<Date> getHistoryDates(long objectId) {
+        TreeSet<Date> historyDates = super.getHistoryDates(objectId);
+        Set<Long> addressIds = Sets.newHashSet(sqlSession().selectList(BUILDING_NAMESPACE + ".findBuildingAddresses", objectId));
+        for (Long addressId : addressIds) {
+            TreeSet<Date> addressHistoryDates = buildingAddressStrategy.getHistoryDates(addressId);
+            historyDates.addAll(addressHistoryDates);
+        }
+        return historyDates;
+    }
+
+
+
+//    @Transactional
+//    @Override
+//    public List<History> getHistory(long objectId) {
+//        List<History> historyList = Lists.newArrayList();
+//
+//        TreeSet<Date> historyDates = getHistoryDates(objectId);
+//
+//        Set<Long> addressIds = Sets.newHashSet(sqlSession().selectList(BUILDING_NAMESPACE + ".findBuildingAddresses", objectId));
+//        for (Long addressId : addressIds) {
+//            TreeSet<Date> addressHistoryDates = buildingAddressStrategy.getHistoryDates(addressId);
+//            historyDates.addAll(addressHistoryDates);
+//        }
+//
+////        Building building = findById(objectId);
+////
+////        for (DomainObject address : building.getAllAddresses()) {
+////
+////            DomainObjectExample addressExample = new DomainObjectExample();
+////            addressExample.setTable(buildingAddressStrategy.getEntityTable());
+////            addressExample.setId(address.getId());
+////
+////            allDatesSet.addAll(Collections2.filter(sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + ".historyDates", addressExample),
+////                    new Predicate<Date>() {
+////
+////                        @Override
+////                        public boolean apply(Date input) {
+////                            return input != null;
+////                        }
+////                    }));
+////        }
+//
+//        for (final Date date : historyDates) {
+//            DomainObject historyObject = findHistoryObject(objectId, date);
+//            History history = new History(date, historyObject);
+//            historyList.add(history);
+//        }
+//        return historyList;
+//    }
+
+
+
+    @Transactional
+    @Override
+    public DomainObject findHistoryObject(long objectId, Date date) {
+        DomainObjectExample example = new DomainObjectExample();
+        example.setTable(getEntityTable());
+        example.setId(objectId);
+        example.setStartDate(date);
+
+        Building building = (Building) sqlSession().selectOne(BUILDING_NAMESPACE + "." + FIND_HISTORY_OBJECT_OPERATION, example);
+        if (building == null) {
+            return null;
+        }
+
+        List<Attribute> historyAttributes = loadHistoryAttributes(objectId, date);
+        loadStringCultures(historyAttributes);
+        building.setAttributes(historyAttributes);
+        setPrimaryAddress(building, date);
+        setAlternativeAddresses(building, date);
+        updateStringsForNewLocales(building);
+        return building;
     }
 }

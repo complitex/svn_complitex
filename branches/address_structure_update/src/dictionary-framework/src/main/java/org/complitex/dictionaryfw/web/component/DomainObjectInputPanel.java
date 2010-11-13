@@ -138,6 +138,28 @@ public class DomainObjectInputPanel extends Panel {
         init();
     }
 
+    public Date getDate() {
+        return date;
+    }
+
+    protected SearchComponentState initParentSearchComponentState() {
+        //parent search
+        SearchComponentState componentState = null;
+        if (object.getId() == null) {
+            if (!fromParent()) {
+                componentState = getSearchComponentStateFromSession();
+            } else {
+                componentState = getStrategy().getSearchComponentStateForParent(parentId, parentEntity, null);
+            }
+        } else {
+            Strategy.RestrictedObjectInfo info = getStrategy().findParentInSearchComponent(object.getId(), isHistory() ? date : null);
+            if (info != null) {
+                componentState = getStrategy().getSearchComponentStateForParent(info.getId(), info.getEntityTable(), date);
+            }
+        }
+        return componentState;
+    }
+
     private boolean isHistory() {
         return date != null;
     }
@@ -332,36 +354,21 @@ public class DomainObjectInputPanel extends Panel {
         };
         simpleAttributes.setReuseItems(true);
         add(simpleAttributes);
-
-        //parent search
-        if (object.getId() == null) {
-            if (!fromParent()) {
-                searchComponentState = getSearchComponentStateFromSession();
-            } else {
-                searchComponentState = getStrategy().getSearchComponentStateForParent(parentId, parentEntity, null);
-            }
-        } else {
-            Strategy.RestrictedObjectInfo info = getStrategy().findParentInSearchComponent(object.getId(), isHistory() ? date : null);
-            if (info != null) {
-                searchComponentState = getStrategy().getSearchComponentStateForParent(info.getId(), info.getEntityTable(), date);
-            }
-        }
+        searchComponentState = initParentSearchComponentState();
 
         WebMarkupContainer parentContainer = new WebMarkupContainer("parentContainer");
         add(parentContainer);
-        Label parent = new Label("parent", getParentLabelModel());
-        parentContainer.add(parent);
         List<String> parentFilters = getStrategy().getParentSearchFilters();
         ISearchCallback parentSearchCallback = getStrategy().getParentSearchCallback();
-        Component parentSearch = null;
         if (parentFilters == null || parentFilters.isEmpty() || parentSearchCallback == null) {
             parentContainer.setVisible(false);
-            parentSearch = new EmptyPanel("parentSearch");
+            parentContainer.add(new EmptyPanel("parentSearch"));
         } else {
-            parentSearch = new SearchComponent("parentSearch", searchComponentState, parentFilters, parentSearchCallback,
-                    !isHistory() && CanEditUtil.canEdit(object));
+            SearchComponent parentSearchComponent = new SearchComponent("parentSearch", getParentSearchComponentState(), parentFilters,
+                    parentSearchCallback, !isHistory() && CanEditUtil.canEdit(object));
+            parentContainer.add(parentSearchComponent);
+            parentSearchComponent.invokeCallback();
         }
-        parentContainer.add(parentSearch);
 
         //complex attributes
         AbstractComplexAttributesPanel complexAttributes = null;
@@ -385,6 +392,7 @@ public class DomainObjectInputPanel extends Panel {
                 || getStrategy().getParentSearchFilters().isEmpty()
                 || getStrategy().getParentSearchCallback() == null)) {
             if ((object.getParentId() == null) || (object.getParentEntityId() == null)) {
+                log.info("validate parent, entity: {}", entity);
                 error(getString("parent_required"));
                 return false;
             }
@@ -408,9 +416,5 @@ public class DomainObjectInputPanel extends Panel {
             searchComponentSessionState.put(entity, componentState);
         }
         return componentState;
-    }
-
-    protected IModel<String> getParentLabelModel(){
-        return new ResourceModel("parent");
     }
 }

@@ -4,6 +4,8 @@
  */
 package org.complitex.osznconnection.information.strategy.building.entity;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import java.util.Iterator;
 import java.util.List;
@@ -30,6 +32,16 @@ public class Building extends DomainObject {
     private DomainObject district;
 
     private DomainObject primaryStreet;
+
+    private DomainObject accompaniedAddress;
+
+    public DomainObject getAccompaniedAddress() {
+        return accompaniedAddress;
+    }
+
+    public void setAccompaniedAddress(DomainObject accompaniedAddress) {
+        this.accompaniedAddress = accompaniedAddress;
+    }
 
     public DomainObject getPrimaryStreet() {
         return primaryStreet;
@@ -92,6 +104,31 @@ public class Building extends DomainObject {
         return parentEntityId == 300 ? primaryAddress.getParentId() : null;
     }
 
+    public String getAccompaniedNumber(Locale locale) {
+        return getStringBean().displayValue(accompaniedAddress.getAttribute(BuildingAddressStrategy.NUMBER).getLocalizedValues(), locale);
+    }
+
+    public String getAccompaniedCorp(Locale locale) {
+        Attribute corpAttr = accompaniedAddress.getAttribute(BuildingAddressStrategy.CORP);
+        if (corpAttr != null) {
+            return getStringBean().displayValue(corpAttr.getLocalizedValues(), locale);
+        }
+        return null;
+    }
+
+    public String getAccompaniedStructure(Locale locale) {
+        Attribute structureAttr = accompaniedAddress.getAttribute(BuildingAddressStrategy.STRUCTURE);
+        if (structureAttr != null) {
+            return getStringBean().displayValue(structureAttr.getLocalizedValues(), locale);
+        }
+        return null;
+    }
+
+    public Long getAccompaniedStreetId() {
+        long parentEntityId = accompaniedAddress.getParentEntityId();
+        return parentEntityId == 300 ? accompaniedAddress.getParentId() : null;
+    }
+
     public String getNumber(long streetId, Locale locale) {
         if (new Long(streetId).equals(getPrimaryStreetId())) {
             return getPrimaryNumber(locale);
@@ -140,6 +177,20 @@ public class Building extends DomainObject {
         return null;
     }
 
+    public DomainObject getAddress(long streetId){
+        if (new Long(streetId).equals(getPrimaryStreetId())) {
+            return primaryAddress;
+        }
+        for (DomainObject address : alternativeAddresses) {
+            String parentEntity = address.getParentEntity();
+            Long addressStreetId = parentEntity.equals("street") ? address.getParentId() : null;
+            if (new Long(streetId).equals(addressStreetId)) {
+                return address;
+            }
+        }
+        return null;
+    }
+
     public Long getBuildingAddressParentId() {
         return primaryAddress.getParentId();
     }
@@ -152,17 +203,25 @@ public class Building extends DomainObject {
         addAttribute(districtAttr);
     }
 
-    public void enhanceBuildingAddressAttributes(){
-        for (Iterator<Attribute> it = getAttributes().iterator(); it.hasNext();) {
-            Attribute attr = it.next();
-            if(attr.getAttributeTypeId().equals(BuildingStrategy.BUILDING_ADDRESS)){
-                it.remove();
+    public void enhanceAlternativeAddressAttributes() {
+        getAttributes().removeAll(Collections2.filter(getAttributes(), new Predicate<Attribute>() {
+
+            @Override
+            public boolean apply(Attribute attr) {
+                return attr.getAttributeTypeId().equals(BuildingStrategy.BUILDING_ADDRESS);
             }
-        }
+        }));
         long attributeId = 1;
-        for(DomainObject alternativeAddress : alternativeAddresses){
+        for (DomainObject alternativeAddress : alternativeAddresses) {
             addBuildingAddressAttribute(alternativeAddress.getId(), attributeId++);
         }
+    }
+
+    public List<DomainObject> getAllAddresses(){
+        List<DomainObject> allAddresses = Lists.newArrayList();
+        allAddresses.add(primaryAddress);
+        allAddresses.addAll(alternativeAddresses);
+        return allAddresses;
     }
 
     private void addBuildingAddressAttribute(long valueId, long attributeId) {

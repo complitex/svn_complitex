@@ -134,7 +134,8 @@ public final class BuildingList extends TemplatePage {
                 boolean asc = getSort().isAscending();
                 String sortProperty = getSort().getProperty();
                 if (!Strings.isEmpty(sortProperty)) {
-                    example.addAdditionalParam(BuildingStrategy.ORDER_BY_PARAM, sortProperty);
+                    example.setOrderByAttribureTypeId(Long.valueOf(sortProperty));
+//                    example.addAdditionalParam(BuildingStrategy.ORDER_BY_PARAM, sortProperty);
                 }
 
                 example.setStatus(showModeModel.getObject().name());
@@ -150,7 +151,8 @@ public final class BuildingList extends TemplatePage {
             public int size() {
                 String sortProperty = getSort().getProperty();
                 if (!Strings.isEmpty(sortProperty)) {
-                    example.addAdditionalParam(BuildingStrategy.ORDER_BY_PARAM, sortProperty);
+                    example.setOrderByAttribureTypeId(Long.valueOf(sortProperty));
+//                    example.addAdditionalParam(BuildingStrategy.ORDER_BY_PARAM, sortProperty);
                 }
                 example.setStatus(showModeModel.getObject().name());
                 example.setLocale(getLocale().getLanguage());
@@ -212,10 +214,9 @@ public final class BuildingList extends TemplatePage {
                 Building building = item.getModelObject();
 
                 item.add(new Label("id", StringUtil.valueOf(building.getId())));
-                Long streetId = (Long) example.getAdditionalParam(BuildingStrategy.STREET);
-                item.add(new Label("number", streetId != null ? building.getNumber(streetId, getLocale()) : building.getPrimaryNumber(getLocale())));
-                item.add(new Label("corp", streetId != null ? building.getCorp(streetId, getLocale()) : building.getPrimaryCorp(getLocale())));
-                item.add(new Label("structure", streetId != null ? building.getStructure(streetId, getLocale()) : building.getPrimaryStructure(getLocale())));
+                item.add(new Label("number", building.getAccompaniedNumber(getLocale())));
+                item.add(new Label("corp", building.getAccompaniedCorp(getLocale())));
+                item.add(new Label("structure", building.getAccompaniedStructure(getLocale())));
 
                 item.add(new BookmarkablePageLink<WebPage>("detailsLink", buildingStrategy.getEditPage(),
                         buildingStrategy.getEditPageParams(building.getId(), null, null)));
@@ -223,9 +224,9 @@ public final class BuildingList extends TemplatePage {
         };
         filterForm.add(dataView);
 
-        filterForm.add(new ArrowOrderByBorder("numberHeader", BuildingStrategy.OrderBy.NUMBER.getOrderByAttribute(), dataProvider, dataView, content));
-        filterForm.add(new ArrowOrderByBorder("corpHeader", BuildingStrategy.OrderBy.CORP.getOrderByAttribute(), dataProvider, dataView, content));
-        filterForm.add(new ArrowOrderByBorder("structureHeader", BuildingStrategy.OrderBy.STRUCTURE.getOrderByAttribute(), dataProvider, dataView, content));
+        filterForm.add(new ArrowOrderByBorder("numberHeader", String.valueOf(BuildingStrategy.OrderBy.NUMBER.getOrderByAttributeId()), dataProvider, dataView, content));
+        filterForm.add(new ArrowOrderByBorder("corpHeader", String.valueOf(BuildingStrategy.OrderBy.CORP.getOrderByAttributeId()), dataProvider, dataView, content));
+        filterForm.add(new ArrowOrderByBorder("structureHeader", String.valueOf(BuildingStrategy.OrderBy.STRUCTURE.getOrderByAttributeId()), dataProvider, dataView, content));
 
         //Reset Action
         AjaxLink reset = new AjaxLink("reset") {

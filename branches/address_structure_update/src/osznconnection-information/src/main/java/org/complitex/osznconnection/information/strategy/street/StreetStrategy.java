@@ -86,12 +86,13 @@ public class StreetStrategy extends Strategy {
         example.setTable(getEntityTable());
         List<DomainObject> objects = sqlSession().selectList(STREET_NAMESPACE + "." + FIND_OPERATION, example);
         for (DomainObject object : objects) {
-            for (Attribute attribute : object.getAttributes()) {
-                if (!isSimpleAttribute(attribute)) {
-                    //link to another entity object
-                    attribute.setLocalizedValues(null);
-                }
-            }
+//            for (Attribute attribute : object.getAttributes()) {
+//                if (!isSimpleAttribute(attribute)) {
+//                    //link to another entity object
+//                    attribute.setLocalizedValues(null);
+//                }
+//            }
+            loadAttributes(object);
         }
         return objects;
     }

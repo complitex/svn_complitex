@@ -4,6 +4,7 @@
  */
 package org.complitex.dictionaryfw.strategy.web;
 
+import java.util.Date;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -106,7 +107,7 @@ public class DomainObjectEditPanel extends Panel {
         add(label);
 
         final FeedbackPanel messages = new FeedbackPanel("messages");
-//        messages.setOutputMarkupId(true);
+        messages.setOutputMarkupId(true);
         add(messages);
 
         Form form = new Form("form");
@@ -131,7 +132,8 @@ public class DomainObjectEditPanel extends Panel {
             }
         };
         historyContainer.add(history);
-        historyContainer.setVisible(getStrategy().hasHistory(newObject.getId()));
+//        historyContainer.setVisible(getStrategy().hasHistory(newObject.getId()));
+        historyContainer.setVisible(!isNew());
         form.add(historyContainer);
 
         //save-cancel functional
@@ -179,7 +181,7 @@ public class DomainObjectEditPanel extends Panel {
             if (isNew()) {
                 getStrategy().insert(newObject);
             } else {
-                getStrategy().update(oldObject, newObject);
+                getStrategy().update(oldObject, newObject, new Date());
             }
 
             logBean.log(Log.STATUS.OK, Module.NAME, DomainObjectEditPanel.class,
