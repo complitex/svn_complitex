@@ -92,6 +92,7 @@ public final class PaymentList extends TemplatePage {
         final WebMarkupContainer content = new WebMarkupContainer("content");
         content.setOutputMarkupId(true);
         add(content);
+
         final Form filterForm = new Form("filterForm");
         content.add(filterForm);
         example = new Model<PaymentExample>(newExample());
@@ -154,11 +155,16 @@ public final class PaymentList extends TemplatePage {
         };
         filterForm.add(submit);
 
+        //Панель коррекции
+        final AddressCorrectionPanel addressCorrectionPanel = new AddressCorrectionPanel("addressCorrectionPanel", content);
+        add(addressCorrectionPanel);
+
         DataView<Payment> data = new DataView<Payment>("data", dataProvider, 1) {
 
             @Override
             protected void populateItem(Item<Payment> item) {
                 final Payment payment = item.getModelObject();
+
                 item.add(new Label("account", (String) payment.getField(PaymentDBF.OWN_NUM_SR)));
                 item.add(new Label("firstName", (String) payment.getField(PaymentDBF.F_NAM)));
                 item.add(new Label("middleName", (String) payment.getField(PaymentDBF.M_NAM)));
@@ -177,21 +183,11 @@ public final class PaymentList extends TemplatePage {
                 }
                 item.add(new Label("statusDetails", statusDetails));
 
-                final AddressCorrectionPanel addressCorrectionPanel = new AddressCorrectionPanel("addressCorrectionPanel", payment,
-                        new MarkupContainer[]{content}) {
-
-                    @Override
-                    protected void correctAddress(Long cityId, Long streetId, Long streetTypeId, Long buildingId, Long apartmentId) {
-                        addressService.correctLocalAddress(payment, cityId, streetId, streetTypeId, buildingId);
-                    }
-                };
-                addressCorrectionPanel.setVisible(payment.getStatus().isLocalAddressCorrected());
-                item.add(addressCorrectionPanel);
                 AjaxLink addressCorrectionLink = new AjaxLink("addressCorrectionLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
-                        addressCorrectionPanel.open(target);
+                        addressCorrectionPanel.open(target, payment);
                     }
                 };
                 addressCorrectionLink.setVisible(payment.getStatus().isLocalAddressCorrected());
