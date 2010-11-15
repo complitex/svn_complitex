@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Database" default="create" basedir=".">
+    <property file="database.properties"/>
+
+    <target name="create">
+        <sql
+            driver="com.mysql.jdbc.Driver"
+            encoding="UTF-8"
+            url="${url}"
+            userid="${username}"
+            password="${password}">
+            <classpath>
+                <pathelement location="mysql-connector-java-5.1.10.jar"/>
+            </classpath>
+            <transaction src="create.sql"/>
+        </sql>
+
+        <sql
+            driver="com.mysql.jdbc.Driver"
+            encoding="UTF-8"
+            url="${url}"
+            delimiter="/"
+            userid="${username}"
+            password="${password}">
+            <classpath>
+                <pathelement location="mysql-connector-java-5.1.10.jar"/>
+            </classpath>
+            <transaction src="functions.sql"/>
+        </sql>
+
+        <sql
+            driver="com.mysql.jdbc.Driver"
+            encoding="UTF-8"
+            url="${url}"
+            userid="${username}"
+            password="${password}">
+            <classpath>
+                <pathelement location="mysql-connector-java-5.1.10.jar"/>
+            </classpath>
+            <transaction src="insert.sql"/>
+            <transaction src="sequence.sql"/>
+        </sql>
+    </target>
+
+    <target name="create_with_test">
+        <antcall target="create"/>
+        <antcall target="populate_test_data"/>
+    </target>
+
+    <target name="populate_test_data">
+        <sql
+            driver="com.mysql.jdbc.Driver"
+            encoding="UTF-8"
+            url="${url}"
+            userid="${username}"
+            password="${password}">
+            <classpath>
+                <pathelement location="mysql-connector-java-5.1.10.jar"/>
+            </classpath>
+            <transaction src="testdump.sql"/>
+            <transaction src="sequence.sql"/>
+        </sql>
+    </target>
+
+    <target name="populate_address_base">
+        <sql
+            driver="com.mysql.jdbc.Driver"
+            encoding="UTF-8"
+            url="${url}"
+            userid="${username}"
+            password="${password}">
+            <classpath>
+                <pathelement location="mysql-connector-java-5.1.10.jar"/>
+            </classpath>              
+            <transaction src="import/address_base.sql"/>            
+        </sql>
+    </target>
+
+</project>

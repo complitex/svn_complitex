@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<wicket:panel>
+    <div class="PageNavigator" wicket:id="pageNavigator">
+        <div class="pageBar" wicket:id="pageBar">
+            <table border="0" cellspacing="5" cellpadding="0">
+                <tr>
+                    <td>
+                        <a wicket:id="first">
+                            <img wicket:id="firstImage" width="23" height="23" alt="" border="0"/>
+                        </a>
+                    </td>
+                    <td>
+                        <a wicket:id="prev">
+                            <img wicket:id="prevImage" width="23" height="23" alt="" border="0"/>
+                        </a>
+                    </td>
+
+                    <td class="on" wicket:id="navigationBefore">
+                        <a wicket:id="pageLinkBefore">
+                            <span wicket:id="pageNumberBefore"></span>
+                        </a>
+                    </td>
+
+                    <td class="off" wicket:id="navigationCurrent">
+                        <a wicket:id="pageLinkCurrent">
+                            <span wicket:id="pageNumberCurrent"></span>
+                        </a>
+                    </td>
+
+                    <td class="on" wicket:id="navigationAfter">
+                        <a wicket:id="pageLinkAfter">
+                            <span wicket:id="pageNumberAfter"></span>
+                        </a>
+                    </td>
+
+                    <td>
+                        <a wicket:id="next">
+                            <img wicket:id="nextImage" width="23" height="23" alt="" border="0">
+                        </a>
+                    </td>
+                    <td>
+                        <a wicket:id="last">
+                            <img wicket:id="lastImage" width="23" height="23" alt="" border="0">
+                        </a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="pageBarRight">
+            <table border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td>
+                        <span wicket:id="allPagesRegion">
+                            <wicket:message key="PageNavigator.allPagesLabel"/>: 
+                            <span wicket:id="allPages"></span>
+                        </span>
+                    </td>
+                    <td style="padding-left: 10px">
+                        <label for="pageSize">
+                            <wicket:message key="PageNavigator.pageSizeLabel"/>
+                        </label>
+                        <select id="pageSize" wicket:id="pageSize">
+                            <option></option>
+                        </select>
+                    </td>
+                    <td style="padding-left: 10px">
+                        <form wicket:id="newPageForm">
+                            <label for="newPageNumber">
+                                <wicket:message key="PageNavigator.newPageNumberLabel"/>
+                            </label>
+                            <input id="newPageNumber" type="text" size="2" wicket:id="newPageNumber"/>
+                            <input class="btnSmall" type="submit" wicket:id="goToPage" wicket:message="value:PageNavigator.goToNewPage"/>
+                        </form>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</wicket:panel>
+
+
+
