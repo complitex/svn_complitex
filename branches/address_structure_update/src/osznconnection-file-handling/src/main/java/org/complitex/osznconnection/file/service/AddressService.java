@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import org.complitex.osznconnection.information.strategy.building.BuildingStrategy;
+import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.osznconnection.information.strategy.building.entity.Building;
 import org.complitex.osznconnection.information.strategy.street.StreetStrategy;
 
@@ -40,9 +40,6 @@ public class AddressService extends AbstractBean {
 
     @EJB(beanName = "StrategyFactory")
     private StrategyFactory strategyFactory;
-
-    @EJB
-    private BuildingStrategy buildingStrategy;
 
     /**
      * Разрешить переход "ОСЗН адрес -> локальная адресная база"
@@ -123,8 +120,10 @@ public class AddressService extends AbstractBean {
 
         if (buildingCorrection != null) {
             buildingId = buildingCorrection.getObjectId();
+            log.info("Building id from correction: {}", buildingId);
         } else {
             buildingId = addressCorrectionBean.findInternalBuilding(buildingNumber, buildingCorp, streetId, cityId);
+            log.info("Building id from internal base: {}", buildingId);
             if (buildingId != null) {
                 addressCorrectionBean.insertCorrectionBuilding(streetCorrection, buildingNumber, buildingCorp, buildingId);
             }
@@ -132,12 +131,18 @@ public class AddressService extends AbstractBean {
 
         if (buildingId != null) {
             payment.setInternalBuildingId(buildingId);
-            Building building = buildingStrategy.findById(buildingId);
+            Strategy buildingStrategy = strategyFactory.getStrategy("building");
+            Building building = (Building) buildingStrategy.findById(buildingId);
             Long internalStreetId = building.getPrimaryStreetId();
             if (streetId != null) {
                 payment.setInternalStreetId(internalStreetId);
+
+                //TODO: add setInternalCityId
+                Strategy streetStrategy = strategyFactory.getStrategy("street");
+                DomainObject streetObject = streetStrategy.findById(streetId);
+                Long internalCityId = streetObject.getParentId();
+                payment.setInternalCityId(internalCityId);
             }
-            //TODO: add setInternalCityId
 
             payment.setStatus(RequestStatus.CITY_UNRESOLVED);
         } else {

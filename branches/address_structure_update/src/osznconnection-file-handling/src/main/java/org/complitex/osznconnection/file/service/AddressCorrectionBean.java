@@ -358,11 +358,13 @@ public class AddressCorrectionBean extends CorrectionBean {
     public Long findInternalBuilding(String buildingNumber, String buildingCorp, Long streetId, Long cityId) {
         Map<String, Object> params = Maps.newHashMap();
         params.put("number", buildingNumber == null ? "" : prepareBuildingData(buildingNumber));
-        params.put("streetId", streetId);
         if (!Strings.isEmpty(buildingCorp)) {
             params.put("corp", prepareBuildingData(buildingCorp));
         }
-        params.put("parentId", cityId);
+        long parentId = streetId != null ? streetId : cityId;
+        long parentEntityId = streetId != null ? 300 : 400;
+        params.put("parentId", parentId);
+        params.put("parentEntityId", parentEntityId);
         List<Long> ids = sqlSession().selectList(MAPPING_NAMESPACE + ".findInternalBuilding", params);
         if (ids != null && (ids.size() == 1)) {
             return ids.get(0);

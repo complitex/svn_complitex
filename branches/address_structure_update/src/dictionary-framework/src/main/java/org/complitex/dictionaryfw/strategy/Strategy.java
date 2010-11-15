@@ -169,12 +169,6 @@ public abstract class Strategy extends AbstractBean {
         example.setTable(getEntityTable());
         DomainObject object = (DomainObject) sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + "." + FIND_BY_ID_OPERATION, example);
         if (object != null) {
-//            for (Attribute attribute : object.getAttributes()) {
-//                if (!isSimpleAttribute(attribute)) {
-//                    //link to another entity object
-//                    attribute.setLocalizedValues(null);
-//                }
-//            }
             loadAttributes(object);
             updateForNewAttributeTypes(object);
             updateStringsForNewLocales(object);

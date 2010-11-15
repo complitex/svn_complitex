@@ -99,7 +99,7 @@ public class BuildingValidator2 implements IValidator {
 
     private boolean validateParents(Building building, Component component) {
         for (DomainObject address : building.getAllAddresses()) {
-            if (address.getParentId() == null || address.getParentEntityId() == null) {
+            if (address.getParentId() == null || address.getParentEntityId() == null && address.getParentId() > 0) {
                 error("parent_not_specified", component);
                 return false;
             }

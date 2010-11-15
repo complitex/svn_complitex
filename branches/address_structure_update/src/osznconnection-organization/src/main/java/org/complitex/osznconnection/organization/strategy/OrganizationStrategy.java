@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.osznconnection.information.strategy.district.DistrictStrategy;
 import org.complitex.osznconnection.organization.strategy.web.OrganizationEditComponent;
 
@@ -45,8 +44,6 @@ import org.complitex.osznconnection.organization.strategy.web.OrganizationEditCo
 public class OrganizationStrategy extends Strategy {
 
     public static final String RESOURCE_BUNDLE = OrganizationStrategy.class.getName();
-
-    private static final String MAPPING_NAMESPACE = OrganizationStrategy.class.getPackage().getName() + ".Organization";
 
     public static final long ITSELF_ORGANIZATION_OBJECT_ID = 0;
 
@@ -73,24 +70,6 @@ public class OrganizationStrategy extends Strategy {
     private DistrictStrategy districtStrategy;
 
     @Override
-    @Transactional
-    public DomainObject findById(Long id) {
-        DomainObjectExample example = new DomainObjectExample();
-        example.setId(id);
-        example.setTable(getEntityTable());
-        DomainObject object = (DomainObject) sqlSession().selectOne(MAPPING_NAMESPACE + "." + FIND_BY_ID_OPERATION, example);
-        if (object != null) {
-            object.setAttributes(sqlSession().selectList(MAPPING_NAMESPACE + ".loadSimpleAttributes", example));
-            for (Attribute complexAttr : (List<Attribute>) sqlSession().selectList(MAPPING_NAMESPACE + ".loadComplexAttributes", example)) {
-                object.addAttribute(complexAttr);
-            }
-            super.updateForNewAttributeTypes(object);
-            super.updateStringsForNewLocales(object);
-        }
-        return object;
-    }
-
-    @Override
     public DomainObject newInstance() {
         DomainObject object = super.newInstance();
         newDistrictAttribute(object);
@@ -108,11 +87,6 @@ public class OrganizationStrategy extends Strategy {
     @Override
     public String getEntityTable() {
         return "organization";
-    }
-
-    @Override
-    public boolean isSimpleAttributeType(EntityAttributeType attributeType) {
-        return !attributeType.getId().equals(DISTRICT);
     }
 
     @Override

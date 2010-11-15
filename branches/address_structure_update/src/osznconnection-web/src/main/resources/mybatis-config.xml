@@ -45,8 +45,6 @@
         <mapper resource="org/complitex/osznconnection/information/strategy/building/Building.xml"/>
         <mapper resource="org/complitex/osznconnection/information/strategy/street/Street.xml"/>
 
-        <mapper resource="org/complitex/osznconnection/organization/strategy/Organization.xml"/>
-
         <mapper resource="org/complitex/osznconnection/admin/service/UserBean.xml"/>
         <mapper resource="org/complitex/dictionaryfw/service/LogBean.xml"/>
         <mapper resource="org/complitex/osznconnection/logging/service/LogListBean.xml"/>

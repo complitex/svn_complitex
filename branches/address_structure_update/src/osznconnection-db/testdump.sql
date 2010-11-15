@@ -40,7 +40,7 @@ insert into building_address(object_id, parent_id, parent_entity_id) values (1,1
 insert into building_address_string_culture(id, locale, value) values
 (1, 'ru', UPPER('8')), (2, 'ru', UPPER('28')), (3,'ru',UPPER('18')), (4,'ru',UPPER('12')), (5,'ru',UPPER('21')), (6,'ru',UPPER('100')),
 (1, 'uk', UPPER('8')), (2, 'uk', UPPER('28')), (3,'uk',UPPER('18')), (4,'uk',UPPER('12')), (5,'uk',UPPER('21')), (6,'uk',UPPER('100')),
-(7,'ru',UPPER('154A')), (7,'uk',UPPER('154А')),(8,'ru',UPPER('25A')), (8,'uk',UPPER('25А'));
+(7,'ru',UPPER('154А')), (7,'uk',UPPER('154А')),(8,'ru',UPPER('25А')), (8,'uk',UPPER('25А'));
 insert into building_address_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
 (1,1,1500,1,1500),(1,1,1501,null,1501),(1,1,1502,null,1502),
 (1,2,1500,6,1500),(1,2,1501,null,1501),(1,2,1502,null,1502),
