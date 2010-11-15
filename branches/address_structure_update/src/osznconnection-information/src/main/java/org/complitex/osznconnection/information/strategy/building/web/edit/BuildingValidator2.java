@@ -5,7 +5,6 @@
 package org.complitex.osznconnection.information.strategy.building.web.edit;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Locale;
@@ -18,6 +17,7 @@ import org.complitex.dictionaryfw.service.StringCultureBean;
 import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.strategy.StrategyFactoryStatic;
 import org.complitex.dictionaryfw.strategy.web.IValidator;
+import org.complitex.dictionaryfw.util.Numbers;
 import org.complitex.osznconnection.information.strategy.building.BuildingStrategy;
 import org.complitex.osznconnection.information.strategy.building.entity.Building;
 import org.complitex.osznconnection.information.strategy.building_address.BuildingAddressStrategy;
@@ -57,53 +57,54 @@ public class BuildingValidator2 implements IValidator {
     }
 
     private boolean validateCity(Building building, Component component) {
+        boolean valid = true;
+
         DomainObject district = building.getDistrict();
-        if (district != null) {
-            long cityFromDistrict = district.getParentId();
-            long cityFromPrimaryAddress = -1;
+        if (district != null && district.getId() != null && district.getId() > 0) {
+            Long cityFromDistrict = district.getParentId();
 
-            DomainObject primaryAddress = building.getPrimaryAddress();
-            if (primaryAddress.getParentEntityId().equals(400L)) {
-                cityFromPrimaryAddress = primaryAddress.getParentId();
-            } else if (primaryAddress.getParentEntityId().equals(300L)) {
-                cityFromPrimaryAddress = building.getPrimaryStreet().getParentId();
+            for (DomainObject address : building.getAllAddresses()) {
+                Long cityFromAddress = getCityId(address);
+                if (!Numbers.isEqual(cityFromDistrict, cityFromAddress)) {
+                    error("city_mismatch_to_district", component);
+                    valid = false;
+                }
             }
+        }
 
-            if (cityFromDistrict != cityFromPrimaryAddress) {
-                error("city_mismatch", component);
+        long primaryCity = getCityId(building.getPrimaryAddress());
+        for (DomainObject alternativeAddress : building.getAlternativeAddresses()) {
+            Long alternativeCity = getCityId(alternativeAddress);
+            if (!Numbers.isEqual(primaryCity, alternativeCity)) {
+                error("city_mismatch_to_city", component);
+                valid = false;
+            }
+        }
+        return valid;
+    }
+
+    private Long getCityId(DomainObject address) {
+        if (address.getParentEntityId().equals(400L)) {
+            return address.getParentId();
+        } else if (address.getParentEntityId().equals(300L)) {
+            Long streetId = address.getParentId();
+            if (streetId != null && streetId > 0) {
+                Strategy streetStrategy = StrategyFactoryStatic.getStrategy("street");
+                DomainObject streetObject = streetStrategy.findById(streetId);
+                return streetObject.getParentId();
+            }
+        }
+        return null;
+    }
+
+    private boolean validateParents(Building building, Component component) {
+        for (DomainObject address : building.getAllAddresses()) {
+            if (address.getParentId() == null || address.getParentEntityId() == null) {
+                error("parent_not_specified", component);
                 return false;
             }
         }
         return true;
-    }
-
-//    private boolean validateStreets(Building building, Component component) {
-//        boolean streetsValid = true;
-//        Long primaryStreetId = building.getPrimaryStreetId();
-//        if(primaryStreetId == null){
-//            component.error(ResourceUtil.getString(BuildingStrategy.RESOURCE_BUNDLE, "primary_street_required", component.getLocale()));
-//            streetsValid = false;
-//        }
-//        for(DomainObject alternativeAddress : building.getAlternativeAddresses()){
-//            long parentEntityId =
-//            Long alternativeStreetId = alternativeAddress.getParentId();
-//        }
-//    }
-    private boolean validateParents(Building building, Component component) {
-        boolean valid = true;
-        if (building.getPrimaryAddress().getParentId() == null || building.getPrimaryAddress().getParentEntityId() == null) {
-            valid = false;
-        }
-        for (DomainObject alternativeAddress : building.getAlternativeAddresses()) {
-            if (alternativeAddress.getParentId() == null || alternativeAddress.getParentEntityId() == null) {
-                valid = false;
-            }
-        }
-
-        if (!valid) {
-            error("parent_not_specified", component);
-        }
-        return valid;
     }
 
     private void error(String key, Component component, Object... formatArguments) {

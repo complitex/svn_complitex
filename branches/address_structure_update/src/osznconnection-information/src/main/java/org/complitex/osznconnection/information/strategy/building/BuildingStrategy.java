@@ -1,9 +1,6 @@
 package org.complitex.osznconnection.information.strategy.building;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -26,7 +23,6 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.text.MessageFormat;
 import java.util.*;
-import org.complitex.dictionaryfw.entity.History;
 import org.complitex.dictionaryfw.entity.description.EntityAttributeType;
 import org.complitex.dictionaryfw.entity.description.EntityAttributeValueType;
 import org.complitex.dictionaryfw.entity.example.AttributeExample;
@@ -94,10 +90,10 @@ public class BuildingStrategy extends Strategy {
 
     private static final String CITY = "city";
 
-    @EJB(beanName = "StringCultureBean")
+    @EJB
     private StringCultureBean stringBean;
 
-    @EJB(beanName = "LocaleBean")
+    @EJB
     private LocaleBean localeBean;
 
     @EJB
@@ -118,42 +114,15 @@ public class BuildingStrategy extends Strategy {
         if (example.getId() != null) {
             Building building = findById(example.getId());
             Long streetId = (Long) example.getAdditionalParam(STREET);
-            if (streetId != null) {
+            if (streetId != null && streetId > 0) {
                 DomainObject address = building.getAddress(streetId);
                 building.setAccompaniedAddress(address);
+            } else {
+                building.setAccompaniedAddress(building.getPrimaryAddress());
             }
             buildings.add(building);
         } else {
-            String number = (String) example.getAdditionalParam(NUMBER);
-            String corp = (String) example.getAdditionalParam(CORP);
-            String structure = (String) example.getAdditionalParam(STRUCTURE);
-
-            DomainObjectExample addressExample = new DomainObjectExample();
-            addressExample.setAsc(example.isAsc());
-            addressExample.setComparisonType(example.getComparisonType());
-            addressExample.setLocale(example.getLocale());
-            addressExample.setOrderByAttribureTypeId(example.getOrderByAttribureTypeId());
-            if (!Strings.isEmpty(example.getOrderByExpression())) {
-                addressExample.setOrderByExpression(buildingAddressStrategy.getOrderByExpression("e.`object_id`", example.getLocale(), null));
-            }
-            addressExample.setStart(example.getStart());
-            addressExample.setSize(example.getSize());
-            addressExample.setStatus(example.getStatus());
-
-            AttributeExample numberExample = new AttributeExample(BuildingAddressStrategy.NUMBER);
-            numberExample.setValue(number);
-            addressExample.addAttributeExample(numberExample);
-            AttributeExample corpExample = new AttributeExample(BuildingAddressStrategy.CORP);
-            corpExample.setValue(corp);
-            addressExample.addAttributeExample(corpExample);
-            AttributeExample structureExample = new AttributeExample(BuildingAddressStrategy.STRUCTURE);
-            structureExample.setValue(structure);
-            addressExample.addAttributeExample(structureExample);
-            Map<String, Long> ids = Maps.newHashMap();
-            ids.put("street", (Long) example.getAdditionalParam(STREET));
-            ids.put("city", (Long) example.getAdditionalParam(CITY));
-            buildingAddressStrategy.configureExample(addressExample, ids, null);
-
+            DomainObjectExample addressExample = createAddressExample(example);
             List<? extends DomainObject> addresses = buildingAddressStrategy.find(addressExample);
             for (DomainObject address : addresses) {
                 example.addAdditionalParam("buildingAddressId", address.getId());
@@ -169,21 +138,45 @@ public class BuildingStrategy extends Strategy {
             }
         }
         return buildings;
+    }
 
+    private DomainObjectExample createAddressExample(DomainObjectExample buildingExample) {
+        String number = (String) buildingExample.getAdditionalParam(NUMBER);
+        String corp = (String) buildingExample.getAdditionalParam(CORP);
+        String structure = (String) buildingExample.getAdditionalParam(STRUCTURE);
 
+        DomainObjectExample addressExample = new DomainObjectExample();
+        addressExample.setAsc(buildingExample.isAsc());
+        addressExample.setComparisonType(buildingExample.getComparisonType());
+        addressExample.setLocale(buildingExample.getLocale());
+        addressExample.setOrderByAttribureTypeId(buildingExample.getOrderByAttribureTypeId());
+        if (!Strings.isEmpty(buildingExample.getOrderByExpression())) {
+            addressExample.setOrderByExpression(buildingAddressStrategy.getOrderByExpression("e.`object_id`", buildingExample.getLocale(), null));
+        }
+        addressExample.setStart(buildingExample.getStart());
+        addressExample.setSize(buildingExample.getSize());
+        addressExample.setStatus(buildingExample.getStatus());
 
-//        List<Building> buildings = sqlSession().selectList(BUILDING_NAMESPACE + "." + FIND_OPERATION, example);
-//        for (Building building : buildings) {
-//            for (Attribute attribute : building.getAttributes()) {
-//                if (!isSimpleAttribute(attribute)) {
-//                    //link to another entity object
-//                    attribute.setLocalizedValues(null);
-//                }
-//            }
-//            setPrimaryAddress(building);
-//            setAlternativeAddresses(building);
+        AttributeExample numberExample = new AttributeExample(BuildingAddressStrategy.NUMBER);
+        numberExample.setValue(number);
+        addressExample.addAttributeExample(numberExample);
+        AttributeExample corpExample = new AttributeExample(BuildingAddressStrategy.CORP);
+        corpExample.setValue(corp);
+        addressExample.addAttributeExample(corpExample);
+        AttributeExample structureExample = new AttributeExample(BuildingAddressStrategy.STRUCTURE);
+        structureExample.setValue(structure);
+        addressExample.addAttributeExample(structureExample);
+        Map<String, Long> ids = Maps.newHashMap();
+        Long streetId = (Long) buildingExample.getAdditionalParam(STREET);
+//        if (streetId != null && streetId > 0) {
+        ids.put("street", streetId);
 //        }
-//        return buildings;
+        Long cityId = (Long) buildingExample.getAdditionalParam(CITY);
+//        if (cityId != null && cityId > 0) {
+        ids.put("city", cityId);
+//        }
+        buildingAddressStrategy.configureExample(addressExample, ids, null);
+        return addressExample;
     }
 
     @Override
@@ -193,31 +186,8 @@ public class BuildingStrategy extends Strategy {
             Building building = findById(example.getId());
             return building == null ? 0 : 1;
         } else {
-            String number = (String) example.getAdditionalParam(NUMBER);
-            String corp = (String) example.getAdditionalParam(CORP);
-            String structure = (String) example.getAdditionalParam(STRUCTURE);
-
-            DomainObjectExample addressExample = new DomainObjectExample();
-            addressExample.setComparisonType(example.getComparisonType());
-            addressExample.setLocale(example.getLocale());
-            addressExample.setStatus(example.getStatus());
-
-            AttributeExample numberExample = new AttributeExample(BuildingAddressStrategy.NUMBER);
-            numberExample.setValue(number);
-            addressExample.addAttributeExample(numberExample);
-            AttributeExample corpExample = new AttributeExample(BuildingAddressStrategy.CORP);
-            corpExample.setValue(corp);
-            addressExample.addAttributeExample(corpExample);
-            AttributeExample structureExample = new AttributeExample(BuildingAddressStrategy.STRUCTURE);
-            structureExample.setValue(structure);
-            addressExample.addAttributeExample(structureExample);
-            Map<String, Long> ids = Maps.newHashMap();
-            ids.put("street", (Long) example.getAdditionalParam(STREET));
-            ids.put("city", (Long) example.getAdditionalParam(CITY));
-            buildingAddressStrategy.configureExample(addressExample, ids, null);
-
-            int count = buildingAddressStrategy.count(addressExample);
-            return count;
+            DomainObjectExample addressExample = createAddressExample(example);
+            return buildingAddressStrategy.count(addressExample);
         }
 
 //        example.setTable(getEntityTable());
@@ -400,7 +370,7 @@ public class BuildingStrategy extends Strategy {
 //            number.setValue(searchTextInput);
         }
         Long streetId = ids.get("street");
-        if (streetId != null) {
+        if (streetId != null && streetId > 0) {
             example.addAdditionalParam(STREET, streetId);
 //            AttributeExample streetExample = null;
 //            try {
@@ -418,8 +388,13 @@ public class BuildingStrategy extends Strategy {
 //            String streetIdAsString = streetId.equals(-1L) ? null : String.valueOf(streetId);
 //            streetExample.setValue(streetIdAsString);
         } else {
+            example.addAdditionalParam(STREET, null);
             Long cityId = ids.get("city");
-            example.addAdditionalParam(CITY, cityId);
+            if (cityId != null && cityId > 0) {
+                example.addAdditionalParam(CITY, cityId);
+            } else {
+                example.addAdditionalParam(CITY, null);
+            }
         }
 //        example.setParentId(cityId);
 //        example.setParentEntity("city");
@@ -572,6 +547,7 @@ public class BuildingStrategy extends Strategy {
 //
 //
 //    }
+    @Transactional
     @Override
     protected void insertDomainObject(DomainObject object, Date startDate) {
         Building building = (Building) object;
@@ -584,6 +560,7 @@ public class BuildingStrategy extends Strategy {
         super.insertDomainObject(object, startDate);
     }
 
+    @Transactional
     public Long checkForExistingAddress(String number, String corp, String structure, Long parentEntityId, Long parentId, Locale locale) {
         Map<String, Object> params = Maps.newHashMap();
         params.put("number", number);
@@ -599,6 +576,7 @@ public class BuildingStrategy extends Strategy {
         return null;
     }
 
+    @Transactional
     @Override
     public void update(DomainObject oldObject, DomainObject newObject, Date updateDate) {
         Building oldBuilding = (Building) oldObject;
@@ -734,7 +712,7 @@ public class BuildingStrategy extends Strategy {
 ////
 ////        return hasHistory || super.hasHistory(objectId);
 //    }
-
+    @Transactional
     @Override
     public TreeSet<Date> getHistoryDates(long objectId) {
         TreeSet<Date> historyDates = super.getHistoryDates(objectId);
@@ -745,8 +723,6 @@ public class BuildingStrategy extends Strategy {
         }
         return historyDates;
     }
-
-
 
 //    @Transactional
 //    @Override
@@ -786,9 +762,6 @@ public class BuildingStrategy extends Strategy {
 //        }
 //        return historyList;
 //    }
-
-
-
     @Transactional
     @Override
     public DomainObject findHistoryObject(long objectId, Date date) {
@@ -809,5 +782,27 @@ public class BuildingStrategy extends Strategy {
         setAlternativeAddresses(building, date);
         updateStringsForNewLocales(building);
         return building;
+    }
+
+    @Transactional
+    @Override
+    public void enable(DomainObject object) {
+        Building building = (Building) object;
+        List<DomainObject> addresses = building.getAllAddresses();
+        for (DomainObject address : addresses) {
+            buildingAddressStrategy.enable(address);
+        }
+        super.enable(building);
+    }
+
+    @Transactional
+    @Override
+    public void disable(DomainObject object) {
+        Building building = (Building) object;
+        List<DomainObject> addresses = building.getAllAddresses();
+        for (DomainObject address : addresses) {
+            buildingAddressStrategy.disable(address);
+        }
+        super.disable(building);
     }
 }

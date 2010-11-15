@@ -31,7 +31,7 @@ public class Building extends DomainObject {
 
     private DomainObject district;
 
-    private DomainObject primaryStreet;
+//    private DomainObject primaryStreet;
 
     private DomainObject accompaniedAddress;
 
@@ -43,13 +43,13 @@ public class Building extends DomainObject {
         this.accompaniedAddress = accompaniedAddress;
     }
 
-    public DomainObject getPrimaryStreet() {
-        return primaryStreet;
-    }
-
-    public void setPrimaryStreet(DomainObject primaryStreet) {
-        this.primaryStreet = primaryStreet;
-    }
+//    public DomainObject getPrimaryStreet() {
+//        return primaryStreet;
+//    }
+//
+//    public void setPrimaryStreet(DomainObject primaryStreet) {
+//        this.primaryStreet = primaryStreet;
+//    }
 
     public DomainObject getDistrict() {
         return district;

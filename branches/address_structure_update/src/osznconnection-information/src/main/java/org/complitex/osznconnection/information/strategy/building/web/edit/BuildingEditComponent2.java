@@ -22,7 +22,6 @@ import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.service.StringCultureBean;
 import org.complitex.dictionaryfw.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionaryfw.strategy.web.CanEditUtil;
-import org.complitex.dictionaryfw.util.CloneUtil;
 import org.complitex.dictionaryfw.web.component.DomainObjectInputPanel;
 import org.complitex.dictionaryfw.web.component.list.AjaxRemovableListView;
 import org.complitex.dictionaryfw.web.component.search.ISearchCallback;
@@ -65,13 +64,50 @@ public final class BuildingEditComponent2 extends AbstractComplexAttributesPanel
             Building building = (Building) getInputPanel().getObject();
             if (district != null && district.getId() > 0) {
                 districtAttribute.setValueId(district.getId());
-                building.setDistrict(district);
             } else {
                 districtAttribute.setValueId(null);
-                building.setDistrict(null);
             }
         }
     }
+
+//    private class WrapperSearchComponentState extends SearchComponentState {
+//
+//        private SearchComponentState original;
+//
+//        public WrapperSearchComponentState(SearchComponentState original) {
+//            this.original = original;
+//        }
+//
+//        @Override
+//        public void clear() {
+//            original.clear();
+//        }
+//
+//        @Override
+//        public DomainObject get(String entity) {
+//            return original.get(entity);
+//        }
+//
+//        @Override
+//        public void put(String entity, DomainObject object) {
+//            original.put(entity, object);
+//        }
+//
+//        @Override
+//        public void updateState(Map<String, DomainObject> state) {
+//            original.updateState(state);
+//        }
+//
+//        @Override
+//        public void updateState(SearchComponentState anotherState) {
+//            original.updateState(anotherState);
+//        }
+//
+//        @Override
+//        public Map<String, DomainObject> getState() {
+//            return original.getState();
+//        }
+//    }
 
     public BuildingEditComponent2(String id, boolean disabled) {
         super(id, disabled);
@@ -115,7 +151,18 @@ public final class BuildingEditComponent2 extends AbstractComplexAttributesPanel
             }
         });
         attributesContainer.add(districtLabel);
-        districtComponentState = CloneUtil.cloneObject(parentSearchComponentState);
+        districtComponentState = new SearchComponentState() {
+
+            @Override
+            public void put(String entity, DomainObject object) {
+                super.put(entity, object);
+                if ("district".equals(entity)) {
+                    building.setDistrict(object);
+                }
+            }
+        };
+        districtComponentState.updateState(parentSearchComponentState);
+
         Long districtId = null;
         districtAttribute = building.getAttribute(BuildingStrategy.DISTRICT);
         districtId = districtAttribute.getValueId();
@@ -135,45 +182,24 @@ public final class BuildingEditComponent2 extends AbstractComplexAttributesPanel
 
             @Override
             public SearchComponentState initParentSearchComponentState() {
-                final SearchComponentState superComponentState = super.initParentSearchComponentState();
-                SearchComponentState primaryAddressComponentState = new SearchComponentState() {
-
-                    @Override
-                    public void clear() {
-                        superComponentState.clear();
-                    }
-
-                    @Override
-                    public DomainObject get(String entity) {
-                        return superComponentState.get(entity);
-                    }
-
-                    @Override
-                    public void updateState(Map<String, DomainObject> state) {
-                        superComponentState.updateState(state);
-                    }
-
-                    @Override
-                    public void put(String entity, DomainObject object) {
-                        superComponentState.put(entity, object);
-                        if ("street".equals(entity) && object != null) {
-                            building.setPrimaryStreet(object);
-                        }
-                    }
-                };
+                final SearchComponentState primaryAddressComponentState = super.initParentSearchComponentState();
+                
                 if (primaryBuildingAddress.getId() == null) {
-                    for (String entity : buildingAddressStrategy.getParentSearchFilters()) {
-                        DomainObject object = parentSearchComponentState.get(entity);
-                        if (object != null) {
-                            primaryAddressComponentState.put(entity, object);
-                        }
-                    }
-                } else {
-                    DomainObject street = primaryAddressComponentState.get("street");
-                    if (street != null) {
-                        building.setPrimaryStreet(street);
-                    }
+
+                    primaryAddressComponentState.updateState(parentSearchComponentState);
+//                    for (String entity : buildingAddressStrategy.getParentSearchFilters()) {
+//                        DomainObject object = parentSearchComponentState.get(entity);
+//                        if (object != null) {
+//                            primaryAddressComponentState.put(entity, object);
+//                        }
+//                    }
                 }
+//                    else {
+//                    DomainObject street = primaryAddressComponentState.get("street");
+//                    if (street != null) {
+//                        building.setPrimaryStreet(street);
+//                    }
+//                }
 
                 return primaryAddressComponentState;
             }
@@ -196,12 +222,14 @@ public final class BuildingEditComponent2 extends AbstractComplexAttributesPanel
                         SearchComponentState alternativeAddressComponentState;
                         if (address.getId() == null) {
                             alternativeAddressComponentState = new SearchComponentState();
-                            for (String entity : buildingAddressStrategy.getParentSearchFilters()) {
-                                DomainObject object = parentSearchComponentState.get(entity);
-                                if (!"street".equals(entity) && (object != null)) {
-                                    alternativeAddressComponentState.put(entity, object);
-                                }
-                            }
+                            alternativeAddressComponentState.updateState(parentSearchComponentState);
+                            alternativeAddressComponentState.put("street", null);
+//                            for (String entity : buildingAddressStrategy.getParentSearchFilters()) {
+//                                DomainObject object = parentSearchComponentState.get(entity);
+//                                if (!"street".equals(entity) && (object != null)) {
+//                                    alternativeAddressComponentState.put(entity, object);
+//                                }
+//                            }
                         } else {
                             alternativeAddressComponentState = super.initParentSearchComponentState();
                         }

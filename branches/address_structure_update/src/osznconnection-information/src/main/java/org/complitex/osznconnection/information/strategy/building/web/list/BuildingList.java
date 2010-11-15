@@ -143,8 +143,7 @@ public final class BuildingList extends TemplatePage {
                 example.setAsc(asc);
                 example.setStart(first);
                 example.setSize(count);
-                List<Building> buildings = buildingStrategy.find(example);
-                return buildings.iterator();
+                return buildingStrategy.find(example).iterator();
             }
 
             @Override
@@ -156,8 +155,7 @@ public final class BuildingList extends TemplatePage {
                 }
                 example.setStatus(showModeModel.getObject().name());
                 example.setLocale(getLocale().getLanguage());
-                int count = buildingStrategy.count(example);
-                return count;
+                return buildingStrategy.count(example);
             }
 
             @Override

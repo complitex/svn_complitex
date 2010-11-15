@@ -9,18 +9,18 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.entity.example.AttributeExample;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
-import org.complitex.dictionaryfw.service.LocaleBean;
-import org.complitex.dictionaryfw.service.StringCultureBean;
 import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.util.ResourceUtil;
 import org.complitex.dictionaryfw.web.component.search.ISearchCallback;
 import org.complitex.osznconnection.information.resource.CommonResources;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.util.*;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.complitex.dictionaryfw.entity.DomainObject;
+import org.complitex.dictionaryfw.entity.InsertParameter;
+import org.complitex.dictionaryfw.entity.StatusType;
+import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.web.component.DomainObjectInputPanel;
 import org.complitex.dictionaryfw.web.component.search.SearchComponent;
 import org.slf4j.Logger;
@@ -40,7 +40,6 @@ public class BuildingAddressStrategy extends Strategy {
     public static final long CORP = 1501;
 
     public static final long STRUCTURE = 1502;
-
 
     @Override
     public String getEntityTable() {
@@ -67,27 +66,26 @@ public class BuildingAddressStrategy extends Strategy {
         return null;
     }
 
-    public DomainObjectExample createExample(String number, String corp, String structure, Long streetId, Long cityId) {
-        DomainObjectExample buildingAddressExample = new DomainObjectExample();
-        AttributeExample numberAttrEx = new AttributeExample(NUMBER);
-        numberAttrEx.setValue(number);
-        buildingAddressExample.addAttributeExample(numberAttrEx);
-        AttributeExample corpAttrEx = new AttributeExample(CORP);
-        corpAttrEx.setValue(corp);
-        buildingAddressExample.addAttributeExample(corpAttrEx);
-        AttributeExample structureAttrEx = new AttributeExample(STRUCTURE);
-        structureAttrEx.setValue(structure);
-        buildingAddressExample.addAttributeExample(structureAttrEx);
-        if (streetId != null && streetId > 0) {
-            buildingAddressExample.setParentId(streetId);
-            buildingAddressExample.setParentEntity("street");
-        } else {
-            buildingAddressExample.setParentId(cityId);
-            buildingAddressExample.setParentEntity("city");
-        }
-        return buildingAddressExample;
-    }
-
+//    public DomainObjectExample createExample(String number, String corp, String structure, Long streetId, Long cityId) {
+//        DomainObjectExample buildingAddressExample = new DomainObjectExample();
+//        AttributeExample numberAttrEx = new AttributeExample(NUMBER);
+//        numberAttrEx.setValue(number);
+//        buildingAddressExample.addAttributeExample(numberAttrEx);
+//        AttributeExample corpAttrEx = new AttributeExample(CORP);
+//        corpAttrEx.setValue(corp);
+//        buildingAddressExample.addAttributeExample(corpAttrEx);
+//        AttributeExample structureAttrEx = new AttributeExample(STRUCTURE);
+//        structureAttrEx.setValue(structure);
+//        buildingAddressExample.addAttributeExample(structureAttrEx);
+//        if (streetId != null && streetId > 0) {
+//            buildingAddressExample.setParentId(streetId);
+//            buildingAddressExample.setParentEntity("street");
+//        } else {
+//            buildingAddressExample.setParentId(cityId);
+//            buildingAddressExample.setParentEntity("city");
+//        }
+//        return buildingAddressExample;
+//    }
     @Override
     public DomainObject findById(Long id) {
         return super.findById(id);
@@ -116,8 +114,13 @@ public class BuildingAddressStrategy extends Strategy {
             example.setParentEntity("street");
         } else {
             Long cityId = ids.get("city");
-            example.setParentId(cityId);
-            example.setParentEntity("city");
+            if (cityId != null) {
+                example.setParentId(cityId);
+                example.setParentEntity("city");
+            } else {
+                example.setParentId(null);
+                example.setParentEntity(null);
+            }
         }
 
     }
@@ -200,14 +203,12 @@ public class BuildingAddressStrategy extends Strategy {
 //        log.info("INFO: entity: {}, id: {}", info.getEntityTable(), info.getId());
 //        return info;
 //    }
-
 //    @Override
 //    public SearchComponentState getSearchComponentStateForParent(Long parentId, String parentEntity, Date date) {
 //        SearchComponentState state = super.getSearchComponentStateForParent(parentId, parentEntity, date);
 //        log.info("PARENT ID: {}, PARENT ENTITY: {}, STATE: {}", new Object[]{parentId, parentEntity, state});
 //        return state;
 //    }
-
 //    @Override
 //    @Transactional
 //    public RestrictedObjectInfo findParentInSearchComponent(long id, Date startDate) {
@@ -259,5 +260,19 @@ public class BuildingAddressStrategy extends Strategy {
     @Override
     public PageParameters getHistoryPageParams(long objectId) {
         return null;
+    }
+
+    @Transactional
+    @Override
+    public void enable(DomainObject object) {
+        object.setStatus(StatusType.ACTIVE);
+        sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new InsertParameter(getEntityTable(), object));
+    }
+
+    @Transactional
+    @Override
+    public void disable(DomainObject object) {
+        object.setStatus(StatusType.INACTIVE);
+        sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new InsertParameter(getEntityTable(), object));
     }
 }
