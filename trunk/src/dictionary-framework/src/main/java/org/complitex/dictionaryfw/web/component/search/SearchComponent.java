@@ -5,7 +5,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import java.io.Serializable;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AbstractAutoCompleteTextRenderer;
@@ -19,18 +18,19 @@ import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.complitex.dictionaryfw.entity.DomainObject;
+import org.complitex.dictionaryfw.entity.example.ComparisonType;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.service.StringCultureBean;
+import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.complitex.dictionaryfw.entity.example.ComparisonType;
-import org.complitex.dictionaryfw.strategy.Strategy;
 
 /**
  *
@@ -319,11 +319,13 @@ public final class SearchComponent extends Panel {
     }
 
     private void invokeCallbackIfNecessary(int index, List<IModel<DomainObject>> filterModels, AjaxRequestTarget target) {
-        Map<String, DomainObject> finalState = getState(index, filterModels);
-        if (isComplete(finalState)) {
-            Map<String, Long> ids = transformObjects(finalState);
-            componentState.updateState(finalState);
-            callback.found(this, ids, target);
+        if (callback != null) {
+            Map<String, DomainObject> finalState = getState(index, filterModels);
+            if (isComplete(finalState)) {
+                Map<String, Long> ids = transformObjects(finalState);
+                componentState.updateState(finalState);
+                callback.found(this, ids, target);
+            }
         }
     }
 

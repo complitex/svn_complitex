@@ -4,8 +4,6 @@
  */
 package org.complitex.osznconnection.file.web.pages.payment;
 
-import java.util.List;
-import javax.ejb.EJB;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -23,6 +21,9 @@ import org.odlabs.wiquery.core.javascript.JsStatement;
 import org.odlabs.wiquery.ui.core.JsScopeUiEvent;
 import org.odlabs.wiquery.ui.dialog.Dialog;
 
+import javax.ejb.EJB;
+import java.util.List;
+
 /**
  * Панель для корректировки номера л/c вручную, когда больше одного человека в ЦН, имеющие разные номера л/c, привязаны к одному адресу.
  * @author Artem
@@ -38,84 +39,86 @@ public class PaymentAccountNumberCorrectionPanel extends Panel {
 
     private IModel<String> accountNumberModel;
 
-    private MarkupContainer[] toUpdate;
+    private AccountNumberCorrectionPanel accountNumberCorrectionPanel;
 
-    private boolean isPostBack;
+    private List<AccountDetail> accountCorrectionDetails;
 
-    public PaymentAccountNumberCorrectionPanel(String id, Payment payment, MarkupContainer[] toUpdate) {
+    private WebMarkupContainer infoContainer;
+
+    public PaymentAccountNumberCorrectionPanel(String id, final MarkupContainer... toUpdate) {
         super(id);
-        this.payment = payment;
         accountNumberModel = new Model<String>();
-        this.toUpdate = toUpdate;
+
+        dialog = new Dialog("dialog");
+        dialog.setModal(true);
+        dialog.setWidth(450);
+        dialog.setOpenEvent(JsScopeUiEvent.quickScope(new JsStatement().self().chain("parents", "'.ui-dialog:first'").
+                chain("find", "'.ui-dialog-titlebar-close'").
+                chain("hide").render()));
+        dialog.setCloseOnEscape(false);
+        add(dialog);
+
+        infoContainer = new WebMarkupContainer("infoContainer");
+        infoContainer.setOutputMarkupId(true);
+
+        dialog.add(infoContainer);
+
+        final FeedbackPanel messages = new FeedbackPanel("messages");
+        messages.setOutputMarkupId(true);
+        infoContainer.add(messages);
+
+        accountNumberCorrectionPanel = new AccountNumberCorrectionPanel("accountNumberCorrectionPanel",
+                Model.ofList(accountCorrectionDetails)){
+            @Override
+            protected void correctAccountNumber(AccountDetail accountDetail, AjaxRequestTarget target) {
+                accountNumberModel.setObject(accountDetail.getAccountNumber());
+            }
+
+            @Override
+            public boolean isVisible() {
+                return getAccountCorrectionDetails() != null && !getAccountCorrectionDetails().isEmpty();
+            }
+        };
+
+        infoContainer.add(accountNumberCorrectionPanel);
+
+        AjaxLink save = new AjaxLink("save") {
+
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                if (validate()) {
+                    personAccountService.correctAccountNumber(payment, accountNumberModel.getObject());
+
+                    dialog.close(target);
+                    if (toUpdate != null) {
+                        for (MarkupContainer container : toUpdate) {
+                            target.addComponent(container);
+                        }
+                    }
+                } else {
+                    target.addComponent(messages);
+                }
+            }
+
+            @Override
+            public boolean isVisible() {
+                return getAccountCorrectionDetails() != null && !getAccountCorrectionDetails().isEmpty();
+            }
+        };
+        infoContainer.add(save);
+
+        AjaxLink cancel = new AjaxLink("cancel") {
+
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                dialog.close(target);
+            }
+        };
+        infoContainer.add(cancel);
     }
 
-    @Override
-    protected void onBeforeRender() {
-        super.onBeforeRender();
-
-        if (!isPostBack) {
-            List<AccountDetail> accountCorrectionDetails = personAccountService.acquireAccountCorrectionDetails(payment);
-            
-            dialog = new Dialog("dialog");
-            dialog.setModal(true);
-            dialog.setWidth(450);
-            dialog.setOpenEvent(JsScopeUiEvent.quickScope(new JsStatement().self().chain("parents", "'.ui-dialog:first'").
-                    chain("find", "'.ui-dialog-titlebar-close'").
-                    chain("hide").render()));
-            dialog.setCloseOnEscape(false);
-            add(dialog);
-
-            boolean infoExists = accountCorrectionDetails != null && !accountCorrectionDetails.isEmpty();
-
-            WebMarkupContainer noInfo = new WebMarkupContainer("noInfo");
-            noInfo.setVisible(!infoExists);
-            dialog.add(noInfo);
-
-            WebMarkupContainer infoContainer = new WebMarkupContainer("infoContainer");
-            infoContainer.setVisible(infoExists);
-            dialog.add(infoContainer);
-
-            final FeedbackPanel messages = new FeedbackPanel("messages");
-            messages.setOutputMarkupId(true);
-            infoContainer.add(messages);
-
-            infoContainer.add(new AccountNumberCorrectionPanel("accountNumberCorrectionPanel", Model.ofList(accountCorrectionDetails)) {
-
-                @Override
-                protected void correctAccountNumber(AccountDetail accountDetail, AjaxRequestTarget target) {
-                    accountNumberModel.setObject(accountDetail.getAccountNumber());
-                }
-            });
-
-            AjaxLink save = new AjaxLink("save") {
-
-                @Override
-                public void onClick(AjaxRequestTarget target) {
-                    if (validate()) {
-                        personAccountService.correctAccountNumber(payment, accountNumberModel.getObject());
-
-                        dialog.close(target);
-                        if (toUpdate != null) {
-                            for (MarkupContainer container : toUpdate) {
-                                target.addComponent(container);
-                            }
-                        }
-                    } else {
-                        target.addComponent(messages);
-                    }
-                }
-            };
-            infoContainer.add(save);
-            AjaxLink cancel = new AjaxLink("cancel") {
-
-                @Override
-                public void onClick(AjaxRequestTarget target) {
-                    dialog.close(target);
-                }
-            };
-            infoContainer.add(cancel);
-            isPostBack = true;
-        }
+    private List<AccountDetail> getAccountCorrectionDetails() {
+        return accountCorrectionDetails;
     }
 
     private boolean validate() {
@@ -126,7 +129,18 @@ public class PaymentAccountNumberCorrectionPanel extends Panel {
         return validated;
     }
 
-    public void open(AjaxRequestTarget target) {
+    public void open(AjaxRequestTarget target, Payment payment) {
+        this.payment = payment;
+
+        accountCorrectionDetails = personAccountService.acquireAccountCorrectionDetails(payment);
+        accountNumberCorrectionPanel.getAccountDetailsModel().setObject(accountCorrectionDetails);
+
+        if (accountCorrectionDetails == null || accountCorrectionDetails.isEmpty()){
+            error(getString("no_info"));
+        }
+
+        target.addComponent(infoContainer);
+
         dialog.open(target);
     }
 }

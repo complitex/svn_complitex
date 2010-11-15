@@ -9,6 +9,7 @@ import com.google.common.collect.Maps;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
@@ -20,13 +21,13 @@ import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
-import org.complitex.dictionaryfw.web.component.search.ISearchCallback;
 import org.complitex.dictionaryfw.web.component.search.SearchComponent;
 import org.complitex.dictionaryfw.web.component.search.SearchComponentState;
 import org.complitex.osznconnection.file.entity.AccountDetail;
 import org.complitex.osznconnection.file.entity.Payment;
 import org.complitex.osznconnection.file.entity.PaymentDBF;
 import org.complitex.osznconnection.file.entity.RequestStatus;
+import org.complitex.osznconnection.file.service.PaymentBean;
 import org.complitex.osznconnection.file.service.PaymentLookupBean;
 import org.complitex.osznconnection.file.web.component.StatusRenderer;
 import org.complitex.osznconnection.file.web.component.correction.account.AccountNumberCorrectionPanel;
@@ -39,7 +40,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -47,8 +47,7 @@ import java.util.Map;
  * Панель для поиска номера л/c по различным параметрам: по адресу, по номеру лиц. счета, по номеру в мегабанке.
  * @author Artem
  */
-public abstract class PaymentLookupPanel extends Panel {
-
+public class PaymentLookupPanel extends Panel {
     private static final Logger log = LoggerFactory.getLogger(PaymentLookupPanel.class);
 
     @EJB(name = "StrategyFactory")
@@ -57,9 +56,21 @@ public abstract class PaymentLookupPanel extends Panel {
     @EJB(name = "PaymentLookupBean")
     private PaymentLookupBean paymentLookupBean;
 
-    private FeedbackPanel messages;
+    @EJB(name = "PaymentBean")
+    private PaymentBean paymentBean;
 
-    private IModel<Payment> paymentModel;
+    private IModel<String> accountInfoModel;
+    private IModel<String> apartmentModel;
+    private IModel<String> ownNumSrModel;
+    private IModel<String> megabankModel;
+    private IModel<List<? extends AccountDetail>> accountsModel;
+    private IModel<AccountDetail> accountModel;
+
+    private AccountNumberCorrectionPanel accountNumberCorrectionPanel;
+
+    private WebMarkupContainer container;
+
+    private FeedbackPanel messages;
 
     private Dialog dialog;
 
@@ -67,34 +78,14 @@ public abstract class PaymentLookupPanel extends Panel {
 
     private Label accountInfo;
 
-    private IModel<String> accountInfoModel;
-
-    private IModel<String> apartmentModel;
-
     private SearchComponentState componentState;
-
-    private IModel<List<? extends AccountDetail>> accountsModel;
-
-    private IModel<AccountDetail> accountModel;
-
-    private AccountNumberCorrectionPanel accountNumberCorrectionPanel;
-
     private SearchComponent searchComponent;
 
-    private IModel<String> ownNumSrModel;
+    private Payment payment;
 
-    private IModel<String> megabankModel;
-
-    private static class FakeSearchCallback implements ISearchCallback, Serializable {
-
-        @Override
-        public void found(SearchComponent component, Map<String, Long> ids, AjaxRequestTarget target) {
-        }
-    }
-
-    public PaymentLookupPanel(String id, Payment payment) {
+    public PaymentLookupPanel(String id) {
         super(id);
-        paymentModel = new Model<Payment>(payment);
+
         init();
     }
 
@@ -108,22 +99,27 @@ public abstract class PaymentLookupPanel extends Panel {
         dialog.setCloseOnEscape(false);
         add(dialog);
 
+        //Контейнер для ajax
+        container = new WebMarkupContainer("container");
+        container.setOutputMarkupId(true);
+        dialog.add(container);
+
         messages = new FeedbackPanel("messages");
         messages.setOutputMarkupId(true);
-        dialog.add(messages);
+        container.add(messages);
 
         accordion = new Accordion("accordion");
         accordion.setAnimationEffect(new AccordionAnimated(false));
         accordion.setOutputMarkupPlaceholderTag(true);
-        dialog.add(accordion);
+        container.add(accordion);
 
         //lookup by address
         componentState = new SearchComponentState();
-        initSearchComponentState(componentState, paymentModel.getObject());
+
         accountInfoModel = new Model<String>();
         accountInfo = new Label("accountInfo", accountInfoModel);
         accountInfo.setOutputMarkupId(true);
-        dialog.add(accountInfo);
+        container.add(accountInfo);
 
         apartmentModel = new Model<String>();
         TextField<String> apartment = new TextField<String>("apartment", apartmentModel);
@@ -142,49 +138,53 @@ public abstract class PaymentLookupPanel extends Panel {
             public void onClick(AjaxRequestTarget target) {
                 initInternalAddress(componentState);
                 initApartment(apartmentModel.getObject());
-//                log.info("city: [{}], street: [{}], building: [{}], apartment: [{}]", new Object[]{paymentModel.getObject().getInternalCityId(),
-//                            paymentModel.getObject().getInternalStreetId(), paymentModel.getObject().getInternalBuildingId(),
-//                            paymentModel.getObject().getField(PaymentDBF.FLAT)});
-                if (validateInternalAddress()) {
-                    paymentLookupBean.resolveOutgoingAddress(paymentModel.getObject());
-                    if (paymentModel.getObject().getStatus() == RequestStatus.ACCOUNT_NUMBER_NOT_FOUND) {
-                        List<AccountDetail> accountList = paymentLookupBean.getAccounts(paymentModel.getObject());
-//                        log.info("Accounts : {}", accountList);
 
-                        if (paymentModel.getObject().getStatus() == RequestStatus.ACCOUNT_NUMBER_NOT_FOUND) {
+                if (validateInternalAddress()) {
+                    paymentLookupBean.resolveOutgoingAddress(payment);
+
+                    if (payment.getStatus() == RequestStatus.ACCOUNT_NUMBER_NOT_FOUND) {
+                        List<AccountDetail> accountList = paymentLookupBean.getAccounts(payment);
+
+                        if (payment.getStatus() == RequestStatus.ACCOUNT_NUMBER_NOT_FOUND) {
                             accountInfoModel.setObject(null);
                             accountModel.setObject(null);
+
                             error(StatusRenderer.displayValue(RequestStatus.ACCOUNT_NUMBER_NOT_FOUND));
+
                             target.addComponent(messages);
                             target.addComponent(accountInfo);
                         } else {
                             if (accountList.size() == 1) {
                                 accountModel.setObject(accountList.get(0));
                                 accountInfoModel.setObject(AccountNumberCorrectionPanel.displayAccountDetail(accountList.get(0)));
+
                                 target.addComponent(accountInfo);
+
                                 if (accountNumberCorrectionPanel.isVisible()) {
                                     accountNumberCorrectionPanel.setVisible(false);
+
                                     target.addComponent(accordion);
                                 }
                             } else {
                                 accountModel.setObject(null);
                                 accountInfoModel.setObject(null);
-                                target.addComponent(accountInfo);
                                 accountsModel.setObject(accountList);
                                 accountNumberCorrectionPanel.setVisible(true);
+
+                                target.addComponent(accountInfo);
                                 target.addComponent(accordion);
                             }
                         }
                     } else {
-                        error(StatusRenderer.displayValue(paymentModel.getObject().getStatus()));
+                        error(StatusRenderer.displayValue(payment.getStatus()));
                     }
                 }
                 target.addComponent(messages);
             }
         };
         accordion.add(lookupByAddress);
-        searchComponent = new SearchComponent("searchComponent", componentState, ImmutableList.of("city", "street", "building"),
-                new FakeSearchCallback(), true);
+        searchComponent = new SearchComponent("searchComponent", componentState,
+                ImmutableList.of("city", "street", "building"), null, true);
         searchComponent.setOutputMarkupPlaceholderTag(true);
         searchComponent.setVisible(false);
         accordion.add(searchComponent);
@@ -195,7 +195,6 @@ public abstract class PaymentLookupPanel extends Panel {
 
             @Override
             protected void correctAccountNumber(AccountDetail accountDetail, AjaxRequestTarget target) {
-//                log.info("Account number changed to [{}]", accountDetail);
                 accountModel.setObject(accountDetail);
                 accountInfoModel.setObject(AccountNumberCorrectionPanel.displayAccountDetail(accountDetail));
                 target.addComponent(accountInfo);
@@ -215,7 +214,9 @@ public abstract class PaymentLookupPanel extends Panel {
             }
         });
         ownNumSr.setOutputMarkupId(true);
+
         accordion.add(ownNumSr);
+
         AjaxLink lookupByOwnNumSr = new AjaxLink("lookupByOwnNumSr") {
 
             @Override
@@ -250,11 +251,10 @@ public abstract class PaymentLookupPanel extends Panel {
         accordion.add(lookupByMegabank);
 
         // save/cancel
-        dialog.add(new AjaxLink("save") {
+        container.add(new AjaxLink("save") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
-//                log.info("account : {}", accountModel.getObject());
                 if (validate()) {
                     updateAccountNumber(accountModel.getObject().getAccountNumber());
                     closeDialog(target);
@@ -263,7 +263,7 @@ public abstract class PaymentLookupPanel extends Panel {
                 }
             }
         });
-        dialog.add(new AjaxLink("cancel") {
+        container.add(new AjaxLink("cancel") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -311,27 +311,30 @@ public abstract class PaymentLookupPanel extends Panel {
     }
 
     private void initApartment(String apartment) {
-        paymentModel.getObject().setField(PaymentDBF.FLAT, apartment != null ? apartment : "");
+        payment.setField(PaymentDBF.FLAT, apartment != null ? apartment : "");
     }
 
     private void initInternalAddress(SearchComponentState componentState) {
-        paymentModel.getObject().setInternalCityId(getObjectId(componentState.get("city")));
-        paymentModel.getObject().setInternalStreetId(getObjectId(componentState.get("street")));
-        paymentModel.getObject().setInternalStreetTypeId(getObjectTypeId(componentState.get("street")));
-        paymentModel.getObject().setInternalBuildingId(getObjectId(componentState.get("building")));
+        payment.setInternalCityId(getObjectId(componentState.get("city")));
+        payment.setInternalStreetId(getObjectId(componentState.get("street")));
+        payment.setInternalStreetTypeId(getObjectTypeId(componentState.get("street")));
+        payment.setInternalBuildingId(getObjectId(componentState.get("building")));
     }
 
     private void initSearchComponentState(SearchComponentState componentState, Payment payment) {
         componentState.clear();
         Map<String, Long> ids = Maps.newHashMap();
+
         if (payment.getInternalCityId() != null) {
             ids.put("city", payment.getInternalCityId());
             componentState.put("city", findObject(payment.getInternalCityId(), "city", ids));
         }
+
         if (payment.getInternalStreetId() != null) {
             ids.put("street", payment.getInternalStreetId());
             componentState.put("street", findObject(payment.getInternalStreetId(), "street", ids));
         }
+
         if (payment.getInternalBuildingId() != null) {
             ids.put("building", payment.getInternalBuildingId());
             componentState.put("building", findObject(payment.getInternalBuildingId(), "building", ids));
@@ -342,18 +345,21 @@ public abstract class PaymentLookupPanel extends Panel {
         DomainObject object = null;
         DomainObjectExample example = new DomainObjectExample();
         example.setId(objectId);
+
         strategyFactory.getStrategy(entity).configureExample(example, ids, null);
         List<DomainObject> objects = strategyFactory.getStrategy(entity).find(example);
+
         if (objects != null && !objects.isEmpty()) {
             object = objects.get(0);
         }
+
         return object;
     }
 
     private boolean validateInternalAddress() {
-        boolean validated = paymentModel.getObject().getInternalCityId() != null && paymentModel.getObject().getInternalCityId() > 0
-                && paymentModel.getObject().getInternalStreetId() != null && paymentModel.getObject().getInternalStreetId() > 0
-                && paymentModel.getObject().getInternalBuildingId() != null && paymentModel.getObject().getInternalBuildingId() > 0;
+        boolean validated = payment.getInternalCityId() != null && payment.getInternalCityId() > 0
+                && payment.getInternalStreetId() != null && payment.getInternalStreetId() > 0
+                && payment.getInternalBuildingId() != null && payment.getInternalBuildingId() > 0;
         if (!validated) {
             error(getString("address_required"));
         }
@@ -361,7 +367,9 @@ public abstract class PaymentLookupPanel extends Panel {
     }
 
     public void open(AjaxRequestTarget target, Payment payment) {
-        paymentModel.setObject(payment);
+        this.payment = payment;
+
+        initSearchComponentState(componentState, payment);
 
         accountModel.setObject(null);
         accountsModel.setObject(null);
@@ -372,6 +380,7 @@ public abstract class PaymentLookupPanel extends Panel {
         apartmentModel.setObject((String) payment.getField(PaymentDBF.FLAT));
         initSearchComponentState(componentState, payment);
         searchComponent.setVisible(true);
+
         if (accountNumberCorrectionPanel.isVisible()) {
             accountNumberCorrectionPanel.setVisible(false);
         }
@@ -387,5 +396,9 @@ public abstract class PaymentLookupPanel extends Panel {
         dialog.open(target);
     }
 
-    protected abstract void updateAccountNumber(String accountNumber);
+    private void updateAccountNumber(String accountNumber){
+        payment.setAccountNumber(accountNumber);
+        payment.setStatus(RequestStatus.ACCOUNT_NUMBER_RESOLVED);
+        paymentBean.updateAccountNumber(payment);
+    }
 }
