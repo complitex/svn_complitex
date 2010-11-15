@@ -4,7 +4,6 @@
  */
 package org.complitex.osznconnection.file.web.component.correction.account;
 
-import java.util.List;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
@@ -17,21 +16,27 @@ import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.util.ResourceUtil;
 import org.complitex.osznconnection.file.entity.AccountDetail;
 
+import java.util.List;
+
 /**
  * Панель для показа возможных вариантов выбора л/c по детальной информации,
  * когда больше одного человека в ЦН, имеющие разные номера л/c, привязаны к одному адресу.
  * @author Artem
  */
 public abstract class AccountNumberCorrectionPanel extends Panel {
-
     private static final String RESOURCE_BUNDLE = AccountNumberCorrectionPanel.class.getName();
+
+    private IModel<List<? extends AccountDetail>> accountDetailsModel;
 
     public AccountNumberCorrectionPanel(String id, IModel<List<? extends AccountDetail>> accountDetailsModel) {
         super(id);
-        init(accountDetailsModel);
+
+        this.accountDetailsModel = accountDetailsModel;
+
+        init();
     }
 
-    private void init(IModel<List<? extends AccountDetail>> accountDetailsModel) {
+    private void init() {
         final IModel<AccountDetail> model = new Model<AccountDetail>();
         IChoiceRenderer<AccountDetail> renderer = new IChoiceRenderer<AccountDetail>() {
 
@@ -45,6 +50,7 @@ public abstract class AccountNumberCorrectionPanel extends Panel {
                 return object.getAccountNumber();
             }
         };
+
         RadioChoice<AccountDetail> accounts = new RadioChoice<AccountDetail>("accounts", model,
                 accountDetailsModel, renderer);
         accounts.add(new AjaxFormChoiceComponentUpdatingBehavior() {
@@ -74,4 +80,8 @@ public abstract class AccountNumberCorrectionPanel extends Panel {
     }
 
     protected abstract void correctAccountNumber(AccountDetail accountDetail, AjaxRequestTarget target);
+
+    public IModel<List<? extends AccountDetail>> getAccountDetailsModel() {
+        return accountDetailsModel;
+    }
 }

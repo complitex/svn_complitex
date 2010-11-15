@@ -4,12 +4,12 @@
  */
 package org.complitex.osznconnection.file.web.pages.payment;
 
-import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -155,9 +155,18 @@ public final class PaymentList extends TemplatePage {
         };
         filterForm.add(submit);
 
-        //Панель коррекции
+        //Панель коррекции адреса
         final AddressCorrectionPanel addressCorrectionPanel = new AddressCorrectionPanel("addressCorrectionPanel", content);
         add(addressCorrectionPanel);
+
+        //Панель поиска
+        final PaymentLookupPanel lookupPanel = new PaymentLookupPanel("lookupPanel");
+        add(lookupPanel);
+
+        //Коррекция личного счета
+        final PaymentAccountNumberCorrectionPanel paymentAccountNumberCorrectionPanel =
+                        new PaymentAccountNumberCorrectionPanel("paymentAccountNumberCorrectionPanel", content);
+        add(paymentAccountNumberCorrectionPanel);
 
         DataView<Payment> data = new DataView<Payment>("data", dataProvider, 1) {
 
@@ -183,7 +192,7 @@ public final class PaymentList extends TemplatePage {
                 }
                 item.add(new Label("statusDetails", statusDetails));
 
-                AjaxLink addressCorrectionLink = new AjaxLink("addressCorrectionLink") {
+                AjaxLink addressCorrectionLink = new IndicatingAjaxLink("addressCorrectionLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -193,33 +202,17 @@ public final class PaymentList extends TemplatePage {
                 addressCorrectionLink.setVisible(payment.getStatus().isLocalAddressCorrected());
                 item.add(addressCorrectionLink);
 
-                final PaymentAccountNumberCorrectionPanel paymentAccountNumberCorrectionPanel =
-                        new PaymentAccountNumberCorrectionPanel("paymentAccountNumberCorrectionPanel", payment, new MarkupContainer[]{content});
-                paymentAccountNumberCorrectionPanel.setVisible(payment.getStatus() == RequestStatus.MORE_ONE_ACCOUNTS);
-                item.add(paymentAccountNumberCorrectionPanel);
-                AjaxLink accountCorrectionLink = new AjaxLink("accountCorrectionLink") {
+                AjaxLink accountCorrectionLink = new IndicatingAjaxLink("accountCorrectionLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
-                        paymentAccountNumberCorrectionPanel.open(target);
+                        paymentAccountNumberCorrectionPanel.open(target, payment);
                     }
                 };
                 accountCorrectionLink.setVisible(payment.getStatus() == RequestStatus.MORE_ONE_ACCOUNTS);
                 item.add(accountCorrectionLink);
 
-                final Payment lookupPayment = CloneUtil.cloneObject(payment);
-                final PaymentLookupPanel lookupPanel = new PaymentLookupPanel("lookupPanel", lookupPayment) {
-
-                    @Override
-                    protected void updateAccountNumber(String accountNumber) {
-                        payment.setAccountNumber(accountNumber);
-                        payment.setStatus(RequestStatus.ACCOUNT_NUMBER_RESOLVED);
-                        paymentBean.updateAccountNumber(payment);
-                    }
-                };
-                item.add(lookupPanel);
-
-                AjaxLink lookup = new AjaxLink("lookup") {
+                AjaxLink lookup = new IndicatingAjaxLink("lookup") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {

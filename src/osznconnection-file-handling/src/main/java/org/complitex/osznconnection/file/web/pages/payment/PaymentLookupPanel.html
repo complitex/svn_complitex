@@ -1,87 +1,89 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns:wicket>
-    <head>
-        <title></title>
-    </head>
-    <body>
-        <wicket:panel>
-            <div wicket:id="dialog" style="display: none" wicket:message="title:title">
+<head>
+    <title></title>
+</head>
+<body>
+<wicket:panel>
+    <div wicket:id="dialog" style="display: none" wicket:message="title:title">
+        <div wicket:id="container">
 
-                <div wicket:id="messages"></div>
+            <div wicket:id="messages"></div>
 
-                <div wicket:id="accordion">
-                    <h3><a href="#lookupByAddress"><wicket:message key="lookup_by_address"/></a></h3>
-                    <div id="lookupByAddress">
-                        <table cellpadding="0" cellspacing="0" border="0">
-                            <tr>
-                                <td>
-                                    <span wicket:id="searchComponent"></span>
-                                </td>
-                                <td>
-                                    <table cellpadding="0" cellspacing="0" border="0">
-                                        <tr>
-                                            <td align="center">
-                                                <wicket:message key="apartment_label"/>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <input wicket:id="apartment" type="text" size="5" style="margin-right: 5px"/>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </td>
-                            </tr>
-                        </table>
-                        <div style="margin-top: 10px;">
-                            <input type="button" class="btnMiddle" wicket:id="lookupByAddress" wicket:message="value:lookup"/>
-                        </div>
-                        <span wicket:id="accountNumberCorrectionPanel"></span>
+            <div wicket:id="accordion">
+                <h3><a href="#lookupByAddress"><wicket:message key="lookup_by_address"/></a></h3>
+                <div id="lookupByAddress">
+                    <table cellpadding="0" cellspacing="0" border="0">
+                        <tr>
+                            <td>
+                                <span wicket:id="searchComponent"></span>
+                            </td>
+                            <td>
+                                <table cellpadding="0" cellspacing="0" border="0">
+                                    <tr>
+                                        <td align="center">
+                                            <wicket:message key="apartment_label"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <input wicket:id="apartment" type="text" size="5" style="margin-right: 5px"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                    <div style="margin-top: 10px;">
+                        <input type="button" class="btnMiddle" wicket:id="lookupByAddress" wicket:message="value:lookup"/>
                     </div>
+                    <span wicket:id="accountNumberCorrectionPanel"></span>
+                </div>
 
-                    <h3><a href="#lookupByOwnNumSr"><wicket:message key="lookup_by_own_num_sr"/></a></h3>
-                    <div id="lookupByOwnNumSr">
-                        <table cellpadding="0" cellspacing="0" border="0" class="tbForm">
-                            <tr>
-                                <th>
-                                    <wicket:message key="own_num_sr_label"/>:
-                                </th>
-                                <td>
-                                    <input type="text" wicket:id="ownNumSr"/>
-                                </td>
-                            </tr>
-                        </table>
-                        <div style="margin-top: 10px;">
-                            <input type="button" class="btnMiddle" wicket:id="lookupByOwnNumSr" wicket:message="value:lookup"/>
-                        </div>
-                    </div>
-
-                    <h3><a href="#lookupByMegabank"><wicket:message key="lookup_by_megabank"/></a></h3>
-                    <div id="lookupByMegabank">
-                        <table cellpadding="0" cellspacing="0" border="0" class="tbForm">
-                            <tr>
-                                <th>
-                                    <wicket:message key="megabank_label"/>:
-                                </th>
-                                <td>
-                                    <input type="text" wicket:id="megabank"/>
-                                </td>
-                            </tr>
-                        </table>
-                        <div style="margin-top: 10px;">
-                            <input type="button" class="btnMiddle" wicket:id="lookupByMegabank" wicket:message="value:lookup"/>
-                        </div>
+                <h3><a href="#lookupByOwnNumSr"><wicket:message key="lookup_by_own_num_sr"/></a></h3>
+                <div id="lookupByOwnNumSr">
+                    <table cellpadding="0" cellspacing="0" border="0" class="tbForm">
+                        <tr>
+                            <th>
+                                <wicket:message key="own_num_sr_label"/>:
+                            </th>
+                            <td>
+                                <input type="text" wicket:id="ownNumSr"/>
+                            </td>
+                        </tr>
+                    </table>
+                    <div style="margin-top: 10px;">
+                        <input type="button" class="btnMiddle" wicket:id="lookupByOwnNumSr" wicket:message="value:lookup"/>
                     </div>
                 </div>
-                <h3>
-                    <wicket:message key="account_info"/>: <span wicket:id="accountInfo"></span>
-                </h3>
-                <div style="margin-top: 10px;">
-                    <input type="button" wicket:message="value:save" wicket:id="save" class="btnMiddle"/>
-                    <input type="button" wicket:message="value:cancel" wicket:id="cancel" class="btnMiddle"/>
+
+                <h3><a href="#lookupByMegabank"><wicket:message key="lookup_by_megabank"/></a></h3>
+                <div id="lookupByMegabank">
+                    <table cellpadding="0" cellspacing="0" border="0" class="tbForm">
+                        <tr>
+                            <th>
+                                <wicket:message key="megabank_label"/>:
+                            </th>
+                            <td>
+                                <input type="text" wicket:id="megabank"/>
+                            </td>
+                        </tr>
+                    </table>
+                    <div style="margin-top: 10px;">
+                        <input type="button" class="btnMiddle" wicket:id="lookupByMegabank" wicket:message="value:lookup"/>
+                    </div>
                 </div>
             </div>
-        </wicket:panel>
-    </body>
+            <h3>
+                <wicket:message key="account_info"/>: <span wicket:id="accountInfo"></span>
+            </h3>
+            <div style="margin-top: 10px;">
+                <input type="button" wicket:message="value:save" wicket:id="save" class="btnMiddle"/>
+                <input type="button" wicket:message="value:cancel" wicket:id="cancel" class="btnMiddle"/>
+            </div>
+        </div>
+    </div>
+</wicket:panel>
+</body>
 </html>
