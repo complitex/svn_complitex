@@ -39,7 +39,11 @@ public class RequestFileGroupBean extends AbstractBean{
             requestFileBean.delete(requestFileGroup.getPaymentFile());
         }
 
-        sqlSession().delete(MAPPING_NAMESPACE + ".deleteRequestFileGroup", requestFileGroup);
+        sqlSession().delete(MAPPING_NAMESPACE + ".deleteRequestFileGroup", requestFileGroup.getId());
+    }
+
+    public void clear(RequestFileGroup requestFileGroup){
+        sqlSession().delete(MAPPING_NAMESPACE + ".deleteRequestFileGroup", requestFileGroup.getId());
     }
 
     public void save(RequestFileGroup group){

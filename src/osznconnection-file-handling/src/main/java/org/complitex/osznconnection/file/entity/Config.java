@@ -8,12 +8,12 @@ public enum Config {
     LOAD_INPUT_FILE_STORAGE_DIR("C:\\storage\\in"),
     SAVE_OUTPUT_FILE_STORAGE_DIR("C:\\storage\\out"),
 
-    LOAD_THREAD_SIZE("4"),
+    LOAD_THREAD_SIZE("2"),
     BIND_THREAD_SIZE("4"),
     FILL_THREAD_SIZE("4"),
     SAVE_THREAD_SIZE("4"),
 
-    LOAD_BATCH_SIZE("64"),
+    LOAD_BATCH_SIZE("16"),
     BIND_BATCH_SIZE("64"),
     FILL_BATCH_SIZE("64"),
 

@@ -12,7 +12,7 @@
 
             <div wicket:id="content">
                 <form action="#" wicket:id="filterForm">
-                    <table class="tbColor bookContent" cellpadding="0" cellspacing="0" border="0">
+                    <table class="tbColor table_input" cellpadding="0" cellspacing="0" border="0">
                         <thead>
                             <tr>
                                 <th wicket:id="accountHeader"><wicket:message key="account"/></th>
@@ -30,23 +30,23 @@
                                 </th>
                             </tr>
                             <tr>
-                                <td class="filter-td"><input type="text" wicket:id="accountFilter"/></td>
-                                <td class="filter-td"><input type="text" wicket:id="lastNameFilter"/></td>
-                                <td class="filter-td"><input type="text" wicket:id="firstNameFilter"/></td>
-                                <td class="filter-td"><input type="text" wicket:id="middleNameFilter"/></td>
-                                <td class="filter-td"><input type="text" wicket:id="cityFilter"/></td>
-                                <td class="filter-td"><input type="text" wicket:id="streetFilter"/></td>
-                                <td class="filter-td"><input type="text" wicket:id="buildingFilter"/></td>
-                                <td class="filter-td"><input type="text" wicket:id="corpFilter"/></td>
-                                <td class="filter-td"><input type="text" wicket:id="apartmentFilter"/></td>
-                                <td class="filter-td">
+                                <th><input type="text" wicket:id="accountFilter" size="7"/></th>
+                                <th><input type="text" wicket:id="lastNameFilter"/></th>
+                                <th><input type="text" wicket:id="firstNameFilter"/></th>
+                                <th><input type="text" wicket:id="middleNameFilter"/></th>
+                                <th><input type="text" wicket:id="cityFilter"/></th>
+                                <th><input type="text" wicket:id="streetFilter"/></th>
+                                <th><input type="text" wicket:id="buildingFilter" size="3"/></th>
+                                <th><input type="text" wicket:id="corpFilter" size="2"/></th>
+                                <th><input type="text" wicket:id="apartmentFilter" size="3"/></th>
+                                <th>
                                     <select wicket:id="statusFilter" style="width: 100%;">
                                         <option></option>
                                     </select>
-                                </td>
-                                <td class="filter-td">
+                                </th>
+                                <th>
                                     <input wicket:id="submit" type="submit" wicket:message="value:find" class="btnSmall default"/>
-                                </td>
+                                </th>
                             </tr>
                         </thead>
                         <tbody>

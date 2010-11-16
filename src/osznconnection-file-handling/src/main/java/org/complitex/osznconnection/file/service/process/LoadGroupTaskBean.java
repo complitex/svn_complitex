@@ -89,7 +89,8 @@ public class LoadGroupTaskBean implements ITaskBean<RequestFileGroup>{
                 }
             });
         } else {
-            requestFileGroupBean.clearEmptyGroup();
+            requestFileGroupBean.clear(group); //no cascading remove group
+
             return false; //skip - file already loaded
         }
 
@@ -100,9 +101,8 @@ public class LoadGroupTaskBean implements ITaskBean<RequestFileGroup>{
     }
 
     @Override
-    public void onError(RequestFileGroup object) {
-
-        requestFileGroupBean.clearEmptyGroup();
+    public void onError(RequestFileGroup group) {
+        requestFileGroupBean.delete(group);
     }
 
     @Override
