@@ -29,7 +29,13 @@ public class CalculationCenterBean extends AbstractBean {
 
     @Transactional
     public CalculationCenterPreference getCurrentCalculationCenterInfo() {
-        return (CalculationCenterPreference) sqlSession().selectOne(MAPPING_NAMESPACE + ".getCurrentCenterInfo");
+        CalculationCenterPreference ccp = (CalculationCenterPreference) sqlSession().selectOne(MAPPING_NAMESPACE + ".getCurrentCenterInfo");
+
+        if (ccp == null){
+            throw new RuntimeException("Calculation center preference is not found in database.");
+        }
+
+        return ccp;
     }
 
     public ICalculationCenterAdapter getDefaultCalculationCenterAdapter(){

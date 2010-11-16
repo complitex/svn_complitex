@@ -66,7 +66,7 @@ public class RequestFileBean extends AbstractBean {
             }
         }
 
-        sqlSession().delete(MAPPING_NAMESPACE + ".deleteRequestFile", requestFile);        
+        sqlSession().delete(MAPPING_NAMESPACE + ".deleteRequestFile", requestFile.getId());
     }
 
     public boolean checkLoaded(RequestFile requestFile){
