@@ -151,19 +151,6 @@ public class ExecutorBean {
     }
 
     public <T extends ILoggable> void execute(List<T> objects, final ITaskBean<T> task, int maxThread, final int maxErrors){
-        if (objects == null || objects.isEmpty()){
-            return;
-        }
-
-        if (status.equals(STATUS.RUNNING)){
-            throw new IllegalStateException();
-        }
-
-        log.info("Начат процесс {}, количество объектов: {}", task.getControllerClass().getSimpleName(), objects.size());
-        logInfo(objects.get(0).getClass(), task, "Начат процесс {0}, количество объектов: {1}",
-                task.getControllerClass().getSimpleName(), objects.size());
-
-        status = STATUS.RUNNING;
         stop.set(false);
 
         successCount = 0;
@@ -171,6 +158,21 @@ public class ExecutorBean {
         errorCount = 0;
 
         processed.clear();
+
+        if (status.equals(STATUS.RUNNING)){
+            throw new IllegalStateException();
+        }
+
+        if (objects == null || objects.isEmpty()){
+            status = STATUS.COMPLETED;
+            return;
+        }
+
+        log.info("Начат процесс {}, количество объектов: {}", task.getControllerClass().getSimpleName(), objects.size());
+        logInfo(objects.get(0).getClass(), task, "Начат процесс {0}, количество объектов: {1}",
+                task.getControllerClass().getSimpleName(), objects.size());
+
+        status = STATUS.RUNNING;
 
         Queue<T> queue = new ConcurrentLinkedQueue<T>();
         queue.addAll(objects);
