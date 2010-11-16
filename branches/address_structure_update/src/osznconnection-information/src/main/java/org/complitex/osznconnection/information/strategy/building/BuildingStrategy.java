@@ -126,7 +126,7 @@ public class BuildingStrategy extends Strategy {
             List<? extends DomainObject> addresses = buildingAddressStrategy.find(addressExample);
             for (DomainObject address : addresses) {
                 example.addAdditionalParam("buildingAddressId", address.getId());
-                List<Building> result = sqlSession().selectList(BUILDING_NAMESPACE + ".find2", example);
+                List<Building> result = sqlSession().selectList(BUILDING_NAMESPACE + "."+FIND_OPERATION, example);
                 if (result.size() == 1) {
                     Building building = result.get(0);
                     building.setAccompaniedAddress(address);
@@ -168,13 +168,9 @@ public class BuildingStrategy extends Strategy {
         addressExample.addAttributeExample(structureExample);
         Map<String, Long> ids = Maps.newHashMap();
         Long streetId = (Long) buildingExample.getAdditionalParam(STREET);
-//        if (streetId != null && streetId > 0) {
         ids.put("street", streetId);
-//        }
         Long cityId = (Long) buildingExample.getAdditionalParam(CITY);
-//        if (cityId != null && cityId > 0) {
         ids.put("city", cityId);
-//        }
         buildingAddressStrategy.configureExample(addressExample, ids, null);
         return addressExample;
     }
@@ -189,9 +185,6 @@ public class BuildingStrategy extends Strategy {
             DomainObjectExample addressExample = createAddressExample(example);
             return buildingAddressStrategy.count(addressExample);
         }
-
-//        example.setTable(getEntityTable());
-//        return (Integer) sqlSession().selectOne(BUILDING_NAMESPACE + "." + COUNT_OPERATION, example);
     }
 
     private DomainObject findBuildingAddress(long id, Date date) {
@@ -223,44 +216,17 @@ public class BuildingStrategy extends Strategy {
         DomainObjectExample example = new DomainObjectExample();
         example.setId(id);
         example.setTable(getEntityTable());
-//        DomainObject object = (DomainObject) sqlSession().selectOne(BUILDING_NAMESPACE + "." + FIND_BY_ID_OPERATION, example);
-//        object.setAttributes(sqlSession().selectList(BUILDING_NAMESPACE + ".loadSimpleAttributes", example));
-//        for (Attribute complexAttr : (List<Attribute>) sqlSession().selectList(BUILDING_NAMESPACE + ".loadComplexAttributes", example)) {
-//            object.addAttribute(complexAttr);
-//        }
-//        super.updateForNewAttributeTypes(object);
-//        super.updateStringsForNewLocales(object);
-//        return object;
         Building building = (Building) sqlSession().selectOne(BUILDING_NAMESPACE + "." + FIND_BY_ID_OPERATION, example);
         if (building != null) {
-//            for (Attribute attribute : building.getAttributes()) {
-//                if (!isSimpleAttribute(attribute)) {
-//                    //link to another entity object
-//                    attribute.setLocalizedValues(null);
-//                }
-//            }
             loadAttributes(building);
             setPrimaryAddress(building, null);
             setAlternativeAddresses(building, null);
-
             updateForNewAttributeTypes(building);
             updateStringsForNewLocales(building);
         }
-
         return building;
     }
 
-//    @Override
-//    public List<EntityAttributeType> getListColumns() {
-//        return Lists.newArrayList(Iterables.filter(getEntity().getEntityAttributeTypes(),
-//                new Predicate<EntityAttributeType>() {
-//
-//                    @Override
-//                    public boolean apply(EntityAttributeType attr) {
-//                        return attr.getId().equals(NUMBER) || attr.getId().equals(CORP) || attr.getId().equals(STRUCTURE);
-//                    }
-//                }));
-//    }
     @Override
     public DomainObject newInstance() {
         Building building = new Building();
@@ -279,39 +245,9 @@ public class BuildingStrategy extends Strategy {
         }
         building.newDistrictAttribute();
         building.setPrimaryAddress(buildingAddressStrategy.newInstance());
-
-//        List<String> locales = localeBean.getAllLocales();
-//        newEntityAttribute(object, 1, NUMBER, NUMBER, locales);
-//        newEntityAttribute(object, 1, CORP, CORP, locales);
-//        newEntityAttribute(object, 1, STRUCTURE, STRUCTURE, locales);
-//        newStreetAttribute(object, 1);
         return building;
     }
 
-//    public Attribute newEntityAttribute(DomainObject object, long attributeId, long attributeTypeId, long attributeValueId, List<String> locales) {
-//        Attribute attribute = new Attribute();
-//        attribute.setObjectId(object.getId());
-//        attribute.setAttributeTypeId(attributeTypeId);
-//        attribute.setValueTypeId(attributeValueId);
-//        attribute.setAttributeId(attributeId);
-//        List<StringCulture> strings = Lists.newArrayList();
-//        for (String locale : locales) {
-//            strings.add(new StringCulture(locale, null));
-//        }
-//        attribute.setLocalizedValues(strings);
-//        object.addAttribute(attribute);
-//        return attribute;
-//    }
-//
-//    public Attribute newStreetAttribute(DomainObject object, long attributeId) {
-//        Attribute attribute = new Attribute();
-//        attribute.setObjectId(object.getId());
-//        attribute.setAttributeTypeId(BuildingStrategy.STREET);
-//        attribute.setValueTypeId(BuildingStrategy.STREET);
-//        attribute.setAttributeId(attributeId);
-//        object.addAttribute(attribute);
-//        return attribute;
-//    }
     @Override
     public String displayDomainObject(DomainObject object, Locale locale) {
         Building building = (Building) object;
@@ -336,57 +272,17 @@ public class BuildingStrategy extends Strategy {
 
     @Override
     public ISearchCallback getSearchCallback() {
-//        return new SearchCallback();
         return null;
     }
 
     @Override
     public void configureExample(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
-        configureExampleImpl(example, ids, searchTextInput);
-    }
-
-    @Override
-    public List<String> getSearchFilters() {
-        return ImmutableList.of("country", "region", "city", "street");
-    }
-
-    private static void configureExampleImpl(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
         if (!Strings.isEmpty(searchTextInput)) {
             example.addAdditionalParam("number", searchTextInput);
-
-//            AttributeExample number = null;
-//            try {
-//                number = Iterables.find(example.getAttributeExamples(), new Predicate<AttributeExample>() {
-//
-//                    @Override
-//                    public boolean apply(AttributeExample attrExample) {
-//                        return attrExample.getAttributeTypeId().equals(NUMBER);
-//                    }
-//                });
-//            } catch (NoSuchElementException e) {
-//                number = new AttributeExample(NUMBER);
-//                example.addAttributeExample(number);
-//            }
-//            number.setValue(searchTextInput);
         }
         Long streetId = ids.get("street");
         if (streetId != null && streetId > 0) {
             example.addAdditionalParam(STREET, streetId);
-//            AttributeExample streetExample = null;
-//            try {
-//                streetExample = Iterables.find(example.getAttributeExamples(), new Predicate<AttributeExample>() {
-//
-//                    @Override
-//                    public boolean apply(AttributeExample example) {
-//                        return example.getAttributeTypeId().equals(STREET);
-//                    }
-//                });
-//            } catch (NoSuchElementException e) {
-//                streetExample = new AttributeExample(STREET);
-//                example.addAttributeExample(streetExample);
-//            }
-//            String streetIdAsString = streetId.equals(-1L) ? null : String.valueOf(streetId);
-//            streetExample.setValue(streetIdAsString);
         } else {
             example.addAdditionalParam(STREET, null);
             Long cityId = ids.get("city");
@@ -396,57 +292,18 @@ public class BuildingStrategy extends Strategy {
                 example.addAdditionalParam(CITY, null);
             }
         }
-//        example.setParentId(cityId);
-//        example.setParentEntity("city");
     }
 
-//    private static class SearchCallback implements ISearchCallback, Serializable {
-//
-//        @Override
-//        public void found(SearchComponent component, Map<String, Long> ids, AjaxRequestTarget target) {
-//            DomainObjectListPanel list = component.findParent(DomainObjectListPanel.class);
-//            DomainObjectExample example = list.getExample();
-//            configureExampleImpl(example, ids, null);
-//            list.refreshContent(target);
-//        }
-//    }
+    @Override
+    public List<String> getSearchFilters() {
+        return ImmutableList.of("country", "region", "city", "street");
+    }
+
     @Override
     public ISearchCallback getParentSearchCallback() {
-//        return new ParentSearchCallback();
         return null;
     }
 
-//    @Override
-//    public List<String> getParentSearchFilters() {
-//        return ImmutableList.of("country", "region", "city", "street");
-////        return null;
-//    }
-//    private static class ParentSearchCallback implements ISearchCallback, Serializable {
-//
-//        @Override
-//        public void found(SearchComponent component, final Map<String, Long> ids, final AjaxRequestTarget target) {
-//            DomainObjectInputPanel inputPanel = component.findParent(DomainObjectInputPanel.class);
-//            Long cityId = ids.get("city");
-//            if (cityId != null && cityId > 0) {
-//                inputPanel.getObject().setParentId(cityId);
-//                inputPanel.getObject().setParentEntityId(400L);
-//            } else {
-//                inputPanel.getObject().setParentId(null);
-//                inputPanel.getObject().setParentEntityId(null);
-//            }
-//
-//            component.getPage().visitChildren(SearchComponent.class, new IVisitor<SearchComponent>() {
-//
-//                @Override
-//                public Object component(SearchComponent searchComponent) {
-//                    if (target != null) {
-//                        target.addComponent(searchComponent);
-//                    }
-//                    return CONTINUE_TRAVERSAL;
-//                }
-//            });
-//        }
-//    }
     @Override
     public String getPluralEntityLabel(Locale locale) {
         return ResourceUtil.getString(CommonResources.class.getName(), getEntityTable(), locale);
@@ -457,30 +314,6 @@ public class BuildingStrategy extends Strategy {
         return new String[]{"apartment", "room"};
     }
 
-//    @Override
-//    @Transactional
-//    public RestrictedObjectInfo findParentInSearchComponent(long id, Date startDate) {
-//
-//        //find building address
-//        RestrictedObjectInfo buildingAddressInfo = super.findParentInSearchComponent(id, startDate);
-//        return buildingAddressInfo;
-////        RestrictedObjectInfo streetOrCityInfo = buildingAddressStrategy.findParentInSearchComponent(buildingAddressInfo.getId(), startDate);
-////        return streetOrCityInfo;
-//
-////        DomainObjectExample example = new DomainObjectExample();
-////        example.setTable(getEntityTable());
-////        example.setId(id);
-////        Long streetId = (Long) sqlSession().selectOne(BUILDING_NAMESPACE + ".findStreetInSearchComponent", example);
-////        if (streetId != null) {
-////            return new RestrictedObjectInfo("street", streetId);
-////        } else {
-////            return super.findParentInSearchComponent(id, startDate);
-////        }
-//    }
-//    @Override
-//    public Class<? extends AbstractComplexAttributesPanel> getComplexAttributesPanelClass() {
-//        return BuildingEditComponent.class;
-//    }
     @Override
     public IValidator getValidator() {
         return new BuildingValidator2(this, new Locale(localeBean.getSystemLocale()), stringBean);
@@ -539,14 +372,6 @@ public class BuildingStrategy extends Strategy {
         return params;
     }
 
-//    @Override
-//    public void insert(DomainObject object) {
-//        Building building = (Building) object;
-//        Date startDate = new Date();
-//        building.setId(sequenceBean.nextId(getEntityTable()));
-//
-//
-//    }
     @Transactional
     @Override
     protected void insertDomainObject(DomainObject object, Date startDate) {
@@ -588,13 +413,11 @@ public class BuildingStrategy extends Strategy {
 
         if (removedAddresses != null) {
             for (DomainObject removedAddress : removedAddresses) {
-                log.info("Removed addrs: {}", removedAddress.getId());
                 buildingAddressStrategy.archive(removedAddress);
             }
         }
         if (addedAddresses != null) {
             for (DomainObject newAddress : addedAddresses) {
-                log.info("Added addrs: {}", newAddress);
                 buildingAddressStrategy.insert(newAddress);
             }
         }
@@ -602,7 +425,6 @@ public class BuildingStrategy extends Strategy {
         if (updatedAddressesMap != null) {
             for (Map.Entry<DomainObject, DomainObject> updatedAddress : updatedAddressesMap.entrySet()) {
                 DomainObject oldAddress = updatedAddress.getKey();
-                log.info("Updated address id: {}", oldAddress.getId());
                 DomainObject newAddress = updatedAddress.getValue();
                 buildingAddressStrategy.update(oldAddress, newAddress, updateDate);
             }
@@ -667,51 +489,14 @@ public class BuildingStrategy extends Strategy {
     @Override
     public String getOrderByExpression(String objectIdReference, String locale, Map<String, Object> params) {
         StringBuilder orderByBuilder = new StringBuilder();
-        orderByBuilder.append("(SELECT sc.`value` FROM `building_address_string_culture` sc WHERE sc.`locale` = '").
-                append(locale).
-                append("' AND sc.`id` = (SELECT attr.`value_id` FROM `building_address_attribute` attr WHERE ").
-                append("attr.`status` = 'ACTIVE' AND attr.`attribute_type_id` = ").append(BuildingAddressStrategy.NUMBER).
-                append(" AND attr.`object_id` = (SELECT addr.`object_id` FROM `building_address` addr WHERE "
-                + "(addr.`status` = 'ACTIVE' OR addr.`status` = 'INACTIVE') AND (addr.`object_id` = (SELECT b.`parent_id` FROM `building` b WHERE "
-                + "(b.`status` = 'ACTIVE' OR b.`status` = 'INACTIVE') AND b.`object_id` = ").append(objectIdReference).
-                append(") OR addr.`object_id` IN (SELECT ba.`value_id` FROM `building_attribute` ba WHERE "
-                + "ba.`status` = 'ACTIVE' AND ba.`attribute_type_id` = ").append(BuildingStrategy.BUILDING_ADDRESS).append("))");
-        Long parentId = null;
-        Long parentEntityId = null;
-        if (params != null) {
-            Long streetId = (Long) params.get("street");
-            Long cityId = (Long) params.get("city");
-            parentId = streetId != null ? streetId : cityId;
-            parentEntityId = streetId != null ? 300L : 400L;
-        }
-        if (parentId != null && parentEntityId != null) {
-            orderByBuilder.append(" AND addr.`parent_id` = ").append(parentId).append(" AND addr.`parent_entity_id` = ").append(parentEntityId);
-        }
-        orderByBuilder.append(")))");
-
+        orderByBuilder.append("(SELECT sc.`value` FROM `building` b "
+                + "JOIN `building_address` addr ON (b.`parent_id` = addr.`object_id` AND addr.`status` IN ('ACTIVE', 'INACTIVE')) "
+                + "JOIN `building_address_attribute` num ON (num.`object_id` = addr.`object_id` AND num.`status` = 'ACTIVE' AND num.`attribute_type_id` = 1500) "
+                + "JOIN `building_address_string_culture` sc ON (num.`value_id` = sc.`id` AND sc.`locale` = '").append(locale).append("')").
+                append("WHERE (b.`status` IN ('ACTIVE', 'INACTIVE')) AND b.`object_id` = ").append(objectIdReference).append(")");
         return orderByBuilder.toString();
     }
 
-//    @Override
-//    public boolean hasHistory(Long objectId) {
-//        if (objectId == null) {
-//            return false;
-//        } else {
-//            return true;
-//        }
-//
-////        Building building = findById(objectId);
-////        boolean hasHistory = false;
-////
-////        for (DomainObject address : building.getAllAddresses()) {
-////            if (buildingAddressStrategy.hasHistory(address.getId())) {
-////                hasHistory = true;
-////                break;
-////            }
-////        }
-////
-////        return hasHistory || super.hasHistory(objectId);
-//    }
     @Transactional
     @Override
     public TreeSet<Date> getHistoryDates(long objectId) {
@@ -724,44 +509,6 @@ public class BuildingStrategy extends Strategy {
         return historyDates;
     }
 
-//    @Transactional
-//    @Override
-//    public List<History> getHistory(long objectId) {
-//        List<History> historyList = Lists.newArrayList();
-//
-//        TreeSet<Date> historyDates = getHistoryDates(objectId);
-//
-//        Set<Long> addressIds = Sets.newHashSet(sqlSession().selectList(BUILDING_NAMESPACE + ".findBuildingAddresses", objectId));
-//        for (Long addressId : addressIds) {
-//            TreeSet<Date> addressHistoryDates = buildingAddressStrategy.getHistoryDates(addressId);
-//            historyDates.addAll(addressHistoryDates);
-//        }
-//
-////        Building building = findById(objectId);
-////
-////        for (DomainObject address : building.getAllAddresses()) {
-////
-////            DomainObjectExample addressExample = new DomainObjectExample();
-////            addressExample.setTable(buildingAddressStrategy.getEntityTable());
-////            addressExample.setId(address.getId());
-////
-////            allDatesSet.addAll(Collections2.filter(sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + ".historyDates", addressExample),
-////                    new Predicate<Date>() {
-////
-////                        @Override
-////                        public boolean apply(Date input) {
-////                            return input != null;
-////                        }
-////                    }));
-////        }
-//
-//        for (final Date date : historyDates) {
-//            DomainObject historyObject = findHistoryObject(objectId, date);
-//            History history = new History(date, historyObject);
-//            historyList.add(history);
-//        }
-//        return historyList;
-//    }
     @Transactional
     @Override
     public DomainObject findHistoryObject(long objectId, Date date) {

@@ -142,24 +142,6 @@ public class DomainObjectInputPanel extends Panel {
         return date;
     }
 
-    protected SearchComponentState initParentSearchComponentState() {
-        //parent search
-        SearchComponentState componentState = null;
-        if (object.getId() == null) {
-            if (!fromParent()) {
-                componentState = getSearchComponentStateFromSession();
-            } else {
-                componentState = getStrategy().getSearchComponentStateForParent(parentId, parentEntity, null);
-            }
-        } else {
-            Strategy.RestrictedObjectInfo info = getStrategy().findParentInSearchComponent(object.getId(), isHistory() ? date : null);
-            if (info != null) {
-                componentState = getStrategy().getSearchComponentStateForParent(info.getId(), info.getEntityTable(), date);
-            }
-        }
-        return componentState;
-    }
-
     private boolean isHistory() {
         return date != null;
     }
@@ -387,12 +369,29 @@ public class DomainObjectInputPanel extends Panel {
         }
     }
 
+    protected SearchComponentState initParentSearchComponentState() {
+        //parent search
+        SearchComponentState componentState = null;
+        if (object.getId() == null) {
+            if (!fromParent()) {
+                componentState = getSearchComponentStateFromSession();
+            } else {
+                componentState = getStrategy().getSearchComponentStateForParent(parentId, parentEntity, null);
+            }
+        } else {
+            Strategy.RestrictedObjectInfo info = getStrategy().findParentInSearchComponent(object.getId(), isHistory() ? date : null);
+            if (info != null) {
+                componentState = getStrategy().getSearchComponentStateForParent(info.getId(), info.getEntityTable(), date);
+            }
+        }
+        return componentState;
+    }
+
     public boolean validateParent() {
         if (!(getStrategy().getParentSearchFilters() == null
                 || getStrategy().getParentSearchFilters().isEmpty()
                 || getStrategy().getParentSearchCallback() == null)) {
             if ((object.getParentId() == null) || (object.getParentEntityId() == null)) {
-                log.info("validate parent, entity: {}", entity);
                 error(getString("parent_required"));
                 return false;
             }

@@ -130,8 +130,6 @@ INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_t
 INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (1500, 1500, UPPER('string_culture'));
 INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (1501, 1501, UPPER('string_culture'));
 INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (1502, 1502, UPPER('string_culture'));
---INSERT INTO `string_culture`(`id`, `locale`, `value`) VALUES (504, 'ru', UPPER('Улица')), (504, 'uk', UPPER('Вулиця'));
---INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (503, 500, 0, 504, 1);
 
 -- --------------------------------
 -- District

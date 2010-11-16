@@ -40,7 +40,7 @@ insert  into `city`(`pk_id`,`object_id`,`parent_id`,`parent_entity_id`,`entity_t
 
 /*Data for the table `city_attribute` */
 
-insert  into `city_attribute`(`pk_id`,`attribute_id`,`object_id`,`attribute_type_id`,`value_id`,`value_type_id`,`start_date`,`end_date`,`status`) values (1,1,10000,400,10000,400,'2010-09-27 13:34:20',NULL,'ACTIVE'),(2,1,10000,401,1,401,'2010-11-03 12:58:33',NULL,'ACTIVE');
+insert  into `city_attribute`(`pk_id`,`attribute_id`,`object_id`,`attribute_type_id`,`value_id`,`value_type_id`,`start_date`,`end_date`,`status`) values (1,1,10000,400,10000,400,'2010-09-27 13:34:20',NULL,'ACTIVE'),(2,1,10000,401,10000,401,'2010-11-03 12:58:33',NULL,'ACTIVE');
 
 /*Data for the table `city_string_culture` */
 

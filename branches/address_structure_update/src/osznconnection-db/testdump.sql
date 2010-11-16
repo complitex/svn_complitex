@@ -1,8 +1,8 @@
 -- City Types
-INSERT INTO `city_type_string_culture`(`id`, `locale`, `value`) VALUES (1,'ru','ГОРОД'), (1,'uk','МIСТО'), (2,'ru','ДЕРЕВНЯ'), (2,'uk','СЕЛО');
-INSERT INTO `city_type` (`object_id`) VALUES (1), (2);
-INSERT INTO `city_type_attribute`(`attribute_id`, `object_id`, `attribute_type_id`, `value_id`, `value_type_id`) VALUES (1,1,1300,1,1300),
-(1,2,1300,2,1300);
+INSERT INTO `city_type_string_culture`(`id`, `locale`, `value`) VALUES (10000,'ru','ГОРОД'), (10000,'uk','МIСТО'), (10001,'ru','ДЕРЕВНЯ'), (10001,'uk','СЕЛО');
+INSERT INTO `city_type` (`object_id`) VALUES (10000), (10001);
+INSERT INTO `city_type_attribute`(`attribute_id`, `object_id`, `attribute_type_id`, `value_id`, `value_type_id`) VALUES (1,10000,1300,10000,1300),
+(1,10001,1300,10001,1300);
 
 -- Street Types
 INSERT INTO `street_type_string_culture`(`id`, `locale`, `value`) VALUES (10000,'ru','Б-Р'), (10001,'ru','М'), (10002,'ru','М-Н'),
@@ -96,9 +96,9 @@ insert into city_string_culture(id, locale, value) values (1, 'ru', UPPER('Но�
                                                           (3, 'ru', UPPER('Харьков')), (3,'uk',UPPER('Харьков'));
 insert into city(object_id, parent_id, parent_entity_id) values (1,1,700), (2,2,700), (3,3,700);
 insert into city_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
-(1,1,400,1,400),(1,1,401,1,401),
-(1,2,400,2,400),(1,2,401,1,401),
-(1,3,400,3,400),(1,3,401,1,401);
+(1,1,400,1,400),(1,1,401,10000,401),
+(1,2,400,2,400),(1,2,401,10000,401),
+(1,3,400,3,400),(1,3,401,10000,401);
 
 -- Regions
 insert into region_string_culture(id, locale, value) values (1, 'ru', UPPER('Новосибирская обл.')), (1,'uk',UPPER('Novosibirsk''s region')),

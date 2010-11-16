@@ -120,10 +120,8 @@ public class AddressService extends AbstractBean {
 
         if (buildingCorrection != null) {
             buildingId = buildingCorrection.getObjectId();
-            log.info("Building id from correction: {}", buildingId);
         } else {
             buildingId = addressCorrectionBean.findInternalBuilding(buildingNumber, buildingCorp, streetId, cityId);
-            log.info("Building id from internal base: {}", buildingId);
             if (buildingId != null) {
                 addressCorrectionBean.insertCorrectionBuilding(streetCorrection, buildingNumber, buildingCorp, buildingId);
             }
@@ -136,8 +134,6 @@ public class AddressService extends AbstractBean {
             Long internalStreetId = building.getPrimaryStreetId();
             if (streetId != null) {
                 payment.setInternalStreetId(internalStreetId);
-
-                //TODO: add setInternalCityId
                 Strategy streetStrategy = strategyFactory.getStrategy("street");
                 DomainObject streetObject = streetStrategy.findById(streetId);
                 Long internalCityId = streetObject.getParentId();

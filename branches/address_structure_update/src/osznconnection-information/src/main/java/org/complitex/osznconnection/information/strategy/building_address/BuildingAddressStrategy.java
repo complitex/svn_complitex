@@ -58,40 +58,6 @@ public class BuildingAddressStrategy extends Strategy {
 
     @Override
     public void configureExample(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
-        configureExampleImpl(example, ids, searchTextInput);
-    }
-
-    @Override
-    public List<String> getSearchFilters() {
-        return null;
-    }
-
-//    public DomainObjectExample createExample(String number, String corp, String structure, Long streetId, Long cityId) {
-//        DomainObjectExample buildingAddressExample = new DomainObjectExample();
-//        AttributeExample numberAttrEx = new AttributeExample(NUMBER);
-//        numberAttrEx.setValue(number);
-//        buildingAddressExample.addAttributeExample(numberAttrEx);
-//        AttributeExample corpAttrEx = new AttributeExample(CORP);
-//        corpAttrEx.setValue(corp);
-//        buildingAddressExample.addAttributeExample(corpAttrEx);
-//        AttributeExample structureAttrEx = new AttributeExample(STRUCTURE);
-//        structureAttrEx.setValue(structure);
-//        buildingAddressExample.addAttributeExample(structureAttrEx);
-//        if (streetId != null && streetId > 0) {
-//            buildingAddressExample.setParentId(streetId);
-//            buildingAddressExample.setParentEntity("street");
-//        } else {
-//            buildingAddressExample.setParentId(cityId);
-//            buildingAddressExample.setParentEntity("city");
-//        }
-//        return buildingAddressExample;
-//    }
-    @Override
-    public DomainObject findById(Long id) {
-        return super.findById(id);
-    }
-
-    private static void configureExampleImpl(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
         if (!Strings.isEmpty(searchTextInput)) {
             AttributeExample number = null;
             try {
@@ -122,19 +88,13 @@ public class BuildingAddressStrategy extends Strategy {
                 example.setParentEntity(null);
             }
         }
-
     }
 
-//    private static class SearchCallback implements ISearchCallback, Serializable {
-//
-//        @Override
-//        public void found(SearchComponent component, Map<String, Long> ids, AjaxRequestTarget target) {
-//            DomainObjectListPanel list = component.findParent(DomainObjectListPanel.class);
-//            DomainObjectExample example = list.getExample();
-//            configureExampleImpl(example, ids, null);
-//            list.refreshContent(target);
-//        }
-//    }
+    @Override
+    public List<String> getSearchFilters() {
+        return null;
+    }
+
     @Override
     public ISearchCallback getParentSearchCallback() {
         return new ParentSearchCallback();
@@ -164,26 +124,6 @@ public class BuildingAddressStrategy extends Strategy {
                     inputPanel.getObject().setParentEntityId(null);
                 }
             }
-
-//            Long cityId = ids.get("city");
-//            if (cityId != null && cityId > 0) {
-//                inputPanel.getObject().setParentId(cityId);
-//                inputPanel.getObject().setParentEntityId(400L);
-//            } else {
-//                inputPanel.getObject().setParentId(null);
-//                inputPanel.getObject().setParentEntityId(null);
-//            }
-//
-//            component.getPage().visitChildren(SearchComponent.class, new IVisitor<SearchComponent>() {
-//
-//                @Override
-//                public Object component(SearchComponent searchComponent) {
-//                    if (target != null) {
-//                        target.addComponent(searchComponent);
-//                    }
-//                    return CONTINUE_TRAVERSAL;
-//                }
-//            });
         }
     }
 
@@ -197,31 +137,6 @@ public class BuildingAddressStrategy extends Strategy {
         return new String[]{"building"};
     }
 
-//    @Override
-//    public RestrictedObjectInfo findParentInSearchComponent(long id, Date date) {
-//        RestrictedObjectInfo info = super.findParentInSearchComponent(id, date);
-//        log.info("INFO: entity: {}, id: {}", info.getEntityTable(), info.getId());
-//        return info;
-//    }
-//    @Override
-//    public SearchComponentState getSearchComponentStateForParent(Long parentId, String parentEntity, Date date) {
-//        SearchComponentState state = super.getSearchComponentStateForParent(parentId, parentEntity, date);
-//        log.info("PARENT ID: {}, PARENT ENTITY: {}, STATE: {}", new Object[]{parentId, parentEntity, state});
-//        return state;
-//    }
-//    @Override
-//    @Transactional
-//    public RestrictedObjectInfo findParentInSearchComponent(long id, Date startDate) {
-//        DomainObjectExample example = new DomainObjectExample();
-//        example.setTable(getEntityTable());
-//        example.setId(id);
-//        Long streetId = (Long) sqlSession().selectOne(BUILDING_ADDRESS_NAMESPACE + ".findStreetInSearchComponent", example);
-//        if (streetId != null) {
-//            return new RestrictedObjectInfo("street", streetId);
-//        } else {
-//            return super.findParentInSearchComponent(id, startDate);
-//        }
-//    }
     @Override
     public Class<? extends WebPage> getEditPage() {
         return null;
@@ -245,11 +160,6 @@ public class BuildingAddressStrategy extends Strategy {
     @Override
     public String[] getParents() {
         return new String[]{"street"};
-    }
-
-    @Override
-    public int getSearchTextFieldSize() {
-        return 5;
     }
 
     @Override

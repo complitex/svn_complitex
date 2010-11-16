@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import org.complitex.dictionaryfw.web.component.search.SearchComponentState;
 
 /**
  * Класс для работы с коррекциями адресов.
@@ -46,13 +47,16 @@ public class AddressCorrectionBean extends CorrectionBean {
      */
     @Transactional
     private Correction findCorrectionAddress(final String entityTable, final Long parentId, final String correction,
-                                             final long organizationId) {
-        Map<String, Object> params = new HashMap<String, Object>(){{
-            put("entityTable", entityTable);
-            put("parentId", parentId);
-            put("correction", correction);
-            put("organizationId", organizationId);
-        }};
+            final long organizationId) {
+        Map<String, Object> params = new HashMap<String, Object>() {
+
+            {
+                put("entityTable", entityTable);
+                put("parentId", parentId);
+                put("correction", correction);
+                put("organizationId", organizationId);
+            }
+        };
 
         return (Correction) sqlSession().selectOne(MAPPING_NAMESPACE + ".findCorrectionAddress", params);
     }
@@ -90,13 +94,16 @@ public class AddressCorrectionBean extends CorrectionBean {
      */
     @Transactional
     public BuildingCorrection findCorrectionBuilding(final Correction parent, final String correction,
-                                                     final String correctionCorp) {
-         Map<String, Object> params = new HashMap<String, Object>(){{
-            put("parentId", parent.getId());
-            put("correction", correction);
-            put("correctionCorp", correctionCorp);
-            put("organizationId", parent.getOrganizationId());
-        }};
+            final String correctionCorp) {
+        Map<String, Object> params = new HashMap<String, Object>() {
+
+            {
+                put("parentId", parent.getId());
+                put("correction", correction);
+                put("correctionCorp", correctionCorp);
+                put("organizationId", parent.getOrganizationId());
+            }
+        };
 
         return (BuildingCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".findCorrectionBuilding", params);
     }
@@ -284,11 +291,11 @@ public class AddressCorrectionBean extends CorrectionBean {
     }
 
     public Correction insertCorrectionStreet(Correction parent, String street, long objectId) {
-        return insert("street", parent.getId(),  street, objectId, parent.getOrganizationId(), parent.getInternalOrganizationId());
+        return insert("street", parent.getId(), street, objectId, parent.getOrganizationId(), parent.getInternalOrganizationId());
     }
 
     public Correction insertCorrectionCity(String city, long objectId, long organizationId, long internalOrganizationId) {
-        return insert("city", null,  city, objectId, organizationId, internalOrganizationId);
+        return insert("city", null, city, objectId, organizationId, internalOrganizationId);
     }
 
     /**
@@ -315,8 +322,6 @@ public class AddressCorrectionBean extends CorrectionBean {
         }
         return null;
     }
-
-
 
     /**
      * Найти город в локальной адресной базе.
@@ -411,7 +416,7 @@ public class AddressCorrectionBean extends CorrectionBean {
     @SuppressWarnings({"unchecked"})
     @Transactional
     public Correction getStreetCorrection(Long id) {
-        Correction correction =  (Correction) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectStreetCorrection", id);
+        Correction correction = (Correction) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectStreetCorrection", id);
 
         if (correction != null) {
             correction.setEntity("street");
@@ -423,7 +428,7 @@ public class AddressCorrectionBean extends CorrectionBean {
     @SuppressWarnings({"unchecked"})
     @Transactional
     public BuildingCorrection getBuildingCorrection(Long id) {
-        BuildingCorrection correction =  (BuildingCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectBuildingCorrection", id);
+        BuildingCorrection correction = (BuildingCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectBuildingCorrection", id);
 
         if (correction != null) {
             correction.setEntity("building");
@@ -435,25 +440,26 @@ public class AddressCorrectionBean extends CorrectionBean {
     @SuppressWarnings({"unchecked"})
     @Transactional
     public List<BuildingCorrection> findBuildings(CorrectionExample example) {
-        List<BuildingCorrection> list =  (List<BuildingCorrection>) super.find(example, MAPPING_NAMESPACE + ".findBuildings");
+        List<BuildingCorrection> list = (List<BuildingCorrection>) super.find(example, MAPPING_NAMESPACE + ".findBuildings");
 
         Strategy cityStrategy = strategyFactory.getStrategy("city");
         Strategy streetStrategy = strategyFactory.getStrategy("street");
         Strategy buildingStrategy = strategyFactory.getStrategy("building");
 
-        for (Correction c : list){
+        for (Correction c : list) {
             try {
                 DomainObject building = buildingStrategy.findById(c.getObjectId());
-                DomainObject street = streetStrategy.findById(building.getAttribute(503L).getValueId());
-                DomainObject city = cityStrategy.findById(street.getParentId());
-
-                String displayBuilding = buildingStrategy.displayDomainObject(building, new Locale(example.getLocale()));
-                String displayStreet = streetStrategy.displayDomainObject(street, new Locale(example.getLocale()));
-                String displayCity = cityStrategy.displayDomainObject(city, new Locale(example.getLocale()));
+                SearchComponentState state = buildingStrategy.getSearchComponentStateForParent(building.getParentId(), building.getParentEntity(), null);
+                DomainObject street = state.get("street");
+                DomainObject city = state.get("city");
+                Locale locale = new Locale(example.getLocale());
+                String displayBuilding = buildingStrategy.displayDomainObject(building, locale);
+                String displayStreet = streetStrategy.displayDomainObject(street, locale);
+                String displayCity = cityStrategy.displayDomainObject(city, locale);
 
                 c.setDisplayObject(displayCity + ", " + displayStreet + ", " + displayBuilding);
             } catch (Exception e) {
-                log.warn("[Полный адрес не найден]" ,e);
+                log.warn("[Полный адрес не найден]", e);
                 c.setDisplayObject("[Полный адрес не найден]");
             }
         }
@@ -468,14 +474,15 @@ public class AddressCorrectionBean extends CorrectionBean {
 
     @SuppressWarnings({"unchecked"})
     @Transactional
+    @Override
     public List<Correction> find(CorrectionExample example) {
         List<Correction> list = (List<Correction>) super.find(example, CorrectionBean.MAPPING_NAMESPACE + ".find");
 
-        if ("street".equals(example.getEntity())){
+        if ("street".equals(example.getEntity())) {
             Strategy streetStrategy = strategyFactory.getStrategy("street");
             Strategy cityStrategy = strategyFactory.getStrategy("city");
 
-            for (Correction c : list){
+            for (Correction c : list) {
                 //load city
                 c.setParent(getCityCorrection(c.getParentId()));
 
@@ -488,7 +495,7 @@ public class AddressCorrectionBean extends CorrectionBean {
 
                     c.setDisplayObject(displayCity + ", " + displayStreet);
                 } catch (Exception e) {
-                    log.warn("[Полный адрес не найден]" ,e);
+                    log.warn("[Полный адрес не найден]", e);
                     c.setDisplayObject("[Полный адрес не найден]");
                 }
             }

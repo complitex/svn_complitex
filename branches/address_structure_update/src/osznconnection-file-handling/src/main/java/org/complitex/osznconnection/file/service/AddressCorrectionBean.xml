@@ -102,7 +102,7 @@
     </select>
 
     <select id="findInternalObjectId" parameterType="hashmap" resultType="long">
-        SELECT e.`object_id` FROM `${entity}` e WHERE e.`status` = 'ACTIVE'
+        SELECT DISTINCT e.`object_id` FROM `${entity}` e WHERE e.`status` = 'ACTIVE'
         <if test="parentId != null">
             AND e.`parent_id` = #{parentId}
         </if>
@@ -144,7 +144,7 @@
     </select>-->
     
     <select id="findInternalBuilding" parameterType="hashmap" resultType="long">
-        SELECT b.`object_id` FROM `building` b
+        SELECT DISTINCT b.`object_id` FROM `building` b
             JOIN `building_address` addr ON (((b.`parent_id` = addr.`object_id`) OR
             EXISTS(SELECT 1 FROM `building_attribute` ba WHERE ba.`object_id` = b.`object_id` AND ba.`status` = 'ACTIVE' AND ba.`attribute_type_id` = 501
             AND ba.`value_id` = addr.`object_id`)) AND addr.`status` = 'ACTIVE')

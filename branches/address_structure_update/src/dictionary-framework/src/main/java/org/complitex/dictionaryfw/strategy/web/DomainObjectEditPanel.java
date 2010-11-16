@@ -132,7 +132,6 @@ public class DomainObjectEditPanel extends Panel {
             }
         };
         historyContainer.add(history);
-//        historyContainer.setVisible(getStrategy().hasHistory(newObject.getId()));
         historyContainer.setVisible(!isNew());
         form.add(historyContainer);
 

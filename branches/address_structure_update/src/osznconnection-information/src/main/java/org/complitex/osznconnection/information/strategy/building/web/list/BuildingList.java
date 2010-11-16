@@ -135,7 +135,6 @@ public final class BuildingList extends TemplatePage {
                 String sortProperty = getSort().getProperty();
                 if (!Strings.isEmpty(sortProperty)) {
                     example.setOrderByAttribureTypeId(Long.valueOf(sortProperty));
-//                    example.addAdditionalParam(BuildingStrategy.ORDER_BY_PARAM, sortProperty);
                 }
 
                 example.setStatus(showModeModel.getObject().name());
@@ -151,7 +150,6 @@ public final class BuildingList extends TemplatePage {
                 String sortProperty = getSort().getProperty();
                 if (!Strings.isEmpty(sortProperty)) {
                     example.setOrderByAttribureTypeId(Long.valueOf(sortProperty));
-//                    example.addAdditionalParam(BuildingStrategy.ORDER_BY_PARAM, sortProperty);
                 }
                 example.setStatus(showModeModel.getObject().name());
                 example.setLocale(getLocale().getLanguage());

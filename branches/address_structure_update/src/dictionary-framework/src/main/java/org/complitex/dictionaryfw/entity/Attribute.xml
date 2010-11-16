@@ -11,8 +11,6 @@
         <result column="end_date" property="endDate"/>
         <result column="value_id" property="valueId"/>
         <result column="value_type_id" property="valueTypeId"/>
-        <!--<collection ofType="StringCulture" property="localizedValues" column="{table = table_name, string = value_id}"
-                    select="org.complitex.dictionaryfw.entity.StringCulture.find"/>-->
     </resultMap>
 
     <insert id="insert" parameterType="InsertParameter">

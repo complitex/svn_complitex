@@ -61,7 +61,6 @@ public final class BuildingEditComponent2 extends AbstractComplexAttributesPanel
         @Override
         public void found(SearchComponent component, final Map<String, Long> ids, final AjaxRequestTarget target) {
             DomainObject district = districtComponentState.get("district");
-            Building building = (Building) getInputPanel().getObject();
             if (district != null && district.getId() > 0) {
                 districtAttribute.setValueId(district.getId());
             } else {
@@ -69,45 +68,6 @@ public final class BuildingEditComponent2 extends AbstractComplexAttributesPanel
             }
         }
     }
-
-//    private class WrapperSearchComponentState extends SearchComponentState {
-//
-//        private SearchComponentState original;
-//
-//        public WrapperSearchComponentState(SearchComponentState original) {
-//            this.original = original;
-//        }
-//
-//        @Override
-//        public void clear() {
-//            original.clear();
-//        }
-//
-//        @Override
-//        public DomainObject get(String entity) {
-//            return original.get(entity);
-//        }
-//
-//        @Override
-//        public void put(String entity, DomainObject object) {
-//            original.put(entity, object);
-//        }
-//
-//        @Override
-//        public void updateState(Map<String, DomainObject> state) {
-//            original.updateState(state);
-//        }
-//
-//        @Override
-//        public void updateState(SearchComponentState anotherState) {
-//            original.updateState(anotherState);
-//        }
-//
-//        @Override
-//        public Map<String, DomainObject> getState() {
-//            return original.getState();
-//        }
-//    }
 
     public BuildingEditComponent2(String id, boolean disabled) {
         super(id, disabled);
@@ -183,24 +143,10 @@ public final class BuildingEditComponent2 extends AbstractComplexAttributesPanel
             @Override
             public SearchComponentState initParentSearchComponentState() {
                 final SearchComponentState primaryAddressComponentState = super.initParentSearchComponentState();
-                
+
                 if (primaryBuildingAddress.getId() == null) {
-
                     primaryAddressComponentState.updateState(parentSearchComponentState);
-//                    for (String entity : buildingAddressStrategy.getParentSearchFilters()) {
-//                        DomainObject object = parentSearchComponentState.get(entity);
-//                        if (object != null) {
-//                            primaryAddressComponentState.put(entity, object);
-//                        }
-//                    }
                 }
-//                    else {
-//                    DomainObject street = primaryAddressComponentState.get("street");
-//                    if (street != null) {
-//                        building.setPrimaryStreet(street);
-//                    }
-//                }
-
                 return primaryAddressComponentState;
             }
         };
@@ -224,12 +170,6 @@ public final class BuildingEditComponent2 extends AbstractComplexAttributesPanel
                             alternativeAddressComponentState = new SearchComponentState();
                             alternativeAddressComponentState.updateState(parentSearchComponentState);
                             alternativeAddressComponentState.put("street", null);
-//                            for (String entity : buildingAddressStrategy.getParentSearchFilters()) {
-//                                DomainObject object = parentSearchComponentState.get(entity);
-//                                if (!"street".equals(entity) && (object != null)) {
-//                                    alternativeAddressComponentState.put(entity, object);
-//                                }
-//                            }
                         } else {
                             alternativeAddressComponentState = super.initParentSearchComponentState();
                         }
