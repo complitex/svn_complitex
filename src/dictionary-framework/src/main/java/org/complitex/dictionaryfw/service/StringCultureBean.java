@@ -5,6 +5,7 @@
 package org.complitex.dictionaryfw.service;
 
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.wicket.util.string.Strings;
@@ -16,6 +17,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 /**
@@ -23,7 +25,9 @@ import java.util.NoSuchElementException;
  * @author Artem
  */
 @Stateless(name = "StringCultureBean")
-public class StringCultureBean extends AbstractBean{
+public class StringCultureBean extends AbstractBean {
+
+    private static final String STRING_CULTURE_NAMESPACE = "org.complitex.dictionaryfw.entity.StringCulture";
 
     @EJB(beanName = "SequenceBean")
     private SequenceBean sequenceBean;
@@ -34,6 +38,17 @@ public class StringCultureBean extends AbstractBean{
     @Transactional
     public Long insertStrings(List<StringCulture> strings, String entityTable) {
         if (strings != null && !strings.isEmpty()) {
+            boolean allValuesAreEmpty = true;
+            for (StringCulture string : strings) {
+                if (!Strings.isEmpty(string.getValue())) {
+                    allValuesAreEmpty = false;
+                    break;
+                }
+            }
+            if (allValuesAreEmpty) {
+                return null;
+            }
+
             long stringId = sequenceBean.nextStringId(entityTable);
             for (StringCulture string : strings) {
                 if (!Strings.isEmpty(string.getValue())) {
@@ -49,9 +64,9 @@ public class StringCultureBean extends AbstractBean{
     @Transactional
     public void insert(StringCulture stringCulture, String entityTable) {
         if (Strings.isEmpty(entityTable)) {
-            sqlSession().insert("org.complitex.dictionaryfw.entity.StringCulture.insertDescriptionData", stringCulture);
+            sqlSession().insert(STRING_CULTURE_NAMESPACE + ".insertDescriptionData", stringCulture);
         } else {
-            sqlSession().insert("org.complitex.dictionaryfw.entity.StringCulture.insert", new InsertParameter(entityTable, stringCulture));
+            sqlSession().insert(STRING_CULTURE_NAMESPACE + ".insert", new InsertParameter(entityTable, stringCulture));
         }
     }
 
@@ -114,5 +129,13 @@ public class StringCultureBean extends AbstractBean{
             }
         }
         return value;
+    }
+
+    public List<StringCulture> findStrings(long id, String entityTable) {
+        Map<String, Object> params = ImmutableMap.<String, Object>builder().
+                put("table", entityTable).
+                put("id", id).
+                build();
+        return sqlSession().selectList(STRING_CULTURE_NAMESPACE + ".find", params);
     }
 }

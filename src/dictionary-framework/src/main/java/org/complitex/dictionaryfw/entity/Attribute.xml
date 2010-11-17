@@ -11,8 +11,6 @@
         <result column="end_date" property="endDate"/>
         <result column="value_id" property="valueId"/>
         <result column="value_type_id" property="valueTypeId"/>
-        <collection ofType="StringCulture" property="localizedValues" column="{table = table_name, string = value_id}"
-                    select="org.complitex.dictionaryfw.entity.StringCulture.find"/>
     </resultMap>
 
     <insert id="insert" parameterType="InsertParameter">
@@ -33,11 +31,16 @@
         </foreach>
     </update>
 
+    <update id="archiveObjectAttributes" parameterType="hashmap">
+        UPDATE `${table}_attribute` SET `end_date` = #{endDate}, `status` = 'ARCHIVE' WHERE
+        `object_id` = #{objectId}
+    </update>
+
     <select id="find" parameterType="hashmap" resultMap="org.complitex.dictionaryfw.entity.Attribute.Attribute">
         SELECT aa.`attribute_id`, aa.`object_id`, aa.`attribute_type_id`, aa.`value_id`, aa.`value_type_id`, aa.`start_date`, aa.`end_date`, aa.`status`,
         '${table}' as table_name
         FROM `${table}_attribute` aa WHERE  aa.`object_id` = #{id} AND aa.`status` = 'ACTIVE'
-        ORDER BY aa.`attribute_id`
+        ORDER BY aa.`attribute_type_id`, aa.`attribute_id`
     </select>
 
     <!-- history -->
@@ -48,6 +51,7 @@
         FROM `${table}_attribute` aa
         WHERE aa.`object_id` = #{id}
         AND aa.`start_date` <![CDATA[ <= ]]> #{startDate} AND ((aa.`end_date` IS NULL) OR (aa.`end_date` <![CDATA[ > ]]> #{startDate}))
+        ORDER BY aa.`attribute_type_id`, aa.`attribute_id`
     </select>
 
 </mapper>

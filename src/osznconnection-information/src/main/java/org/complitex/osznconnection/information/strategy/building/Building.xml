@@ -3,155 +3,20 @@
 
 <mapper namespace="org.complitex.osznconnection.information.strategy.building.Building">
 
-    <resultMap id="Building" type="DomainObject">
-        <id column="object_id" property="id"/>
-        <id column="start_date" property="startDate"/>
-        <result column="entity_id" property="entityId"/>
-        <result column="end_date" property="endDate"/>
-        <result column="status" property="status"/>
-        <result column="parent_id" property="parentId"/>
-        <result column="parent_entity_id" property="parentEntityId"/>
-        <result column="entity_type_id" property="entityTypeId"/>
+    <resultMap id="Building" type="org.complitex.osznconnection.information.strategy.building.entity.Building" extends="org.complitex.dictionaryfw.entity.DomainObject.DomainObject">
     </resultMap>
-
-    <resultMap id="StreetOrDistrict" type="Attribute">
-        <id column="attribute_id" property="attributeId"/>
-        <id column="object_id" property="objectId"/>
-        <id column="attribute_type_id" property="attributeTypeId"/>
-        <id column="start_date" property="startDate"/>
-        <result column="status" property="status"/>
-        <result column="end_date" property="endDate"/>
-        <result column="value_id" property="valueId"/>
-        <result column="value_type_id" property="valueTypeId"/>
-    </resultMap>
-
-    <select id="loadSimpleAttributes" parameterType="DomainObjectExample" resultMap="org.complitex.dictionaryfw.entity.Attribute.Attribute">
-        SELECT attr.`attribute_id`, attr.`object_id`, attr.`attribute_type_id`, attr.`value_id`, attr.`value_type_id`, attr.`start_date`, attr.`end_date`,
-        attr.`status`, '${table}' as table_name
-        FROM `building_attribute` attr WHERE attr.`object_id` = #{id} AND attr.`status` = 'ACTIVE'
-        AND ((attr.`attribute_type_id` IN (500, 501, 502)) OR (attr.`attribute_type_id` <![CDATA[ >= ]]> 505))
-        <foreach item="attrExample" collection="attributeExamples">
-            <if test="attrExample.value != null">
-                <if test="attrExample.attributeTypeId == 503 or attrExample.attributeTypeId == 504">
-                    AND EXISTS(SELECT 1 FROM `building_attribute` ba WHERE ba.`object_id` = attr.`object_id`
-                    AND ba.`status` = 'ACTIVE' AND ba.`value_id` = #{attrExample.value}
-                    AND ba.`attribute_type_id` = #{attrExample.attributeTypeId} AND ba.`attribute_id` = attr.`attribute_id`)
-                </if>
-            </if>
-        </foreach>
-    </select>
-
-    <sql id="orderBy">
-        <choose>
-            <when test="orderByAttribureTypeId != null">
-                ORDER BY (
-                SELECT sc.`value` FROM `building_string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`id` =
-                (SELECT orderByAttr.`value_id` FROM `building_attribute` orderByAttr WHERE orderByAttr.`object_id` = e.`object_id`
-                AND orderByAttr.`status` = 'ACTIVE'
-                AND orderByAttr.`attribute_type_id` = #{orderByAttribureTypeId}
-
-                <foreach collection="attributeExamples" item="attrExample">
-                    <if test="attrExample.attributeTypeId == 503">
-                        AND orderByAttr.`attribute_id` = (SELECT ba.`attribute_id` FROM `building_attribute` ba WHERE ba.`object_id` = e.`object_id`
-                        AND ba.`status` = 'ACTIVE'
-                        AND ba.`value_id` = #{attrExample.value}
-                        AND ba.`attribute_type_id` = 503)
-                    </if>
-                </foreach>
-                )
-                )
-                <choose>
-                    <when test="asc">
-                        ASC
-                    </when>
-                    <otherwise>
-                        DESC
-                    </otherwise>
-                </choose>
-            </when>
-            <otherwise>
-                <if test="orderByExpression != null">
-                    ORDER BY  ${orderByExpression}
-                    <choose>
-                        <when test="asc">
-                            ASC
-                        </when>
-                        <otherwise>
-                            DESC
-                        </otherwise>
-                    </choose>
-                </if>
-            </otherwise>
-        </choose>
-
-    </sql>
 
     <select id="find" resultMap="org.complitex.osznconnection.information.strategy.building.Building.Building" parameterType="DomainObjectExample">
-        SELECT e.`object_id`, e.`start_date`, e.`end_date`, e.`status`, e.`parent_id`,
+        SELECT DISTINCT e.`object_id`, e.`start_date`, e.`end_date`, e.`status`, e.`parent_id`,
         (SELECT ent.`id` FROM `entity` ent WHERE ent.`entity_table` = #{table}) as entity_id,
         e.`parent_entity_id`, e.`entity_type_id`, '${locale}' as locale, '${table}' as table_name
         FROM `building` e WHERE
         <include refid="org.complitex.dictionaryfw.entity.DomainObject.statusFilter"/>
-        <include refid="org.complitex.osznconnection.information.strategy.building.Building.filter"/>
-        <include refid="org.complitex.osznconnection.information.strategy.building.Building.orderBy"/>
-        <include refid="org.complitex.dictionaryfw.entity.DomainObject.limit"/>
-    </select>
-
-    <sql id="filter">
-        <choose>
-            <when test="id != null">
-                AND e.`object_id` = #{id}
-            </when>
-            <otherwise>
-                <foreach item="attrExample" collection="attributeExamples">
-                    <choose>
-                        <when test="attrExample.attributeTypeId == 503 or attrExample.attributeTypeId == 504">
-                            AND EXISTS(SELECT 1 FROM `building_attribute` attr WHERE attr.`object_id` = e.`object_id`
-                            AND attr.`status` = 'ACTIVE' AND
-                            <choose>
-                                <when test="attrExample.value != null">
-                                    attr.`value_id` = #{attrExample.value}
-                                </when>
-                                <otherwise>
-                                    attr.`value_id` IS NULL
-                                </otherwise>
-                            </choose>
-                            AND attr.`attribute_type_id` = #{attrExample.attributeTypeId})
-                        </when>
-                        <otherwise>
-                            <if test="attrExample.value != null">
-                                AND EXISTS(SELECT 1 FROM `building_attribute` attr WHERE attr.`object_id` = e.`object_id`
-                                AND attr.`status` = 'ACTIVE'
-                                AND attr.`value_id` IN (SELECT sc.`id` FROM `${table}_string_culture` sc WHERE sc.`value`
-                                <choose>
-                                    <when test="comparisonType == 'LIKE'">
-                                        LIKE '%${attrExample.value}%'
-                                    </when>
-                                    <when test="comparisonType == 'EQUALITY'">
-                                        = #{attrExample.value}
-                                    </when>
-                                </choose>
-                                )
-                                AND attr.`attribute_type_id` = #{attrExample.attributeTypeId})
-                            </if>
-                        </otherwise>
-                    </choose>
-                </foreach>
-                <if test="parentId != null and parentEntity != null">
-                    AND e.`parent_entity_id` = (SELECT ent.`id` FROM `entity` ent WHERE ent.`entity_table` = #{parentEntity}) AND e.`parent_id` = #{parentId}
-                </if>
-            </otherwise>
-        </choose>
-    </sql>
-
-    <select id="count" resultType="integer" parameterType="DomainObjectExample">
-        SELECT COUNT(*) FROM `building` e WHERE
-        <include refid="org.complitex.dictionaryfw.entity.DomainObject.statusFilter"/>
-        <include refid="org.complitex.osznconnection.information.strategy.building.Building.filter"/>
-    </select>
-
-    <select id="findStreetInSearchComponent" parameterType="DomainObjectExample" resultType="long">
-        SELECT attr.`value_id` FROM `building_attribute` attr WHERE attr.`status` = 'ACTIVE' AND attr.`object_id` = #{id} AND attr.`attribute_type_id` = 503 limit 0,1
+        AND (e.`parent_id` = #{additionalParams.buildingAddressId} OR EXISTS
+            (SELECT 1 FROM `building_attribute` ba WHERE ba.`object_id` = e.`object_id` AND ba.`status` = 'ACTIVE' AND ba.`attribute_type_id` = 501
+                AND ba.`value_id` = #{additionalParams.buildingAddressId}
+            )
+            )
     </select>
 
     <select id="findById" resultMap="org.complitex.osznconnection.information.strategy.building.Building.Building" parameterType="DomainObjectExample">
@@ -162,10 +27,56 @@
         FROM `${table}` e WHERE (e.`status` = 'ACTIVE' OR e.`status` = 'INACTIVE') AND e.`object_id` = #{id}
     </select>
 
-    <select id="loadComplexAttributes" resultMap="org.complitex.osznconnection.information.strategy.building.Building.StreetOrDistrict" parameterType="DomainObjectExample">
-        SELECT attr.`attribute_id`, attr.`object_id`, attr.`attribute_type_id`, attr.`value_id`, attr.`value_type_id`, attr.`start_date`, attr.`end_date`,
-        attr.`status`
-        FROM `building_attribute` attr WHERE attr.`object_id` = #{id} AND attr.`status` = 'ACTIVE' AND attr.`attribute_type_id` IN (503, 504)
+    <select id="checkBuildingAddress" parameterType="hashmap" resultType="long">
+        SELECT DISTINCT b.`object_id` FROM `building` b
+            JOIN `building_address` addr ON (((b.`parent_id` = addr.`object_id`) OR
+            EXISTS(SELECT 1 FROM `building_attribute` ba WHERE ba.`object_id` = b.`object_id` AND ba.`status` = 'ACTIVE' AND ba.`attribute_type_id` = 501
+            AND ba.`value_id` = addr.`object_id`)) AND (addr.`status` = 'ACTIVE' OR addr.`status` = 'INACTIVE'))
+            JOIN `building_address_attribute` num ON (num.`object_id` = addr.`object_id` AND num.`status` = 'ACTIVE' AND num.`attribute_type_id` = 1500)
+            LEFT JOIN `building_address_attribute` corp ON (corp.`object_id` = addr.`object_id` AND corp.`status` = 'ACTIVE' AND corp.`attribute_type_id` = 1501)
+            LEFT JOIN `building_address_attribute` struc ON (struc.`object_id` = addr.`object_id` AND struc.`status` = 'ACTIVE' AND struc.`attribute_type_id` = 1502)
+        WHERE (b.`status` = 'ACTIVE' OR b.`status` = 'INACTIVE') AND
+        num.`value_id` IN (SELECT sc.`id` FROM `building_address_string_culture` sc WHERE sc.`value` = #{number} AND sc.`locale` = #{locale}) AND
+            <choose>
+                <when test="corp == null">
+                    corp.`value_id` IS NULL
+                </when>
+                <otherwise>
+                    corp.`value_id` IN (SELECT sc.`id` FROM `building_address_string_culture` sc WHERE sc.`value` = #{corp} AND sc.`locale` = #{locale})
+                </otherwise>
+            </choose>
+            AND
+            <choose>
+                <when test="structure == null">
+                    struc.`value_id` IS NULL
+                </when>
+                <otherwise>
+                    struc.`value_id` IN (SELECT sc.`id` FROM `building_address_string_culture` sc WHERE sc.`value` = #{structure} AND sc.`locale` = #{locale})
+                </otherwise>
+            </choose>
+            AND
+            addr.`parent_entity_id` = #{parentEntityId} AND addr.`parent_id` = #{parentId}
+    </select>
+
+    <!-- history -->
+
+    <select id="findBuildingAddresses" parameterType="long" resultType="long">
+        SELECT addr.`object_id` FROM `building_address` addr WHERE addr.`object_id` IN
+            (SELECT b.`parent_id` FROM `building` b WHERE b.`object_id` = #{buildingId})
+        UNION
+        SELECT addr.`object_id` FROM `building_address` addr WHERE
+            EXISTS(SELECT 1 FROM `building_attribute` ba WHERE ba.`object_id` = #{buildingId} AND ba.`attribute_type_id` = 501 AND ba.`value_id` = addr.`object_id`)
+    </select>
+
+    <select id="findHistoryObject" parameterType="DomainObjectExample" resultMap="org.complitex.osznconnection.information.strategy.building.Building.Building">
+        SELECT e.`object_id`, e.`start_date`, e.`end_date`, e.`status`, e.`parent_id`,
+        (SELECT ent.`id` FROM `entity` ent WHERE ent.`entity_table` = #{table}) as entity_id,
+        (SELECT ent.`entity_table` FROM `entity` ent WHERE ent.`id` = e.`parent_entity_id`) as parent_entity,
+        e.`parent_entity_id`, e.`entity_type_id`, '${table}' as table_name
+        FROM `${table}` e WHERE e.`object_id` = #{id}
+        AND e.`start_date` = (SELECT MAX(e1.`start_date`) FROM `${table}` e1 WHERE e1.`object_id` = #{id} AND e1.`start_date`
+        <![CDATA[ <= ]]>
+        #{startDate})
     </select>
 
 </mapper>
