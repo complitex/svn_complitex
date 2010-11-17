@@ -33,12 +33,17 @@ public class BuildingCorrectionList extends AddressCorrectionList {
     }
 
     @Override
+    protected int count(CorrectionExample example) {
+        return addressCorrectionBean.countBuildings(example);
+    }
+
+    @Override
     protected String displayCorrection(Correction correction) {
         String parentAddress = "";
-        if (correction.getParent() != null && correction.getParent() != null){
-            parentAddress = correction.getParent().getParent().getCorrection() +
-                    ", " + correction.getParent().getCorrection() +
-                    ", ";
+        if (correction.getParent() != null && correction.getParent() != null) {
+            parentAddress = correction.getParent().getParent().getCorrection()
+                    + ", " + correction.getParent().getCorrection()
+                    + ", ";
         }
 
         BuildingCorrection bc = (BuildingCorrection) correction;

@@ -447,6 +447,11 @@ public class AddressCorrectionBean extends CorrectionBean {
     }
 
     @Transactional
+    public int countBuildings(CorrectionExample example) {
+        return (Integer) sqlSession().selectOne(ADDRESS_BEAN_MAPPING_NAMESPACE + ".countBuildings", example);
+    }
+
+    @Transactional
     public void deleteBuilding(BuildingCorrection buildingCorrection) {
         sqlSession().delete(ADDRESS_BEAN_MAPPING_NAMESPACE + ".deleteBuilding", buildingCorrection);
     }

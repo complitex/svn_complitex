@@ -493,7 +493,7 @@ public class BuildingStrategy extends Strategy {
                 + "JOIN `building_address` addr ON (b.`parent_id` = addr.`object_id` AND addr.`status` IN ('ACTIVE', 'INACTIVE')) "
                 + "JOIN `building_address_attribute` num ON (num.`object_id` = addr.`object_id` AND num.`status` = 'ACTIVE' AND num.`attribute_type_id` = 1500) "
                 + "JOIN `building_address_string_culture` sc ON (num.`value_id` = sc.`id` AND sc.`locale` = '").append(locale).append("')").
-                append("WHERE (b.`status` IN ('ACTIVE', 'INACTIVE')) AND b.`object_id` = ").append(objectIdReference).append(")");
+                append(" WHERE (b.`status` IN ('ACTIVE', 'INACTIVE')) AND b.`object_id` = ").append(objectIdReference).append(")");
         return orderByBuilder.toString();
     }
 
