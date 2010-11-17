@@ -69,6 +69,8 @@ INSERT INTO `city_type` (`object_id`) VALUES (10000), (10001);
 INSERT INTO `city_type_attribute`(`attribute_id`, `object_id`, `attribute_type_id`, `value_id`, `value_type_id`) VALUES (1,10000,1300,10000,1300),
 (1,10001,1300,10001,1300);
 
+INSERT INTO `sequence` (`sequence_name`, `sequence_value`) VALUES ('city_type_string_culture', 10002), ('city_type', 10002);
+
 DELETE FROM `entity_type` WHERE `id` IN (400, 401);
 DELETE FROM `string_culture` WHERE `id` IN (402, 403);
 

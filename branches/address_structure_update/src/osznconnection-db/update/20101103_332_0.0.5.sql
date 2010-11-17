@@ -137,20 +137,19 @@ CREATE PROCEDURE `street_type_update`()
 BEGIN
     DECLARE l_object_id BIGINT(20);
     DECLARE l_entity_type_id BIGINT(20);
-    DECLARE l_start_date DATETIME;
     DECLARE done INT;
-    DECLARE street_cursor CURSOR FOR SELECT `object_id`, `entity_type_id`, `start_date` FROM `street`;
+    DECLARE street_cursor CURSOR FOR SELECT `object_id`, `entity_type_id` FROM `street`;
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
 
     SET done = 0;
     OPEN street_cursor;
     street_loop: LOOP
-        FETCH street_cursor INTO l_object_id, l_entity_type_id, l_start_date;
+        FETCH street_cursor INTO l_object_id, l_entity_type_id;
         IF done = 1 THEN
             LEAVE street_loop;
         END IF;
-        INSERT INTO `street_attribute`(`attribute_id`, `object_id`, `attribute_type_id`, `value_id`, `value_type_id`, `start_date`) VALUES
-            (1,l_object_id,301,l_entity_type_id,301,l_start_date);
+        INSERT INTO `street_attribute`(`attribute_id`, `object_id`, `attribute_type_id`, `value_id`, `value_type_id`) VALUES
+            (1,l_object_id,301,l_entity_type_id,301);
     END LOOP street_loop;
     CLOSE street_cursor;
     SET done = 0;

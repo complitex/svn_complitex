@@ -121,17 +121,9 @@ BEGIN
 END/
 DELIMITER ;
 
-DROP TABLE IF EXISTS `test1`;
-
-CREATE TABLE `test1` (
-  `building_id` BIGINT(20) NOT NULL,
-  PRIMARY KEY (`building_id`)
-) ENGINE=INNODB DEFAULT CHARSET=utf8;
-
 DELIMITER /
 CREATE PROCEDURE `building_structure_update`()
 BEGIN
-    DECLARE l_start_date DATETIME;
     DECLARE l_object_id BIGINT(20);
     DECLARE l_city_id BIGINT(20);
 
@@ -146,13 +138,13 @@ BEGIN
     DECLARE l_structure BIGINT(20);
         
     DECLARE building_done INT;
-    DECLARE building_cursor CURSOR FOR SELECT `object_id`, `parent_id`, `start_date` FROM `building`;
+    DECLARE building_cursor CURSOR FOR SELECT `object_id`, `parent_id` FROM `building`;
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET building_done = 1;    
     
     SET building_done = 0;
     OPEN building_cursor;
     building_loop: LOOP
-        FETCH building_cursor INTO l_object_id, l_city_id, l_start_date;
+        FETCH building_cursor INTO l_object_id, l_city_id;
         IF building_done = 1 THEN
             LEAVE building_loop;
         END IF;      
@@ -177,28 +169,28 @@ BEGIN
                 END IF;
 
                 SELECT `sequence_value` INTO building_address_seq FROM `sequence` WHERE `sequence_name` = 'building_address';
-                INSERT INTO `building_address` (`object_id`, `parent_id`, `parent_entity_id`, `start_date`) VALUES (building_address_seq, l_parent_id, l_parent_entity_id, l_start_date);
+                INSERT INTO `building_address` (`object_id`, `parent_id`, `parent_entity_id`) VALUES (building_address_seq, l_parent_id, l_parent_entity_id);
                 UPDATE `sequence` SET `sequence_value` = (building_address_seq+1) WHERE `sequence_name` = 'building_address';
 
                 -- number
                 SELECT a.`value_id` INTO l_number FROM `building_attribute` a WHERE a.`object_id` = l_object_id AND a.`attribute_id` = l_attr_id AND a.`attribute_type_id` = 500;
                 IF l_number IS NOT NULL THEN
 		    SELECT copy_building_strings(l_number) INTO l_number;
-                    INSERT INTO `building_address_attribute` (`object_id`, `attribute_id`, `attribute_type_id`, `value_id`, `value_type_id`, `start_date`) VALUES (building_address_seq, 1, 1500, l_number, 1500, l_start_date);
+                    INSERT INTO `building_address_attribute` (`object_id`, `attribute_id`, `attribute_type_id`, `value_id`, `value_type_id`) VALUES (building_address_seq, 1, 1500, l_number, 1500);
                 END IF;
 
                 -- corp
                 SELECT a.`value_id` INTO l_corp FROM `building_attribute` a WHERE a.`object_id` = l_object_id AND a.`attribute_id` = l_attr_id AND a.`attribute_type_id` = 501;
                 IF l_corp IS NOT NULL THEN
                     SELECT copy_building_strings(l_corp) INTO l_corp;
-                    INSERT INTO `building_address_attribute` (`object_id`, `attribute_id`, `attribute_type_id`, `value_id`, `value_type_id`, `start_date`) VALUES (building_address_seq, 1, 1501, l_corp, 1501, l_start_date);
+                    INSERT INTO `building_address_attribute` (`object_id`, `attribute_id`, `attribute_type_id`, `value_id`, `value_type_id`) VALUES (building_address_seq, 1, 1501, l_corp, 1501);
                 END IF;
                 
                 -- structure 
                 SELECT a.`value_id` INTO l_structure FROM `building_attribute` a WHERE a.`object_id` = l_object_id AND a.`attribute_id` = l_attr_id AND a.`attribute_type_id` = 502;
                 IF l_structure IS NOT NULL THEN
                     SELECT copy_building_strings(l_structure) INTO l_structure;
-                    INSERT INTO `building_address_attribute` (`object_id`, `attribute_id`, `attribute_type_id`, `value_id`, `value_type_id`, `start_date`) VALUES (building_address_seq, 1, 1502, l_structure, 1502, l_start_date);
+                    INSERT INTO `building_address_attribute` (`object_id`, `attribute_id`, `attribute_type_id`, `value_id`, `value_type_id`) VALUES (building_address_seq, 1, 1502, l_structure, 1502);
                 END IF;
 
                 DELETE FROM `building_attribute` WHERE `object_id` = l_object_id AND `attribute_id` = l_attr_id AND `attribute_type_id` IN (500,501,502,503);                
@@ -207,13 +199,12 @@ BEGIN
                 IF l_attr_id = 1 THEN	            
                     UPDATE `building` SET `parent_id` = building_address_seq, `parent_entity_id` = 1500 WHERE `object_id` = l_object_id;
                 ELSE
-                    INSERT INTO `building_attribute` (`object_id`, `attribute_id`, `attribute_type_id`, `value_id`, `value_type_id`, `start_date`) VALUES (l_object_id, l_attr_id-1, 501, building_address_seq, 501, l_start_date);
+                    INSERT INTO `building_attribute` (`object_id`, `attribute_id`, `attribute_type_id`, `value_id`, `value_type_id`) VALUES (l_object_id, l_attr_id-1, 501, building_address_seq, 501);
                 END IF;
 
                 SET l_attr_id = l_attr_id+1;
             END WHILE;
-        INSERT INTO test1 VALUES (l_object_id);       
-        
+                    
     END LOOP building_loop;
     CLOSE building_cursor;
     SET building_done = 0;
@@ -243,6 +234,8 @@ UPDATE `entity_attribute_value_type` SET `attribute_value_type` = 'building_addr
 
 UPDATE `city` SET `start_date` = '2010-09-27 13:00:00';
 UPDATE `city_attribute` SET `start_date` = '2010-09-27 13:00:00';
+UPDATE `city_type` SET `start_date` = '2010-09-27 13:00:00';
+UPDATE `city_type_attribute` SET `start_date` = '2010-09-27 13:00:00';
 UPDATE `country` SET `start_date` = '2010-09-27 13:00:00';
 UPDATE `country_attribute` SET `start_date` = '2010-09-27 13:00:00';
 UPDATE `region` SET `start_date` = '2010-09-27 13:00:00';
@@ -251,6 +244,8 @@ UPDATE `district` SET `start_date` = '2010-09-27 13:00:00';
 UPDATE `district_attribute` SET `start_date` = '2010-09-27 13:00:00';
 UPDATE `street` SET `start_date` = '2010-09-27 13:00:00';
 UPDATE `street_attribute` SET `start_date` = '2010-09-27 13:00:00';
+UPDATE `street_type` SET `start_date` = '2010-09-27 13:00:00';
+UPDATE `street_type_attribute` SET `start_date` = '2010-09-27 13:00:00';
 UPDATE `building` SET `start_date` = '2010-09-27 13:00:00';
 UPDATE `building_attribute` SET `start_date` = '2010-09-27 13:00:00';
 UPDATE `building_address` SET `start_date` = '2010-09-27 13:00:00';
@@ -259,7 +254,6 @@ UPDATE `apartment` SET `start_date` = '2010-09-27 13:00:00';
 UPDATE `apartment_attribute` SET `start_date` = '2010-09-27 13:00:00';
 UPDATE `room` SET `start_date` = '2010-09-27 13:00:00';
 UPDATE `room_attribute` SET `start_date` = '2010-09-27 13:00:00';
-
 
 INSERT INTO `update` (`version`) VALUE ('20101115_358');
 
