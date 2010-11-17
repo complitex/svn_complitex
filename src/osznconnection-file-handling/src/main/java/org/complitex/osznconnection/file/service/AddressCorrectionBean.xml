@@ -71,25 +71,17 @@
     </insert>
 
     <select id="findOutgoingAddress" resultMap="org.complitex.osznconnection.file.service.CorrectionBean.correction"
-            parameterType="org.complitex.osznconnection.file.entity.Correction">
+            parameterType="org.complitex.osznconnection.file.entity.example.CorrectionExample">
         SELECT c.`correction`, c.`organization_code` FROM `${entity}_correction` c
         WHERE c.`organization_id` = #{organizationId}
         AND c.`object_id` = #{objectId}
     </select>
 
     <select id="findOutgoingBuilding" resultMap="org.complitex.osznconnection.file.service.AddressCorrectionBean.buildingCorrection"
-            parameterType="org.complitex.osznconnection.file.entity.BuildingCorrection">
+            parameterType="org.complitex.osznconnection.file.entity.example.CorrectionExample">
         SELECT c.`correction`, c.`correction_corp`, c.`organization_code` FROM `building_correction` c
         WHERE c.`organization_id` = #{organizationId}
         AND c.`object_id` = #{objectId}
-    </select>
-
-    <select id="findOutgoingEntityType" resultMap="org.complitex.osznconnection.file.service.CorrectionBean.entityTypeCorrection"
-            parameterType="org.complitex.osznconnection.file.entity.EntityTypeCorrection">
-        SELECT etc.`type` correction, etc.`organization_type_code` code
-        FROM `entity_type_correction` etc
-        WHERE etc.`organization_id` = #{organizationId}
-        AND etc.`entity_type_id` = #{objectId}
     </select>
 
     <select id="findOutgoingDistrict" resultMap="org.complitex.osznconnection.file.service.CorrectionBean.correction"
@@ -113,36 +105,6 @@
         SELECT sc.`id` FROM `${entity}_string_culture` sc WHERE sc.`value` = TRIM(TO_CYRILLIC(#{correction}))))
     </select>
 
-    <!--<select id="findInternalBuilding" parameterType="hashmap" resultType="long">
-        SELECT b.`object_id` FROM `building` b WHERE b.`status` = 'ACTIVE'
-        <if test="internalParentId != null">
-            AND b.`parent_id` = #{parentId}
-        </if>
-        AND EXISTS(
-        SELECT 1 FROM `building_attribute` a_num
-        JOIN `building_attribute` a_street
-        ON ((a_num.`attribute_id` = a_street.`attribute_id`) AND (a_num.`object_id` = a_street.`object_id`) AND (a_street.`attribute_type_id` = 503)
-        AND (a_street.`status` = 'ACTIVE'))
-        LEFT JOIN `building_attribute` a_corp
-        ON ((a_num.`attribute_id` = a_corp.`attribute_id`) AND (a_num.`object_id` = a_corp.`object_id`) AND (a_corp.`attribute_type_id` = 501)
-        AND (a_corp.`status` = 'ACTIVE'))
-        WHERE a_num.`attribute_type_id` = 500 AND a_num.`status` = 'ACTIVE' AND b.`object_id` = a_num.`object_id`
-        AND a_num.`value_id` IN (
-        SELECT sc.`id` FROM `building_string_culture` sc WHERE sc.`value` = TO_CYRILLIC(#{number}))
-        AND a_street.`value_id` = #{streetId}
-        <choose>
-            <when test="corp != null">
-                AND a_corp.`value_id` IN (
-                SELECT sc.`id` FROM `building_string_culture` sc WHERE sc.`value` = TO_CYRILLIC(#{corp}))
-            </when>
-            <otherwise>
-                AND ((a_corp.`value_id` IN (SELECT sc.`id` FROM `building_string_culture` sc WHERE (sc.`value` IS NULL) OR TRIM(sc.`value`) = '')) OR
-                (a_corp.`value_id` NOT IN (SELECT sc.`id` FROM `building_string_culture` sc)))
-            </otherwise>
-        </choose>
-        )
-    </select>-->
-    
     <select id="findInternalBuilding" parameterType="hashmap" resultType="long">
         SELECT DISTINCT b.`object_id` FROM `building` b
             JOIN `building_address` addr ON (((b.`parent_id` = addr.`object_id`) OR

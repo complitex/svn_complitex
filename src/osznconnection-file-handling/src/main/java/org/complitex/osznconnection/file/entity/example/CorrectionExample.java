@@ -20,6 +20,10 @@ public class CorrectionExample implements Serializable {
 
     private String internalOrganization;
 
+    private Long organizationId;
+
+    private Long objectId;
+
     private String code;
 
     private String entity;
@@ -120,5 +124,21 @@ public class CorrectionExample implements Serializable {
 
     public void setInternalOrganization(String internalOrganization) {
         this.internalOrganization = internalOrganization;
+    }
+
+    public Long getObjectId() {
+        return objectId;
+    }
+
+    public void setObjectId(Long objectId) {
+        this.objectId = objectId;
+    }
+
+    public Long getOrganizationId() {
+        return organizationId;
+    }
+
+    public void setOrganizationId(Long organizationId) {
+        this.organizationId = organizationId;
     }
 }

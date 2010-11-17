@@ -108,7 +108,7 @@ public final class PrivilegeCorrectionEdit extends FormTemplatePage {
             @Override
             protected void back() {
                 PageParameters parameters = new PageParameters();
-                parameters.put(PrivilegeCorrectionList.CORRECTED_ENTITY, getEntity());
+                parameters.put(PrivilegeCorrectionList.CORRECTED_ENTITY, getModel().getEntity());
                 setResponsePage(PrivilegeCorrectionList.class, parameters);
             }
         });
