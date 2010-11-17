@@ -7,8 +7,6 @@ package org.complitex.dictionaryfw.web.component;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
-import java.util.List;
-import javax.ejb.EJB;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -17,6 +15,9 @@ import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
+
+import javax.ejb.EJB;
+import java.util.List;
 
 /**
  *
@@ -35,12 +36,19 @@ public class EntityTypePanel extends Panel {
 
     private IModel<String> labelModel;
 
-    public EntityTypePanel(String id, String entityType, DomainObject object, long entityTypeAttribute, IModel<String> labelModel) {
+    private boolean enabled;
+
+
+    public EntityTypePanel(String id, String entityType, DomainObject object, long entityTypeAttribute,
+                           IModel<String> labelModel, boolean enabled) {
         super(id);
+
         this.entityType = entityType;
         this.object = object;
         this.entityTypeAttribute = entityTypeAttribute;
         this.labelModel = labelModel;
+        this.enabled = enabled;
+
         init();
     }
 
@@ -78,6 +86,7 @@ public class EntityTypePanel extends Panel {
         DisableAwareDropDownChoice<DomainObject> entityTypeChoice = new DisableAwareDropDownChoice<DomainObject>("entityType",
                 entityTypeModel, entityTypes, renderer);
         entityTypeChoice.setRequired(true);
+        entityTypeChoice.setEnabled(enabled);
         entityTypeChoice.setLabel(labelModel);
         add(entityTypeChoice);
     }

@@ -21,8 +21,8 @@ public class CityTypeComponent extends AbstractComplexAttributesPanel {
 
     @Override
     protected void init() {
-        EntityTypePanel cityType = new EntityTypePanel("cityType", "city_type", getInputPanel().getObject(), CityStrategy.CITY_TYPE_ATTRIBUTE,
-                new ResourceModel("city_type"));
+        EntityTypePanel cityType = new EntityTypePanel("cityType", "city_type", getInputPanel().getObject(),
+                CityStrategy.CITY_TYPE_ATTRIBUTE, new ResourceModel("city_type"), !isDisabled());
         add(cityType);
     }
 }
