@@ -28,7 +28,8 @@ import java.util.Locale;
  */
 @Stateless(name = "LogBean")
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-public class LogBean extends AbstractBean{
+public class LogBean extends AbstractBean {
+
     private static final Logger log = LoggerFactory.getLogger(LogBean.class);
 
     public static final String STATEMENT_PREFIX = LogBean.class.getCanonicalName();
@@ -39,7 +40,7 @@ public class LogBean extends AbstractBean{
     private SessionContext sessionContext;
 
     public void info(String module, Class controllerClass, Class modelClass, Long objectId, Log.EVENT event,
-                     String descriptionPattern,  Object... descriptionArguments){
+            String descriptionPattern, Object... descriptionArguments) {
 
         String controller = controllerClass != null ? controllerClass.getName() : null;
         String model = modelClass != null ? modelClass.getName() : null;
@@ -48,16 +49,16 @@ public class LogBean extends AbstractBean{
     }
 
     public void error(String module, Class controllerClass, Class modelClass, Long objectId, Log.EVENT event,
-                      String descriptionPattern,  Object... descriptionArguments){
+            String descriptionPattern, Object... descriptionArguments) {
 
         String controller = controllerClass != null ? controllerClass.getName() : null;
         String model = modelClass != null ? modelClass.getName() : null;
 
         log(module, controller, model, objectId, event, Log.STATUS.ERROR, null, descriptionPattern, descriptionArguments);
-    }        
+    }
 
     public void info(String module, Class controllerClass, Class modelClass, String entityName, Long objectId,
-                     Log.EVENT event, List<LogChange> changes, String descriptionPattern, Object... descriptionArguments){
+            Log.EVENT event, List<LogChange> changes, String descriptionPattern, Object... descriptionArguments) {
 
         String controller = controllerClass != null ? controllerClass.getName() : null;
         String model = modelClass != null ? modelClass.getName() + (entityName != null ? "#" + entityName : "") : null;
@@ -66,8 +67,8 @@ public class LogBean extends AbstractBean{
     }
 
     public void log(Log.STATUS status, String module, Class controllerClass, Log.EVENT event,
-                    Strategy strategy, DomainObject oldDomainObject, DomainObject newDomainObject,
-                    Locale locale, String descriptionPattern, Object... descriptionArguments){
+            Strategy strategy, DomainObject oldDomainObject, DomainObject newDomainObject,
+            Locale locale, String descriptionPattern, Object... descriptionArguments) {
 
         String controller = controllerClass != null ? controllerClass.getName() : null;
         String model = DomainObject.class.getName() + "#" + strategy.getEntityTable();
@@ -78,7 +79,7 @@ public class LogBean extends AbstractBean{
     }
 
     public void error(String module, Class controllerClass, Class modelClass, String entityName, Long objectId,
-                      Log.EVENT event, List<LogChange> changes, String descriptionPattern, Object... descriptionArguments){
+            Log.EVENT event, List<LogChange> changes, String descriptionPattern, Object... descriptionArguments) {
 
         String controller = controllerClass != null ? controllerClass.getName() : null;
         String model = modelClass != null ? modelClass.getName() + (entityName != null ? ":" + entityName : "") : null;
@@ -87,8 +88,8 @@ public class LogBean extends AbstractBean{
     }
 
     private void log(String module, String controller, String model, Long objectId,
-                     Log.EVENT event, Log.STATUS status, List<LogChange> logChanges,
-                     String descriptionPattern,  Object... descriptionArguments){
+            Log.EVENT event, Log.STATUS status, List<LogChange> logChanges,
+            String descriptionPattern, Object... descriptionArguments) {
         Log log = new Log();
 
         log.setDate(DateUtil.getCurrentDate());
@@ -101,11 +102,11 @@ public class LogBean extends AbstractBean{
         log.setStatus(status);
         log.setLogChanges(logChanges);
         log.setDescription(descriptionPattern != null && descriptionArguments != null
-                ? MessageFormat.format(descriptionPattern, descriptionArguments )
+                ? MessageFormat.format(descriptionPattern, descriptionArguments)
                 : descriptionPattern);
 
-        if (log.getDescription() != null && log.getDescription().length() > MAX_DESCRIPTION_LENGTH){
-            log.setDescription(log.getDescription().substring(0, MAX_DESCRIPTION_LENGTH));            
+        if (log.getDescription() != null && log.getDescription().length() > MAX_DESCRIPTION_LENGTH) {
+            log.setDescription(log.getDescription().substring(0, MAX_DESCRIPTION_LENGTH));
         }
 
         //open new session
@@ -113,8 +114,8 @@ public class LogBean extends AbstractBean{
 
         session.insert(STATEMENT_PREFIX + ".insertLog", log);
 
-        if (log.getLogChanges() != null && !log.getLogChanges().isEmpty()){
-            for (LogChange logChange : log.getLogChanges()){
+        if (log.getLogChanges() != null && !log.getLogChanges().isEmpty()) {
+            for (LogChange logChange : log.getLogChanges()) {
                 logChange.setLogId(log.getId());
             }
 
@@ -130,15 +131,15 @@ public class LogBean extends AbstractBean{
     }
 
     public List<LogChange> getLogChanges(Strategy strategy, DomainObject oldDomainObject, DomainObject newDomainObject,
-                                         Locale locale){
+            Locale locale) {
         List<LogChange> logChanges = new ArrayList<LogChange>();
 
-        if (oldDomainObject == null){
+        if (oldDomainObject == null) {
             if (newDomainObject.getAttributes() != null) {
-                for (Attribute na : newDomainObject.getAttributes()){
+                for (Attribute na : newDomainObject.getAttributes()) {
                     if (na.getLocalizedValues() != null) {
-                        for (StringCulture ns : na.getLocalizedValues()){
-                            if (ns.getValue() != null){
+                        for (StringCulture ns : na.getLocalizedValues()) {
+                            if (ns.getValue() != null) {
                                 logChanges.add(new LogChange(na.getAttributeId(), null, strategy.getAttributeLabel(na, locale),
                                         null, ns.getValue(), ns.getLocale()));
                             }
@@ -146,27 +147,29 @@ public class LogBean extends AbstractBean{
                     }
                 }
             }
-        }else{
-            for (Attribute oa : oldDomainObject.getAttributes()){
-                for (Attribute na : newDomainObject.getAttributes()){
-                    if (oa.getAttributeTypeId().equals(na.getAttributeTypeId())){
-                        if (oa.getLocalizedValues() == null){
+        } else {
+            for (Attribute oa : oldDomainObject.getAttributes()) {
+                for (Attribute na : newDomainObject.getAttributes()) {
+                    if (oa.getAttributeTypeId().equals(na.getAttributeTypeId())) {
+                        if (oa.getLocalizedValues() == null) {
                             logChanges.add(new LogChange(na.getAttributeId(), null,
                                     strategy.getAttributeLabel(na, locale),
                                     StringUtil.valueOf(oa.getValueId()),
                                     StringUtil.valueOf(na.getValueId()),
                                     null));
 
-                        }else{
-                            for (StringCulture os : oa.getLocalizedValues()){
-                                for (StringCulture ns : na.getLocalizedValues()){
-                                    if (os.getLocale().equals(ns.getLocale())){
-                                        if (!StringUtil.equal(os.getValue(), ns.getValue())){
-                                            logChanges.add(new LogChange(na.getAttributeId(), null,
-                                                    strategy.getAttributeLabel(na, locale),
-                                                    os.getValue(),
-                                                    ns.getValue(),
-                                                    ns.getLocale()));
+                        } else {
+                            for (StringCulture os : oa.getLocalizedValues()) {
+                                if (na.getLocalizedValues() != null) {
+                                    for (StringCulture ns : na.getLocalizedValues()) {
+                                        if (os.getLocale().equals(ns.getLocale())) {
+                                            if (!StringUtil.equal(os.getValue(), ns.getValue())) {
+                                                logChanges.add(new LogChange(na.getAttributeId(), null,
+                                                        strategy.getAttributeLabel(na, locale),
+                                                        os.getValue(),
+                                                        ns.getValue(),
+                                                        ns.getLocale()));
+                                            }
                                         }
                                     }
                                 }

@@ -18,7 +18,7 @@ CREATE TABLE `city_type` (
   KEY `key_status` (`status`),
   CONSTRAINT `fk_city_type__entity_type` FOREIGN KEY (`entity_type_id`) REFERENCES `entity_type` (`id`),
   CONSTRAINT `fk_city_type__entity` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `city_type_attribute` (
   `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
@@ -44,7 +44,7 @@ CREATE TABLE `city_type_attribute` (
     REFERENCES `entity_attribute_type` (`id`),
   CONSTRAINT `fk_city_type_attribute__entity_attribute_value_type` FOREIGN KEY (`value_type_id`)
     REFERENCES `entity_attribute_value_type` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `city_type_string_culture` (
   `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
@@ -56,7 +56,7 @@ CREATE TABLE `city_type_string_culture` (
   KEY `key_locale` (`locale`),
   KEY `key_value` (`value`),
   CONSTRAINT `fk_city_type_string_culture__locales` FOREIGN KEY (`locale`) REFERENCES `locales` (`locale`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 INSERT INTO `string_culture`(`id`, `locale`, `value`) VALUES (1300, 'ru', 'Тип населенного пункта'), (1300, 'uk', 'Тип населенного пункта');
 INSERT INTO `entity`(`id`, `entity_table`, `entity_name_id`, `strategy_factory`) VALUES (1300, 'city_type', 1300, '');
@@ -64,10 +64,12 @@ INSERT INTO `string_culture`(`id`, `locale`, `value`) VALUES (1301, 'ru', UPPER(
 INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (1300, 1300, 1, 1301, 1);
 INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (1300, 1300, UPPER('string_culture'));
 
-INSERT INTO `city_type_string_culture`(`id`, `locale`, `value`) VALUES (1,'ru','ГОРОД'), (1,'uk','МIСТО'), (2,'ru','ДЕРЕВНЯ'), (2,'uk','СЕЛО');
-INSERT INTO `city_type` (`object_id`) VALUES (1), (2);
-INSERT INTO `city_type_attribute`(`attribute_id`, `object_id`, `attribute_type_id`, `value_id`, `value_type_id`) VALUES (1,1,1300,1,1300),
-(1,2,1300,2,1300);
+INSERT INTO `city_type_string_culture`(`id`, `locale`, `value`) VALUES (10000,'ru','ГОРОД'), (10000,'uk','МIСТО'), (10001,'ru','ДЕРЕВНЯ'), (10001,'uk','СЕЛО');
+INSERT INTO `city_type` (`object_id`) VALUES (10000), (10001);
+INSERT INTO `city_type_attribute`(`attribute_id`, `object_id`, `attribute_type_id`, `value_id`, `value_type_id`) VALUES (1,10000,1300,10000,1300),
+(1,10001,1300,10001,1300);
+
+INSERT INTO `sequence` (`sequence_name`, `sequence_value`) VALUES ('city_type_string_culture', 10002), ('city_type', 10002);
 
 DELETE FROM `entity_type` WHERE `id` IN (400, 401);
 DELETE FROM `string_culture` WHERE `id` IN (402, 403);
@@ -94,8 +96,8 @@ CREATE TABLE `city_type_correction` (
     CONSTRAINT `fk_city_type_correction__city_type` FOREIGN KEY (`object_id`) REFERENCES `city_type` (`object_id`),
     CONSTRAINT `fk_city_type_correction__internal_organization` FOREIGN KEY (`internal_organization_id`) REFERENCES `organization` (`object_id`),
     CONSTRAINT `fk_city_type_correction__organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=INNODB DEFAULT CHARSET=utf8;
 
-INSERT INTO `city_attribute`(`attribute_id`, `object_id`, `attribute_type_id`, `value_id`, `value_type_id`) VALUES (1,10000,401,1,401);
-INSERT INTO `update` (`version`) value ('20101102_326');
+INSERT INTO `city_attribute`(`attribute_id`, `object_id`, `attribute_type_id`, `value_id`, `value_type_id`) VALUES (1,10000,401,10000,401);
+INSERT INTO `update` (`version`) VALUE ('20101102_326');
 

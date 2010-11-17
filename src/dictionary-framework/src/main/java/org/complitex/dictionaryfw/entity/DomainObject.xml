@@ -12,20 +12,6 @@
         <result column="parent_entity_id" property="parentEntityId"/>
         <result column="parent_entity" property="parentEntity"/>
         <result column="entity_type_id" property="entityTypeId"/>
-        <collection ofType="Attribute" property="attributes" column="{table = table_name, id = object_id, startDate = start_date}"
-                    select="org.complitex.dictionaryfw.entity.Attribute.find"/>
-    </resultMap>
-
-    <resultMap id="HistoryDomainObject" type="DomainObject">
-        <id column="object_id" property="id"/>
-        <id column="start_date" property="startDate"/>
-        <result column="entity_id" property="entityId"/>
-        <result column="end_date" property="endDate"/>
-        <result column="status" property="status"/>
-        <result column="parent_id" property="parentId"/>
-        <result column="parent_entity_id" property="parentEntityId"/>
-        <result column="parent_entity" property="parentEntity"/>
-        <result column="entity_type_id" property="entityTypeId"/>
     </resultMap>
 
     <insert id="insert" parameterType="InsertParameter">
@@ -172,15 +158,7 @@
         SELECT aa.`end_date` FROM `${table}_attribute` aa WHERE aa.`object_id`= #{id}
     </select>
 
-    <select id="hasHistory" parameterType="DomainObjectExample" resultType="int">
-        SELECT 1 FROM DUAL WHERE EXISTS(
-        SELECT 1 FROM `${table}` e WHERE e.`object_id` = #{id} AND e.`status` = 'ARCHIVE'
-        UNION
-        SELECT 1 FROM `${table}_attribute` aa WHERE aa.`object_id`= #{id} AND aa.`status` = 'ARCHIVE'
-        )
-    </select>
-
-    <select id="findHistoryObject" parameterType="DomainObjectExample" resultMap="org.complitex.dictionaryfw.entity.DomainObject.HistoryDomainObject">
+    <select id="findHistoryObject" parameterType="DomainObjectExample" resultMap="org.complitex.dictionaryfw.entity.DomainObject.DomainObject">
         SELECT e.`object_id`, e.`start_date`, e.`end_date`, e.`status`, e.`parent_id`,
         (SELECT ent.`id` FROM `entity` ent WHERE ent.`entity_table` = #{table}) as entity_id,
         (SELECT ent.`entity_table` FROM `entity` ent WHERE ent.`id` = e.`parent_entity_id`) as parent_entity,

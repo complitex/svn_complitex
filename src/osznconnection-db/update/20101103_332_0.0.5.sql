@@ -18,11 +18,8 @@ ALTER TABLE `street_attribute` CHANGE COLUMN `id` `pk_id` BIGINT(20) NOT NULL AU
 
 ALTER TABLE `apartment` DROP COLUMN `import_object_id`;
 ALTER TABLE `building` DROP COLUMN `import_object_id`;
-ALTER TABLE `city` DROP COLUMN `import_object_id`;
-ALTER TABLE `country` DROP COLUMN `import_object_id`;
 ALTER TABLE `district` DROP COLUMN `import_object_id`;
 ALTER TABLE `room` DROP COLUMN `import_object_id`;
-ALTER TABLE `region` DROP COLUMN `import_object_id`;
 ALTER TABLE `street` DROP COLUMN `import_object_id`;
 
 CREATE TABLE `street_type` (
@@ -103,6 +100,8 @@ INSERT INTO `street_type_attribute`(`attribute_id`, `object_id`, `attribute_type
 (1,10011,1400,10011,1400), (1,10012,1400,10012,1400), (1,10013,1400,10013,1400), (1,10014,1400,10014,1400), (1,10015,1400,10015,1400)
 , (1,10016,1400,10016,1400);
 
+INSERT INTO `sequence` (`sequence_name`, `sequence_value`) VALUES ('street_type_string_culture', 10017), ('street_type', 10017);
+
 INSERT INTO `string_culture`(`id`, `locale`, `value`) VALUES (302, 'ru', UPPER('Тип улицы')),(302, 'uk', UPPER('Тип улицы'));
 INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (301, 300, 1, 302, 1);
 INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (301, 301, 'street_type');
@@ -136,13 +135,13 @@ DELETE FROM `entity_type_correction` WHERE `entity_type_id` >= 10000 OR `entity_
 DELIMITER /
 CREATE PROCEDURE `street_type_update`()
 BEGIN
-    DECLARE i INT;
     DECLARE l_object_id BIGINT(20);
     DECLARE l_entity_type_id BIGINT(20);
-    DECLARE done INT DEFAULT 0;
+    DECLARE done INT;
     DECLARE street_cursor CURSOR FOR SELECT `object_id`, `entity_type_id` FROM `street`;
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
 
+    SET done = 0;
     OPEN street_cursor;
     street_loop: LOOP
         FETCH street_cursor INTO l_object_id, l_entity_type_id;
@@ -153,6 +152,7 @@ BEGIN
             (1,l_object_id,301,l_entity_type_id,301);
     END LOOP street_loop;
     CLOSE street_cursor;
+    SET done = 0;
 END/
 DELIMITER ;
 
@@ -168,5 +168,5 @@ DELETE FROM `string_culture` WHERE `id` BETWEEN 10000 AND 10016;
 ALTER TABLE `payment` ADD KEY `key_internal_street_type_id`(`internal_street_type_id`);
 ALTER TABLE `payment` ADD CONSTRAINT `fk_payment__street_type` FOREIGN KEY (`internal_street_type_id`) REFERENCES `street_type` (`object_id`);
 
-INSERT INTO `update` (`version`) VALUE ('201011__');
+INSERT INTO `update` (`version`) VALUE ('20101103_332');
 

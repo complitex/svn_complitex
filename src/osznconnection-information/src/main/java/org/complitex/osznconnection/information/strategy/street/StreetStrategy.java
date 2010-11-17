@@ -84,7 +84,11 @@ public class StreetStrategy extends Strategy {
     @Transactional
     public List<DomainObject> find(DomainObjectExample example) {
         example.setTable(getEntityTable());
-        return sqlSession().selectList(STREET_NAMESPACE + "." + FIND_OPERATION, example);
+        List<DomainObject> objects = sqlSession().selectList(STREET_NAMESPACE + "." + FIND_OPERATION, example);
+        for (DomainObject object : objects) {
+            loadAttributes(object);
+        }
+        return objects;
     }
 
     @Override
@@ -112,7 +116,7 @@ public class StreetStrategy extends Strategy {
             Strategy streetTypeStrategy = strategyFactory.getStrategy("street_type");
             DomainObjectExample example = new DomainObjectExample(streetTypeId);
             streetTypeStrategy.configureExample(example, ImmutableMap.<String, Long>of(), null);
-            List<DomainObject> objects = streetTypeStrategy.find(example);
+            List<? extends DomainObject> objects = streetTypeStrategy.find(example);
             if (objects.size() == 1) {
                 DomainObject streetType = objects.get(0);
                 String streetTypeName = streetTypeStrategy.displayDomainObject(streetType, locale);

@@ -241,7 +241,7 @@ public class AddressCorrectionPanel extends Panel {
         DomainObjectExample example = new DomainObjectExample();
         example.setId(objectId);
         strategyFactory.getStrategy(entity).configureExample(example, ids, null);
-        List<DomainObject> objects = strategyFactory.getStrategy(entity).find(example);
+        List<? extends DomainObject> objects = strategyFactory.getStrategy(entity).find(example);
         if (objects != null && !objects.isEmpty()) {
             object = objects.get(0);
         }

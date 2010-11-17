@@ -105,7 +105,7 @@ public class CityStrategy extends Strategy {
             Strategy cityTypeStrategy = strategyFactory.getStrategy("city_type");
             DomainObjectExample example = new DomainObjectExample(cityTypeId);
             cityTypeStrategy.configureExample(example, ImmutableMap.<String, Long>of(), null);
-            List<DomainObject> objects = cityTypeStrategy.find(example);
+            List<? extends DomainObject> objects = cityTypeStrategy.find(example);
             if (objects.size() == 1) {
                 DomainObject cityType = objects.get(0);
                 String cityTypeName = cityTypeStrategy.displayDomainObject(cityType, locale);

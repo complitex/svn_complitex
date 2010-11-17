@@ -17,7 +17,6 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.entity.Attribute;
 import org.complitex.dictionaryfw.entity.DomainObject;
-import org.complitex.dictionaryfw.entity.description.EntityAttributeType;
 import org.complitex.dictionaryfw.entity.example.AttributeExample;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.service.StringCultureBean;
@@ -50,11 +49,6 @@ public class PrivilegeStrategy extends Strategy {
     @Override
     public String getEntityTable() {
         return "privilege";
-    }
-
-    @Override
-    public boolean isSimpleAttributeType(EntityAttributeType attributeType) {
-        return attributeType.getId() >= NAME;
     }
 
     @Override
