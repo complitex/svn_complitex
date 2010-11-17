@@ -10,12 +10,16 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author Artem
  */
 public class InputPanel<T> extends Panel {
+
+    private static final Logger log = LoggerFactory.getLogger(InputPanel.class);
 
     /**
      * For use in non-ajax environment

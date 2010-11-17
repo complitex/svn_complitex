@@ -15,7 +15,7 @@
     </insert>
 
     <select id="find" parameterType="hashmap" resultMap="org.complitex.dictionaryfw.entity.StringCulture.StringCulture">
-        SELECT sc.`id` as id, sc.`locale` as locale, sc.`value` as value FROM `${table}_string_culture` sc WHERE sc.`id` = #{string}
+        SELECT sc.`id` as id, sc.`locale` as locale, sc.`value` as value FROM `${table}_string_culture` sc WHERE sc.`id` = #{id}
         ORDER BY (SELECT l.`system` FROM `locales` l WHERE l.`locale` = sc.`locale`) DESC, locale
     </select>
 

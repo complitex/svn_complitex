@@ -41,7 +41,7 @@ public class StringCulture implements Serializable {
 
     @Override
     public String toString() {
-        return "{id = " + id + ", locale = " + locale + ", value = " + value + "}";
+        return "{id = " + id + ", locale = " + locale + ", value = " + value + ", unique id = " + System.identityHashCode(this) + "}";
     }
 }
 
