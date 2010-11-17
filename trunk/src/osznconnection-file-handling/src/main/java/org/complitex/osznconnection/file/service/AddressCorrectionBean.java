@@ -12,7 +12,6 @@ import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.osznconnection.file.entity.BuildingCorrection;
 import org.complitex.osznconnection.file.entity.Correction;
-import org.complitex.osznconnection.file.entity.EntityTypeCorrection;
 import org.complitex.osznconnection.file.entity.example.CorrectionExample;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +32,7 @@ public class AddressCorrectionBean extends CorrectionBean {
 
     private static final Logger log = LoggerFactory.getLogger(AddressCorrectionBean.class);
 
-    private static final String MAPPING_NAMESPACE = AddressCorrectionBean.class.getName();
+    private static final String ADDRESS_BEAN_MAPPING_NAMESPACE = AddressCorrectionBean.class.getName();
 
     /**
      * Находит id внутреннего объекта системы в таблице коррекций
@@ -58,7 +57,7 @@ public class AddressCorrectionBean extends CorrectionBean {
             }
         };
 
-        return (Correction) sqlSession().selectOne(MAPPING_NAMESPACE + ".findCorrectionAddress", params);
+        return (Correction) sqlSession().selectOne(ADDRESS_BEAN_MAPPING_NAMESPACE + ".findCorrectionAddress", params);
     }
 
     /**
@@ -105,7 +104,7 @@ public class AddressCorrectionBean extends CorrectionBean {
             }
         };
 
-        return (BuildingCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".findCorrectionBuilding", params);
+        return (BuildingCorrection) sqlSession().selectOne(ADDRESS_BEAN_MAPPING_NAMESPACE + ".findCorrectionBuilding", params);
     }
 
 //    public Long findCorrectionApartment(long buildingId, String apartment, long organizationId) {
@@ -122,11 +121,11 @@ public class AddressCorrectionBean extends CorrectionBean {
     @SuppressWarnings({"unchecked"})
     @Transactional
     private Correction findOutgoingAddress(String entityTable, long organizationId, long internalObjectId) {
-        Correction parameter = new Correction();
-        parameter.setOrganizationId(organizationId);
-        parameter.setEntity(entityTable);
-        parameter.setObjectId(internalObjectId);
-        List<Correction> corrections = sqlSession().selectList(MAPPING_NAMESPACE + ".findOutgoingAddress", parameter);
+        CorrectionExample example = new CorrectionExample();
+        example.setOrganizationId(organizationId);
+        example.setEntity(entityTable);
+        example.setObjectId(internalObjectId);
+        List<Correction> corrections = sqlSession().selectList(ADDRESS_BEAN_MAPPING_NAMESPACE + ".findOutgoingAddress", example);
         if (corrections != null && corrections.size() == 1) {
             Correction result = corrections.get(0);
             if (result.getCorrection() != null) {
@@ -167,10 +166,10 @@ public class AddressCorrectionBean extends CorrectionBean {
     @SuppressWarnings({"unchecked"})
     @Transactional
     public BuildingCorrection findOutgoingBuilding(long organizationId, long internalBuildingId) {
-        BuildingCorrection parameter = new BuildingCorrection();
-        parameter.setOrganizationId(organizationId);
-        parameter.setObjectId(internalBuildingId);
-        List<BuildingCorrection> corrections = sqlSession().selectList(MAPPING_NAMESPACE + ".findOutgoingBuilding", parameter);
+        CorrectionExample example = new CorrectionExample();
+        example.setOrganizationId(organizationId);
+        example.setObjectId(internalBuildingId);
+        List<BuildingCorrection> corrections = sqlSession().selectList(ADDRESS_BEAN_MAPPING_NAMESPACE + ".findOutgoingBuilding", example);
         if (corrections != null && corrections.size() == 1) {
             BuildingCorrection result = corrections.get(0);
             if (result.getCorrection() != null) {
@@ -193,29 +192,9 @@ public class AddressCorrectionBean extends CorrectionBean {
     @Transactional
     public Correction findOutgoingDistrict(long calculationCenterId, long osznId) {
         Map<String, Long> params = ImmutableMap.of("calculationCenterId", calculationCenterId, "osznId", osznId);
-        List<Correction> corrections = sqlSession().selectList(MAPPING_NAMESPACE + ".findOutgoingDistrict", params);
+        List<Correction> corrections = sqlSession().selectList(ADDRESS_BEAN_MAPPING_NAMESPACE + ".findOutgoingDistrict", params);
         if (corrections != null && corrections.size() == 1) {
             Correction result = corrections.get(0);
-            if (result.getCorrection() != null) {
-                return result;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Найти данные о коррекции для типа объекта.
-     * @param entityTypeId
-     * @param calculationCenterId
-     * @return
-     */
-    @SuppressWarnings({"unchecked"})
-    @Transactional
-    private EntityTypeCorrection findOutgoingEntityType(long entityTypeId, long calculationCenterId) {
-        EntityTypeCorrection parameter = new EntityTypeCorrection(calculationCenterId, entityTypeId);
-        List<EntityTypeCorrection> corrections = sqlSession().selectList(MAPPING_NAMESPACE + ".findOutgoingEntityType", parameter);
-        if (corrections != null && corrections.size() == 1) {
-            EntityTypeCorrection result = corrections.get(0);
             if (result.getCorrection() != null) {
                 return result;
             }
@@ -287,7 +266,7 @@ public class AddressCorrectionBean extends CorrectionBean {
             correction.setCorrectionCorp("");
         }
 
-        sqlSession().insert(MAPPING_NAMESPACE + ".insertBuilding", correction);
+        sqlSession().insert(ADDRESS_BEAN_MAPPING_NAMESPACE + ".insertBuilding", correction);
     }
 
     public Correction insertCorrectionStreet(Correction parent, String street, long objectId) {
@@ -316,7 +295,7 @@ public class AddressCorrectionBean extends CorrectionBean {
         params.put("correction", correction != null ? correction.trim() : correction);
         params.put("attributeTypeId", attributeTypeId);
         params.put("parentId", parentId);
-        List<Long> ids = sqlSession().selectList(MAPPING_NAMESPACE + ".findInternalObjectId", params);
+        List<Long> ids = sqlSession().selectList(ADDRESS_BEAN_MAPPING_NAMESPACE + ".findInternalObjectId", params);
         if (ids != null && (ids.size() == 1)) {
             return ids.get(0);
         }
@@ -370,7 +349,7 @@ public class AddressCorrectionBean extends CorrectionBean {
         long parentEntityId = streetId != null ? 300 : 400;
         params.put("parentId", parentId);
         params.put("parentEntityId", parentEntityId);
-        List<Long> ids = sqlSession().selectList(MAPPING_NAMESPACE + ".findInternalBuilding", params);
+        List<Long> ids = sqlSession().selectList(ADDRESS_BEAN_MAPPING_NAMESPACE + ".findInternalBuilding", params);
         if (ids != null && (ids.size() == 1)) {
             return ids.get(0);
         }
@@ -398,13 +377,13 @@ public class AddressCorrectionBean extends CorrectionBean {
         if (correction.getCorrectionCorp() == null) {
             correction.setCorrectionCorp("");
         }
-        sqlSession().update(MAPPING_NAMESPACE + ".updateBuilding", correction);
+        sqlSession().update(ADDRESS_BEAN_MAPPING_NAMESPACE + ".updateBuilding", correction);
     }
 
     @SuppressWarnings({"unchecked"})
     @Transactional
     public Correction getCityCorrection(Long id) {
-        Correction correction = (Correction) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectCityCorrection", id);
+        Correction correction = (Correction) sqlSession().selectOne(ADDRESS_BEAN_MAPPING_NAMESPACE + ".selectCityCorrection", id);
 
         if (correction != null) {
             correction.setEntity("city");
@@ -416,7 +395,7 @@ public class AddressCorrectionBean extends CorrectionBean {
     @SuppressWarnings({"unchecked"})
     @Transactional
     public Correction getStreetCorrection(Long id) {
-        Correction correction = (Correction) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectStreetCorrection", id);
+        Correction correction = (Correction) sqlSession().selectOne(ADDRESS_BEAN_MAPPING_NAMESPACE + ".selectStreetCorrection", id);
 
         if (correction != null) {
             correction.setEntity("street");
@@ -428,7 +407,7 @@ public class AddressCorrectionBean extends CorrectionBean {
     @SuppressWarnings({"unchecked"})
     @Transactional
     public BuildingCorrection getBuildingCorrection(Long id) {
-        BuildingCorrection correction = (BuildingCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectBuildingCorrection", id);
+        BuildingCorrection correction = (BuildingCorrection) sqlSession().selectOne(ADDRESS_BEAN_MAPPING_NAMESPACE + ".selectBuildingCorrection", id);
 
         if (correction != null) {
             correction.setEntity("building");
@@ -440,7 +419,7 @@ public class AddressCorrectionBean extends CorrectionBean {
     @SuppressWarnings({"unchecked"})
     @Transactional
     public List<BuildingCorrection> findBuildings(CorrectionExample example) {
-        List<BuildingCorrection> list = (List<BuildingCorrection>) super.find(example, MAPPING_NAMESPACE + ".findBuildings");
+        List<BuildingCorrection> list = (List<BuildingCorrection>) super.find(example, ADDRESS_BEAN_MAPPING_NAMESPACE + ".findBuildings");
 
         Strategy cityStrategy = strategyFactory.getStrategy("city");
         Strategy streetStrategy = strategyFactory.getStrategy("street");
@@ -469,14 +448,14 @@ public class AddressCorrectionBean extends CorrectionBean {
 
     @Transactional
     public void deleteBuilding(BuildingCorrection buildingCorrection) {
-        sqlSession().delete(MAPPING_NAMESPACE + ".deleteBuilding", buildingCorrection);
+        sqlSession().delete(ADDRESS_BEAN_MAPPING_NAMESPACE + ".deleteBuilding", buildingCorrection);
     }
 
     @SuppressWarnings({"unchecked"})
     @Transactional
     @Override
     public List<Correction> find(CorrectionExample example) {
-        List<Correction> list = (List<Correction>) super.find(example, CorrectionBean.MAPPING_NAMESPACE + ".find");
+        List<Correction> list = (List<Correction>) super.find(example, CORRECTION_BEAN_MAPPING_NAMESPACE + ".find");
 
         if ("street".equals(example.getEntity())) {
             Strategy streetStrategy = strategyFactory.getStrategy("street");

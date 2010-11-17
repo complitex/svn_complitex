@@ -12,7 +12,6 @@ import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
 import org.complitex.osznconnection.file.entity.Correction;
-import org.complitex.osznconnection.file.entity.EntityTypeCorrection;
 import org.complitex.osznconnection.file.entity.example.CorrectionExample;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,9 +28,10 @@ import java.util.Map;
  */
 @Stateless
 public class CorrectionBean extends AbstractBean {
+
     private static final Logger log = LoggerFactory.getLogger(CorrectionBean.class);
 
-    public static final String MAPPING_NAMESPACE = CorrectionBean.class.getName();
+    protected static final String CORRECTION_BEAN_MAPPING_NAMESPACE = CorrectionBean.class.getName();
 
     @EJB(beanName = "StrategyFactory")
     protected StrategyFactory strategyFactory;
@@ -53,7 +53,7 @@ public class CorrectionBean extends AbstractBean {
 
     @Transactional
     public List<Correction> find(CorrectionExample example) {
-        return (List<Correction>) find(example, MAPPING_NAMESPACE + ".find");
+        return (List<Correction>) find(example, CORRECTION_BEAN_MAPPING_NAMESPACE + ".find");
     }
 
     protected List<? extends Correction> find(CorrectionExample example, String queryId) {
@@ -72,7 +72,7 @@ public class CorrectionBean extends AbstractBean {
 
     @Transactional
     public int count(CorrectionExample example) {
-        return (Integer) sqlSession().selectOne(MAPPING_NAMESPACE + ".count", example);
+        return (Integer) sqlSession().selectOne(CORRECTION_BEAN_MAPPING_NAMESPACE + ".count", example);
     }
 
     @Transactional
@@ -81,9 +81,9 @@ public class CorrectionBean extends AbstractBean {
         params.put("entity", entity);
         params.put("id", correctionId);
 
-        Correction correction = (Correction) sqlSession().selectOne(MAPPING_NAMESPACE + ".findById", params);
+        Correction correction = (Correction) sqlSession().selectOne(CORRECTION_BEAN_MAPPING_NAMESPACE + ".findById", params);
 
-        if (correction != null){
+        if (correction != null) {
             correction.setEntity(entity);
         }
 
@@ -92,46 +92,16 @@ public class CorrectionBean extends AbstractBean {
 
     @Transactional
     public void update(Correction correction) {
-        sqlSession().update(MAPPING_NAMESPACE + ".update", correction);
+        sqlSession().update(CORRECTION_BEAN_MAPPING_NAMESPACE + ".update", correction);
     }
 
     @Transactional
     public void insert(Correction correction) {
-        sqlSession().insert(MAPPING_NAMESPACE + ".insert", correction);
-    }
-
-    @Transactional
-    public void updateEntityType(EntityTypeCorrection correction) {
-        sqlSession().update(MAPPING_NAMESPACE + ".updateEntityType", correction);
-    }
-
-    @Transactional
-    public void insertEntityType(EntityTypeCorrection correction) {
-        sqlSession().insert(MAPPING_NAMESPACE + ".insertEntityType", correction);
-    }
-
-    @Transactional
-    public List<EntityTypeCorrection> findEntityTypes(CorrectionExample example) {
-        return sqlSession().selectList(MAPPING_NAMESPACE + ".findEntityTypes", example);
-    }
-
-    @Transactional
-    public int countEntityTypes(CorrectionExample example) {
-        return (Integer) sqlSession().selectOne(MAPPING_NAMESPACE + ".countEntityTypes", example);
-    }
-
-    @Transactional
-    public EntityTypeCorrection findEntityTypeById(Long entityTypeCorrectionId) {
-        return (EntityTypeCorrection) sqlSession().selectOne(MAPPING_NAMESPACE + ".findEntityTypeById", entityTypeCorrectionId);
+        sqlSession().insert(CORRECTION_BEAN_MAPPING_NAMESPACE + ".insert", correction);
     }
 
     @Transactional
     public void delete(Correction correction) {
-        sqlSession().delete(MAPPING_NAMESPACE + ".delete", correction);
-    }
-
-    @Transactional
-    public void delete(EntityTypeCorrection entityTypeCorrection) {
-        sqlSession().delete(MAPPING_NAMESPACE + ".deleteEntityType", entityTypeCorrection);
+        sqlSession().delete(CORRECTION_BEAN_MAPPING_NAMESPACE + ".delete", correction);
     }
 }

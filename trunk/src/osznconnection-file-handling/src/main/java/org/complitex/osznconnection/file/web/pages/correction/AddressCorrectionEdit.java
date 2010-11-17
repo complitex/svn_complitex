@@ -75,6 +75,7 @@ public class AddressCorrectionEdit extends FormTemplatePage {
      * Подходит для города, улицы.
      */
     private class AddressCorrectionEditPanel extends AbstractCorrectionEditPanel {
+
         @EJB(name = "AddressCorrectionBean")
         private AddressCorrectionBean addressCorrectionBean;
 
@@ -118,9 +119,9 @@ public class AddressCorrectionEdit extends FormTemplatePage {
 
         @Override
         protected Correction initObjectCorrection(String entity, Long correctionId) {
-            if ("city".equals(entity)){
+            if ("city".equals(entity)) {
                 return addressCorrectionBean.getCityCorrection(correctionId);
-            }else if ("street".equals(entity)){
+            } else if ("street".equals(entity)) {
                 return addressCorrectionBean.getStreetCorrection(correctionId);
             }
 
@@ -131,14 +132,14 @@ public class AddressCorrectionEdit extends FormTemplatePage {
         protected String getDisplayCorrection() {
             Correction correction = getModel();
 
-            if ("street".equals(correction.getEntity()) && correction.getParent() != null){
-                return correction.getParent().getCorrection() +
-                        ", " + correction.getCorrection();
-            }else if ("building".equals(correction.getEntity()) && correction.getParent() != null &&
-                    correction.getParent().getParent() != null){
-                return correction.getParent().getParent().getCorrection() +
-                        ", " + correction.getParent().getCorrection() +
-                        ", " + correction.getCorrection();
+            if ("street".equals(correction.getEntity()) && correction.getParent() != null) {
+                return correction.getParent().getCorrection()
+                        + ", " + correction.getCorrection();
+            } else if ("building".equals(correction.getEntity()) && correction.getParent() != null
+                    && correction.getParent().getParent() != null) {
+                return correction.getParent().getParent().getCorrection()
+                        + ", " + correction.getParent().getCorrection()
+                        + ", " + correction.getCorrection();
             }
 
             return super.getDisplayCorrection();
@@ -167,7 +168,7 @@ public class AddressCorrectionEdit extends FormTemplatePage {
         @Override
         protected void back() {
             PageParameters parameters = new PageParameters();
-            parameters.put(AddressCorrectionList.CORRECTED_ENTITY, getEntity());
+            parameters.put(AddressCorrectionList.CORRECTED_ENTITY, getModel().getEntity());
             setResponsePage(AddressCorrectionList.class, parameters);
         }
     }
@@ -195,7 +196,7 @@ public class AddressCorrectionEdit extends FormTemplatePage {
         }
 
         @Override
-        protected BuildingCorrection newObjectCorrection() {
+        protected BuildingCorrection newObjectCorrection(String entity) {
             return new BuildingCorrection();
         }
 
@@ -203,7 +204,7 @@ public class AddressCorrectionEdit extends FormTemplatePage {
         protected String getDisplayCorrection() {
             Correction correction = getModel();
 
-            if (correction.getParent() != null && correction.getParent().getParent() != null){
+            if (correction.getParent() != null && correction.getParent().getParent() != null) {
                 return correction.getParent().getParent().getCorrection()
                         + ", " + correction.getParent().getCorrection()
                         + ", " + correction.getCorrection();
@@ -222,7 +223,7 @@ public class AddressCorrectionEdit extends FormTemplatePage {
         @Override
         protected void back() {
             PageParameters parameters = new PageParameters();
-            parameters.put(BuildingCorrectionList.CORRECTED_ENTITY, getEntity());
+            parameters.put(BuildingCorrectionList.CORRECTED_ENTITY, getModel().getEntity());
             setResponsePage(BuildingCorrectionList.class, parameters);
         }
 
@@ -260,7 +261,6 @@ public class AddressCorrectionEdit extends FormTemplatePage {
             @Override
             protected void onClick() {
                 try {
-
                 } catch (Exception e) {
                 }
                 addressEditPanel.executeDeletion();

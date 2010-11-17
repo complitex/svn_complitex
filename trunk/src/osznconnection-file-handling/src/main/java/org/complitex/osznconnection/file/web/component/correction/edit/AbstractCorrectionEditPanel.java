@@ -46,7 +46,7 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
     @EJB(name = "OrganizationStrategy")
     private OrganizationStrategy organizationStrategy;
 
-    private String entity;
+//    private String entity;
 
     private Long correctionId;
 
@@ -56,12 +56,12 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
 
     public AbstractCorrectionEditPanel(String id, String entity, Long correctionId) {
         super(id);
-        this.entity = entity;
+//        this.entity = entity;
         this.correctionId = correctionId;
         if (isNew()) {
-            correction = newObjectCorrection();
+            correction = newObjectCorrection(entity);
         } else {
-            correction = initObjectCorrection(this.entity, this.correctionId);
+            correction = initObjectCorrection(entity, this.correctionId);
             correction.setEntity(entity);
         }
         init();
@@ -75,7 +75,7 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
         return correctionBean.findById(entity, correctionId);
     }
 
-    protected Correction newObjectCorrection() {
+    protected Correction newObjectCorrection(String entity) {
         return new Correction(entity);
     }
 
@@ -83,9 +83,9 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
         return correction;
     }
 
-    protected String getEntity() {
-        return entity;
-    }
+//    protected String getEntity() {
+//        return entity;
+//    }
 
     protected String getDisplayCorrection(){
         return correction.getCorrection();
@@ -227,6 +227,7 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
         DisableAwareDropDownChoice<DomainObject> organization = new DisableAwareDropDownChoice<DomainObject>("organization",
                 outerOrganizationModel, allOuterOrganizations, renderer);
         organization.setRequired(true);
+        organization.setEnabled(isNew());
         form.add(organization);
 
         if (isNew()) {

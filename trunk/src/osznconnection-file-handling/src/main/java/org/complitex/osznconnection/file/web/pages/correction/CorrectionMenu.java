@@ -27,29 +27,6 @@ public class CorrectionMenu extends ResourceTemplateMenu {
     public List<ITemplateLink> getTemplateLinks(Locale locale) {
         List<ITemplateLink> links = Lists.newArrayList();
 
-        //TODO: remove old entity type correction link item
-//        links.add(new ITemplateLink() {
-//
-//            @Override
-//            public String getLabel(Locale locale) {
-//                return getString(CorrectionMenu.class, locale, "entity_type_correction");
-//            }
-//
-//            @Override
-//            public Class<? extends Page> getPage() {
-//                return EntityTypesCorrectionList.class;
-//            }
-//
-//            @Override
-//            public PageParameters getParameters() {
-//                return PageParameters.NULL;
-//            }
-//
-//            @Override
-//            public String getTagId() {
-//                return "entity_type_correction_item";
-//            }
-//        });
         links.add(new ITemplateLink() {
 
             @Override

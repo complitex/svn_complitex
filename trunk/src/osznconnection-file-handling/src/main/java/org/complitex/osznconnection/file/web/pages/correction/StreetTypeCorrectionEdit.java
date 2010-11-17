@@ -108,7 +108,7 @@ public class StreetTypeCorrectionEdit extends FormTemplatePage {
             @Override
             protected void back() {
                 PageParameters parameters = new PageParameters();
-                parameters.put(StreetTypeCorrectionList.CORRECTED_ENTITY, getEntity());
+                parameters.put(StreetTypeCorrectionList.CORRECTED_ENTITY, getModel().getEntity());
                 setResponsePage(StreetTypeCorrectionList.class, parameters);
             }
         });

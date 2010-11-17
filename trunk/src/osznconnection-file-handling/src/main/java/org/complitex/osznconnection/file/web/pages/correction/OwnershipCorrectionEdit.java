@@ -106,7 +106,7 @@ public final class OwnershipCorrectionEdit extends FormTemplatePage {
             @Override
             protected void back() {
                 PageParameters parameters = new PageParameters();
-                parameters.put(OwnershipCorrectionList.CORRECTED_ENTITY, getEntity());
+                parameters.put(OwnershipCorrectionList.CORRECTED_ENTITY, getModel().getEntity());
                 setResponsePage(OwnershipCorrectionList.class, parameters);
             }
         });
