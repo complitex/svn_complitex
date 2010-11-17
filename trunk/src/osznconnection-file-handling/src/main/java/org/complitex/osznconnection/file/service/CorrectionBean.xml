@@ -100,7 +100,7 @@
         LIMIT #{start},#{size}
     </select>
 
-     <select id="count" resultType="int" parameterType="org.complitex.osznconnection.file.entity.example.CorrectionExample">
+    <select id="count" resultType="int" parameterType="org.complitex.osznconnection.file.entity.example.CorrectionExample">
         SELECT COUNT(*) FROM `${entity}_correction` c
         <include refid="org.complitex.osznconnection.file.service.CorrectionBean.filter"/>
     </select>

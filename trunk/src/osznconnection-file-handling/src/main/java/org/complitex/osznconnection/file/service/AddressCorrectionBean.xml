@@ -139,6 +139,44 @@
         SELECT * FROM `building_correction` WHERE `id` = #{id}
     </select>
 
+    <sql id="buildingFilter">
+        <where>
+            <if test="internalObject != null">
+                AND EXISTS(SELECT 1
+                    FROM `building` b
+                    JOIN `building_address` addr ON (b.`parent_id` = addr.`object_id` AND addr.`status` IN ('ACTIVE', 'INACTIVE'))
+                    JOIN `building_address_attribute` num ON (num.`object_id` = addr.`object_id` AND num.`status` = 'ACTIVE' AND num.`attribute_type_id` = 1500)
+                    JOIN `building_address_string_culture` sc ON num.`value_id` = sc.`id`
+                    WHERE b.`object_id` = c.`object_id` AND b.`status` IN ('ACTIVE', 'INACTIVE') AND sc.`value` LIKE CONCAT('%', #{internalObject}, '%'))
+            </if>
+            <if test="correction != null">
+                AND c.`correction` LIKE CONCAT('%', #{correction}, '%')
+            </if>
+            <if test="code != null">
+                AND c.`organization_code` LIKE CONCAT('%', #{code}, '%')
+            </if>
+            <if test="organization != null">
+                AND EXISTS(SELECT 1
+                    FROM
+                        `organization_string_culture` osc
+                    WHERE
+                        osc.`value` LIKE CONCAT('%', #{organization}, '%') AND osc.`id` IN
+                        (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`object_id` = c.`organization_id`
+                        AND oa.`status` = 'ACTIVE' AND oa.`attribute_type_id` = 900))
+            </if>
+            <if test="internalOrganization != null">
+                AND EXISTS(SELECT 1
+                    FROM
+                        `organization_string_culture` osc
+                    WHERE
+                        osc.`value` LIKE CONCAT('%', #{internalOrganization}, '%') AND osc.`id` IN
+                        (SELECT oa.`value_id` FROM `organization_attribute` oa
+                        WHERE oa.`object_id` = c.`internal_organization_id` AND oa.`status` = 'ACTIVE'
+                        AND oa.`attribute_type_id` = 900))
+            </if>
+        </where>
+    </sql>
+
     <select id="findBuildings" parameterType="org.complitex.osznconnection.file.entity.example.CorrectionExample"
             resultMap="buildingCorrection">
         SELECT c.*,
@@ -155,7 +193,7 @@
                 AND oa.`object_id` = c.`internal_organization_id` AND oa.`attribute_type_id` = 900))
         ) internalOrganization
         FROM `building_correction` c
-        <include refid="org.complitex.osznconnection.file.service.CorrectionBean.filter"/>
+        <include refid="org.complitex.osznconnection.file.service.AddressCorrectionBean.buildingFilter"/>
         <if test="orderByClause != null">
             ORDER BY ${orderByClause}
             <choose>
@@ -168,6 +206,11 @@
             </choose>
         </if>
         LIMIT #{start},#{size}
+    </select>
+
+    <select id="countBuildings" resultType="int" parameterType="org.complitex.osznconnection.file.entity.example.CorrectionExample">
+        SELECT COUNT(*) FROM `${entity}_correction` c
+        <include refid="org.complitex.osznconnection.file.service.AddressCorrectionBean.buildingFilter"/>
     </select>
 
     <delete id="deleteBuilding" parameterType="org.complitex.osznconnection.file.entity.BuildingCorrection">
