@@ -46,11 +46,6 @@ public class RegionStrategy extends Strategy {
     private static final long NAME_ATTRIBUTE_TYPE_ID = 700L;
 
     @Override
-    public boolean isSimpleAttributeType(EntityAttributeType attributeDescription) {
-        return attributeDescription.getId() >= NAME_ATTRIBUTE_TYPE_ID;
-    }
-
-    @Override
     public List<EntityAttributeType> getListColumns() {
         return Lists.newArrayList(Iterables.filter(getEntity().getEntityAttributeTypes(), new Predicate<EntityAttributeType>() {
 

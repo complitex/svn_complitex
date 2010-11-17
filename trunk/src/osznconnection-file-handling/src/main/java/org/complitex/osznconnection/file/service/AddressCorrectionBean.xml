@@ -102,8 +102,8 @@
     </select>
 
     <select id="findInternalObjectId" parameterType="hashmap" resultType="long">
-        SELECT e.`object_id` FROM `${entity}` e WHERE e.`status` = 'ACTIVE'
-        <if test="internalParentId != null">
+        SELECT DISTINCT e.`object_id` FROM `${entity}` e WHERE e.`status` = 'ACTIVE'
+        <if test="parentId != null">
             AND e.`parent_id` = #{parentId}
         </if>
         AND EXISTS(
@@ -113,7 +113,7 @@
         SELECT sc.`id` FROM `${entity}_string_culture` sc WHERE sc.`value` = TRIM(TO_CYRILLIC(#{correction}))))
     </select>
 
-    <select id="findInternalBuilding" parameterType="hashmap" resultType="long">
+    <!--<select id="findInternalBuilding" parameterType="hashmap" resultType="long">
         SELECT b.`object_id` FROM `building` b WHERE b.`status` = 'ACTIVE'
         <if test="internalParentId != null">
             AND b.`parent_id` = #{parentId}
@@ -141,6 +141,30 @@
             </otherwise>
         </choose>
         )
+    </select>-->
+    
+    <select id="findInternalBuilding" parameterType="hashmap" resultType="long">
+        SELECT DISTINCT b.`object_id` FROM `building` b
+            JOIN `building_address` addr ON (((b.`parent_id` = addr.`object_id`) OR
+            EXISTS(SELECT 1 FROM `building_attribute` ba WHERE ba.`object_id` = b.`object_id` AND ba.`status` = 'ACTIVE' AND ba.`attribute_type_id` = 501
+            AND ba.`value_id` = addr.`object_id`)) AND addr.`status` = 'ACTIVE')
+            JOIN `building_address_attribute` num ON (num.`object_id` = addr.`object_id` AND num.`status` = 'ACTIVE' AND num.`attribute_type_id` = 1500)
+            LEFT JOIN `building_address_attribute` corp ON (corp.`object_id` = addr.`object_id` AND corp.`status` = 'ACTIVE' AND corp.`attribute_type_id` = 1501)
+
+        WHERE b.`status` = 'ACTIVE'
+        AND
+        num.`value_id` IN (SELECT sc.`id` FROM `building_address_string_culture` sc WHERE sc.`value` = TO_CYRILLIC(#{number}))
+        AND
+            <choose>
+                <when test="corp == null">
+                    corp.`value_id` IS NULL
+                </when>
+                <otherwise>
+                    corp.`value_id` IN (SELECT sc.`id` FROM `building_address_string_culture` sc WHERE sc.`value` = TO_CYRILLIC(#{corp}))
+                </otherwise>
+            </choose>
+        AND
+        addr.`parent_entity_id` = #{parentEntityId} AND addr.`parent_id` = #{parentId}
     </select>
 
     <update id="updateBuilding" parameterType="org.complitex.osznconnection.file.entity.BuildingCorrection">

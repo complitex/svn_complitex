@@ -100,10 +100,10 @@ public final class Children extends Panel {
         toggleLink.add(toggleStatus);
         add(toggleLink);
 
-        IModel<List<DomainObject>> childrenModel = new LoadableDetachableModel<List<DomainObject>>() {
+        IModel<List<? extends DomainObject>> childrenModel = new LoadableDetachableModel<List<? extends DomainObject>>() {
 
             @Override
-            protected List<DomainObject> load() {
+            protected List<? extends DomainObject> load() {
                 DomainObjectExample example = new DomainObjectExample();
                 example.setLocale(getLocale().getLanguage());
                 getStrategy().configureExample(example, ImmutableMap.of(parentEntity, parentObject.getId()), null);

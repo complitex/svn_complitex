@@ -4,7 +4,6 @@
  */
 package org.complitex.osznconnection.file.service;
 
-import org.complitex.dictionaryfw.entity.Attribute;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
@@ -19,6 +18,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import org.complitex.dictionaryfw.strategy.Strategy;
+import org.complitex.osznconnection.information.strategy.building.entity.Building;
+import org.complitex.osznconnection.information.strategy.street.StreetStrategy;
 
 /**
  * Класс разрешает адрес.
@@ -129,15 +131,17 @@ public class AddressService extends AbstractBean {
 
         if (buildingId != null) {
             payment.setInternalBuildingId(buildingId);
-            DomainObject buildingObject = strategyFactory.getStrategy("building").findById(buildingId);
-            payment.setInternalCityId(buildingObject.getParentId());
-
-            for (Attribute attribute : buildingObject.getAttributes()) {
-                if (attribute.getAttributeTypeId().equals(BuildingStrategy.STREET)) {
-                    payment.setInternalStreetId(attribute.getValueId());
-                    break;
-                }
+            Strategy buildingStrategy = strategyFactory.getStrategy("building");
+            Building building = (Building) buildingStrategy.findById(buildingId);
+            Long internalStreetId = building.getPrimaryStreetId();
+            if (streetId != null) {
+                payment.setInternalStreetId(internalStreetId);
+                Strategy streetStrategy = strategyFactory.getStrategy("street");
+                DomainObject streetObject = streetStrategy.findById(streetId);
+                Long internalCityId = streetObject.getParentId();
+                payment.setInternalCityId(internalCityId);
             }
+
             payment.setStatus(RequestStatus.CITY_UNRESOLVED);
         } else {
             payment.setStatus(RequestStatus.BUILDING_UNRESOLVED_LOCALLY);

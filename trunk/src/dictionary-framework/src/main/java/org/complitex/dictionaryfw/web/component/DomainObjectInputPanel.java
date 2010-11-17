@@ -138,6 +138,10 @@ public class DomainObjectInputPanel extends Panel {
         init();
     }
 
+    public Date getDate() {
+        return date;
+    }
+
     private boolean isHistory() {
         return date != null;
     }
@@ -332,34 +336,21 @@ public class DomainObjectInputPanel extends Panel {
         };
         simpleAttributes.setReuseItems(true);
         add(simpleAttributes);
-
-        //parent search
-        if (object.getId() == null) {
-            if (!fromParent()) {
-                searchComponentState = getSearchComponentStateFromSession();
-            } else {
-                searchComponentState = getStrategy().getSearchComponentStateForParent(parentId, parentEntity, null);
-            }
-        } else {
-            Strategy.RestrictedObjectInfo info = getStrategy().findParentInSearchComponent(object.getId(), isHistory() ? date : null);
-            if (info != null) {
-                searchComponentState = getStrategy().getSearchComponentStateForParent(info.getId(), info.getEntityTable(), date);
-            }
-        }
+        searchComponentState = initParentSearchComponentState();
 
         WebMarkupContainer parentContainer = new WebMarkupContainer("parentContainer");
         add(parentContainer);
         List<String> parentFilters = getStrategy().getParentSearchFilters();
         ISearchCallback parentSearchCallback = getStrategy().getParentSearchCallback();
-        Component parentSearch = null;
         if (parentFilters == null || parentFilters.isEmpty() || parentSearchCallback == null) {
             parentContainer.setVisible(false);
-            parentSearch = new EmptyPanel("parentSearch");
+            parentContainer.add(new EmptyPanel("parentSearch"));
         } else {
-            parentSearch = new SearchComponent("parentSearch", searchComponentState, parentFilters, parentSearchCallback,
-                    !isHistory() && CanEditUtil.canEdit(object));
+            SearchComponent parentSearchComponent = new SearchComponent("parentSearch", getParentSearchComponentState(), parentFilters,
+                    parentSearchCallback, !isHistory() && CanEditUtil.canEdit(object));
+            parentContainer.add(parentSearchComponent);
+            parentSearchComponent.invokeCallback();
         }
-        parentContainer.add(parentSearch);
 
         //complex attributes
         AbstractComplexAttributesPanel complexAttributes = null;
@@ -376,6 +367,24 @@ public class DomainObjectInputPanel extends Panel {
         } else {
             add(complexAttributes);
         }
+    }
+
+    protected SearchComponentState initParentSearchComponentState() {
+        //parent search
+        SearchComponentState componentState = null;
+        if (object.getId() == null) {
+            if (!fromParent()) {
+                componentState = getSearchComponentStateFromSession();
+            } else {
+                componentState = getStrategy().getSearchComponentStateForParent(parentId, parentEntity, null);
+            }
+        } else {
+            Strategy.RestrictedObjectInfo info = getStrategy().findParentInSearchComponent(object.getId(), isHistory() ? date : null);
+            if (info != null) {
+                componentState = getStrategy().getSearchComponentStateForParent(info.getId(), info.getEntityTable(), date);
+            }
+        }
+        return componentState;
     }
 
     public boolean validateParent() {
