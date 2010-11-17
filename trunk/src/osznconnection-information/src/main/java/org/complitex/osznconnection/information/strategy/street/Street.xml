@@ -12,11 +12,14 @@
         <include refid="org.complitex.dictionaryfw.entity.DomainObject.statusFilter"/>
         <include refid="org.complitex.dictionaryfw.entity.DomainObject.filter"/>
         <if test="additionalParams != null and additionalParams['district'] != null">
-            AND EXISTS(SELECT 1 FROM `building` b
-                        JOIN `building_attribute` ba1 ON (b.`object_id` = ba1.`object_id` AND ba1.`attribute_type_id` = 503 AND ba1.`status` = 'ACTIVE')
-                        JOIN `building_attribute` ba2 ON (b.`object_id` = ba2.`object_id` AND ba2.`attribute_type_id` = 504 AND ba2.`status` = 'ACTIVE')
-                        WHERE b.`status` = 'ACTIVE' AND ba1.`value_id` = e.`object_id` AND ba2.`value_id` = #{additionalParams.district}
-                )
+            AND EXISTS(
+                SELECT 1 FROM `building` b
+                    JOIN `building_attribute` a ON (b.`object_id` = a.`object_id` AND a.`status` = 'ACTIVE' AND a.`attribute_type_id` = 500)
+                    JOIN `building_address` addr ON (((b.`parent_id` = addr.`object_id`) OR
+                        EXISTS(SELECT 1 FROM `building_attribute` ba WHERE ba.`object_id` = b.`object_id` AND ba.`status` = 'ACTIVE' AND ba.`attribute_type_id` = 501
+                        AND ba.`value_id` = addr.`object_id`)) AND (addr.`status` IN ('ACTIVE', 'INACTIVE')))
+                    WHERE b.`status` IN ('ACTIVE', 'INACTIVE') AND addr.`parent_id` = e.`object_id` AND addr.`parent_entity_id` = 300
+                        AND a.`value_id` = #{additionalParams.district})
         </if>
         <include refid="org.complitex.dictionaryfw.entity.DomainObject.orderBy"/>
         <include refid="org.complitex.dictionaryfw.entity.DomainObject.limit"/>
