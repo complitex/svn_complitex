@@ -157,18 +157,18 @@ INSERT INTO `street_type_correction`(`object_id`, `correction`, `organization_id
 , (10006,'ПОС',2,'1',0), (10007,'ПР-Д',2,'1',0), (10008,'ПРОСП',2,'1',0), (10009,'СП',2,'1',0), (10010,'Т',2,'1',0), (10011,'ТУП',2,'1',0)
 , (10012,'УЛ',2,'1',0), (10013,'ШОССЕ',2,'1',0), (10014,'НАБ',2,'1',0), (10015,'В-Д',2,'1',0), (10016,'СТ',2,'1',0);
 
-insert into city_correction(organization_id, correction, object_id, internal_organization_id) values (2,UPPER('Новосибирск'),1,0);
-insert into street_correction(organization_id, correction, object_id, internal_organization_id) values (2,UPPER('Терешковой'),1,0);
-insert into building_correction(organization_id, correction, correction_corp, object_id, internal_organization_id) values (2,'10','1',1,0);
+insert into city_correction(id, organization_id, correction, object_id, internal_organization_id) values (1,2,UPPER('Новосибирск'),1,0);
+insert into street_correction(id, organization_id, correction, object_id, internal_organization_id, parent_id) values (1,2,UPPER('Терешковой'),1,0,1);
+insert into building_correction(organization_id, correction, correction_corp, object_id, internal_organization_id, parent_id) values (2,'10','1',1,0,1);
 
-insert into city_correction(organization_id, correction, object_id, internal_organization_id) values (2,UPPER('Харьков'),3,0);
-insert into street_correction(organization_id, correction, object_id, internal_organization_id) values (2,UPPER('Косиора'),4,0);
-insert into building_correction(organization_id, correction, correction_corp, object_id, internal_organization_id) values (2,'154А','',6,0);
+insert into city_correction(id, organization_id, correction, object_id, internal_organization_id) values (2,2,UPPER('Харьков'),3,0);
+insert into street_correction(id, organization_id, correction, object_id, internal_organization_id, parent_id) values (2,2,UPPER('Косиора'),4,0,2);
+insert into building_correction(organization_id, correction, correction_corp, object_id, internal_organization_id, parent_id) values (2,'154А','',6,0,2);
 
-insert into street_correction(organization_id, correction, object_id, internal_organization_id) values (2,UPPER('ФРАНТИШЕКА КРАЛА'),5,0);
-insert into building_correction(organization_id, correction, correction_corp, object_id, internal_organization_id) values (2,'25А','',7,0);
+insert into street_correction(id, organization_id, correction, object_id, internal_organization_id, parent_id) values (3,2,UPPER('ФРАНТИШЕКА КРАЛА'),5,0,2);
+insert into building_correction(organization_id, correction, correction_corp, object_id, internal_organization_id, parent_id) values (2,'25А','',7,0,3);
 
-insert into district_correction(organization_id, correction, object_id, internal_organization_id) values (2,UPPER('Центральный'),3,0);
+insert into district_correction(organization_id, correction, object_id, internal_organization_id, parent_id) values (2,UPPER('Центральный'),3,0,2);
 
 -- Ownership corrections
 insert into ownership_correction(organization_id, correction, object_id, organization_code, internal_organization_id) values
