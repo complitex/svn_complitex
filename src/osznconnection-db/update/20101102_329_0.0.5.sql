@@ -99,5 +99,5 @@ CREATE TABLE `city_type_correction` (
 ) ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 INSERT INTO `city_attribute`(`attribute_id`, `object_id`, `attribute_type_id`, `value_id`, `value_type_id`) VALUES (1,10000,401,10000,401);
-INSERT INTO `update` (`version`) VALUE ('20101102_326');
+INSERT INTO `update` (`version`) VALUE ('20101102_329');
 

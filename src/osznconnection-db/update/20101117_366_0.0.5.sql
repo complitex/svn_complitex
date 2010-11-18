@@ -255,5 +255,5 @@ UPDATE `apartment_attribute` SET `start_date` = '2010-09-27 13:00:00';
 UPDATE `room` SET `start_date` = '2010-09-27 13:00:00';
 UPDATE `room_attribute` SET `start_date` = '2010-09-27 13:00:00';
 
-INSERT INTO `update` (`version`) VALUE ('20101117_362');
+INSERT INTO `update` (`version`) VALUE ('20101117_366');
 
