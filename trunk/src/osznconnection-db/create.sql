@@ -1454,13 +1454,14 @@ CREATE TABLE `person_account` (
     `city` VARCHAR(100) NOT NULL,
     `street` VARCHAR(100) NOT NULL,
     `building_num` VARCHAR(100) NOT NULL,
-    `building_corp` VARCHAR(100) NULL,
+    `building_corp` VARCHAR(100) NOT NULL DEFAULT '',
     `apartment` VARCHAR(100) NOT NULL,
     `account_number` VARCHAR(100) NOT NULL,
     `own_num_sr` VARCHAR(15) NOT NULL,
     `oszn_id` bigint(20) NOT NULL,
     `calc_center_id` bigint(20) NOT NULL,
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `person_account_unique_key` (`first_name`,`middle_name`,`last_name`,`city`,`street`,`building_num`,`building_corp`,`apartment`,`own_num_sr`,`oszn_id`,`calc_center_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ------------------------------

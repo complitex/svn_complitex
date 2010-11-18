@@ -28,7 +28,8 @@ import java.util.List;
  */
 @Stateless(name = "BindTaskBean")
 @TransactionManagement(TransactionManagementType.BEAN)
-public class BindTaskBean implements ITaskBean<RequestFileGroup>{
+public class BindTaskBean implements ITaskBean<RequestFileGroup> {
+
     private static final Logger log = LoggerFactory.getLogger(BindTaskBean.class);
 
     @Resource
@@ -51,9 +52,6 @@ public class BindTaskBean implements ITaskBean<RequestFileGroup>{
 
     @EJB(beanName = "CalculationCenterBean")
     private CalculationCenterBean calculationCenterBean;
-
-    @EJB(beanName = "RequestFileBean")
-    private RequestFileBean requestFileBean;
 
     @EJB(beanName = "RequestFileGroupBean")
     private RequestFileGroupBean requestFileGroupBean;
@@ -109,7 +107,6 @@ public class BindTaskBean implements ITaskBean<RequestFileGroup>{
      */
     private boolean resolveAddress(Payment payment, long calculationCenterId, ICalculationCenterAdapter adapter) {
         addressService.resolveAddress(payment, calculationCenterId, adapter);
-
         return addressService.isAddressResolved(payment);
     }
 
@@ -121,7 +118,6 @@ public class BindTaskBean implements ITaskBean<RequestFileGroup>{
      */
     private boolean resolveLocalAccount(Payment payment, long calculationCenterId) {
         personAccountService.resolveLocalAccount(payment, calculationCenterId);
-
         return payment.getStatus() == RequestStatus.ACCOUNT_NUMBER_RESOLVED;
     }
 
@@ -134,7 +130,6 @@ public class BindTaskBean implements ITaskBean<RequestFileGroup>{
      */
     private boolean resolveRemoteAccountNumber(Payment payment, long calculationCenterId, ICalculationCenterAdapter adapter) {
         personAccountService.resolveRemoteAccount(payment, calculationCenterId, adapter);
-
         return payment.getStatus() == RequestStatus.ACCOUNT_NUMBER_RESOLVED;
     }
 
@@ -174,34 +169,33 @@ public class BindTaskBean implements ITaskBean<RequestFileGroup>{
 
         while (notResolvedPaymentIds.size() > 0) {
             batch.clear();
-            for (int i = 0; i < Math.min(batchSize, notResolvedPaymentIds.size()); i++) {
-                batch.add(notResolvedPaymentIds.remove(i));
+            int toRemoveCount = Math.min(batchSize, notResolvedPaymentIds.size());
+            for (int i = 0; i < toRemoveCount; i++) {
+                batch.add(notResolvedPaymentIds.remove(0));
             }
 
-            try {
-                userTransaction.begin();
-
-                //достать из базы очередную порцию записей
-                List<Payment> payments = paymentBean.findForOperation(paymentFile.getId(), batch);
-                for (Payment payment : payments) {
-                    //связать payment запись
-                    bind(payment, calculationCenterId, adapter);
-                }
-
-                userTransaction.commit();
-            } catch (Exception e) {
+            //достать из базы очередную порцию записей
+            List<Payment> payments = paymentBean.findForOperation(paymentFile.getId(), batch);
+            for (Payment payment : payments) {
+                //связать payment запись
                 try {
-                    userTransaction.rollback();
-                } catch (SystemException e1) {
-                    throw new RuntimeException(e1);
-                }
+                    userTransaction.begin();
+                    bind(payment, calculationCenterId, adapter);
+                    userTransaction.commit();
+                } catch (Exception e) {
+                    log.error("The payment item ( id = " + payment.getId() + ") was bound with error: ", e);
 
-                throw new RuntimeException(e);
+                    try {
+                        userTransaction.rollback();
+                    } catch (SystemException e1) {
+                        log.error("Couldn't rollback transaction for binding payment item.", e1);
+                    }
+                }
             }
         }
 
         //проверить все ли записи в payment файле связались
-        if(!paymentBean.isPaymentFileBound(paymentFile.getId())){
+        if (!paymentBean.isPaymentFileBound(paymentFile.getId())) {
             throw new BindException(true, paymentFile);
         }
     }
@@ -216,7 +210,7 @@ public class BindTaskBean implements ITaskBean<RequestFileGroup>{
         benefitBean.updateBindingStatus(benefitFile.getId());
 
         //проверить все ли записи в benefit файле связались
-        if (!benefitBean.isBenefitFileBound(benefitFile.getId())){
+        if (!benefitBean.isBenefitFileBound(benefitFile.getId())) {
             throw new BindException(true, benefitFile);
         }
     }

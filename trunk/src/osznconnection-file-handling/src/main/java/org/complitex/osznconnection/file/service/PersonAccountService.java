@@ -88,14 +88,6 @@ public class PersonAccountService extends AbstractBean {
         paymentBean.update(payment);
     }
 
-//    public void resolveAccountNumber(Payment payment, ICalculationCenterAdapter adapter) {
-//        if (payment.getStatus() == Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY) {
-//            resolveLocalAccount(payment);
-//        }
-//        if (payment.getStatus() == Status.ACCOUNT_NUMBER_UNRESOLVED_LOCALLY || payment.getStatus() == Status.ACCOUNT_NUMBER_NOT_FOUND) {
-//            resolveRemoteAccount(payment, adapter);
-//        }
-//    }
     /**
      * Получает детальную информацию о номерах л/с, фамилии, ИНН в случае когда к одному адресу в ЦН привязано несколько человек.
      * Делегирует всю работу реализации адаптера взаимодействия с ЦН.

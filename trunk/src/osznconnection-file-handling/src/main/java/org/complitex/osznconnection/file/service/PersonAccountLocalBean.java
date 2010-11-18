@@ -61,7 +61,7 @@ public class PersonAccountLocalBean extends AbstractBean {
         } else if (results.size() == 1) {
             return results.get(0).getAccountNumber();
         } else {
-            throw new RuntimeException("More one entry in person_account table with the same data.");
+            throw new RuntimeException("More one entry in person_account table with the same data. Table person_account is in inconsistent state!");
         }
     }
 
@@ -87,7 +87,7 @@ public class PersonAccountLocalBean extends AbstractBean {
             param.setId(results.get(0).getId());
             update(param);
         } else {
-            throw new RuntimeException("More one entry in person_account table with the same data.");
+            throw new RuntimeException("More one entry in person_account table with the same data. Table person_account is in inconsistent state!");
         }
     }
 
