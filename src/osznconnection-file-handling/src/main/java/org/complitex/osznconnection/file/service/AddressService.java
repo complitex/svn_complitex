@@ -137,7 +137,7 @@ public class AddressService extends AbstractBean {
             if (streetId != null) {
                 payment.setInternalStreetId(internalStreetId);
                 Strategy streetStrategy = strategyFactory.getStrategy("street");
-                DomainObject streetObject = streetStrategy.findById(streetId);
+                DomainObject streetObject = streetStrategy.findById(internalStreetId);
                 Long internalCityId = streetObject.getParentId();
                 payment.setInternalCityId(internalCityId);
             }

@@ -149,7 +149,8 @@ values
 -- (3,'Петр', 'Петрович', 'Петров', 'Харьков', 'Косиора', '154A','', '1', '2010-09-08',1),
 -- (3,'Петр1', 'Петрович1', 'Петров1', 'Харьков', 'Kоcиорa', '154A','', '1', '2010-09-08',1),
 -- (3,'Матвей1', 'Матвеевич1', 'Матвеев1', 'Харьков', 'ФРАНТИШЕКА КРАЛА', '25А','', '40', '2010-09-09',1),
-(4,'Матвей', 'Матвеевич', 'Матвеев', 'Харьков', 'ФРАНТИШЕКА КРАЛА', '  2 5А','  ', '19', '2010-09-09',1);
+--(4,'Матвей', 'Матвеевич', 'Матвеев', 'Харьков', 'ФРАНТИШЕКА КРАЛА', '  2 5А','  ', '19', '2010-09-09',1);
+(4,'Матвей', 'Матвеевич', 'Матвеев', 'Новосибирск', 'Терешковой', '25','  ', '19', '2010-09-09',1);
 
 -- Address corrections
 INSERT INTO `street_type_correction`(`object_id`, `correction`, `organization_id`, `organization_code`, `internal_organization_id`) VALUES
@@ -169,6 +170,14 @@ insert into street_correction(id, organization_id, correction, object_id, intern
 insert into building_correction(organization_id, correction, correction_corp, object_id, internal_organization_id, parent_id) values (2,'25А','',7,0,3);
 
 insert into district_correction(organization_id, correction, object_id, internal_organization_id, parent_id) values (2,UPPER('Центральный'),3,0,2);
+
+
+/* Corrections for testing situations where correction's building belongs another street than local address base' building */
+
+--insert into city_correction(id, organization_id, correction, object_id, internal_organization_id) values (3,1,UPPER('Новосибирск'),1,0);
+--insert into street_correction(id, organization_id, correction, object_id, internal_organization_id, parent_id) values (4,1,UPPER('Терешковой'),1,0,3);
+--insert into building_correction(organization_id, correction, correction_corp, object_id, internal_organization_id, parent_id) values (1,'25','',7,0,4);
+
 
 -- Ownership corrections
 insert into ownership_correction(organization_id, correction, object_id, organization_code, internal_organization_id) values
