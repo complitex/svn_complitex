@@ -30,7 +30,8 @@ import java.util.List;
  */
 @Stateless(name = "FillTaskBean")
 @TransactionManagement(TransactionManagementType.BEAN)
-public class FillTaskBean implements ITaskBean<RequestFileGroup>{
+public class FillTaskBean implements ITaskBean<RequestFileGroup> {
+
     private static final Logger log = LoggerFactory.getLogger(FillTaskBean.class);
 
     @Resource
@@ -47,12 +48,6 @@ public class FillTaskBean implements ITaskBean<RequestFileGroup>{
 
     @EJB(beanName = "CalculationCenterBean")
     private CalculationCenterBean calculationCenterBean;
-
-    @EJB(beanName = "RequestFileBean")
-    private RequestFileBean requestFileBean;
-
-    @EJB(beanName = "PrivilegeCorrectionBean")
-    private PrivilegeCorrectionBean privilegeCorrectionBean;
 
     @EJB(beanName = "RequestFileGroupBean")
     private RequestFileGroupBean requestFileGroupBean;
@@ -151,28 +146,28 @@ public class FillTaskBean implements ITaskBean<RequestFileGroup>{
                 batch.add(notResolvedPaymentIds.remove(i));
             }
 
-            try {
-                userTransaction.begin();
-
-                //достать из базы очередную порцию записей
-                List<Payment> payments = paymentBean.findForOperation(paymentFile.getId(), batch);
-                for (Payment payment : payments) {
-                    //обработать payment запись
-                    process(payment, adapter, calculationCenterId);
-                }
-                userTransaction.commit();
-            } catch (Exception e) {    //todo add throw up exception
+            //достать из базы очередную порцию записей
+            List<Payment> payments = paymentBean.findForOperation(paymentFile.getId(), batch);
+            for (Payment payment : payments) {
+                //обработать payment запись
                 try {
-                    userTransaction.rollback();
-                } catch (SystemException e1) {
-                    throw new RuntimeException(e1);
+                    userTransaction.begin();
+                    process(payment, adapter, calculationCenterId);
+                    userTransaction.commit();
+                } catch (Exception e) {
+                    log.error("The payment item (id = " + payment.getId() + ") was processed with error: ", e);
+
+                    try {
+                        userTransaction.rollback();
+                    } catch (SystemException e1) {
+                        log.error("Couldn't rollback transaction for processing payment item.", e1);
+                    }
                 }
-                throw new RuntimeException(e);
             }
         }
 
         //проверить все ли записи в payment файле обработались
-        if (!paymentBean.isPaymentFileProcessed(paymentFile.getId())){
+        if (!paymentBean.isPaymentFileProcessed(paymentFile.getId())) {
             throw new FillException(true, paymentFile);
         }
     }
@@ -208,7 +203,7 @@ public class FillTaskBean implements ITaskBean<RequestFileGroup>{
                     try {
                         adapter.processBenefit(dat1, benefits, calculationCenterId);
                     } catch (AccountNotFoundException e) {
-                        for (Benefit benefit : benefits){
+                        for (Benefit benefit : benefits) {
                             benefit.setStatus(RequestStatus.ACCOUNT_NUMBER_NOT_FOUND);
                         }
                     }
@@ -218,12 +213,16 @@ public class FillTaskBean implements ITaskBean<RequestFileGroup>{
                     }
                 }
                 for (Benefit benefit : benefits) {
-                    benefitBean.update(benefit);
+                    try {
+                        benefitBean.update(benefit);
+                    } catch (Exception e) {
+                        log.error("The benefit item (id = " + benefit.getId() + ") was processed with error: ", e);
+                    }
                 }
             }
         }
 
-        if (!benefitBean.isBenefitFileProcessed(benefitFile.getId())){
+        if (!benefitBean.isBenefitFileProcessed(benefitFile.getId())) {
             throw new FillException(true, benefitFile);
         }
     }
