@@ -168,5 +168,5 @@ DELETE FROM `string_culture` WHERE `id` BETWEEN 10000 AND 10016;
 ALTER TABLE `payment` ADD KEY `key_internal_street_type_id`(`internal_street_type_id`);
 ALTER TABLE `payment` ADD CONSTRAINT `fk_payment__street_type` FOREIGN KEY (`internal_street_type_id`) REFERENCES `street_type` (`object_id`);
 
-INSERT INTO `update` (`version`) VALUE ('20101103_332');
+INSERT INTO `update` (`version`) VALUE ('20101107_338');
 
