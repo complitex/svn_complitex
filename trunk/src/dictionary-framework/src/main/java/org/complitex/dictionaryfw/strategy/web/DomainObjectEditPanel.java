@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
+import org.complitex.dictionaryfw.util.DateUtil;
 
 /**
  *
@@ -180,7 +181,7 @@ public class DomainObjectEditPanel extends Panel {
             if (isNew()) {
                 getStrategy().insert(newObject);
             } else {
-                getStrategy().update(oldObject, newObject, new Date());
+                getStrategy().update(oldObject, newObject, DateUtil.getCurrentDate());
             }
 
             logBean.log(Log.STATUS.OK, Module.NAME, DomainObjectEditPanel.class,

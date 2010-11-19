@@ -96,44 +96,6 @@ public class Building extends DomainObject {
         return parentEntityId == 300 ? accompaniedAddress.getParentId() : null;
     }
 
-//    public String getNumber(long streetId, Locale locale) {
-//        for (DomainObject address : getAllAddresses()) {
-//            Long parentEntityId = address.getParentEntityId();
-//            Long addressStreetId = parentEntityId.equals(300L) ? address.getParentId() : null;
-//            if (new Long(streetId).equals(addressStreetId)) {
-//                return getStringBean().displayValue(address.getAttribute(BuildingAddressStrategy.NUMBER).getLocalizedValues(), locale);
-//            }
-//        }
-//        return null;
-//    }
-//
-//    public String getCorp(long streetId, Locale locale) {
-//        for (DomainObject address : getAllAddresses()) {
-//            Long parentEntityId = address.getParentEntityId();
-//            Long addressStreetId = parentEntityId.equals(300L) ? address.getParentId() : null;
-//            if (new Long(streetId).equals(addressStreetId)) {
-//                Attribute corpAttr = address.getAttribute(BuildingAddressStrategy.CORP);
-//                if (corpAttr != null) {
-//                    return getStringBean().displayValue(corpAttr.getLocalizedValues(), locale);
-//                }
-//            }
-//        }
-//        return null;
-//    }
-//
-//    public String getStructure(long streetId, Locale locale) {
-//        for (DomainObject address : getAllAddresses()) {
-//            Long parentEntityId = address.getParentEntityId();
-//            Long addressStreetId = parentEntityId.equals(300L) ? address.getParentId() : null;
-//            if (new Long(streetId).equals(addressStreetId)) {
-//                Attribute structureAttr = address.getAttribute(BuildingAddressStrategy.STRUCTURE);
-//                if (structureAttr != null) {
-//                    return getStringBean().displayValue(structureAttr.getLocalizedValues(), locale);
-//                }
-//            }
-//        }
-//        return null;
-//    }
     public DomainObject getAddress(long streetId) {
         for (DomainObject address : getAllAddresses()) {
             Long parentEntityId = address.getParentEntityId();
