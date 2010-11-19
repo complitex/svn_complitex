@@ -120,7 +120,7 @@ public class UserList extends TemplatePage {
 
                 item.add(new Label("login", user.getLogin()));
 
-                List<Attribute> attributeColumns = userBean.getUserInfoStrategy().getAttributeColumns(user.getUserInfo());
+                List<Attribute> attributeColumns = userBean.getAttributeColumns(user.getUserInfo());
                 item.add(new AttributeColumnsPanel("user_info", attributeColumns));
 
                 item.add(new Label("usergroup", getDisplayGroupNames(user)));

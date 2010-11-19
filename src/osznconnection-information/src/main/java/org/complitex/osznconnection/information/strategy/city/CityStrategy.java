@@ -1,15 +1,11 @@
 package org.complitex.osznconnection.information.strategy.city;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.util.string.Strings;
-import org.complitex.dictionaryfw.entity.Attribute;
 import org.complitex.dictionaryfw.entity.DomainObject;
-import org.complitex.dictionaryfw.entity.description.EntityAttributeType;
 import org.complitex.dictionaryfw.entity.example.AttributeExample;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.service.StringCultureBean;
@@ -28,7 +24,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
 import org.complitex.osznconnection.commons.strategy.AbstractStrategy;
 import org.complitex.osznconnection.information.strategy.city.web.edit.CityTypeComponent;
@@ -46,19 +41,16 @@ public class CityStrategy extends AbstractStrategy {
     @EJB
     private StrategyFactory strategyFactory;
 
-    private static final long NAME_ATTRIBUTE_TYPE_ID = 400;
+    /*
+     * Attribute type ids
+     */
+    private static final long NAME = 400;
 
-    public static final long CITY_TYPE_ATTRIBUTE = 401;
+    public static final long CITY_TYPE = 401;
 
     @Override
-    public List<EntityAttributeType> getListColumns() {
-        return Lists.newArrayList(Iterables.filter(getEntity().getEntityAttributeTypes(), new Predicate<EntityAttributeType>() {
-
-            @Override
-            public boolean apply(EntityAttributeType attr) {
-                return attr.getId().equals(NAME_ATTRIBUTE_TYPE_ID);
-            }
-        }));
+    protected List<Long> getListAttributeTypes() {
+        return Lists.newArrayList(NAME);
     }
 
     @Override
@@ -68,20 +60,8 @@ public class CityStrategy extends AbstractStrategy {
 
     @Override
     public String displayDomainObject(DomainObject object, Locale locale) {
-        String cityName = stringBean.displayValue(Iterables.find(object.getAttributes(), new Predicate<Attribute>() {
-
-            @Override
-            public boolean apply(Attribute attr) {
-                return attr.getAttributeTypeId().equals(NAME_ATTRIBUTE_TYPE_ID);
-            }
-        }).getLocalizedValues(), locale);
-        Long cityTypeId = Iterables.find(object.getAttributes(), new Predicate<Attribute>() {
-
-            @Override
-            public boolean apply(Attribute attr) {
-                return attr.getAttributeTypeId().equals(CITY_TYPE_ATTRIBUTE);
-            }
-        }).getValueId();
+        String cityName = stringBean.displayValue(object.getAttribute(NAME).getLocalizedValues(), locale);
+        Long cityTypeId = object.getAttribute(CITY_TYPE).getValueId();
         if (cityTypeId != null) {
             Strategy cityTypeStrategy = strategyFactory.getStrategy("city_type");
             DomainObjectExample example = new DomainObjectExample(cityTypeId);
@@ -106,19 +86,11 @@ public class CityStrategy extends AbstractStrategy {
         configureExampleImpl(example, ids, searchTextInput);
     }
 
-    public static void configureExampleImpl(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
+    private static void configureExampleImpl(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
         if (!Strings.isEmpty(searchTextInput)) {
-            AttributeExample attrExample = null;
-            try {
-                attrExample = Iterables.find(example.getAttributeExamples(), new Predicate<AttributeExample>() {
-
-                    @Override
-                    public boolean apply(AttributeExample attrExample) {
-                        return attrExample.getAttributeTypeId().equals(NAME_ATTRIBUTE_TYPE_ID);
-                    }
-                });
-            } catch (NoSuchElementException e) {
-                attrExample = new AttributeExample(NAME_ATTRIBUTE_TYPE_ID);
+            AttributeExample attrExample = example.getAttributeExample(NAME);
+            if (attrExample == null) {
+                attrExample = new AttributeExample(NAME);
                 example.addAttributeExample(attrExample);
             }
             attrExample.setValue(searchTextInput);

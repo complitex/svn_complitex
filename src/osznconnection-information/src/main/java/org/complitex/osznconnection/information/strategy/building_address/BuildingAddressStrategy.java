@@ -1,8 +1,6 @@
 package org.complitex.osznconnection.information.strategy.building_address;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import java.io.Serializable;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
@@ -54,16 +52,8 @@ public class BuildingAddressStrategy extends AbstractStrategy {
     @Override
     public void configureExample(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
         if (!Strings.isEmpty(searchTextInput)) {
-            AttributeExample number = null;
-            try {
-                number = Iterables.find(example.getAttributeExamples(), new Predicate<AttributeExample>() {
-
-                    @Override
-                    public boolean apply(AttributeExample attrExample) {
-                        return attrExample.getAttributeTypeId().equals(NUMBER);
-                    }
-                });
-            } catch (NoSuchElementException e) {
+            AttributeExample number = example.getAttributeExample(NUMBER);
+            if (number == null) {
                 number = new AttributeExample(NUMBER);
                 example.addAttributeExample(number);
             }

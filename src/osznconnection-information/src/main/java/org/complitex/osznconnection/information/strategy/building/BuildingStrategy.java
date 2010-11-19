@@ -1,6 +1,8 @@
 package org.complitex.osznconnection.information.strategy.building;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -43,7 +45,7 @@ public class BuildingStrategy extends AbstractStrategy {
 
     private static final Logger log = LoggerFactory.getLogger(BuildingStrategy.class);
 
-    public static final String RESOURCE_BUNDLE = BuildingStrategy.class.getPackage().getName() + ".Building";
+    private static final String RESOURCE_BUNDLE = BuildingStrategy.class.getPackage().getName() + ".Building";
 
     /**
      * Attribute ids
@@ -71,8 +73,6 @@ public class BuildingStrategy extends AbstractStrategy {
             return orderByAttributeId;
         }
     }
-
-    public static final String ORDER_BY_PARAM = "orderByAttribute";
 
     /**
      * Filter constants
@@ -130,7 +130,22 @@ public class BuildingStrategy extends AbstractStrategy {
                     loadAttributes(building);
                     buildings.add(building);
                 } else {
-                    //TODO: throw error exception
+                    if (result.isEmpty()) {
+                        String message = "There are no building object linked to active building address object. Building address object id = " + address.getId()
+                                + ". Address base is in inconsistent state!";
+                        throw new RuntimeException(message);
+                    } else {
+                        List<Long> buildingIds = Lists.newArrayList(Iterables.transform(result, new Function<Building, Long>() {
+
+                            @Override
+                            public Long apply(Building building) {
+                                return building.getId();
+                            }
+                        }));
+                        String message = "There are more than one building objects linked to one building address object. Building address object id = "
+                                + address.getId() + ", building object's ids linked to specified building address object: " + buildingIds;
+                        throw new RuntimeException(message);
+                    }
                 }
             }
         }

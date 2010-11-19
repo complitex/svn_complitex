@@ -22,7 +22,7 @@ public class StreetTypeComponent extends AbstractComplexAttributesPanel {
     @Override
     protected void init() {
         EntityTypePanel streetType = new EntityTypePanel("streetType", "street_type", getInputPanel().getObject(),
-                StreetStrategy.STREET_TYPE_ATTRIBUTE, new ResourceModel("street_type"), !isDisabled());
+                StreetStrategy.STREET_TYPE, new ResourceModel("street_type"), !isDisabled());
         add(streetType);
     }
 }
