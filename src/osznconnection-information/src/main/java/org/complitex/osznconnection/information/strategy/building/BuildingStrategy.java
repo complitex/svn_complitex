@@ -20,6 +20,8 @@ import java.text.MessageFormat;
 import java.util.*;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
+import org.complitex.dictionaryfw.entity.description.EntityAttributeType;
+import org.complitex.dictionaryfw.entity.description.EntityAttributeValueType;
 import org.complitex.dictionaryfw.entity.example.AttributeExample;
 import org.complitex.dictionaryfw.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionaryfw.strategy.web.IValidator;
@@ -343,6 +345,34 @@ public class BuildingStrategy extends AbstractStrategy {
             return buildingIds.get(0);
         }
         return null;
+    }
+
+    @Override
+    protected void fillAttributes(DomainObject object) {
+        List<Attribute> toAdd = Lists.newArrayList();
+
+        for (EntityAttributeType attributeType : getEntity().getEntityAttributeTypes()) {
+            if (!attributeType.isObsolete()) {
+                if (object.getAttributes(attributeType.getId()).isEmpty()) {
+                    if ((attributeType.getEntityAttributeValueTypes().size() == 1) && !attributeType.getId().equals(BUILDING_ADDRESS)) {
+                        Attribute attribute = new Attribute();
+                        EntityAttributeValueType attributeValueType = attributeType.getEntityAttributeValueTypes().get(0);
+                        attribute.setAttributeTypeId(attributeType.getId());
+                        attribute.setValueTypeId(attributeValueType.getId());
+                        attribute.setObjectId(object.getId());
+                        attribute.setAttributeId(1L);
+
+                        if (isSimpleAttributeType(attributeType)) {
+                            attribute.setLocalizedValues(stringBean.newStringCultures());
+                        }
+                        toAdd.add(attribute);
+                    }
+                }
+            }
+        }
+        if (!toAdd.isEmpty()) {
+            object.getAttributes().addAll(toAdd);
+        }
     }
 
     @Transactional
