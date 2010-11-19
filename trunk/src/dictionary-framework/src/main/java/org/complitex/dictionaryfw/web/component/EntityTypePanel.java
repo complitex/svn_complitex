@@ -38,9 +38,8 @@ public class EntityTypePanel extends Panel {
 
     private boolean enabled;
 
-
     public EntityTypePanel(String id, String entityType, DomainObject object, long entityTypeAttribute,
-                           IModel<String> labelModel, boolean enabled) {
+            IModel<String> labelModel, boolean enabled) {
         super(id);
 
         this.entityType = entityType;
@@ -92,13 +91,12 @@ public class EntityTypePanel extends Panel {
     }
 
     private Attribute findEntityTypeAttribute() {
-        return Iterables.find(object.getAttributes(), new Predicate<Attribute>() {
-
-            @Override
-            public boolean apply(Attribute attr) {
-                return attr.getAttributeTypeId().equals(entityTypeAttribute);
-            }
-        });
+        Attribute attr = object.getAttribute(entityTypeAttribute);
+        if (attr != null) {
+            return attr;
+        } else {
+            throw new RuntimeException("Couldn't find entity attribute with attribute type id = " + entityTypeAttribute);
+        }
     }
 
     private Strategy getEntityTypeStrategy() {

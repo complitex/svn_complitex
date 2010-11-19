@@ -118,6 +118,15 @@ public class DomainObjectExample implements Serializable {
         return attributeExamples;
     }
 
+    public AttributeExample getAttributeExample(long attributeTypeId){
+        for(AttributeExample attrExample : attributeExamples){
+            if(attrExample.getAttributeTypeId().equals(attributeTypeId)){
+                return attrExample;
+            }
+        }
+        return null;
+    }
+
     public void setAttributeExamples(List<AttributeExample> attributeExamples) {
         this.attributeExamples = attributeExamples;
     }

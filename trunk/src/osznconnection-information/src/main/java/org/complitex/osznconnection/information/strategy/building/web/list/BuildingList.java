@@ -147,10 +147,6 @@ public final class BuildingList extends TemplatePage {
 
             @Override
             public int size() {
-                String sortProperty = getSort().getProperty();
-                if (!Strings.isEmpty(sortProperty)) {
-                    example.setOrderByAttributeTypeId(Long.valueOf(sortProperty));
-                }
                 example.setStatus(showModeModel.getObject().name());
                 example.setLocale(getLocale().getLanguage());
                 return buildingStrategy.count(example);

@@ -155,7 +155,7 @@ public final class SearchComponent extends Panel {
         final WebMarkupContainer searchPanel = new WebMarkupContainer("searchPanel");
         searchPanel.setOutputMarkupId(true);
         final AutoCompleteSettings settings = new AutoCompleteSettings();
-        settings.setAdjustInputWidth(false);
+//        settings.setAdjustInputWidth(false);
 
         ListView<String> columns = new ListView<String>("columns", searchFilters) {
 
@@ -196,16 +196,12 @@ public final class SearchComponent extends Panel {
                 final int index = item.getIndex();
                 Renderer renderer = new Renderer(entity);
                 final IModel<DomainObject> model = filterModels.get(index);
-//                DomainObject fromComponentState = componentState.get(entity);
-//                if (fromComponentState != null) {
-//                    model.setObject(fromComponentState);
-//                }
                 AutoCompleteTextField filter = new AutoCompleteTextField("filter", new FilterModel(model, entity),
                         renderer, settings, strategyFactory.getStrategy(entity).getSearchTextFieldSize()) {
 
                     @Override
                     protected List<DomainObject> getChoiceList(String searchTextInput) {
-                        Map<String, DomainObject> previousInfo = getState(index - 1, filterModels);
+                        Map<String, DomainObject> previousInfo = getState(index - 1);
                         if (!isComplete(previousInfo)) {
                             return Collections.emptyList();
                         }
@@ -248,15 +244,12 @@ public final class SearchComponent extends Panel {
                 setEnable(entity, filter);
                 filter.setOutputMarkupId(true);
                 if (index == searchFilters.size() - 1) {
-//                    invokeCallbackIfNecessary(index, filterModels, null);
-
                     filter.add(new AjaxFormComponentUpdatingBehavior("onblur") {
 
                         @Override
                         protected void onUpdate(AjaxRequestTarget target) {
                             //update model
-
-                            invokeCallbackIfNecessary(index, filterModels, target);
+                            invokeCallbackIfNecessary(target);
                         }
                     });
                 } else {
@@ -277,24 +270,24 @@ public final class SearchComponent extends Panel {
 //                            setFocusOnNextFilter(target);
                         }
 
-                        private void refreshFilters(final AjaxRequestTarget target) {
-                            ListView view = (ListView) item.getParent();
-                            view.visitChildren(ListItem.class, new IVisitor<ListItem<String>>() {
-
-                                @Override
-                                public Object component(ListItem<String> visitedItem) {
-                                    if (visitedItem.getIndex() > index) {
-                                        target.addComponent(visitedItem.get("filter"));
-                                    }
-                                    return CONTINUE_TRAVERSAL;
-                                }
-                            });
-                        }
-
-                        private void setFocusOnNextFilter(AjaxRequestTarget target) {
-                            ListItem<String> nextItem = (ListItem<String>) ((ListView) item.getParent()).get(index + 1);
-                            target.focusComponent(nextItem.get("filter"));
-                        }
+//                        private void refreshFilters(final AjaxRequestTarget target) {
+//                            ListView view = (ListView) item.getParent();
+//                            view.visitChildren(ListItem.class, new IVisitor<ListItem<String>>() {
+//
+//                                @Override
+//                                public Object component(ListItem<String> visitedItem) {
+//                                    if (visitedItem.getIndex() > index) {
+//                                        target.addComponent(visitedItem.get("filter"));
+//                                    }
+//                                    return CONTINUE_TRAVERSAL;
+//                                }
+//                            });
+//                        }
+//
+//                        private void setFocusOnNextFilter(AjaxRequestTarget target) {
+//                            ListItem<String> nextItem = (ListItem<String>) ((ListView) item.getParent()).get(index + 1);
+//                            target.focusComponent(nextItem.get("filter"));
+//                        }
                     });
                 }
                 item.add(filter);
@@ -304,7 +297,7 @@ public final class SearchComponent extends Panel {
         add(searchPanel);
     }
 
-    private Map<String, DomainObject> getState(int idx, List<IModel<DomainObject>> filterModels) {
+    private Map<String, DomainObject> getState(int idx) {
         Map<String, DomainObject> objects = Maps.newHashMap();
         int index = idx;
         while (index > -1) {
@@ -326,12 +319,12 @@ public final class SearchComponent extends Panel {
     }
 
     public void invokeCallback() {
-        invokeCallbackIfNecessary(searchFilters.size() - 1, filterModels, null);
+        invokeCallbackIfNecessary(null);
     }
 
-    private void invokeCallbackIfNecessary(int index, List<IModel<DomainObject>> filterModels, AjaxRequestTarget target) {
+    private void invokeCallbackIfNecessary(AjaxRequestTarget target) {
         if (callback != null) {
-            Map<String, DomainObject> finalState = getState(index, filterModels);
+            Map<String, DomainObject> finalState = getState(searchFilters.size() - 1);
             if (isComplete(finalState)) {
                 Map<String, Long> ids = transformObjects(finalState);
                 componentState.updateState(finalState);

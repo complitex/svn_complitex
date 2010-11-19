@@ -7,7 +7,6 @@ import org.apache.wicket.feedback.FeedbackMessagesModel;
 import org.apache.wicket.feedback.IFeedbackMessageFilter;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +42,7 @@ public class AjaxFeedbackPanel extends FeedbackPanel{
         });
     }
 
+    @Override
     protected FeedbackMessagesModel newFeedbackMessagesModel(){
         return new FeedbackMessagesModel(this){
             @Override
