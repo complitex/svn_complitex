@@ -1,18 +1,15 @@
 package org.complitex.dictionaryfw.util;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 14.01.2010 0:30:49
  */
 public class DateUtil {
+
     public static Date getCurrentDate() {
         return Calendar.getInstance().getTime();
     }
@@ -43,19 +40,6 @@ public class DateUtil {
         return String.format("%d:%02d:%02d", hour, min, sec);
     }
 
-    public static Date getFirstDateOfYear() {
-        Calendar c = Calendar.getInstance();
-        c.set(c.get(Calendar.YEAR), 0, 1, 0, 0, 0);
-        return c.getTime();
-    }
-
-    public static Date getLastDateOfMonth(int month) {
-        Calendar c = Calendar.getInstance();
-        c.set(c.get(Calendar.YEAR), month + 1, 1);
-        c.add(Calendar.DATE, -1);
-        return getEndOfDay(c.getTime());
-    }
-
     /**
      * Отображает локализованный месяц
      * @param month месяц, формат 1-январь, 2-февраль
@@ -64,39 +48,14 @@ public class DateUtil {
      */
     public static String displayMonth(int month, Locale locale) {
         Calendar c = Calendar.getInstance();
-        c.set(Calendar.MONTH, month-1);
+        c.set(Calendar.MONTH, month - 1);
         return c.getDisplayName(Calendar.MONTH, Calendar.LONG, locale);
     }
 
-    public static String format(Date date, Locale locale) {
-        DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, locale);
-        return dateFormat.format(date);
-    }
-
-    public static int getCurrentYear(){
-        return Calendar.getInstance().get(Calendar.YEAR);
-    }
-
-    public static int getCurrentMonth(){
-        return Calendar.getInstance().get(Calendar.MONTH);
-    }
-
-    public static Date getBeginOfDay(Date date){
-        Calendar c = Calendar.getInstance();
-
-        c.setTime(date);
-        c.set(Calendar.HOUR_OF_DAY, 0);
-        c.set(Calendar.MINUTE, 0);
-        c.set(Calendar.SECOND, 0);
-        c.set(Calendar.MILLISECOND, 0);
-
-        return c.getTime();
-    }
-
-    public static boolean isTheSameDay(Date date1, Date date2){
-        if (date1 == null && date2 == null){
+    public static boolean isTheSameDay(Date date1, Date date2) {
+        if (date1 == null && date2 == null) {
             return true;
-        }else if (date1 == null || date2 == null){
+        } else if (date1 == null || date2 == null) {
             return false;
         }
 
@@ -106,40 +65,19 @@ public class DateUtil {
         Calendar c2 = Calendar.getInstance();
         c2.setTime(date2);
 
-        return c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR) &&
-                c1.get(Calendar.DAY_OF_YEAR) == c2.get(Calendar.DAY_OF_YEAR);
+        return c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR)
+                && c1.get(Calendar.DAY_OF_YEAR) == c2.get(Calendar.DAY_OF_YEAR);
     }
 
-    public static int getYear(Date date){
-        Calendar c = Calendar.getInstance();
-        c.setTime(date);
-        return c.get(Calendar.YEAR);
-    }
-
-    public static Date parseDate(String month, int year){
-        try {
-            return new SimpleDateFormat("MMyyyy").parse(month+year);
-        } catch (ParseException e) {
-            return null;
-        }
-    }
-
-    public static Date parseYear(int year){
-        Calendar calendar  = Calendar.getInstance();
-        calendar.clear();
-        calendar.set(Calendar.YEAR, year);
-        return calendar.getTime();
-    }
-
-    public static Date getMax(Date date1, Date date2){
-        if (date1 == null || date2 == null){
+    public static Date getMax(Date date1, Date date2) {
+        if (date1 == null || date2 == null) {
             return date1 == null ? date2 : date1;
         }
 
-        return date1.compareTo(date2) > 0 ? date1 : date2;       
+        return date1.compareTo(date2) > 0 ? date1 : date2;
     }
 
-    public static boolean isCurrentDay(Date date){
+    public static boolean isCurrentDay(Date date) {
         return isTheSameDay(date, getCurrentDate());
     }
 }

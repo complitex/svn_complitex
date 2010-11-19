@@ -4,10 +4,7 @@
 <mapper namespace="org.complitex.osznconnection.information.strategy.street.Street">
 
     <select id="find" resultMap="org.complitex.dictionaryfw.entity.DomainObject.DomainObject" parameterType="DomainObjectExample">
-        SELECT e.`object_id`, e.`start_date`, e.`end_date`, e.`status`, e.`parent_id`,
-        (SELECT ent.`id` FROM `entity` ent WHERE ent.`entity_table` = #{table}) as entity_id,
-        (SELECT ent.`entity_table` FROM `entity` ent WHERE ent.`id` = e.`parent_entity_id`) as parent_entity,
-        e.`parent_entity_id`, e.`entity_type_id`, '${locale}' as locale, '${table}' as table_name
+        SELECT e.*
         FROM `${table}` e WHERE
         <include refid="org.complitex.dictionaryfw.entity.DomainObject.statusFilter"/>
         <include refid="org.complitex.dictionaryfw.entity.DomainObject.filter"/>

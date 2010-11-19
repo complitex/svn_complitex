@@ -9,7 +9,7 @@ import org.apache.wicket.util.string.Strings;
 import javax.ejb.ConcurrencyManagement;
 import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.Singleton;
-import javax.naming.InitialContext;
+import org.complitex.dictionaryfw.util.EjbBeanLocator;
 
 /**
  *
@@ -20,11 +20,7 @@ import javax.naming.InitialContext;
 public class StrategyFactory {
 
     public Strategy getStrategy(String entityTable) {
-        try {
-            InitialContext context = new InitialContext();
-            return (Strategy) context.lookup("java:module/" + Strings.capitalize(entityTable) + "Strategy");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        String strategyName = Strings.capitalize(entityTable) + "Strategy";
+        return EjbBeanLocator.getBean(strategyName);
     }
 }

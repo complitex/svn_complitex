@@ -14,6 +14,8 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.util.ArrayList;
 import java.util.List;
+import org.complitex.dictionaryfw.entity.DomainObject;
+import org.complitex.dictionaryfw.util.DateUtil;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -122,7 +124,8 @@ public class UserBean extends AbstractBean {
 
             //сохранение информации о пользователе
             if (user.getUserInfoObjectId() != null){
-                getUserInfoStrategy().update(user.getUserInfo());
+                DomainObject userInfo = user.getUserInfo();
+                getUserInfoStrategy().update(getUserInfoStrategy().findById(userInfo.getId()), userInfo, DateUtil.getCurrentDate());
             }else{
                 getUserInfoStrategy().insert(user.getUserInfo());
                 user.setUserInfoObjectId(user.getUserInfo().getId());

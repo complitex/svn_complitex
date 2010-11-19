@@ -134,7 +134,7 @@ public final class BuildingList extends TemplatePage {
                 boolean asc = getSort().isAscending();
                 String sortProperty = getSort().getProperty();
                 if (!Strings.isEmpty(sortProperty)) {
-                    example.setOrderByAttribureTypeId(Long.valueOf(sortProperty));
+                    example.setOrderByAttributeTypeId(Long.valueOf(sortProperty));
                 }
 
                 example.setStatus(showModeModel.getObject().name());
@@ -149,7 +149,7 @@ public final class BuildingList extends TemplatePage {
             public int size() {
                 String sortProperty = getSort().getProperty();
                 if (!Strings.isEmpty(sortProperty)) {
-                    example.setOrderByAttribureTypeId(Long.valueOf(sortProperty));
+                    example.setOrderByAttributeTypeId(Long.valueOf(sortProperty));
                 }
                 example.setStatus(showModeModel.getObject().name());
                 example.setLocale(getLocale().getLanguage());

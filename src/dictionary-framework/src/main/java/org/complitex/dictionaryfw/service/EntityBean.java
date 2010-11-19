@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 public class EntityBean extends AbstractBean {
 
-    private static final String ENTITY_NAMESPACE = "org.complitex.dictionaryfw.entity.description.Entity";
+    private static final String MAPPING_NAMESPACE = "org.complitex.dictionaryfw.entity.description.Entity";
 
     @EJB(beanName = "StringCultureBean")
     private StringCultureBean stringBean;
@@ -49,8 +49,8 @@ public class EntityBean extends AbstractBean {
     }
 
     @Transactional
-    private Entity loadFromDb(String entity) {
-        return (Entity) sqlSession().selectOne(ENTITY_NAMESPACE + ".load", ImmutableMap.of("entity", entity));
+    protected Entity loadFromDb(String entity) {
+        return (Entity) sqlSession().selectOne(MAPPING_NAMESPACE + ".load", ImmutableMap.of("entity", entity));
     }
 
     protected void invalidateCache(String entity) {
@@ -62,10 +62,10 @@ public class EntityBean extends AbstractBean {
         return stringBean.displayValue(entity.getAttributeType(attributeTypeId).getAttributeNames(), locale);
     }
 
-    @Transactional
-    public Entity getFullEntity(String entity) {
-        return (Entity) sqlSession().selectOne(ENTITY_NAMESPACE + ".load", ImmutableMap.of("entity", entity, "all", ""));
-    }
+//    @Transactional
+//    public Entity getFullEntity(String entity) {
+//        return (Entity) sqlSession().selectOne(MAPPING_NAMESPACE + ".load", ImmutableMap.of("entity", entity, "all", ""));
+//    }
 
     public EntityAttributeType newAttributeType() {
         EntityAttributeType attributeType = new EntityAttributeType();
@@ -145,10 +145,10 @@ public class EntityBean extends AbstractBean {
         attributeType.setEntityId(entityId);
         Long stringId = stringBean.insertStrings(attributeType.getAttributeNames(), null);
         attributeType.setAttributeNameId(stringId);
-        sqlSession().insert(ENTITY_NAMESPACE + ".insertAttributeType", attributeType);
+        sqlSession().insert(MAPPING_NAMESPACE + ".insertAttributeType", attributeType);
         EntityAttributeValueType valueType = attributeType.getEntityAttributeValueTypes().get(0);
         valueType.setAttributeTypeId(attributeType.getId());
-        sqlSession().insert(ENTITY_NAMESPACE + ".insertValueType", valueType);
+        sqlSession().insert(MAPPING_NAMESPACE + ".insertValueType", valueType);
     }
 
     @Transactional
@@ -157,7 +157,7 @@ public class EntityBean extends AbstractBean {
         entityType.setEntityId(entityId);
         Long stringId = stringBean.insertStrings(entityType.getEntityTypeNames(), null);
         entityType.setEntityTypeNameId(stringId);
-        sqlSession().insert(ENTITY_NAMESPACE + ".insertEntityType", entityType);
+        sqlSession().insert(MAPPING_NAMESPACE + ".insertEntityType", entityType);
     }
 
     @Transactional
@@ -167,7 +167,7 @@ public class EntityBean extends AbstractBean {
                     put("endDate", endDate).
                     put("attributeTypeIds", attributeTypeIds).
                     build();
-            sqlSession().update(ENTITY_NAMESPACE + ".removeAttributeTypes", params);
+            sqlSession().update(MAPPING_NAMESPACE + ".removeAttributeTypes", params);
             strategyFactory.getStrategy(entityTable).archiveAttributes(attributeTypeIds, endDate);
         }
     }
@@ -179,7 +179,7 @@ public class EntityBean extends AbstractBean {
                     put("endDate", endDate).
                     put("entityTypeIds", entityTypeIds).
                     build();
-            sqlSession().update(ENTITY_NAMESPACE + ".removeEntityTypes", params);
+            sqlSession().update(MAPPING_NAMESPACE + ".removeEntityTypes", params);
         }
     }
 
@@ -189,11 +189,11 @@ public class EntityBean extends AbstractBean {
     @SuppressWarnings({"unchecked"})
     @Transactional
     public Collection<String> getAllEntities() {
-        return sqlSession().selectList(ENTITY_NAMESPACE + ".allEntities");
+        return sqlSession().selectList(MAPPING_NAMESPACE + ".allEntities");
     }
 
     @Transactional
     public List<EntityType> getAllEntityTypes() {
-        return sqlSession().selectList(ENTITY_NAMESPACE + ".allEntityTypes");
+        return sqlSession().selectList(MAPPING_NAMESPACE + ".allEntityTypes");
     }
 }

@@ -4,6 +4,9 @@
  */
 package org.complitex.dictionaryfw.entity;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -17,8 +20,6 @@ public class DomainObject implements Serializable {
 
     private Long id;
 
-    private Long entityId;
-
     private StatusType status = StatusType.ACTIVE;
 
     private Date startDate;
@@ -31,8 +32,6 @@ public class DomainObject implements Serializable {
 
     private Long entityTypeId;
 
-    private String parentEntity;
-
     private List<Attribute> attributes = new ArrayList<Attribute>();
 
     public Attribute getAttribute(Long attributeTypeId){
@@ -43,6 +42,16 @@ public class DomainObject implements Serializable {
         }
 
         return null;
+    }
+
+    public List<Attribute> getAttributes(final Long attributeTypeId){
+        return Lists.newArrayList(Iterables.filter(attributes, new Predicate<Attribute>() {
+
+            @Override
+            public boolean apply(Attribute attr) {
+                return attr.getAttributeTypeId().equals(attributeTypeId);
+            }
+        }));
     }
 
     public Date getEndDate() {
@@ -111,21 +120,5 @@ public class DomainObject implements Serializable {
 
     public void setParentEntityId(Long parentEntityId) {
         this.parentEntityId = parentEntityId;
-    }
-
-    public Long getEntityId() {
-        return entityId;
-    }
-
-    public void setEntityId(Long entityId) {
-        this.entityId = entityId;
-    }
-
-    public String getParentEntity() {
-        return parentEntity;
-    }
-
-    public void setParentEntity(String parentEntity) {
-        this.parentEntity = parentEntity;
     }
 }

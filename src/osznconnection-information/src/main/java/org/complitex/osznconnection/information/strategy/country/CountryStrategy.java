@@ -3,8 +3,6 @@ package org.complitex.osznconnection.information.strategy.country;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.entity.Attribute;
 import org.complitex.dictionaryfw.entity.DomainObject;
@@ -12,12 +10,7 @@ import org.complitex.dictionaryfw.entity.description.EntityAttributeType;
 import org.complitex.dictionaryfw.entity.example.AttributeExample;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.service.StringCultureBean;
-import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.util.ResourceUtil;
-import org.complitex.dictionaryfw.web.component.search.ISearchCallback;
-import org.complitex.osznconnection.commons.web.pages.DomainObjectEdit;
-import org.complitex.osznconnection.commons.web.pages.DomainObjectList;
-import org.complitex.osznconnection.commons.web.pages.HistoryPage;
 import org.complitex.osznconnection.information.resource.CommonResources;
 
 import javax.ejb.EJB;
@@ -26,13 +19,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import org.complitex.osznconnection.commons.strategy.AbstractStrategy;
 
 /**
  *
  * @author Artem
  */
 @Stateless
-public class CountryStrategy extends Strategy {
+public class CountryStrategy extends AbstractStrategy {
 
     @EJB(beanName = "StringCultureBean")
     private StringCultureBean stringBean;
@@ -67,11 +61,6 @@ public class CountryStrategy extends Strategy {
     }
 
     @Override
-    public ISearchCallback getSearchCallback() {
-        return null;
-    }
-
-    @Override
     public void configureExample(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
         configureExampleImpl(example, ids, searchTextInput);
     }
@@ -96,16 +85,6 @@ public class CountryStrategy extends Strategy {
     }
 
     @Override
-    public List<String> getSearchFilters() {
-        return null;
-    }
-
-    @Override
-    public ISearchCallback getParentSearchCallback() {
-        return null;
-    }
-
-    @Override
     public String getPluralEntityLabel(Locale locale) {
         return ResourceUtil.getString(CommonResources.class.getName(), getEntityTable(), locale);
     }
@@ -113,50 +92,5 @@ public class CountryStrategy extends Strategy {
     @Override
     public String[] getChildrenEntities() {
         return new String[]{"region"};
-    }
-
-    @Override
-    public Class<? extends WebPage> getEditPage() {
-        return DomainObjectEdit.class;
-    }
-
-    @Override
-    public PageParameters getEditPageParams(Long objectId, Long parentId, String parentEntity) {
-        PageParameters params = new PageParameters();
-        params.put(DomainObjectEdit.ENTITY, getEntityTable());
-        params.put(DomainObjectEdit.OBJECT_ID, objectId);
-        params.put(DomainObjectEdit.PARENT_ID, parentId);
-        params.put(DomainObjectEdit.PARENT_ENTITY, parentEntity);
-        return params;
-    }
-
-    @Override
-    public Class<? extends WebPage> getListPage() {
-        return DomainObjectList.class;
-    }
-
-    @Override
-    public PageParameters getListPageParams() {
-        PageParameters params = new PageParameters();
-        params.put(DomainObjectList.ENTITY, getEntityTable());
-        return params;
-    }
-
-    @Override
-    public String[] getParents() {
-        return null;
-    }
-
-    @Override
-    public Class<? extends WebPage> getHistoryPage() {
-        return HistoryPage.class;
-    }
-
-    @Override
-    public PageParameters getHistoryPageParams(long objectId) {
-        PageParameters params = new PageParameters();
-        params.put(HistoryPage.ENTITY, getEntityTable());
-        params.put(HistoryPage.OBJECT_ID, objectId);
-        return params;
     }
 }

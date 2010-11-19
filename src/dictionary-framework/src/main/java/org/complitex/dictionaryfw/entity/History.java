@@ -29,15 +29,4 @@ public class History implements Serializable {
     public DomainObject getObject() {
         return object;
     }
-
-    @Override
-    public String toString() {
-        String result = "";
-        result += "Date = " + date + ", object id = " + object.getId() + ", attributes = [";
-        for (Attribute attr : object.getAttributes()) {
-            result += "value_id = " + attr.getValueId();
-        }
-        result += "]";
-        return result;
-    }
 }

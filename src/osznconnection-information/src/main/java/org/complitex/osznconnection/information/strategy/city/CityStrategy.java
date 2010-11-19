@@ -5,9 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.entity.Attribute;
 import org.complitex.dictionaryfw.entity.DomainObject;
@@ -22,9 +20,6 @@ import org.complitex.dictionaryfw.util.ResourceUtil;
 import org.complitex.dictionaryfw.web.component.DomainObjectInputPanel;
 import org.complitex.dictionaryfw.web.component.search.ISearchCallback;
 import org.complitex.dictionaryfw.web.component.search.SearchComponent;
-import org.complitex.osznconnection.commons.web.pages.DomainObjectEdit;
-import org.complitex.osznconnection.commons.web.pages.DomainObjectList;
-import org.complitex.osznconnection.commons.web.pages.HistoryPage;
 import org.complitex.osznconnection.information.resource.CommonResources;
 
 import javax.ejb.EJB;
@@ -35,6 +30,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
+import org.complitex.osznconnection.commons.strategy.AbstractStrategy;
 import org.complitex.osznconnection.information.strategy.city.web.edit.CityTypeComponent;
 
 /**
@@ -42,7 +38,7 @@ import org.complitex.osznconnection.information.strategy.city.web.edit.CityTypeC
  * @author Artem
  */
 @Stateless(name = "CityStrategy")
-public class CityStrategy extends Strategy {
+public class CityStrategy extends AbstractStrategy {
 
     @EJB
     private StringCultureBean stringBean;
@@ -53,21 +49,6 @@ public class CityStrategy extends Strategy {
     private static final long NAME_ATTRIBUTE_TYPE_ID = 400;
 
     public static final long CITY_TYPE_ATTRIBUTE = 401;
-
-    @Override
-    public DomainObject newInstance() {
-        DomainObject object = super.newInstance();
-        newCityTypeAttribute(object);
-        return object;
-    }
-
-    private void newCityTypeAttribute(DomainObject object) {
-        Attribute districtAttr = new Attribute();
-        districtAttr.setAttributeId(1L);
-        districtAttr.setAttributeTypeId(CITY_TYPE_ATTRIBUTE);
-        districtAttr.setValueTypeId(CITY_TYPE_ATTRIBUTE);
-        object.addAttribute(districtAttr);
-    }
 
     @Override
     public List<EntityAttributeType> getListColumns() {
@@ -194,48 +175,8 @@ public class CityStrategy extends Strategy {
     }
 
     @Override
-    public Class<? extends WebPage> getEditPage() {
-        return DomainObjectEdit.class;
-    }
-
-    @Override
-    public PageParameters getEditPageParams(Long objectId, Long parentId, String parentEntity) {
-        PageParameters params = new PageParameters();
-        params.put(DomainObjectEdit.ENTITY, getEntityTable());
-        params.put(DomainObjectEdit.OBJECT_ID, objectId);
-        params.put(DomainObjectEdit.PARENT_ID, parentId);
-        params.put(DomainObjectEdit.PARENT_ENTITY, parentEntity);
-        return params;
-    }
-
-    @Override
-    public Class<? extends WebPage> getListPage() {
-        return DomainObjectList.class;
-    }
-
-    @Override
-    public PageParameters getListPageParams() {
-        PageParameters params = new PageParameters();
-        params.put(DomainObjectList.ENTITY, getEntityTable());
-        return params;
-    }
-
-    @Override
     public String[] getParents() {
         return new String[]{"region"};
-    }
-
-    @Override
-    public Class<? extends WebPage> getHistoryPage() {
-        return HistoryPage.class;
-    }
-
-    @Override
-    public PageParameters getHistoryPageParams(long objectId) {
-        PageParameters params = new PageParameters();
-        params.put(HistoryPage.ENTITY, getEntityTable());
-        params.put(HistoryPage.OBJECT_ID, objectId);
-        return params;
     }
 
     @Override

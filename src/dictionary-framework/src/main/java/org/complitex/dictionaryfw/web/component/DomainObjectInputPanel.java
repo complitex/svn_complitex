@@ -163,7 +163,7 @@ public class DomainObjectInputPanel extends Panel {
     }
 
     private void init() {
-        final Entity description = isHistory() ? entityBean.getFullEntity(entity) : getStrategy().getEntity();
+        final Entity description = isHistory() ? entityBean.getEntity(entity) : getStrategy().getEntity();
 
         //entity type
         WebMarkupContainer typeContainer = new WebMarkupContainer("typeContainer");

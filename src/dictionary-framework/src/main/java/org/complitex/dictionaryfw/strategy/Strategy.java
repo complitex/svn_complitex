@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import java.util.*;
+import org.complitex.dictionaryfw.util.DateUtil;
 
 /**
  *
@@ -73,30 +74,26 @@ public abstract class Strategy extends AbstractBean {
     public abstract String getEntityTable();
 
     public boolean isSimpleAttributeType(EntityAttributeType entityAttributeType) {
-        return Lists.newArrayList(Iterables.filter(entityAttributeType.getEntityAttributeValueTypes(), new Predicate<EntityAttributeValueType>() {
-
-            @Override
-            public boolean apply(EntityAttributeValueType entityAttributeValueType) {
-                return !SimpleTypes.isSimpleType(entityAttributeValueType.getValueType());
-            }
-        })).isEmpty();
+        if (entityAttributeType.getEntityAttributeValueTypes().size() != 1) {
+            return false;
+        } else {
+            return SimpleTypes.isSimpleType(entityAttributeType.getEntityAttributeValueTypes().get(0).getValueType());
+        }
     }
 
     public boolean isSimpleAttribute(final Attribute attribute) {
-        EntityAttributeType entityAttributeType = Iterables.find(getEntity().getEntityAttributeTypes(), new Predicate<EntityAttributeType>() {
-
-            @Override
-            public boolean apply(EntityAttributeType entityAttributeType) {
-                return entityAttributeType.getId().equals(attribute.getAttributeTypeId());
-            }
-        });
-        return isSimpleAttributeType(entityAttributeType);
+        EntityAttributeType entityAttributeType = getEntity().getAttributeType(attribute.getAttributeTypeId());
+        if (entityAttributeType != null) {
+            return isSimpleAttributeType(entityAttributeType);
+        } else {
+            return false;
+        }
     }
 
     @Transactional
     public void disable(DomainObject object) {
         object.setStatus(StatusType.INACTIVE);
-        sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new InsertParameter(getEntityTable(), object));
+        sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new Parameter(getEntityTable(), object));
 
         String[] childrenEntities = getChildrenEntities();
         if (childrenEntities != null) {
@@ -116,7 +113,7 @@ public abstract class Strategy extends AbstractBean {
     @Transactional
     public void enable(DomainObject object) {
         object.setStatus(StatusType.ACTIVE);
-        sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new InsertParameter(getEntityTable(), object));
+        sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new Parameter(getEntityTable(), object));
 
         String[] childrenEntities = getChildrenEntities();
         if (childrenEntities != null) {
@@ -150,8 +147,7 @@ public abstract class Strategy extends AbstractBean {
                 if (attribute.getValueId() != null) {
                     loadStringCultures(attribute);
                 } else {
-                    List<StringCulture> strings = Lists.newArrayList();
-                    attribute.setLocalizedValues(strings);
+                    attribute.setLocalizedValues(stringBean.newStringCultures());
                 }
             }
         }
@@ -164,13 +160,13 @@ public abstract class Strategy extends AbstractBean {
 
     @Transactional
     public DomainObject findById(Long id) {
-        DomainObjectExample example = new DomainObjectExample();
-        example.setId(id);
+        DomainObjectExample example = new DomainObjectExample(id);
         example.setTable(getEntityTable());
+
         DomainObject object = (DomainObject) sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + "." + FIND_BY_ID_OPERATION, example);
         if (object != null) {
             loadAttributes(object);
-            updateForNewAttributeTypes(object);
+            fillAttributes(object);
             updateStringsForNewLocales(object);
         }
 
@@ -186,47 +182,49 @@ public abstract class Strategy extends AbstractBean {
         }
     }
 
-    protected void updateForNewAttributeTypes(DomainObject object) {
-        List<Attribute> newAttributes = Lists.newArrayList();
-        for (final EntityAttributeType attributeType : getEntity().getEntityAttributeTypes()) {
-            if (isSimpleAttributeType(attributeType)) {
-                try {
-                    Iterables.find(object.getAttributes(), new Predicate<Attribute>() {
+    protected void fillAttributes(DomainObject object) {
+        List<Attribute> toAdd = Lists.newArrayList();
 
-                        @Override
-                        public boolean apply(Attribute attr) {
-                            return attr.getAttributeTypeId().equals(attributeType.getId());
+        for (EntityAttributeType attributeType : getEntity().getEntityAttributeTypes()) {
+            if (!attributeType.isObsolete()) {
+                if (object.getAttributes(attributeType.getId()).isEmpty()) {
+                    if (attributeType.getEntityAttributeValueTypes().size() == 1) {
+                        Attribute attribute = new Attribute();
+                        EntityAttributeValueType attributeValueType = attributeType.getEntityAttributeValueTypes().get(0);
+                        attribute.setAttributeTypeId(attributeType.getId());
+                        attribute.setValueTypeId(attributeValueType.getId());
+                        attribute.setObjectId(object.getId());
+                        attribute.setAttributeId(1L);
+
+                        if (isSimpleAttributeType(attributeType)) {
+                            attribute.setLocalizedValues(stringBean.newStringCultures());
                         }
-                    });
-                } catch (NoSuchElementException e) {
-                    Attribute attribute = new Attribute();
-                    EntityAttributeValueType attributeValueType = attributeType.getEntityAttributeValueTypes().get(0);
-                    attribute.setAttributeTypeId(attributeType.getId());
-                    attribute.setValueTypeId(attributeValueType.getId());
-                    attribute.setObjectId(object.getId());
-                    attribute.setAttributeId(1L);
-                    attribute.setLocalizedValues(stringBean.newStringCultures());
-                    newAttributes.add(attribute);
+                        toAdd.add(attribute);
+                    } else {
+                        List<Attribute> complexAttributes = fillAttributesWithManyValueTypes(attributeType);
+                        if (complexAttributes != null && !complexAttributes.isEmpty()) {
+                            toAdd.addAll(complexAttributes);
+                        }
+                    }
                 }
             }
         }
-        if (!newAttributes.isEmpty()) {
-            object.getAttributes().addAll(newAttributes);
+        if (!toAdd.isEmpty()) {
+            object.getAttributes().addAll(toAdd);
         }
+    }
+
+    protected List<Attribute> fillAttributesWithManyValueTypes(EntityAttributeType attributeType) {
+        return null;
     }
 
     @SuppressWarnings({"unchecked"})
     @Transactional
     public List<? extends DomainObject> find(DomainObjectExample example) {
         example.setTable(getEntityTable());
+
         List<DomainObject> objects = sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + "." + FIND_OPERATION, example);
         for (DomainObject object : objects) {
-//            for (Attribute attribute : object.getAttributes()) {
-//                if (!isSimpleAttribute(attribute)) {
-//                    //link to another entity object
-//                    attribute.setLocalizedValues(null);
-//                }
-//            }
             loadAttributes(object);
         }
         return objects;
@@ -248,23 +246,10 @@ public abstract class Strategy extends AbstractBean {
 
     public DomainObject newInstance() {
         DomainObject object = new DomainObject();
-
-        for (EntityAttributeType attributeType : getEntity().getEntityAttributeTypes()) {
-            if (isSimpleAttributeType(attributeType)) {
-                //simple attributes
-                Attribute attribute = new Attribute();
-                EntityAttributeValueType attributeValueType = attributeType.getEntityAttributeValueTypes().get(0);
-                attribute.setAttributeTypeId(attributeType.getId());
-                attribute.setValueTypeId(attributeValueType.getId());
-                attribute.setAttributeId(1L);
-                attribute.setLocalizedValues(stringBean.newStringCultures());
-                object.addAttribute(attribute);
-            }
-        }
+        fillAttributes(object);
         return object;
     }
 
-    //todo attributeId is not updated
     @Transactional
     protected void insertAttribute(Attribute attribute) {
         List<StringCulture> strings = attribute.getLocalizedValues();
@@ -274,12 +259,12 @@ public abstract class Strategy extends AbstractBean {
             Long generatedStringId = stringBean.insertStrings(strings, getEntityTable());
             attribute.setValueId(generatedStringId);
         }
-        sqlSession().insert(ATTRIBUTE_NAMESPACE + "." + INSERT_OPERATION, new InsertParameter(getEntityTable(), attribute));
+        sqlSession().insert(ATTRIBUTE_NAMESPACE + "." + INSERT_OPERATION, new Parameter(getEntityTable(), attribute));
     }
 
     @Transactional
     public void insert(DomainObject object) {
-        Date startDate = new Date();
+        Date startDate = DateUtil.getCurrentDate();
         object.setId(sequenceBean.nextId(getEntityTable()));
         insertDomainObject(object, startDate);
         for (Attribute attribute : object.getAttributes()) {
@@ -292,7 +277,7 @@ public abstract class Strategy extends AbstractBean {
     @Transactional
     protected void insertDomainObject(DomainObject object, Date startDate) {
         object.setStartDate(startDate);
-        sqlSession().insert(DOMAIN_OBJECT_NAMESPACE + "." + INSERT_OPERATION, new InsertParameter(getEntityTable(), object));
+        sqlSession().insert(DOMAIN_OBJECT_NAMESPACE + "." + INSERT_OPERATION, new Parameter(getEntityTable(), object));
     }
 
     @Transactional
@@ -316,86 +301,70 @@ public abstract class Strategy extends AbstractBean {
                 if (oldAttr.getAttributeTypeId().equals(newAttr.getAttributeTypeId()) && oldAttr.getAttributeId().equals(newAttr.getAttributeId())) {
                     //the same attribute_type and the same attribute_id
                     removed = false;
-                    if (!oldAttr.getStatus().equals(newAttr.getStatus())) {
-                        newAttr.setStatus(oldAttr.getStatus());
-                        sqlSession().update(ATTRIBUTE_NAMESPACE + "." + UPDATE_OPERATION, new InsertParameter(getEntityTable(), newAttr));
-                    } else {
-                        boolean needToUpdateAttribute = false;
+                    boolean needToUpdateAttribute = false;
 
-                        List<EntityAttributeValueType> valueDescs = getEntity().
-                                getAttributeType(oldAttr.getAttributeTypeId()).
-                                getEntityAttributeValueTypes();
+                    EntityAttributeType attributeType = getEntity().getAttributeType(oldAttr.getAttributeTypeId());
 
-                        boolean isSimpleAttribute = false;
-                        if (valueDescs.size() == 1) {
-                            String attrValueType = valueDescs.get(0).getValueType();
-
-                            try {
-                                SimpleTypes simpleType = SimpleTypes.valueOf(attrValueType.toUpperCase());
-                                isSimpleAttribute = true;
-                                switch (simpleType) {
-                                    case STRING_CULTURE: {
-                                        isSimpleAttribute = true;
-                                        boolean valueChanged = false;
-                                        for (StringCulture oldString : oldAttr.getLocalizedValues()) {
-                                            for (StringCulture newString : newAttr.getLocalizedValues()) {
-                                                //compare strings
-                                                if (oldString.getLocale().equals(newString.getLocale())) {
-                                                    if (!Strings.isEqual(oldString.getValue(), newString.getValue())) {
-                                                        valueChanged = true;
-                                                        break;
-                                                    }
-                                                }
+                    if (isSimpleAttributeType(attributeType)) {
+                        String attrValueType = attributeType.getEntityAttributeValueTypes().get(0).getValueType();
+                        SimpleTypes simpleType = SimpleTypes.valueOf(attrValueType.toUpperCase());
+                        switch (simpleType) {
+                            case STRING_CULTURE: {
+                                boolean valueChanged = false;
+                                for (StringCulture oldString : oldAttr.getLocalizedValues()) {
+                                    for (StringCulture newString : newAttr.getLocalizedValues()) {
+                                        //compare strings
+                                        if (oldString.getLocale().equals(newString.getLocale())) {
+                                            if (!Strings.isEqual(oldString.getValue(), newString.getValue())) {
+                                                valueChanged = true;
+                                                break;
                                             }
                                         }
-
-                                        if (valueChanged) {
-                                            needToUpdateAttribute = true;
-                                        }
                                     }
-                                    break;
-
-                                    case BOOLEAN:
-                                    case DATE:
-                                    case DOUBLE:
-                                    case INTEGER:
-                                    case STRING: {
-                                        String oldString = stringBean.getSystemStringCulture(oldAttr.getLocalizedValues()).getValue();
-                                        String newString = stringBean.getSystemStringCulture(newAttr.getLocalizedValues()).getValue();
-                                        if (!Strings.isEqual(oldString, newString)) {
-                                            needToUpdateAttribute = true;
-                                        }
-                                    }
-                                    break;
                                 }
-                            } catch (IllegalArgumentException e) {
-                            }
-                        }
 
-                        if (!isSimpleAttribute) {
-                            Long oldValueId = oldAttr.getValueId();
-                            Long oldValueTypeId = oldAttr.getValueTypeId();
-                            Long newValueId = newAttr.getValueId();
-                            Long newValueTypeId = newAttr.getValueTypeId();
-                            if (!Numbers.isEqual(oldValueId, newValueId) || !Numbers.isEqual(oldValueTypeId, newValueTypeId)) {
-                                needToUpdateAttribute = true;
+                                if (valueChanged) {
+                                    needToUpdateAttribute = true;
+                                }
                             }
-                        }
+                            break;
 
-                        if (needToUpdateAttribute) {
-                            oldAttr.setEndDate(updateDate);
-                            oldAttr.setStatus(StatusType.ARCHIVE);
-                            sqlSession().update(ATTRIBUTE_NAMESPACE + "." + UPDATE_OPERATION, new InsertParameter(getEntityTable(), oldAttr));
-                            newAttr.setStartDate(updateDate);
-                            insertAttribute(newAttr);
+                            case BOOLEAN:
+                            case DATE:
+                            case DOUBLE:
+                            case INTEGER:
+                            case STRING: {
+                                String oldString = stringBean.getSystemStringCulture(oldAttr.getLocalizedValues()).getValue();
+                                String newString = stringBean.getSystemStringCulture(newAttr.getLocalizedValues()).getValue();
+                                if (!Strings.isEqual(oldString, newString)) {
+                                    needToUpdateAttribute = true;
+                                }
+                            }
+                            break;
                         }
+                    } else {
+                        Long oldValueId = oldAttr.getValueId();
+                        Long oldValueTypeId = oldAttr.getValueTypeId();
+                        Long newValueId = newAttr.getValueId();
+                        Long newValueTypeId = newAttr.getValueTypeId();
+                        if (!Numbers.isEqual(oldValueId, newValueId) || !Numbers.isEqual(oldValueTypeId, newValueTypeId)) {
+                            needToUpdateAttribute = true;
+                        }
+                    }
+
+                    if (needToUpdateAttribute) {
+                        oldAttr.setEndDate(updateDate);
+                        oldAttr.setStatus(StatusType.ARCHIVE);
+                        sqlSession().update(ATTRIBUTE_NAMESPACE + "." + UPDATE_OPERATION, new Parameter(getEntityTable(), oldAttr));
+                        newAttr.setStartDate(updateDate);
+                        insertAttribute(newAttr);
                     }
                 }
             }
             if (removed) {
                 oldAttr.setEndDate(updateDate);
                 oldAttr.setStatus(StatusType.ARCHIVE);
-                sqlSession().update(ATTRIBUTE_NAMESPACE + "." + UPDATE_OPERATION, new InsertParameter(getEntityTable(), oldAttr));
+                sqlSession().update(ATTRIBUTE_NAMESPACE + "." + UPDATE_OPERATION, new Parameter(getEntityTable(), oldAttr));
             }
         }
 
@@ -438,26 +407,22 @@ public abstract class Strategy extends AbstractBean {
         if (needToUpdateObject) {
             oldObject.setStatus(StatusType.ARCHIVE);
             oldObject.setEndDate(updateDate);
-            sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new InsertParameter(getEntityTable(), oldObject));
+            sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new Parameter(getEntityTable(), oldObject));
             insertDomainObject(newObject, updateDate);
         }
     }
 
     public void archive(DomainObject object) {
-        Date endDate = new Date();
+        Date endDate = DateUtil.getCurrentDate();
         object.setStatus(StatusType.ARCHIVE);
         object.setEndDate(endDate);
-        sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new InsertParameter(getEntityTable(), object));
+        sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new Parameter(getEntityTable(), object));
 
         Map<String, Object> params = ImmutableMap.<String, Object>builder().
                 put("table", getEntityTable()).
                 put("endDate", endDate).
                 put("objectId", object.getId()).build();
         sqlSession().update(ATTRIBUTE_NAMESPACE + ".archiveObjectAttributes", params);
-    }
-
-    public void update(DomainObject domainObject) {
-        update(findById(domainObject.getId()), domainObject, new Date());
     }
 
     /*
@@ -484,6 +449,7 @@ public abstract class Strategy extends AbstractBean {
      * @return Сортированный список атрибутов согласно метамодели
      * @see #getListColumns
      * todo cache or sort performance
+     * TODO: find out for what is that.
      */
     public List<Attribute> getAttributeColumns(DomainObject object) {
         if (object == null) {
@@ -508,13 +474,18 @@ public abstract class Strategy extends AbstractBean {
 
     public abstract PageParameters getListPageParams();
 
-    public abstract List<String> getSearchFilters();
+    public List<String> getSearchFilters() {
+        return null;
+    }
 
-    public abstract ISearchCallback getSearchCallback();
+    public ISearchCallback getSearchCallback() {
+        return null;
+    }
 
     public abstract String displayDomainObject(DomainObject object, Locale locale);
 
-    public abstract void configureExample(DomainObjectExample example, Map<String, Long> ids, String searchTextInput);
+    public void configureExample(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
+    }
 
     public String getPluralEntityLabel(Locale locale) {
         return null;
@@ -531,7 +502,9 @@ public abstract class Strategy extends AbstractBean {
         return getSearchFilters();
     }
 
-    public abstract ISearchCallback getParentSearchCallback();
+    public ISearchCallback getParentSearchCallback() {
+        return null;
+    }
 
     public static class RestrictedObjectInfo {
 
@@ -636,16 +609,6 @@ public abstract class Strategy extends AbstractBean {
 
     public abstract PageParameters getHistoryPageParams(long objectId);
 
-//    @Transactional
-//    public boolean hasHistory(Long objectId) {
-//        if (objectId == null) {
-//            return false;
-//        }
-//        DomainObjectExample example = new DomainObjectExample(objectId);
-//        example.setTable(getEntityTable());
-//        return sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + "." + HAS_HISTORY_OPERATION, example) != null;
-//    }
-
     @Transactional
     public List<History> getHistory(long objectId) {
         List<History> historyList = Lists.newArrayList();
@@ -703,9 +666,13 @@ public abstract class Strategy extends AbstractBean {
     /*
      * Description metadata
      */
-    public abstract String[] getChildrenEntities();
+    public String[] getChildrenEntities() {
+        return null;
+    }
 
-    public abstract String[] getParents();
+    public String[] getParents() {
+        return null;
+    }
 
     public String getAttributeLabel(Attribute attribute, Locale locale) {
         return entityBean.getAttributeLabel(getEntityTable(), attribute.getAttributeTypeId(), locale);

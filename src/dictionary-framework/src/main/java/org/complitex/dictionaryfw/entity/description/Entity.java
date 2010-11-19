@@ -74,9 +74,9 @@ public class Entity implements Serializable {
     }
 
     public EntityAttributeType getAttributeType(Long attributeTypeId) {
-        for (EntityAttributeType attributeDescription : getEntityAttributeTypes()) {
-            if (attributeDescription.getId().equals(attributeTypeId)) {
-                return attributeDescription;
+        for (EntityAttributeType attributeType : getEntityAttributeTypes()) {
+            if (attributeType.getId().equals(attributeTypeId)) {
+                return attributeType;
             }
         }
         return null;

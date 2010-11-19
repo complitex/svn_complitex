@@ -8,8 +8,10 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import java.util.Collections;
+import java.util.Comparator;
 import org.apache.wicket.util.string.Strings;
-import org.complitex.dictionaryfw.entity.InsertParameter;
+import org.complitex.dictionaryfw.entity.Parameter;
 import org.complitex.dictionaryfw.entity.StringCulture;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 
@@ -19,6 +21,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import javax.annotation.PostConstruct;
 
 /**
  *
@@ -27,13 +30,42 @@ import java.util.NoSuchElementException;
 @Stateless(name = "StringCultureBean")
 public class StringCultureBean extends AbstractBean {
 
-    private static final String STRING_CULTURE_NAMESPACE = "org.complitex.dictionaryfw.entity.StringCulture";
+    private static final String MAPPING_NAMESPACE = "org.complitex.dictionaryfw.entity.StringCulture";
 
     @EJB(beanName = "SequenceBean")
     private SequenceBean sequenceBean;
 
     @EJB(beanName = "LocaleBean")
     private LocaleBean localeBean;
+
+    private static class StringCultureComparator implements Comparator<StringCulture> {
+
+        private String systemLocale;
+
+        public StringCultureComparator(String systemLocale) {
+            this.systemLocale = systemLocale;
+        }
+
+        @Override
+        public int compare(StringCulture o1, StringCulture o2) {
+            if (o1.getLocale().equals(systemLocale)) {
+                return -1;
+            }
+
+            if (o2.getLocale().equals(systemLocale)) {
+                return 1;
+            }
+
+            return o1.getLocale().compareTo(o2.getLocale());
+        }
+    }
+
+    private StringCultureComparator stringCultureComparator;
+
+    @PostConstruct
+    private void init(){
+        stringCultureComparator = new StringCultureComparator(localeBean.getSystemLocale());
+    }
 
     @Transactional
     public Long insertStrings(List<StringCulture> strings, String entityTable) {
@@ -62,11 +94,11 @@ public class StringCultureBean extends AbstractBean {
     }
 
     @Transactional
-    public void insert(StringCulture stringCulture, String entityTable) {
+    public void insert(StringCulture string, String entityTable) {
         if (Strings.isEmpty(entityTable)) {
-            sqlSession().insert(STRING_CULTURE_NAMESPACE + ".insertDescriptionData", stringCulture);
+            sqlSession().insert(MAPPING_NAMESPACE + ".insertDescriptionData", string);
         } else {
-            sqlSession().insert(STRING_CULTURE_NAMESPACE + ".insert", new InsertParameter(entityTable, stringCulture));
+            sqlSession().insert(MAPPING_NAMESPACE + ".insert", new Parameter(entityTable, string));
         }
     }
 
@@ -76,10 +108,10 @@ public class StringCultureBean extends AbstractBean {
         return strings;
     }
 
-    public void updateForNewLocales(List<StringCulture> stringCultures) {
+    public void updateForNewLocales(List<StringCulture> strings) {
         for (final String locale : localeBean.getAllLocales()) {
             try {
-                Iterables.find(stringCultures, new Predicate<StringCulture>() {
+                Iterables.find(strings, new Predicate<StringCulture>() {
 
                     @Override
                     public boolean apply(StringCulture string) {
@@ -87,13 +119,18 @@ public class StringCultureBean extends AbstractBean {
                     }
                 });
             } catch (NoSuchElementException e) {
-                stringCultures.add(new StringCulture(locale, null));
+                strings.add(new StringCulture(locale, null));
             }
         }
+        sortStrings(strings);
     }
 
-    public StringCulture getSystemStringCulture(List<StringCulture> stringCultures) {
-        return Iterables.find(stringCultures, new Predicate<StringCulture>() {
+    protected void sortStrings(List<StringCulture> strings) {
+        Collections.sort(strings, stringCultureComparator);
+    }
+
+    public StringCulture getSystemStringCulture(List<StringCulture> strings) {
+        return Iterables.find(strings, new Predicate<StringCulture>() {
 
             @Override
             public boolean apply(StringCulture stringCulture) {
@@ -136,6 +173,6 @@ public class StringCultureBean extends AbstractBean {
                 put("table", entityTable).
                 put("id", id).
                 build();
-        return sqlSession().selectList(STRING_CULTURE_NAMESPACE + ".find", params);
+        return sqlSession().selectList(MAPPING_NAMESPACE + ".find", params);
     }
 }

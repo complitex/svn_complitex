@@ -8,23 +8,23 @@ package org.complitex.dictionaryfw.entity;
  *
  * @author Artem
  */
-public class InsertParameter {
+public class Parameter {
 
     private String table;
 
-    private Object entity;
+    private Object object;
 
-    public InsertParameter(String table, Object entity) {
+    public Parameter(String table, Object parameter) {
         this.table = table;
-        this.entity = entity;
+        this.object = parameter;
     }
 
-    public Object getEntity() {
-        return entity;
+    public Object getObject() {
+        return object;
     }
 
-    public void setEntity(Object entity) {
-        this.entity = entity;
+    public void setObject(Object entity) {
+        this.object = entity;
     }
 
     public String getTable() {

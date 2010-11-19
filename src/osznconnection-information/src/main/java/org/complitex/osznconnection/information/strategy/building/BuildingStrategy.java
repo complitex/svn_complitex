@@ -4,8 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.entity.Attribute;
 import org.complitex.dictionaryfw.entity.DomainObject;
@@ -13,22 +11,19 @@ import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.LocaleBean;
 import org.complitex.dictionaryfw.service.StringCultureBean;
-import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.util.ResourceUtil;
-import org.complitex.dictionaryfw.web.component.search.ISearchCallback;
-import org.complitex.osznconnection.commons.web.pages.HistoryPage;
 import org.complitex.osznconnection.information.resource.CommonResources;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.text.MessageFormat;
 import java.util.*;
-import org.complitex.dictionaryfw.entity.description.EntityAttributeType;
-import org.complitex.dictionaryfw.entity.description.EntityAttributeValueType;
+import org.apache.wicket.PageParameters;
+import org.apache.wicket.markup.html.WebPage;
 import org.complitex.dictionaryfw.entity.example.AttributeExample;
 import org.complitex.dictionaryfw.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionaryfw.strategy.web.IValidator;
-import org.complitex.osznconnection.commons.web.pages.DomainObjectEdit;
+import org.complitex.osznconnection.commons.strategy.AbstractStrategy;
 import org.complitex.osznconnection.information.strategy.building.entity.Building;
 import org.complitex.osznconnection.information.strategy.building.web.edit.BuildingEditComponent2;
 import org.complitex.osznconnection.information.strategy.building.web.edit.BuildingValidator2;
@@ -42,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * @author Artem
  */
 @Stateless(name = "BuildingStrategy")
-public class BuildingStrategy extends Strategy {
+public class BuildingStrategy extends AbstractStrategy {
 
     private static final Logger log = LoggerFactory.getLogger(BuildingStrategy.class);
 
@@ -126,7 +121,7 @@ public class BuildingStrategy extends Strategy {
             List<? extends DomainObject> addresses = buildingAddressStrategy.find(addressExample);
             for (DomainObject address : addresses) {
                 example.addAdditionalParam("buildingAddressId", address.getId());
-                List<Building> result = sqlSession().selectList(BUILDING_NAMESPACE + "."+FIND_OPERATION, example);
+                List<Building> result = sqlSession().selectList(BUILDING_NAMESPACE + "." + FIND_OPERATION, example);
                 if (result.size() == 1) {
                     Building building = result.get(0);
                     building.setAccompaniedAddress(address);
@@ -149,7 +144,7 @@ public class BuildingStrategy extends Strategy {
         addressExample.setAsc(buildingExample.isAsc());
         addressExample.setComparisonType(buildingExample.getComparisonType());
         addressExample.setLocale(buildingExample.getLocale());
-        addressExample.setOrderByAttribureTypeId(buildingExample.getOrderByAttribureTypeId());
+        addressExample.setOrderByAttributeTypeId(buildingExample.getOrderByAttributeTypeId());
         if (!Strings.isEmpty(buildingExample.getOrderByExpression())) {
             addressExample.setOrderByExpression(buildingAddressStrategy.getOrderByExpression("e.`object_id`", buildingExample.getLocale(), null));
         }
@@ -221,7 +216,7 @@ public class BuildingStrategy extends Strategy {
             loadAttributes(building);
             setPrimaryAddress(building, null);
             setAlternativeAddresses(building, null);
-            updateForNewAttributeTypes(building);
+            fillAttributes(building);
             updateStringsForNewLocales(building);
         }
         return building;
@@ -230,20 +225,7 @@ public class BuildingStrategy extends Strategy {
     @Override
     public DomainObject newInstance() {
         Building building = new Building();
-
-        for (EntityAttributeType attributeType : getEntity().getEntityAttributeTypes()) {
-            if (isSimpleAttributeType(attributeType)) {
-                //simple attributes
-                Attribute attribute = new Attribute();
-                EntityAttributeValueType attributeValueType = attributeType.getEntityAttributeValueTypes().get(0);
-                attribute.setAttributeTypeId(attributeType.getId());
-                attribute.setValueTypeId(attributeValueType.getId());
-                attribute.setAttributeId(1L);
-                attribute.setLocalizedValues(stringBean.newStringCultures());
-                building.addAttribute(attribute);
-            }
-        }
-        building.newDistrictAttribute();
+        fillAttributes(building);
         building.setPrimaryAddress(buildingAddressStrategy.newInstance());
         return building;
     }
@@ -271,11 +253,6 @@ public class BuildingStrategy extends Strategy {
     }
 
     @Override
-    public ISearchCallback getSearchCallback() {
-        return null;
-    }
-
-    @Override
     public void configureExample(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
         if (!Strings.isEmpty(searchTextInput)) {
             example.addAdditionalParam("number", searchTextInput);
@@ -300,11 +277,6 @@ public class BuildingStrategy extends Strategy {
     }
 
     @Override
-    public ISearchCallback getParentSearchCallback() {
-        return null;
-    }
-
-    @Override
     public String getPluralEntityLabel(Locale locale) {
         return ResourceUtil.getString(CommonResources.class.getName(), getEntityTable(), locale);
     }
@@ -317,21 +289,6 @@ public class BuildingStrategy extends Strategy {
     @Override
     public IValidator getValidator() {
         return new BuildingValidator2(this, new Locale(localeBean.getSystemLocale()), stringBean);
-    }
-
-    @Override
-    public Class<? extends WebPage> getEditPage() {
-        return DomainObjectEdit.class;
-    }
-
-    @Override
-    public PageParameters getEditPageParams(Long objectId, Long parentId, String parentEntity) {
-        PageParameters params = new PageParameters();
-        params.put(DomainObjectEdit.ENTITY, getEntityTable());
-        params.put(DomainObjectEdit.OBJECT_ID, objectId);
-        params.put(DomainObjectEdit.PARENT_ID, parentId);
-        params.put(DomainObjectEdit.PARENT_ENTITY, parentEntity);
-        return params;
     }
 
     @Override
@@ -357,19 +314,6 @@ public class BuildingStrategy extends Strategy {
     @Override
     public int getSearchTextFieldSize() {
         return 5;
-    }
-
-    @Override
-    public Class<? extends WebPage> getHistoryPage() {
-        return HistoryPage.class;
-    }
-
-    @Override
-    public PageParameters getHistoryPageParams(long objectId) {
-        PageParameters params = new PageParameters();
-        params.put(HistoryPage.ENTITY, getEntityTable());
-        params.put(HistoryPage.OBJECT_ID, objectId);
-        return params;
     }
 
     @Transactional

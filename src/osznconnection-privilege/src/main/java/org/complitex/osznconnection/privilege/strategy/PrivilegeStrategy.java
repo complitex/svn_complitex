@@ -6,33 +6,26 @@ package org.complitex.osznconnection.privilege.strategy;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.entity.Attribute;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.entity.example.AttributeExample;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.service.StringCultureBean;
-import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.util.ResourceUtil;
-import org.complitex.dictionaryfw.web.component.search.ISearchCallback;
-import org.complitex.osznconnection.commons.web.pages.DomainObjectEdit;
-import org.complitex.osznconnection.commons.web.pages.DomainObjectList;
-import org.complitex.osznconnection.commons.web.pages.HistoryPage;
+import org.complitex.osznconnection.commons.strategy.AbstractStrategy;
 
 /**
  *
  * @author Artem
  */
 @Stateless(name = "PrivilegeStrategy")
-public class PrivilegeStrategy extends Strategy {
+public class PrivilegeStrategy extends AbstractStrategy {
 
     public static final String RESOURCE_BUNDLE = PrivilegeStrategy.class.getName();
 
@@ -49,28 +42,6 @@ public class PrivilegeStrategy extends Strategy {
     @Override
     public String getEntityTable() {
         return "privilege";
-    }
-
-    @Override
-    public Class<? extends WebPage> getListPage() {
-        return DomainObjectList.class;
-    }
-
-    @Override
-    public PageParameters getListPageParams() {
-        PageParameters params = new PageParameters();
-        params.put(DomainObjectList.ENTITY, getEntityTable());
-        return params;
-    }
-
-    @Override
-    public List<String> getSearchFilters() {
-        return null;
-    }
-
-    @Override
-    public ISearchCallback getSearchCallback() {
-        return null;
     }
 
     @Override
@@ -110,50 +81,7 @@ public class PrivilegeStrategy extends Strategy {
     }
 
     @Override
-    public Class<? extends WebPage> getEditPage() {
-        return DomainObjectEdit.class;
-    }
-
-    @Override
-    public PageParameters getEditPageParams(Long objectId, Long parentId, String parentEntity) {
-        PageParameters params = new PageParameters();
-        params.put(DomainObjectEdit.ENTITY, getEntityTable());
-        params.put(DomainObjectEdit.OBJECT_ID, objectId);
-        params.put(DomainObjectEdit.PARENT_ID, parentId);
-        params.put(DomainObjectEdit.PARENT_ENTITY, parentEntity);
-        return params;
-    }
-
-    @Override
-    public ISearchCallback getParentSearchCallback() {
-        return null;
-    }
-
-    @Override
-    public Class<? extends WebPage> getHistoryPage() {
-        return HistoryPage.class;
-    }
-
-    @Override
-    public PageParameters getHistoryPageParams(long objectId) {
-        PageParameters params = new PageParameters();
-        params.put(HistoryPage.ENTITY, getEntityTable());
-        params.put(HistoryPage.OBJECT_ID, objectId);
-        return params;
-    }
-
-    @Override
     public String getPluralEntityLabel(Locale locale) {
         return ResourceUtil.getString(RESOURCE_BUNDLE, getEntityTable(), locale);
-    }
-
-    @Override
-    public String[] getChildrenEntities() {
-        return null;
-    }
-
-    @Override
-    public String[] getParents() {
-        return null;
     }
 }

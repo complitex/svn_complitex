@@ -9,14 +9,14 @@ import com.google.common.collect.ImmutableMap;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.complitex.dictionaryfw.service.StringCultureBean;
-import org.complitex.dictionaryfw.strategy.StrategyFactoryStatic;
 import org.complitex.osznconnection.commons.web.pages.EntityDescription;
 import org.complitex.osznconnection.commons.web.template.ITemplateLink;
 import org.complitex.osznconnection.commons.web.template.ResourceTemplateMenu;
 
-import javax.naming.InitialContext;
 import java.util.List;
 import java.util.Locale;
+import org.complitex.dictionaryfw.strategy.StrategyFactory;
+import org.complitex.dictionaryfw.util.EjbBeanLocator;
 
 /**
  *
@@ -35,7 +35,8 @@ public class OwnershipDescriptionTemplateMenu extends ResourceTemplateMenu {
 
             @Override
             public String getLabel(Locale locale) {
-                return getStringBean().displayValue(StrategyFactoryStatic.getStrategy("ownership").getEntity().getEntityNames(), locale);
+                return EjbBeanLocator.getBean(StringCultureBean.class).displayValue(
+                        EjbBeanLocator.getBean(StrategyFactory.class).getStrategy("ownership").getEntity().getEntityNames(), locale);
             }
 
             @Override
@@ -59,18 +60,5 @@ public class OwnershipDescriptionTemplateMenu extends ResourceTemplateMenu {
     @Override
     public String getTagId() {
         return "ownership_description_menu";
-    }
-
-    private static <T> T getEJBBean(Class<T> beanClass, String name) {
-        try {
-            InitialContext context = new InitialContext();
-            return beanClass.cast(context.lookup("java:module/" + name));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static StringCultureBean getStringBean() {
-        return getEJBBean(StringCultureBean.class, "StringCultureBean");
     }
 }

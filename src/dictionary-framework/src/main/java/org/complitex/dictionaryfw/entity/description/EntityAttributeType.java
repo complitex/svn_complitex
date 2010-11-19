@@ -105,4 +105,8 @@ public class EntityAttributeType implements Serializable {
     public void setSystem(boolean system) {
         this.system = system;
     }
+
+    public boolean isObsolete() {
+        return endDate != null;
+    }
 }

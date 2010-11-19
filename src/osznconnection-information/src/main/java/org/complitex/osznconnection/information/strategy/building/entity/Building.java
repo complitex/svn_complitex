@@ -7,15 +7,12 @@ package org.complitex.osznconnection.information.strategy.building.entity;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import org.complitex.dictionaryfw.entity.Attribute;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.service.StringCultureBean;
+import org.complitex.dictionaryfw.util.EjbBeanLocator;
 import org.complitex.osznconnection.information.strategy.building.BuildingStrategy;
 import org.complitex.osznconnection.information.strategy.building_address.BuildingAddressStrategy;
 
@@ -31,8 +28,6 @@ public class Building extends DomainObject {
 
     private DomainObject district;
 
-//    private DomainObject primaryStreet;
-
     private DomainObject accompaniedAddress;
 
     public DomainObject getAccompaniedAddress() {
@@ -42,14 +37,6 @@ public class Building extends DomainObject {
     public void setAccompaniedAddress(DomainObject accompaniedAddress) {
         this.accompaniedAddress = accompaniedAddress;
     }
-
-//    public DomainObject getPrimaryStreet() {
-//        return primaryStreet;
-//    }
-//
-//    public void setPrimaryStreet(DomainObject primaryStreet) {
-//        this.primaryStreet = primaryStreet;
-//    }
 
     public DomainObject getDistrict() {
         return district;
@@ -79,29 +66,9 @@ public class Building extends DomainObject {
         return primaryAddress;
     }
 
-    public String getPrimaryNumber(Locale locale) {
-        return getStringBean().displayValue(primaryAddress.getAttribute(BuildingAddressStrategy.NUMBER).getLocalizedValues(), locale);
-    }
-
-    public String getPrimaryCorp(Locale locale) {
-        Attribute corpAttr = primaryAddress.getAttribute(BuildingAddressStrategy.CORP);
-        if (corpAttr != null) {
-            return getStringBean().displayValue(corpAttr.getLocalizedValues(), locale);
-        }
-        return null;
-    }
-
-    public String getPrimaryStructure(Locale locale) {
-        Attribute structureAttr = primaryAddress.getAttribute(BuildingAddressStrategy.STRUCTURE);
-        if (structureAttr != null) {
-            return getStringBean().displayValue(structureAttr.getLocalizedValues(), locale);
-        }
-        return null;
-    }
-
     public Long getPrimaryStreetId() {
-        long parentEntityId = primaryAddress.getParentEntityId();
-        return parentEntityId == 300 ? primaryAddress.getParentId() : null;
+        Long parentEntityId = primaryAddress.getParentEntityId();
+        return parentEntityId.equals(300L) ? primaryAddress.getParentId() : null;
     }
 
     public String getAccompaniedNumber(Locale locale) {
@@ -129,78 +96,53 @@ public class Building extends DomainObject {
         return parentEntityId == 300 ? accompaniedAddress.getParentId() : null;
     }
 
-    public String getNumber(long streetId, Locale locale) {
-        if (new Long(streetId).equals(getPrimaryStreetId())) {
-            return getPrimaryNumber(locale);
-        }
-        for (DomainObject address : alternativeAddresses) {
-            String parentEntity = address.getParentEntity();
-            Long addressStreetId = parentEntity.equals("street") ? address.getParentId() : null;
-            if (new Long(streetId).equals(addressStreetId)) {
-                return getStringBean().displayValue(address.getAttribute(BuildingAddressStrategy.NUMBER).getLocalizedValues(), locale);
-            }
-        }
-        return null;
-    }
-
-    public String getCorp(long streetId, Locale locale) {
-        if (new Long(streetId).equals(getPrimaryStreetId())) {
-            return getPrimaryCorp(locale);
-        }
-        for (DomainObject address : alternativeAddresses) {
-            String parentEntity = address.getParentEntity();
-            Long addressStreetId = parentEntity.equals("street") ? address.getParentId() : null;
-            if (new Long(streetId).equals(addressStreetId)) {
-                Attribute corpAttr = address.getAttribute(BuildingAddressStrategy.CORP);
-                if (corpAttr != null) {
-                    return getStringBean().displayValue(corpAttr.getLocalizedValues(), locale);
-                }
-            }
-        }
-        return null;
-    }
-
-    public String getStructure(long streetId, Locale locale) {
-        if (new Long(streetId).equals(getPrimaryStreetId())) {
-            return getPrimaryStructure(locale);
-        }
-        for (DomainObject address : alternativeAddresses) {
-            String parentEntity = address.getParentEntity();
-            Long addressStreetId = parentEntity.equals("street") ? address.getParentId() : null;
-            if (new Long(streetId).equals(addressStreetId)) {
-                Attribute structureAttr = address.getAttribute(BuildingAddressStrategy.STRUCTURE);
-                if (structureAttr != null) {
-                    return getStringBean().displayValue(structureAttr.getLocalizedValues(), locale);
-                }
-            }
-        }
-        return null;
-    }
-
-    public DomainObject getAddress(long streetId){
-        if (new Long(streetId).equals(getPrimaryStreetId())) {
-            return primaryAddress;
-        }
-        for (DomainObject address : alternativeAddresses) {
-            String parentEntity = address.getParentEntity();
-            Long addressStreetId = parentEntity.equals("street") ? address.getParentId() : null;
+//    public String getNumber(long streetId, Locale locale) {
+//        for (DomainObject address : getAllAddresses()) {
+//            Long parentEntityId = address.getParentEntityId();
+//            Long addressStreetId = parentEntityId.equals(300L) ? address.getParentId() : null;
+//            if (new Long(streetId).equals(addressStreetId)) {
+//                return getStringBean().displayValue(address.getAttribute(BuildingAddressStrategy.NUMBER).getLocalizedValues(), locale);
+//            }
+//        }
+//        return null;
+//    }
+//
+//    public String getCorp(long streetId, Locale locale) {
+//        for (DomainObject address : getAllAddresses()) {
+//            Long parentEntityId = address.getParentEntityId();
+//            Long addressStreetId = parentEntityId.equals(300L) ? address.getParentId() : null;
+//            if (new Long(streetId).equals(addressStreetId)) {
+//                Attribute corpAttr = address.getAttribute(BuildingAddressStrategy.CORP);
+//                if (corpAttr != null) {
+//                    return getStringBean().displayValue(corpAttr.getLocalizedValues(), locale);
+//                }
+//            }
+//        }
+//        return null;
+//    }
+//
+//    public String getStructure(long streetId, Locale locale) {
+//        for (DomainObject address : getAllAddresses()) {
+//            Long parentEntityId = address.getParentEntityId();
+//            Long addressStreetId = parentEntityId.equals(300L) ? address.getParentId() : null;
+//            if (new Long(streetId).equals(addressStreetId)) {
+//                Attribute structureAttr = address.getAttribute(BuildingAddressStrategy.STRUCTURE);
+//                if (structureAttr != null) {
+//                    return getStringBean().displayValue(structureAttr.getLocalizedValues(), locale);
+//                }
+//            }
+//        }
+//        return null;
+//    }
+    public DomainObject getAddress(long streetId) {
+        for (DomainObject address : getAllAddresses()) {
+            Long parentEntityId = address.getParentEntityId();
+            Long addressStreetId = parentEntityId.equals(300L) ? address.getParentId() : null;
             if (new Long(streetId).equals(addressStreetId)) {
                 return address;
             }
         }
         return null;
-    }
-
-    public Long getBuildingAddressParentId() {
-        return primaryAddress.getParentId();
-    }
-
-    public void newDistrictAttribute() {
-        Attribute districtAttr = new Attribute();
-        districtAttr.setAttributeId(1L);
-        districtAttr.setAttributeTypeId(BuildingStrategy.DISTRICT);
-        districtAttr.setValueTypeId(BuildingStrategy.DISTRICT);
-        addAttribute(districtAttr);
     }
 
     public void enhanceAlternativeAddressAttributes() {
@@ -217,7 +159,7 @@ public class Building extends DomainObject {
         }
     }
 
-    public List<DomainObject> getAllAddresses(){
+    public List<DomainObject> getAllAddresses() {
         List<DomainObject> allAddresses = Lists.newArrayList();
         allAddresses.add(primaryAddress);
         allAddresses.addAll(alternativeAddresses);
@@ -234,11 +176,6 @@ public class Building extends DomainObject {
     }
 
     private StringCultureBean getStringBean() {
-        try {
-            Context context = new InitialContext();
-            return (StringCultureBean) context.lookup("java:module/" + StringCultureBean.class.getSimpleName());
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        }
+        return EjbBeanLocator.getBean(StringCultureBean.class);
     }
 }

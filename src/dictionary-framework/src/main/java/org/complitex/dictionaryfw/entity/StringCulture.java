@@ -38,11 +38,6 @@ public class StringCulture implements Serializable {
     public void setValue(String value) {
         this.value = value;
     }
-
-    @Override
-    public String toString() {
-        return "{id = " + id + ", locale = " + locale + ", value = " + value + ", unique id = " + System.identityHashCode(this) + "}";
-    }
 }
 
 
