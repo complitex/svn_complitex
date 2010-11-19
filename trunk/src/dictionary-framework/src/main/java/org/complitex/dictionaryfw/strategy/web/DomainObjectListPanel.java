@@ -160,7 +160,7 @@ public class DomainObjectListPanel extends Panel {
 
                 if (!Strings.isEmpty(getSort().getProperty())) {
                     Long sortProperty = Long.valueOf(getSort().getProperty());
-                    example.setOrderByAttribureTypeId(sortProperty);
+                    example.setOrderByAttributeTypeId(sortProperty);
                 }
 
                 example.setStatus(showModeModel.getObject().name());
@@ -175,7 +175,7 @@ public class DomainObjectListPanel extends Panel {
             public int size() {
                 if (!Strings.isEmpty(getSort().getProperty())) {
                     Long sortProperty = Long.valueOf(getSort().getProperty());
-                    example.setOrderByAttribureTypeId(sortProperty);
+                    example.setOrderByAttributeTypeId(sortProperty);
                 }
                 example.setStatus(showModeModel.getObject().name());
                 example.setLocale(getLocale().getLanguage());

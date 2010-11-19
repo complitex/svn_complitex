@@ -8,7 +8,6 @@ import com.google.common.collect.Lists;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.complitex.dictionaryfw.strategy.Strategy;
-import org.complitex.dictionaryfw.strategy.StrategyFactoryStatic;
 import org.complitex.osznconnection.commons.web.template.ITemplateLink;
 import org.complitex.osznconnection.commons.web.template.ResourceTemplateMenu;
 import org.complitex.osznconnection.information.BookEntities;
@@ -16,6 +15,8 @@ import org.complitex.osznconnection.information.resource.CommonResources;
 
 import java.util.List;
 import java.util.Locale;
+import org.complitex.dictionaryfw.strategy.StrategyFactory;
+import org.complitex.dictionaryfw.util.EjbBeanLocator;
 
 /**
  *
@@ -24,7 +25,7 @@ import java.util.Locale;
 public class InformationTemplateMenu extends ResourceTemplateMenu {
 
     private static Strategy getStrategy(String entity) {
-        return StrategyFactoryStatic.getStrategy(entity);
+        return EjbBeanLocator.getBean(StrategyFactory.class).getStrategy(entity);
     }
 
     @Override

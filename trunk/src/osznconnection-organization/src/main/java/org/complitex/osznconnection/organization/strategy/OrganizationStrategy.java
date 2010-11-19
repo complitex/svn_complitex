@@ -8,8 +8,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.entity.Attribute;
 import org.complitex.dictionaryfw.entity.DomainObject;
@@ -17,14 +15,9 @@ import org.complitex.dictionaryfw.entity.description.EntityAttributeType;
 import org.complitex.dictionaryfw.entity.example.AttributeExample;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.service.StringCultureBean;
-import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionaryfw.strategy.web.IValidator;
 import org.complitex.dictionaryfw.util.ResourceUtil;
-import org.complitex.dictionaryfw.web.component.search.ISearchCallback;
-import org.complitex.osznconnection.commons.web.pages.DomainObjectEdit;
-import org.complitex.osznconnection.commons.web.pages.DomainObjectList;
-import org.complitex.osznconnection.commons.web.pages.HistoryPage;
 import org.complitex.osznconnection.organization.strategy.web.OrganizationValidator;
 
 import javax.ejb.EJB;
@@ -33,6 +26,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import org.complitex.osznconnection.commons.strategy.AbstractStrategy;
 import org.complitex.osznconnection.information.strategy.district.DistrictStrategy;
 import org.complitex.osznconnection.organization.strategy.web.OrganizationEditComponent;
 
@@ -41,7 +35,7 @@ import org.complitex.osznconnection.organization.strategy.web.OrganizationEditCo
  * @author Artem
  */
 @Stateless(name = "OrganizationStrategy")
-public class OrganizationStrategy extends Strategy {
+public class OrganizationStrategy extends AbstractStrategy {
 
     public static final String RESOURCE_BUNDLE = OrganizationStrategy.class.getName();
 
@@ -70,21 +64,6 @@ public class OrganizationStrategy extends Strategy {
     private DistrictStrategy districtStrategy;
 
     @Override
-    public DomainObject newInstance() {
-        DomainObject object = super.newInstance();
-        newDistrictAttribute(object);
-        return object;
-    }
-
-    private void newDistrictAttribute(DomainObject object) {
-        Attribute districtAttr = new Attribute();
-        districtAttr.setAttributeId(1L);
-        districtAttr.setAttributeTypeId(DISTRICT);
-        districtAttr.setValueTypeId(DISTRICT);
-        object.addAttribute(districtAttr);
-    }
-
-    @Override
     public String getEntityTable() {
         return "organization";
     }
@@ -98,28 +77,6 @@ public class OrganizationStrategy extends Strategy {
                 return attr.getId().equals(NAME);
             }
         }));
-    }
-
-    @Override
-    public Class<? extends WebPage> getListPage() {
-        return DomainObjectList.class;
-    }
-
-    @Override
-    public PageParameters getListPageParams() {
-        PageParameters params = new PageParameters();
-        params.put(DomainObjectList.ENTITY, getEntityTable());
-        return params;
-    }
-
-    @Override
-    public List<String> getSearchFilters() {
-        return null;
-    }
-
-    @Override
-    public ISearchCallback getSearchCallback() {
-        return null;
     }
 
     @Override
@@ -154,49 +111,6 @@ public class OrganizationStrategy extends Strategy {
     }
 
     @Override
-    public Class<? extends WebPage> getEditPage() {
-        return DomainObjectEdit.class;
-    }
-
-    @Override
-    public PageParameters getEditPageParams(Long objectId, Long parentId, String parentEntity) {
-        PageParameters params = new PageParameters();
-        params.put(DomainObjectEdit.ENTITY, getEntityTable());
-        params.put(DomainObjectEdit.OBJECT_ID, objectId);
-        params.put(DomainObjectEdit.PARENT_ID, parentId);
-        params.put(DomainObjectEdit.PARENT_ENTITY, parentEntity);
-        return params;
-    }
-
-    @Override
-    public ISearchCallback getParentSearchCallback() {
-        return null;
-    }
-
-    @Override
-    public Class<? extends WebPage> getHistoryPage() {
-        return HistoryPage.class;
-    }
-
-    @Override
-    public PageParameters getHistoryPageParams(long objectId) {
-        PageParameters params = new PageParameters();
-        params.put(HistoryPage.ENTITY, getEntityTable());
-        params.put(HistoryPage.OBJECT_ID, objectId);
-        return params;
-    }
-
-    @Override
-    public String[] getChildrenEntities() {
-        return null;
-    }
-
-    @Override
-    public String[] getParents() {
-        return null;
-    }
-
-    @Override
     public String getPluralEntityLabel(Locale locale) {
         return ResourceUtil.getString(RESOURCE_BUNDLE, getEntityTable(), locale);
     }
@@ -214,11 +128,11 @@ public class OrganizationStrategy extends Strategy {
     public List<DomainObject> getAllOuterOrganizations() {
         List<DomainObject> result = Lists.newArrayList();
         List<DomainObject> oszns = getAllOSZNs();
-        if(oszns != null){
+        if (oszns != null) {
             result.addAll(oszns);
         }
         List<DomainObject> calculationCentres = getAllCalculationCentres();
-        if(calculationCentres != null){
+        if (calculationCentres != null) {
             result.addAll(calculationCentres);
         }
         return result;
@@ -227,17 +141,17 @@ public class OrganizationStrategy extends Strategy {
     public List<DomainObject> getAllOSZNs() {
         DomainObjectExample example = new DomainObjectExample();
         example.setEntityTypeId(OSZN);
-        example.setOrderByAttribureTypeId(OrganizationStrategy.NAME);
+        example.setOrderByAttributeTypeId(OrganizationStrategy.NAME);
         configureExample(example, ImmutableMap.<String, Long>of(), null);
-        return (List<DomainObject>)find(example);
+        return (List<DomainObject>) find(example);
     }
 
     public List<DomainObject> getAllCalculationCentres() {
         DomainObjectExample example = new DomainObjectExample();
         example.setEntityTypeId(CALCULATION_CENTER);
-        example.setOrderByAttribureTypeId(OrganizationStrategy.NAME);
+        example.setOrderByAttributeTypeId(OrganizationStrategy.NAME);
         configureExample(example, ImmutableMap.<String, Long>of(), null);
-        return (List<DomainObject>)find(example);
+        return (List<DomainObject>) find(example);
     }
 
     public Attribute getDistrictAttribute(DomainObject organization) {
@@ -263,7 +177,7 @@ public class OrganizationStrategy extends Strategy {
         return getDistrictCode(findById(objectId));
     }
 
-    public DomainObject getItselfOrganization(){
+    public DomainObject getItselfOrganization() {
         DomainObjectExample example = new DomainObjectExample();
         example.setId(ITSELF_ORGANIZATION_OBJECT_ID);
         configureExample(example, ImmutableMap.<String, Long>of(), null);

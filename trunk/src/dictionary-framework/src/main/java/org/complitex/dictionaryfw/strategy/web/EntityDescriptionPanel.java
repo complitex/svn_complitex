@@ -70,7 +70,7 @@ public class EntityDescriptionPanel extends Panel {
     }
 
     private void init(final String entity, final PageParameters params) {
-        final Entity oldEntity = entityBean.getFullEntity(entity);
+        final Entity oldEntity = entityBean.getEntity(entity);
         final Entity description = CloneUtil.cloneObject(oldEntity);
 
         IModel<String> entityLabelModel = new AbstractReadOnlyModel<String>() {

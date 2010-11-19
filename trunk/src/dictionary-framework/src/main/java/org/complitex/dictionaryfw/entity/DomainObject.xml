@@ -5,32 +5,27 @@
     <resultMap id="DomainObject" type="DomainObject">
         <id column="object_id" property="id"/>
         <id column="start_date" property="startDate"/>
-        <result column="entity_id" property="entityId"/>
         <result column="end_date" property="endDate"/>
         <result column="status" property="status"/>
         <result column="parent_id" property="parentId"/>
         <result column="parent_entity_id" property="parentEntityId"/>
-        <result column="parent_entity" property="parentEntity"/>
         <result column="entity_type_id" property="entityTypeId"/>
     </resultMap>
 
-    <insert id="insert" parameterType="InsertParameter">
+    <insert id="insert" parameterType="Parameter">
         INSERT INTO `${table}` (`object_id`, `status`, `start_date`, `end_date`, `parent_id`, `parent_entity_id`, `entity_type_id`) VALUES
-        (#{entity.id}, #{entity.status}, #{entity.startDate}, #{entity.endDate}, #{entity.parentId}, #{entity.parentEntityId}, #{entity.entityTypeId})
+        (#{object.id}, #{object.status}, #{object.startDate}, #{object.endDate}, #{object.parentId}, #{object.parentEntityId}, #{object.entityTypeId})
     </insert>
 
     <select id="findById" resultMap="org.complitex.dictionaryfw.entity.DomainObject.DomainObject" parameterType="DomainObjectExample">
-        SELECT e.`object_id`, e.`start_date`, e.`end_date`, e.`status`, e.`parent_id`,
-        (SELECT ent.`id` FROM `entity` ent WHERE ent.`entity_table` = #{table}) as entity_id,
-        (SELECT ent.`entity_table` FROM `entity` ent WHERE ent.`id` = e.`parent_entity_id`) as parent_entity,
-        e.`parent_entity_id`, e.`entity_type_id`, '${table}' as table_name
-        FROM `${table}` e WHERE (e.`status` = 'ACTIVE' OR e.`status` = 'INACTIVE') AND e.`object_id` = #{id}
+        SELECT e.*
+        FROM `${table}` e WHERE (e.`status` IN ('ACTIVE', 'INACTIVE')) AND e.`object_id` = #{id}
     </select>
 
     <sql id="statusFilter">
         <choose>
             <when test="status == 'ALL'">
-                (e.`status` = 'ACTIVE' OR e.`status` = 'INACTIVE')
+                (e.`status` IN ('ACTIVE', 'INACTIVE'))
             </when>
             <otherwise>
                 e.`status` = #{status}
@@ -40,11 +35,12 @@
 
     <sql id="orderBy">
         <choose>
-            <when test="orderByAttribureTypeId != null">
+            <when test="orderByAttributeTypeId != null">
                 ORDER BY (
-                SELECT sc.`value` FROM `${table}_string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`id` =
-                (SELECT orderByAttr.`value_id` FROM `${table}_attribute` orderByAttr WHERE orderByAttr.`object_id` = e.`object_id`
-                AND orderByAttr.`status` = 'ACTIVE' AND orderByAttr.`attribute_type_id` = #{orderByAttribureTypeId})
+                    SELECT sc.`value` FROM `${table}_string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`id` =
+                    (SELECT orderByAttr.`value_id` FROM `${table}_attribute` orderByAttr WHERE orderByAttr.`object_id` = e.`object_id`
+                        AND orderByAttr.`status` = 'ACTIVE' AND orderByAttr.`attribute_type_id` = #{orderByAttributeTypeId}
+                    )
                 )
                 <choose>
                     <when test="asc">
@@ -72,10 +68,7 @@
     </sql>
 
     <select id="find" resultMap="org.complitex.dictionaryfw.entity.DomainObject.DomainObject" parameterType="DomainObjectExample">
-        SELECT e.`object_id`, e.`start_date`, e.`end_date`, e.`status`, e.`parent_id`,
-        (SELECT ent.`id` FROM `entity` ent WHERE ent.`entity_table` = #{table}) as entity_id,
-        (SELECT ent.`entity_table` FROM `entity` ent WHERE ent.`id` = e.`parent_entity_id`) as parent_entity,
-        e.`parent_entity_id`, e.`entity_type_id`, '${locale}' as locale, '${table}' as table_name
+        SELECT e.*
         FROM `${table}` e WHERE
         <include refid="org.complitex.dictionaryfw.entity.DomainObject.statusFilter"/>
         <include refid="org.complitex.dictionaryfw.entity.DomainObject.filter"/>
@@ -84,16 +77,14 @@
     </select>
 
     <sql id="filter">
-        <choose>
-            <when test="id != null">
-                AND e.`object_id` = #{id}
-            </when>
-            <otherwise>
-                <foreach item="attrExample" collection="attributeExamples">
-                    <if test="attrExample.value != null">
-                        AND EXISTS(SELECT 1 FROM `${table}_attribute` attr WHERE attr.`object_id` = e.`object_id`
-                        AND attr.`status` = 'ACTIVE'
-                        AND attr.`value_id` IN (SELECT sc.`id` FROM `${table}_string_culture` sc WHERE sc.`value`
+        <if test="id != null">
+            AND e.`object_id` = #{id}
+        </if>
+        <foreach item="attrExample" collection="attributeExamples">
+            <if test="attrExample.value != null">
+                AND EXISTS(SELECT 1 FROM `${table}_attribute` attr WHERE attr.`object_id` = e.`object_id`
+                    AND attr.`status` = 'ACTIVE' AND attr.`attribute_type_id` = #{attrExample.attributeTypeId}
+                    AND attr.`value_id` IN (SELECT sc.`id` FROM `${table}_string_culture` sc WHERE sc.`value`
                         <choose>
                             <when test="comparisonType == 'LIKE'">
                                 LIKE '%${attrExample.value}%'
@@ -102,18 +93,16 @@
                                 = #{attrExample.value}
                             </when>
                         </choose>
-                        )
-                        AND attr.`attribute_type_id` = #{attrExample.attributeTypeId})
-                    </if>
-                </foreach>
-                <if test="parentId != null and parentEntity != null">
-                    AND e.`parent_entity_id` = (SELECT ent.`id` FROM `entity` ent WHERE ent.`entity_table` = #{parentEntity}) AND e.`parent_id` = #{parentId}
-                </if>
-                <if test="entityTypeId != null">
-                    AND e.`entity_type_id` = #{entityTypeId}
-                </if>
-            </otherwise>
-        </choose>
+                    )
+                )
+            </if>
+        </foreach>
+        <if test="parentId != null and parentEntity != null">
+            AND e.`parent_entity_id` = (SELECT ent.`id` FROM `entity` ent WHERE ent.`entity_table` = #{parentEntity}) AND e.`parent_id` = #{parentId}
+        </if>
+        <if test="entityTypeId != null">
+            AND e.`entity_type_id` = #{entityTypeId}
+        </if>
     </sql>
 
     <select id="count" resultType="integer" parameterType="DomainObjectExample">
@@ -128,20 +117,21 @@
         </if>
     </sql>
 
-    <update id="update" parameterType="InsertParameter">
-        UPDATE `${table}` SET `end_date` = #{entity.endDate}, `status` = #{entity.status} WHERE `object_id` = #{entity.id} AND `start_date` = #{entity.startDate}
+    <update id="update" parameterType="Parameter">
+        UPDATE `${table}` SET `end_date` = #{object.endDate}, `status` = #{object.status} WHERE `object_id` = #{object.id}
+            AND `start_date` = #{object.startDate}
     </update>
 
     <select id="findParentInSearchComponent" parameterType="hashmap" resultType="hashmap">
         SELECT (SELECT ent.`entity_table` FROM `entity` ent WHERE ent.`id` = e.`parent_entity_id`) parentEntity,
-        e.`parent_id` parentId FROM `${table}` e WHERE e.`object_id` = #{id}
+            e.`parent_id` parentId FROM `${table}` e WHERE e.`object_id` = #{id}
         <choose>
             <when test="startDate != null">
                 AND e.`start_date` =
-                (SELECT MAX(e1.`start_date`) FROM `${table}` e1 WHERE e1.`object_id` = #{id} AND e1.`start_date` <![CDATA[ <= ]]> #{startDate})
+                    (SELECT MAX(e1.`start_date`) FROM `${table}` e1 WHERE e1.`object_id` = #{id} AND e1.`start_date` <![CDATA[ <= ]]> #{startDate})
             </when>
             <otherwise>
-                AND (e.`status` = 'ACTIVE' OR e.`status` = 'INACTIVE')
+                AND (e.`status` IN ('ACTIVE', 'INACTIVE'))
             </otherwise>
         </choose>
     </select>
@@ -158,15 +148,14 @@
         SELECT aa.`end_date` FROM `${table}_attribute` aa WHERE aa.`object_id`= #{id}
     </select>
 
+    <sql id="findHistoryObject">
+        SELECT e.*
+        FROM `${table}` e WHERE e.`object_id` = #{id} AND e.`start_date` = (
+            SELECT MAX(e1.`start_date`) FROM `${table}` e1 WHERE e1.`object_id` = #{id} AND e1.`start_date` <![CDATA[ <= ]]> #{startDate})
+    </sql>
+
     <select id="findHistoryObject" parameterType="DomainObjectExample" resultMap="org.complitex.dictionaryfw.entity.DomainObject.DomainObject">
-        SELECT e.`object_id`, e.`start_date`, e.`end_date`, e.`status`, e.`parent_id`,
-        (SELECT ent.`id` FROM `entity` ent WHERE ent.`entity_table` = #{table}) as entity_id,
-        (SELECT ent.`entity_table` FROM `entity` ent WHERE ent.`id` = e.`parent_entity_id`) as parent_entity,
-        e.`parent_entity_id`, e.`entity_type_id`, '${table}' as table_name
-        FROM `${table}` e WHERE e.`object_id` = #{id}
-        AND e.`start_date` = (SELECT MAX(e1.`start_date`) FROM `${table}` e1 WHERE e1.`object_id` = #{id} AND e1.`start_date`
-        <![CDATA[ <= ]]>
-        #{startDate})
+        <include refid="org.complitex.dictionaryfw.entity.DomainObject.findHistoryObject"/>
     </select>
 
 </mapper>

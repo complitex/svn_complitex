@@ -15,8 +15,9 @@ import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.service.StringCultureBean;
 import org.complitex.dictionaryfw.strategy.Strategy;
-import org.complitex.dictionaryfw.strategy.StrategyFactoryStatic;
+import org.complitex.dictionaryfw.strategy.StrategyFactory;
 import org.complitex.dictionaryfw.strategy.web.IValidator;
+import org.complitex.dictionaryfw.util.EjbBeanLocator;
 import org.complitex.dictionaryfw.util.Numbers;
 import org.complitex.osznconnection.information.strategy.building.BuildingStrategy;
 import org.complitex.osznconnection.information.strategy.building.entity.Building;
@@ -89,7 +90,7 @@ public class BuildingValidator2 implements IValidator {
         } else if (address.getParentEntityId().equals(300L)) {
             Long streetId = address.getParentId();
             if (streetId != null && streetId > 0) {
-                Strategy streetStrategy = StrategyFactoryStatic.getStrategy("street");
+                Strategy streetStrategy = getStrategyFactory().getStrategy("street");
                 DomainObject streetObject = streetStrategy.findById(streetId);
                 return streetObject.getParentId();
             }
@@ -153,7 +154,7 @@ public class BuildingValidator2 implements IValidator {
 
                 Long parentEntityId = address.getParentEntityId();
                 String parentEntity = parentEntityId == null ? null : (parentEntityId == 300 ? "street" : (parentEntityId == 400 ? "city" : null));
-                Strategy strategy = StrategyFactoryStatic.getStrategy(parentEntity);
+                Strategy strategy = getStrategyFactory().getStrategy(parentEntity);
                 DomainObject parentObject = strategy.findById(address.getParentId());
                 String parentTitle = strategy.displayDomainObject(parentObject, component.getLocale());
 
@@ -169,5 +170,9 @@ public class BuildingValidator2 implements IValidator {
             }
         }
         return valid;
+    }
+
+    private StrategyFactory getStrategyFactory(){
+        return EjbBeanLocator.getBean(StrategyFactory.class);
     }
 }

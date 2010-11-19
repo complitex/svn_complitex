@@ -4,7 +4,7 @@
 <configuration>
     <typeAliases>
         <typeAlias type="org.complitex.dictionaryfw.entity.StringCulture" alias="StringCulture"/>
-        <typeAlias type="org.complitex.dictionaryfw.entity.InsertParameter" alias="InsertParameter"/>
+        <typeAlias type="org.complitex.dictionaryfw.entity.Parameter" alias="Parameter"/>
         <typeAlias type="org.complitex.dictionaryfw.entity.DomainObject" alias="DomainObject"/>
         <typeAlias type="org.complitex.dictionaryfw.entity.Attribute" alias="Attribute"/>
         <typeAlias type="org.complitex.dictionaryfw.entity.example.DomainObjectExample" alias="DomainObjectExample"/>

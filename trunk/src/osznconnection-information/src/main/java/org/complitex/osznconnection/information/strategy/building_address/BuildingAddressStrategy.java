@@ -9,7 +9,6 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.entity.example.AttributeExample;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
-import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.util.ResourceUtil;
 import org.complitex.dictionaryfw.web.component.search.ISearchCallback;
 import org.complitex.osznconnection.information.resource.CommonResources;
@@ -18,11 +17,12 @@ import javax.ejb.Stateless;
 import java.util.*;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.complitex.dictionaryfw.entity.DomainObject;
-import org.complitex.dictionaryfw.entity.InsertParameter;
+import org.complitex.dictionaryfw.entity.Parameter;
 import org.complitex.dictionaryfw.entity.StatusType;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.web.component.DomainObjectInputPanel;
 import org.complitex.dictionaryfw.web.component.search.SearchComponent;
+import org.complitex.osznconnection.commons.strategy.AbstractStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * @author Artem
  */
 @Stateless(name = "Building_addressStrategy")
-public class BuildingAddressStrategy extends Strategy {
+public class BuildingAddressStrategy extends AbstractStrategy {
 
     private static final Logger log = LoggerFactory.getLogger(BuildingAddressStrategy.class);
 
@@ -48,11 +48,6 @@ public class BuildingAddressStrategy extends Strategy {
 
     @Override
     public String displayDomainObject(DomainObject object, Locale locale) {
-        return null;
-    }
-
-    @Override
-    public ISearchCallback getSearchCallback() {
         return null;
     }
 
@@ -88,11 +83,6 @@ public class BuildingAddressStrategy extends Strategy {
                 example.setParentEntity(null);
             }
         }
-    }
-
-    @Override
-    public List<String> getSearchFilters() {
-        return null;
     }
 
     @Override
@@ -176,13 +166,13 @@ public class BuildingAddressStrategy extends Strategy {
     @Override
     public void enable(DomainObject object) {
         object.setStatus(StatusType.ACTIVE);
-        sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new InsertParameter(getEntityTable(), object));
+        sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new Parameter(getEntityTable(), object));
     }
 
     @Transactional
     @Override
     public void disable(DomainObject object) {
         object.setStatus(StatusType.INACTIVE);
-        sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new InsertParameter(getEntityTable(), object));
+        sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new Parameter(getEntityTable(), object));
     }
 }

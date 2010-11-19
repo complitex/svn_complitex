@@ -428,7 +428,7 @@ public class AddressCorrectionBean extends CorrectionBean {
         for (Correction c : list) {
             try {
                 DomainObject building = buildingStrategy.findById(c.getObjectId());
-                SearchComponentState state = buildingStrategy.getSearchComponentStateForParent(building.getParentId(), building.getParentEntity(), null);
+                SearchComponentState state = buildingStrategy.getSearchComponentStateForParent(building.getParentId(), "building_address", null);
                 DomainObject street = state.get("street");
                 DomainObject city = state.get("city");
                 Locale locale = new Locale(example.getLocale());

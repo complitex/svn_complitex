@@ -27,7 +27,7 @@ public class DomainObjectExample implements Serializable {
 
     private String locale;
 
-    private Long orderByAttribureTypeId;
+    private Long orderByAttributeTypeId;
 
     private String orderByExpression;
 
@@ -106,12 +106,12 @@ public class DomainObjectExample implements Serializable {
         this.asc = asc;
     }
 
-    public Long getOrderByAttribureTypeId() {
-        return orderByAttribureTypeId;
+    public Long getOrderByAttributeTypeId() {
+        return orderByAttributeTypeId;
     }
 
-    public void setOrderByAttribureTypeId(Long orderByAttribureTypeId) {
-        this.orderByAttribureTypeId = orderByAttribureTypeId;
+    public void setOrderByAttributeTypeId(Long orderByAttributeTypeId) {
+        this.orderByAttributeTypeId = orderByAttributeTypeId;
     }
 
     public List<AttributeExample> getAttributeExamples() {
