@@ -1,8 +1,7 @@
 package org.complitex.dictionaryfw.strategy.web;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -124,8 +123,8 @@ public class DomainObjectListPanel extends Panel {
         }
 
         //Column List
-        final List<EntityAttributeType> attributeTypes = getStrategy().getListColumns();
-        for (EntityAttributeType eat : attributeTypes) {
+        final List<EntityAttributeType> listAttributeTypes = getStrategy().getListColumns();
+        for (EntityAttributeType eat : listAttributeTypes) {
             example.addAttributeExample(new AttributeExample(eat.getId()));
         }
 
@@ -173,10 +172,6 @@ public class DomainObjectListPanel extends Panel {
 
             @Override
             public int size() {
-                if (!Strings.isEmpty(getSort().getProperty())) {
-                    Long sortProperty = Long.valueOf(getSort().getProperty());
-                    example.setOrderByAttributeTypeId(sortProperty);
-                }
                 example.setStatus(showModeModel.getObject().name());
                 example.setLocale(getLocale().getLanguage());
                 return getStrategy().count(example);
@@ -198,39 +193,25 @@ public class DomainObjectListPanel extends Panel {
 
                 item.add(new Label("id", StringUtil.valueOf(object.getId())));
 
-                List<Attribute> attrs = Lists.newArrayList();
-                for (final EntityAttributeType attrDesc : attributeTypes) {
-                    Attribute attr = null;
-                    try {
-                        attr = Iterables.find(object.getAttributes(), new Predicate<Attribute>() {
-
-                            @Override
-                            public boolean apply(Attribute attr) {
-                                return attr.getAttributeTypeId().equals(attrDesc.getId());
-                            }
-                        });
-                    } catch (NoSuchElementException e) {
+                final Map<Attribute, EntityAttributeType> attrToTypeMap = Maps.newLinkedHashMap();
+                for (EntityAttributeType attrType : listAttributeTypes) {
+                    Attribute attr = object.getAttribute(attrType.getId());
+                    if (attr == null) {
                         attr = new Attribute();
                         attr.setAttributeTypeId(-1L);
                     }
-                    attrs.add(attr);
+                    attrToTypeMap.put(attr, attrType);
                 }
 
-                ListView<Attribute> dataColumns = new ListView<Attribute>("dataColumns", attrs) {
+                ListView<Attribute> dataColumns = new ListView<Attribute>("dataColumns", Lists.newArrayList(attrToTypeMap.keySet())) {
 
                     @Override
                     protected void populateItem(ListItem<Attribute> item) {
                         final Attribute attr = item.getModelObject();
                         String attributeValue = "";
                         if (!attr.getAttributeTypeId().equals(-1L)) {
-                            EntityAttributeType desc = Iterables.find(attributeTypes, new Predicate<EntityAttributeType>() {
-
-                                @Override
-                                public boolean apply(EntityAttributeType attrDesc) {
-                                    return attrDesc.getId().equals(attr.getAttributeTypeId());
-                                }
-                            });
-                            String valueType = desc.getEntityAttributeValueTypes().get(0).getValueType();
+                            EntityAttributeType attrType = attrToTypeMap.get(attr);
+                            String valueType = attrType.getEntityAttributeValueTypes().get(0).getValueType();
                             SimpleTypes type = SimpleTypes.valueOf(valueType.toUpperCase());
                             String systemLocaleValue = stringBean.getSystemStringCulture(attr.getLocalizedValues()).getValue();
                             switch (type) {
@@ -266,7 +247,7 @@ public class DomainObjectListPanel extends Panel {
         filterForm.add(dataView);
 
         //Filter Form Columns
-        ListView<EntityAttributeType> columns = new ListView<EntityAttributeType>("columns", attributeTypes) {
+        ListView<EntityAttributeType> columns = new ListView<EntityAttributeType>("columns", listAttributeTypes) {
 
             @Override
             protected void populateItem(ListItem<EntityAttributeType> item) {
@@ -290,18 +271,12 @@ public class DomainObjectListPanel extends Panel {
         //Filters
         filterForm.add(new TextField<Long>("id", new PropertyModel<Long>(example, "id")));
 
-        ListView<EntityAttributeType> filters = new ListView<EntityAttributeType>("filters", attributeTypes) {
+        ListView<EntityAttributeType> filters = new ListView<EntityAttributeType>("filters", listAttributeTypes) {
 
             @Override
             protected void populateItem(ListItem<EntityAttributeType> item) {
-                final EntityAttributeType attributeType = item.getModelObject();
-                final AttributeExample attributeExample = Iterables.find(example.getAttributeExamples(), new Predicate<AttributeExample>() {
-
-                    @Override
-                    public boolean apply(AttributeExample attrExample) {
-                        return attrExample.getAttributeTypeId().equals(attributeType.getId());
-                    }
-                });
+                EntityAttributeType attributeType = item.getModelObject();
+                final AttributeExample attributeExample = example.getAttributeExample(attributeType.getId());
 
                 final IModel<String> filterModel = new Model<String>() {
 
@@ -388,15 +363,9 @@ public class DomainObjectListPanel extends Panel {
             public void onClick(AjaxRequestTarget target) {
                 filterForm.clearInput();
 
-                for (final EntityAttributeType attrDesc : attributeTypes) {
-                    AttributeExample attrExample = Iterables.find(example.getAttributeExamples(),
-                            new Predicate<AttributeExample>() {
-
-                                @Override
-                                public boolean apply(AttributeExample attrExample) {
-                                    return attrExample.getAttributeTypeId().equals(attrDesc.getId());
-                                }
-                            });
+                example.setId(null);
+                for (EntityAttributeType attrType : listAttributeTypes) {
+                    AttributeExample attrExample = example.getAttributeExample(attrType.getId());
                     attrExample.setValue(null);
                 }
                 target.addComponent(content);

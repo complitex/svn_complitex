@@ -54,9 +54,6 @@
         JOIN `entity_attribute_value_type` eavt ON eavt.`attribute_type_id` = eat.`id`
         LEFT OUTER JOIN `entity_type` et ON et.`entity_id` = e.`id`
         WHERE e.`entity_table` = #{entity}
-        <!--<if test="all == null">
-            AND eat.`end_date` IS NULL
-        </if>-->
     </select>
 
     <select id="findNames" parameterType="long" resultMap="org.complitex.dictionaryfw.entity.StringCulture.StringCulture">

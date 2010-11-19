@@ -163,7 +163,8 @@ public class DomainObjectInputPanel extends Panel {
     }
 
     private void init() {
-        final Entity description = isHistory() ? entityBean.getEntity(entity) : getStrategy().getEntity();
+//        final Entity description = isHistory() ? entityBean.getEntity(entity) : getStrategy().getEntity();
+        final Entity description = getStrategy().getEntity();
 
         //entity type
         WebMarkupContainer typeContainer = new WebMarkupContainer("typeContainer");
@@ -245,43 +246,46 @@ public class DomainObjectInputPanel extends Panel {
 
 
         //simple attributes
-        final Map<Attribute, EntityAttributeType> attrAndDesc = Maps.newLinkedHashMap();
-
-        for (final Attribute attr : object.getAttributes()) {
-            try {
-                EntityAttributeType attrDesc = Iterables.find(description.getEntityAttributeTypes(), new Predicate<EntityAttributeType>() {
-
-                    @Override
-                    public boolean apply(EntityAttributeType attrDesc) {
-                        return attrDesc.getId().equals(attr.getAttributeTypeId()) && getStrategy().isSimpleAttributeType(attrDesc);
-                    }
-                });
-                attrAndDesc.put(attr, attrDesc);
-            } catch (NoSuchElementException e) {
-            }
+        final Map<Attribute, EntityAttributeType> attrToTypeMap = Maps.newLinkedHashMap();
+        for (Attribute attr : object.getAttributes()) {
+            EntityAttributeType attrType = description.getAttributeType(attr.getAttributeTypeId());
+                if(getStrategy().isSimpleAttributeType(attrType)){
+                    attrToTypeMap.put(attr, attrType);
+                }
+//            try {
+//                EntityAttributeType attrDesc = Iterables.find(description.getEntityAttributeTypes(), new Predicate<EntityAttributeType>() {
+//
+//                    @Override
+//                    public boolean apply(EntityAttributeType attrDesc) {
+//                        return attrDesc.getId().equals(attr.getAttributeTypeId()) && getStrategy().isSimpleAttributeType(attrDesc);
+//                    }
+//                });
+//                attrToTypeMap.put(attr, attrDesc);
+//            } catch (NoSuchElementException e) {
+//            }
         }
 
-        ListView<Attribute> simpleAttributes = new ListView<Attribute>("simpleAttributes", Lists.newArrayList(attrAndDesc.keySet())) {
+        ListView<Attribute> simpleAttributes = new ListView<Attribute>("simpleAttributes", Lists.newArrayList(attrToTypeMap.keySet())) {
 
             @Override
             protected void populateItem(ListItem<Attribute> item) {
                 Attribute attr = item.getModelObject();
-                final EntityAttributeType desc = attrAndDesc.get(attr);
+                final EntityAttributeType attrType = attrToTypeMap.get(attr);
 
                 IModel<String> labelModel = new AbstractReadOnlyModel<String>() {
 
                     @Override
                     public String getObject() {
-                        return stringBean.displayValue(desc.getAttributeNames(), getLocale());
+                        return stringBean.displayValue(attrType.getAttributeNames(), getLocale());
                     }
                 };
                 item.add(new Label("label", labelModel));
 
                 WebMarkupContainer required = new WebMarkupContainer("required");
                 item.add(required);
-                required.setVisible(desc.isMandatory());
+                required.setVisible(attrType.isMandatory());
 
-                String valueType = desc.getEntityAttributeValueTypes().get(0).getValueType();
+                String valueType = attrType.getEntityAttributeValueTypes().get(0).getValueType();
                 SimpleTypes type = SimpleTypes.valueOf(valueType.toUpperCase());
 
                 Component input = null;
@@ -301,22 +305,22 @@ public class DomainObjectInputPanel extends Panel {
                             }
                         };
                         IModel<String> model = new SimpleTypeModel<String>(systemLocaleStringCulture, stringConverter);
-                        input = new StringPanel("input", model, desc.isMandatory(), labelModel, !isHistory() && CanEditUtil.canEdit(object));
+                        input = new StringPanel("input", model, attrType.isMandatory(), labelModel, !isHistory() && CanEditUtil.canEdit(object));
                     }
                     break;
                     case STRING_CULTURE: {
                         IModel<List<StringCulture>> model = new PropertyModel<List<StringCulture>>(attr, "localizedValues");
-                        input = new StringCulturePanel("input", model, desc.isMandatory(), labelModel, !isHistory() && CanEditUtil.canEdit(object));
+                        input = new StringCulturePanel("input", model, attrType.isMandatory(), labelModel, !isHistory() && CanEditUtil.canEdit(object));
                     }
                     break;
                     case INTEGER: {
                         IModel<Integer> model = new SimpleTypeModel<Integer>(systemLocaleStringCulture, new IntegerConverter());
-                        input = new IntegerPanel("input", model, desc.isMandatory(), labelModel, !isHistory() && CanEditUtil.canEdit(object));
+                        input = new IntegerPanel("input", model, attrType.isMandatory(), labelModel, !isHistory() && CanEditUtil.canEdit(object));
                     }
                     break;
                     case DATE: {
                         IModel<Date> model = new SimpleTypeModel<Date>(systemLocaleStringCulture, new DateConverter());
-                        input = new DatePanel("input", model, desc.isMandatory(), labelModel, !isHistory() && CanEditUtil.canEdit(object));
+                        input = new DatePanel("input", model, attrType.isMandatory(), labelModel, !isHistory() && CanEditUtil.canEdit(object));
                     }
                     break;
                     case BOOLEAN: {
@@ -326,7 +330,7 @@ public class DomainObjectInputPanel extends Panel {
                     break;
                     case DOUBLE: {
                         IModel<Double> model = new SimpleTypeModel<Double>(systemLocaleStringCulture, new DoubleConverter());
-                        input = new DoublePanel("input", model, desc.isMandatory(), labelModel, !isHistory() && CanEditUtil.canEdit(object));
+                        input = new DoublePanel("input", model, attrType.isMandatory(), labelModel, !isHistory() && CanEditUtil.canEdit(object));
                     }
                     break;
                 }
