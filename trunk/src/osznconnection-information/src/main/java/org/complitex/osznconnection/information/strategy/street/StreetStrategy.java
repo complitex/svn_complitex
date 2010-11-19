@@ -9,7 +9,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.entity.Attribute;
 import org.complitex.dictionaryfw.entity.DomainObject;
-import org.complitex.dictionaryfw.entity.description.EntityAttributeType;
 import org.complitex.dictionaryfw.entity.example.AttributeExample;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.mybatis.Transactional;
@@ -28,7 +27,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
 import org.complitex.dictionaryfw.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.osznconnection.commons.strategy.AbstractStrategy;
@@ -54,7 +52,7 @@ public class StreetStrategy extends AbstractStrategy {
      */
     private static final long NAME = 300;
 
-    public static final long STREET_TYPE_ATTRIBUTE = 301;
+    public static final long STREET_TYPE = 301;
 
     @Override
     public String getEntityTable() {
@@ -73,14 +71,8 @@ public class StreetStrategy extends AbstractStrategy {
     }
 
     @Override
-    public List<EntityAttributeType> getListColumns() {
-        return Lists.newArrayList(Iterables.filter(getEntity().getEntityAttributeTypes(), new Predicate<EntityAttributeType>() {
-
-            @Override
-            public boolean apply(EntityAttributeType attr) {
-                return attr.getId().equals(NAME);
-            }
-        }));
+    protected List<Long> getListAttributeTypes() {
+        return Lists.newArrayList(NAME);
     }
 
     @Override
@@ -112,18 +104,10 @@ public class StreetStrategy extends AbstractStrategy {
         return ImmutableList.of("country", "region", "city");
     }
 
-    public static void configureExampleImpl(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
+    private static void configureExampleImpl(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
         if (!Strings.isEmpty(searchTextInput)) {
-            AttributeExample attrExample = null;
-            try {
-                attrExample = Iterables.find(example.getAttributeExamples(), new Predicate<AttributeExample>() {
-
-                    @Override
-                    public boolean apply(AttributeExample attrExample) {
-                        return attrExample.getAttributeTypeId().equals(NAME);
-                    }
-                });
-            } catch (NoSuchElementException e) {
+            AttributeExample attrExample = example.getAttributeExample(NAME);
+            if (attrExample == null) {
                 attrExample = new AttributeExample(NAME);
                 example.addAttributeExample(attrExample);
             }
@@ -200,16 +184,6 @@ public class StreetStrategy extends AbstractStrategy {
     }
 
     public static Long getStreetType(DomainObject streetObject) {
-        try {
-            return Iterables.find(streetObject.getAttributes(), new Predicate<Attribute>() {
-
-                @Override
-                public boolean apply(Attribute attr) {
-                    return attr.getAttributeTypeId().equals(STREET_TYPE_ATTRIBUTE);
-                }
-            }).getValueId();
-        } catch (NoSuchElementException e) {
-            return null;
-        }
+        return streetObject.getAttribute(STREET_TYPE).getValueId();
     }
 }

@@ -1,5 +1,6 @@
 package org.complitex.dictionaryfw.strategy;
 
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
 import org.apache.wicket.PageParameters;
@@ -440,34 +441,28 @@ public abstract class Strategy extends AbstractBean {
      * @return Сортированный список метамодели (описания) атрибутов
      */
     public List<EntityAttributeType> getListColumns() {
-        return getEntity().getEntityAttributeTypes();
+        final List<Long> listAttributeTypes = getListAttributeTypes();
+        return Lists.newArrayList(Iterables.filter(getEntity().getEntityAttributeTypes(), new Predicate<EntityAttributeType>() {
+
+            @Override
+            public boolean apply(EntityAttributeType attributeType) {
+                return listAttributeTypes.contains(attributeType.getId());
+            }
+        }));
     }
 
     /**
-     * Используется для отображения в пользовательском интерфейсе
-     * @param object DomainObject
-     * @return Сортированный список атрибутов согласно метамодели
-     * @see #getListColumns
-     * todo cache or sort performance
-     * TODO: find out for what is that.
+     *
+     * @return Сортированный список идентификаторов атрибутов, которые должны выводиться в качестве колонок на странице записей.
      */
-    public List<Attribute> getAttributeColumns(DomainObject object) {
-        if (object == null) {
-            return newInstance().getAttributes();
-        }
+    protected List<Long> getListAttributeTypes() {
+        return Lists.newArrayList(Iterables.transform(getEntity().getEntityAttributeTypes(), new Function<EntityAttributeType, Long>() {
 
-        List<EntityAttributeType> entityAttributeTypes = getListColumns();
-        List<Attribute> attributeColumns = new ArrayList<Attribute>(entityAttributeTypes.size());
-
-        for (EntityAttributeType entityAttributeType : entityAttributeTypes) {
-            for (Attribute attribute : object.getAttributes()) {
-                if (attribute.getAttributeTypeId().equals(entityAttributeType.getId())) {
-                    attributeColumns.add(attribute);
-                }
+            @Override
+            public Long apply(EntityAttributeType attributeType) {
+                return attributeType.getId();
             }
-        }
-
-        return attributeColumns;
+        }));
     }
 
     public abstract Class<? extends WebPage> getListPage();

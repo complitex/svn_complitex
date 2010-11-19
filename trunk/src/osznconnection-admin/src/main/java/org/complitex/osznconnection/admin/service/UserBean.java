@@ -14,6 +14,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.util.ArrayList;
 import java.util.List;
+import org.complitex.dictionaryfw.entity.Attribute;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.util.DateUtil;
 
@@ -163,5 +164,23 @@ public class UserBean extends AbstractBean {
         return userFilter;
     }
 
+    public List<Attribute> getAttributeColumns(DomainObject object) {
+        if (object == null) {
+            return getUserInfoStrategy().newInstance().getAttributes();
+        }
+
+        List<EntityAttributeType> entityAttributeTypes = getUserInfoStrategy().getListColumns();
+        List<Attribute> attributeColumns = new ArrayList<Attribute>(entityAttributeTypes.size());
+
+        for (EntityAttributeType entityAttributeType : entityAttributeTypes) {
+            for (Attribute attribute : object.getAttributes()) {
+                if (attribute.getAttributeTypeId().equals(entityAttributeType.getId())) {
+                    attributeColumns.add(attribute);
+                }
+            }
+        }
+
+        return attributeColumns;
+    }
 }
 

@@ -4,15 +4,13 @@
  */
 package org.complitex.osznconnection.privilege.strategy;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import org.apache.wicket.util.string.Strings;
-import org.complitex.dictionaryfw.entity.Attribute;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.entity.example.AttributeExample;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
@@ -27,14 +25,14 @@ import org.complitex.osznconnection.commons.strategy.AbstractStrategy;
 @Stateless(name = "PrivilegeStrategy")
 public class PrivilegeStrategy extends AbstractStrategy {
 
-    public static final String RESOURCE_BUNDLE = PrivilegeStrategy.class.getName();
+    private static final String RESOURCE_BUNDLE = PrivilegeStrategy.class.getName();
 
     /**
      * Attribute type ids
      */
-    public static final long NAME = 1200;
+    private static final long NAME = 1200;
 
-    public static final long CODE = 1201;
+    private static final long CODE = 1201;
 
     @EJB
     private StringCultureBean stringBean;
@@ -45,29 +43,20 @@ public class PrivilegeStrategy extends AbstractStrategy {
     }
 
     @Override
-    public String displayDomainObject(DomainObject object, Locale locale) {
-        return stringBean.displayValue(Iterables.find(object.getAttributes(), new Predicate<Attribute>() {
+    protected List<Long> getListAttributeTypes() {
+        return Lists.newArrayList(NAME, CODE);
+    }
 
-            @Override
-            public boolean apply(Attribute attr) {
-                return attr.getAttributeTypeId().equals(NAME);
-            }
-        }).getLocalizedValues(), locale);
+    @Override
+    public String displayDomainObject(DomainObject object, Locale locale) {
+        return stringBean.displayValue(object.getAttribute(NAME).getLocalizedValues(), locale);
     }
 
     @Override
     public void configureExample(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
         if (!Strings.isEmpty(searchTextInput)) {
-            AttributeExample attrExample = null;
-            try {
-                attrExample = Iterables.find(example.getAttributeExamples(), new Predicate<AttributeExample>() {
-
-                    @Override
-                    public boolean apply(AttributeExample attrExample) {
-                        return attrExample.getAttributeTypeId().equals(NAME);
-                    }
-                });
-            } catch (NoSuchElementException e) {
+            AttributeExample attrExample = example.getAttributeExample(NAME);
+            if (attrExample == null) {
                 attrExample = new AttributeExample(NAME);
                 example.addAttributeExample(attrExample);
             }

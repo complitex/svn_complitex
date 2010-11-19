@@ -4,14 +4,11 @@
  */
 package org.complitex.osznconnection.organization.strategy;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.entity.Attribute;
 import org.complitex.dictionaryfw.entity.DomainObject;
-import org.complitex.dictionaryfw.entity.description.EntityAttributeType;
 import org.complitex.dictionaryfw.entity.example.AttributeExample;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.service.StringCultureBean;
@@ -25,7 +22,6 @@ import javax.ejb.Stateless;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import org.complitex.osznconnection.commons.strategy.AbstractStrategy;
 import org.complitex.osznconnection.information.strategy.district.DistrictStrategy;
 import org.complitex.osznconnection.organization.strategy.web.OrganizationEditComponent;
@@ -44,11 +40,9 @@ public class OrganizationStrategy extends AbstractStrategy {
     /**
      * Attribute type ids
      */
-    public static final long NAME = 900;
+    private static final long NAME = 900;
 
-    public static final long UNIQUE_CODE = 901;
-
-    public static final long DISTRICT = 902;
+    private static final long DISTRICT = 902;
 
     /**
      * Entity type ids
@@ -69,40 +63,20 @@ public class OrganizationStrategy extends AbstractStrategy {
     }
 
     @Override
-    public List<EntityAttributeType> getListColumns() {
-        return Lists.newArrayList(Iterables.filter(getEntity().getEntityAttributeTypes(), new Predicate<EntityAttributeType>() {
-
-            @Override
-            public boolean apply(EntityAttributeType attr) {
-                return attr.getId().equals(NAME);
-            }
-        }));
+    protected List<Long> getListAttributeTypes() {
+        return Lists.newArrayList(NAME);
     }
 
     @Override
     public String displayDomainObject(DomainObject object, Locale locale) {
-        return stringBean.displayValue(Iterables.find(object.getAttributes(), new Predicate<Attribute>() {
-
-            @Override
-            public boolean apply(Attribute attr) {
-                return attr.getAttributeTypeId().equals(NAME);
-            }
-        }).getLocalizedValues(), locale);
+        return stringBean.displayValue(object.getAttribute(NAME).getLocalizedValues(), locale);
     }
 
     @Override
     public void configureExample(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
         if (!Strings.isEmpty(searchTextInput)) {
-            AttributeExample attrExample = null;
-            try {
-                attrExample = Iterables.find(example.getAttributeExamples(), new Predicate<AttributeExample>() {
-
-                    @Override
-                    public boolean apply(AttributeExample attrExample) {
-                        return attrExample.getAttributeTypeId().equals(NAME);
-                    }
-                });
-            } catch (NoSuchElementException e) {
+            AttributeExample attrExample = example.getAttributeExample(NAME);
+            if (attrExample == null) {
                 attrExample = new AttributeExample(NAME);
                 example.addAttributeExample(attrExample);
             }
@@ -155,13 +129,7 @@ public class OrganizationStrategy extends AbstractStrategy {
     }
 
     public Attribute getDistrictAttribute(DomainObject organization) {
-        return Iterables.find(organization.getAttributes(), new Predicate<Attribute>() {
-
-            @Override
-            public boolean apply(Attribute attr) {
-                return attr.getAttributeTypeId().equals(DISTRICT);
-            }
-        });
+        return organization.getAttribute(DISTRICT);
     }
 
     public String getDistrictCode(DomainObject organization) {
@@ -171,10 +139,6 @@ public class OrganizationStrategy extends AbstractStrategy {
             districtCode = districtStrategy.getDistrictCode(districtAttribute.getValueId());
         }
         return districtCode;
-    }
-
-    public String getDistrictCode(Long objectId) {
-        return getDistrictCode(findById(objectId));
     }
 
     public DomainObject getItselfOrganization() {
