@@ -42,20 +42,19 @@ insert into building_address_string_culture(id, locale, value) values
 (1, 'uk', UPPER('8')), (2, 'uk', UPPER('28')), (3,'uk',UPPER('18')), (4,'uk',UPPER('12')), (5,'uk',UPPER('21')), (6,'uk',UPPER('100')),
 (7,'ru',UPPER('154А')), (7,'uk',UPPER('154А')),(8,'ru',UPPER('25А')), (8,'uk',UPPER('25А'));
 insert into building_address_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
-(1,1,1500,1,1500),(1,1,1501,null,1501),(1,1,1502,null,1502),
-(1,2,1500,6,1500),(1,2,1501,null,1501),(1,2,1502,null,1502),
-(1,3,1500,2,1500),(1,3,1501,null,1501),(1,3,1502,null,1502),
-(1,4,1500,3,1500),(1,4,1501,null,1501),(1,4,1502,null,1502),
-(1,5,1500,4,1500),(1,5,1501,null,1501),(1,5,1502,null,1502),
-(1,6,1500,5,1500),(1,6,1501,null,1501),(1,6,1502,null,1502),
-(1,7,1500,7,1500),(1,7,1501,null,1501),(1,7,1502,null,1502),
-(1,8,1500,8,1500),(1,8,1501,null,1501),(1,8,1502,null,1502);
+(1,1,1500,1,1500),
+(1,2,1500,6,1500),
+(1,3,1500,2,1500),
+(1,4,1500,3,1500),
+(1,5,1500,4,1500),
+(1,6,1500,5,1500),
+(1,7,1500,7,1500),
+(1,8,1500,8,1500);
 
 -- Buildings
 insert into building(object_id, parent_id, parent_entity_id) values (1,1,1500), (2,3,1500), (3,4,1500), (4,5,1500), (5,6,1500), (6,7,1500), (7,8,1500);
 insert into building_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
 (1,1,500,2,500),(1,1,501,2,501),
-(1,2,500,null,500),
 (1,3,500,2,500),
 (1,4,500,1,500),
 (1,5,500,1,500),
@@ -124,7 +123,7 @@ insert into organization_string_culture(id, locale, value) values (3, 'ru', UPPE
 (5, 'ru', UPPER('Центр начислений №1')), (5, 'uk', UPPER('Центр начислений №1')), (6, 'ru', UPPER('1234'));
 insert into organization_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
 (1,1,900,3,900), (1,1,901,4,901), (1,1,902,3,902),
-(1,2,900,5,900), (1,2,901,6,902), (1,2,902,null,902);
+(1,2,900,5,900), (1,2,901,6,902);
 
 -- Files
 insert into request_file_group(id) values (1);

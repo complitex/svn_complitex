@@ -92,20 +92,22 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
         }
 
         //district
-        districtAttribute = organizationStrategy.getDistrictAttribute(currentOrganization);
-        Long districtId = districtAttribute.getValueId();
-
         componentState = new SearchComponentState();
-        if (districtId != null) {
-            DomainObject district = null;
-            DomainObjectExample example = new DomainObjectExample();
-            example.setId(districtId);
-            district = districtStrategy.find(example).get(0);
+        districtAttribute = organizationStrategy.getDistrictAttribute(currentOrganization);
+        if (districtAttribute != null) {
+            Long districtId = districtAttribute.getValueId();
 
-            Strategy.RestrictedObjectInfo info = districtStrategy.findParentInSearchComponent(districtId, null);
-            if (info != null) {
-                componentState = districtStrategy.getSearchComponentStateForParent(info.getId(), info.getEntityTable(), null);
-                componentState.put("district", district);
+            if (districtId != null) {
+                DomainObject district = null;
+                DomainObjectExample example = new DomainObjectExample();
+                example.setId(districtId);
+                district = districtStrategy.find(example).get(0);
+
+                Strategy.RestrictedObjectInfo info = districtStrategy.findParentInSearchComponent(districtId, null);
+                if (info != null) {
+                    componentState = districtStrategy.getSearchComponentStateForParent(info.getId(), info.getEntityTable(), null);
+                    componentState.put("district", district);
+                }
             }
         }
 
@@ -115,6 +117,11 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
     }
 
     private void setVisibility(WebMarkupContainer districtContainer, DomainObject currentOrganization) {
+        if (districtAttribute == null) {
+            districtContainer.setVisible(false);
+            return;
+        }
+
         Long entityTypeId = currentOrganization.getEntityTypeId();
         if (entityTypeId != null && entityTypeId.equals(OrganizationStrategy.OSZN)) {
             districtContainer.setVisible(true);
