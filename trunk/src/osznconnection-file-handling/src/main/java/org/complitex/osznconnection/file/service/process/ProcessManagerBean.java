@@ -69,7 +69,8 @@ public class ProcessManagerBean {
     private PROCESS process;
 
     private boolean preprocess = false;
-    private int preprocessError = 0;
+    private int preprocessErrorCount = 0;
+    private boolean preprocessError = false;
 
     public PROCESS getProcess() {
         return process;
@@ -138,7 +139,7 @@ public class ProcessManagerBean {
     }
 
     public int getErrorCount() {
-        return executorBean.getErrorCount() + preprocessError;
+        return executorBean.getErrorCount() + preprocessErrorCount;
     }
 
     public boolean isProcessing(){
@@ -146,7 +147,7 @@ public class ProcessManagerBean {
     }
 
     public boolean isCriticalError(){
-        return executorBean.getStatus().equals(ExecutorBean.STATUS.CRITICAL_ERROR);
+        return executorBean.getStatus().equals(ExecutorBean.STATUS.CRITICAL_ERROR) || preprocessError;
     }
 
     public boolean isCompleted(){
@@ -178,7 +179,7 @@ public class ProcessManagerBean {
 
             linkError.addAll(loadParameter.getLinkError());
 
-            preprocessError = linkError.size();
+            preprocessErrorCount = linkError.size();
 
             for (RequestFile rf : linkError){
                 logBean.error(Module.NAME, ProcessManagerBean.class, RequestFileGroup.class, null, rf.getId(),
@@ -193,6 +194,9 @@ public class ProcessManagerBean {
                     configBean.getInteger(Config.LOAD_THREAD_SIZE, true),
                     configBean.getInteger(Config.LOAD_MAX_ERROR_COUNT, true));
         } catch (StorageNotFoundException e) {
+            preprocess = false;
+            preprocessError = true;
+
             log.error("Ошибка процесса загрузки файлов.", e);
             logBean.error(Module.NAME, ProcessManagerBean.class, RequestFileGroup.class, null,
                     Log.EVENT.CREATE, "Ошибка процесса загрузки файлов. Причина: {0}", e.getMessage());
@@ -210,6 +214,9 @@ public class ProcessManagerBean {
                     configBean.getInteger(Config.LOAD_THREAD_SIZE, true),
                     configBean.getInteger(Config.LOAD_MAX_ERROR_COUNT, true));
         } catch (StorageNotFoundException e) {
+            preprocess = false;
+            preprocessError = true;
+
             log.error("Ошибка процесса загрузки файлов.", e);
             logBean.error(Module.NAME, ProcessManagerBean.class, RequestFileGroup.class, null,
                     Log.EVENT.CREATE, "Ошибка процесса загрузки файлов. Причина: {0}", e.getMessage());
@@ -250,8 +257,9 @@ public class ProcessManagerBean {
     }
 
     private void init(){
+        preprocessError = false;
         processedIndex.clear();
         linkError.clear();
-        preprocessError = 0;
+        preprocessErrorCount = 0;
     }
 }
