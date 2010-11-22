@@ -29,9 +29,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author Artem
  */
-public class BuildingValidator2 implements IValidator {
+public class BuildingValidator implements IValidator {
 
-    private static final Logger log = LoggerFactory.getLogger(BuildingValidator2.class);
+    private static final Logger log = LoggerFactory.getLogger(BuildingValidator.class);
 
     private BuildingStrategy buildingStrategy;
 
@@ -39,7 +39,7 @@ public class BuildingValidator2 implements IValidator {
 
     private StringCultureBean stringBean;
 
-    public BuildingValidator2(BuildingStrategy buildingStrategy, Locale systemLocale, StringCultureBean stringBean) {
+    public BuildingValidator(BuildingStrategy buildingStrategy, Locale systemLocale, StringCultureBean stringBean) {
         this.buildingStrategy = buildingStrategy;
         this.systemLocale = systemLocale;
         this.stringBean = stringBean;
@@ -121,14 +121,14 @@ public class BuildingValidator2 implements IValidator {
         component.error(findEditComponent(component).getString(key, model));
     }
 
-    private BuildingEditComponent2 editComponent;
+    private BuildingEditComponent editComponent;
 
-    private BuildingEditComponent2 findEditComponent(Component component) {
+    private BuildingEditComponent findEditComponent(Component component) {
         if (editComponent == null) {
-            component.getPage().visitChildren(BuildingEditComponent2.class, new Component.IVisitor<BuildingEditComponent2>() {
+            component.getPage().visitChildren(BuildingEditComponent.class, new Component.IVisitor<BuildingEditComponent>() {
 
                 @Override
-                public Object component(BuildingEditComponent2 comp) {
+                public Object component(BuildingEditComponent comp) {
                     editComponent = comp;
                     return STOP_TRAVERSAL;
                 }

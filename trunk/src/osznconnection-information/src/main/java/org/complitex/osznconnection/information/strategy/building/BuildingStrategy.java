@@ -29,8 +29,8 @@ import org.complitex.dictionaryfw.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionaryfw.strategy.web.IValidator;
 import org.complitex.osznconnection.commons.strategy.AbstractStrategy;
 import org.complitex.osznconnection.information.strategy.building.entity.Building;
-import org.complitex.osznconnection.information.strategy.building.web.edit.BuildingEditComponent2;
-import org.complitex.osznconnection.information.strategy.building.web.edit.BuildingValidator2;
+import org.complitex.osznconnection.information.strategy.building.web.edit.BuildingEditComponent;
+import org.complitex.osznconnection.information.strategy.building.web.edit.BuildingValidator;
 import org.complitex.osznconnection.information.strategy.building.web.list.BuildingList;
 import org.complitex.osznconnection.information.strategy.building_address.BuildingAddressStrategy;
 import org.slf4j.Logger;
@@ -305,12 +305,12 @@ public class BuildingStrategy extends AbstractStrategy {
 
     @Override
     public IValidator getValidator() {
-        return new BuildingValidator2(this, new Locale(localeBean.getSystemLocale()), stringBean);
+        return new BuildingValidator(this, new Locale(localeBean.getSystemLocale()), stringBean);
     }
 
     @Override
     public Class<? extends AbstractComplexAttributesPanel> getComplexAttributesPanelClass() {
-        return BuildingEditComponent2.class;
+        return BuildingEditComponent.class;
     }
 
     @Override
