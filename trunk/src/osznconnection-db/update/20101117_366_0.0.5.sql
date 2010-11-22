@@ -123,7 +123,6 @@ BEGIN
     END IF;
 END/
 DELIMITER ;
-SET GLOBAL log_bin_trust_routine_creators = @old_log_bin_trust_routine_creators;
 
 DELIMITER /
 CREATE PROCEDURE `building_structure_update`()
@@ -223,6 +222,8 @@ DELETE FROM `building_attribute` WHERE `status` = 'ARCHIVE';
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 
 CALL `building_structure_update`();
+
+SET GLOBAL log_bin_trust_routine_creators = @old_log_bin_trust_routine_creators;
 
 DELETE FROM `building_string_culture`;
 UPDATE `sequence` SET `sequence_value` = 1 WHERE `sequence_name` = 'building_string_culture';
