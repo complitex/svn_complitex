@@ -9,6 +9,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -168,7 +169,7 @@ public final class BenefitList extends TemplatePage {
                 item.add(new Label("apartment", benefit.getApartment()));
                 item.add(new Label("ord_fam", (String) benefit.getField(BenefitDBF.ORD_FAM)));
                 item.add(new Label("status", StatusRenderer.displayValue(benefit.getStatus())));
-                item.add(new AjaxLink("connect"){
+                item.add(new IndicatingAjaxLink("connect"){
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {

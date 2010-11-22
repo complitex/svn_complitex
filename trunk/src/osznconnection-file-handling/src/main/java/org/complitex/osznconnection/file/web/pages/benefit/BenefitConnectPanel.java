@@ -10,6 +10,7 @@ import org.apache.wicket.markup.html.form.Radio;
 import org.apache.wicket.markup.html.form.RadioGroup;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -48,6 +49,8 @@ public class BenefitConnectPanel extends Panel {
         container.setOutputMarkupId(true);
         dialog.add(container);
 
+        container.add(new FeedbackPanel("messages"));
+
         Form form = new Form("form");
         container.add(form);
 
@@ -75,7 +78,11 @@ public class BenefitConnectPanel extends Panel {
             @Override
             protected List<BenefitData> load() {
                 if (benefit != null){
-                    return benefitFillService.getBenefitData(benefit);
+                    try {
+                        return benefitFillService.getBenefitData(benefit);
+                    } catch (Exception e) {
+                        error("Ошибка соединения с удаленной базой данных");
+                    }
                 }
 
                 return Collections.emptyList();
