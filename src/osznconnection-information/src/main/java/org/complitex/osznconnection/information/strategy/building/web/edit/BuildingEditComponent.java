@@ -38,9 +38,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author Artem
  */
-public final class BuildingEditComponent2 extends AbstractComplexAttributesPanel {
+public final class BuildingEditComponent extends AbstractComplexAttributesPanel {
 
-    private static final Logger log = LoggerFactory.getLogger(BuildingEditComponent2.class);
+    private static final Logger log = LoggerFactory.getLogger(BuildingEditComponent.class);
 
     @EJB(name = "BuildingStrategy")
     private BuildingStrategy buildingStrategy;
@@ -69,7 +69,7 @@ public final class BuildingEditComponent2 extends AbstractComplexAttributesPanel
         }
     }
 
-    public BuildingEditComponent2(String id, boolean disabled) {
+    public BuildingEditComponent(String id, boolean disabled) {
         super(id, disabled);
     }
 
