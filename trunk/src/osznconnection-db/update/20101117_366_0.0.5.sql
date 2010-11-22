@@ -252,6 +252,7 @@ UPDATE `region_attribute` SET `start_date` = '2010-09-27 13:00:00';
 UPDATE `district` SET `start_date` = '2010-09-27 13:00:00';
 UPDATE `district_attribute` SET `start_date` = '2010-09-27 13:00:00';
 UPDATE `street` SET `start_date` = '2010-09-27 13:00:00';
+DELETE FROM street_attribute WHERE `status` = 'ARCHIVE';
 UPDATE `street_attribute` SET `start_date` = '2010-09-27 13:00:00';
 UPDATE `street_type` SET `start_date` = '2010-09-27 13:00:00';
 UPDATE `street_type_attribute` SET `start_date` = '2010-09-27 13:00:00';
