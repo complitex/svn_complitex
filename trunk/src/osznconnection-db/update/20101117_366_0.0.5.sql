@@ -84,6 +84,9 @@ DELETE FROM `building_correction` WHERE `object_id` IN (10000,10002,10150,10601,
 DELETE FROM `building_attribute` WHERE `object_id` IN (10000,10002,10150,10601,10817);
 DELETE FROM `building` WHERE `object_id` IN (10000,10002,10150,10601,10817);
 
+
+SET @old_log_bin_trust_routine_creators = @@global.log_bin_trust_routine_creators;
+SET GLOBAL log_bin_trust_routine_creators = 1;
 DELIMITER /
 CREATE FUNCTION `copy_building_strings`(l_value_id BIGINT(20)) RETURNS BIGINT(20)
 BEGIN
@@ -120,6 +123,7 @@ BEGIN
     END IF;
 END/
 DELIMITER ;
+SET GLOBAL log_bin_trust_routine_creators = @old_log_bin_trust_routine_creators;
 
 DELIMITER /
 CREATE PROCEDURE `building_structure_update`()
