@@ -103,6 +103,9 @@ public final class BuildingEditComponent2 extends AbstractComplexAttributesPanel
         final SearchComponentState parentSearchComponentState = getInputPanel().getParentSearchComponentState();
 
         //district
+        WebMarkupContainer districtContainer = new WebMarkupContainer("districtContainer");
+        attributesContainer.add(districtContainer);
+
         Label districtLabel = new Label("districtLabel", new AbstractReadOnlyModel<String>() {
 
             @Override
@@ -110,7 +113,7 @@ public final class BuildingEditComponent2 extends AbstractComplexAttributesPanel
                 return stringBean.displayValue(buildingStrategy.getEntity().getAttributeType(BuildingStrategy.DISTRICT).getAttributeNames(), getLocale());
             }
         });
-        attributesContainer.add(districtLabel);
+        districtContainer.add(districtLabel);
         districtComponentState = new SearchComponentState() {
 
             @Override
@@ -125,15 +128,19 @@ public final class BuildingEditComponent2 extends AbstractComplexAttributesPanel
 
         Long districtId = null;
         districtAttribute = building.getAttribute(BuildingStrategy.DISTRICT);
-        districtId = districtAttribute.getValueId();
-        DomainObject district = null;
-        if (districtId != null) {
-            district = districtStrategy.findById(districtId);
-            districtComponentState.put("district", district);
+        if (districtAttribute != null) {
+            districtId = districtAttribute.getValueId();
+            DomainObject district = null;
+            if (districtId != null) {
+                district = districtStrategy.findById(districtId);
+                districtComponentState.put("district", district);
+            }
         }
-        attributesContainer.add(new SearchComponent("district", districtComponentState,
+        districtContainer.add(new SearchComponent("district", districtComponentState,
                 ImmutableList.of("country", "region", "city", "district"), new DistrictSearchCallback(),
                 !isDisabled() && CanEditUtil.canEdit(building)));
+
+        districtContainer.setVisible(districtAttribute != null);
 
         //primary building address
         final DomainObject primaryBuildingAddress = building.getPrimaryAddress();

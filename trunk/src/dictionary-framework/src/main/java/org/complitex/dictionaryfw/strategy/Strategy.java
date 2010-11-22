@@ -260,7 +260,10 @@ public abstract class Strategy extends AbstractBean {
             Long generatedStringId = stringBean.insertStrings(strings, getEntityTable());
             attribute.setValueId(generatedStringId);
         }
-        sqlSession().insert(ATTRIBUTE_NAMESPACE + "." + INSERT_OPERATION, new Parameter(getEntityTable(), attribute));
+
+        if(attribute.getValueId() != null || getEntity().getAttributeType(attribute.getAttributeTypeId()).isMandatory()){
+            sqlSession().insert(ATTRIBUTE_NAMESPACE + "." + INSERT_OPERATION, new Parameter(getEntityTable(), attribute));
+        }
     }
 
     @Transactional
