@@ -16,6 +16,7 @@ ALTER TABLE `room_attribute` CHANGE COLUMN `id` `pk_id` BIGINT(20) NOT NULL AUTO
 ALTER TABLE `region_attribute` CHANGE COLUMN `id` `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT;
 ALTER TABLE `street_attribute` CHANGE COLUMN `id` `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT;
 
+ALTER TABLE `entity_type` DROP COLUMN `import_object_id`;
 ALTER TABLE `apartment` DROP COLUMN `import_object_id`;
 ALTER TABLE `building` DROP COLUMN `import_object_id`;
 ALTER TABLE `district` DROP COLUMN `import_object_id`;

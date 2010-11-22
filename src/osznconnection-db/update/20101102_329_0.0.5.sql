@@ -71,6 +71,14 @@ INSERT INTO `city_type_attribute`(`attribute_id`, `object_id`, `attribute_type_i
 
 INSERT INTO `sequence` (`sequence_name`, `sequence_value`) VALUES ('city_type_string_culture', 10002), ('city_type', 10002);
 
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+DELETE FROM `city` WHERE `status` = 'ARCHIVE';
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+
+UPDATE `city` SET `entity_type_id` = NULL WHERE `object_id` = 10000;
+
 DELETE FROM `entity_type` WHERE `id` IN (400, 401);
 DELETE FROM `string_culture` WHERE `id` IN (402, 403);
 
