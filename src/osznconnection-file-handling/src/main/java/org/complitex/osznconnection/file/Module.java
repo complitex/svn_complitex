@@ -1,10 +1,8 @@
 package org.complitex.osznconnection.file;
 
 import org.complitex.dictionaryfw.service.LogManager;
-import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.entity.RequestFileGroup;
 import org.complitex.osznconnection.file.web.GroupList;
-import org.complitex.osznconnection.file.web.TarifFileList;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
@@ -21,7 +19,8 @@ public class Module {
 
     @PostConstruct
     public void init() {
-        LogManager.get().registerLink(RequestFile.class.getName(), TarifFileList.class, null, "request_file_id");
+        //todo tarif and request file
+        //LogManager.get().registerLink(RequestFile.class.getName(), TarifFileList.class, null, "request_file_id");
         LogManager.get().registerLink(RequestFileGroup.class.getName(), GroupList.class, null, "group_id");
     }
 }
