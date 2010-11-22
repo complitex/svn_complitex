@@ -176,7 +176,7 @@ public class RequestFileGroup implements ILoggable{
     }
 
     public String getName(){
-        if (paymentFile != null){
+        if (paymentFile != null && paymentFile.getName() != null){
             return paymentFile.getName().substring(2,8);
         }
 

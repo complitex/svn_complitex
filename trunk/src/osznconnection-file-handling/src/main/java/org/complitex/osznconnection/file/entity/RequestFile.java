@@ -92,7 +92,7 @@ public class RequestFile implements ILoggable {
             return null;
         }
 
-        return directory + File.separator + name;
+        return (directory != null ? directory + File.separator : "") + name;
     }
 
     public Long getId() {
