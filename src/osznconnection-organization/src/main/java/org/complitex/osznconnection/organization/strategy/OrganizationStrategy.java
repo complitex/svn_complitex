@@ -6,6 +6,7 @@ package org.complitex.osznconnection.organization.strategy;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.entity.Attribute;
 import org.complitex.dictionaryfw.entity.DomainObject;
@@ -13,18 +14,19 @@ import org.complitex.dictionaryfw.entity.example.AttributeExample;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.service.StringCultureBean;
 import org.complitex.dictionaryfw.strategy.web.AbstractComplexAttributesPanel;
-import org.complitex.dictionaryfw.strategy.web.IValidator;
+import org.complitex.dictionaryfw.strategy.web.validate.IValidator;
 import org.complitex.dictionaryfw.util.ResourceUtil;
-import org.complitex.osznconnection.organization.strategy.web.OrganizationValidator;
+import org.complitex.osznconnection.organization.strategy.web.edit.OrganizationValidator;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import org.complitex.dictionaryfw.service.LocaleBean;
 import org.complitex.osznconnection.commons.strategy.AbstractStrategy;
 import org.complitex.osznconnection.information.strategy.district.DistrictStrategy;
-import org.complitex.osznconnection.organization.strategy.web.OrganizationEditComponent;
+import org.complitex.osznconnection.organization.strategy.web.edit.OrganizationEditComponent;
 
 /**
  *
@@ -32,6 +34,8 @@ import org.complitex.osznconnection.organization.strategy.web.OrganizationEditCo
  */
 @Stateless(name = "OrganizationStrategy")
 public class OrganizationStrategy extends AbstractStrategy {
+
+    private static final String ORGANIZATION_NAMESPACE = OrganizationStrategy.class.getPackage().getName() + ".Organization";
 
     public static final String RESOURCE_BUNDLE = OrganizationStrategy.class.getName();
 
@@ -41,6 +45,8 @@ public class OrganizationStrategy extends AbstractStrategy {
      * Attribute type ids
      */
     private static final long NAME = 900;
+
+    private static final long CODE = 901;
 
     private static final long DISTRICT = 902;
 
@@ -56,6 +62,9 @@ public class OrganizationStrategy extends AbstractStrategy {
 
     @EJB(beanName = "DistrictStrategy")
     private DistrictStrategy districtStrategy;
+
+    @EJB
+    private LocaleBean localeBean;
 
     @Override
     public String getEntityTable() {
@@ -91,7 +100,7 @@ public class OrganizationStrategy extends AbstractStrategy {
 
     @Override
     public IValidator getValidator() {
-        return new OrganizationValidator();
+        return new OrganizationValidator(this, new Locale(localeBean.getSystemLocale()));
     }
 
     @Override
@@ -146,5 +155,42 @@ public class OrganizationStrategy extends AbstractStrategy {
         example.setId(ITSELF_ORGANIZATION_OBJECT_ID);
         configureExample(example, ImmutableMap.<String, Long>of(), null);
         return find(example).get(0);
+    }
+
+    public String getCode(DomainObject organization) {
+        return stringBean.getSystemStringCulture(organization.getAttribute(CODE).getLocalizedValues()).getValue();
+    }
+
+    public String getName(DomainObject organization, Locale locale) {
+        return stringBean.displayValue(organization.getAttribute(NAME).getLocalizedValues(), locale);
+    }
+
+    public Long validateCode(Long id, String code, Long parentId, Long parentEntityId) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("code", code);
+        params.put("parentId", parentId);
+        params.put("parentEntityId", parentEntityId);
+        List<Long> results = sqlSession().selectList(ORGANIZATION_NAMESPACE + ".validateCode", params);
+        for (Long result : results) {
+            if (!result.equals(id)) {
+                return result;
+            }
+        }
+        return null;
+    }
+
+    public Long validateName(Long id, String name, Long parentId, Long parentEntityId, Locale locale) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("name", name);
+        params.put("parentId", parentId);
+        params.put("parentEntityId", parentEntityId);
+        params.put("locale", locale.getLanguage());
+        List<Long> results = sqlSession().selectList(ORGANIZATION_NAMESPACE + ".validateName", params);
+        for (Long result : results) {
+            if (!result.equals(id)) {
+                return result;
+            }
+        }
+        return null;
     }
 }

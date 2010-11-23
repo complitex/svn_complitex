@@ -16,7 +16,8 @@ import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.service.StringCultureBean;
 import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
-import org.complitex.dictionaryfw.strategy.web.IValidator;
+import org.complitex.dictionaryfw.strategy.web.DomainObjectEditPanel;
+import org.complitex.dictionaryfw.strategy.web.validate.IValidator;
 import org.complitex.dictionaryfw.util.EjbBeanLocator;
 import org.complitex.dictionaryfw.util.Numbers;
 import org.complitex.osznconnection.information.strategy.building.BuildingStrategy;
@@ -46,18 +47,18 @@ public class BuildingValidator implements IValidator {
     }
 
     @Override
-    public boolean validate(DomainObject object, Component component) {
-        boolean valid = validateParents((Building) object, component);
+    public boolean validate(DomainObject object, DomainObjectEditPanel editPanel) {
+        boolean valid = validateParents((Building) object, editPanel);
         if (valid) {
-            valid &= validateCity((Building) object, component);
+            valid &= validateCity((Building) object, editPanel);
             if (valid) {
-                valid &= validateAdresses((Building) object, component);
+                valid &= validateAdresses((Building) object, editPanel);
             }
         }
         return valid;
     }
 
-    private boolean validateCity(Building building, Component component) {
+    private boolean validateCity(Building building, DomainObjectEditPanel editPanel) {
         boolean valid = true;
 
         DomainObject district = building.getDistrict();
@@ -67,7 +68,7 @@ public class BuildingValidator implements IValidator {
             for (DomainObject address : building.getAllAddresses()) {
                 Long cityFromAddress = getCityId(address);
                 if (!Numbers.isEqual(cityFromDistrict, cityFromAddress)) {
-                    error("city_mismatch_to_district", component);
+                    error("city_mismatch_to_district", editPanel);
                     valid = false;
                 }
             }
@@ -77,7 +78,7 @@ public class BuildingValidator implements IValidator {
         for (DomainObject alternativeAddress : building.getAlternativeAddresses()) {
             Long alternativeCity = getCityId(alternativeAddress);
             if (!Numbers.isEqual(primaryCity, alternativeCity)) {
-                error("city_mismatch_to_city", component);
+                error("city_mismatch_to_city", editPanel);
                 valid = false;
             }
         }
@@ -98,10 +99,10 @@ public class BuildingValidator implements IValidator {
         return null;
     }
 
-    private boolean validateParents(Building building, Component component) {
+    private boolean validateParents(Building building, DomainObjectEditPanel editPanel) {
         for (DomainObject address : building.getAllAddresses()) {
             if (address.getParentId() == null || address.getParentEntityId() == null && address.getParentId() > 0) {
-                error("parent_not_specified", component);
+                error("parent_not_specified", editPanel);
                 return false;
             }
         }
@@ -137,7 +138,7 @@ public class BuildingValidator implements IValidator {
         return editComponent;
     }
 
-    private boolean validateAdresses(Building building, Component component) {
+    private boolean validateAdresses(Building building, DomainObjectEditPanel editPanel) {
         List<DomainObject> addresses = building.getAllAddresses();
 
         boolean valid = true;
@@ -147,16 +148,16 @@ public class BuildingValidator implements IValidator {
             String corp = stringBean.displayValue(address.getAttribute(BuildingAddressStrategy.CORP).getLocalizedValues(), systemLocale);
             String structure = stringBean.displayValue(address.getAttribute(BuildingAddressStrategy.STRUCTURE).getLocalizedValues(), systemLocale);
 
-            Long existingBuildingId = buildingStrategy.checkForExistingAddress(number, Strings.isEmpty(corp) ? null : corp,
+            Long existingBuildingId = buildingStrategy.checkForExistingAddress(building.getId(), number, Strings.isEmpty(corp) ? null : corp,
                     Strings.isEmpty(structure) ? null : structure, address.getParentEntityId(), address.getParentId(), systemLocale);
-            if (existingBuildingId != null && !existingBuildingId.equals(building.getId())) {
+            if (existingBuildingId != null) {
                 valid = false;
 
                 Long parentEntityId = address.getParentEntityId();
                 String parentEntity = parentEntityId == null ? null : (parentEntityId == 300 ? "street" : (parentEntityId == 400 ? "city" : null));
                 Strategy strategy = getStrategyFactory().getStrategy(parentEntity);
                 DomainObject parentObject = strategy.findById(address.getParentId());
-                String parentTitle = strategy.displayDomainObject(parentObject, component.getLocale());
+                String parentTitle = strategy.displayDomainObject(parentObject, editPanel.getLocale());
 
                 IModel<?> model = Model.ofMap(ImmutableMap.builder().
                         put("id", existingBuildingId).
@@ -166,13 +167,13 @@ public class BuildingValidator implements IValidator {
                         put("parent", parentTitle).
                         put("locale", systemLocale).
                         build());
-                error("address_exists_already", component, model);
+                error("address_exists_already", editPanel, model);
             }
         }
         return valid;
     }
 
-    private StrategyFactory getStrategyFactory(){
+    private StrategyFactory getStrategyFactory() {
         return EjbBeanLocator.getBean(StrategyFactory.class);
     }
 }

@@ -35,6 +35,8 @@ import org.complitex.osznconnection.information.strategy.city.web.edit.CityTypeC
 @Stateless(name = "CityStrategy")
 public class CityStrategy extends AbstractStrategy {
 
+    private static final String CITY_NAMESPACE = CityStrategy.class.getPackage().getName() + ".City";
+
     @EJB
     private StringCultureBean stringBean;
 
@@ -154,5 +156,23 @@ public class CityStrategy extends AbstractStrategy {
     @Override
     public Class<? extends AbstractComplexAttributesPanel> getComplexAttributesPanelClass() {
         return CityTypeComponent.class;
+    }
+
+    public static Long getCityType(DomainObject cityObject) {
+        return cityObject.getAttribute(CITY_TYPE).getValueId();
+    }
+
+    @Override
+    public Long performDefaultValidation(DomainObject cityObject, Locale locale) {
+        Map<String, Object> params = super.createValidationParams(cityObject, locale);
+        Long cityTypeId = getCityType(cityObject);
+        params.put("cityTypeId", cityTypeId);
+        List<Long> results = sqlSession().selectList(CITY_NAMESPACE + ".defaultValidation", params);
+        for (Long result : results) {
+            if (!result.equals(cityObject.getId())) {
+                return result;
+            }
+        }
+        return null;
     }
 }

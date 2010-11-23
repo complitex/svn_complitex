@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.complitex.osznconnection.information.strategy.city.City">
+
+    <!-- Validation -->
+
+    <!-- Default validation -->
+    <select id="defaultValidation" resultType="long" parameterType="map">
+        SELECT DISTINCT c.`object_id` FROM `city` c
+                                    JOIN `city_attribute` a_name ON (c.`object_id` = a_name.`object_id` AND a_name.`status` = 'ACTIVE')
+                                    JOIN `city_attribute` a_type ON (c.`object_id` = a_type.`object_id` AND a_type.`status` = 'ACTIVE')
+                                    JOIN `city_string_culture` sc ON (a_name.`value_id` = sc.`id`)
+            WHERE (c.`status` IN ('ACTIVE', 'INACTIVE')) AND sc.`locale` = #{locale} AND a_name.`attribute_type_id` = 400
+            AND a_type.`attribute_type_id` = 401
+            AND sc.`value` = #{text}
+            <choose>
+                <when test="parentEntityId != null and parentId != null">
+                    AND c.`parent_entity_id` = #{parentEntityId} AND c.`parent_id` = #{parentId}
+                </when>
+                <otherwise>
+                    AND c.`parent_entity_id` IS NULL AND c.`parent_id` IS NULL
+                </otherwise>
+            </choose>
+            AND a_type.`value_id` = #{cityTypeId}
+    </select>
+
+</mapper>

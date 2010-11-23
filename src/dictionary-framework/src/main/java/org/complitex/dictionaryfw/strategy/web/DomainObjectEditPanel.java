@@ -4,6 +4,7 @@
  */
 package org.complitex.dictionaryfw.strategy.web;
 
+import org.complitex.dictionaryfw.strategy.web.validate.IValidator;
 import java.util.Date;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;

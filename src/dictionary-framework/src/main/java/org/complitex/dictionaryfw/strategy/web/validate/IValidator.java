@@ -2,10 +2,10 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.complitex.dictionaryfw.strategy.web;
+package org.complitex.dictionaryfw.strategy.web.validate;
 
-import org.apache.wicket.Component;
 import org.complitex.dictionaryfw.entity.DomainObject;
+import org.complitex.dictionaryfw.strategy.web.DomainObjectEditPanel;
 
 /**
  *
@@ -13,5 +13,5 @@ import org.complitex.dictionaryfw.entity.DomainObject;
  */
 public interface IValidator {
 
-    boolean validate(DomainObject object, Component component);
+    boolean validate(DomainObject object, DomainObjectEditPanel editPanel);
 }
