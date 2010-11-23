@@ -42,12 +42,14 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.EJB;
 import java.util.List;
 import java.util.Map;
+import org.complitex.osznconnection.information.strategy.street.StreetStrategy;
 
 /**
  * Панель для поиска номера л/c по различным параметрам: по адресу, по номеру лиц. счета, по номеру в мегабанке.
  * @author Artem
  */
 public class PaymentLookupPanel extends Panel {
+
     private static final Logger log = LoggerFactory.getLogger(PaymentLookupPanel.class);
 
     @EJB(name = "StrategyFactory")
@@ -60,10 +62,15 @@ public class PaymentLookupPanel extends Panel {
     private PaymentBean paymentBean;
 
     private IModel<String> accountInfoModel;
+
     private IModel<String> apartmentModel;
+
     private IModel<String> ownNumSrModel;
+
     private IModel<String> megabankModel;
+
     private IModel<List<? extends AccountDetail>> accountsModel;
+
     private IModel<AccountDetail> accountModel;
 
     private AccountNumberCorrectionPanel accountNumberCorrectionPanel;
@@ -79,13 +86,13 @@ public class PaymentLookupPanel extends Panel {
     private Label accountInfo;
 
     private SearchComponentState componentState;
+
     private SearchComponent searchComponent;
 
     private Payment payment;
 
     public PaymentLookupPanel(String id) {
         super(id);
-
         init();
     }
 
@@ -270,6 +277,7 @@ public class PaymentLookupPanel extends Panel {
                 closeDialog(target);
             }
         });
+
     }
 
     private void closeDialog(AjaxRequestTarget target) {
@@ -306,18 +314,18 @@ public class PaymentLookupPanel extends Panel {
         return object == null ? null : object.getId();
     }
 
-    private static Long getObjectTypeId(DomainObject object) {
-        return object == null ? null : object.getEntityTypeId();
-    }
-
     private void initApartment(String apartment) {
         payment.setField(PaymentDBF.FLAT, apartment != null ? apartment : "");
+    }
+
+    private static Long getStreetType(DomainObject streetObject) {
+        return streetObject == null ? null : StreetStrategy.getStreetType(streetObject);
     }
 
     private void initInternalAddress(SearchComponentState componentState) {
         payment.setInternalCityId(getObjectId(componentState.get("city")));
         payment.setInternalStreetId(getObjectId(componentState.get("street")));
-        payment.setInternalStreetTypeId(getObjectTypeId(componentState.get("street")));
+        payment.setInternalStreetTypeId(getStreetType(componentState.get("street")));
         payment.setInternalBuildingId(getObjectId(componentState.get("building")));
     }
 
@@ -342,18 +350,13 @@ public class PaymentLookupPanel extends Panel {
     }
 
     private DomainObject findObject(Long objectId, String entity, Map<String, Long> ids) {
-        DomainObject object = null;
-        DomainObjectExample example = new DomainObjectExample();
-        example.setId(objectId);
-
+        DomainObjectExample example = new DomainObjectExample(objectId);
         strategyFactory.getStrategy(entity).configureExample(example, ids, null);
         List<? extends DomainObject> objects = strategyFactory.getStrategy(entity).find(example);
-
-        if (objects != null && !objects.isEmpty()) {
-            object = objects.get(0);
+        if (objects.size() == 1) {
+            return objects.get(0);
         }
-
-        return object;
+        return null;
     }
 
     private boolean validateInternalAddress() {
@@ -369,8 +372,6 @@ public class PaymentLookupPanel extends Panel {
     public void open(AjaxRequestTarget target, Payment payment) {
         this.payment = payment;
 
-        initSearchComponentState(componentState, payment);
-
         accountModel.setObject(null);
         accountsModel.setObject(null);
         accountInfoModel.setObject(null);
@@ -379,6 +380,7 @@ public class PaymentLookupPanel extends Panel {
         //lookup by address
         apartmentModel.setObject((String) payment.getField(PaymentDBF.FLAT));
         initSearchComponentState(componentState, payment);
+        searchComponent.reinitialize(target);
         searchComponent.setVisible(true);
 
         if (accountNumberCorrectionPanel.isVisible()) {
@@ -396,7 +398,7 @@ public class PaymentLookupPanel extends Panel {
         dialog.open(target);
     }
 
-    private void updateAccountNumber(String accountNumber){
+    private void updateAccountNumber(String accountNumber) {
         payment.setAccountNumber(accountNumber);
         payment.setStatus(RequestStatus.ACCOUNT_NUMBER_RESOLVED);
         paymentBean.updateAccountNumber(payment);

@@ -10,8 +10,6 @@ import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
 import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
 import org.complitex.osznconnection.file.entity.*;
-import org.complitex.osznconnection.information.strategy.building.BuildingStrategy;
-import org.complitex.osznconnection.information.strategy.street.StreetStrategy;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -178,15 +176,13 @@ public class AddressService extends AbstractBean {
         adapter.prepareDistrict(payment, districtData.getCorrection(), districtData.getCode());
 
         //поиск типа улицы
-        if (payment.getInternalStreetTypeId() != null) {
-            Correction streetTypeData = addressCorrectionBean.findOutgoingStreetType(calculationCenterId,
-                    payment.getInternalStreetTypeId());
-            if (streetTypeData == null) {
-                payment.setStatus(RequestStatus.STREET_TYPE_UNRESOLVED);
-                return;
-            }
-            adapter.prepareStreetType(payment, streetTypeData.getCorrection(), streetTypeData.getCode());
+        Correction streetTypeData = addressCorrectionBean.findOutgoingStreetType(calculationCenterId,
+                payment.getInternalStreetTypeId());
+        if (streetTypeData == null) {
+            payment.setStatus(RequestStatus.STREET_TYPE_UNRESOLVED);
+            return;
         }
+        adapter.prepareStreetType(payment, streetTypeData.getCorrection(), streetTypeData.getCode());
 
         //поиск улицы
         Correction streetData = addressCorrectionBean.findOutgoingStreet(calculationCenterId,
@@ -206,12 +202,6 @@ public class AddressService extends AbstractBean {
         }
         adapter.prepareBuilding(payment, buildingData.getCorrection(), buildingData.getCorrectionCorp(), buildingData.getCode());
 
-//        Correction apartmentData = addressCorrectionBean.findOutgoingApartment(calculationCenterId,
-//                payment.getInternalApartmentId());
-//        if (apartmentData == null) {
-//            payment.setStatus(Status.APARTMENT_UNRESOLVED);
-//            return;
-//        }
         //квартиры не ищем, а проставляем напрямую, обрезая пробелы.
         adapter.prepareApartment(payment, null, null);
         payment.setStatus(RequestStatus.ACCOUNT_NUMBER_NOT_FOUND);
