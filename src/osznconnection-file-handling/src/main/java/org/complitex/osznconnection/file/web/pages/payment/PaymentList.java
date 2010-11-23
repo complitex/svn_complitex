@@ -33,7 +33,6 @@ import org.complitex.osznconnection.file.entity.PaymentDBF;
 import org.complitex.osznconnection.file.entity.RequestFile;
 import org.complitex.osznconnection.file.entity.RequestStatus;
 import org.complitex.osznconnection.file.entity.example.PaymentExample;
-import org.complitex.osznconnection.file.service.AddressService;
 import org.complitex.osznconnection.file.service.PaymentBean;
 import org.complitex.osznconnection.file.service.RequestFileBean;
 import org.complitex.osznconnection.file.web.GroupList;
@@ -58,9 +57,6 @@ public final class PaymentList extends TemplatePage {
 
     @EJB(name = "RequestFileBean")
     private RequestFileBean requestFileBean;
-
-    @EJB(name = "AddressService")
-    private AddressService addressService;
 
     private IModel<PaymentExample> example;
 

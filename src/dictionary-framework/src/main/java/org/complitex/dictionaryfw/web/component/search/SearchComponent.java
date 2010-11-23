@@ -155,7 +155,6 @@ public final class SearchComponent extends Panel {
         final WebMarkupContainer searchPanel = new WebMarkupContainer("searchPanel");
         searchPanel.setOutputMarkupId(true);
         final AutoCompleteSettings settings = new AutoCompleteSettings();
-//        settings.setAdjustInputWidth(false);
 
         ListView<String> columns = new ListView<String>("columns", searchFilters) {
 
@@ -269,7 +268,6 @@ public final class SearchComponent extends Panel {
 //                            refreshFilters(target);
 //                            setFocusOnNextFilter(target);
                         }
-
 //                        private void refreshFilters(final AjaxRequestTarget target) {
 //                            ListView view = (ListView) item.getParent();
 //                            view.visitChildren(ListItem.class, new IVisitor<ListItem<String>>() {
@@ -323,11 +321,11 @@ public final class SearchComponent extends Panel {
     }
 
     private void invokeCallbackIfNecessary(AjaxRequestTarget target) {
-        if (callback != null) {
-            Map<String, DomainObject> finalState = getState(searchFilters.size() - 1);
-            if (isComplete(finalState)) {
-                Map<String, Long> ids = transformObjects(finalState);
-                componentState.updateState(finalState);
+        Map<String, DomainObject> finalState = getState(searchFilters.size() - 1);
+        if (isComplete(finalState)) {
+            Map<String, Long> ids = transformObjects(finalState);
+            componentState.updateState(finalState);
+            if (callback != null) {
                 callback.found(this, ids, target);
             }
         }
@@ -373,5 +371,14 @@ public final class SearchComponent extends Panel {
         example.setLocale(getLocale().getLanguage());
         example.setComparisonType(comparisonType.name());
         return strategy.find(example);
+    }
+
+    public void reinitialize(AjaxRequestTarget target) {
+        for (int i = 0; i < searchFilters.size(); i++) {
+            String filterEntity = searchFilters.get(i);
+            DomainObject object = componentState.get(filterEntity);
+            filterModels.get(i).setObject(object);
+        }
+        invokeCallbackIfNecessary(target);
     }
 }
