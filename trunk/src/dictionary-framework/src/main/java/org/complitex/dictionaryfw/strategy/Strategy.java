@@ -17,7 +17,7 @@ import org.complitex.dictionaryfw.service.EntityBean;
 import org.complitex.dictionaryfw.service.SequenceBean;
 import org.complitex.dictionaryfw.service.StringCultureBean;
 import org.complitex.dictionaryfw.strategy.web.AbstractComplexAttributesPanel;
-import org.complitex.dictionaryfw.strategy.web.IValidator;
+import org.complitex.dictionaryfw.strategy.web.validate.IValidator;
 import org.complitex.dictionaryfw.util.Numbers;
 import org.complitex.dictionaryfw.web.component.search.ISearchCallback;
 import org.complitex.dictionaryfw.web.component.search.SearchComponentState;
@@ -261,7 +261,7 @@ public abstract class Strategy extends AbstractBean {
             attribute.setValueId(generatedStringId);
         }
 
-        if(attribute.getValueId() != null || getEntity().getAttributeType(attribute.getAttributeTypeId()).isMandatory()){
+        if (attribute.getValueId() != null || getEntity().getAttributeType(attribute.getAttributeTypeId()).isMandatory()) {
             sqlSession().insert(ATTRIBUTE_NAMESPACE + "." + INSERT_OPERATION, new Parameter(getEntityTable(), attribute));
         }
     }
@@ -688,5 +688,50 @@ public abstract class Strategy extends AbstractBean {
                 append(" AND orderByAttr.`status` = 'ACTIVE' AND orderByAttr.`attribute_type_id` = ").
                 append(getDefaultOrderByAttributeId()).append("))");
         return orderByBuilder.toString();
+    }
+
+    /*
+     * Validation methods
+     */
+    /**
+     * Default validation
+     */
+    public Long performDefaultValidation(DomainObject object, Locale locale) {
+        Map<String, Object> params = createValidationParams(object, locale);
+        List<Long> results = sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + ".defaultValidation", params);
+        for (Long result : results) {
+            if (!result.equals(object.getId())) {
+                return result;
+            }
+        }
+        return null;
+    }
+
+    protected Map<String, Object> createValidationParams(DomainObject object, Locale locale) {
+        //get attribute id for unique check.
+        //it supposed that unique attribute type id is first in definition of attribute types of entity so that its id is entity's id.
+        long attributeTypeId = getEntity().getId();
+
+        Attribute attribute = object.getAttribute(attributeTypeId);
+        if (attribute == null) {
+            throw new RuntimeException("Domain object(entity = " + getEntityTable() + ", id = " + object.getId()
+                    + ") has no attribute with attribute type id = " + attributeTypeId + "!");
+        }
+        if (attribute.getLocalizedValues() == null) {
+            throw new RuntimeException("Attribute of domain object(entity = " + getEntityTable() + ", id = " + object.getId()
+                    + ") with attribute type id = " + attributeTypeId + " and attribute id = " + attribute.getAttributeId()
+                    + " has null lozalized values.");
+        }
+        String text = stringBean.displayValue(attribute.getLocalizedValues(), locale);
+
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("entity", getEntityTable());
+        params.put("locale", locale.getLanguage());
+        params.put("attributeTypeId", attributeTypeId);
+        params.put("text", text);
+        params.put("parentId", object.getParentId());
+        params.put("parentEntityId", object.getParentEntityId());
+        params.put("entityTypeId", object.getEntityTypeId());
+        return params;
     }
 }

@@ -122,6 +122,35 @@
             AND `start_date` = #{object.startDate}
     </update>
 
+    <!-- Validation -->
+
+    <!-- Default validation -->
+    <select id="defaultValidation" resultType="long" parameterType="map">
+        SELECT DISTINCT e.`object_id` FROM `${entity}` e
+                                    JOIN `${entity}_attribute` a ON (e.`object_id` = a.`object_id` AND a.`status` = 'ACTIVE')
+                                    JOIN `${entity}_string_culture` sc ON (a.`value_id` = sc.`id`)
+            WHERE (e.`status` IN ('ACTIVE', 'INACTIVE')) AND sc.`locale` = #{locale} AND a.`attribute_type_id` = #{attributeTypeId}
+            AND sc.`value` = #{text}
+            <choose>
+                <when test="parentEntityId != null and parentId != null">
+                    AND e.`parent_entity_id` = #{parentEntityId} AND e.`parent_id` = #{parentId}
+                </when>
+                <otherwise>
+                    AND e.`parent_entity_id` IS NULL AND e.`parent_id` IS NULL
+                </otherwise>
+            </choose>
+            <choose>
+                <when test="entityTypeId != null">
+                    AND e.`entity_type_id` = #{entityTypeId}
+                </when>
+                <otherwise>
+                     AND e.`entity_type_id` IS NULL
+                </otherwise>
+            </choose>
+    </select>
+
+    <!-- SearchComponent -->
+
     <select id="findParentInSearchComponent" parameterType="hashmap" resultType="hashmap">
         SELECT (SELECT ent.`entity_table` FROM `entity` ent WHERE ent.`id` = e.`parent_entity_id`) parentEntity,
             e.`parent_id` parentId FROM `${table}` e WHERE e.`object_id` = #{id}

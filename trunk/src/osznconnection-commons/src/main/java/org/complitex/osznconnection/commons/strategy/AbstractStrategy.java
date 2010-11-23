@@ -7,6 +7,8 @@ package org.complitex.osznconnection.commons.strategy;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
 import org.complitex.dictionaryfw.strategy.Strategy;
+import org.complitex.dictionaryfw.strategy.web.validate.DefaultValidator;
+import org.complitex.dictionaryfw.strategy.web.validate.IValidator;
 import org.complitex.osznconnection.commons.web.pages.DomainObjectEdit;
 import org.complitex.osznconnection.commons.web.pages.DomainObjectList;
 import org.complitex.osznconnection.commons.web.pages.HistoryPage;
@@ -55,5 +57,10 @@ public abstract class AbstractStrategy extends Strategy {
         params.put(HistoryPage.ENTITY, getEntityTable());
         params.put(HistoryPage.OBJECT_ID, objectId);
         return params;
+    }
+
+    @Override
+    public IValidator getValidator() {
+        return new DefaultValidator(getEntityTable());
     }
 }

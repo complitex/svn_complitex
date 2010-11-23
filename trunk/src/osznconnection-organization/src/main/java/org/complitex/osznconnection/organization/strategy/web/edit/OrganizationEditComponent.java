@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.complitex.osznconnection.organization.strategy.web;
+package org.complitex.osznconnection.organization.strategy.web.edit;
 
 import com.google.common.collect.ImmutableList;
 import java.io.Serializable;
@@ -133,6 +133,8 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
     }
 
     public boolean isDistrictEntered() {
-        return componentState.get("district") != null;
+        DomainObject district = componentState.get("district");
+        Long districtId = district != null ? district.getId() : null;
+        return districtId != null && districtId > 0;
     }
 }

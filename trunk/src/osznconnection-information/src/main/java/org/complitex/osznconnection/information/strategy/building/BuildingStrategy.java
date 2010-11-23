@@ -26,7 +26,7 @@ import org.complitex.dictionaryfw.entity.description.EntityAttributeType;
 import org.complitex.dictionaryfw.entity.description.EntityAttributeValueType;
 import org.complitex.dictionaryfw.entity.example.AttributeExample;
 import org.complitex.dictionaryfw.strategy.web.AbstractComplexAttributesPanel;
-import org.complitex.dictionaryfw.strategy.web.IValidator;
+import org.complitex.dictionaryfw.strategy.web.validate.IValidator;
 import org.complitex.osznconnection.commons.strategy.AbstractStrategy;
 import org.complitex.osznconnection.information.strategy.building.entity.Building;
 import org.complitex.osznconnection.information.strategy.building.web.edit.BuildingEditComponent;
@@ -347,7 +347,7 @@ public class BuildingStrategy extends AbstractStrategy {
     }
 
     @Transactional
-    public Long checkForExistingAddress(String number, String corp, String structure, Long parentEntityId, Long parentId, Locale locale) {
+    public Long checkForExistingAddress(Long id, String number, String corp, String structure, Long parentEntityId, Long parentId, Locale locale) {
         Map<String, Object> params = Maps.newHashMap();
         params.put("number", number);
         params.put("corp", corp);
@@ -356,8 +356,10 @@ public class BuildingStrategy extends AbstractStrategy {
         params.put("parentId", parentId);
         params.put("locale", locale.getLanguage());
         List<Long> buildingIds = sqlSession().selectList(BUILDING_NAMESPACE + ".checkBuildingAddress", params);
-        if (!buildingIds.isEmpty()) {
-            return buildingIds.get(0);
+        for(Long buildingId : buildingIds){
+            if(!buildingId.equals(id)){
+                return buildingId;
+            }
         }
         return null;
     }

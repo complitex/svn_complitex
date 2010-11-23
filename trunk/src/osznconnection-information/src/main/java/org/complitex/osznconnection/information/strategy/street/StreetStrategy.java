@@ -186,4 +186,18 @@ public class StreetStrategy extends AbstractStrategy {
     public static Long getStreetType(DomainObject streetObject) {
         return streetObject.getAttribute(STREET_TYPE).getValueId();
     }
+
+    @Override
+    public Long performDefaultValidation(DomainObject streetObject, Locale locale) {
+        Map<String, Object> params = super.createValidationParams(streetObject, locale);
+        Long streetTypeId = getStreetType(streetObject);
+        params.put("streetTypeId", streetTypeId);
+        List<Long> results = sqlSession().selectList(STREET_NAMESPACE + ".defaultValidation", params);
+        for (Long result : results) {
+            if (!result.equals(streetObject.getId())) {
+                return result;
+            }
+        }
+        return null;
+    }
 }
