@@ -68,7 +68,7 @@ public class TarifFileList extends TemplatePage {
 
     private int waitForStopTimer;
 
-    private boolean completedDisplayed = true;
+    private boolean completedDisplayed = false;
 
     private final static String ITEM_ID_PREFIX = "item";
 
@@ -272,7 +272,6 @@ public class TarifFileList extends TemplatePage {
         showMessages();
 
         if (isProcessing()) {
-            completedDisplayed = false;
             dataViewContainer.add(newTimer(filterForm, messages));
         }
 
