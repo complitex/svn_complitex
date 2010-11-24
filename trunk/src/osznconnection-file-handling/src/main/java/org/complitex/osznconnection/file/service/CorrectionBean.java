@@ -6,7 +6,6 @@ package org.complitex.osznconnection.file.service;
 
 import com.google.common.collect.Maps;
 import org.complitex.dictionaryfw.entity.DomainObject;
-import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.dictionaryfw.strategy.Strategy;
@@ -60,12 +59,8 @@ public class CorrectionBean extends AbstractBean {
         Strategy strategy = strategyFactory.getStrategy(example.getEntity());
         List<Correction> results = sqlSession().selectList(queryId, example);
         for (Correction correction : results) {
-            DomainObjectExample domainObjectExample = new DomainObjectExample();
-            domainObjectExample.setId(correction.getObjectId());
-            List<? extends DomainObject> objects = strategy.find(domainObjectExample);
-            if (objects != null && !objects.isEmpty()) {
-                correction.setInternalObject(strategy.displayDomainObject(objects.get(0), new Locale(example.getLocale())));
-            }
+            DomainObject object = strategy.findById(correction.getObjectId());
+            correction.setDisplayObject(strategy.displayDomainObject(object, new Locale(example.getLocale())));
         }
         return results;
     }

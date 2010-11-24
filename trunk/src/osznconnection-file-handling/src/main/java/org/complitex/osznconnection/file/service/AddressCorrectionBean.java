@@ -432,7 +432,7 @@ public class AddressCorrectionBean extends CorrectionBean {
                 DomainObject street = state.get("street");
                 DomainObject city = state.get("city");
                 Locale locale = new Locale(example.getLocale());
-                String displayBuilding = buildingStrategy.displayDomainObject(building, locale);
+                String displayBuilding = c.getDisplayObject();
                 String displayStreet = streetStrategy.displayDomainObject(street, locale);
                 String displayCity = cityStrategy.displayDomainObject(city, locale);
 
@@ -474,9 +474,8 @@ public class AddressCorrectionBean extends CorrectionBean {
                     DomainObject street = streetStrategy.findById(c.getObjectId());
                     DomainObject city = cityStrategy.findById(street.getParentId());
 
-                    String displayStreet = streetStrategy.displayDomainObject(street, new Locale(example.getLocale()));
                     String displayCity = cityStrategy.displayDomainObject(city, new Locale(example.getLocale()));
-
+                    String displayStreet = c.getDisplayObject();
                     c.setDisplayObject(displayCity + ", " + displayStreet);
                 } catch (Exception e) {
                     log.warn("[Полный адрес не найден]", e);
