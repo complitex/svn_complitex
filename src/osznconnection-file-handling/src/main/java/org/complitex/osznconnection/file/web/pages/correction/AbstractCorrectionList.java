@@ -88,7 +88,7 @@ public abstract class AbstractCorrectionList extends TemplatePage {
     }
 
     protected String displayInternalObject(Correction correction){
-        return correction.getInternalObject();
+        return correction.getDisplayObject();
     }
 
     protected abstract Class<? extends WebPage> getEditPage();

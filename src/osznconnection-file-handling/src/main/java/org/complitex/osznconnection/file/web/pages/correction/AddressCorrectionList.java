@@ -20,7 +20,7 @@ import java.util.List;
 public class AddressCorrectionList extends AbstractCorrectionList {
 
     @EJB(name = "AddressCorrectionBean")
-    AddressCorrectionBean addressCorrectionBean;
+    private AddressCorrectionBean addressCorrectionBean;
 
     public AddressCorrectionList(PageParameters params) {
         super(params);
@@ -48,7 +48,7 @@ public class AddressCorrectionList extends AbstractCorrectionList {
 
     @Override
     protected String displayInternalObject(Correction correction) {
-        return correction.getDisplayObject() != null ? correction.getDisplayObject() : correction.getInternalObject();
+        return correction.getDisplayObject();
     }
 
     @Override

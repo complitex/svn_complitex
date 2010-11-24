@@ -225,13 +225,14 @@ public class BuildingStrategy extends AbstractStrategy {
     @Override
     @Transactional
     public Building findById(Long id) {
-        DomainObjectExample example = new DomainObjectExample();
-        example.setId(id);
+        DomainObjectExample example = new DomainObjectExample(id);
         example.setTable(getEntityTable());
         Building building = (Building) sqlSession().selectOne(BUILDING_NAMESPACE + "." + FIND_BY_ID_OPERATION, example);
         if (building != null) {
             loadAttributes(building);
-            setPrimaryAddress(building, null);
+            DomainObject primaryAddress = findBuildingAddress(building.getParentId(), null);
+            building.setPrimaryAddress(primaryAddress);
+            building.setAccompaniedAddress(primaryAddress);
             setAlternativeAddresses(building, null);
             fillAttributes(building);
             updateStringsForNewLocales(building);
@@ -356,8 +357,8 @@ public class BuildingStrategy extends AbstractStrategy {
         params.put("parentId", parentId);
         params.put("locale", locale.getLanguage());
         List<Long> buildingIds = sqlSession().selectList(BUILDING_NAMESPACE + ".checkBuildingAddress", params);
-        for(Long buildingId : buildingIds){
-            if(!buildingId.equals(id)){
+        for (Long buildingId : buildingIds) {
+            if (!buildingId.equals(id)) {
                 return buildingId;
             }
         }
