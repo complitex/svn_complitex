@@ -36,6 +36,7 @@ import org.complitex.osznconnection.file.entity.example.PaymentExample;
 import org.complitex.osznconnection.file.service.PaymentBean;
 import org.complitex.osznconnection.file.service.RequestFileBean;
 import org.complitex.osznconnection.file.web.GroupList;
+import org.complitex.osznconnection.file.web.component.StatusDetailPanel;
 import org.complitex.osznconnection.file.web.component.StatusRenderer;
 
 import javax.ejb.EJB;
@@ -92,6 +93,8 @@ public final class PaymentList extends TemplatePage {
         final Form filterForm = new Form("filterForm");
         content.add(filterForm);
         example = new Model<PaymentExample>(newExample());
+
+        add(new StatusDetailPanel("status_detail", requestFile, example, content));
 
         final SortableDataProvider<Payment> dataProvider = new SortableDataProvider<Payment>() {
 

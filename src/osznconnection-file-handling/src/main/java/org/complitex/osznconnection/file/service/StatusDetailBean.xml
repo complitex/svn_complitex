@@ -4,12 +4,18 @@
 <mapper namespace="org.complitex.osznconnection.file.service.StatusDetailBean">
     <resultMap id="statusDetailResultMap" type="org.complitex.osznconnection.file.entity.StatusDetail">
         <id column="status" property="requestStatus"/>
-        <result column="name" property="name"/>
         <result column="count" property="count"/>
+        <result column="account" property="account"/>
+        <result column="city" property="city"/>
+        <result column="street" property="street"/>
+        <result column="building" property="building"/>
+        <result column="corp" property="corp"/>
     </resultMap>
 
-    <resultMap id="rootStatusDetailResultMap" type="org.complitex.osznconnection.file.entity.StatusDetail"
-               extends="statusDetailResultMap">
+    <resultMap id="rootStatusDetailResultMap" type="org.complitex.osznconnection.file.entity.StatusDetail">
+        <id column="status" property="requestStatus"/>
+        <result column="count" property="count"/>
+
         <collection property="statusDetails" column="status=status,id=request_file_id"
                     ofType="org.complitex.osznconnection.file.entity.StatusDetail"
                     select="selectPaymentStatusDetail"/>
@@ -17,44 +23,45 @@
 
     <select id="selectPaymentRootStatusDetail" parameterType="org.complitex.osznconnection.file.entity.RequestFile"
             resultMap="rootStatusDetailResultMap">
-        select count(*) `count`, `status`, `request_file_id` from `payment` where `request_file_id` = #{id} group by `status`
+        select count(*) `count`, `status`, `request_file_id` from `payment` where `request_file_id` = #{id}
+            group by `status` order by `count` desc
     </select>
 
     <select id="selectPaymentStatusDetail" parameterType="map" resultMap="statusDetailResultMap">
         <choose>
             <!--account number -->
             <when test="status == 212 or status == 213 or status == 217">
-                select count(*) `count`, `OWN_NUM_SR` `name`, `status` `request_status` from `payment`
+                select count(*) as `count`, `OWN_NUM_SR` as `account`, `status` from `payment`
                     where `request_file_id` = #{id} and `status` = #{status} group by `OWN_NUM_SR`
             </when>
 
             <!--city-->
             <when test="status == 200 or status == 205">
-                select count(*) `count`, `N_NAME` `name`, `status` `request_status` from `payment`
+                select count(*) as `count`, `N_NAME` as `city`, `status` from `payment`
                     where `request_file_id` = #{id} and `status` = #{status} group by `N_NAME`
             </when>
 
             <!--street-->
-            <when test="status == 201 or status == 207">
-                select count(*) `count`, CONCAT(`N_NAME`, ', ', `VUL_NAME`) `name`, `status` `request_status`
+            <when test="status == 201 or status == 208">
+                select count(*) `count`, `N_NAME` as `city`, `VUL_NAME` as `street`, `status`
                     from `payment` where `request_file_id` = #{id} and `status` = #{status} group by `N_NAME`, `VUL_NAME`
             </when>
 
             <!--building-->
             <when test="status == 202 or status == 209">
-                select count(*) `count`, CONCAT(`N_NAME`, ', ', `VUL_NAME`, ', ', `BLD_NUM`) `name`,
-                    `status` `request_status` from `payment` where `request_file_id` = #{id} and `status` = #{status}
+                select count(*) `count`, `N_NAME` as `city`, `VUL_NAME` as `street`, `BLD_NUM` as `building`,
+                    `status` from `payment` where `request_file_id` = #{id} and `status` = #{status}
                     group by `N_NAME`, `VUL_NAME`, `BLD_NUM`
             </when>
 
             <!--building corp-->
             <when test="status == 210">
-                select count(*) `count`, CONCAT(`N_NAME`, ', ', `VUL_NAME`, ', ', `BLD_NUM`, ', ', `CORP_NUM`) `name`,
-                    `status` `request_status` from `payment` where `request_file_id` = #{id} and `status` = #{status}
-                    group by `N_NAME`, `VUL_NAME`, `BLD_NUM`, `CORP_NUM`
+                select count(*) `count`, `N_NAME` as `city`, `VUL_NAME` as `street`, `BLD_NUM` as `building`,
+                    `CORP_NUM` as `corp`, `status` from `payment` where `request_file_id` = #{id}
+                    and `status` = #{status} group by `N_NAME`, `VUL_NAME`, `BLD_NUM`, `CORP_NUM`
             </when>
             <otherwise>
-                select 0 `count`, 0 `name`, 0 `request_status` from `payment` where 1 > 1;
+                select 0 as `count` from `payment` where 1 > 1;
             </otherwise>
         </choose>
     </select>
