@@ -9,6 +9,12 @@
 
     <name>Department of social defense</name>
 
+    <scm>
+        <connection>scm:svn:https://osznconnection.googlecode.com/svn/trunk</connection>
+        <developerConnection>scm:svn:https://osznconnection.googlecode.com/svn/trunk</developerConnection>
+        <url>http://code.google.com/p/osznconnection/source/browse</url>
+    </scm>
+
     <modules>
         <module>osznconnection-commons</module>
         <module>osznconnection-admin</module>
@@ -131,7 +137,7 @@
                 <artifactId>wicket-contrib-javaee</artifactId>
                 <version>1.1</version>
                 <scope>system</scope>
-                <systemPath>${project.basedir}/../lib/wicket-contrib-javaee-1.1.jar</systemPath>
+                <systemPath>${pom.basedir}/../../lib/wicket-contrib-javaee-1.1.jar</systemPath>
             </dependency>
 
             <!-- Java EE API -->
@@ -225,7 +231,7 @@
                 <artifactId>ojdbc14</artifactId>
                 <version>10</version>
                 <scope>system</scope>
-                <systemPath>${project.basedir}/../lib/ojdbc14_g.jar</systemPath>
+                <systemPath>${pom.basedir}/../../lib/ojdbc14_g.jar</systemPath>
             </dependency>
 
             <dependency>
@@ -233,7 +239,7 @@
                 <artifactId>orai18n</artifactId>
                 <version>10</version>
                 <scope>system</scope>
-                <systemPath>${project.basedir}/../lib/orai18n.jar</systemPath>
+                <systemPath>${pom.basedir}/../../lib/orai18n.jar</systemPath>
             </dependency>
 
         </dependencies>
