@@ -115,8 +115,7 @@ BEGIN
     SET building_strings_done = 0;
     CLOSE building_strings_cursor;
     IF l_inserted = 1 THEN
-	SET building_strings_seq = building_strings_seq+1;
-	UPDATE `sequence` SET `sequence_value` = building_strings_seq WHERE `sequence_name` = 'building_address_string_culture';
+	UPDATE `sequence` SET `sequence_value` = (building_strings_seq+1) WHERE `sequence_name` = 'building_address_string_culture';
 	RETURN building_strings_seq;
     ELSE 
 	RETURN NULL;
