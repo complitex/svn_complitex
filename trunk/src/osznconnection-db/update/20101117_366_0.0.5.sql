@@ -84,7 +84,6 @@ DELETE FROM `building_correction` WHERE `object_id` IN (10000,10002,10150,10601,
 DELETE FROM `building_attribute` WHERE `object_id` IN (10000,10002,10150,10601,10817);
 DELETE FROM `building` WHERE `object_id` IN (10000,10002,10150,10601,10817);
 
-
 SET @old_log_bin_trust_routine_creators = @@global.log_bin_trust_routine_creators;
 SET GLOBAL log_bin_trust_routine_creators = 1;
 DELIMITER /
@@ -153,11 +152,7 @@ BEGIN
             
             SET l_attr_id = 1;            
 
-            SELECT (CASE COUNT(*) 
-			WHEN 0 THEN 0
-			ELSE t.`amount` 
-	           END) INTO l_address_count 
-	        FROM (SELECT COUNT(*) amount FROM `building_attribute` a WHERE a.`object_id` = l_object_id GROUP BY a.`attribute_type_id` HAVING a.`attribute_type_id` = 500) t;
+            SELECT COUNT(*) INTO l_address_count FROM `building_attribute` a WHERE a.`object_id` = l_object_id GROUP BY a.`attribute_type_id` HAVING a.`attribute_type_id` = 500;
 
             WHILE l_attr_id <= l_address_count DO
                 SELECT a.`value_id` INTO l_street_id FROM `building_attribute` a WHERE a.`object_id` = l_object_id
@@ -193,17 +188,16 @@ BEGIN
                 IF l_structure IS NOT NULL THEN
                     SELECT copy_building_strings(l_structure) INTO l_structure;
                     INSERT INTO `building_address_attribute` (`object_id`, `attribute_id`, `attribute_type_id`, `value_id`, `value_type_id`) VALUES (building_address_seq, 1, 1502, l_structure, 1502);
-                END IF;
+                END IF;            
 
-                DELETE FROM `building_attribute` WHERE `object_id` = l_object_id AND `attribute_id` = l_attr_id AND `attribute_type_id` IN (500,501,502,503);                
-                UPDATE `building_attribute` SET `attribute_type_id` = 500, `value_type_id` = 500 WHERE `object_id` = l_object_id AND `attribute_type_id` = 504;
-
-                IF l_attr_id = 1 THEN	            
+                IF l_attr_id = 1 THEN
+		    DELETE FROM `building_attribute` WHERE `object_id` = l_object_id AND `attribute_id` = l_attr_id AND `attribute_type_id` IN (500,501,502,503);                
+		    UPDATE `building_attribute` SET `attribute_type_id` = 500, `value_type_id` = 500 WHERE `object_id` = l_object_id AND `attribute_type_id` = 504;       
                     UPDATE `building` SET `parent_id` = building_address_seq, `parent_entity_id` = 1500 WHERE `object_id` = l_object_id;
                 ELSE
                     INSERT INTO `building_attribute` (`object_id`, `attribute_id`, `attribute_type_id`, `value_id`, `value_type_id`) VALUES (l_object_id, l_attr_id-1, 501, building_address_seq, 501);
                 END IF;
-
+		
                 SET l_attr_id = l_attr_id+1;
             END WHILE;
                     
@@ -213,12 +207,8 @@ BEGIN
 END/
 DELIMITER ;
 
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 DELETE FROM `building` WHERE `status` = 'ARCHIVE';
 DELETE FROM `building_attribute` WHERE `status` = 'ARCHIVE';
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 
 CALL `building_structure_update`();
 
