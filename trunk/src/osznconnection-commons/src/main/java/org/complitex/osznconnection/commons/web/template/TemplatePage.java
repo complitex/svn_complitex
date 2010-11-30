@@ -31,8 +31,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import static org.complitex.dictionaryfw.web.DictionaryFwSession.PREFERENCE.*;
-
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 22.07.2010 16:09:45
@@ -42,6 +40,10 @@ import static org.complitex.dictionaryfw.web.DictionaryFwSession.PREFERENCE.*;
  */
 public abstract class TemplatePage extends WebPage {
     private static final Logger log = LoggerFactory.getLogger(TemplatePage.class);
+
+    public static enum PREFERENCE_KEY {
+        SORT_PROPERTY, SORT_ORDER, FILTER_OBJECT, LOCALE
+    }
 
     protected TemplatePage() {
         add(JavascriptPackageResource.getHeaderContribution(CoreJavaScriptResourceReference.get()));
@@ -234,42 +236,34 @@ public abstract class TemplatePage extends WebPage {
     }
 
     public void setSortProperty(String sortProperty){
-        getTemplateSession().putPreference(getClass(), SORT_PROPERTY, sortProperty);
+        getTemplateSession().putPreference(getClass(), PREFERENCE_KEY.SORT_PROPERTY, sortProperty, true);
     }
 
     public String getSortProperty(String _default){
-        return getNotNull((String) getTemplateSession().getPreference(getClass(), SORT_PROPERTY), _default);
+        return getNotNull(getTemplateSession().getPreferenceString(getClass(), PREFERENCE_KEY.SORT_PROPERTY), _default);
     }
 
     public void setSortOrder(Boolean sortOrder){
-        getTemplateSession().putPreference(getClass(), SORT_ORDER, sortOrder);
+        getTemplateSession().putPreference(getClass(), PREFERENCE_KEY.SORT_ORDER, sortOrder, true);
     }
 
     public Boolean getSortOrder(Boolean _default){
-        return getNotNull((Boolean) getTemplateSession().getPreference(getClass(), SORT_ORDER), _default);
-    }
-
-    public void setPageIndex(Integer pageNumber){
-        getTemplateSession().putPreference(getClass(), PAGE_INDEX, pageNumber);
-    }
-
-    public Integer getPageIndex(Integer _default){
-        return getNotNull((Integer) getTemplateSession().getPreference(getClass(), PAGE_INDEX), _default);
+        return getNotNull(getTemplateSession().getPreferenceBoolean(getClass(), PREFERENCE_KEY.SORT_ORDER), _default);
     }
 
     public void setFilterObject(Object filterObject){
-        getTemplateSession().putPreference(getClass(), FILTER_OBJECT, filterObject);
+        getTemplateSession().putPreferenceObject(getClass(), PREFERENCE_KEY.FILTER_OBJECT, filterObject);
     }
 
     public Object getFilterObject(Object _default){
-        return getNotNull(getTemplateSession().getPreference(getClass(), FILTER_OBJECT), _default);
+        return getNotNull(getTemplateSession().getPreferenceObject(getClass(), PREFERENCE_KEY.FILTER_OBJECT), _default);
     }
 
-    public void setRowsPerPage(Integer pageSize){
-        getTemplateSession().putPreference(getClass(), ROWS_PER_PAGE, pageSize);
+    public String getLocaleProperty(String _default){
+        return getNotNull(getTemplateSession().getPreferenceString(getClass(), PREFERENCE_KEY.LOCALE), _default);
     }
 
-    public Integer getRowsPerPage(Integer _default){
-        return getNotNull((Integer) getTemplateSession().getPreference(getClass(), ROWS_PER_PAGE), _default);
+    public void setLocaleProperty(String localeProperty){
+        getTemplateSession().putPreference(getClass(), PREFERENCE_KEY.LOCALE, localeProperty, true);
     }
 }
