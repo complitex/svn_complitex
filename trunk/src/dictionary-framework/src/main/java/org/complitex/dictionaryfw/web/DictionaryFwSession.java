@@ -7,6 +7,7 @@ import org.complitex.dictionaryfw.web.component.search.SearchComponentSessionSta
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -14,6 +15,9 @@ import java.util.Map;
  * @author Artem
  */
 public class DictionaryFwSession extends WebSession {
+    private final static String LOCALE_PAGE = "org.complitex.dictionaryfw.web.DictionaryFwSession";
+    private final static String LOCALE_KEY = "LOCALE";
+
     private SearchComponentSessionState searchComponentSessionState = new SearchComponentSessionState();
 
     private Map<String, Map<String, Preference>> preferences = new HashMap<String, Map<String, Preference>>();
@@ -136,5 +140,24 @@ public class DictionaryFwSession extends WebSession {
 
     public Boolean getPreferenceBoolean(Class page, Enum key){
         return getPreferenceBoolean(page.getName(), key.name());
+    }
+
+    @Override
+    public Locale getLocale() {
+        Locale locale = super.getLocale();
+        String language = getPreferenceString(LOCALE_PAGE, LOCALE_KEY);
+
+        if (language != null && !locale.getLanguage().equals(language)){
+            super.setLocale(new Locale(language));
+        }
+
+        return super.getLocale();
+    }
+
+    @Override
+    public void setLocale(Locale locale) {
+        putPreference(LOCALE_PAGE, LOCALE_KEY, locale.getLanguage(), true);
+
+        super.setLocale(locale);
     }
 }

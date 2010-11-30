@@ -35,7 +35,7 @@ public class LocalePicker extends Panel {
             }
         }));
 
-        getSession().setLocale(new Locale(localeBean.getSystemLocale()));
+//        getSession().setLocale(new Locale(localeBean.getSystemLocale()));
         IModel<Locale> model = new Model<Locale>() {
 
             @Override

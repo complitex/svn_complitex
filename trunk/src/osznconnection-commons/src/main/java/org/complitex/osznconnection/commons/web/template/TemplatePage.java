@@ -258,12 +258,4 @@ public abstract class TemplatePage extends WebPage {
     public Object getFilterObject(Object _default){
         return getNotNull(getTemplateSession().getPreferenceObject(getClass(), PREFERENCE_KEY.FILTER_OBJECT), _default);
     }
-
-    public String getLocaleProperty(String _default){
-        return getNotNull(getTemplateSession().getPreferenceString(getClass(), PREFERENCE_KEY.LOCALE), _default);
-    }
-
-    public void setLocaleProperty(String localeProperty){
-        getTemplateSession().putPreference(getClass(), PREFERENCE_KEY.LOCALE, localeProperty, true);
-    }
 }
