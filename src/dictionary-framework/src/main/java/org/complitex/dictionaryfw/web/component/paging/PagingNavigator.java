@@ -34,15 +34,17 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  *
  * @author Artem
  */
 public class PagingNavigator extends Panel {
-
     private static final Logger log = LoggerFactory.getLogger(PagingNavigator.class);
+
+    private enum PREFERENCE_KEY{
+        PAGE_INDEX, ROWS_PER_PAGE
+    }
 
     private static final int LEFT_OFFSET = 3;
     private static final int RIGHT_OFFSET = 3;
@@ -55,22 +57,21 @@ public class PagingNavigator extends Panel {
     private PropertyModel<Integer> rowsPerPagePropertyModel;
     private MarkupContainer[] toUpdate;
 
-    private final Map<Object, Object> preferenceMap;
+    private String page;
 
-    public PagingNavigator(String id, final DataView dataView, final String groupKey,
+    public PagingNavigator(String id, final DataView dataView, final String page,
                            MarkupContainer... toUpdate) {
         super(id);
         setOutputMarkupId(true);
 
         this.dataView = dataView;
+        this.page = page;
         this.toUpdate = toUpdate;
 
         rowsPerPagePropertyModel = new PropertyModel<Integer>(dataView, "itemsPerPage");
 
-        preferenceMap = ((DictionaryFwSession) getSession()).getPreferenceMap(groupKey);
-
         //retrieve table page size from preferences.
-        Integer rowsPerPage = (Integer) preferenceMap.get(DictionaryFwSession.PREFERENCE.ROWS_PER_PAGE);
+        Integer rowsPerPage = getSession().getPreferenceInteger(page, PREFERENCE_KEY.ROWS_PER_PAGE.name());
         if (rowsPerPage == null) {
             rowsPerPage = SUPPORTED_PAGE_SIZES.get(0);
         }
@@ -78,7 +79,7 @@ public class PagingNavigator extends Panel {
         rowsPerPagePropertyModel.setObject(rowsPerPage);
 
         //retrieve table page index from preferences.
-        Integer pageIndex = (Integer) preferenceMap.get(DictionaryFwSession.PREFERENCE.PAGE_INDEX);
+        Integer pageIndex = getSession().getPreferenceInteger(page, PREFERENCE_KEY.PAGE_INDEX.name());
         if (pageIndex != null && pageIndex < dataView.getPageCount()) {
             dataView.setCurrentPage(pageIndex);
         }
@@ -203,7 +204,7 @@ public class PagingNavigator extends Panel {
 
             @Override
             public void setObject(Integer rowsPerPage) {
-                preferenceMap.put(DictionaryFwSession.PREFERENCE.ROWS_PER_PAGE, rowsPerPage);
+                getSession().putPreference(page, PREFERENCE_KEY.ROWS_PER_PAGE.name(), rowsPerPage.toString(), true);
                 rowsPerPagePropertyModel.setObject(rowsPerPage);
             }
         };
@@ -229,6 +230,10 @@ public class PagingNavigator extends Panel {
         });
         allPagesRegion.add(allPages);
         pageNavigator.add(allPagesRegion);
+    }
+
+    public DictionaryFwSession getSession(){
+        return (DictionaryFwSession) super.getSession();
     }
 
     protected ListView<Integer> newNavigation(String navigationId, final String pageLinkId, final String pageNumberId, final IPageable pageable,
@@ -323,7 +328,7 @@ public class PagingNavigator extends Panel {
     protected void onAfterRender() {
         super.onAfterRender();
 
-        preferenceMap.put(DictionaryFwSession.PREFERENCE.PAGE_INDEX, dataView.getCurrentPage());
+        getSession().putPreference(page, PREFERENCE_KEY.PAGE_INDEX.name(), String.valueOf(dataView.getCurrentPage()), true);
     }
     /**
      * Appends title attribute to navigation links

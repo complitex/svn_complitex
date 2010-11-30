@@ -2,6 +2,7 @@ package org.complitex.osznconnection.commons.web.template;
 
 import org.apache.wicket.Request;
 import org.complitex.dictionaryfw.web.DictionaryFwSession;
+import org.complitex.dictionaryfw.web.ISessionStorage;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -9,7 +10,7 @@ import org.complitex.dictionaryfw.web.DictionaryFwSession;
  */
 public class TemplateSession extends DictionaryFwSession {
 
-    public TemplateSession(Request request) {
-        super(request);
+    public TemplateSession(Request request, ISessionStorage sessionStorage) {
+        super(request, sessionStorage);
     }
 }

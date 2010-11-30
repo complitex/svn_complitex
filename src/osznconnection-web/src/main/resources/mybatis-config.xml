@@ -40,14 +40,16 @@
         <mapper resource="org/complitex/dictionaryfw/entity/Attribute.xml"/>
         <mapper resource="org/complitex/dictionaryfw/entity/DomainObject.xml"/>
 
+        <mapper resource="org/complitex/dictionaryfw/service/LogBean.xml"/>
+        <mapper resource="org/complitex/dictionaryfw/service/SessionBean.xml"/>
+        <mapper resource="org/complitex/dictionaryfw/service/PreferenceBean.xml"/>
+
         <mapper resource="org/complitex/osznconnection/information/strategy/building/Building.xml"/>
         <mapper resource="org/complitex/osznconnection/information/strategy/street/Street.xml"/>
         <mapper resource="org/complitex/osznconnection/information/strategy/city/City.xml"/>
 
         <mapper resource="org/complitex/osznconnection/organization/strategy/Organization.xml"/>
-
         <mapper resource="org/complitex/osznconnection/admin/service/UserBean.xml"/>
-        <mapper resource="org/complitex/dictionaryfw/service/LogBean.xml"/>
         <mapper resource="org/complitex/osznconnection/logging/service/LogListBean.xml"/>
 
         <mapper resource="org/complitex/osznconnection/file/service/PaymentBean.xml"/>

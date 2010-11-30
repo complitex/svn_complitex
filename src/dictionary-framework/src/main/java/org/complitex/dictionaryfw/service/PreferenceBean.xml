@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.complitex.dictionaryfw.service.PreferenceBean">
+    <resultMap id="preferenceResultMap" type="org.complitex.dictionaryfw.entity.Preference">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="page" property="page"/>
+        <result column="key" property="key"/>
+        <result column="value" property="value"/>
+    </resultMap>
+
+    <select id="selectPreferences" resultMap="preferenceResultMap" parameterType="long">
+        select * from `preference` where `user_id` = #{id}
+    </select>
+
+    <insert id="insertPreference" parameterType="org.complitex.dictionaryfw.entity.Preference" keyProperty="id"
+            useGeneratedKeys="true">
+        insert into `preference` (`user_id`, `page`, `key`, `value`) value (#{userId}, #{page}, #{key}, #{value})
+    </insert>
+
+    <update id="updatePreference" parameterType="org.complitex.dictionaryfw.entity.Preference">
+        update `preference` set `user_id` = #{userId}, `page` = #{page}, `key` = #{key}, `value` = #{value}
+            where `id` = #{id}
+    </update>
+</mapper>

@@ -3,6 +3,11 @@ package org.complitex.osznconnection.commons.web.template;
 import org.apache.wicket.Request;
 import org.apache.wicket.Response;
 import org.apache.wicket.Session;
+import org.complitex.dictionaryfw.entity.Preference;
+import org.complitex.dictionaryfw.service.PreferenceBean;
+import org.complitex.dictionaryfw.service.SessionBean;
+import org.complitex.dictionaryfw.util.EjbBeanLocator;
+import org.complitex.dictionaryfw.web.ISessionStorage;
 import org.complitex.osznconnection.commons.web.pages.expired.SessionExpiredPage;
 import org.complitex.osznconnection.commons.web.security.ServletAuthWebApplication;
 import org.odlabs.wiquery.core.commons.WiQueryInstantiationListener;
@@ -84,6 +89,29 @@ public abstract class TemplateWebApplication extends ServletAuthWebApplication {
 
     @Override
     public Session newSession(Request request, Response response) {
-        return new TemplateSession(request);
+        return new TemplateSession(request, newSessionStorage());
+    }
+
+    private ISessionStorage newSessionStorage(){
+        final SessionBean sessionBean = EjbBeanLocator.getBean(SessionBean.class);
+        final PreferenceBean preferenceBean = EjbBeanLocator.getBean(PreferenceBean.class);
+
+        return new ISessionStorage(){
+
+            @Override
+            public List<Preference> load() {
+                return preferenceBean.getPreferences(sessionBean.getCurrentUserId());
+            }
+
+            @Override
+            public void save(Preference preference) {
+                preferenceBean.save(preference);
+            }
+
+            @Override
+            public Long getUserId() {
+                return sessionBean.getCurrentUserId();
+            }
+        };
     }
 }
