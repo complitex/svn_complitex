@@ -384,7 +384,7 @@ public class DomainObjectListPanel extends Panel {
         filterForm.add(submit);
 
         //Navigator
-        content.add(new PagingNavigator("navigator", dataView, getClass().getName() + entity, content));
+        content.add(new PagingNavigator("navigator", dataView, getClass().getName() + "#" + entity, content));
     }
 
     protected DictionaryFwSession getDictionaryFwSession() {
