@@ -9,6 +9,8 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
@@ -58,6 +60,9 @@ public abstract class AbstractCorrectionList extends TemplatePage {
 
     public AbstractCorrectionList(PageParameters params) {
         entity = params.getString(CORRECTED_ENTITY);
+
+        setPreferencesPage(getClass().getName() + "#" + entity);
+
         init();
     }
 
@@ -110,20 +115,27 @@ public abstract class AbstractCorrectionList extends TemplatePage {
         final Form filterForm = new Form("filterForm");
         content.add(filterForm);
 
-        example = new Model<CorrectionExample>(newExample());
+        example = new Model<CorrectionExample>((CorrectionExample) getFilterObject(newExample()));
 
         final SortableDataProvider<Correction> dataProvider = new SortableDataProvider<Correction>() {
 
             @Override
             public Iterator<? extends Correction> iterator(int first, int count) {
-                example.getObject().setAsc(getSort().isAscending());
+                CorrectionExample exampleObject = example.getObject();
+
+                //save preferences to session
+                setFilterObject(example.getObject());
+                setSortOrder(getSort().isAscending());
+                setSortProperty(getSort().getProperty());
+
+                exampleObject.setAsc(getSort().isAscending());
                 if (!Strings.isEmpty(getSort().getProperty())) {
-                    example.getObject().setOrderByClause(getSort().getProperty());
+                    exampleObject.setOrderByClause(getSort().getProperty());
                 }
-                example.getObject().setStart(first);
-                example.getObject().setSize(count);
-                example.getObject().setLocale(getLocale().getLanguage());
-                return find(example.getObject()).iterator();
+                exampleObject.setStart(first);
+                exampleObject.setSize(count);
+                exampleObject.setLocale(getLocale().getLanguage());
+                return find(exampleObject).iterator();
             }
 
             @Override
@@ -137,7 +149,7 @@ public abstract class AbstractCorrectionList extends TemplatePage {
                 return new Model<Correction>(object);
             }
         };
-        dataProvider.setSort("", true);
+        dataProvider.setSort(getSortProperty(""), getSortOrder(true));
 
         filterForm.add(new TextField<String>("organizationFilter", new PropertyModel<String>(example, "organization")));
         filterForm.add(new TextField<String>("correctionFilter", new PropertyModel<String>(example, "correction")));
@@ -145,7 +157,7 @@ public abstract class AbstractCorrectionList extends TemplatePage {
         filterForm.add(new TextField<String>("internalObjectFilter", new PropertyModel<String>(example, "internalObject")));
         filterForm.add(new TextField<String>("internalOrganizationFilter", new PropertyModel<String>(example, "internalOrganization")));
 
-        AjaxLink reset = new AjaxLink("reset") {
+        AjaxLink reset = new IndicatingAjaxLink("reset") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -155,7 +167,7 @@ public abstract class AbstractCorrectionList extends TemplatePage {
             }
         };
         filterForm.add(reset);
-        AjaxButton submit = new AjaxButton("submit", filterForm) {
+        AjaxButton submit = new IndicatingAjaxButton("submit", filterForm) {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {

@@ -17,6 +17,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.util.string.Strings;
+import org.complitex.dictionaryfw.entity.PreferenceKey;
 import org.complitex.osznconnection.commons.web.component.LocalePicker;
 import org.complitex.osznconnection.commons.web.component.toolbar.HelpButton;
 import org.complitex.osznconnection.commons.web.component.toolbar.ToolbarButton;
@@ -41,9 +42,7 @@ import java.util.Locale;
 public abstract class TemplatePage extends WebPage {
     private static final Logger log = LoggerFactory.getLogger(TemplatePage.class);
 
-    public static enum PREFERENCE_KEY {
-        SORT_PROPERTY, SORT_ORDER, FILTER_OBJECT, LOCALE
-    }
+    private String page = getClass().getName();
 
     protected TemplatePage() {
         add(JavascriptPackageResource.getHeaderContribution(CoreJavaScriptResourceReference.get()));
@@ -231,31 +230,35 @@ public abstract class TemplatePage extends WebPage {
 
     /* Template Session Preferences*/
 
-    private <T> T getNotNull(T object, T _default){
-        return object != null ? object : _default;
+    public String getPreferencesPage() {
+        return page;
+    }
+
+    public void setPreferencesPage(String page) {
+        this.page = page;
     }
 
     public void setSortProperty(String sortProperty){
-        getTemplateSession().putPreference(getClass(), PREFERENCE_KEY.SORT_PROPERTY, sortProperty, true);
+        getTemplateSession().putPreference(page, PreferenceKey.SORT_PROPERTY, sortProperty, true);
     }
 
     public String getSortProperty(String _default){
-        return getNotNull(getTemplateSession().getPreferenceString(getClass(), PREFERENCE_KEY.SORT_PROPERTY), _default);
+        return getTemplateSession().getPreferenceString(page, PreferenceKey.SORT_PROPERTY, _default);
     }
 
     public void setSortOrder(Boolean sortOrder){
-        getTemplateSession().putPreference(getClass(), PREFERENCE_KEY.SORT_ORDER, sortOrder, true);
+        getTemplateSession().putPreference(page, PreferenceKey.SORT_ORDER, sortOrder, true);
     }
 
     public Boolean getSortOrder(Boolean _default){
-        return getNotNull(getTemplateSession().getPreferenceBoolean(getClass(), PREFERENCE_KEY.SORT_ORDER), _default);
+        return getTemplateSession().getPreferenceBoolean(page, PreferenceKey.SORT_ORDER, _default);
     }
 
     public void setFilterObject(Object filterObject){
-        getTemplateSession().putPreferenceObject(getClass(), PREFERENCE_KEY.FILTER_OBJECT, filterObject);
+        getTemplateSession().putPreferenceObject(page, PreferenceKey.FILTER_OBJECT, filterObject);
     }
 
     public Object getFilterObject(Object _default){
-        return getNotNull(getTemplateSession().getPreferenceObject(getClass(), PREFERENCE_KEY.FILTER_OBJECT), _default);
+        return getTemplateSession().getPreferenceObject(page, PreferenceKey.FILTER_OBJECT, _default);
     }
 }

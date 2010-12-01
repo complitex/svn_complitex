@@ -29,6 +29,7 @@ import org.complitex.dictionaryfw.converter.DoubleConverter;
 import org.complitex.dictionaryfw.converter.IntegerConverter;
 import org.complitex.dictionaryfw.entity.Attribute;
 import org.complitex.dictionaryfw.entity.DomainObject;
+import org.complitex.dictionaryfw.entity.PreferenceKey;
 import org.complitex.dictionaryfw.entity.SimpleTypes;
 import org.complitex.dictionaryfw.entity.description.EntityAttributeType;
 import org.complitex.dictionaryfw.entity.example.AttributeExample;
@@ -64,16 +65,20 @@ public class DomainObjectListPanel extends Panel {
 
     private String entity;
 
-    private final DomainObjectExample example = new DomainObjectExample();
+    private DomainObjectExample example;
 
     private WebMarkupContainer content;
 
     private DataView<DomainObject> dataView;
 
+    private final String page;
+
     public DomainObjectListPanel(String id, String entity) {
         super(id);
         this.entity = entity;
-        example.setTable(entity);
+
+        page = getClass().getName() + "#" + entity;
+
         init();
     }
 
@@ -107,6 +112,15 @@ public class DomainObjectListPanel extends Panel {
 
         content = new WebMarkupContainer("content");
         content.setOutputMarkupPlaceholderTag(true);
+
+        //Example
+        example = (DomainObjectExample) getSession().getPreferenceObject(page, PreferenceKey.FILTER_OBJECT, null);
+
+        if (example == null){
+            example = new DomainObjectExample();
+            example.setTable(entity);
+            getSession().putPreferenceObject(page, PreferenceKey.FILTER_OBJECT, example);
+        }
 
         //Search
         List<String> searchFilters = getStrategy().getSearchFilters();
@@ -155,7 +169,11 @@ public class DomainObjectListPanel extends Panel {
 
             @Override
             public Iterator<? extends DomainObject> iterator(int first, int count) {
-                boolean asc = getSort().isAscending();
+                //store preference
+                DictionaryFwSession session = getSession();
+                session.putPreference(page, PreferenceKey.SORT_PROPERTY, getSort().getProperty(), true);
+                session.putPreference(page, PreferenceKey.SORT_ORDER, getSort().isAscending(), true);
+                session.putPreferenceObject(page, PreferenceKey.FILTER_OBJECT, example);
 
                 if (!Strings.isEmpty(getSort().getProperty())) {
                     Long sortProperty = Long.valueOf(getSort().getProperty());
@@ -164,7 +182,7 @@ public class DomainObjectListPanel extends Panel {
 
                 example.setStatus(showModeModel.getObject().name());
                 example.setLocale(getLocale().getLanguage());
-                example.setAsc(asc);
+                example.setAsc( getSort().isAscending());
                 example.setStart(first);
                 example.setSize(count);
                 return getStrategy().find(example).iterator();
@@ -182,7 +200,8 @@ public class DomainObjectListPanel extends Panel {
                 return new Model<DomainObject>(object);
             }
         };
-        dataProvider.setSort("", true);
+        dataProvider.setSort(getSession().getPreferenceString(page, PreferenceKey.SORT_PROPERTY, ""),
+                getSession().getPreferenceBoolean(page, PreferenceKey.SORT_ORDER, true));
 
         //Data View
         dataView = new DataView<DomainObject>("data", dataProvider, 1) {
@@ -387,12 +406,13 @@ public class DomainObjectListPanel extends Panel {
         content.add(new PagingNavigator("navigator", dataView, getClass().getName() + "#" + entity, content));
     }
 
-    protected DictionaryFwSession getDictionaryFwSession() {
-        return (DictionaryFwSession) getSession();
+    @Override
+    public DictionaryFwSession getSession() {
+        return (DictionaryFwSession) super.getSession();
     }
 
     protected SearchComponentState getSearchComponentStateFromSession() {
-        SearchComponentSessionState searchComponentSessionState = getDictionaryFwSession().getSearchComponentSessionState();
+        SearchComponentSessionState searchComponentSessionState = getSession().getSearchComponentSessionState();
         SearchComponentState componentState = searchComponentSessionState.get(entity);
         if (componentState == null) {
             componentState = new SearchComponentState();

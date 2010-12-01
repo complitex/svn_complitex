@@ -27,6 +27,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.util.string.Strings;
+import org.complitex.dictionaryfw.entity.PreferenceKey;
 import org.complitex.dictionaryfw.web.DictionaryFwSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,10 +42,6 @@ import java.util.List;
  */
 public class PagingNavigator extends Panel {
     private static final Logger log = LoggerFactory.getLogger(PagingNavigator.class);
-
-    private enum PREFERENCE_KEY{
-        PAGE_INDEX, ROWS_PER_PAGE
-    }
 
     private static final int LEFT_OFFSET = 3;
     private static final int RIGHT_OFFSET = 3;
@@ -71,7 +68,7 @@ public class PagingNavigator extends Panel {
         rowsPerPagePropertyModel = new PropertyModel<Integer>(dataView, "itemsPerPage");
 
         //retrieve table page size from preferences.
-        Integer rowsPerPage = getSession().getPreferenceInteger(page, PREFERENCE_KEY.ROWS_PER_PAGE.name());
+        Integer rowsPerPage = getSession().getPreferenceInteger(page, PreferenceKey.ROWS_PER_PAGE, 10);
         if (rowsPerPage == null) {
             rowsPerPage = SUPPORTED_PAGE_SIZES.get(0);
         }
@@ -79,7 +76,7 @@ public class PagingNavigator extends Panel {
         rowsPerPagePropertyModel.setObject(rowsPerPage);
 
         //retrieve table page index from preferences.
-        Integer pageIndex = getSession().getPreferenceInteger(page, PREFERENCE_KEY.PAGE_INDEX.name());
+        Integer pageIndex = getSession().getPreferenceInteger(page, PreferenceKey.PAGE_INDEX, 0);
         if (pageIndex != null && pageIndex < dataView.getPageCount()) {
             dataView.setCurrentPage(pageIndex);
         }
@@ -204,7 +201,7 @@ public class PagingNavigator extends Panel {
 
             @Override
             public void setObject(Integer rowsPerPage) {
-                getSession().putPreference(page, PREFERENCE_KEY.ROWS_PER_PAGE.name(), rowsPerPage.toString(), true);
+                getSession().putPreference(page, PreferenceKey.ROWS_PER_PAGE, rowsPerPage, true);
                 rowsPerPagePropertyModel.setObject(rowsPerPage);
             }
         };
@@ -328,7 +325,7 @@ public class PagingNavigator extends Panel {
     protected void onAfterRender() {
         super.onAfterRender();
 
-        getSession().putPreference(page, PREFERENCE_KEY.PAGE_INDEX.name(), String.valueOf(dataView.getCurrentPage()), true);
+        getSession().putPreference(page, PreferenceKey.PAGE_INDEX, dataView.getCurrentPage(), true);
     }
     /**
      * Appends title attribute to navigation links
