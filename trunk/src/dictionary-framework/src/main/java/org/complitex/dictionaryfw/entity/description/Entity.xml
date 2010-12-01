@@ -57,7 +57,7 @@
     </select>
 
     <select id="findNames" parameterType="long" resultMap="org.complitex.dictionaryfw.entity.StringCulture.StringCulture">
-        SELECT sc.`id`, sc.`value`, sc.`locale` FROM `string_culture` sc WHERE sc.`id` = #{value}
+        SELECT sc.* FROM `string_culture` sc WHERE sc.`id` = #{value}
     </select>
 
     <insert id="insertEntityType" useGeneratedKeys="true" keyProperty="id"

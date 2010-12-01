@@ -11,7 +11,7 @@
                                     JOIN `city_attribute` a_name ON (c.`object_id` = a_name.`object_id` AND a_name.`status` = 'ACTIVE')
                                     JOIN `city_attribute` a_type ON (c.`object_id` = a_type.`object_id` AND a_type.`status` = 'ACTIVE')
                                     JOIN `city_string_culture` sc ON (a_name.`value_id` = sc.`id`)
-            WHERE (c.`status` IN ('ACTIVE', 'INACTIVE')) AND sc.`locale` = #{locale} AND a_name.`attribute_type_id` = 400
+            WHERE (c.`status` IN ('ACTIVE', 'INACTIVE')) AND sc.`locale_id` = #{localeId} AND a_name.`attribute_type_id` = 400
             AND a_type.`attribute_type_id` = 401
             AND sc.`value` = #{text}
             <choose>

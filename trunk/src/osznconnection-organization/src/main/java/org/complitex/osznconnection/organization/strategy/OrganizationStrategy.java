@@ -100,7 +100,7 @@ public class OrganizationStrategy extends AbstractStrategy {
 
     @Override
     public IValidator getValidator() {
-        return new OrganizationValidator(this, new Locale(localeBean.getSystemLocale()));
+        return new OrganizationValidator(this, localeBean.getSystemLocale());
     }
 
     @Override
@@ -184,7 +184,7 @@ public class OrganizationStrategy extends AbstractStrategy {
         params.put("name", name);
         params.put("parentId", parentId);
         params.put("parentEntityId", parentEntityId);
-        params.put("locale", locale.getLanguage());
+        params.put("localeId", localeBean.convert(locale).getId());
         List<Long> results = sqlSession().selectList(ORGANIZATION_NAMESPACE + ".validateName", params);
         for (Long result : results) {
             if (!result.equals(id)) {

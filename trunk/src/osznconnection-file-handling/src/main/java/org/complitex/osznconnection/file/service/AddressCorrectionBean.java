@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import javax.ejb.EJB;
+import org.complitex.dictionaryfw.service.LocaleBean;
 import org.complitex.dictionaryfw.web.component.search.SearchComponentState;
 
 /**
@@ -33,6 +35,9 @@ public class AddressCorrectionBean extends CorrectionBean {
     private static final Logger log = LoggerFactory.getLogger(AddressCorrectionBean.class);
 
     private static final String ADDRESS_BEAN_MAPPING_NAMESPACE = AddressCorrectionBean.class.getName();
+
+    @EJB
+    private LocaleBean localeBean;
 
     /**
      * Находит id внутреннего объекта системы в таблице коррекций
@@ -431,7 +436,7 @@ public class AddressCorrectionBean extends CorrectionBean {
                 SearchComponentState state = buildingStrategy.getSearchComponentStateForParent(building.getParentId(), "building_address", null);
                 DomainObject street = state.get("street");
                 DomainObject city = state.get("city");
-                Locale locale = new Locale(example.getLocale());
+                Locale locale = localeBean.convert(localeBean.getLocale(example.getLocaleId()));
                 String displayBuilding = c.getDisplayObject();
                 String displayStreet = streetStrategy.displayDomainObject(street, locale);
                 String displayCity = cityStrategy.displayDomainObject(city, locale);
@@ -456,7 +461,6 @@ public class AddressCorrectionBean extends CorrectionBean {
         sqlSession().delete(ADDRESS_BEAN_MAPPING_NAMESPACE + ".deleteBuilding", buildingCorrection);
     }
 
-    @SuppressWarnings({"unchecked"})
     @Transactional
     @Override
     public List<Correction> find(CorrectionExample example) {
@@ -474,7 +478,7 @@ public class AddressCorrectionBean extends CorrectionBean {
                     DomainObject street = streetStrategy.findById(c.getObjectId());
                     DomainObject city = cityStrategy.findById(street.getParentId());
 
-                    String displayCity = cityStrategy.displayDomainObject(city, new Locale(example.getLocale()));
+                    String displayCity = cityStrategy.displayDomainObject(city, localeBean.convert(localeBean.getLocale(example.getLocaleId())));
                     String displayStreet = c.getDisplayObject();
                     c.setDisplayObject(displayCity + ", " + displayStreet);
                 } catch (Exception e) {

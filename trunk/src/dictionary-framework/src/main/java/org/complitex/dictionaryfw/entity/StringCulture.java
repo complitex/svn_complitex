@@ -5,13 +5,11 @@ import java.io.Serializable;
 public class StringCulture implements Serializable {
 
     private Long id;
-
-    private String locale;
-
+    private Long localeId;
     private String value;
 
-    public StringCulture(String locale, String value) {
-        this.locale = locale;
+    public StringCulture(Long localeId, String value) {
+        this.localeId = localeId;
         this.value = value;
     }
 
@@ -23,12 +21,12 @@ public class StringCulture implements Serializable {
         this.id = id;
     }
 
-    public String getLocale() {
-        return locale;
+    public Long getLocaleId() {
+        return localeId;
     }
 
-    public void setLocale(String locale) {
-        this.locale = locale;
+    public void setLocaleId(Long localeId) {
+        this.localeId = localeId;
     }
 
     public String getValue() {

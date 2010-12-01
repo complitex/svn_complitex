@@ -13,14 +13,10 @@ import org.complitex.osznconnection.file.entity.PersonAccount;
 public class PersonAccountExample extends PersonAccount {
 
     private int start;
-
     private int size;
-
     private String orderByClause;
-
     private boolean asc;
-
-    private String locale;
+    private Long localeId;
 
     public boolean isAsc() {
         return asc;
@@ -30,12 +26,12 @@ public class PersonAccountExample extends PersonAccount {
         this.asc = asc;
     }
 
-    public String getLocale() {
-        return locale;
+    public Long getLocaleId() {
+        return localeId;
     }
 
-    public void setLocale(String locale) {
-        this.locale = locale;
+    public void setLocaleId(Long localeId) {
+        this.localeId = localeId;
     }
 
     public String getOrderByClause() {

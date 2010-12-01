@@ -4,7 +4,6 @@
  */
 package org.complitex.dictionaryfw.strategy.web.validate;
 
-import java.util.Locale;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.service.LocaleBean;
 import org.complitex.dictionaryfw.service.StringCultureBean;
@@ -31,8 +30,8 @@ public class DefaultValidator implements IValidator {
     @Override
     public boolean validate(DomainObject object, DomainObjectEditPanel editPanel) {
         Strategy strategy = EjbBeanLocator.getBean(StrategyFactory.class).getStrategy(entity);
-        Locale systemLocale = new Locale(EjbBeanLocator.getBean(LocaleBean.class).getSystemLocale());
-        Long existingObjectId = strategy.performDefaultValidation(object, systemLocale);
+        LocaleBean localeBean = EjbBeanLocator.getBean(LocaleBean.class);
+        Long existingObjectId = strategy.performDefaultValidation(object, localeBean.getSystemLocale());
 
         if (existingObjectId != null) {
             StringCultureBean stringBean = EjbBeanLocator.getBean(StringCultureBean.class);

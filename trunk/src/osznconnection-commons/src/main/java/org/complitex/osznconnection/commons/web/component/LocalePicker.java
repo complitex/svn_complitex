@@ -27,15 +27,15 @@ public class LocalePicker extends Panel {
     public LocalePicker(String id) {
         super(id);
 
-        List<Locale> locales = Lists.newArrayList(Iterables.transform(localeBean.getAllLocales(), new Function<String, Locale>() {
+        List<Locale> locales = Lists.newArrayList(Iterables.transform(localeBean.getAllLocales(),
+                new Function<org.complitex.dictionaryfw.entity.Locale, Locale>() {
 
-            @Override
-            public Locale apply(String language) {
-                return new Locale(language.toLowerCase());
-            }
-        }));
+                    @Override
+                    public Locale apply(org.complitex.dictionaryfw.entity.Locale locale) {
+                        return localeBean.convert(locale);
+                    }
+                }));
 
-//        getSession().setLocale(new Locale(localeBean.getSystemLocale()));
         IModel<Locale> model = new Model<Locale>() {
 
             @Override

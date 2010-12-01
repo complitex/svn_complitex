@@ -4,22 +4,22 @@
 
     <resultMap id="StringCulture" type="StringCulture">
         <constructor>
-            <idArg column="locale" javaType="String"/>
+            <idArg column="locale_id" javaType="Long"/>
             <arg column="value" javaType="String"/>
         </constructor>
         <id column="id" property="id"/>
     </resultMap>
 
     <insert id="insert" parameterType="Parameter">
-        insert into `${table}_string_culture`(`id`, `locale`, `value`) values (#{object.id}, #{object.locale}, UPPER(#{object.value}))
+        insert into `${table}_string_culture`(`id`, `locale_id`, `value`) values (#{object.id}, #{object.localeId}, UPPER(#{object.value}))
     </insert>
 
     <select id="find" parameterType="hashmap" resultMap="org.complitex.dictionaryfw.entity.StringCulture.StringCulture">
-        SELECT sc.`id`, sc.`locale`, sc.`value` FROM `${table}_string_culture` sc WHERE sc.`id` = #{id}
+        SELECT sc.* FROM `${table}_string_culture` sc WHERE sc.`id` = #{id}
     </select>
 
     <insert id="insertDescriptionData" parameterType="StringCulture">
-        insert into `string_culture`(`id`, `locale`, `value`) values (#{id}, #{locale}, UPPER(#{value}))
+        insert into `string_culture`(`id`, `locale_id`, `value`) values (#{id}, #{localeId}, UPPER(#{value}))
     </insert>
 
 </mapper>

@@ -18,10 +18,10 @@ import org.complitex.dictionaryfw.mybatis.Transactional;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import javax.annotation.PostConstruct;
+import org.complitex.dictionaryfw.entity.Locale;
 
 /**
  *
@@ -40,23 +40,23 @@ public class StringCultureBean extends AbstractBean {
 
     private static class StringCultureComparator implements Comparator<StringCulture> {
 
-        private String systemLocale;
+        private Long systemLocaleId;
 
-        public StringCultureComparator(String systemLocale) {
-            this.systemLocale = systemLocale;
+        public StringCultureComparator(Long systemLocaleId) {
+            this.systemLocaleId = systemLocaleId;
         }
 
         @Override
         public int compare(StringCulture o1, StringCulture o2) {
-            if (o1.getLocale().equals(systemLocale)) {
+            if (o1.getLocaleId().equals(systemLocaleId)) {
                 return -1;
             }
 
-            if (o2.getLocale().equals(systemLocale)) {
+            if (o2.getLocaleId().equals(systemLocaleId)) {
                 return 1;
             }
 
-            return o1.getLocale().compareTo(o2.getLocale());
+            return o1.getLocaleId().compareTo(o2.getLocaleId());
         }
     }
 
@@ -64,7 +64,7 @@ public class StringCultureBean extends AbstractBean {
 
     @PostConstruct
     private void init(){
-        stringCultureComparator = new StringCultureComparator(localeBean.getSystemLocale());
+        stringCultureComparator = new StringCultureComparator(localeBean.getSystemLocaleObject().getId());
     }
 
     @Transactional
@@ -94,7 +94,7 @@ public class StringCultureBean extends AbstractBean {
     }
 
     @Transactional
-    public void insert(StringCulture string, String entityTable) {
+    protected void insert(StringCulture string, String entityTable) {
         if (Strings.isEmpty(entityTable)) {
             sqlSession().insert(MAPPING_NAMESPACE + ".insertDescriptionData", string);
         } else {
@@ -109,17 +109,17 @@ public class StringCultureBean extends AbstractBean {
     }
 
     public void updateForNewLocales(List<StringCulture> strings) {
-        for (final String locale : localeBean.getAllLocales()) {
+        for (final Locale locale : localeBean.getAllLocales()) {
             try {
                 Iterables.find(strings, new Predicate<StringCulture>() {
 
                     @Override
                     public boolean apply(StringCulture string) {
-                        return locale.equals(string.getLocale());
+                        return locale.getId().equals(string.getLocaleId());
                     }
                 });
             } catch (NoSuchElementException e) {
-                strings.add(new StringCulture(locale, null));
+                strings.add(new StringCulture(locale.getId(), null));
             }
         }
         sortStrings(strings);
@@ -133,20 +133,20 @@ public class StringCultureBean extends AbstractBean {
         return Iterables.find(strings, new Predicate<StringCulture>() {
 
             @Override
-            public boolean apply(StringCulture stringCulture) {
-                return stringCulture.getLocale().equals(localeBean.getSystemLocale());
+            public boolean apply(StringCulture string) {
+                return localeBean.getLocale(string.getLocaleId()).isSystem();
             }
         });
     }
 
-    public String displayValue(List<StringCulture> strings, final Locale locale) {
+    public String displayValue(List<StringCulture> strings, final java.util.Locale locale) {
         String value = null;
         try {
             value = Iterables.find(strings, new Predicate<StringCulture>() {
 
                 @Override
                 public boolean apply(StringCulture string) {
-                    return locale.getLanguage().equalsIgnoreCase(string.getLocale());
+                    return localeBean.convert(locale).getId().equals(string.getLocaleId());
 
                 }
             }).getValue();
@@ -159,7 +159,7 @@ public class StringCultureBean extends AbstractBean {
 
                     @Override
                     public boolean apply(StringCulture string) {
-                        return localeBean.getSystemLocale().equalsIgnoreCase(string.getLocale());
+                        return localeBean.getLocale(string.getLocaleId()).isSystem();
                     }
                 }).getValue();
             } catch (NoSuchElementException e) {

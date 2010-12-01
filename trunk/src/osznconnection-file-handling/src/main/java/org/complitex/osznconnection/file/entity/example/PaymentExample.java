@@ -24,7 +24,6 @@ public class PaymentExample implements Serializable {
     private int size;
     private String orderByClause;
     private boolean asc;
-    private String locale;
 
     public String getAccount() {
         return account;
@@ -144,13 +143,5 @@ public class PaymentExample implements Serializable {
 
     public void setAsc(boolean asc) {
         this.asc = asc;
-    }
-
-    public String getLocale() {
-        return locale;
-    }
-
-    public void setLocale(String locale) {
-        this.locale = locale;
     }
 }

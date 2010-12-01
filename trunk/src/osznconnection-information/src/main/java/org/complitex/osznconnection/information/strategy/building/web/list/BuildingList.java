@@ -30,6 +30,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
+import org.complitex.dictionaryfw.service.LocaleBean;
 import org.complitex.dictionaryfw.util.StringUtil;
 import org.complitex.dictionaryfw.web.DictionaryFwSession;
 import org.complitex.dictionaryfw.web.component.ShowMode;
@@ -60,6 +61,9 @@ public final class BuildingList extends TemplatePage {
 
     @EJB(name = "BuildingStrategy")
     private BuildingStrategy buildingStrategy;
+
+    @EJB(name = "LocaleBean")
+    private LocaleBean localeBean;
 
     private class BuildingSearchCallback implements ISearchCallback, Serializable {
 
@@ -138,7 +142,7 @@ public final class BuildingList extends TemplatePage {
                 }
 
                 example.setStatus(showModeModel.getObject().name());
-                example.setLocale(getLocale().getLanguage());
+                example.setLocaleId(localeBean.convert(getLocale()).getId());
                 example.setAsc(asc);
                 example.setStart(first);
                 example.setSize(count);
@@ -148,7 +152,7 @@ public final class BuildingList extends TemplatePage {
             @Override
             public int size() {
                 example.setStatus(showModeModel.getObject().name());
-                example.setLocale(getLocale().getLanguage());
+                example.setLocaleId(localeBean.convert(getLocale()).getId());
                 return buildingStrategy.count(example);
             }
 

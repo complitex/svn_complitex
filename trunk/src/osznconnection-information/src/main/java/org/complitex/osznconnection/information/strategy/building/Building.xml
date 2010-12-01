@@ -32,13 +32,13 @@
             LEFT JOIN `building_address_attribute` corp ON (corp.`object_id` = addr.`object_id` AND corp.`status` = 'ACTIVE' AND corp.`attribute_type_id` = 1501)
             LEFT JOIN `building_address_attribute` struc ON (struc.`object_id` = addr.`object_id` AND struc.`status` = 'ACTIVE' AND struc.`attribute_type_id` = 1502)
         WHERE (b.`status` IN ('ACTIVE', 'INACTIVE')) AND
-        num.`value_id` IN (SELECT sc.`id` FROM `building_address_string_culture` sc WHERE sc.`value` = #{number} AND sc.`locale` = #{locale}) AND
+        num.`value_id` IN (SELECT sc.`id` FROM `building_address_string_culture` sc WHERE sc.`value` = #{number} AND sc.`locale_id` = #{localeId}) AND
             <choose>
                 <when test="corp == null">
                     corp.`value_id` IS NULL
                 </when>
                 <otherwise>
-                    corp.`value_id` IN (SELECT sc.`id` FROM `building_address_string_culture` sc WHERE sc.`value` = #{corp} AND sc.`locale` = #{locale})
+                    corp.`value_id` IN (SELECT sc.`id` FROM `building_address_string_culture` sc WHERE sc.`value` = #{corp} AND sc.`locale_id` = #{localeId})
                 </otherwise>
             </choose>
             AND
@@ -47,7 +47,7 @@
                     struc.`value_id` IS NULL
                 </when>
                 <otherwise>
-                    struc.`value_id` IN (SELECT sc.`id` FROM `building_address_string_culture` sc WHERE sc.`value` = #{structure} AND sc.`locale` = #{locale})
+                    struc.`value_id` IN (SELECT sc.`id` FROM `building_address_string_culture` sc WHERE sc.`value` = #{structure} AND sc.`locale_id` = #{localeId})
                 </otherwise>
             </choose>
             AND

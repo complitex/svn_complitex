@@ -37,7 +37,7 @@
         <choose>
             <when test="orderByAttributeTypeId != null">
                 ORDER BY (
-                    SELECT sc.`value` FROM `${table}_string_culture` sc WHERE sc.`locale` = #{locale} AND sc.`id` =
+                    SELECT sc.`value` FROM `${table}_string_culture` sc WHERE sc.`locale_id` = #{localeId} AND sc.`id` =
                     (SELECT orderByAttr.`value_id` FROM `${table}_attribute` orderByAttr WHERE orderByAttr.`object_id` = e.`object_id`
                         AND orderByAttr.`status` = 'ACTIVE' AND orderByAttr.`attribute_type_id` = #{orderByAttributeTypeId}
                     )
@@ -129,7 +129,7 @@
         SELECT DISTINCT e.`object_id` FROM `${entity}` e
                                     JOIN `${entity}_attribute` a ON (e.`object_id` = a.`object_id` AND a.`status` = 'ACTIVE')
                                     JOIN `${entity}_string_culture` sc ON (a.`value_id` = sc.`id`)
-            WHERE (e.`status` IN ('ACTIVE', 'INACTIVE')) AND sc.`locale` = #{locale} AND a.`attribute_type_id` = #{attributeTypeId}
+            WHERE (e.`status` IN ('ACTIVE', 'INACTIVE')) AND sc.`locale_id` = #{localeId} AND a.`attribute_type_id` = #{attributeTypeId}
             AND sc.`value` = #{text}
             <choose>
                 <when test="parentEntityId != null and parentId != null">

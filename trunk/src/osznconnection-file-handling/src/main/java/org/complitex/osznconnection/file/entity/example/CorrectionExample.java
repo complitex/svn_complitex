@@ -36,7 +36,7 @@ public class CorrectionExample implements Serializable {
 
     private boolean asc;
 
-    private String locale;
+    private Long localeId;
 
     public boolean isAsc() {
         return asc;
@@ -62,12 +62,12 @@ public class CorrectionExample implements Serializable {
         this.internalObject = internalObject;
     }
 
-    public String getLocale() {
-        return locale;
+    public Long getLocaleId() {
+        return localeId;
     }
 
-    public void setLocale(String locale) {
-        this.locale = locale;
+    public void setLocaleId(Long localeId) {
+        this.localeId = localeId;
     }
 
     public String getOrderByClause() {

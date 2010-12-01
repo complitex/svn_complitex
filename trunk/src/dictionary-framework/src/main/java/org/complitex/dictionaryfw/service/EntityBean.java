@@ -62,11 +62,6 @@ public class EntityBean extends AbstractBean {
         return stringBean.displayValue(entity.getAttributeType(attributeTypeId).getAttributeNames(), locale);
     }
 
-//    @Transactional
-//    public Entity getFullEntity(String entity) {
-//        return (Entity) sqlSession().selectOne(MAPPING_NAMESPACE + ".load", ImmutableMap.of("entity", entity, "all", ""));
-//    }
-
     public EntityAttributeType newAttributeType() {
         EntityAttributeType attributeType = new EntityAttributeType();
         attributeType.setAttributeNames(stringBean.newStringCultures());

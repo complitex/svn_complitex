@@ -3,6 +3,7 @@
 <!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
     <typeAliases>
+        <typeAlias type="org.complitex.dictionaryfw.entity.Locale" alias="Locale"/>
         <typeAlias type="org.complitex.dictionaryfw.entity.StringCulture" alias="StringCulture"/>
         <typeAlias type="org.complitex.dictionaryfw.entity.Parameter" alias="Parameter"/>
         <typeAlias type="org.complitex.dictionaryfw.entity.DomainObject" alias="DomainObject"/>

@@ -180,15 +180,19 @@
     <select id="findBuildings" parameterType="org.complitex.osznconnection.file.entity.example.CorrectionExample"
             resultMap="buildingCorrection">
         SELECT c.*,
-        (SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale` = #{locale} AND osc.`id` IN
+        IFNULL((SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale_id` = #{localeId} AND osc.`id` IN
             (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE'
-             AND oa.`object_id` = c.`organization_id` AND oa.`attribute_type_id` = 900)
+                AND oa.`object_id` = c.`organization_id` AND oa.`attribute_type_id` = 900)),
+            (SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale_id` =
+                (SELECT l.`id` FROM `locales` l WHERE l.`system` = 1) AND osc.`id` IN (SELECT oa.`value_id`
+                FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE'
+                AND oa.`object_id` = c.`organization_id` AND oa.`attribute_type_id` = 900))
         ) organization,
-        IFNULL((SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale` = #{locale} AND osc.`id` IN
+        IFNULL((SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale_id` = #{localeId} AND osc.`id` IN
             (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE'
                 AND oa.`object_id` = c.`internal_organization_id` AND oa.`attribute_type_id` = 900)),
-            (SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale` =
-                (SELECT l.`locale` FROM `locales` l WHERE l.`system` = 1) AND osc.`id` IN (SELECT oa.`value_id`
+            (SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale_id` =
+                (SELECT l.`id` FROM `locales` l WHERE l.`system` = 1) AND osc.`id` IN (SELECT oa.`value_id`
                 FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE'
                 AND oa.`object_id` = c.`internal_organization_id` AND oa.`attribute_type_id` = 900))
         ) internalOrganization

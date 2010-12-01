@@ -38,6 +38,7 @@ import org.complitex.osznconnection.file.service.CorrectionBean;
 import javax.ejb.EJB;
 import java.util.Iterator;
 import java.util.List;
+import org.complitex.dictionaryfw.service.LocaleBean;
 
 /**
  * Абстрактный класс для списка коррекций.
@@ -53,6 +54,9 @@ public abstract class AbstractCorrectionList extends TemplatePage {
 
     @EJB(name = "StrategyFactory")
     private StrategyFactory strategyFactory;
+
+    @EJB(name = "LocaleBean")
+    private LocaleBean localeBean;
 
     private String entity;
 
@@ -92,7 +96,7 @@ public abstract class AbstractCorrectionList extends TemplatePage {
         return correction.getCorrection();
     }
 
-    protected String displayInternalObject(Correction correction){
+    protected String displayInternalObject(Correction correction) {
         return correction.getDisplayObject();
     }
 
@@ -101,7 +105,7 @@ public abstract class AbstractCorrectionList extends TemplatePage {
     protected abstract PageParameters getEditPageParams(Long objectCorrectionId);
 
     protected String getInternalObjectOrderByExpression() {
-        return strategyFactory.getStrategy(entity).getOrderByExpression("c.`object_id`", getLocale().getLanguage(), null);
+        return strategyFactory.getStrategy(entity).getOrderByExpression("c.`object_id`", localeBean.convert(getLocale()).getId(), null);
     }
 
     protected void init() {
@@ -134,7 +138,7 @@ public abstract class AbstractCorrectionList extends TemplatePage {
                 }
                 exampleObject.setStart(first);
                 exampleObject.setSize(count);
-                exampleObject.setLocale(getLocale().getLanguage());
+                exampleObject.setLocaleId(localeBean.convert(getLocale()).getId());
                 return find(exampleObject).iterator();
             }
 
