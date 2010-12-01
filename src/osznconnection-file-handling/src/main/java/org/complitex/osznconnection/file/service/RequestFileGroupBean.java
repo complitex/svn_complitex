@@ -9,6 +9,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.util.HashMap;
 import java.util.List;
+import org.complitex.osznconnection.file.entity.Payment;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -58,9 +59,9 @@ public class RequestFileGroupBean extends AbstractBean{
         sqlSession().delete(MAPPING_NAMESPACE + ".clearEmptyGroup");
     }
 
-    public void updateStatus(final Benefit benefit, final RequestFileGroup.STATUS status){
+    public void updateStatus(final long requestFileId, final RequestFileGroup.STATUS status){
         sqlSession().update(MAPPING_NAMESPACE + ".updateStatus", new HashMap<String,  Object>(){{
-            put("requestFileId", benefit.getRequestFileId());
+            put("fileId", requestFileId);
             put("status", status);
         }});
     }

@@ -59,7 +59,7 @@ public class BenefitBean extends AbstractBean {
      * @param fileId
      * @return
      */
-    private int boundCount(long fileId) {
+    private int unboundCount(long fileId) {
         return countByFile(fileId, RequestStatus.notBoundStatuses());
     }
 
@@ -69,7 +69,7 @@ public class BenefitBean extends AbstractBean {
      */
     @Transactional
     public boolean isBenefitFileBound(long fileId) {
-        return boundCount(fileId) == 0;
+        return unboundCount(fileId) == 0;
     }
 
     @SuppressWarnings({"unchecked"})

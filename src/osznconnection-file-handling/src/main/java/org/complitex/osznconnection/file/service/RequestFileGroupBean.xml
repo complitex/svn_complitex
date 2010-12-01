@@ -53,9 +53,8 @@
     </update>
 
     <update id="updateStatus" parameterType="map">
-        update `request_file_group` set `status` = #{status} where `id` = #{id}
+        update `request_file_group` set `status` = #{status} where `id` = (SELECT rf.`group_id` FROM `request_file` rf WHERE rf.`id` = #{fileId})
     </update>
-
 
     <delete id="deleteRequestFileGroup" parameterType="long">
         delete from `request_file_group` where `id` = #{id}
