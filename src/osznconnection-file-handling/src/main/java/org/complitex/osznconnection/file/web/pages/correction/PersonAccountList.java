@@ -5,8 +5,6 @@
 package org.complitex.osznconnection.file.web.pages.correction;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Iterator;
-import javax.ejb.EJB;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -34,6 +32,9 @@ import org.complitex.osznconnection.file.entity.PersonAccount;
 import org.complitex.osznconnection.file.entity.example.PersonAccountExample;
 import org.complitex.osznconnection.file.service.PersonAccountLocalBean;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
+
+import javax.ejb.EJB;
+import java.util.Iterator;
 
 /**
  * Список записей в локальной таблице номеров л/c.
@@ -76,12 +77,17 @@ public class PersonAccountList extends TemplatePage {
         final Form filterForm = new Form("filterForm");
         content.add(filterForm);
 
-        example = new Model<PersonAccountExample>(newExample());
+        example = new Model<PersonAccountExample>((PersonAccountExample) getFilterObject(newExample()));
 
         final SortableDataProvider<PersonAccount> dataProvider = new SortableDataProvider<PersonAccount>() {
 
             @Override
             public Iterator<? extends PersonAccount> iterator(int first, int count) {
+                //save preferences to session
+                setFilterObject(example.getObject());
+                setSortOrder(getSort().isAscending());
+                setSortProperty(getSort().getProperty());
+
                 example.getObject().setAsc(getSort().isAscending());
                 if (!Strings.isEmpty(getSort().getProperty())) {
                     example.getObject().setOrderByClause(getSort().getProperty());
@@ -103,7 +109,7 @@ public class PersonAccountList extends TemplatePage {
                 return new Model<PersonAccount>(object);
             }
         };
-        dataProvider.setSort("", true);
+        dataProvider.setSort(getSortProperty(""), getSortOrder(true));
 
         filterForm.add(new TextField<String>("firstNameFilter", new PropertyModel<String>(example, "firstName")));
         filterForm.add(new TextField<String>("middleNameFilter", new PropertyModel<String>(example, "middleName")));

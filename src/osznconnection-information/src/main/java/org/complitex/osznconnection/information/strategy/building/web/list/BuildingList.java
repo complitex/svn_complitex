@@ -5,11 +5,6 @@
 package org.complitex.osznconnection.information.strategy.building.web.list;
 
 import com.google.common.collect.ImmutableList;
-import java.io.Serializable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import javax.ejb.EJB;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -29,6 +24,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.util.string.Strings;
+import org.complitex.dictionaryfw.entity.PreferenceKey;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.service.LocaleBean;
 import org.complitex.dictionaryfw.util.StringUtil;
@@ -49,6 +45,12 @@ import org.complitex.osznconnection.information.strategy.building.BuildingStrate
 import org.complitex.osznconnection.information.strategy.building.entity.Building;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.ejb.EJB;
+import java.io.Serializable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -82,11 +84,13 @@ public final class BuildingList extends TemplatePage {
         }
     }
 
-    private final DomainObjectExample example = new DomainObjectExample();
+    private DomainObjectExample example;
 
     private WebMarkupContainer content;
 
     private DataView<Building> dataView;
+
+    private final String page = BuildingList.class.getName();
 
     public BuildingList() {
         init();
@@ -106,6 +110,14 @@ public final class BuildingList extends TemplatePage {
 
         content = new WebMarkupContainer("content");
         content.setOutputMarkupPlaceholderTag(true);
+
+        //Example
+        example = (DomainObjectExample) getSession().getPreferenceObject(page, PreferenceKey.FILTER_OBJECT, null);
+
+        if (example == null){
+            example = new DomainObjectExample();
+            getSession().putPreferenceObject(page, PreferenceKey.FILTER_OBJECT, example);
+        }
 
         //Search
         List<String> searchFilters = buildingStrategy.getSearchFilters();
@@ -137,10 +149,16 @@ public final class BuildingList extends TemplatePage {
             public Iterator<Building> iterator(int first, int count) {
                 boolean asc = getSort().isAscending();
                 String sortProperty = getSort().getProperty();
+
+                //store preference
+                DictionaryFwSession session = getSession();
+                session.putPreference(page, PreferenceKey.SORT_PROPERTY, getSort().getProperty(), true);
+                session.putPreference(page, PreferenceKey.SORT_ORDER, getSort().isAscending(), true);
+                session.putPreferenceObject(page, PreferenceKey.FILTER_OBJECT, example);
+
                 if (!Strings.isEmpty(sortProperty)) {
                     example.setOrderByAttributeTypeId(Long.valueOf(sortProperty));
                 }
-
                 example.setStatus(showModeModel.getObject().name());
                 example.setLocaleId(localeBean.convert(getLocale()).getId());
                 example.setAsc(asc);
@@ -161,7 +179,8 @@ public final class BuildingList extends TemplatePage {
                 return new Model<Building>(object);
             }
         };
-        dataProvider.setSort("", true);
+        dataProvider.setSort(getSession().getPreferenceString(page, PreferenceKey.SORT_PROPERTY, ""),
+                getSession().getPreferenceBoolean(page, PreferenceKey.SORT_ORDER, true));
 
         //Filters
         filterForm.add(new TextField<Long>("id", new PropertyModel<Long>(example, "id")));
@@ -251,7 +270,7 @@ public final class BuildingList extends TemplatePage {
         filterForm.add(submit);
 
         //Navigator
-        content.add(new PagingNavigator("navigator", dataView, getClass().getName() + "building", content));
+        content.add(new PagingNavigator("navigator", dataView, getClass().getName(), content));
     }
 
     @Override
@@ -265,12 +284,12 @@ public final class BuildingList extends TemplatePage {
         });
     }
 
-    protected DictionaryFwSession getDictionaryFwSession() {
-        return (DictionaryFwSession) getSession();
+    public DictionaryFwSession getSession() {
+        return (DictionaryFwSession) super.getSession();
     }
 
     protected SearchComponentState getSearchComponentStateFromSession() {
-        SearchComponentSessionState searchComponentSessionState = getDictionaryFwSession().getSearchComponentSessionState();
+        SearchComponentSessionState searchComponentSessionState = getSession().getSearchComponentSessionState();
         SearchComponentState componentState = searchComponentSessionState.get("building");
         if (componentState == null) {
             componentState = new SearchComponentState();
