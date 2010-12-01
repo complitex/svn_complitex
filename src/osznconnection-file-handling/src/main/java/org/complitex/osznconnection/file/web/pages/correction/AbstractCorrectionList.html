@@ -21,7 +21,9 @@
                                 <th wicket:id="internalObjectHeader"><wicket:message key="internalObject"/></th>
                                 <th wicket:id="internalOrganizationHeader"><wicket:message key="internal_organization"/></th>
                                 <th>
-                                    <input wicket:id="reset" type="button" wicket:message="value:reset" class="btnSmall"/>
+                                    <div style="white-space: nowrap;">
+                                        <input wicket:id="reset" type="button" wicket:message="value:reset" class="btnSmall"/>
+                                    </div>
                                 </th>
                             </tr>
                             <tr>
@@ -31,7 +33,9 @@
                                 <td class="filter-td"><input type="text" wicket:id="internalObjectFilter"/></td>
                                 <td class="filter-td"><input type="text" wicket:id="internalOrganizationFilter"/></td>
                                 <td class="filter-td">
-                                    <input wicket:id="submit" type="submit" wicket:message="value:find" class="btnSmall default"/>
+                                    <div style="white-space: nowrap;">
+                                        <input wicket:id="submit" type="submit" wicket:message="value:find" class="btnSmall default"/>
+                                    </div>
                                 </td>
                             </tr>
                         </thead>

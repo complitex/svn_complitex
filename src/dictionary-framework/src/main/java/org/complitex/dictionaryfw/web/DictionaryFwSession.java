@@ -80,24 +80,24 @@ public class DictionaryFwSession extends WebSession {
         return preference;
     }
 
-    public void putPreferenceObject(Class page, Enum key, Object object){
-        putPreference(page.getName(), key.name(), null, object, false);
-    }
-
     public void putPreference(String page, String key, String value, boolean store){
         putPreference(page, key, value, null, store);
     }
 
-    public void putPreference(Class page, Enum key, String value, boolean store){
-        putPreference(page.getName(), key.name(), value, null, store);
+    public void putPreferenceObject(String page, Enum key, Object object){
+        putPreference(page, key.name(), null, object, false);
     }
 
-    public void putPreference(Class page, Enum key, Integer value, boolean store){
-        putPreference(page.getName(), key.name(), value != null ? value.toString() : null, null, store);
+    public void putPreference(String page, Enum key, String value, boolean store){
+        putPreference(page, key.name(), value, null, store);
     }
 
-    public void putPreference(Class page, Enum key, Boolean value, boolean store){
-        putPreference(page.getName(), key.name(), value != null ? value.toString() : null, null, store);
+    public void putPreference(String page, Enum key, Integer value, boolean store){
+        putPreference(page, key.name(), value != null ? value.toString() : null, null, store);
+    }
+
+    public void putPreference(String page, Enum key, Boolean value, boolean store){
+        putPreference(page, key.name(), value != null ? value.toString() : null, null, store);
     }
 
     public Preference getPreference(String page, String key){
@@ -110,16 +110,10 @@ public class DictionaryFwSession extends WebSession {
         return preference;
     }
 
-    public Object getPreferenceObject(Class page, Enum key){
-        return getPreference(page.getName(),key.name()).getObject();
-    }
+    //String key
 
     public String getPreferenceString(String page, String key){
         return getPreference(page, key).getValue();
-    }
-
-    public String getPreferenceString(Class page, Enum key){
-        return getPreferenceString(page.getName(), key.name());
     }
 
     public Integer getPreferenceInteger(String page, String key){
@@ -130,16 +124,30 @@ public class DictionaryFwSession extends WebSession {
         }
     }
 
-    public Integer getPreferenceInteger(Class page, Enum key){
-        return getPreferenceInteger(page.getName(), key.name());
-    }
-
     public Boolean getPreferenceBoolean(String page, String key){
         return Boolean.valueOf(getPreferenceString(page, key));
     }
 
-    public Boolean getPreferenceBoolean(Class page, Enum key){
-        return getPreferenceBoolean(page.getName(), key.name());
+    //Enum key
+
+    private <T> T getNotNullOrDefault(T object, T _default){
+        return object != null ? object : _default;
+    }
+
+    public Object getPreferenceObject(String page, Enum key, Object _default){
+        return getNotNullOrDefault(getPreference(page, key.name()).getObject(), _default);
+    }
+
+    public String getPreferenceString(String page, Enum key, String _default){
+        return getNotNullOrDefault(getPreferenceString(page, key.name()), _default);
+    }
+
+    public Integer getPreferenceInteger(String page, Enum key, Integer _default){
+        return getNotNullOrDefault(getPreferenceInteger(page, key.name()), _default);
+    }
+
+    public Boolean getPreferenceBoolean(String page, Enum key, Boolean _default){
+        return getNotNullOrDefault(getPreferenceBoolean(page, key.name()), _default);
     }
 
     @Override
