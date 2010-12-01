@@ -23,7 +23,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.util.string.Strings;
-import org.complitex.dictionaryfw.util.CloneUtil;
 import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
 import org.complitex.osznconnection.commons.web.security.SecurityRole;
@@ -60,7 +59,6 @@ public final class PaymentList extends TemplatePage {
     private RequestFileBean requestFileBean;
 
     private IModel<PaymentExample> example;
-
     private long fileId;
 
     public PaymentList(PageParameters params) {
@@ -158,12 +156,22 @@ public final class PaymentList extends TemplatePage {
         add(addressCorrectionPanel);
 
         //Панель поиска
-        final PaymentLookupPanel lookupPanel = new PaymentLookupPanel("lookupPanel");
+        final PaymentLookupPanel lookupPanel = new PaymentLookupPanel("lookupPanel") {
+
+            @Override
+            protected void updateAccountNumber(Payment payment, String accountNumber, AjaxRequestTarget target) {
+                payment.setAccountNumber(accountNumber);
+                payment.setStatus(RequestStatus.ACCOUNT_NUMBER_RESOLVED);
+                paymentBean.updateAccountNumber(payment);
+
+                target.addComponent(content);
+            }
+        };
         add(lookupPanel);
 
         //Коррекция личного счета
         final PaymentAccountNumberCorrectionPanel paymentAccountNumberCorrectionPanel =
-                        new PaymentAccountNumberCorrectionPanel("paymentAccountNumberCorrectionPanel", content);
+                new PaymentAccountNumberCorrectionPanel("paymentAccountNumberCorrectionPanel", content);
         add(paymentAccountNumberCorrectionPanel);
 
         DataView<Payment> data = new DataView<Payment>("data", dataProvider, 1) {
@@ -214,7 +222,7 @@ public final class PaymentList extends TemplatePage {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
-                        lookupPanel.open(target, CloneUtil.cloneObject(payment));
+                        lookupPanel.open(target, payment);
                     }
                 };
                 item.add(lookup);

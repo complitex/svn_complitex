@@ -66,6 +66,6 @@ public class BenefitFillService {
 
         boolean filled = benefitBean.isBenefitFileProcessed(benefit.getRequestFileId());
 
-        requestFileGroupBean.updateStatus(benefit, filled ? FILLED : FILL_ERROR);
+        requestFileGroupBean.updateStatus(benefit.getRequestFileId(), filled ? FILLED : FILL_ERROR);
     }
 }

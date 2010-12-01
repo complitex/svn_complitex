@@ -63,6 +63,9 @@ public class PaymentBean extends AbstractBean {
     @EJB(beanName = "PersonAccountLocalBean")
     private PersonAccountLocalBean personAccountLocalBean;
 
+    @EJB
+    private RequestFileGroupBean requestFileGroupBean;
+
     @Transactional
     public int count(PaymentExample example) {
         return (Integer) sqlSession().selectOne(MAPPING_NAMESPACE + ".count", example);
@@ -157,7 +160,7 @@ public class PaymentBean extends AbstractBean {
      * @param fileId
      * @return
      */
-    private int boundCount(long fileId) {
+    private int unboundCount(long fileId) {
         return countByFile(fileId, RequestStatus.notBoundStatuses());
     }
 
@@ -189,7 +192,7 @@ public class PaymentBean extends AbstractBean {
      */
     @Transactional
     public boolean isPaymentFileBound(long fileId) {
-        return boundCount(fileId) == 0;
+        return unboundCount(fileId) == 0;
     }
 
     /**
@@ -274,6 +277,17 @@ public class PaymentBean extends AbstractBean {
         long calculationCenterId = calculationCenterBean.getCurrentCalculationCenterInfo().getCalculationCenterId();
 
         personAccountLocalBean.saveOrUpdate(payment, calculationCenterId);
+
+        Long paymentFileId = payment.getRequestFileId();
+        Long benefitFileId = getBenefitFileId(paymentFileId);
+        if (benefitFileId != null && isPaymentFileBound(paymentFileId) && benefitBean.isBenefitFileBound(benefitFileId)) {
+            requestFileGroupBean.updateStatus(paymentFileId, RequestFileGroup.STATUS.BOUND);
+        }
+    }
+
+    @Transactional
+    private Long getBenefitFileId(long paymentFileId) {
+        return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".getBenefitFileId", paymentFileId);
     }
 
     /**

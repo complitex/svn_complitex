@@ -66,10 +66,22 @@ public class BindTaskBean implements ITaskBean<RequestFileGroup> {
         requestFileGroupBean.save(group);
 
         //связывание файла payment
-        bindPaymentFile(group.getPaymentFile());
+        RequestFile paymentFile = group.getPaymentFile();
+        bindPaymentFile(paymentFile);
 
         //связывание файла benefit
-        bindBenefitFile(group.getBenefitFile());
+        RequestFile benefitFile = group.getBenefitFile();
+        bindBenefitFile(benefitFile);
+
+        //проверить все ли записи в payment файле связались
+        if (!paymentBean.isPaymentFileBound(paymentFile.getId())) {
+            throw new BindException(true, paymentFile);
+        }
+
+        //проверить все ли записи в benefit файле связались
+        if (!benefitBean.isBenefitFileBound(benefitFile.getId())) {
+            throw new BindException(true, benefitFile);
+        }
 
         group.setStatus(RequestFileGroup.STATUS.BOUND);
         requestFileGroupBean.save(group);
@@ -193,11 +205,6 @@ public class BindTaskBean implements ITaskBean<RequestFileGroup> {
                 }
             }
         }
-
-        //проверить все ли записи в payment файле связались
-        if (!paymentBean.isPaymentFileBound(paymentFile.getId())) {
-            throw new BindException(true, paymentFile);
-        }
     }
 
     /**
@@ -208,10 +215,5 @@ public class BindTaskBean implements ITaskBean<RequestFileGroup> {
     private void bindBenefitFile(RequestFile benefitFile) throws BindException {
         //каждой записи benefit проставить статус соответствующей записи payment
         benefitBean.updateBindingStatus(benefitFile.getId());
-
-        //проверить все ли записи в benefit файле связались
-        if (!benefitBean.isBenefitFileBound(benefitFile.getId())) {
-            throw new BindException(true, benefitFile);
-        }
     }
 }

@@ -27,7 +27,6 @@ import org.complitex.osznconnection.file.entity.AccountDetail;
 import org.complitex.osznconnection.file.entity.Payment;
 import org.complitex.osznconnection.file.entity.PaymentDBF;
 import org.complitex.osznconnection.file.entity.RequestStatus;
-import org.complitex.osznconnection.file.service.PaymentBean;
 import org.complitex.osznconnection.file.service.PaymentLookupBean;
 import org.complitex.osznconnection.file.web.component.StatusRenderer;
 import org.complitex.osznconnection.file.web.component.correction.account.AccountNumberCorrectionPanel;
@@ -42,13 +41,14 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.EJB;
 import java.util.List;
 import java.util.Map;
+import org.complitex.dictionaryfw.util.CloneUtil;
 import org.complitex.osznconnection.information.strategy.street.StreetStrategy;
 
 /**
  * Панель для поиска номера л/c по различным параметрам: по адресу, по номеру лиц. счета, по номеру в мегабанке.
  * @author Artem
  */
-public class PaymentLookupPanel extends Panel {
+public abstract class PaymentLookupPanel extends Panel {
 
     private static final Logger log = LoggerFactory.getLogger(PaymentLookupPanel.class);
 
@@ -58,38 +58,22 @@ public class PaymentLookupPanel extends Panel {
     @EJB(name = "PaymentLookupBean")
     private PaymentLookupBean paymentLookupBean;
 
-    @EJB(name = "PaymentBean")
-    private PaymentBean paymentBean;
-
     private IModel<String> accountInfoModel;
-
     private IModel<String> apartmentModel;
-
     private IModel<String> ownNumSrModel;
-
     private IModel<String> megabankModel;
-
     private IModel<List<? extends AccountDetail>> accountsModel;
-
     private IModel<AccountDetail> accountModel;
-
     private AccountNumberCorrectionPanel accountNumberCorrectionPanel;
-
     private WebMarkupContainer container;
-
     private FeedbackPanel messages;
-
     private Dialog dialog;
-
     private Accordion accordion;
-
     private Label accountInfo;
-
     private SearchComponentState componentState;
-
     private SearchComponent searchComponent;
-
     private Payment payment;
+    private Payment initialPayment;
 
     public PaymentLookupPanel(String id) {
         super(id);
@@ -263,7 +247,7 @@ public class PaymentLookupPanel extends Panel {
             @Override
             public void onClick(AjaxRequestTarget target) {
                 if (validate()) {
-                    updateAccountNumber(accountModel.getObject().getAccountNumber());
+                    updateAccountNumber(initialPayment, accountModel.getObject().getAccountNumber(), target);
                     closeDialog(target);
                 } else {
                     target.addComponent(messages);
@@ -370,7 +354,8 @@ public class PaymentLookupPanel extends Panel {
     }
 
     public void open(AjaxRequestTarget target, Payment payment) {
-        this.payment = payment;
+        this.payment = CloneUtil.cloneObject(payment);
+        this.initialPayment = payment;
 
         accountModel.setObject(null);
         accountsModel.setObject(null);
@@ -398,9 +383,5 @@ public class PaymentLookupPanel extends Panel {
         dialog.open(target);
     }
 
-    private void updateAccountNumber(String accountNumber) {
-        payment.setAccountNumber(accountNumber);
-        payment.setStatus(RequestStatus.ACCOUNT_NUMBER_RESOLVED);
-        paymentBean.updateAccountNumber(payment);
-    }
+    protected abstract void updateAccountNumber(Payment payment, String accountNumber, AjaxRequestTarget target);
 }
