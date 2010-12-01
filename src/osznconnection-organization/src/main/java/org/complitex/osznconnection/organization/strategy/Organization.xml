@@ -10,7 +10,7 @@
                                     JOIN `organization_attribute` a ON (o.`object_id` = a.`object_id` AND a.`status` = 'ACTIVE')
                                     JOIN `organization_string_culture` sc ON (a.`value_id` = sc.`id`)
             WHERE (o.`status` IN ('ACTIVE', 'INACTIVE'))
-            AND sc.`locale` = (SELECT l.`locale` FROM `locales` l WHERE l.`system` = 1) AND a.`attribute_type_id` = 901
+            AND sc.`locale_id` = (SELECT l.`id` FROM `locales` l WHERE l.`system` = 1) AND a.`attribute_type_id` = 901
             AND sc.`value` = #{code}
             <choose>
                 <when test="parentEntityId != null and parentId != null">
@@ -27,7 +27,7 @@
                                     JOIN `organization_attribute` a ON (o.`object_id` = a.`object_id` AND a.`status` = 'ACTIVE')
                                     JOIN `organization_string_culture` sc ON (a.`value_id` = sc.`id`)
             WHERE (o.`status` IN ('ACTIVE', 'INACTIVE'))
-            AND sc.`locale` = #{locale} AND a.`attribute_type_id` = 900
+            AND sc.`locale_id` = #{localeId} AND a.`attribute_type_id` = 900
             AND sc.`value` = #{name}
             <choose>
                 <when test="parentEntityId != null and parentId != null">

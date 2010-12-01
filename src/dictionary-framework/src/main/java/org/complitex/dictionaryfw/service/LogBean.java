@@ -1,10 +1,7 @@
 package org.complitex.dictionaryfw.service;
 
-import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionManager;
 import org.complitex.dictionaryfw.entity.*;
-import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.util.DateUtil;
 import org.complitex.dictionaryfw.util.StringUtil;
@@ -16,11 +13,11 @@ import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import javax.lang.model.type.ExecutableType;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import javax.ejb.EJB;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -35,6 +32,9 @@ public class LogBean extends AbstractBean {
     public static final String STATEMENT_PREFIX = LogBean.class.getCanonicalName();
 
     public static final int MAX_DESCRIPTION_LENGTH = 255;
+
+    @EJB
+    private LocaleBean localeBean;
 
     @Resource
     private SessionContext sessionContext;
@@ -141,7 +141,7 @@ public class LogBean extends AbstractBean {
                         for (StringCulture ns : na.getLocalizedValues()) {
                             if (ns.getValue() != null) {
                                 logChanges.add(new LogChange(na.getAttributeId(), null, strategy.getAttributeLabel(na, locale),
-                                        null, ns.getValue(), ns.getLocale()));
+                                        null, ns.getValue(), localeBean.getLocale(ns.getLocaleId()).getLanguage()));
                             }
                         }
                     }
@@ -162,13 +162,13 @@ public class LogBean extends AbstractBean {
                             for (StringCulture os : oa.getLocalizedValues()) {
                                 if (na.getLocalizedValues() != null) {
                                     for (StringCulture ns : na.getLocalizedValues()) {
-                                        if (os.getLocale().equals(ns.getLocale())) {
+                                        if (os.getLocaleId().equals(ns.getLocaleId())) {
                                             if (!StringUtil.equal(os.getValue(), ns.getValue())) {
                                                 logChanges.add(new LogChange(na.getAttributeId(), null,
                                                         strategy.getAttributeLabel(na, locale),
                                                         os.getValue(),
                                                         ns.getValue(),
-                                                        ns.getLocale()));
+                                                        localeBean.getLocale(ns.getLocaleId()).getLanguage()));
                                             }
                                         }
                                     }

@@ -160,10 +160,10 @@ public class BuildingStrategy extends AbstractStrategy {
         DomainObjectExample addressExample = new DomainObjectExample();
         addressExample.setAsc(buildingExample.isAsc());
         addressExample.setComparisonType(buildingExample.getComparisonType());
-        addressExample.setLocale(buildingExample.getLocale());
+        addressExample.setLocaleId(buildingExample.getLocaleId());
         addressExample.setOrderByAttributeTypeId(buildingExample.getOrderByAttributeTypeId());
         if (!Strings.isEmpty(buildingExample.getOrderByExpression())) {
-            addressExample.setOrderByExpression(buildingAddressStrategy.getOrderByExpression("e.`object_id`", buildingExample.getLocale(), null));
+            addressExample.setOrderByExpression(buildingAddressStrategy.getOrderByExpression("e.`object_id`", buildingExample.getLocaleId(), null));
         }
         addressExample.setStart(buildingExample.getStart());
         addressExample.setSize(buildingExample.getSize());
@@ -306,7 +306,7 @@ public class BuildingStrategy extends AbstractStrategy {
 
     @Override
     public IValidator getValidator() {
-        return new BuildingValidator(this, new Locale(localeBean.getSystemLocale()), stringBean);
+        return new BuildingValidator(this, localeBean.getSystemLocale(), stringBean);
     }
 
     @Override
@@ -355,7 +355,7 @@ public class BuildingStrategy extends AbstractStrategy {
         params.put("structure", structure);
         params.put("parentEntityId", parentEntityId);
         params.put("parentId", parentId);
-        params.put("locale", locale.getLanguage());
+        params.put("localeId", localeBean.convert(locale).getId());
         List<Long> buildingIds = sqlSession().selectList(BUILDING_NAMESPACE + ".checkBuildingAddress", params);
         for (Long buildingId : buildingIds) {
             if (!buildingId.equals(id)) {
@@ -479,12 +479,12 @@ public class BuildingStrategy extends AbstractStrategy {
     }
 
     @Override
-    public String getOrderByExpression(String objectIdReference, String locale, Map<String, Object> params) {
+    public String getOrderByExpression(String objectIdReference, Long localeId, Map<String, Object> params) {
         StringBuilder orderByBuilder = new StringBuilder();
         orderByBuilder.append("(SELECT sc.`value` FROM `building` b "
                 + "JOIN `building_address` addr ON (b.`parent_id` = addr.`object_id` AND addr.`status` IN ('ACTIVE', 'INACTIVE')) "
                 + "JOIN `building_address_attribute` num ON (num.`object_id` = addr.`object_id` AND num.`status` = 'ACTIVE' AND num.`attribute_type_id` = 1500) "
-                + "JOIN `building_address_string_culture` sc ON (num.`value_id` = sc.`id` AND sc.`locale` = '").append(locale).append("')").
+                + "JOIN `building_address_string_culture` sc ON (num.`value_id` = sc.`id` AND sc.`locale_id` = ").append(localeId).append(")").
                 append(" WHERE (b.`status` IN ('ACTIVE', 'INACTIVE')) AND b.`object_id` = ").append(objectIdReference).append(")");
         return orderByBuilder.toString();
     }

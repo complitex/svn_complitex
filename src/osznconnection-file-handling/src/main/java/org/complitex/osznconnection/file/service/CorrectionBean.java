@@ -18,8 +18,8 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
+import org.complitex.dictionaryfw.service.LocaleBean;
 
 /**
  * Обобщенный класс для работы с коррекциями.
@@ -34,6 +34,9 @@ public class CorrectionBean extends AbstractBean {
 
     @EJB(beanName = "StrategyFactory")
     protected StrategyFactory strategyFactory;
+
+    @EJB
+    private LocaleBean localeBean;
 
     public static enum OrderBy {
 
@@ -60,7 +63,7 @@ public class CorrectionBean extends AbstractBean {
         List<Correction> results = sqlSession().selectList(queryId, example);
         for (Correction correction : results) {
             DomainObject object = strategy.findById(correction.getObjectId());
-            correction.setDisplayObject(strategy.displayDomainObject(object, new Locale(example.getLocale())));
+            correction.setDisplayObject(strategy.displayDomainObject(object, localeBean.convert(localeBean.getLocale(example.getLocaleId()))));
         }
         return results;
     }

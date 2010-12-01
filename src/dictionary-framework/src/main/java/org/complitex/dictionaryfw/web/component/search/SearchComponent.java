@@ -31,6 +31,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.complitex.dictionaryfw.service.LocaleBean;
 
 /**
  *
@@ -67,6 +68,9 @@ public final class SearchComponent extends Panel {
 
     @EJB(name = "StrategyFactory")
     private StrategyFactory strategyFactory;
+
+    @EJB(name = "LocaleBean")
+    private LocaleBean localeBean;
 
     private static final int AUTO_COMPLETE_SIZE = 10;
 
@@ -363,12 +367,12 @@ public final class SearchComponent extends Panel {
         DomainObjectExample example = new DomainObjectExample();
         strategy.configureExample(example, SearchComponent.<Long>transformObjects(previousInfo), searchTextInput);
         if (comparisonType == ComparisonType.LIKE) {
-            example.setOrderByExpression(strategy.getOrderByExpression("e.`object_id`", getLocale().getLanguage(),
+            example.setOrderByExpression(strategy.getOrderByExpression("e.`object_id`", localeBean.convert(getLocale()).getId(),
                     transformObjects(previousInfo)));
             example.setAsc(true);
         }
         example.setSize(size);
-        example.setLocale(getLocale().getLanguage());
+        example.setLocaleId(localeBean.convert(getLocale()).getId());
         example.setComparisonType(comparisonType.name());
         return strategy.find(example);
     }

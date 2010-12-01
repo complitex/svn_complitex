@@ -1,10 +1,12 @@
 package org.complitex.dictionaryfw.entity;
 
+import java.io.Serializable;
+
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 29.11.10 17:17
  */
-public class Preference {
+public class Preference implements Serializable {
     private Long id;
     private Long userId;
     private String page;

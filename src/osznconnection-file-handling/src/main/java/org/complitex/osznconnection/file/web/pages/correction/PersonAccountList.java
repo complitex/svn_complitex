@@ -25,6 +25,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.util.string.Strings;
+import org.complitex.dictionaryfw.service.LocaleBean;
 import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
 import org.complitex.osznconnection.commons.web.security.SecurityRole;
@@ -46,6 +47,9 @@ public class PersonAccountList extends TemplatePage {
 
     @EJB(name = "OrganizationStrategy")
     private OrganizationStrategy organizationStrategy;
+
+    @EJB(name = "LocaleBean")
+    private LocaleBean localeBean;
 
     private IModel<PersonAccountExample> example;
 
@@ -84,7 +88,7 @@ public class PersonAccountList extends TemplatePage {
                 }
                 example.getObject().setStart(first);
                 example.getObject().setSize(count);
-                example.getObject().setLocale(getLocale().getLanguage());
+                example.getObject().setLocaleId(localeBean.convert(getLocale()).getId());
                 return personAccountLocalBean.find(example.getObject()).iterator();
             }
 
@@ -170,10 +174,11 @@ public class PersonAccountList extends TemplatePage {
         filterForm.add(new ArrowOrderByBorder("accountNumberHeader", PersonAccountLocalBean.OrderBy.ACCOUNT_NUMBER.getOrderBy(), dataProvider,
                 data, content));
         filterForm.add(new ArrowOrderByBorder("ownNumSrHeader", PersonAccountLocalBean.OrderBy.OWN_NUM_SR.getOrderBy(), dataProvider, data, content));
-        filterForm.add(new ArrowOrderByBorder("osznHeader", organizationStrategy.getOrderByExpression("pa.`oszn_id`", getLocale().getLanguage(), null),
-                dataProvider, data, content));
+        filterForm.add(new ArrowOrderByBorder("osznHeader",
+                organizationStrategy.getOrderByExpression("pa.`oszn_id`", localeBean.convert(getLocale()).getId(), null), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("calculationCenterHeader",
-                organizationStrategy.getOrderByExpression("pa.`calc_center_id`", getLocale().getLanguage(), null), dataProvider, data, content));
+                organizationStrategy.getOrderByExpression("pa.`calc_center_id`", localeBean.convert(getLocale()).getId(), null), dataProvider, data,
+                content));
 
         content.add(new PagingNavigator("navigator", data, getClass().getName(), content));
     }

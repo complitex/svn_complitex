@@ -50,6 +50,7 @@ import javax.ejb.EJB;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import org.complitex.dictionaryfw.service.LocaleBean;
 
 /**
  *
@@ -62,6 +63,9 @@ public class DomainObjectListPanel extends Panel {
 
     @EJB(name = "StringCultureBean")
     private StringCultureBean stringBean;
+
+    @EJB(name = "LocaleBean")
+    private LocaleBean localeBean;
 
     private String entity;
 
@@ -181,7 +185,7 @@ public class DomainObjectListPanel extends Panel {
                 }
 
                 example.setStatus(showModeModel.getObject().name());
-                example.setLocale(getLocale().getLanguage());
+                example.setLocaleId(localeBean.convert(getLocale()).getId());
                 example.setAsc( getSort().isAscending());
                 example.setStart(first);
                 example.setSize(count);
@@ -191,7 +195,7 @@ public class DomainObjectListPanel extends Panel {
             @Override
             public int size() {
                 example.setStatus(showModeModel.getObject().name());
-                example.setLocale(getLocale().getLanguage());
+                example.setLocaleId(localeBean.convert(getLocale()).getId());
                 return getStrategy().count(example);
             }
 

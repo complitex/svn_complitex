@@ -20,35 +20,20 @@ import java.util.Map;
 public class DomainObjectExample implements Serializable {
 
     private String table;
-
     private int start;
-
     private int size;
-
-    private String locale;
-
+    private Long localeId;
     private Long orderByAttributeTypeId;
-
     private String orderByExpression;
-
     private boolean asc;
-
     private Long id;
-
     private String parentEntity;
-
     private Long parentId;
-
     private Date startDate;
-
     private Map<String, Object> additionalParams;
-
     private Long entityTypeId;
-
     private String comparisonType = ComparisonType.LIKE.name();
-
     private List<AttributeExample> attributeExamples = new ArrayList<AttributeExample>();
-
     private String status = ShowMode.ALL.name();
 
     public DomainObjectExample() {
@@ -74,12 +59,12 @@ public class DomainObjectExample implements Serializable {
         this.start = start;
     }
 
-    public String getLocale() {
-        return locale;
+    public Long getLocaleId() {
+        return localeId;
     }
 
-    public void setLocale(String locale) {
-        this.locale = locale;
+    public void setLocaleId(Long localeId) {
+        this.localeId = localeId;
     }
 
     public String getTable() {
@@ -118,9 +103,9 @@ public class DomainObjectExample implements Serializable {
         return attributeExamples;
     }
 
-    public AttributeExample getAttributeExample(long attributeTypeId){
-        for(AttributeExample attrExample : attributeExamples){
-            if(attrExample.getAttributeTypeId().equals(attributeTypeId)){
+    public AttributeExample getAttributeExample(long attributeTypeId) {
+        for (AttributeExample attrExample : attributeExamples) {
+            if (attrExample.getAttributeTypeId().equals(attributeTypeId)) {
                 return attrExample;
             }
         }
@@ -166,7 +151,7 @@ public class DomainObjectExample implements Serializable {
         additionalParams.put(key, value);
     }
 
-    public Object getAdditionalParam(String key){
+    public Object getAdditionalParam(String key) {
         return additionalParams != null ? additionalParams.get(key) : null;
     }
 

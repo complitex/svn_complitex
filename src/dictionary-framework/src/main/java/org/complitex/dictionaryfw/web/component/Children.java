@@ -25,6 +25,7 @@ import org.complitex.dictionaryfw.strategy.web.CanEditUtil;
 
 import javax.ejb.EJB;
 import java.util.List;
+import org.complitex.dictionaryfw.service.LocaleBean;
 
 /**
  *
@@ -34,6 +35,9 @@ public final class Children extends Panel {
 
     @EJB(name = "StrategyFactory")
     private StrategyFactory strategyFactory;
+
+    @EJB(name = "LocaleBean")
+    private LocaleBean localeBean;
 
     private String childEntity;
 
@@ -105,7 +109,7 @@ public final class Children extends Panel {
             @Override
             protected List<? extends DomainObject> load() {
                 DomainObjectExample example = new DomainObjectExample();
-                example.setLocale(getLocale().getLanguage());
+                example.setLocaleId(localeBean.convert(getLocale()).getId());
                 getStrategy().configureExample(example, ImmutableMap.of(parentEntity, parentObject.getId()), null);
                 return getStrategy().find(example);
             }

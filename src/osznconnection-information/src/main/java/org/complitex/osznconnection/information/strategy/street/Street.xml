@@ -30,7 +30,7 @@
                                     JOIN `street_attribute` a_name ON (s.`object_id` = a_name.`object_id` AND a_name.`status` = 'ACTIVE')
                                     JOIN `street_attribute` a_type ON (s.`object_id` = a_type.`object_id` AND a_type.`status` = 'ACTIVE')
                                     JOIN `street_string_culture` sc ON (a_name.`value_id` = sc.`id`)
-            WHERE (s.`status` IN ('ACTIVE', 'INACTIVE')) AND sc.`locale` = #{locale} AND a_name.`attribute_type_id` = 300
+            WHERE (s.`status` IN ('ACTIVE', 'INACTIVE')) AND sc.`locale_id` = #{localeId} AND a_name.`attribute_type_id` = 300
             AND a_type.`attribute_type_id` = 301
             AND sc.`value` = #{text}
             <choose>

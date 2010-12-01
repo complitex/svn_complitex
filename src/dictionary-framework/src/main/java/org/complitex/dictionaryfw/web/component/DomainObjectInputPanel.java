@@ -25,7 +25,6 @@ import org.complitex.dictionaryfw.entity.StringCulture;
 import org.complitex.dictionaryfw.entity.description.Entity;
 import org.complitex.dictionaryfw.entity.description.EntityAttributeType;
 import org.complitex.dictionaryfw.entity.description.EntityType;
-import org.complitex.dictionaryfw.service.EntityBean;
 import org.complitex.dictionaryfw.service.StringCultureBean;
 import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
@@ -84,9 +83,6 @@ public class DomainObjectInputPanel extends Panel {
 
     @EJB(name = "StringCultureBean")
     private StringCultureBean stringBean;
-
-    @EJB(name = "EntityBean")
-    private EntityBean entityBean;
 
     private SearchComponentState searchComponentState;
 
@@ -163,7 +159,6 @@ public class DomainObjectInputPanel extends Panel {
     }
 
     private void init() {
-//        final Entity description = isHistory() ? entityBean.getEntity(entity) : getStrategy().getEntity();
         final Entity description = getStrategy().getEntity();
 
         //entity type
@@ -252,17 +247,6 @@ public class DomainObjectInputPanel extends Panel {
                 if(getStrategy().isSimpleAttributeType(attrType)){
                     attrToTypeMap.put(attr, attrType);
                 }
-//            try {
-//                EntityAttributeType attrDesc = Iterables.find(description.getEntityAttributeTypes(), new Predicate<EntityAttributeType>() {
-//
-//                    @Override
-//                    public boolean apply(EntityAttributeType attrDesc) {
-//                        return attrDesc.getId().equals(attr.getAttributeTypeId()) && getStrategy().isSimpleAttributeType(attrDesc);
-//                    }
-//                });
-//                attrToTypeMap.put(attr, attrDesc);
-//            } catch (NoSuchElementException e) {
-//            }
         }
 
         ListView<Attribute> simpleAttributes = new ListView<Attribute>("simpleAttributes", Lists.newArrayList(attrToTypeMap.keySet())) {

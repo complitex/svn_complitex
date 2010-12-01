@@ -30,7 +30,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -213,10 +212,6 @@ public abstract class TemplatePage extends WebPage {
 
     protected String getStringOrKey(Enum key) {
         return key != null ? getStringOrKey(key.name()) : "";
-    }
-
-    public Locale getSystemLocale() {
-        return getLocale();
     }
 
     protected String getStringFormat(String key, Object... args){

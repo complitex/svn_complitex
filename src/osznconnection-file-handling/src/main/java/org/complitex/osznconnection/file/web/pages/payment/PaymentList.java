@@ -106,7 +106,6 @@ public final class PaymentList extends TemplatePage {
                 }
                 example.getObject().setStart(first);
                 example.getObject().setSize(count);
-                example.getObject().setLocale(getLocale().getLanguage());
                 return paymentBean.find(example.getObject()).iterator();
             }
 

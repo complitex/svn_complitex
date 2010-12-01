@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import org.complitex.dictionaryfw.service.LocaleBean;
+import org.complitex.dictionaryfw.util.EjbBeanLocator;
 
 /**
  *
@@ -23,6 +25,8 @@ public class DictionaryFwSession extends WebSession {
     private Map<String, Map<String, Preference>> preferences = new HashMap<String, Map<String, Preference>>();
 
     private ISessionStorage sessionStorage;
+
+    private LocaleBean localeBean = EjbBeanLocator.getBean(LocaleBean.class);
 
     public SearchComponentSessionState getSearchComponentSessionState() {
         return searchComponentSessionState;
@@ -124,6 +128,18 @@ public class DictionaryFwSession extends WebSession {
         }
     }
 
+    public Long getPreferenceLong(String page, String key){
+        try {
+            return Long.valueOf(getPreferenceString(page, key));
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    public Long getPreferenceLong(Class page, Enum key){
+        return getPreferenceLong(page.getName(), key.name());
+    }
+
     public Boolean getPreferenceBoolean(String page, String key){
         return Boolean.valueOf(getPreferenceString(page, key));
     }
@@ -152,20 +168,23 @@ public class DictionaryFwSession extends WebSession {
 
     @Override
     public Locale getLocale() {
-        Locale locale = super.getLocale();
-        String language = getPreferenceString(LOCALE_PAGE, LOCALE_KEY);
-
-        if (language != null && !locale.getLanguage().equals(language)){
-            super.setLocale(new Locale(language));
+        Long localeId = getPreferenceLong(LOCALE_PAGE, LOCALE_KEY);
+        if(localeId != null){
+            Locale superLocale = super.getLocale();
+            Locale preferenceLocale = localeBean.convert(localeBean.getLocale(localeId));
+            if(!superLocale.equals(preferenceLocale)){
+                super.setLocale(preferenceLocale);
+            }
+        } else {
+            super.setLocale(localeBean.getSystemLocale());
         }
-
+        
         return super.getLocale();
     }
 
     @Override
     public void setLocale(Locale locale) {
-        putPreference(LOCALE_PAGE, LOCALE_KEY, locale.getLanguage(), true);
-
+        putPreference(LOCALE_PAGE, LOCALE_KEY, String.valueOf(localeBean.convert(locale).getId()), true);
         super.setLocale(locale);
     }
 }

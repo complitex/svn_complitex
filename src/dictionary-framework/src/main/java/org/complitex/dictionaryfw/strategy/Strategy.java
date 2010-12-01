@@ -6,7 +6,6 @@ import com.google.common.collect.*;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.util.string.Strings;
-import org.complitex.dictionaryfw.entity.*;
 import org.complitex.dictionaryfw.entity.description.Entity;
 import org.complitex.dictionaryfw.entity.description.EntityAttributeType;
 import org.complitex.dictionaryfw.entity.description.EntityAttributeValueType;
@@ -26,6 +25,14 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import java.util.*;
+import org.complitex.dictionaryfw.entity.Attribute;
+import org.complitex.dictionaryfw.entity.DomainObject;
+import org.complitex.dictionaryfw.entity.History;
+import org.complitex.dictionaryfw.entity.Parameter;
+import org.complitex.dictionaryfw.entity.SimpleTypes;
+import org.complitex.dictionaryfw.entity.StatusType;
+import org.complitex.dictionaryfw.entity.StringCulture;
+import org.complitex.dictionaryfw.service.LocaleBean;
 import org.complitex.dictionaryfw.util.DateUtil;
 
 /**
@@ -71,6 +78,9 @@ public abstract class Strategy extends AbstractBean {
 
     @EJB(beanName = "EntityBean")
     private EntityBean entityBean;
+
+    @EJB
+    private LocaleBean localeBean;
 
     public abstract String getEntityTable();
 
@@ -318,7 +328,7 @@ public abstract class Strategy extends AbstractBean {
                                 for (StringCulture oldString : oldAttr.getLocalizedValues()) {
                                     for (StringCulture newString : newAttr.getLocalizedValues()) {
                                         //compare strings
-                                        if (oldString.getLocale().equals(newString.getLocale())) {
+                                        if (oldString.getLocaleId().equals(newString.getLocaleId())) {
                                             if (!Strings.isEqual(oldString.getValue(), newString.getValue())) {
                                                 valueChanged = true;
                                                 break;
@@ -680,10 +690,10 @@ public abstract class Strategy extends AbstractBean {
         return getEntity().getId();
     }
 
-    public String getOrderByExpression(String objectIdReference, String locale, Map<String, Object> params) {
+    public String getOrderByExpression(String objectIdReference, Long localeId, Map<String, Object> params) {
         StringBuilder orderByBuilder = new StringBuilder();
-        orderByBuilder.append("(SELECT sc.`value` FROM `").append(getEntityTable()).append("_string_culture` sc WHERE sc.`locale` = '").
-                append(locale).append("' AND sc.`id` = (SELECT orderByAttr.`value_id` FROM `").
+        orderByBuilder.append("(SELECT sc.`value` FROM `").append(getEntityTable()).append("_string_culture` sc WHERE sc.`locale_id` = ").
+                append(localeId).append(" AND sc.`id` = (SELECT orderByAttr.`value_id` FROM `").
                 append(getEntityTable()).append("_attribute` orderByAttr WHERE orderByAttr.`object_id` = ").append(objectIdReference).
                 append(" AND orderByAttr.`status` = 'ACTIVE' AND orderByAttr.`attribute_type_id` = ").
                 append(getDefaultOrderByAttributeId()).append("))");
@@ -726,7 +736,7 @@ public abstract class Strategy extends AbstractBean {
 
         Map<String, Object> params = Maps.newHashMap();
         params.put("entity", getEntityTable());
-        params.put("locale", locale.getLanguage());
+        params.put("localeId", localeBean.convert(locale).getId());
         params.put("attributeTypeId", attributeTypeId);
         params.put("text", text);
         params.put("parentId", object.getParentId());

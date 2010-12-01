@@ -87,16 +87,16 @@
         SELECT pa.`id`, pa.`city`, pa.`street`, pa.`building_num` buildingNumber, pa.`building_corp` buildingCorp, pa.`apartment`,
                 pa.`first_name` firstName, pa.`middle_name` middleName, pa.`last_name` lastName, pa.`own_num_sr` ownNumSr,
                 pa.`account_number` accountNumber,
-                IFNULL((SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale` = #{locale} AND osc.`id` IN
+                IFNULL((SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale_id` = #{localeId} AND osc.`id` IN
                 (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE' AND oa.`object_id` = pa.`oszn_id`
                 AND oa.`attribute_type_id` = 900)),
-                (SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale` = (SELECT l.`locale` FROM `locales` l WHERE l.`system` = 1)
+                (SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale_id` = (SELECT l.`id` FROM `locales` l WHERE l.`system` = 1)
                 AND osc.`id` IN (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE' AND oa.`object_id` = pa.`oszn_id`
                 AND oa.`attribute_type_id` = 900))) oszn,
-                IFNULL((SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale` = #{locale} AND osc.`id` IN
+                IFNULL((SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale_id` = #{localeId} AND osc.`id` IN
                 (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE' AND oa.`object_id` = pa.`calc_center_id`
                 AND oa.`attribute_type_id` = 900)),
-                (SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale` = (SELECT l.`locale` FROM `locales` l WHERE l.`system` = 1)
+                (SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale_id` = (SELECT l.`id` FROM `locales` l WHERE l.`system` = 1)
                  AND osc.`id` IN (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE'
                     AND oa.`object_id` = pa.`calc_center_id`
                     AND oa.`attribute_type_id` = 900))) calculationCenter

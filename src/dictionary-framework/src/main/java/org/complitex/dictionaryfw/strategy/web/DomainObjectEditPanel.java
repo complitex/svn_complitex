@@ -5,7 +5,6 @@
 package org.complitex.dictionaryfw.strategy.web;
 
 import org.complitex.dictionaryfw.strategy.web.validate.IValidator;
-import java.util.Date;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -186,7 +185,7 @@ public class DomainObjectEditPanel extends Panel {
             }
 
             logBean.log(Log.STATUS.OK, Module.NAME, DomainObjectEditPanel.class,
-                    isNew() ? Log.EVENT.CREATE :  Log.EVENT.EDIT, getStrategy(),
+                    isNew() ? Log.EVENT.CREATE : Log.EVENT.EDIT, getStrategy(),
                     oldObject, newObject, getLocale(), null);
 
             //todo: add catch database exception

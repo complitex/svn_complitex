@@ -17,7 +17,6 @@ import org.complitex.dictionaryfw.service.LocaleBean;
 
 import javax.ejb.EJB;
 import java.util.List;
-import java.util.Locale;
 
 /**
  *
@@ -25,8 +24,8 @@ import java.util.Locale;
  */
 public class StringCulturePanel extends Panel {
 
-    @EJB(name = "LocaleDao")
-    private LocaleBean localeDao;
+    @EJB(name = "LocaleBean")
+    private LocaleBean localeBean;
 
     /**
      * For use in non-ajax environment
@@ -57,22 +56,22 @@ public class StringCulturePanel extends Panel {
     }
 
     protected void init(IModel<List<StringCulture>> model, final boolean required, final IModel<String> labelModel, final boolean enabled,
-            final MarkupContainer[] toUpdate){
+            final MarkupContainer[] toUpdate) {
         add(new ListView<StringCulture>("strings", model) {
 
             @Override
             protected void populateItem(ListItem<StringCulture> item) {
-                StringCulture culture = item.getModelObject();
+                StringCulture string = item.getModelObject();
 
-                Label lang = new Label("lang", new Locale(culture.getLocale()).getDisplayLanguage(getLocale()));
-                item.add(lang);
+                Label language = new Label("language", localeBean.convert(localeBean.getLocale(string.getLocaleId())).getDisplayLanguage(getLocale()));
+                item.add(language);
 
                 boolean isSystemLocale = false;
-                if (new Locale(culture.getLocale()).getLanguage().equalsIgnoreCase(new Locale(localeDao.getSystemLocale()).getLanguage())) {
+                if (localeBean.getLocale(string.getLocaleId()).isSystem()) {
                     isSystemLocale = true;
                 }
 
-                InputPanel<String> inputPanel = new InputPanel("inputPanel", new PropertyModel<String>(culture, "value"),
+                InputPanel<String> inputPanel = new InputPanel("inputPanel", new PropertyModel<String>(string, "value"),
                         String.class, required && isSystemLocale, labelModel, enabled, toUpdate);
                 item.add(inputPanel);
 

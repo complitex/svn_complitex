@@ -101,7 +101,6 @@ public final class BenefitList extends TemplatePage {
                 }
                 example.getObject().setStart(first);
                 example.getObject().setSize(count);
-                example.getObject().setLocale(getLocale().getLanguage());
                 return benefitBean.find(example.getObject()).iterator();
             }
 
