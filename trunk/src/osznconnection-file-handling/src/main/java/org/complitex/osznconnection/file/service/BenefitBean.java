@@ -108,8 +108,8 @@ public class BenefitBean extends AbstractBean {
      * @param paymentId
      */
     @Transactional
-    public void addressCorrected(long paymentId) {
-        sqlSession().update(MAPPING_NAMESPACE + ".addressCorrected", paymentId);
+    public void markCorrected(long paymentFileId) {
+        sqlSession().update(MAPPING_NAMESPACE + ".markCorrected", paymentFileId);
     }
 
     /**

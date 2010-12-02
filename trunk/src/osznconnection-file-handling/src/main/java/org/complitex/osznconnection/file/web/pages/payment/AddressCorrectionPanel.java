@@ -13,11 +13,9 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.LoadableDetachableModel;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.entity.example.DomainObjectExample;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
-import org.complitex.dictionaryfw.web.component.search.ISearchCallback;
 import org.complitex.dictionaryfw.web.component.search.SearchComponent;
 import org.complitex.dictionaryfw.web.component.search.SearchComponentState;
 import org.complitex.osznconnection.file.entity.Payment;
@@ -30,9 +28,9 @@ import org.odlabs.wiquery.ui.core.JsScopeUiEvent;
 import org.odlabs.wiquery.ui.dialog.Dialog;
 
 import javax.ejb.EJB;
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import org.apache.wicket.model.AbstractReadOnlyModel;
 
 /**
  * Панель для корректировки адреса вручную, когда нет соответствующей коррекции и поиск по локальной адресной базе не дал результатов.
@@ -40,31 +38,24 @@ import java.util.Map;
  */
 public class AddressCorrectionPanel extends Panel {
 
+    private enum CORRECTED_ENTITY {
+
+        CITY, STREET, BUILDING;
+    }
+    
     @EJB(name = "StrategyFactory")
     private StrategyFactory strategyFactory;
 
     @EJB(name = "AddressService")
     private AddressService addressService;
-
-    private String searchAddressEntity;
-
+    
+    private CORRECTED_ENTITY correctedEntity;
     private Dialog dialog;
-
     private SearchComponent searchComponent;
     private SearchComponentState componentState;
-
     private FeedbackPanel messages;
-
     private WebMarkupContainer container;
-
     private Payment payment;
-
-    private static class FakeSearchCallback implements ISearchCallback, Serializable {
-
-        @Override
-        public void found(SearchComponent component, Map<String, Long> ids, AjaxRequestTarget target) {
-        }
-    }
 
     public AddressCorrectionPanel(String id, final MarkupContainer... toUpdate) {
         super(id);
@@ -82,7 +73,8 @@ public class AddressCorrectionPanel extends Panel {
 
         //Контейнер для ajax
         container = new WebMarkupContainer("container");
-        container.setOutputMarkupId(true);
+        container.setOutputMarkupPlaceholderTag(true);
+        container.setVisible(false);
         dialog.add(container);
 
         //Панель обратной связи
@@ -90,28 +82,20 @@ public class AddressCorrectionPanel extends Panel {
         messages.setOutputMarkupId(true);
         container.add(messages);
 
-        container.add(new Label("name", new LoadableDetachableModel<String>() {
+        container.add(new Label("name", new AbstractReadOnlyModel<String>() {
 
             @Override
-            protected String load() {
-                if (payment == null) {
-                    return "";
-                }
-
+            public String getObject() {
                 return payment.getField(PaymentDBF.SUR_NAM) + " "
                         + payment.getField(PaymentDBF.F_NAM) + " "
                         + payment.getField(PaymentDBF.M_NAM);
             }
         }));
 
-        container.add(new Label("address", new LoadableDetachableModel<String>() {
+        container.add(new Label("address", new AbstractReadOnlyModel<String>() {
 
             @Override
-            protected String load() {
-                if (payment == null) {
-                    return "";
-                }
-
+            public String getObject() {
                 return payment.getField(PaymentDBF.N_NAME) + ", "
                         + payment.getField(PaymentDBF.VUL_NAME) + ", "
                         + BuildingFormatter.formatBuilding((String) payment.getField(PaymentDBF.BLD_NUM),
@@ -120,13 +104,9 @@ public class AddressCorrectionPanel extends Panel {
             }
         }));
 
-        searchAddressEntity = "apartment";
-
         componentState = new SearchComponentState();
-
-        searchComponent = new SearchComponent("searchComponent", componentState, initFilters(), new FakeSearchCallback());
-        searchComponent.setOutputMarkupPlaceholderTag(true);
-
+        // at start create fake search component
+        searchComponent = new SearchComponent("searchComponent", componentState, ImmutableList.of(""), null, true);
         container.add(searchComponent);
 
         AjaxLink save = new AjaxLink("save") {
@@ -134,20 +114,18 @@ public class AddressCorrectionPanel extends Panel {
             @Override
             public void onClick(AjaxRequestTarget target) {
                 if (validate(componentState)) {
-                    closeDialog(target);
-
                     correctAddress(getObjectId(componentState.get("city")),
                             getObjectId(componentState.get("street")),
                             getStreetTypeId(componentState.get("street")),
                             getObjectId(componentState.get("building")),
                             getObjectId(componentState.get("apartment")));
 
-
                     if (toUpdate != null) {
                         for (MarkupContainer container : toUpdate) {
                             target.addComponent(container);
                         }
                     }
+                    closeDialog(target);
                 } else {
                     target.addComponent(messages);
                 }
@@ -165,25 +143,6 @@ public class AddressCorrectionPanel extends Panel {
         container.add(cancel);
     }
 
-    private void init(Payment payment){
-        this.payment = payment;
-
-        Long cityId = payment.getInternalCityId();
-        Long streetId = payment.getInternalStreetId();
-        Long buildingId = payment.getInternalBuildingId();
-        Long apartmentId = payment.getInternalApartmentId();
-
-        searchAddressEntity = initSearchAddressEntity(cityId, streetId, buildingId);
-
-        componentState = initSearchComponentState(cityId, streetId, buildingId, apartmentId);
-
-        searchComponent = new SearchComponent("searchComponent", componentState, initFilters(), new FakeSearchCallback());
-
-        //todo update SearchComponent object
-        container.remove("searchComponent");
-        container.add(searchComponent);
-    }
-
     private static Long getObjectId(DomainObject object) {
         return object == null ? null : object.getId();
     }
@@ -192,103 +151,99 @@ public class AddressCorrectionPanel extends Panel {
         return streetObject == null ? null : StreetStrategy.getStreetType(streetObject);
     }
 
-    protected void correctAddress(Long cityId, Long streetId, Long streetTypeId, Long buildingId, Long apartmentId){
+    protected void correctAddress(Long cityId, Long streetId, Long streetTypeId, Long buildingId, Long apartmentId) {
         addressService.correctLocalAddress(payment, cityId, streetId, streetTypeId, buildingId);
     }
 
     protected boolean validate(SearchComponentState componentState) {
-        boolean validated = componentState.get(searchAddressEntity) != null && componentState.get(searchAddressEntity).getId() > 0;
+        boolean validated = true;
+        switch (correctedEntity) {
+            case BUILDING:
+                DomainObject building = componentState.get("building");
+                validated &= building != null && building.getId() != null && building.getId() > 0;
+            case STREET:
+                DomainObject street = componentState.get("street");
+                validated &= street != null && street.getId() != null && street.getId() > 0;
+            case CITY:
+                DomainObject city = componentState.get("city");
+                validated = city != null && city.getId() != null && city.getId() > 0;
+                break;
+        }
         if (!validated) {
             error(getString("address_mistake"));
         }
         return validated;
     }
 
-    private SearchComponentState initSearchComponentState(Long cityId, Long streetId, Long buildingId, Long apartmentId) {
-        SearchComponentState componentState = new SearchComponentState();
-
+    private void initSearchComponentState(SearchComponentState componentState) {
+        componentState.clear();
         Map<String, Long> ids = Maps.newHashMap();
-        if (cityId == null) {
-            return componentState;
-        } else {
-            ids.put("city", cityId);
-            componentState.put("city", findObject(cityId, "city", ids));
-        }
-        if (streetId == null) {
-            return componentState;
-        } else {
-            ids.put("street", streetId);
-            componentState.put("street", findObject(streetId, "street", ids));
-        }
-        if (buildingId == null) {
-            return componentState;
-        } else {
-            ids.put("building", buildingId);
-            componentState.put("building", findObject(buildingId, "building", ids));
-        }
-        if (apartmentId == null) {
-            return componentState;
-        } else {
-            ids.put("apartment", apartmentId);
-            componentState.put("apartment", findObject(apartmentId, "apartment", ids));
+
+        if (payment.getInternalCityId() != null) {
+            ids.put("city", payment.getInternalCityId());
+            componentState.put("city", findObject(payment.getInternalCityId(), "city", ids));
         }
 
-        return componentState;
+        if (payment.getInternalStreetId() != null) {
+            ids.put("street", payment.getInternalStreetId());
+            componentState.put("street", findObject(payment.getInternalStreetId(), "street", ids));
+        }
+
+        if (payment.getInternalBuildingId() != null) {
+            ids.put("building", payment.getInternalBuildingId());
+            componentState.put("building", findObject(payment.getInternalBuildingId(), "building", ids));
+        }
     }
 
     private DomainObject findObject(Long objectId, String entity, Map<String, Long> ids) {
-        DomainObject object = null;
-        DomainObjectExample example = new DomainObjectExample();
-        example.setId(objectId);
+        DomainObjectExample example = new DomainObjectExample(objectId);
         strategyFactory.getStrategy(entity).configureExample(example, ids, null);
         List<? extends DomainObject> objects = strategyFactory.getStrategy(entity).find(example);
         if (objects != null && !objects.isEmpty()) {
-            object = objects.get(0);
+            return objects.get(0);
         }
-        return object;
+        return null;
     }
 
-    protected List<SearchComponent.SearchFilterSettings> initFilters() {
-        if (searchAddressEntity.equalsIgnoreCase("city")) {
-            return ImmutableList.of(new SearchComponent.SearchFilterSettings("city", true));
+    protected List<String> initFilters() {
+        switch (correctedEntity) {
+            case CITY:
+                return ImmutableList.of("city");
+            case STREET:
+                return ImmutableList.of("city", "street");
+            default:
+                return ImmutableList.of("city", "street", "building");
         }
-        if (searchAddressEntity.equalsIgnoreCase("street")) {
-            return ImmutableList.of(new SearchComponent.SearchFilterSettings("city", true),
-                    new SearchComponent.SearchFilterSettings("street", true));
-        }
-        if (searchAddressEntity.equalsIgnoreCase("building")) {
-            return ImmutableList.of(new SearchComponent.SearchFilterSettings("city", true),
-                    new SearchComponent.SearchFilterSettings("street", true),
-                    new SearchComponent.SearchFilterSettings("building", true));
-        }
-        return ImmutableList.of(new SearchComponent.SearchFilterSettings("city", true),
-                new SearchComponent.SearchFilterSettings("street", true),
-                new SearchComponent.SearchFilterSettings("building", true),
-                new SearchComponent.SearchFilterSettings("apartment", true));
     }
 
-    protected String initSearchAddressEntity(Long cityId, Long streetId, Long buildingId) {
-        if (cityId == null) {
-            return "city";
+    protected void initCorrectedEntity() {
+        if (payment.getInternalCityId() == null) {
+            correctedEntity = CORRECTED_ENTITY.CITY;
+            return;
         }
-        if (streetId == null) {
-            return "street";
+        if (payment.getInternalStreetId() == null) {
+            correctedEntity = CORRECTED_ENTITY.STREET;
+            return;
         }
-        if (buildingId == null) {
-            return "building";
-        }
-        return "apartment";
+        correctedEntity = CORRECTED_ENTITY.BUILDING;
     }
 
     private void closeDialog(AjaxRequestTarget target) {
+        container.setVisible(false);
+        target.addComponent(container);
         dialog.close(target);
     }
 
     public void open(AjaxRequestTarget target, Payment payment) {
-        init(payment);
+        this.payment = payment;
 
+        initCorrectedEntity();
+        initSearchComponentState(componentState);
+        SearchComponent newSearchComponent = new SearchComponent("searchComponent", componentState, initFilters(), null, true);
+        searchComponent.replaceWith(newSearchComponent);
+        searchComponent = newSearchComponent;
+        container.setVisible(true);
         target.addComponent(container);
-
         dialog.open(target);
     }
 }

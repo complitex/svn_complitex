@@ -101,7 +101,6 @@ public class AddressService extends AbstractBean {
         //Если нашли улицу, то достаем из базы весь объект, берем тип улицы и проставляем в internalStreetTypeId
         if (streetId != null) {
             DomainObject streetObject = strategyFactory.getStrategy("street").findById(streetId);
-
             payment.setInternalStreetId(streetId);
             payment.setInternalStreetTypeId(StreetStrategy.getStreetType(streetObject));
             payment.setInternalCityId(streetObject.getParentId());
@@ -132,10 +131,11 @@ public class AddressService extends AbstractBean {
             Strategy buildingStrategy = strategyFactory.getStrategy("building");
             Building building = (Building) buildingStrategy.findById(buildingId);
             Long internalStreetId = building.getPrimaryStreetId();
-            if (streetId != null) {
+            if (streetId != null && !streetId.equals(internalStreetId)) {
                 payment.setInternalStreetId(internalStreetId);
                 Strategy streetStrategy = strategyFactory.getStrategy("street");
                 DomainObject streetObject = streetStrategy.findById(internalStreetId);
+                payment.setInternalStreetTypeId(StreetStrategy.getStreetType(streetObject));
                 Long internalCityId = streetObject.getParentId();
                 payment.setInternalCityId(internalCityId);
             }
@@ -266,40 +266,21 @@ public class AddressService extends AbstractBean {
         String buildingNumber = (String) payment.getField(PaymentDBF.BLD_NUM);
         String buildingCorp = (String) payment.getField(PaymentDBF.CORP_NUM);
 
-        boolean corrected = false;
-
-        if (payment.getInternalCityId() == null) {
-            if (cityId != null) {
-                addressCorrectionBean.insertCorrectionCity(city, cityId, organizationId, OrganizationStrategy.ITSELF_ORGANIZATION_OBJECT_ID);
-                paymentBean.correctCity(requestFileId, city, cityId);
-
-                corrected = true;
-            }
-        } else if (payment.getInternalStreetId() == null) {
-            if (streetId != null && cityId != null) {
-                Correction cityCorrection = addressCorrectionBean.findCorrectionCity(city, organizationId);
-
-                addressCorrectionBean.insertCorrectionStreet(cityCorrection, street, streetId);
-
-                paymentBean.correctStreet(requestFileId, cityId, street, streetId, streetTypeId);
-
-                corrected = true;
-            }
-
-        } else if (payment.getInternalBuildingId() == null) {
-            if (streetId != null && cityId != null && buildingId != null) {
-                Correction cityCorrection = addressCorrectionBean.findCorrectionCity(city, organizationId);
-                Correction streetCorrection = addressCorrectionBean.findCorrectionStreet(cityCorrection, street); //todo add one query
-
-                addressCorrectionBean.insertCorrectionBuilding(streetCorrection, buildingNumber, buildingCorp, buildingId);
-                paymentBean.correctBuilding(requestFileId, cityId, streetId, buildingNumber, buildingCorp, buildingId);
-
-                corrected = true;
-            }
-        }
-
-        if (corrected) {
-            benefitBean.addressCorrected(payment.getId());
+        if (streetId == null) { //откорректировали город
+            addressCorrectionBean.insertCorrectionCity(city, cityId, organizationId, OrganizationStrategy.ITSELF_ORGANIZATION_OBJECT_ID);
+            paymentBean.markCorrected(requestFileId, city);
+            benefitBean.markCorrected(requestFileId);
+        } else if (buildingId == null) { //откорректировали улицу
+            Correction cityCorrection = addressCorrectionBean.findCorrectionCity(city, organizationId);
+            addressCorrectionBean.insertCorrectionStreet(cityCorrection, street, streetId);
+            paymentBean.markCorrected(requestFileId, city, street);
+            benefitBean.markCorrected(requestFileId);
+        } else {  //откорректировали здание
+            Correction cityCorrection = addressCorrectionBean.findCorrectionCity(city, organizationId);
+            Correction streetCorrection = addressCorrectionBean.findCorrectionStreet(cityCorrection, street);
+            addressCorrectionBean.insertCorrectionBuilding(streetCorrection, buildingNumber, buildingCorp, buildingId);
+            paymentBean.markCorrected(requestFileId, city, street, buildingNumber, buildingCorp);
+            benefitBean.markCorrected(requestFileId);
         }
     }
 }
