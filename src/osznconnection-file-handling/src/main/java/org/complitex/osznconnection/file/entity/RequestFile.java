@@ -71,18 +71,19 @@ public class RequestFile implements ILoggable {
     public LogChangeList getLogChangeList(String collection){
         LogChangeList logChangeList = new LogChangeList();
 
-        logChangeList.add(collection, "id", getId())
-                .add(collection, "loaded", getLoaded())
-                .add(collection, "directory", getDirectory())
-                .add(collection, "name", getName())
-                .add(collection, "organizationId", getOrganizationId())
-                .add(collection, "month", getMonth())
-                .add(collection, "year", getYear())
-                .add(collection, "dbfRecordCount", getDbfRecordCount())
-                .add(collection, "length", getLength())
-                .add(collection, "checkSum", getCheckSum())
-                .add(collection, "loadedRecordCount", getLoadedRecordCount())
-                .add(collection, "bindedRecordCount", getBindedRecordCount());
+        logChangeList.add(collection, "id", id)
+                .add(collection, "group_id", groupId)
+                .add(collection, "loaded", loaded)
+                .add(collection, "directory", directory)
+                .add(collection, "name", name)
+                .add(collection, "organizationId", organizationId)
+                .add(collection, "month", month)
+                .add(collection, "year", year)
+                .add(collection, "dbfRecordCount", dbfRecordCount)
+                .add(collection, "length", length)
+                .add(collection, "checkSum", checkSum)
+                .add(collection, "loadedRecordCount", loadedRecordCount)
+                .add(collection, "bindedRecordCount", bindedRecordCount);
 
         return logChangeList;
     }

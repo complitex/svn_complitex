@@ -71,7 +71,7 @@ public class LoadGroupTaskBean implements ITaskBean<RequestFileGroup>{
 
         // load benefit
         if (noSkip){
-            loadRequestFileBean.load(group.getBenefitFile(), new LoadRequestFileBean.ILoadRequestFile() {
+            boolean notLoaded = loadRequestFileBean.load(group.getBenefitFile(), new LoadRequestFileBean.ILoadRequestFile() {
 
                 @Override
                 public Enum[] getFieldNames() {
@@ -88,6 +88,10 @@ public class LoadGroupTaskBean implements ITaskBean<RequestFileGroup>{
                     benefitBean.insert(batch);
                 }
             });
+
+            if (!notLoaded){
+                throw new ExecuteException("Файл начислений {0} уже загружен.", group.getBenefitFile().getFullName());
+            }
         } else {
             requestFileGroupBean.clear(group); //no cascading remove group
 
