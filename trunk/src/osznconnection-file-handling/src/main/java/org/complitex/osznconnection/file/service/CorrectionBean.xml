@@ -65,7 +65,7 @@
     <select id="find" parameterType="org.complitex.osznconnection.file.entity.example.CorrectionExample"
             resultMap="correction">
         SELECT
-            c.*,
+            distinct c.*,
         IFNULL(
             (SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale_id` = #{localeId} AND osc.`id` IN
                 (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE'
@@ -84,21 +84,55 @@
                 FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE'
                 AND oa.`object_id` = c.`internal_organization_id` AND oa.`attribute_type_id` = 900))
         ) internalOrganization
+
         FROM `${entity}_correction` c
+
+        <if test="orderByClause == 'object'">
+            left join `${entity}_attribute` ea on (ea.`object_id` = c.`object_id`)
+            left join `${entity}_string_culture` esc on (esc.`id` = ea.`value_id` and esc.`locale_id` = #{localeId})
+
+            <if test="parentEntity != null">
+                left join `${entity}` e on (e.`object_id` = c.`object_id`)
+                left join `${parentEntity}_attribute` pa on (pa.`object_id` = e.`parent_id`)
+                left join `${parentEntity}_string_culture` psc on (psc.`id` = pa.`value_id` and psc.`locale_id` = #{localeId})
+            </if>
+        </if>
+
+        <if test="orderByClause == 'correction' and parentEntity != null">
+            left join `${entity}_correction` ec on (ec.`id` = c.`parent_id`)
+        </if>
+
         <include refid="filter"/>
+
         <if test="orderByClause != null">
-            ORDER BY ${orderByClause}
+            ORDER BY
             <choose>
-                <when test="asc">
-                    ASC
+                <when test="orderByClause == 'object'">
+                    <if test="parentEntity != null">
+                        psc.`value` <include refid="asc"/>,
+                    </if>
+                    esc.`value`
+                </when>
+                <when test="orderByClause == 'correction'">
+                    <if test="parentEntity != null">
+                        ec.`correction` <include refid="asc"/>,
+                    </if>
+                    c.`correction`
                 </when>
                 <otherwise>
-                    DESC
+                    ${orderByClause}
                 </otherwise>
             </choose>
+
+            <include refid="asc"/>
         </if>
+
         LIMIT #{start},#{size}
     </select>
+
+    <sql id="asc">
+        <choose><when test="asc">ASC</when><otherwise>DESC</otherwise></choose>
+    </sql>
 
     <select id="count" resultType="int" parameterType="org.complitex.osznconnection.file.entity.example.CorrectionExample">
         SELECT COUNT(*) FROM `${entity}_correction` c

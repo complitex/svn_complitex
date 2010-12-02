@@ -24,8 +24,6 @@ public class AsyncTaskBean {
         try {
             boolean noSkip = task.execute(object);
 
-            listener.done(object, noSkip ? ITaskListener.STATUS.SUCCESS : ITaskListener.STATUS.SKIPPED);
-
             if (noSkip) {
                 log.debug("Задача {} завершена успешно.", task);
                 logInfo(object, task, "Задача завершена успешно. Имя объекта: {0}", object.getLogObjectName());
@@ -33,6 +31,8 @@ public class AsyncTaskBean {
                 log.debug("Задача {} пропущена.", task);
                 logInfo(object, task, "Задача пропущена. Имя объекта: {0}", object.getLogObjectName());
             }
+
+            listener.done(object, noSkip ? ITaskListener.STATUS.SUCCESS : ITaskListener.STATUS.SKIPPED);
         } catch (ExecuteException e) {
             try {
                 task.onError(object);
@@ -40,15 +40,14 @@ public class AsyncTaskBean {
                 log.error("Критическая ошибка", e1);
             }
 
-            listener.done(object, ITaskListener.STATUS.ERROR);
-
             if (e.isWarn()) {
                 log.warn(e.getMessage());
             }else{
                 log.error(e.getMessage(), e);
             }
-
             logError(object,task, e.getMessage());
+
+            listener.done(object, ITaskListener.STATUS.ERROR);
         } catch (Exception e){
             try {
                 task.onError(object);
@@ -56,11 +55,11 @@ public class AsyncTaskBean {
                 log.error("Критическая ошибка", e1);
             }
 
-            listener.done(object, ITaskListener.STATUS.CRITICAL_ERROR);
-
             log.error("Критическая ошибка", e);
             logError(object, task, "Критическая ошибка. Имя объекта: {0}. Причина: {1}",
                     object.getLogObjectName(), getInitialCause(e));
+
+            listener.done(object, ITaskListener.STATUS.CRITICAL_ERROR);
         }
     }
 

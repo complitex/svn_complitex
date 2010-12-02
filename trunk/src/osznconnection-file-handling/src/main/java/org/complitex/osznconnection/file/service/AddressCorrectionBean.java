@@ -9,21 +9,21 @@ import com.google.common.collect.Maps;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.mybatis.Transactional;
+import org.complitex.dictionaryfw.service.LocaleBean;
 import org.complitex.dictionaryfw.strategy.Strategy;
+import org.complitex.dictionaryfw.web.component.search.SearchComponentState;
 import org.complitex.osznconnection.file.entity.BuildingCorrection;
 import org.complitex.osznconnection.file.entity.Correction;
 import org.complitex.osznconnection.file.entity.example.CorrectionExample;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import javax.ejb.EJB;
-import org.complitex.dictionaryfw.service.LocaleBean;
-import org.complitex.dictionaryfw.web.component.search.SearchComponentState;
 
 /**
  * Класс для работы с коррекциями адресов.
@@ -308,7 +308,6 @@ public class AddressCorrectionBean extends CorrectionBean {
      * @param correction
      * @param attributeTypeId
      * @param parentId
-     * @param entityTypeId
      * @return
      */
     @SuppressWarnings({"unchecked"})
@@ -343,7 +342,6 @@ public class AddressCorrectionBean extends CorrectionBean {
      *
      * @param street
      * @param cityId
-     * @param entityTypeId
      * @return
      */
     @Transactional
@@ -478,6 +476,10 @@ public class AddressCorrectionBean extends CorrectionBean {
     @Transactional
     @Override
     public List<Correction> find(CorrectionExample example) {
+        if ("street".equals(example.getEntity())){
+            example.setParentEntity("city");
+        }
+
         List<Correction> list = (List<Correction>) super.find(example, CORRECTION_BEAN_MAPPING_NAMESPACE + ".find");
 
         if ("street".equals(example.getEntity())) {

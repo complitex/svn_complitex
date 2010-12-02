@@ -25,6 +25,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.util.string.Strings;
+import org.complitex.dictionaryfw.service.LocaleBean;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
 import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
@@ -38,7 +39,6 @@ import org.complitex.osznconnection.file.service.CorrectionBean;
 import javax.ejb.EJB;
 import java.util.Iterator;
 import java.util.List;
-import org.complitex.dictionaryfw.service.LocaleBean;
 
 /**
  * Абстрактный класс для списка коррекций.
@@ -103,10 +103,6 @@ public abstract class AbstractCorrectionList extends TemplatePage {
     protected abstract Class<? extends WebPage> getEditPage();
 
     protected abstract PageParameters getEditPageParams(Long objectCorrectionId);
-
-    protected String getInternalObjectOrderByExpression() {
-        return strategyFactory.getStrategy(entity).getOrderByExpression("c.`object_id`", localeBean.convert(getLocale()).getId(), null);
-    }
 
     protected void init() {
         IModel<String> labelModel = new ResourceModel("label");
@@ -204,7 +200,7 @@ public abstract class AbstractCorrectionList extends TemplatePage {
         filterForm.add(new ArrowOrderByBorder("organizationHeader", CorrectionBean.OrderBy.ORGANIZATION.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("correctionHeader", CorrectionBean.OrderBy.CORRECTION.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("codeHeader", CorrectionBean.OrderBy.CODE.getOrderBy(), dataProvider, data, content));
-        filterForm.add(new ArrowOrderByBorder("internalObjectHeader", getInternalObjectOrderByExpression(), dataProvider, data, content));
+        filterForm.add(new ArrowOrderByBorder("internalObjectHeader", CorrectionBean.OrderBy.OBJECT.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("internalOrganizationHeader", CorrectionBean.OrderBy.INTERNAL_ORGANIZATION.getOrderBy(), dataProvider,
                 data, content));
 
