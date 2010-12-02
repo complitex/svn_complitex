@@ -8,6 +8,7 @@ import com.google.common.collect.Maps;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
+import org.complitex.dictionaryfw.service.LocaleBean;
 import org.complitex.dictionaryfw.strategy.Strategy;
 import org.complitex.dictionaryfw.strategy.StrategyFactory;
 import org.complitex.osznconnection.file.entity.Correction;
@@ -19,7 +20,6 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.util.List;
 import java.util.Map;
-import org.complitex.dictionaryfw.service.LocaleBean;
 
 /**
  * Обобщенный класс для работы с коррекциями.
@@ -40,7 +40,11 @@ public class CorrectionBean extends AbstractBean {
 
     public static enum OrderBy {
 
-        CORRECTION("correction"), CODE("organization_code"), ORGANIZATION("organization"), INTERNAL_ORGANIZATION("internalOrganization");
+        CORRECTION("correction"),
+        CODE("organization_code"),
+        ORGANIZATION("organization"),
+        INTERNAL_ORGANIZATION("internalOrganization"),
+        OBJECT("object");
 
         private String orderBy;
 

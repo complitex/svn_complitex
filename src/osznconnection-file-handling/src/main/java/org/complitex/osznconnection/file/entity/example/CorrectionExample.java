@@ -28,6 +28,8 @@ public class CorrectionExample implements Serializable {
 
     private String entity;
 
+    private String parentEntity;
+
     private int start;
 
     private int size;
@@ -96,6 +98,14 @@ public class CorrectionExample implements Serializable {
 
     public String getEntity() {
         return entity;
+    }
+
+    public String getParentEntity() {
+        return parentEntity;
+    }
+
+    public void setParentEntity(String parentEntity) {
+        this.parentEntity = parentEntity;
     }
 
     public void setEntity(String entity) {
