@@ -301,46 +301,23 @@
         WHERE r.`request_file_id` = #{requestFileId}
     </select>
 
-    <update id="correct" parameterType="hashmap">
-        update `payment`
-        SET
-        `internal_${addressEntity}_id` = #{objectId},
-        <if test="entityTypeId != null">
-            `internal_${addressEntity}_type_id` = #{entityTypeId},
-        </if>
-        `status` = #{status}
-        where
-        `request_file_id` = #{requestFileId}
-        <if test="city != null">
-            AND TO_CYRILLIC(`N_NAME`) = TO_CYRILLIC(#{city})
-        </if>
-        <if test="street != null">
-            AND TO_CYRILLIC(`VUL_NAME`) = TO_CYRILLIC(#{street})
-        </if>
-        <if test="buildingNumber != null">
-            AND TO_CYRILLIC(`BLD_NUM`) = TO_CYRILLIC(#{buildingNumber})
-            <choose>
-                <when test="buildingCorp == null">
-                    AND `CORP_NUM` IS NULL
-                </when>
-                <otherwise>
+    <update id="markCorrected" parameterType="hashmap">
+        UPDATE `payment`
+        SET `status` = 204
+            WHERE
+                `request_file_id` = #{fileId}
+                <if test="city != null">
+                    AND TO_CYRILLIC(`N_NAME`) = TO_CYRILLIC(#{city})
+                </if>
+                <if test="street != null">
+                    AND TO_CYRILLIC(`VUL_NAME`) = TO_CYRILLIC(#{street})
+                </if>
+                <if test="buildingNumber != null">
+                    AND TO_CYRILLIC(`BLD_NUM`) = TO_CYRILLIC(#{buildingNumber})
+                </if>
+                <if test="buildingNumber != null">
                     AND TO_CYRILLIC(`CORP_NUM`) = TO_CYRILLIC(#{buildingCorp})
-                </otherwise>
-            </choose>
-        </if>
-        <if test="apartment != null">
-            AND TO_CYRILLIC(`FLAT`) = TO_CYRILLIC(#{apartment})
-        </if>
-
-        <if test="cityId != null">
-            AND `internal_city_id` = #{cityId}
-        </if>
-        <if test="streetId != null">
-            AND `internal_street_id` = #{streetId}
-        </if>
-        <if test="buildingId != null">
-            AND `internal_building_id` = #{buildingId}
-        </if>
+                </if>
     </update>
 
     <update id="updateAccountNumber" parameterType="org.complitex.osznconnection.file.entity.Payment">

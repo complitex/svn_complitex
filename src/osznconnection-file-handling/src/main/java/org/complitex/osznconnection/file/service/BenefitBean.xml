@@ -209,9 +209,13 @@
                 AND bf.`group_id` = pf.`group_id`)
     </sql>
 
-    <update id="addressCorrected" parameterType="_long">
-        UPDATE `benefit` b SET b.`status` = 204
-        <include refid="org.complitex.osznconnection.file.service.BenefitBean.updateByOWN_NUM_SR"/>
+    <update id="markCorrected" parameterType="long">
+        UPDATE `benefit` b 
+                JOIN `request_file` bf ON (b.`request_file_id` = bf.`id` AND bf.`type` = 'BENEFIT')
+                JOIN `request_file_group` g ON g.`id` = bf.`group_id`
+                JOIN `request_file` pf ON (pf.`group_id` = g.`id` AND pf.`type` = 'PAYMENT' AND pf.`id` = #{paymentFileId})
+                JOIN `payment` p ON (p.`request_file_id` = pf.`id` AND p.`status` = 204 AND p.`OWN_NUM_SR` = b.`OWN_NUM_SR`)
+        SET b.`status` = 204
     </update>
 
     <update id="updateAccountNumber" parameterType="hashmap">

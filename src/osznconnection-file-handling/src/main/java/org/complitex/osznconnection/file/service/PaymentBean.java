@@ -86,7 +86,6 @@ public class PaymentBean extends AbstractBean {
         sqlSession().insert(MAPPING_NAMESPACE + ".insertPaymentList", abstractRequests);
     }
 
-    @SuppressWarnings({"unchecked"})
     public List<AbstractRequest> getPayments(RequestFile requestFile) {
         return sqlSession().selectList(MAPPING_NAMESPACE + ".selectPayments", requestFile.getId());
     }
@@ -117,7 +116,6 @@ public class PaymentBean extends AbstractBean {
      * @return
      */
     @Transactional
-    @SuppressWarnings({"unchecked"})
     public List<Payment> findForOperation(long fileId, List<Long> ids) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("requestFileId", fileId);
@@ -130,7 +128,7 @@ public class PaymentBean extends AbstractBean {
      * @param fileId
      * @return
      */
-    @SuppressWarnings({"unchecked"})
+    @Transactional
     private List<Long> findIdsForOperation(long fileId) {
         return sqlSession().selectList(MAPPING_NAMESPACE + ".findIdsForOperation", fileId);
     }
@@ -145,7 +143,7 @@ public class PaymentBean extends AbstractBean {
         return findIdsForOperation(fileId);
     }
 
-     /**
+    /**
      * Получить все id payment записей в файле для обработки
      * @param fileId
      * @return
@@ -205,64 +203,25 @@ public class PaymentBean extends AbstractBean {
         return processedCount(fileId) == 0;
     }
 
-    /**
-     * Группа методов для обновления статуса для payment записей
-     * Когда в UI для отдельного payment корректирруется элемент адреса, например город, то статус всех payment записей с таким же городом должнен
-     * обновиться в ADDRESS_CORRECTED и id откоррекированного города нужно проставить всем payment записям.
-     */
+    @Transactional
+    public void markCorrected(long fileId, String city) {
+        markCorrected(fileId, city, null, null, null);
+    }
 
     @Transactional
-    public void correctCity(long fileId, String city, long objectId) {
+    public void markCorrected(long fileId, String city, String street) {
+        markCorrected(fileId, city, street, null, null);
+    }
+
+    @Transactional
+    public void markCorrected(long fileId, String city, String street, String buildingNumber, String buildingCorp) {
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put("addressEntity", "city");
-        params.put("objectId", objectId);
+        params.put("fileId", fileId);
         params.put("city", city);
-        params.put("requestFileId", fileId);
-        params.put("status", RequestStatus.ADDRESS_CORRECTED);
-        sqlSession().update(MAPPING_NAMESPACE + ".correct", params);
-    }
-
-    @Transactional
-    public void correctStreet(long fileId, long cityId, String street, long objectId, Long streetTypeId) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("addressEntity", "street");
-        params.put("objectId", objectId);
-        params.put("cityId", cityId);
         params.put("street", street);
-        if (streetTypeId != null) {
-            params.put("entityTypeId", streetTypeId);
-        }
-        params.put("requestFileId", fileId);
-        params.put("status", RequestStatus.ADDRESS_CORRECTED);
-        sqlSession().update(MAPPING_NAMESPACE + ".correct", params);
-    }
-
-    @Transactional
-    public void correctBuilding(long fileId, long cityId, long streetId, String buildingNumber, String buildingCorp, long objectId) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("addressEntity", "building");
-        params.put("objectId", objectId);
-        params.put("cityId", cityId);
-        params.put("streetId", streetId);
         params.put("buildingNumber", buildingNumber);
         params.put("buildingCorp", buildingCorp);
-        params.put("requestFileId", fileId);
-        params.put("status", RequestStatus.ADDRESS_CORRECTED);
-        sqlSession().update(MAPPING_NAMESPACE + ".correct", params);
-    }
-
-    @Transactional
-    public void correctApartment(long fileId, long cityId, long streetId, long buildingId, String apartment, long objectId) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("addressEntity", "apartment");
-        params.put("objectId", objectId);
-        params.put("cityId", cityId);
-        params.put("streetId", streetId);
-        params.put("buildingId", buildingId);
-        params.put("apartment", apartment);
-        params.put("requestFileId", fileId);
-        params.put("status", RequestStatus.ADDRESS_CORRECTED);
-        sqlSession().update(MAPPING_NAMESPACE + ".correct", params);
+        sqlSession().update(MAPPING_NAMESPACE + ".markCorrected", params);
     }
 
     /**

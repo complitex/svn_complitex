@@ -35,7 +35,7 @@ public class AddressCorrectionBean extends CorrectionBean {
     private static final Logger log = LoggerFactory.getLogger(AddressCorrectionBean.class);
 
     private static final String ADDRESS_BEAN_MAPPING_NAMESPACE = AddressCorrectionBean.class.getName();
-
+    
     @EJB
     private LocaleBean localeBean;
 
@@ -62,7 +62,18 @@ public class AddressCorrectionBean extends CorrectionBean {
             }
         };
 
-        return (Correction) sqlSession().selectOne(ADDRESS_BEAN_MAPPING_NAMESPACE + ".findCorrectionAddress", params);
+        List<Correction> corrections = sqlSession().selectList(ADDRESS_BEAN_MAPPING_NAMESPACE + ".findCorrectionAddress", params);
+        if (corrections.isEmpty()) {
+            return null;
+        }
+        if (corrections.size() == 1) {
+            return corrections.get(0);
+        }
+
+        throw new RuntimeException("More one correction found. Parameters: [entityTable = " + entityTable + ", parentId = " + parentId + ", correction = "
+                + correction + ", organizationId = " + organizationId + "]. Corrections are in inconsistent state.");
+
+//        return (Correction) sqlSession().selectOne(ADDRESS_BEAN_MAPPING_NAMESPACE + ".findCorrectionAddress", params);
     }
 
     /**
@@ -97,8 +108,7 @@ public class AddressCorrectionBean extends CorrectionBean {
      * @return
      */
     @Transactional
-    public BuildingCorrection findCorrectionBuilding(final Correction parent, final String correction,
-            final String correctionCorp) {
+    public BuildingCorrection findCorrectionBuilding(final Correction parent, final String correction, final String correctionCorp) {
         Map<String, Object> params = new HashMap<String, Object>() {
 
             {
@@ -109,7 +119,18 @@ public class AddressCorrectionBean extends CorrectionBean {
             }
         };
 
-        return (BuildingCorrection) sqlSession().selectOne(ADDRESS_BEAN_MAPPING_NAMESPACE + ".findCorrectionBuilding", params);
+        List<BuildingCorrection> corrections = sqlSession().selectList(ADDRESS_BEAN_MAPPING_NAMESPACE + ".findCorrectionBuilding", params);
+        if (corrections.isEmpty()) {
+            return null;
+        }
+        if (corrections.size() == 1) {
+            return corrections.get(0);
+        }
+
+        throw new RuntimeException("More one correction found. Parameters: [entityTable = building, parentId = " + parent.getParentId()
+                + ", correction = " + correction + ", organizationId = " + parent.getOrganizationId() + "]. Corrections are in inconsistent state.");
+
+//        return (BuildingCorrection) sqlSession().selectOne(ADDRESS_BEAN_MAPPING_NAMESPACE + ".findCorrectionBuilding", params);
     }
 
 //    public Long findCorrectionApartment(long buildingId, String apartment, long organizationId) {
@@ -123,7 +144,6 @@ public class AddressCorrectionBean extends CorrectionBean {
      * @param internalObjectId
      * @return
      */
-    @SuppressWarnings({"unchecked"})
     @Transactional
     private Correction findOutgoingAddress(String entityTable, long organizationId, long internalObjectId) {
         CorrectionExample example = new CorrectionExample();
@@ -168,7 +188,6 @@ public class AddressCorrectionBean extends CorrectionBean {
      * @param internalBuildingId
      * @return
      */
-    @SuppressWarnings({"unchecked"})
     @Transactional
     public BuildingCorrection findOutgoingBuilding(long organizationId, long internalBuildingId) {
         CorrectionExample example = new CorrectionExample();
@@ -193,7 +212,6 @@ public class AddressCorrectionBean extends CorrectionBean {
      * @param osznId
      * @return
      */
-    @SuppressWarnings({"unchecked"})
     @Transactional
     public Correction findOutgoingDistrict(long calculationCenterId, long osznId) {
         Map<String, Long> params = ImmutableMap.of("calculationCenterId", calculationCenterId, "osznId", osznId);
@@ -385,7 +403,6 @@ public class AddressCorrectionBean extends CorrectionBean {
         sqlSession().update(ADDRESS_BEAN_MAPPING_NAMESPACE + ".updateBuilding", correction);
     }
 
-    @SuppressWarnings({"unchecked"})
     @Transactional
     public Correction getCityCorrection(Long id) {
         Correction correction = (Correction) sqlSession().selectOne(ADDRESS_BEAN_MAPPING_NAMESPACE + ".selectCityCorrection", id);
@@ -397,7 +414,6 @@ public class AddressCorrectionBean extends CorrectionBean {
         return correction;
     }
 
-    @SuppressWarnings({"unchecked"})
     @Transactional
     public Correction getStreetCorrection(Long id) {
         Correction correction = (Correction) sqlSession().selectOne(ADDRESS_BEAN_MAPPING_NAMESPACE + ".selectStreetCorrection", id);
@@ -409,7 +425,6 @@ public class AddressCorrectionBean extends CorrectionBean {
         return correction;
     }
 
-    @SuppressWarnings({"unchecked"})
     @Transactional
     public BuildingCorrection getBuildingCorrection(Long id) {
         BuildingCorrection correction = (BuildingCorrection) sqlSession().selectOne(ADDRESS_BEAN_MAPPING_NAMESPACE + ".selectBuildingCorrection", id);
@@ -421,7 +436,6 @@ public class AddressCorrectionBean extends CorrectionBean {
         return correction;
     }
 
-    @SuppressWarnings({"unchecked"})
     @Transactional
     public List<BuildingCorrection> findBuildings(CorrectionExample example) {
         List<BuildingCorrection> list = (List<BuildingCorrection>) super.find(example, ADDRESS_BEAN_MAPPING_NAMESPACE + ".findBuildings");
