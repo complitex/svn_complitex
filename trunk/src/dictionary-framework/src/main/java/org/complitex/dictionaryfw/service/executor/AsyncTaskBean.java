@@ -22,12 +22,17 @@ public class AsyncTaskBean {
     @Asynchronous
     public <T extends ILoggable> void execute(T object, ITaskBean<T> task, ITaskListener<T> listener){
         try {
-            boolean completed = task.execute(object);
+            boolean noSkip = task.execute(object);
 
-            listener.done(object, completed ? ITaskListener.STATUS.SUCCESS : ITaskListener.STATUS.SKIPPED);
+            listener.done(object, noSkip ? ITaskListener.STATUS.SUCCESS : ITaskListener.STATUS.SKIPPED);
 
-            log.debug("Задача {} завершена успешно.", task);
-            logInfo(object, task, "Задача завершена успешно. Имя объекта: {0}", object.getLogObjectName());
+            if (noSkip) {
+                log.debug("Задача {} завершена успешно.", task);
+                logInfo(object, task, "Задача завершена успешно. Имя объекта: {0}", object.getLogObjectName());
+            }else{
+                log.debug("Задача {} пропущена.", task);
+                logInfo(object, task, "Задача пропущена. Имя объекта: {0}", object.getLogObjectName());
+            }
         } catch (ExecuteException e) {
             try {
                 task.onError(object);
