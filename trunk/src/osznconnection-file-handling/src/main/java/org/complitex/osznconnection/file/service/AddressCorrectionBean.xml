@@ -141,79 +141,116 @@
     <sql id="buildingFilter">
         <where>
             <if test="internalObject != null">
-                AND EXISTS(SELECT 1
-                    FROM `building` b
-                    JOIN `building_address` addr ON (b.`parent_id` = addr.`object_id` AND addr.`status` IN ('ACTIVE', 'INACTIVE'))
-                    JOIN `building_address_attribute` num ON (num.`object_id` = addr.`object_id` AND num.`status` = 'ACTIVE' AND num.`attribute_type_id` = 1500)
-                    JOIN `building_address_string_culture` sc ON num.`value_id` = sc.`id`
-                    WHERE b.`object_id` = c.`object_id` AND b.`status` IN ('ACTIVE', 'INACTIVE') AND sc.`value` LIKE CONCAT('%', #{internalObject}, '%'))
+                <if test="cityObject != null">
+                    and csc.`value` LIKE CONCAT('%', #{cityObject}, '%')
+                </if>
+                <if test="streetObject != null">
+                    and ssc.`value` LIKE CONCAT('%', #{streetObject}, '%')
+                </if>
+                <if test="buildingObject != null">
+                    and basc.`value` LIKE CONCAT('%', #{buildingObject}, '%')
+                </if>
+                <if test="smallObject">
+                    and (csc.`value` LIKE CONCAT('%', #{internalObject}, '%')
+                         or ssc.`value` LIKE CONCAT('%', #{internalObject}, '%')
+                         or basc.`value` LIKE CONCAT('%', #{internalObject}, '%'))
+                </if>
             </if>
             <if test="correction != null">
-                AND c.`correction` LIKE CONCAT('%', #{correction}, '%')
+                <if test="cityCorrection != null">
+                    and cc.`correction` LIKE CONCAT('%', #{cityCorrection}, '%')
+                </if>
+                <if test="streetCorrection != null">
+                    and sc.`correction` LIKE CONCAT('%', #{streetCorrection}, '%')
+                </if>
+                <if test="buildingCorrection != null">
+                    and c.`correction` LIKE CONCAT('%', #{buildingCorrection}, '%')
+                </if>
+                <if test="smallCorrection">
+                    and (cc.`correction` LIKE CONCAT('%', #{correction}, '%')
+                         or sc.`correction` LIKE CONCAT('%', #{correction}, '%')
+                         or c.`correction` LIKE CONCAT('%', #{correction}, '%'))
+                </if>
             </if>
+
             <if test="code != null">
-                AND c.`organization_code` LIKE CONCAT('%', #{code}, '%')
+                and c.`organization_code` LIKE CONCAT('%', #{code}, '%')
             </if>
             <if test="organization != null">
-                AND EXISTS(SELECT 1
-                    FROM
-                        `organization_string_culture` osc
-                    WHERE
-                        osc.`value` LIKE CONCAT('%', #{organization}, '%') AND osc.`id` IN
-                        (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`object_id` = c.`organization_id`
-                        AND oa.`status` = 'ACTIVE' AND oa.`attribute_type_id` = 900))
+                and osc.`value` LIKE CONCAT('%', #{organization}, '%')
             </if>
             <if test="internalOrganization != null">
-                AND EXISTS(SELECT 1
-                    FROM
-                        `organization_string_culture` osc
-                    WHERE
-                        osc.`value` LIKE CONCAT('%', #{internalOrganization}, '%') AND osc.`id` IN
-                        (SELECT oa.`value_id` FROM `organization_attribute` oa
-                        WHERE oa.`object_id` = c.`internal_organization_id` AND oa.`status` = 'ACTIVE'
-                        AND oa.`attribute_type_id` = 900))
+                and osc_i.`value` LIKE CONCAT('%', #{internalOrganization}, '%')
             </if>
         </where>
     </sql>
 
-    <select id="findBuildings" parameterType="org.complitex.osznconnection.file.entity.example.CorrectionExample"
+    <sql id="buildingJoin">
+        left join `organization_attribute` oa on (oa.`object_id` = c.`organization_id`
+            and oa.`status` = 'ACTIVE' and oa.`attribute_type_id` = 900)
+        left join `organization_string_culture` osc on (osc.`id` = oa.`value_id` and osc.`locale_id` = #{localeId})
+
+        left join `organization_attribute` oa_i on (oa_i.`object_id` = c.`internal_organization_id`
+            and oa_i.`status` = 'ACTIVE' and oa_i.`attribute_type_id` = 900)
+        left join `organization_string_culture` osc_i on (osc_i.`id` = oa_i.`value_id` and osc_i.`locale_id` = #{localeId})
+
+        <if test="orderByClause == 'object' or internalObject != null">
+            left join `building` b on (b.`object_id` = c.`object_id`)
+            left join `building_address` ba on (ba.`object_id` = b.`parent_id`)
+            left join `building_address_attribute` baa on (baa.`object_id` = ba.`object_id` and baa.`attribute_type_id` = 1500)
+            left join `building_address_string_culture` basc on (basc.`id` = baa.`value_id` and basc.`locale_id` = #{localeId})
+
+            left join `street` s on (s.`object_id` = ba.`parent_id`)
+            left join `street_attribute` sa on (sa.`object_id` = ba.`parent_id`)
+            left join `street_string_culture` ssc on (ssc.`id` = sa.`value_id` and ssc.`locale_id` = #{localeId})
+
+            left join `city` on (`city`.`object_id` = s.`parent_id`)
+            left join `city_attribute` ca on (ca.`object_id` = s.`parent_id`)
+            left join `city_string_culture` csc on (csc.`id` = ca.`value_id` and csc.`locale_id` = #{localeId})
+        </if>
+
+        <if test="orderByClause == 'correction' or correction != null">
+            left join `street_correction` sc on (sc.`id` = c.`parent_id`)
+            left join `city_correction` cc on (cc.`id` = sc.`parent_id`)
+        </if>
+    </sql>
+
+    <select id="findBuildings" parameterType="org.complitex.osznconnection.file.entity.example.BuildingCorrectionExample"
             resultMap="buildingCorrection">
-        SELECT c.*,
-        IFNULL((SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale_id` = #{localeId} AND osc.`id` IN
-            (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE'
-                AND oa.`object_id` = c.`organization_id` AND oa.`attribute_type_id` = 900)),
-            (SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale_id` =
-                (SELECT l.`id` FROM `locales` l WHERE l.`system` = 1) AND osc.`id` IN (SELECT oa.`value_id`
-                FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE'
-                AND oa.`object_id` = c.`organization_id` AND oa.`attribute_type_id` = 900))
-        ) organization,
-        IFNULL((SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale_id` = #{localeId} AND osc.`id` IN
-            (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE'
-                AND oa.`object_id` = c.`internal_organization_id` AND oa.`attribute_type_id` = 900)),
-            (SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale_id` =
-                (SELECT l.`id` FROM `locales` l WHERE l.`system` = 1) AND osc.`id` IN (SELECT oa.`value_id`
-                FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE'
-                AND oa.`object_id` = c.`internal_organization_id` AND oa.`attribute_type_id` = 900))
-        ) internalOrganization
+        SELECT distinct c.`id`, c.*, osc.`value` organization, osc_i.`value` internalOrganization
+
         FROM `building_correction` c
-        <include refid="org.complitex.osznconnection.file.service.AddressCorrectionBean.buildingFilter"/>
+
+        <include refid="buildingJoin"/>
+
+        <include refid="buildingFilter"/>
+
         <if test="orderByClause != null">
-            ORDER BY ${orderByClause}
+            ORDER BY
             <choose>
-                <when test="asc">
-                    ASC
+                <when test="orderByClause == 'object'">
+                    csc.`value` <include refid="asc"/>, ssc.`value` <include refid="asc"/>, basc.`value` + 0 <include refid="asc"/>
+                </when>
+                <when test="orderByClause == 'correction'">
+                    cc.`correction` <include refid="asc"/>, sc.`correction` <include refid="asc"/>, c.`correction` + 0 <include refid="asc"/>
                 </when>
                 <otherwise>
-                    DESC
+                    ${orderByClause} <include refid="asc"/>
                 </otherwise>
             </choose>
         </if>
         LIMIT #{start},#{size}
     </select>
 
+    <sql id="asc">
+        <choose><when test="asc">ASC</when><otherwise>DESC</otherwise></choose>
+    </sql>
+
     <select id="countBuildings" resultType="int" parameterType="org.complitex.osznconnection.file.entity.example.CorrectionExample">
-        SELECT COUNT(*) FROM `${entity}_correction` c
-        <include refid="org.complitex.osznconnection.file.service.AddressCorrectionBean.buildingFilter"/>
+        SELECT COUNT(distinct c.`id`) FROM `building_correction` c
+        <include refid="buildingJoin"/>
+
+        <include refid="buildingFilter"/>
     </select>
 
     <delete id="deleteBuilding" parameterType="org.complitex.osznconnection.file.entity.BuildingCorrection">

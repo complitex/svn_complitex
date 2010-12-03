@@ -7,6 +7,7 @@ package org.complitex.osznconnection.file.web.pages.correction;
 import org.apache.wicket.PageParameters;
 import org.complitex.osznconnection.file.entity.BuildingCorrection;
 import org.complitex.osznconnection.file.entity.Correction;
+import org.complitex.osznconnection.file.entity.example.BuildingCorrectionExample;
 import org.complitex.osznconnection.file.entity.example.CorrectionExample;
 import org.complitex.osznconnection.file.service.AddressCorrectionBean;
 import org.complitex.osznconnection.file.web.pages.util.BuildingFormatter;
@@ -25,6 +26,13 @@ public class BuildingCorrectionList extends AddressCorrectionList {
 
     public BuildingCorrectionList(PageParameters params) {
         super(params);
+    }
+
+    @Override
+    protected CorrectionExample newExample() {
+        BuildingCorrectionExample correctionExample = new BuildingCorrectionExample();
+        correctionExample.setEntity(this.getEntity());
+        return correctionExample;
     }
 
     @Override
