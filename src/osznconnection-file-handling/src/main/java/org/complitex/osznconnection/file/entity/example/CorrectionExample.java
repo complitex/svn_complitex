@@ -13,31 +13,18 @@ import java.io.Serializable;
 public class CorrectionExample implements Serializable {
 
     private String correction;
-
     private String internalObject;
-
     private String organization;
-
     private String internalOrganization;
-
     private Long organizationId;
-
     private Long objectId;
-
     private String code;
-
     private String entity;
-
     private String parentEntity;
-
     private int start;
-
     private int size;
-
     private String orderByClause;
-
     private boolean asc;
-
     private Long localeId;
 
     public boolean isAsc() {
