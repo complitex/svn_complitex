@@ -1,6 +1,8 @@
 package org.complitex.osznconnection.file.service;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.Collection;
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.entity.*;
@@ -13,6 +15,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.ejb.EJB;
+import org.complitex.osznconnection.file.calculation.adapter.AccountNotFoundException;
+import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
+import org.complitex.osznconnection.file.calculation.entity.BenefitData;
+import org.complitex.osznconnection.file.calculation.service.CalculationCenterBean;
 
 /**
  * Обработка записей файла запроса возмещения по льготам 
@@ -22,8 +29,20 @@ import java.util.Map;
  */
 @Stateless(name = "BenefitBean")
 public class BenefitBean extends AbstractBean {
-
+    
     public static final String MAPPING_NAMESPACE = BenefitBean.class.getName();
+
+    @EJB
+    private PaymentBean paymentBean;
+
+    @EJB
+    private CalculationCenterBean calculationCenterBean;
+
+    @EJB
+    private PrivilegeCorrectionBean privilegeCorrectionBean;
+
+    @EJB
+    private RequestFileGroupBean requestFileGroupBean;
 
     public enum OrderBy {
 
@@ -37,7 +56,6 @@ public class BenefitBean extends AbstractBean {
         CORP("building_corp"),
         APARTMENT("apartment"),
         STATUS("status");
-
         private String orderBy;
 
         private OrderBy(String orderBy) {
@@ -161,7 +179,7 @@ public class BenefitBean extends AbstractBean {
         return countByFile(fileId, RequestStatus.notProcessedStatuses());
     }
 
-     /**
+    /**
      *
      * @param fileId
      * @return Обработан ли файл
@@ -237,12 +255,12 @@ public class BenefitBean extends AbstractBean {
     }
 
     @Transactional
-    public void updateStatusByAccountNumber(long fileId, String accountNumber, RequestStatus status){
+    public void updateStatusByAccountNumber(long fileId, String accountNumber, RequestStatus status) {
         Map<String, Object> params = Maps.newHashMap();
         params.put("accountNumber", accountNumber);
         params.put("fileId", fileId);
         params.put("status", status);
-        sqlSession().update(MAPPING_NAMESPACE+".updateStatusByAccountNumber", params);
+        sqlSession().update(MAPPING_NAMESPACE + ".updateStatusByAccountNumber", params);
     }
 
     /**
@@ -268,5 +286,67 @@ public class BenefitBean extends AbstractBean {
         params.put("statuses", RequestStatus.notBoundStatuses());
         params.put("fileId", fileId);
         sqlSession().update(MAPPING_NAMESPACE + ".clearBeforeProcessing", params);
+    }
+
+    public Collection<BenefitData> getBenefitData(Benefit benefit) throws AccountNotFoundException {
+        long osznId = benefit.getOrganizationId();
+        long calculationCenterId = calculationCenterBean.getCurrentCalculationCenterInfo().getCalculationCenterId();
+        ICalculationCenterAdapter adapter = calculationCenterBean.getDefaultCalculationCenterAdapter();
+        Collection<BenefitData> benefitData = adapter.getBenefitData(benefit.getAccountNumber(),
+                findDat1(benefit.getAccountNumber(), benefit.getRequestFileId()));
+        Collection<BenefitData> notConnectedBenefitData = Lists.newArrayList();
+        List<Benefit> benefits = findByAccountNumber(benefit.getAccountNumber(), benefit.getRequestFileId());
+
+        for (BenefitData benefitDataItem : benefitData) {
+            boolean suitable = true;
+            String osznBenefitCode = privilegeCorrectionBean.getOSZNPrivilegeCode(benefitDataItem.getCode(), calculationCenterId, osznId);
+
+            Integer benefitCodeAsInt = null;
+            try {
+                benefitCodeAsInt = Integer.valueOf(osznBenefitCode);
+            } catch (NumberFormatException e) {
+            }
+
+            for (Benefit benefitItem : benefits) {
+                Integer benefitItemCode = (Integer) benefitItem.getField(BenefitDBF.PRIV_CAT);
+                if (benefitItemCode != null && benefitItemCode.equals(benefitCodeAsInt)) {
+                    suitable = false;
+                }
+            }
+
+            if (suitable) {
+                benefitDataItem.setOsznBenefitCode(osznBenefitCode);
+                notConnectedBenefitData.add(benefitDataItem);
+            }
+        }
+
+        return notConnectedBenefitData;
+    }
+
+    public void connectBenefit(Benefit benefit, BenefitData benefitData) {
+        String osznBenefitCode = benefitData.getOsznBenefitCode();
+        if (osznBenefitCode == null) {
+            benefit.setStatus(RequestStatus.BENEFIT_NOT_FOUND);
+        } else {
+            benefit.setField(BenefitDBF.PRIV_CAT, Integer.valueOf(osznBenefitCode));
+            benefit.setField(BenefitDBF.ORD_FAM, Integer.valueOf(benefitData.getOrderFamily()));
+            benefit.setStatus(RequestStatus.PROCESSED);
+        }
+
+        update(benefit);
+
+        try {
+            Collection<BenefitData> leftBenefitData = getBenefitData(benefit);
+            if (leftBenefitData == null || leftBenefitData.isEmpty()) {
+                updateStatusByAccountNumber(benefit.getRequestFileId(), benefit.getAccountNumber(), RequestStatus.PROCESSED);
+            }
+        } catch (AccountNotFoundException e) {
+        }
+
+        long benefitFileId = benefit.getRequestFileId();
+        long paymentFileId = requestFileGroupBean.getPaymentFileId(benefit.getRequestFileId());
+        if (isBenefitFileProcessed(benefitFileId) && paymentBean.isPaymentFileProcessed(paymentFileId)) {
+            requestFileGroupBean.updateStatus(benefitFileId, RequestFileGroup.STATUS.FILLED);
+        }
     }
 }

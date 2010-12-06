@@ -17,7 +17,6 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.complitex.osznconnection.file.calculation.entity.BenefitData;
 import org.complitex.osznconnection.file.entity.Benefit;
-import org.complitex.osznconnection.file.service.BenefitFillService;
 import org.odlabs.wiquery.ui.dialog.Dialog;
 
 import javax.ejb.EJB;
@@ -29,6 +28,7 @@ import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.util.StringUtil;
 import org.complitex.osznconnection.file.calculation.adapter.AccountNotFoundException;
 import org.complitex.osznconnection.file.entity.BenefitDBF;
+import org.complitex.osznconnection.file.service.BenefitBean;
 import org.complitex.osznconnection.file.web.component.StatusRenderer;
 import org.odlabs.wiquery.core.javascript.JsStatement;
 import org.odlabs.wiquery.ui.core.JsScopeUiEvent;
@@ -43,8 +43,8 @@ public class BenefitConnectPanel extends Panel {
 
     private static final Logger log = LoggerFactory.getLogger(BenefitConnectPanel.class);
 
-    @EJB(name = "BenefitFillService")
-    private BenefitFillService benefitFillService;
+    @EJB(name = "BenefitBean")
+    private BenefitBean benefitBean;
     
     private Dialog dialog;
     private Benefit benefit;
@@ -121,7 +121,7 @@ public class BenefitConnectPanel extends Panel {
             @Override
             protected List<BenefitData> load() {
                 try {
-                    return Lists.newArrayList(benefitFillService.getBenefitData(benefit));
+                    return Lists.newArrayList(benefitBean.getBenefitData(benefit));
                 } catch (AccountNotFoundException e) {
                     error(getString("account_not_found"));
                 } catch (Exception e) {
@@ -173,7 +173,7 @@ public class BenefitConnectPanel extends Panel {
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
                 BenefitData selectedBenefitData = benefitDataModel.getObject();
                 if (validateBenefitData(selectedBenefitData)) {
-                    benefitFillService.connectBenefit(benefit, selectedBenefitData);
+                    benefitBean.connectBenefit(benefit, selectedBenefitData);
 
                     if (toUpdate != null) {
                         for (MarkupContainer container : toUpdate) {
