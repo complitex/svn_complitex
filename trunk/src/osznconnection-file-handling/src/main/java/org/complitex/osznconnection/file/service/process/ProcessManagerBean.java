@@ -3,6 +3,7 @@ package org.complitex.osznconnection.file.service.process;
 import org.complitex.dictionaryfw.entity.Log;
 import org.complitex.dictionaryfw.service.LogBean;
 import org.complitex.dictionaryfw.service.executor.ExecutorBean;
+import org.complitex.dictionaryfw.service.executor.IExecutorListener;
 import org.complitex.dictionaryfw.service.executor.ITaskBean;
 import org.complitex.osznconnection.file.Module;
 import org.complitex.osznconnection.file.entity.Config;
@@ -252,6 +253,18 @@ public class ProcessManagerBean {
 
         executorBean.execute(groups,
                 saveTaskBean,
+                new IExecutorListener<RequestFileGroup>() {
+                    @Override
+                    public void onComplete(List<RequestFileGroup> processed) {
+                        try {
+                            SaveUtil.createResult(processed);
+                        } catch (StorageNotFoundException e) {
+                            log.error("Ошибка создания файла Result.txt.", e);
+                            logBean.error(Module.NAME, ProcessManagerBean.class, RequestFileGroup.class, null,
+                                    Log.EVENT.CREATE, "Ошибка создания файла Result.txt. Причина: {0}", e.getMessage());
+                        }
+                    }
+                },
                 configBean.getInteger(Config.SAVE_THREAD_SIZE, true),
                 configBean.getInteger(Config.SAVE_MAX_ERROR_COUNT, true));
     }

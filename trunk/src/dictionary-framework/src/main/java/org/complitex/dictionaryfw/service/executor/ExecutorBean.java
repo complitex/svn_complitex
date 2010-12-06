@@ -74,13 +74,19 @@ public class ExecutorBean {
         return stop.get();
     }
 
-    private <T extends ILoggable> void executeNext(final Queue<T> queue, final ITaskBean<T> task, final int maxErrors){
+    @SuppressWarnings({"unchecked"})
+    private <T extends ILoggable> void executeNext(final Queue<T> queue, final ITaskBean<T> task,
+                                                   final IExecutorListener<T> listener, final int maxErrors){
         T object = queue.poll();
 
         //Все задачи выполнены
         if (object == null){
             if (STATUS.RUNNING.equals(status) && runningThread.get() == 0){
                 status = STATUS.COMPLETED;
+
+                if (listener != null) {
+                    listener.onComplete((List<T>) processed);
+                }
 
                 log.info("Процесс {} завершен", task.getControllerClass());
                 logInfo(task, "Процесс {0} завершен", task.getControllerClass().getSimpleName());
@@ -142,7 +148,7 @@ public class ExecutorBean {
                 }
 
                 if (next) {
-                    executeNext(queue, task, maxErrors);
+                    executeNext(queue, task, listener, maxErrors);
                 }
             }
         });
@@ -150,7 +156,13 @@ public class ExecutorBean {
         log.info("Выполнение процесса {} над объектом {}", task.getControllerClass().getSimpleName(), object);
     }
 
-    public <T extends ILoggable> void execute(List<T> objects, final ITaskBean<T> task, int maxThread, final int maxErrors){
+    private <T extends ILoggable> void executeNext(final Queue<T> queue, final ITaskBean<T> task, final int maxErrors){
+        executeNext(queue, task, null, maxErrors);
+    }
+
+
+    public <T extends ILoggable> void execute(List<T> objects, final ITaskBean<T> task, IExecutorListener<T> listener,
+                                              int maxThread, final int maxErrors){
         stop.set(false);
 
         successCount = 0;
@@ -178,8 +190,12 @@ public class ExecutorBean {
         queue.addAll(objects);
 
         for (int i = 0; i < maxThread; ++i){
-            executeNext(queue, task, maxErrors);
+            executeNext(queue, task, listener, maxErrors);
         }
+    }
+
+    public <T extends ILoggable> void execute(List<T> objects, final ITaskBean<T> task, int maxThread, final int maxErrors){
+        execute(objects, task, null, maxThread, maxErrors);
     }
 
     public void cancel(){

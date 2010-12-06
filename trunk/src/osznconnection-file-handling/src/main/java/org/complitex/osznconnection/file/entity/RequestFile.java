@@ -5,6 +5,7 @@ import org.complitex.dictionaryfw.entity.LogChangeList;
 
 import java.io.File;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -38,6 +39,8 @@ public class RequestFile implements ILoggable {
     private Integer loadedRecordCount = 0;
     private Integer bindedRecordCount = 0;
     private String absolutePath;
+
+    private List<AbstractRequest> requests;
 
     public boolean isPayment() {
         return TYPE.PAYMENT.equals(type);
@@ -222,6 +225,14 @@ public class RequestFile implements ILoggable {
 
     public void setAbsolutePath(String absolutePath) {
         this.absolutePath = absolutePath;
+    }
+
+    public List<AbstractRequest> getRequests() {
+        return requests;
+    }
+
+    public void setRequests(List<AbstractRequest> requests) {
+        this.requests = requests;
     }
 
     @Override
