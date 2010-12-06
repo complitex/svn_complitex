@@ -166,6 +166,7 @@ public class SaveTaskBean implements ITaskBean<RequestFileGroup>{
             List<AbstractRequest> rows;
             try {
                 rows = getAbstractRequests(requestFile);
+                requestFile.setRequests(rows);
             } catch (Exception e) {
                 throw new SqlSessionException(e);
             }
