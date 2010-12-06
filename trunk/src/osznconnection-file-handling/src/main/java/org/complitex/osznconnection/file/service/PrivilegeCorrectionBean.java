@@ -6,12 +6,12 @@ package org.complitex.osznconnection.file.service;
 
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
-import org.complitex.osznconnection.file.entity.Correction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import java.util.List;
+import org.complitex.osznconnection.file.entity.example.CorrectionExample;
 
 /**
  * Класс для работы с коррекциями привилегий.
@@ -32,7 +32,7 @@ public class PrivilegeCorrectionBean extends AbstractBean {
      */
     @Transactional
     private Long findInternalPrivilege(String organizationCode, long organizationId) {
-        Correction example = new Correction();
+        CorrectionExample example = new CorrectionExample();
         example.setCode(organizationCode);
         example.setOrganizationId(organizationId);
         List<Long> ids = sqlSession().selectList(MAPPING_NAMESPACE + ".findInternalPrivilege", example);
@@ -50,7 +50,7 @@ public class PrivilegeCorrectionBean extends AbstractBean {
      */
     @Transactional
     private String findPrivilegeCode(long objectId, long organizationId) {
-        Correction example = new Correction();
+        CorrectionExample example = new CorrectionExample();
         example.setObjectId(objectId);
         example.setOrganizationId(organizationId);
         List<String> codes = sqlSession().selectList(MAPPING_NAMESPACE + ".findPrivilegeCode", example);

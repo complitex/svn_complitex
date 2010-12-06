@@ -152,9 +152,9 @@
     <select id="find" resultMap="benefitResultMap"
             parameterType="org.complitex.osznconnection.file.entity.example.BenefitExample">
         SELECT
-            DISTINCT b.`id` id, b.`request_file_id`, b.`OWN_NUM_SR`, b.`F_NAM`, b.`M_NAM`, b.`SUR_NAM`, b.`status`,
+            DISTINCT b.`id`, b.`request_file_id`, b.`OWN_NUM_SR`, b.`F_NAM`, b.`M_NAM`, b.`SUR_NAM`, b.`status`,
             p.`N_NAME` city, p.`VUL_NAME` street, p.`BLD_NUM` building_number, p.`CORP_NUM` building_corp,
-            p.`FLAT` apartment, bf.`organization_id` organization_id 
+            p.`FLAT` apartment, bf.`organization_id`, b.`account_number`, b.`IND_COD`, b.`PSP_SER`, b.`PSP_NUM`, b.`PRIV_CAT`
         FROM
             `benefit` b
             JOIN `request_file` bf ON b.`request_file_id` = bf.`id`
@@ -162,21 +162,21 @@
             LEFT JOIN `payment` p ON (b.`OWN_NUM_SR` = p.`OWN_NUM_SR` AND p.`request_file_id` = pf.`id`)
         WHERE
             b.`request_file_id` = #{requestFileId}
-        <include refid="org.complitex.osznconnection.file.service.BenefitBean.filter"/>
-        <if test="orderByClause != null">
-            ORDER BY ${orderByClause}
-            <choose>
-                <when test="asc">
-                    ASC
-                </when>
-                <otherwise>
-                    DESC
-                </otherwise>
-            </choose>
-        </if>
-        <if test="size != 0">
-            limit #{start},#{size}
-        </if>
+            <include refid="org.complitex.osznconnection.file.service.BenefitBean.filter"/>
+            <if test="orderByClause != null">
+                ORDER BY ${orderByClause}
+                <choose>
+                    <when test="asc">
+                        ASC
+                    </when>
+                    <otherwise>
+                        DESC
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="size != 0">
+                limit #{start},#{size}
+            </if>
     </select>
 
     <select id="countByFile" resultType="int" parameterType="hashmap">
@@ -311,5 +311,9 @@
         `request_file_id` = #{fileId}
     </update>
 
+    <update id="updateStatusByAccountNumber" parameterType="map">
+        UPDATE `benefit` SET `status` = #{status}
+            WHERE `request_file_id` = #{fileId} AND `account_number` = #{accountNumber}
+    </update>
 
 </mapper>

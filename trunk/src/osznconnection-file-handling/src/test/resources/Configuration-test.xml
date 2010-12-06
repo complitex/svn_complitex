@@ -2,13 +2,6 @@
 
 <!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
-    <typeAliases>
-        <typeAlias type="org.complitex.dictionaryfw.entity.StringCulture" alias="StringCulture"/>
-        <typeAlias type="org.complitex.dictionaryfw.entity.InsertParameter" alias="InsertParameter"/>
-        <typeAlias type="org.complitex.dictionaryfw.entity.DomainObject" alias="DomainObject"/>
-        <typeAlias type="org.complitex.dictionaryfw.entity.Attribute" alias="Attribute"/>
-        <typeAlias type="org.complitex.dictionaryfw.entity.example.DomainObjectExample" alias="DomainObjectExample"/>
-    </typeAliases>
 
     <environments default="remote">
         <environment id="remote">
@@ -28,13 +21,6 @@
         </environment>
     </environments>
     <mappers>
-        <mapper resource="org/complitex/dictionaryfw/entity/Locale.xml"/>
-        <mapper resource="org/complitex/dictionaryfw/entity/Sequence.xml"/>
-        <mapper resource="org/complitex/dictionaryfw/entity/StringCulture.xml"/>
-        <mapper resource="org/complitex/dictionaryfw/entity/description/Entity.xml"/>
-        <mapper resource="org/complitex/dictionaryfw/entity/Attribute.xml"/>
-        <mapper resource="org/complitex/dictionaryfw/entity/DomainObject.xml"/>
-
         <mapper resource="org/complitex/osznconnection/file/service/PaymentBean.xml"/>
         <mapper resource="org/complitex/osznconnection/file/service/CorrectionBean.xml"/>
         <mapper resource="org/complitex/osznconnection/file/service/AddressCorrectionBean.xml"/>

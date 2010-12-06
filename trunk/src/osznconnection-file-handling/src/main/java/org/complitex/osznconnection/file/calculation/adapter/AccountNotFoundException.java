@@ -9,11 +9,16 @@ import java.util.List;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 08.11.10 15:43
  */
-public class AccountNotFoundException extends AbstractException{
+public class AccountNotFoundException extends AbstractException {
+
     private static String MESSAGE_PATTERN = "Номер личного счета не найден";
 
     //todo add useful description information
     public AccountNotFoundException(Throwable cause, AbstractRequest request) {
+        super(cause, MESSAGE_PATTERN);
+    }
+
+    public AccountNotFoundException(Throwable cause) {
         super(cause, MESSAGE_PATTERN);
     }
 

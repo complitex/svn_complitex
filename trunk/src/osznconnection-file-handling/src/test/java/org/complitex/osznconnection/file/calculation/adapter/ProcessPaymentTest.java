@@ -48,8 +48,8 @@ public class ProcessPaymentTest {
 
         ICalculationCenterAdapter adapter = new DefaultCalculationCenterAdapter() {
 
-//            @Override
-            protected SqlSession openSession() {
+            @Override
+            protected SqlSession sqlSession() {
                 return sqlSessionFactory.openSession(false);
             }
 
@@ -73,7 +73,7 @@ public class ProcessPaymentTest {
         try {
             adapter.processPaymentAndBenefit(p, b, 2);
         } catch (AccountNotFoundException e) {
-            e.printStackTrace();
+            System.out.println("Account not found");
         }
         System.out.println("Status : " + p.getStatus() + ", FROG : " + p.getField(PaymentDBF.FROG) + ", FL_PAY : " + p.getField(PaymentDBF.FL_PAY)
                 + ", NM_PAY : " + p.getField(PaymentDBF.NM_PAY) + ", DEBT : " + p.getField(PaymentDBF.DEBT) + ", NORM_F_1 : "

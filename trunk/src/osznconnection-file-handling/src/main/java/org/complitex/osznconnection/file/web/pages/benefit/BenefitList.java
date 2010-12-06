@@ -41,6 +41,7 @@ import org.complitex.osznconnection.file.web.component.StatusRenderer;
 import javax.ejb.EJB;
 import java.util.Arrays;
 import java.util.Iterator;
+import org.complitex.dictionaryfw.util.StringUtil;
 
 /**
  *
@@ -166,7 +167,7 @@ public final class BenefitList extends TemplatePage {
                 item.add(new Label("building", benefit.getBuildingNumber()));
                 item.add(new Label("corp", benefit.getBuildingCorp()));
                 item.add(new Label("apartment", benefit.getApartment()));
-                item.add(new Label("ord_fam", (String) benefit.getField(BenefitDBF.ORD_FAM)));
+                item.add(new Label("ord_fam", StringUtil.valueOf((Integer) benefit.getField(BenefitDBF.ORD_FAM))));
                 item.add(new Label("status", StatusRenderer.displayValue(benefit.getStatus())));
                 item.add(new IndicatingAjaxLink("connect"){
 
@@ -177,7 +178,7 @@ public final class BenefitList extends TemplatePage {
 
                     @Override
                     public boolean isVisible() {
-                        return RequestStatus.WRONG_ACCOUNT_NUMBER.equals(benefit.getStatus());
+                        return !benefit.hasPriv() && benefit.getStatus() != RequestStatus.PROCESSED;
                     }
                 });
             }

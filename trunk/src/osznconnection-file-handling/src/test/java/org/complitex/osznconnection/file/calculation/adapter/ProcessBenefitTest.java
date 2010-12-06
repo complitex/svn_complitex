@@ -14,6 +14,7 @@ import org.complitex.osznconnection.file.entity.Benefit;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Date;
+import org.complitex.osznconnection.file.entity.BenefitDBF;
 
 /**
  *
@@ -46,8 +47,8 @@ public class ProcessBenefitTest {
 
         ICalculationCenterAdapter adapter = new DefaultCalculationCenterAdapter() {
 
-//            @Override
-            protected SqlSession openSession() {
+            @Override
+            protected SqlSession sqlSession() {
                 return sqlSessionFactory.openSession(false);
             }
 
@@ -58,12 +59,13 @@ public class ProcessBenefitTest {
             }
         };
         Benefit b = new Benefit();
-        b.setAccountNumber("1000460875");
+        b.setAccountNumber("1000001108");
+        b.setField(BenefitDBF.IND_COD, "2142426432");
         b.setOrganizationId(1L);
         try {
             adapter.processBenefit(new Date(), Lists.newArrayList(b), 2);
         } catch (AccountNotFoundException e) {
-            e.printStackTrace();
+            System.out.println("Account not found");
         }
         System.out.println("Status : " + b.getStatus());
     }
