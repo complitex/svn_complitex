@@ -13,6 +13,7 @@ import java.io.Serializable;
  * @author Artem
  */
 public class BenefitExample implements Serializable {
+
     private String firstName;
     private String middleName;
     private String lastName;
@@ -28,6 +29,7 @@ public class BenefitExample implements Serializable {
     private String orderByClause;
     private boolean asc;
     private String account;
+    private String privilege;
 
     public String getApartment() {
         return apartment;
@@ -147,5 +149,13 @@ public class BenefitExample implements Serializable {
 
     public void setAccount(String account) {
         this.account = account;
+    }
+
+    public String getPrivilege() {
+        return privilege;
+    }
+
+    public void setPrivilege(String privilege) {
+        this.privilege = privilege;
     }
 }

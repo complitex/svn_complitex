@@ -131,6 +131,9 @@
         <if test="apartment != null">
             AND p.`FLAT` LIKE CONCAT('%', #{apartment}, '%')
         </if>
+        <if test="privilege != null">
+            AND b.`PRIV_CAT` = #{privilege}
+        </if>
         <if test="status != null">
             AND b.`status` = #{status}
         </if>
