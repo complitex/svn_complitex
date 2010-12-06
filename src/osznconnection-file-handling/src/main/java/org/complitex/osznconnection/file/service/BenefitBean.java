@@ -55,6 +55,7 @@ public class BenefitBean extends AbstractBean {
         BUILDING("building_number"),
         CORP("building_corp"),
         APARTMENT("apartment"),
+        PRIVILEGE(BenefitDBF.PRIV_CAT.name()),
         STATUS("status");
         private String orderBy;
 

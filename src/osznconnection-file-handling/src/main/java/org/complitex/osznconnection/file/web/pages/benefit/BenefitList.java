@@ -126,6 +126,7 @@ public final class BenefitList extends TemplatePage {
         filterForm.add(new TextField<String>("streetFilter", new PropertyModel<String>(example, "street")));
         filterForm.add(new TextField<String>("buildingFilter", new PropertyModel<String>(example, "building")));
         filterForm.add(new TextField<String>("corpFilter", new PropertyModel<String>(example, "corp")));
+        filterForm.add(new TextField<String>("privFilter", new PropertyModel<String>(example, "privilege")));
         filterForm.add(new TextField<String>("apartmentFilter", new PropertyModel<String>(example, "apartment")));
         filterForm.add(new DropDownChoice<RequestStatus>("statusFilter", new PropertyModel<RequestStatus>(example, "status"),
                 Arrays.asList(RequestStatus.values()), new StatusRenderer()));
@@ -167,7 +168,7 @@ public final class BenefitList extends TemplatePage {
                 item.add(new Label("building", benefit.getBuildingNumber()));
                 item.add(new Label("corp", benefit.getBuildingCorp()));
                 item.add(new Label("apartment", benefit.getApartment()));
-                item.add(new Label("ord_fam", StringUtil.valueOf((Integer) benefit.getField(BenefitDBF.ORD_FAM))));
+                item.add(new Label("priv", StringUtil.valueOf((Integer) benefit.getField(BenefitDBF.PRIV_CAT))));
                 item.add(new Label("status", StatusRenderer.displayValue(benefit.getStatus())));
                 item.add(new IndicatingAjaxLink("connect"){
 
@@ -194,6 +195,7 @@ public final class BenefitList extends TemplatePage {
         filterForm.add(new ArrowOrderByBorder("buildingHeader", BenefitBean.OrderBy.BUILDING.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("corpHeader", BenefitBean.OrderBy.CORP.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("apartmentHeader", BenefitBean.OrderBy.APARTMENT.getOrderBy(), dataProvider, data, content));
+        filterForm.add(new ArrowOrderByBorder("privHeader", BenefitBean.OrderBy.PRIVILEGE.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("statusHeader", BenefitBean.OrderBy.STATUS.getOrderBy(), dataProvider, data, content));
 
         Button back = new Button("back") {
