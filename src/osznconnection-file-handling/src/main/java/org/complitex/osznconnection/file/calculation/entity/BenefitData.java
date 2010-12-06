@@ -7,6 +7,7 @@ import java.io.Serializable;
  *         Date: 18.10.2010 17:11:01
  */
 public class BenefitData implements Serializable {
+
     private String firstName;
     private String lastName;
     private String middleName;
@@ -16,6 +17,7 @@ public class BenefitData implements Serializable {
     private String orderFamily;
     private String code;
     private String userCount;
+    private String osznBenefitCode;
 
     public String getFirstName() {
         return firstName;
@@ -87,5 +89,20 @@ public class BenefitData implements Serializable {
 
     public void setUserCount(String userCount) {
         this.userCount = userCount;
+    }
+
+    public String getOsznBenefitCode() {
+        return osznBenefitCode;
+    }
+
+    public void setOsznBenefitCode(String osznBenefitCode) {
+        this.osznBenefitCode = osznBenefitCode;
+    }
+
+    @Override
+    public String toString() {
+        return "first name = " + firstName + ", middle name = " + middleName + ", last name = " + lastName + ", Inn = " + inn
+                + ", passport serial = " + passportSerial + ", passport number = " + passportNumber + ", benefit code = " + code
+                + ", order fam = " + orderFamily + ", user count = " + userCount;
     }
 }

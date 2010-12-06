@@ -1,7 +1,6 @@
 package org.complitex.osznconnection.file.service;
 
 import org.complitex.dictionaryfw.service.AbstractBean;
-import org.complitex.osznconnection.file.entity.Benefit;
 import org.complitex.osznconnection.file.entity.RequestFileGroup;
 import org.complitex.osznconnection.file.entity.RequestFileGroupFilter;
 
@@ -9,7 +8,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.util.HashMap;
 import java.util.List;
-import org.complitex.osznconnection.file.entity.Payment;
+import org.complitex.dictionaryfw.mybatis.Transactional;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -59,10 +58,24 @@ public class RequestFileGroupBean extends AbstractBean{
         sqlSession().delete(MAPPING_NAMESPACE + ".clearEmptyGroup");
     }
 
-    public void updateStatus(final long requestFileId, final RequestFileGroup.STATUS status){
-        sqlSession().update(MAPPING_NAMESPACE + ".updateStatus", new HashMap<String,  Object>(){{
-            put("fileId", requestFileId);
-            put("status", status);
-        }});
+    @Transactional
+    public void updateStatus(final long requestFileId, final RequestFileGroup.STATUS status) {
+        sqlSession().update(MAPPING_NAMESPACE + ".updateStatus", new HashMap<String, Object>() {
+
+            {
+                put("fileId", requestFileId);
+                put("status", status);
+            }
+        });
+    }
+
+    @Transactional
+    public long getPaymentFileId(long benefitFileId) {
+        return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".getPaymentFileId", benefitFileId);
+    }
+
+    @Transactional
+    public long getBenefitFileId(long paymentFileId) {
+        return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".getBenefitFileId", paymentFileId);
     }
 }

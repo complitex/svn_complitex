@@ -51,7 +51,9 @@ public enum RequestStatus implements IEnumCode {
     /* Указывает на то, что код привилегии не найден в таблице коррекций
         См. org.complitex.osznconnection.file.calculation.adapter.DefaultCalculationCenterAdapter.processBenefitData()
      */
-    BENEFIT_NOT_FOUND(218, false, false);
+    BENEFIT_NOT_FOUND(218, false, false),
+
+    INVALID_FORMAT(219, false, false);
 
     private boolean localAddressCorrected;
 
@@ -103,6 +105,7 @@ public enum RequestStatus implements IEnumCode {
         result.add(TARIF_CODE2_1_NOT_FOUND);
         result.add(WRONG_ACCOUNT_NUMBER);
         result.add(BENEFIT_NOT_FOUND);
+        result.add(INVALID_FORMAT);
         return result;
     }
 

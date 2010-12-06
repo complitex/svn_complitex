@@ -370,11 +370,4 @@
         WHERE `request_file_id` = #{fileId}
     </update>
 
-    <select id="getBenefitFileId" parameterType="map" resultType="long">
-        SELECT b.`id` FROM `request_file` b
-               JOIN `request_file_group` rfg ON b.`group_id` = rfg.`id`
-               JOIN `request_file` p ON (p.`group_id` = rfg.`id` AND p.`type` = 'PAYMENT')
-        WHERE b.`type` = 'BENEFIT' AND p.`id` = #{paymentFileId}
-    </select>
-
 </mapper>

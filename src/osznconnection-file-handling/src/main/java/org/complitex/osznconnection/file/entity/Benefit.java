@@ -153,4 +153,8 @@ public class Benefit extends AbstractRequest {
     public void setStreet(String street) {
         this.street = street;
     }
+
+    public boolean hasPriv(){
+        return getField(BenefitDBF.PRIV_CAT) != null;
+    }
 }

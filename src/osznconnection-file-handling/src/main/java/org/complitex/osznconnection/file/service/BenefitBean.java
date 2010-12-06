@@ -72,7 +72,6 @@ public class BenefitBean extends AbstractBean {
         return unboundCount(fileId) == 0;
     }
 
-    @SuppressWarnings({"unchecked"})
     @Transactional
     public List<Benefit> find(BenefitExample example) {
         return (List<Benefit>) sqlSession().selectList(MAPPING_NAMESPACE + ".find", example);
@@ -201,15 +200,6 @@ public class BenefitBean extends AbstractBean {
         return (Date) sqlSession().selectOne(MAPPING_NAMESPACE + ".findDat1", params);
     }
 
-    @Transactional
-    public Date findDat1(final Benefit benefit) {
-        return (Date) sqlSession().selectOne(MAPPING_NAMESPACE + ".findDat1",
-                new HashMap<String, Object>(){{
-                    put("fileId", benefit.getRequestFileId());
-                    put("accountNumber", benefit.getAccountNumber());
-                }});
-    }
-
     /**
      * Получает все не null account numbers в файле.
      * @param fileId
@@ -244,6 +234,15 @@ public class BenefitBean extends AbstractBean {
     @Transactional
     public void update(Benefit benefit) {
         sqlSession().update(MAPPING_NAMESPACE + ".update", benefit);
+    }
+
+    @Transactional
+    public void updateStatusByAccountNumber(long fileId, String accountNumber, RequestStatus status){
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("accountNumber", accountNumber);
+        params.put("fileId", fileId);
+        params.put("status", status);
+        sqlSession().update(MAPPING_NAMESPACE+".updateStatusByAccountNumber", params);
     }
 
     /**

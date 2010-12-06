@@ -237,16 +237,11 @@ public class PaymentBean extends AbstractBean {
 
         personAccountLocalBean.saveOrUpdate(payment, calculationCenterId);
 
-        Long paymentFileId = payment.getRequestFileId();
-        Long benefitFileId = getBenefitFileId(paymentFileId);
-        if (benefitFileId != null && isPaymentFileBound(paymentFileId) && benefitBean.isBenefitFileBound(benefitFileId)) {
+        long paymentFileId = payment.getRequestFileId();
+        long benefitFileId = requestFileGroupBean.getBenefitFileId(paymentFileId);
+        if (isPaymentFileBound(paymentFileId) && benefitBean.isBenefitFileBound(benefitFileId)) {
             requestFileGroupBean.updateStatus(paymentFileId, RequestFileGroup.STATUS.BOUND);
         }
-    }
-
-    @Transactional
-    private Long getBenefitFileId(long paymentFileId) {
-        return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".getBenefitFileId", paymentFileId);
     }
 
     /**

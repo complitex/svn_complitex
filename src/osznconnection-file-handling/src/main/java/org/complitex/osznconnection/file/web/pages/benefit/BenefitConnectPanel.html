@@ -2,56 +2,74 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml"  xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
-<wicket:panel>
-    <div wicket:id="dialog">
-        <div wicket:id="container">
-            <div wicket:id="messages"></div>
+    <head>
+        <title></title>
+    </head>
+    <body>
+        <wicket:panel>
+            <div wicket:id="dialog">
+                <div wicket:id="container">
+                    <div wicket:id="messages"></div>
 
-            <div>
-                <table class="tbForm">
-                    <tr>
-                        <th><wicket:message key="name"/></th>
-                        <td><span wicket:id="name"></span></td>
-                    </tr>
-                    <tr>
-                        <th><wicket:message key="address"/></th>
-                        <td><span wicket:id="address"></span></td>
-                    </tr>
-                </table>
+                    <div>
+                        <table class="tbForm">
+                            <tr>
+                                <th><wicket:message key="name"/> :</th>
+                                <td><span wicket:id="name"></span></td>
+                            </tr>
+                            <tr>
+                                <th><wicket:message key="address"/> :</th>
+                                <td><span wicket:id="address"></span></td>
+                            </tr>
+                            <tr>
+                                <th><wicket:message key="account_number"/> :</th>
+                                <td><span wicket:id="accountNumber"></span></td>
+                            </tr>
+                            <tr>
+                                <th><wicket:message key="inn"/> :</th>
+                                <td><span wicket:id="inn"></span></td>
+                            </tr>
+                            <tr>
+                                <th><wicket:message key="passport"/> :</th>
+                                <td><span wicket:id="passport"></span></td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <form action="#" wicket:id="form">
+                        <table class="tbColor" cellpadding="0" cellspacing="0" border="0" wicket:id="table">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th><wicket:message key="firstName"/></th>
+                                    <th><wicket:message key="lastName"/></th>
+                                    <th><wicket:message key="middleName"/></th>
+                                    <th><wicket:message key="inn"/></th>
+                                    <th><wicket:message key="passport"/></th>
+                                    <th><wicket:message key="orderFamily"/></th>
+                                    <th><wicket:message key="code"/></th>
+                                    <th><wicket:message key="userCount"/></th>
+                                </tr>
+                            </thead>
+                            <tbody wicket:id="radioGroup">
+                                <tr wicket:id="data">
+                                    <td><input type="radio" wicket:id="radio"/></td>
+                                    <td><span wicket:id="firstName"></span></td>
+                                    <td><span wicket:id="lastName"></span></td>
+                                    <td><span wicket:id="middleName"></span></td>
+                                    <td><span wicket:id="inn"></span></td>
+                                    <td><span wicket:id="passport"></span></td>
+                                    <td><span wicket:id="orderFamily"></span></td>
+                                    <td><span wicket:id="code"></span></td>
+                                    <td><span wicket:id="userCount"></span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <input type="submit" class="btnBig" wicket:id="connect" wicket:message="value:connect"/>
+                        <input type="button" class="btnMiddle" wicket:id="cancel" wicket:message="value:cancel"/>
+                    </form>
+                </div>
             </div>
-
-            <form action="#" wicket:id="form">
-                <table class="tbColor">
-                    <thead>
-                    <th></th>
-                    <th><wicket:message key="firstName"/></th>
-                    <th><wicket:message key="lastName"/></th>
-                    <th><wicket:message key="middleName"/></th>
-                    <th><wicket:message key="inn"/></th>
-                    <th><wicket:message key="passport"/></th>
-                    <th><wicket:message key="orderFamily"/></th>
-                    <th><wicket:message key="code"/></th>
-                    <th><wicket:message key="userCount"/></th>
-                    </thead>
-                    <tbody wicket:id="radioGroup">
-                    <tr wicket:id="listView">
-                        <td><input type="radio" wicket:id="radio"/></td>
-                        <td><span wicket:id="firstName"></span></td>
-                        <td><span wicket:id="lastName"></span></td>
-                        <td><span wicket:id="middleName"></span></td>
-                        <td><span wicket:id="inn"></span></td>
-                        <td><span wicket:id="passport"></span></td>
-                        <td><span wicket:id="orderFamily"></span></td>
-                        <td><span wicket:id="code"></span></td>
-                        <td><span wicket:id="userCount"></span></td>
-                    </tr>
-                    </tbody>
-                </table>
-
-                <input type="submit" class="btnBig" wicket:id="connect" wicket:message="value:connect"/>
-                <input type="submit" class="btnMiddle" wicket:id="cancel" wicket:message="value:cancel"/>
-            </form>
-        </div>
-    </div>
-</wicket:panel>
+        </wicket:panel>
+    </body>
 </html>
