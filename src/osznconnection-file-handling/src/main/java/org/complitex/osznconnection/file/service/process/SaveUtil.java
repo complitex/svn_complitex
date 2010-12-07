@@ -10,9 +10,7 @@ import org.complitex.osznconnection.file.service.exception.StorageNotFoundExcept
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -23,6 +21,7 @@ import java.util.*;
 public class SaveUtil {
     private final static Logger log = LoggerFactory.getLogger(SaveUtil.class);
 
+    private final static String FILE_ENCODING = "cp1251";
     private final static String RESULT_FILE_NAME = "Result";
     private final static String RESULT_FILE_EXT = ".txt";
 
@@ -59,33 +58,33 @@ public class SaveUtil {
 
             File file = RequestFileStorage.getInstance().createOutputFile(name, directory);
 
-            FileWriter fileWriter = new FileWriter(file);
+            Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), FILE_ENCODING));
 
-            fileWriter.write("Время выгрузки: " + sdf.format(now));
-            fileWriter.write("\n\nКаталог: " + directory);
+            writer.write("Время выгрузки: " + sdf.format(now));
+            writer.write("\n\nКаталог: " + directory);
 
             int requestCount = 0;
 
             for (RequestFileGroup group : groups){
                 int count = group.getPaymentFile().getDbfRecordCount();
 
-                fileWriter.write("\n" + group.getPaymentFile().getName() + ", " + group.getBenefitFile().getName()
+                writer.write("\n" + group.getPaymentFile().getName() + ", " + group.getBenefitFile().getName()
                         + " - Запросов: " + count);
-                writeErrorStatus(group, fileWriter);
+                writeErrorStatus(group, writer);
 
                 requestCount += count;
             }
 
-            fileWriter.write("\n\nВсего пар файлов: " + groups.size());
-            fileWriter.write("\nВсего запросов: " + requestCount);
+            writer.write("\n\nВсего пар файлов: " + groups.size());
+            writer.write("\nВсего запросов: " + requestCount);
 
-            fileWriter.close();
+            writer.close();
         } catch (IOException e) {
             log.error("Ошибка сохранения файла Result.txt", e);
         }
     }
 
-    private static void writeErrorStatus(RequestFileGroup group, FileWriter fileWriter) throws IOException {
+    private static void writeErrorStatus(RequestFileGroup group, Writer fileWriter) throws IOException {
         List<AbstractRequest> payments = group.getPaymentFile().getRequests();
 
         if (payments != null) {
