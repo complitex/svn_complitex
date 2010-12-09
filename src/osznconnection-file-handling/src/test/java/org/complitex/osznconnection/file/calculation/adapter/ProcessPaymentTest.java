@@ -4,6 +4,7 @@
  */
 package org.complitex.osznconnection.file.calculation.adapter;
 
+import com.google.common.collect.Lists;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -54,8 +55,13 @@ public class ProcessPaymentTest {
             }
 
             @Override
-            protected String getOSZNOwnershipCode(String calculationCenterOwnership, long calculationCenterId, long osznId) {
+            protected Long findInternalOwnership(String calculationCenterOwnership, long calculationCenterId) {
                 System.out.println("Original OWN_FRM : " + calculationCenterOwnership);
+                return 1L;
+            }
+
+            @Override
+            protected String findOSZNOwnershipCode(Long internalOwnership, long osznId) {
                 return "12";
             }
 
@@ -67,11 +73,12 @@ public class ProcessPaymentTest {
         };
         Payment p = new Payment();
         Benefit b = new Benefit();
-        p.setAccountNumber("1000460875");
+        b.setId(1L);
+        p.setAccountNumber("1000001108");
         p.setOrganizationId(1L);
         p.setField(PaymentDBF.DAT1, new Date());
         try {
-            adapter.processPaymentAndBenefit(p, b, 2);
+            adapter.processPaymentAndBenefit(p, Lists.newArrayList(b), 2);
         } catch (AccountNotFoundException e) {
             System.out.println("Account not found");
         }

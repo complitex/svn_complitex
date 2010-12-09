@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.Collection;
 import org.complitex.dictionaryfw.mybatis.Transactional;
-import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.entity.*;
 import org.complitex.osznconnection.file.entity.example.BenefitExample;
 
@@ -20,6 +19,8 @@ import org.complitex.osznconnection.file.calculation.adapter.AccountNotFoundExce
 import org.complitex.osznconnection.file.calculation.adapter.ICalculationCenterAdapter;
 import org.complitex.osznconnection.file.calculation.entity.BenefitData;
 import org.complitex.osznconnection.file.calculation.service.CalculationCenterBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Обработка записей файла запроса возмещения по льготам 
@@ -28,8 +29,10 @@ import org.complitex.osznconnection.file.calculation.service.CalculationCenterBe
  * @author Anatoly A. Ivanov java@inheaven.ru
  */
 @Stateless(name = "BenefitBean")
-public class BenefitBean extends AbstractBean {
-    
+public class BenefitBean extends AbstractRequestBean {
+
+    private static final Logger log = LoggerFactory.getLogger(BenefitBean.class);
+
     public static final String MAPPING_NAMESPACE = BenefitBean.class.getName();
 
     @EJB
@@ -93,7 +96,9 @@ public class BenefitBean extends AbstractBean {
 
     @Transactional
     public List<Benefit> find(BenefitExample example) {
-        return (List<Benefit>) sqlSession().selectList(MAPPING_NAMESPACE + ".find", example);
+        List<Benefit> benefits = sqlSession().selectList(MAPPING_NAMESPACE + ".find", example);
+        loadWarnings(benefits, RequestFile.TYPE.BENEFIT);
+        return benefits;
     }
 
     @Transactional
@@ -107,7 +112,9 @@ public class BenefitBean extends AbstractBean {
 
     @SuppressWarnings({"unchecked"})
     public List<AbstractRequest> getBenefits(RequestFile requestFile) {
-        return sqlSession().selectList(MAPPING_NAMESPACE + ".selectBenefits", requestFile.getId());
+        List<AbstractRequest> benefits = sqlSession().selectList(MAPPING_NAMESPACE + ".selectBenefits", requestFile.getId());
+        loadWarnings(benefits, RequestFile.TYPE.BENEFIT);
+        return benefits;
     }
 
     @Transactional
@@ -161,14 +168,11 @@ public class BenefitBean extends AbstractBean {
      * Заполняет некоторые поля в benefit записях, соответствующих payment c id = paymentId.
      * Вызывается при обработке payment файла.
      * См. ProcessingRequestBean.process().
-     * @param paymentId
      * @param benefit
      */
     @Transactional
-    public void populateBenefit(long paymentId, Benefit benefit) {
-        Map<String, Object> params = benefit.getDbfFields();
-        params.put("paymentId", paymentId);
-        sqlSession().update(MAPPING_NAMESPACE + ".populateBenefit", params);
+    public void populateBenefit(Benefit benefit) {
+        sqlSession().update(MAPPING_NAMESPACE + ".populateBenefit", benefit);
     }
 
     /**
@@ -264,17 +268,21 @@ public class BenefitBean extends AbstractBean {
         sqlSession().update(MAPPING_NAMESPACE + ".updateStatusByAccountNumber", params);
     }
 
+    public List<Benefit> findByOSZ(Payment payment) {
+        return sqlSession().selectList(MAPPING_NAMESPACE + ".findByOSZ", payment);
+    }
+
     /**
-     * todo change parameter as Benefit object
      * очищает колонки которые заполняются во время связывания и обработки для записей benefit
      * @param fileId
      */
     @Transactional
     public void clearBeforeBinding(long fileId) {
-        Benefit parameter = new Benefit();
-        parameter.setRequestFileId(fileId);
-        parameter.setStatus(RequestStatus.CITY_UNRESOLVED_LOCALLY);
-        sqlSession().update(MAPPING_NAMESPACE + ".clearBeforeBinding", parameter);
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("status", RequestStatus.CITY_UNRESOLVED_LOCALLY);
+        params.put("fileId", fileId);
+        sqlSession().update(MAPPING_NAMESPACE + ".clearBeforeBinding", params);
+        clearWarnings(fileId, RequestFile.TYPE.BENEFIT);
     }
 
     /**
@@ -287,6 +295,7 @@ public class BenefitBean extends AbstractBean {
         params.put("statuses", RequestStatus.notBoundStatuses());
         params.put("fileId", fileId);
         sqlSession().update(MAPPING_NAMESPACE + ".clearBeforeProcessing", params);
+        clearWarnings(fileId, RequestFile.TYPE.BENEFIT);
     }
 
     public Collection<BenefitData> getBenefitData(Benefit benefit) throws AccountNotFoundException {
@@ -300,7 +309,12 @@ public class BenefitBean extends AbstractBean {
 
         for (BenefitData benefitDataItem : benefitData) {
             boolean suitable = true;
-            String osznBenefitCode = privilegeCorrectionBean.getOSZNPrivilegeCode(benefitDataItem.getCode(), calculationCenterId, osznId);
+
+            String osznBenefitCode = null;
+            Long internalPrivilege = privilegeCorrectionBean.findInternalPrivilege(benefitDataItem.getCode(), calculationCenterId);
+            if (internalPrivilege != null) {
+                osznBenefitCode = privilegeCorrectionBean.findPrivilegeCode(internalPrivilege, osznId);
+            }
 
             Integer benefitCodeAsInt = null;
             try {
@@ -316,7 +330,9 @@ public class BenefitBean extends AbstractBean {
             }
 
             if (suitable) {
-                benefitDataItem.setOsznBenefitCode(osznBenefitCode);
+                benefitDataItem.setPrivilegeObjectId(internalPrivilege);
+                benefitDataItem.setOsznPrivilegeCode(osznBenefitCode);
+                benefitDataItem.setCalcCenterId(calculationCenterId);
                 notConnectedBenefitData.add(benefitDataItem);
             }
         }
@@ -324,24 +340,24 @@ public class BenefitBean extends AbstractBean {
         return notConnectedBenefitData;
     }
 
-    public void connectBenefit(Benefit benefit, BenefitData benefitData) {
-        String osznBenefitCode = benefitData.getOsznBenefitCode();
-        if (osznBenefitCode == null) {
-            benefit.setStatus(RequestStatus.BENEFIT_NOT_FOUND);
-        } else {
-            benefit.setField(BenefitDBF.PRIV_CAT, Integer.valueOf(osznBenefitCode));
-            benefit.setField(BenefitDBF.ORD_FAM, Integer.valueOf(benefitData.getOrderFamily()));
-            benefit.setStatus(RequestStatus.PROCESSED);
-        }
+    public void connectBenefit(Benefit benefit, final BenefitData selectedBenefitData, boolean checkBenefitData) {
+        String osznBenefitCode = selectedBenefitData.getOsznPrivilegeCode();
+        benefit.setField(BenefitDBF.PRIV_CAT, Integer.valueOf(osznBenefitCode));
+        benefit.setField(BenefitDBF.ORD_FAM, Integer.valueOf(selectedBenefitData.getOrderFamily()));
+        benefit.setStatus(RequestStatus.PROCESSED);
 
         update(benefit);
 
-        try {
-            Collection<BenefitData> leftBenefitData = getBenefitData(benefit);
-            if (leftBenefitData == null || leftBenefitData.isEmpty()) {
-                updateStatusByAccountNumber(benefit.getRequestFileId(), benefit.getAccountNumber(), RequestStatus.PROCESSED);
+        if (checkBenefitData) {
+            try {
+                Collection<BenefitData> leftBenefitData = getBenefitData(benefit);
+                if (leftBenefitData == null || leftBenefitData.isEmpty()) {
+                    updateStatusByAccountNumber(benefit.getRequestFileId(), benefit.getAccountNumber(), RequestStatus.PROCESSED);
+                }
+            } catch (AccountNotFoundException e) {
             }
-        } catch (AccountNotFoundException e) {
+        } else {
+            updateStatusByAccountNumber(benefit.getRequestFileId(), benefit.getAccountNumber(), RequestStatus.PROCESSED);
         }
 
         long benefitFileId = benefit.getRequestFileId();

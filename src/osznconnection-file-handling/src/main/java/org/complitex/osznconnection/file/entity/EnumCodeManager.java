@@ -24,7 +24,7 @@ public final class EnumCodeManager {
     @SuppressWarnings({"unchecked"})
     private static Class<? extends IEnumCode>[] getSupportedEnums() {
         return new Class[]{
-                RequestStatus.class,
-                RequestFileGroup.STATUS.class};
+                    RequestStatus.class,
+                    RequestFileGroup.STATUS.class, RequestWarningStatus.class};
     }
 }

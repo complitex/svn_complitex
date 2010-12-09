@@ -21,7 +21,7 @@ import org.complitex.osznconnection.file.entity.example.CorrectionExample;
 public class PrivilegeCorrectionBean extends AbstractBean {
 
     private static final Logger log = LoggerFactory.getLogger(PrivilegeCorrectionBean.class);
-
+    
     private static final String MAPPING_NAMESPACE = PrivilegeCorrectionBean.class.getName();
 
     /**
@@ -31,7 +31,7 @@ public class PrivilegeCorrectionBean extends AbstractBean {
      * @return
      */
     @Transactional
-    private Long findInternalPrivilege(String organizationCode, long organizationId) {
+    public Long findInternalPrivilege(String organizationCode, long organizationId) {
         CorrectionExample example = new CorrectionExample();
         example.setCode(organizationCode);
         example.setOrganizationId(organizationId);
@@ -49,28 +49,13 @@ public class PrivilegeCorrectionBean extends AbstractBean {
      * @return
      */
     @Transactional
-    private String findPrivilegeCode(long objectId, long organizationId) {
+    public String findPrivilegeCode(long objectId, long organizationId) {
         CorrectionExample example = new CorrectionExample();
         example.setObjectId(objectId);
         example.setOrganizationId(organizationId);
         List<String> codes = sqlSession().selectList(MAPPING_NAMESPACE + ".findPrivilegeCode", example);
         if (codes != null && !codes.isEmpty()) {
             return codes.get(0);
-        }
-        return null;
-    }
-
-    /**
-     * Получить код коррекции привилегии по коду коррекции ЦН(calculationCenterPrivilegeCode), текущему ЦН(calculationCenterId) и ОСЗН(osznId)
-     * @param calculationCenterPrivilegeCode
-     * @param calculationCenterId
-     * @param osznId
-     * @return
-     */
-    public String getOSZNPrivilegeCode(String calculationCenterPrivilegeCode, long calculationCenterId, long osznId) {
-        Long objectId = findInternalPrivilege(calculationCenterPrivilegeCode, calculationCenterId);
-        if (objectId != null) {
-            return findPrivilegeCode(objectId, osznId);
         }
         return null;
     }

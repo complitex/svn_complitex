@@ -12,13 +12,15 @@
     </typeAliases>
 
     <typeHandlers>
-        <typeHandler handler="org.complitex.osznconnection.file.mybatis.EnumCodeTypeHandler" 
-                    javaType="org.complitex.osznconnection.file.entity.RequestStatus"/>
         <typeHandler handler="org.complitex.osznconnection.file.mybatis.EnumCodeTypeHandler"
-                    javaType="org.complitex.osznconnection.file.entity.RequestFileGroup$STATUS"/>
+                     javaType="org.complitex.osznconnection.file.entity.RequestStatus"/>
+        <typeHandler handler="org.complitex.osznconnection.file.mybatis.EnumCodeTypeHandler"
+                     javaType="org.complitex.osznconnection.file.entity.RequestFileGroup$STATUS"/>
+        <typeHandler handler="org.complitex.osznconnection.file.mybatis.EnumCodeTypeHandler"
+                     javaType="org.complitex.osznconnection.file.entity.RequestWarningStatus"/>
     </typeHandlers>
 
-    <environments default="local">        
+    <environments default="local">
         <environment id="local">
             <transactionManager type="MANAGED"/>
             <dataSource type="JNDI">
@@ -59,12 +61,13 @@
         <mapper resource="org/complitex/osznconnection/file/service/OwnershipCorrectionBean.xml"/>
         <mapper resource="org/complitex/osznconnection/file/service/PrivilegeCorrectionBean.xml"/>
         <mapper resource="org/complitex/osznconnection/file/service/RequestFileBean.xml"/>
-        <mapper resource="org/complitex/osznconnection/file/service/RequestFileGroupBean.xml"/>        
+        <mapper resource="org/complitex/osznconnection/file/service/RequestFileGroupBean.xml"/>
         <mapper resource="org/complitex/osznconnection/file/service/BenefitBean.xml"/>
         <mapper resource="org/complitex/osznconnection/file/service/TarifBean.xml"/>
         <mapper resource="org/complitex/osznconnection/file/service/PersonAccountLocalBean.xml"/>
         <mapper resource="org/complitex/osznconnection/file/service/ConfigBean.xml"/>
         <mapper resource="org/complitex/osznconnection/file/service/StatusDetailBean.xml"/>
+        <mapper resource="org/complitex/osznconnection/file/service/warning/RequestWarningBean.xml"/>
 
         <mapper resource="org/complitex/osznconnection/file/calculation/service/CalculationCenterBean.xml"/>
         <mapper resource="org/complitex/osznconnection/file/calculation/adapter/DefaultCalculationCenterAdapter.xml"/>

@@ -23,7 +23,6 @@
 
         <result column="status" property="status"/>
         <result column="organization_id" property="organizationId"/>
-        <result column="calc_center_code2_1" property="calculationCenterCode2_1"/>
 
         <association property="dbfFields" javaType="map">
             <result column="OWN_NUM" property="OWN_NUM"/>
@@ -136,7 +135,8 @@
             <trim suffixOverrides=",">
                 #{item.requestFileId}, #{item.accountNumber},
                 #{item.internalCityId}, #{item.internalStreetId}, #{item.internalStreetTypeId}, #{item.internalBuildingId}, #{item.internalApartmentId},
-                #{item.outgoingCity}, #{item.outgoingStreet}, #{item.outgoingStreetType}, #{item.outgoingBuildingNumber}, #{item.outgoingBuildingCorp}, #{item.outgoingApartment},
+                #{item.outgoingCity}, #{item.outgoingStreet}, #{item.outgoingStreetType}, #{item.outgoingBuildingNumber}, #{item.outgoingBuildingCorp},
+                #{item.outgoingApartment},
                 #{item.status},
                 <foreach collection="item.dbfFields.keys" item="key">
                     #{item.dbfFields.${key}},
@@ -217,7 +217,7 @@
         (SELECT f.`organization_id` FROM `request_file` f WHERE f.`id` = r.`request_file_id`) organization_id,
         r.`internal_city_id`, r.`internal_street_id`, r.`internal_street_type_id`, r.`internal_building_id`, r.`internal_apartment_id`,
         r.`outgoing_city`, r.`outgoing_district`, r.`outgoing_street`, r.`outgoing_street_type`, r.`outgoing_building_number`, r.`outgoing_building_corp`,
-        r.`outgoing_apartment`, r.`calc_center_code2_1`
+        r.`outgoing_apartment`
         FROM `payment` r WHERE r.`request_file_id` = #{requestFileId}
         <include refid="org.complitex.osznconnection.file.service.PaymentBean.filter"/>
         <if test="orderByClause != null">
@@ -265,7 +265,6 @@
         `MARK` = #{dbfFields.MARK},
         `OPP` = #{dbfFields.OPP},
         `CODE2_1` = #{dbfFields.CODE2_1},
-        `calc_center_code2_1` = #{calculationCenterCode2_1},
         `status` = #{status}
         WHERE `id` = #{id}
     </update>
@@ -284,7 +283,7 @@
         rf.`organization_id` organization_id,
         r.`internal_city_id`, r.`internal_street_id`, r.`internal_street_type_id`, r.`internal_building_id`, r.`internal_apartment_id`,
         r.`outgoing_city`, r.`outgoing_district`, r.`outgoing_street`, r.`outgoing_street_type`, r.`outgoing_building_number`, r.`outgoing_building_corp`,
-        r.`outgoing_apartment`, r.`account_number`, r.`calc_center_code2_1`
+        r.`outgoing_apartment`, r.`account_number`
         FROM `payment` r
         JOIN `request_file` rf ON r.`request_file_id` = rf.`id`
         WHERE r.`request_file_id` = #{requestFileId} AND r.`id` IN
@@ -325,43 +324,38 @@
         WHERE `id` = #{id}
     </update>
 
-    <update id="clearBeforeBinding" parameterType="org.complitex.osznconnection.file.entity.Payment">
+    <update id="clearBeforeBinding" parameterType="map">
         UPDATE `payment` SET
-        `account_number` = #{accountNumber},
-        `internal_city_id` = #{internalCityId},
-        `internal_street_id` = #{internalStreetId}, `internal_street_type_id` = #{internalStreetTypeId},
-        `internal_building_id` = #{internalBuildingId}, `internal_apartment_id` = #{internalApartmentId},
-        `outgoing_city` = #{outgoingCity}, `outgoing_district` = #{outgoingDistrict},
-        `outgoing_street` = #{outgoingStreet}, `outgoing_street_type` = #{outgoingStreetType},
-        `outgoing_building_number` = #{outgoingBuildingNumber}, `outgoing_building_corp` = #{outgoingBuildingCorp},
-        `outgoing_apartment` = #{outgoingApartment},
-        `FROG` = #{dbfFields.FROG},
-        `FL_PAY` = #{dbfFields.FL_PAY},
-        `NM_PAY` = #{dbfFields.NM_PAY},
-        `DEBT` = #{dbfFields.DEBT},
-        `NORM_F_1` = #{dbfFields.NORM_F_1},
-        `NUMB` = #{dbfFields.NUMB},
-        `MARK` = #{dbfFields.MARK},
-        `OPP` = #{dbfFields.OPP},
-        `CODE2_1` = #{dbfFields.CODE2_1},
-        `calc_center_code2_1` = #{calculationCenterCode2_1},
+        `account_number` = NULL,
+        `internal_city_id` = NULL,
+        `internal_street_id` = NULL, `internal_street_type_id` = NULL, `internal_building_id` = NULL, `internal_apartment_id` = NULL,
+        `outgoing_city` = NULL, `outgoing_district` = NULL, `outgoing_street` = NULL, `outgoing_street_type` = NULL,
+        `outgoing_building_number` = NULL, `outgoing_building_corp` = NULL, `outgoing_apartment` = NULL,
+        `FROG` = NULL,
+        `FL_PAY` = NULL,
+        `NM_PAY` = NULL,
+        `DEBT` = NULL,
+        `NORM_F_1` = NULL,
+        `NUMB` = NULL,
+        `MARK` = NULL,
+        `OPP` = NULL,
+        `CODE2_1` = NULL,
         `status` = #{status}
-        WHERE `request_file_id` = #{requestFileId}
+        WHERE `request_file_id` = #{fileId}
     </update>
 
-    <update id="clearBeforeProcessing" parameterType="hashmap">
-        UPDATE `payment` p SET
-        p.`FROG` = NULL,
-        p.`FL_PAY` = NULL,
-        p.`NM_PAY` = NULL,
-        p.`DEBT` = NULL,
-        p.`NORM_F_1` = NULL,
-        p.`NUMB` = NULL,
-        p.`MARK` = NULL,
-        p.`OPP` = NULL,
-        p.`CODE2_1` = NULL,
-        p.`calc_center_code2_1` = NULL,
-        p.`status` = CASE p.`status`
+    <update id="clearBeforeProcessing" parameterType="map">
+        UPDATE `payment` SET
+        `FROG` = NULL,
+        `FL_PAY` = NULL,
+        `NM_PAY` = NULL,
+        `DEBT` = NULL,
+        `NORM_F_1` = NULL,
+        `NUMB` = NULL,
+        `MARK` = NULL,
+        `OPP` = NULL,
+        `CODE2_1` = NULL,
+        `status` = CASE `status`
                         <foreach collection="statuses" item="status">
                             WHEN #{status} THEN #{status}
                         </foreach>

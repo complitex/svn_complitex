@@ -1,11 +1,13 @@
 package org.complitex.osznconnection.file.entity;
 
+import com.google.common.collect.Lists;
 import org.complitex.osznconnection.file.service.exception.FieldNotFoundException;
 import org.complitex.osznconnection.file.service.exception.FieldWrongSizeException;
 import org.complitex.osznconnection.file.service.exception.FieldWrongTypeException;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,12 +22,13 @@ import java.util.Map;
  * @see org.complitex.osznconnection.file.entity.Tarif
  */
 public abstract class AbstractRequest implements Serializable {
+
     private Long id;
     private Long requestFileId;
     private Long organizationId;
     private RequestStatus status;
     private String accountNumber;
-
+    private List<RequestWarning> warnings = Lists.newArrayList();
     protected Map<String, Object> dbfFields = new HashMap<String, Object>();
 
     /**
@@ -57,7 +60,7 @@ public abstract class AbstractRequest implements Serializable {
         checkSize(name, value);
 
         try {
-            if (!getFieldType(name).equals(type)){
+            if (!getFieldType(name).equals(type)) {
                 throw new FieldWrongTypeException(name, type, getFieldType(name));
             }
 
@@ -113,5 +116,13 @@ public abstract class AbstractRequest implements Serializable {
 
     public void setDbfFields(Map<String, Object> dbfFields) {
         this.dbfFields = dbfFields;
+    }
+
+    public List<RequestWarning> getWarnings() {
+        return warnings;
+    }
+
+    public void setWarnings(List<RequestWarning> warnings) {
+        this.warnings = warnings;
     }
 }

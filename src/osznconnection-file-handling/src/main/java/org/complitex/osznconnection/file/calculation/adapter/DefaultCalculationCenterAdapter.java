@@ -23,9 +23,11 @@ import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import java.util.*;
 import org.complitex.dictionaryfw.entity.Log.EVENT;
+import org.complitex.dictionaryfw.service.LocaleBean;
 import org.complitex.dictionaryfw.service.LogBean;
 import org.complitex.osznconnection.file.Module;
-import org.complitex.osznconnection.file.web.component.StatusRenderer;
+import org.complitex.osznconnection.file.service.warning.RequestWarningBean;
+import org.complitex.osznconnection.file.service.warning.WebWarningRenderer;
 
 /**
  * Класс по умолчанию для взаимодействия с ЦН.
@@ -44,12 +46,21 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
 
     @EJB(beanName = "TarifBean")
     private TarifBean tarifBean;
-    
+
     @EJB(beanName = "PrivilegeCorrectionBean")
     private PrivilegeCorrectionBean privilegeCorrectionBean;
 
     @EJB
     private LogBean logBean;
+
+    @EJB
+    private LocaleBean localeBean;
+
+    @EJB
+    private RequestWarningBean warningBean;
+    
+    @EJB
+    private WebWarningRenderer webWarningRenderer;
 
     /**
      * Группа методов для проставления "внешнего адреса", т.е. адреса для ЦН, по полному названию и коду коррекции
@@ -224,11 +235,11 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
      * закрытый курсор как ошибку и выбрасывает исключение.
      *
      * @param payment
-     * @param benefit
+     * @param benefits
      * @param calculationCenterId
      */
     @Override
-    public void processPaymentAndBenefit(Payment payment, Benefit benefit, long calculationCenterId) throws AccountNotFoundException {
+    public void processPaymentAndBenefit(Payment payment, List<Benefit> benefits, long calculationCenterId) throws AccountNotFoundException {
         payment.setField(PaymentDBF.OPP, "00000001");
 
         Map<String, Object> params = Maps.newHashMap();
@@ -245,7 +256,7 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
 
         List<Map<String, Object>> data = (List<Map<String, Object>>) params.get("data");
         if (data != null && (data.size() == 1)) {
-            processData(calculationCenterId, payment, benefit, data.get(0));
+            processData(calculationCenterId, payment, benefits, data.get(0));
         } else {
             throw new AccountNotFoundException(null, payment);
         }
@@ -266,10 +277,10 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
      *
      * @param calculationCenterId id ЦН
      * @param payment
-     * @param benefit
+     * @param benefits
      * @param benefitData данные пришедшие из ЦН.
      */
-    protected void processData(long calculationCenterId, Payment payment, Benefit benefit, Map<String, Object> data) {
+    protected void processData(long calculationCenterId, Payment payment, List<Benefit> benefits, Map<String, Object> data) {
         //payment
         payment.setField(PaymentDBF.FROG, data.get("FROG"));
         payment.setField(PaymentDBF.FL_PAY, data.get("FL_PAY"));
@@ -282,32 +293,97 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
         Double T11_CS_UNI = (Double) data.get("T11_CS_UNI");
         Integer CODE2_1 = getCODE2_1(T11_CS_UNI, payment.getOrganizationId());
         if (CODE2_1 == null) {
-            payment.setCalculationCenterCode2_1(T11_CS_UNI);
             payment.setStatus(RequestStatus.TARIF_CODE2_1_NOT_FOUND);
+
+            log.warn("Couldn't find tarif code by calculation center's tarif: '{}' and calculation center id: {}", T11_CS_UNI, calculationCenterId);
+
+            RequestWarning warning = new RequestWarning(payment.getId(), RequestFile.TYPE.PAYMENT, RequestWarningStatus.TARIF_NOT_FOUND);
+            warning.addParameter(new RequestWarningParameter(0, T11_CS_UNI));
+            warning.addParameter(new RequestWarningParameter(1, "organization", calculationCenterId));
+            warningBean.save(warning);
+
+            logBean.error(Module.NAME, getClass(), Payment.class, payment.getId(), EVENT.EDIT,
+                    webWarningRenderer.display(warning, localeBean.getSystemLocale()));
         } else {
             payment.setField(PaymentDBF.CODE2_1, CODE2_1);
             payment.setStatus(RequestStatus.PROCESSED);
         }
 
-        //benefit
-        benefit.setField(BenefitDBF.CM_AREA, payment.getField(PaymentDBF.NORM_F_1));
-        benefit.setField(BenefitDBF.HOSTEL, data.get("HOSTEL"));
-        benefit.setField(BenefitDBF.OWN_FRM, getOSZNOwnershipCode((String) data.get("OWN_FRM"), calculationCenterId,
-                payment.getOrganizationId()));
+        //benefits
+        if (benefits != null && !benefits.isEmpty()) {
+            String calcCenterOwnershipCode = (String) data.get("OWN_FRM");
+            Long internalOwnershipId = findInternalOwnership(calcCenterOwnershipCode, calculationCenterId);
+            if (internalOwnershipId == null) {
+                log.warn("Couldn't find in corrections internal ownership object by calculation center's ownership code: '{}' "
+                        + "and calculation center id: {}", calcCenterOwnershipCode, calculationCenterId);
+
+                for (Benefit benefit : benefits) {
+                    RequestWarning warning = new RequestWarning(benefit.getId(), RequestFile.TYPE.BENEFIT, RequestWarningStatus.OWNERSHIP_OBJECT_NOT_FOUND);
+                    warning.addParameter(new RequestWarningParameter(0, calcCenterOwnershipCode));
+                    warning.addParameter(new RequestWarningParameter(1, "organization", calculationCenterId));
+                    warningBean.save(warning);
+
+                    logBean.error(Module.NAME, getClass(), Benefit.class, benefit.getId(), EVENT.EDIT,
+                            webWarningRenderer.display(warning, localeBean.getSystemLocale()));
+                }
+            } else {
+                long osznId = payment.getOrganizationId();
+                String osznOwnershipCode = findOSZNOwnershipCode(internalOwnershipId, osznId);
+                if (osznOwnershipCode == null) {
+                    log.warn("Couldn't find in corrections oszn's ownership code by internal ownership object id: {} "
+                            + "and oszn id: {}", internalOwnershipId, osznId);
+
+                    for (Benefit benefit : benefits) {
+                        RequestWarning warning = new RequestWarning(benefit.getId(), RequestFile.TYPE.BENEFIT,
+                                RequestWarningStatus.OWNERSHIP_CODE_NOT_FOUND);
+                        warning.addParameter(new RequestWarningParameter(0, "ownership", internalOwnershipId));
+                        warning.addParameter(new RequestWarningParameter(1, "organization", osznId));
+                        warningBean.save(warning);
+
+                        logBean.error(Module.NAME, getClass(), Benefit.class, benefit.getId(), EVENT.EDIT,
+                                webWarningRenderer.display(warning, localeBean.getSystemLocale()));
+                    }
+                } else {
+                    Integer ownershipCodeAsInt = null;
+                    try {
+                        ownershipCodeAsInt = Integer.valueOf(osznOwnershipCode);
+                    } catch (NumberFormatException e) {
+                        log.warn("Couldn't transform OWN_FRM value '{}' from correction to integer value. Oszn id: {}, internal ownership id: {}",
+                                new Object[]{osznOwnershipCode, osznId, internalOwnershipId});
+
+                        for (Benefit benefit : benefits) {
+                            RequestWarning warning = new RequestWarning(benefit.getId(), RequestFile.TYPE.BENEFIT,
+                                    RequestWarningStatus.OWNERSHIP_CODE_INVALID);
+                            warning.addParameter(new RequestWarningParameter(0, osznOwnershipCode));
+                            warning.addParameter(new RequestWarningParameter(1, "organization", osznId));
+                            warning.addParameter(new RequestWarningParameter(2, "ownership", internalOwnershipId));
+                            warningBean.save(warning);
+
+                            logBean.error(Module.NAME, getClass(), Benefit.class, benefit.getId(), EVENT.EDIT,
+                                    webWarningRenderer.display(warning, localeBean.getSystemLocale()));
+                        }
+                    }
+
+                    if (ownershipCodeAsInt != null) {
+                        for (Benefit benefit : benefits) {
+                            benefit.setField(BenefitDBF.OWN_FRM, osznOwnershipCode);
+                        }
+                    }
+                }
+            }
+            for (Benefit benefit : benefits) {
+                benefit.setField(BenefitDBF.CM_AREA, payment.getField(PaymentDBF.NORM_F_1));
+                benefit.setField(BenefitDBF.HOSTEL, data.get("HOSTEL"));
+            }
+        }
     }
 
-    /**
-     * Получить код формы власти по схеме "код формы власти из ЦН -> объект формы власти во внутреннем справочнике ->
-     * код формы власти в ОСЗН"
-     * @see org.complitex.osznconnection.file.service.OwnershipCorrectionBean#getOSZNOwnershipCode
-     *
-     * @param calculationCenterOwnership
-     * @param calculationCenterId
-     * @param osznId
-     * @return
-     */
-    protected String getOSZNOwnershipCode(String calculationCenterOwnership, long calculationCenterId, long osznId) {
-        return ownershipCorrectionBean.getOSZNOwnershipCode(calculationCenterOwnership, calculationCenterId, osznId);
+    protected Long findInternalOwnership(String calculationCenterOwnership, long calculationCenterId) {
+        return ownershipCorrectionBean.findInternalOwnership(calculationCenterOwnership, calculationCenterId);
+    }
+
+    protected String findOSZNOwnershipCode(Long internalOwnership, long osznId) {
+        return ownershipCorrectionBean.findOwnershipCode(internalOwnership, osznId);
     }
 
     /**
@@ -454,7 +530,6 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
      * @param benefitData Список записей данных из ЦН
      */
     protected void processBenefitData(long calculationCenterId, List<Benefit> benefits, List<BenefitData> benefitData) {
-        long fileId = benefits.get(0).getRequestFileId();
         long osznId = benefits.get(0).getOrganizationId();
         List<String> processedINNs = Lists.newArrayList();
         for (BenefitData item : benefitData) {
@@ -477,42 +552,99 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
                 }
                 if (theSameMans != null && !theSameMans.isEmpty()) {
                     BenefitData min = Collections.min(theSameMans, BENEFIT_DATA_COMPARATOR);
+                    String calcCenterBenefitCode = min.getCode();
+                    Long internalPrivilegeId = findInternalPrivilege(calcCenterBenefitCode, calculationCenterId);
+                    if (internalPrivilegeId == null) {
+                        log.warn("Couldn't find in corrections internal privilege object by calculation center's privilege code: '{}' "
+                                + "and calculation center id: {}", calcCenterBenefitCode, calculationCenterId);
 
-                    String cmBenefitCode = min.getCode();
-                    String osznBenefitCode = getOSZNPrivilegeCode(cmBenefitCode, calculationCenterId, osznId);
+                        for (Benefit benefit : theSameBenefits) {
+                            benefit.setStatus(RequestStatus.BENEFIT_NOT_FOUND);
 
-                    if (osznBenefitCode == null) {
-                        setStatus(theSameBenefits, RequestStatus.BENEFIT_NOT_FOUND);
+                            RequestWarning warning = new RequestWarning(benefit.getId(), RequestFile.TYPE.BENEFIT,
+                                    RequestWarningStatus.PRIVILEGE_OBJECT_NOT_FOUND);
+                            warning.addParameter(new RequestWarningParameter(0, calcCenterBenefitCode));
+                            warning.addParameter(new RequestWarningParameter(1, "organization", calculationCenterId));
+                            warningBean.save(warning);
+
+                            logBean.error(Module.NAME, getClass(), Benefit.class, benefit.getId(), EVENT.EDIT,
+                                    webWarningRenderer.display(warning, localeBean.getSystemLocale()));
+                        }
                     } else {
-                        //set benefit code and ord fam into benefit entry.
-                        Integer benefitCodeAsInt = null;
-                        try {
-                            benefitCodeAsInt = Integer.valueOf(osznBenefitCode);
-                        } catch (NumberFormatException e) {
-                            log.error("Couldn't transform benefit code from calculation center to integer value.");
-                            logBean.error(Module.NAME, getClass(), RequestFile.class, fileId, EVENT.EDIT,
-                                    StatusRenderer.displayBenefitCodeError(osznBenefitCode));
-                        }
-                        Integer ordFamAsInt = null;
-                        try {
-                            ordFamAsInt = Integer.valueOf(min.getOrderFamily());
-                        } catch (NumberFormatException e) {
-                            log.error("Couldn't transform ord fam from calculation center to integer value.");
-                            logBean.error(Module.NAME, getClass(), RequestFile.class, fileId, EVENT.EDIT,
-                                    StatusRenderer.displayBenefitOrdFamError(min.getOrderFamily()));
-                        }
+                        String osznBenefitCode = findOSZNPrivilegeCode(internalPrivilegeId, osznId);
+                        if (osznBenefitCode == null) {
+                            log.warn("Couldn't find in corrections oszn's privilege code by internal privilege object id: {} "
+                                    + "and oszn id: {}", internalPrivilegeId, osznId);
 
-                        if (benefitCodeAsInt == null || ordFamAsInt == null) {
-                           setStatus(benefits, RequestStatus.INVALID_FORMAT);
-                        } else {
                             for (Benefit benefit : theSameBenefits) {
-                                benefit.setField(BenefitDBF.PRIV_CAT, benefitCodeAsInt);
-                                benefit.setField(BenefitDBF.ORD_FAM, ordFamAsInt);
+                                benefit.setStatus(RequestStatus.BENEFIT_NOT_FOUND);
+
+                                RequestWarning warning = new RequestWarning(benefit.getId(), RequestFile.TYPE.BENEFIT,
+                                        RequestWarningStatus.PRIVILEGE_CODE_NOT_FOUND);
+                                warning.addParameter(new RequestWarningParameter(0, "privilege", internalPrivilegeId));
+                                warning.addParameter(new RequestWarningParameter(1, "organization", osznId));
+                                warningBean.save(warning);
+
+                                logBean.error(Module.NAME, getClass(), Benefit.class, benefit.getId(), EVENT.EDIT,
+                                        webWarningRenderer.display(warning, localeBean.getSystemLocale()));
+                            }
+                        } else {
+                            //set benefit code and ord fam into benefit entry.
+                            Integer benefitCodeAsInt = null;
+                            try {
+                                benefitCodeAsInt = Integer.valueOf(osznBenefitCode);
+                            } catch (NumberFormatException e) {
+                                log.warn("Couldn't transform privilege code '{}' from correction to integer value. Oszn id: {}, "
+                                        + "internal privilege id: {}", new Object[]{osznBenefitCode, osznId, internalPrivilegeId});
+
+                                for (Benefit benefit : theSameBenefits) {
+                                    RequestWarning warning = new RequestWarning(benefit.getId(), RequestFile.TYPE.BENEFIT,
+                                            RequestWarningStatus.PRIVILEGE_CODE_INVALID);
+                                    warning.addParameter(new RequestWarningParameter(0, osznBenefitCode));
+                                    warning.addParameter(new RequestWarningParameter(1, "organization", osznId));
+                                    warning.addParameter(new RequestWarningParameter(2, "privilege", internalPrivilegeId));
+                                    warningBean.save(warning);
+
+                                    logBean.error(Module.NAME, getClass(), Benefit.class, benefit.getId(), EVENT.EDIT,
+                                            webWarningRenderer.display(warning, localeBean.getSystemLocale()));
+                                }
+                            }
+                            Integer ordFamAsInt = null;
+                            try {
+                                ordFamAsInt = Integer.valueOf(min.getOrderFamily());
+                            } catch (NumberFormatException e) {
+                                log.warn("Couldn't transform ord fam value '{}' from calculation center to integer value.", min.getOrderFamily());
+
+                                for (Benefit benefit : theSameBenefits) {
+                                    RequestWarning warning = new RequestWarning(RequestFile.TYPE.BENEFIT, RequestWarningStatus.ORD_FAM_INVALID);
+                                    warning.addParameter(new RequestWarningParameter(0, min.getOrderFamily()));
+                                    warning.addParameter(new RequestWarningParameter(1, "organization", calculationCenterId));
+                                    warningBean.save(warning);
+
+                                    logBean.error(Module.NAME, getClass(), Benefit.class, benefit.getId(), EVENT.EDIT,
+                                            webWarningRenderer.display(warning, localeBean.getSystemLocale()));
+                                }
+                            }
+
+                            if (benefitCodeAsInt == null) {
+                                setStatus(theSameBenefits, RequestStatus.INVALID_FORMAT);
+                            } else {
+                                for (Benefit benefit : theSameBenefits) {
+                                    benefit.setField(BenefitDBF.PRIV_CAT, benefitCodeAsInt);
+                                }
+                            }
+
+                            if (ordFamAsInt == null) {
+                                setStatus(theSameBenefits, RequestStatus.INVALID_FORMAT);
+                            } else {
+                                for (Benefit benefit : theSameBenefits) {
+                                    benefit.setField(BenefitDBF.ORD_FAM, ordFamAsInt);
+                                }
                             }
                         }
                     }
-                    processedINNs.add(inn);
                 }
+                processedINNs.add(inn);
             }
         }
 
@@ -529,8 +661,12 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
         }
     }
 
-    protected String getOSZNPrivilegeCode(String calculationCenterPrivilege, long calculationCenterId, long osznId) {
-        return privilegeCorrectionBean.getOSZNPrivilegeCode(calculationCenterPrivilege, calculationCenterId, osznId);
+    protected Long findInternalPrivilege(String calculationCenterPrivilege, long calculationCenterId) {
+        return privilegeCorrectionBean.findInternalPrivilege(calculationCenterPrivilege, calculationCenterId);
+    }
+
+    protected String findOSZNPrivilegeCode(Long internalPrivilege, long osznId) {
+        return privilegeCorrectionBean.findPrivilegeCode(internalPrivilege, osznId);
     }
 
     protected List<Benefit> findByPassportNumber(List<Benefit> benefits, final String passportNumber) {

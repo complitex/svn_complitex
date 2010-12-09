@@ -4,9 +4,8 @@
  */
 package org.complitex.osznconnection.file.entity.example;
 
-import org.complitex.osznconnection.file.entity.RequestStatus;
-
 import java.io.Serializable;
+import org.complitex.osznconnection.file.entity.RequestStatus;
 
 /**
  *
@@ -14,6 +13,7 @@ import java.io.Serializable;
  */
 public class BenefitExample implements Serializable {
 
+    private String privilege;
     private String firstName;
     private String middleName;
     private String lastName;
@@ -29,7 +29,14 @@ public class BenefitExample implements Serializable {
     private String orderByClause;
     private boolean asc;
     private String account;
-    private String privilege;
+
+    public String getAccount() {
+        return account;
+    }
+
+    public void setAccount(String account) {
+        this.account = account;
+    }
 
     public String getApartment() {
         return apartment;
@@ -55,14 +62,6 @@ public class BenefitExample implements Serializable {
         this.building = building;
     }
 
-    public String getCorp() {
-        return corp;
-    }
-
-    public void setCorp(String corp) {
-        this.corp = corp;
-    }
-
     public String getCity() {
         return city;
     }
@@ -71,12 +70,12 @@ public class BenefitExample implements Serializable {
         this.city = city;
     }
 
-    public Long getRequestFileId() {
-        return requestFileId;
+    public String getCorp() {
+        return corp;
     }
 
-    public void setRequestFileId(Long requestFileId) {
-        this.requestFileId = requestFileId;
+    public void setCorp(String corp) {
+        this.corp = corp;
     }
 
     public String getFirstName() {
@@ -111,6 +110,14 @@ public class BenefitExample implements Serializable {
         this.orderByClause = orderByClause;
     }
 
+    public Long getRequestFileId() {
+        return requestFileId;
+    }
+
+    public void setRequestFileId(Long requestFileId) {
+        this.requestFileId = requestFileId;
+    }
+
     public int getSize() {
         return size;
     }
@@ -141,14 +148,6 @@ public class BenefitExample implements Serializable {
 
     public void setStreet(String street) {
         this.street = street;
-    }
-
-    public String getAccount() {
-        return account;
-    }
-
-    public void setAccount(String account) {
-        this.account = account;
     }
 
     public String getPrivilege() {

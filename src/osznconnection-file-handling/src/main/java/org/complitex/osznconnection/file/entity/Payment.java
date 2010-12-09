@@ -17,6 +17,7 @@ import java.util.Date;
  * @see org.complitex.osznconnection.file.entity.PaymentDBF
  */
 public class Payment extends AbstractRequest {
+
     /**
      * Возвращает значение поля по перечислению <code>PaymentDBF</code>
      * @param paymentDBF константа поля
@@ -46,23 +47,22 @@ public class Payment extends AbstractRequest {
 
     @Override
     protected void checkSize(String name, Object value) throws FieldWrongSizeException {
-        if (value == null || value instanceof Date){
+        if (value == null || value instanceof Date) {
             return;
         }
 
         PaymentDBF paymentDBF = PaymentDBF.valueOf(name);
 
-        if (value instanceof BigDecimal){
-            if (((BigDecimal) value).scale() > paymentDBF.getScale()){
+        if (value instanceof BigDecimal) {
+            if (((BigDecimal) value).scale() > paymentDBF.getScale()) {
                 throw new FieldWrongSizeException(value.toString());
             }
         }
 
-        if (value.toString().length() > paymentDBF.getLength()){
+        if (value.toString().length() > paymentDBF.getLength()) {
             throw new FieldWrongSizeException(value.toString());
         }
     }
-
     private Long internalCityId;
     private Long internalStreetId;
     private Long internalStreetTypeId;
@@ -75,7 +75,6 @@ public class Payment extends AbstractRequest {
     private String outgoingBuildingNumber;
     private String outgoingBuildingCorp;
     private String outgoingApartment;
-    private Double calculationCenterCode2_1;
 
     public Long getInternalApartmentId() {
         return internalApartmentId;
@@ -171,13 +170,5 @@ public class Payment extends AbstractRequest {
 
     public void setOutgoingDistrict(String outgoingDistrict) {
         this.outgoingDistrict = outgoingDistrict;
-    }
-
-    public Double getCalculationCenterCode2_1() {
-        return calculationCenterCode2_1;
-    }
-
-    public void setCalculationCenterCode2_1(Double calculationCenterCode2_1) {
-        this.calculationCenterCode2_1 = calculationCenterCode2_1;
     }
 }

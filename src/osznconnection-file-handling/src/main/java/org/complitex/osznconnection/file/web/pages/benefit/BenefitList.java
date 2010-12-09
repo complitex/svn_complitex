@@ -42,6 +42,8 @@ import javax.ejb.EJB;
 import java.util.Arrays;
 import java.util.Iterator;
 import org.complitex.dictionaryfw.util.StringUtil;
+import org.complitex.osznconnection.file.service.StatusRenderService;
+import org.complitex.osznconnection.file.service.warning.WebWarningRenderer;
 
 /**
  *
@@ -58,8 +60,13 @@ public final class BenefitList extends TemplatePage {
     @EJB(name = "RequestFileBean")
     private RequestFileBean requestFileBean;
 
-    private IModel<BenefitExample> example;
+    @EJB(name = "StatusRenderService")
+    private StatusRenderService statusRenderService;
 
+    @EJB(name = "WebWarningRenderer")
+    private WebWarningRenderer webWarningRenderer;
+    
+    private IModel<BenefitExample> example;
     private long fileId;
 
     public BenefitList(PageParameters params) {
@@ -169,8 +176,10 @@ public final class BenefitList extends TemplatePage {
                 item.add(new Label("corp", benefit.getBuildingCorp()));
                 item.add(new Label("apartment", benefit.getApartment()));
                 item.add(new Label("priv", StringUtil.valueOf((Integer) benefit.getField(BenefitDBF.PRIV_CAT))));
-                item.add(new Label("status", StatusRenderer.displayValue(benefit.getStatus())));
-                item.add(new IndicatingAjaxLink("connect"){
+                item.add(new Label("status", statusRenderService.displayStatus(benefit.getStatus(), getLocale())));
+                item.add(new Label("statusDetails", webWarningRenderer.display(benefit.getWarnings(), getLocale())));
+
+                item.add(new IndicatingAjaxLink("connect") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -179,7 +188,8 @@ public final class BenefitList extends TemplatePage {
 
                     @Override
                     public boolean isVisible() {
-                        return !benefit.hasPriv() && benefit.getStatus() != RequestStatus.PROCESSED;
+                        return !benefit.hasPriv()
+                                && (benefit.getStatus() == RequestStatus.WRONG_ACCOUNT_NUMBER);
                     }
                 });
             }
