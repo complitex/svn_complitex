@@ -35,6 +35,11 @@ import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 
 import javax.ejb.EJB;
 import java.util.Iterator;
+import java.util.List;
+import org.complitex.dictionaryfw.entity.DomainObject;
+import org.complitex.dictionaryfw.web.component.DisableAwareDropDownChoice;
+import org.complitex.dictionaryfw.web.component.DomainObjectDisableAwareRenderer;
+import org.complitex.osznconnection.file.web.model.OrganizationModel;
 
 /**
  * Список записей в локальной таблице номеров л/c.
@@ -121,8 +126,58 @@ public class PersonAccountList extends TemplatePage {
         filterForm.add(new TextField<String>("apartmentFilter", new PropertyModel<String>(example, "apartment")));
         filterForm.add(new TextField<String>("accountNumberFilter", new PropertyModel<String>(example, "accountNumber")));
         filterForm.add(new TextField<String>("ownNumSrFilter", new PropertyModel<String>(example, "ownNumSr")));
-        filterForm.add(new TextField<String>("osznFilter", new PropertyModel<String>(example, "oszn")));
-        filterForm.add(new TextField<String>("calculationCenterFilter", new PropertyModel<String>(example, "calculationCenter")));
+
+        final List<DomainObject> oszns = organizationStrategy.getAllOSZNs();
+        IModel<DomainObject> osznModel = new OrganizationModel() {
+
+            @Override
+            public Long getOrganizationId() {
+                return example.getObject().getOsznId();
+            }
+
+            @Override
+            public void setOrganizationId(Long organizationId) {
+                example.getObject().setOsznId(organizationId);
+            }
+
+            @Override
+            public List<DomainObject> getOrganizations() {
+                return oszns;
+            }
+        };
+        DomainObjectDisableAwareRenderer renderer = new DomainObjectDisableAwareRenderer() {
+
+            @Override
+            public Object getDisplayValue(DomainObject object) {
+                return organizationStrategy.displayDomainObject(object, getLocale());
+            }
+        };
+        DisableAwareDropDownChoice<DomainObject> osznFilter = new DisableAwareDropDownChoice<DomainObject>("osznFilter",
+                osznModel, oszns, renderer);
+
+        filterForm.add(osznFilter);
+
+        final List<DomainObject> calculationCentres = organizationStrategy.getAllCalculationCentres();
+        IModel<DomainObject> calculationCenterModel = new OrganizationModel() {
+
+            @Override
+            public Long getOrganizationId() {
+                return example.getObject().getCalculationCenterId();
+            }
+
+            @Override
+            public void setOrganizationId(Long organizationId) {
+                example.getObject().setCalculationCenterId(organizationId);
+            }
+
+            @Override
+            public List<DomainObject> getOrganizations() {
+                return calculationCentres;
+            }
+        };
+        DisableAwareDropDownChoice<DomainObject> calculationCenterFilter = new DisableAwareDropDownChoice<DomainObject>("calculationCenterFilter",
+                calculationCenterModel, calculationCentres, renderer);
+        filterForm.add(calculationCenterFilter);
 
         AjaxLink reset = new AjaxLink("reset") {
 

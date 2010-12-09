@@ -14,9 +14,8 @@ public class CorrectionExample implements Serializable {
 
     private String correction;
     private String internalObject;
-    private String organization;
-    private String internalOrganization;
     private Long organizationId;
+    private Long internalOrganizationId;
     private Long objectId;
     private String code;
     private String entity;
@@ -99,28 +98,12 @@ public class CorrectionExample implements Serializable {
         this.entity = entity;
     }
 
-    public String getOrganization() {
-        return organization;
-    }
-
-    public void setOrganization(String organization) {
-        this.organization = organization;
-    }
-
     public String getCode() {
         return code;
     }
 
     public void setCode(String code) {
         this.code = code;
-    }
-
-    public String getInternalOrganization() {
-        return internalOrganization;
-    }
-
-    public void setInternalOrganization(String internalOrganization) {
-        this.internalOrganization = internalOrganization;
     }
 
     public Long getObjectId() {
@@ -137,5 +120,13 @@ public class CorrectionExample implements Serializable {
 
     public void setOrganizationId(Long organizationId) {
         this.organizationId = organizationId;
+    }
+
+    public Long getInternalOrganizationId() {
+        return internalOrganizationId;
+    }
+
+    public void setInternalOrganizationId(Long internalOrganizationId) {
+        this.internalOrganizationId = internalOrganizationId;
     }
 }

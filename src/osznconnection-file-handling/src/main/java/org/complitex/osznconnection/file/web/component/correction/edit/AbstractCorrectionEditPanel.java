@@ -4,8 +4,6 @@
  */
 package org.complitex.osznconnection.file.web.component.correction.edit;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -16,7 +14,6 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.complitex.dictionaryfw.entity.DomainObject;
@@ -31,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.EJB;
 import java.util.List;
 import java.util.Locale;
+import org.complitex.osznconnection.file.web.model.OrganizationModel;
 
 /**
  * Абстрактная панель для редактирования коррекций.
@@ -46,8 +44,6 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
     @EJB(name = "OrganizationStrategy")
     private OrganizationStrategy organizationStrategy;
 
-//    private String entity;
-
     private Long correctionId;
 
     private Correction correction;
@@ -56,7 +52,6 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
 
     public AbstractCorrectionEditPanel(String id, String entity, Long correctionId) {
         super(id);
-//        this.entity = entity;
         this.correctionId = correctionId;
         if (isNew()) {
             correction = newObjectCorrection(entity);
@@ -82,10 +77,6 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
     protected Correction getModel() {
         return correction;
     }
-
-//    protected String getEntity() {
-//        return entity;
-//    }
 
     protected String getDisplayCorrection(){
         return correction.getCorrection();
@@ -170,46 +161,17 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
 
         form.add(code);
 
-        abstract class OrganizationModel extends Model<DomainObject> {
-
-            @Override
-            public DomainObject getObject() {
-                final Long organizationId = getOrganizationId(AbstractCorrectionEditPanel.this.correction);
-                if (organizationId != null) {
-                    return Iterables.find(getOrganizations(), new Predicate<DomainObject>() {
-
-                        @Override
-                        public boolean apply(DomainObject object) {
-                            return object.getId().equals(organizationId);
-                        }
-                    });
-                }
-                return null;
-            }
-
-            @Override
-            public void setObject(DomainObject object) {
-                setOrganizationId(AbstractCorrectionEditPanel.this.correction, object.getId());
-            }
-
-            public abstract Long getOrganizationId(Correction objectCorrection);
-
-            public abstract void setOrganizationId(Correction objectCorrection, Long organizationId);
-
-            public abstract List<DomainObject> getOrganizations();
-        }
-
         final List<DomainObject> allOuterOrganizations = organizationStrategy.getAllOuterOrganizations();
         IModel<DomainObject> outerOrganizationModel = new OrganizationModel() {
 
             @Override
-            public Long getOrganizationId(Correction objectCorrection) {
-                return objectCorrection.getOrganizationId();
+            public Long getOrganizationId() {
+                return correction.getOrganizationId();
             }
 
             @Override
-            public void setOrganizationId(Correction objectCorrection, Long organizationId) {
-                objectCorrection.setOrganizationId(organizationId);
+            public void setOrganizationId(Long organizationId) {
+                correction.setOrganizationId(organizationId);
             }
 
             @Override
@@ -238,12 +200,12 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
         IModel<DomainObject> internalOrganizationModel = new OrganizationModel() {
 
             @Override
-            public Long getOrganizationId(Correction objectCorrection) {
-                return objectCorrection.getInternalOrganizationId();
+            public Long getOrganizationId() {
+                return correction.getInternalOrganizationId();
             }
 
             @Override
-            public void setOrganizationId(Correction objectCorrection, Long organizationId) {
+            public void setOrganizationId(Long organizationId) {
                 throw new UnsupportedOperationException();
             }
 
