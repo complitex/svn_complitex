@@ -74,8 +74,8 @@ public class SaveUtil {
 
                 writer.write("\n" + group.getPaymentFile().getName() + ", " + group.getBenefitFile().getName()
                         + " - Запросов: " + count);
-                writeErrorStatus(group.getPaymentFile().getRequests(), writer, warningRenderer);
-                writeErrorStatus(group.getBenefitFile().getRequests(), writer, warningRenderer);
+                writeErrorStatus(group.getPaymentFile().getRequests(), writer, warningRenderer, false);
+                writeErrorStatus(group.getBenefitFile().getRequests(), writer, warningRenderer, true);
 
                 requestCount += count;
             }
@@ -89,19 +89,23 @@ public class SaveUtil {
         }
     }
 
-    private static void writeErrorStatus(List<AbstractRequest> requests, Writer fileWriter, IWarningRenderer warningRenderer)
+    private static void writeErrorStatus(List<AbstractRequest> requests, Writer fileWriter,
+                                         IWarningRenderer warningRenderer, boolean onlyWarning)
             throws IOException {
         if (requests != null) {
             for (AbstractRequest request : requests){
                 if (!request.getStatus().equals(RequestStatus.PROCESSED)){
-                    String warning = "";
+                    boolean hasWarning = request.getWarnings() != null && !request.getWarnings().isEmpty();
 
-                    if (request.getWarnings() != null && !request.getWarnings().isEmpty()){
+                    String warning = "";
+                    if (hasWarning){
                         warning = " (" + warningRenderer.display(request.getWarnings(), SYSTEM) + ")";
                     }
 
-                    fileWriter.write("\n\t№" + request.getDbfFields().get(PaymentDBF.OWN_NUM_SR.name())
-                            + " - "  + getString(request.getStatus().name()) + warning);
+                    if (hasWarning || !onlyWarning){
+                        fileWriter.write("\n\t№" + request.getDbfFields().get(PaymentDBF.OWN_NUM_SR.name())
+                                +  " - "  + getString(request.getStatus().name()) + warning);
+                    }
                 }
             }
         }
