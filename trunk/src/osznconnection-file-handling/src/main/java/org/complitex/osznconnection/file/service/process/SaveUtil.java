@@ -2,11 +2,14 @@ package org.complitex.osznconnection.file.service.process;
 
 
 import org.complitex.dictionaryfw.util.DateUtil;
+import org.complitex.dictionaryfw.util.ResourceUtil;
 import org.complitex.osznconnection.file.entity.AbstractRequest;
 import org.complitex.osznconnection.file.entity.PaymentDBF;
 import org.complitex.osznconnection.file.entity.RequestFileGroup;
 import org.complitex.osznconnection.file.entity.RequestStatus;
+import org.complitex.osznconnection.file.service.StatusRenderService;
 import org.complitex.osznconnection.file.service.exception.StorageNotFoundException;
+import org.complitex.osznconnection.file.service.warning.IWarningRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,14 +26,14 @@ public class SaveUtil {
 
     private final static String FILE_ENCODING = "cp1251";
     private final static String RESULT_FILE_NAME = "Result";
-    private final static String RESULT_FILE_EXT = ".txt";
+    private final static String RESULT_FILE_EXT = "txt";
 
     private final static SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy");
     private final static SimpleDateFormat sdfFile = new SimpleDateFormat("yyyyMMdd_HHmmss");
 
-    private final static ResourceBundle bundle = ResourceBundle.getBundle(SaveUtil.class.getName());
+    private final static Locale SYSTEM = new Locale("ru");
 
-    public static void createResult(List<RequestFileGroup> processed)
+    public static void createResult(List<RequestFileGroup> processed, IWarningRenderer warningRenderer)
             throws StorageNotFoundException {
         Map<String, List<RequestFileGroup>> catalog = new HashMap<String, List<RequestFileGroup>>();
 
@@ -47,14 +50,15 @@ public class SaveUtil {
         }
 
         for (String directory : catalog.keySet()){
-            writeDirectory(directory, catalog.get(directory));
+            writeDirectory(directory, catalog.get(directory), warningRenderer);
         }
     }
 
-    private static void writeDirectory(String directory, List<RequestFileGroup> groups) throws StorageNotFoundException {
+    private static void writeDirectory(String directory, List<RequestFileGroup> groups, IWarningRenderer warningRenderer)
+            throws StorageNotFoundException {
         try{
             Date now = DateUtil.getCurrentDate();
-            String name = RESULT_FILE_NAME + "_" + sdfFile.format(now) + ".txt";
+            String name = RESULT_FILE_NAME + "_" + sdfFile.format(now) + "." + RESULT_FILE_EXT;
 
             File file = RequestFileStorage.getInstance().createOutputFile(name, directory);
 
@@ -70,7 +74,7 @@ public class SaveUtil {
 
                 writer.write("\n" + group.getPaymentFile().getName() + ", " + group.getBenefitFile().getName()
                         + " - Запросов: " + count);
-                writeErrorStatus(group, writer);
+                writeErrorStatus(group, writer, warningRenderer);
 
                 requestCount += count;
             }
@@ -84,25 +88,29 @@ public class SaveUtil {
         }
     }
 
-    private static void writeErrorStatus(RequestFileGroup group, Writer fileWriter) throws IOException {
+    private static void writeErrorStatus(RequestFileGroup group, Writer fileWriter, IWarningRenderer warningRenderer)
+            throws IOException {
         List<AbstractRequest> payments = group.getPaymentFile().getRequests();
 
         if (payments != null) {
             for (AbstractRequest request : payments){
                 if (!request.getStatus().equals(RequestStatus.PROCESSED)){
+                    String warning = "";
 
-                        fileWriter.write("\n№" + request.getDbfFields().get(PaymentDBF.OWN_NUM_SR.name())
-                                + " - "  + getString(request.getStatus().name()));
+                    if (request.getWarnings() != null && !request.getWarnings().isEmpty()){
+                        warning = " (" + warningRenderer.display(request.getWarnings(), SYSTEM) + ")";
+                    }
+
+                    fileWriter.write("\n\t№" + request.getDbfFields().get(PaymentDBF.OWN_NUM_SR.name())
+                            + " - "  + getString(request.getStatus().name()) + warning);
                 }
             }
         }
     }
 
     private static String getString(String key){
-        if (bundle.containsKey(key)){
-            return bundle.getString(key);
-        }
+        String s =  ResourceUtil.getString(StatusRenderService.class.getName(), key, SYSTEM);
 
-        return key;
+        return s != null ? s : key;
     }
 }

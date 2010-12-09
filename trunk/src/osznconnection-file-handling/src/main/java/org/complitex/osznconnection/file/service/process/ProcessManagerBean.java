@@ -12,6 +12,7 @@ import org.complitex.osznconnection.file.entity.RequestFileGroup;
 import org.complitex.osznconnection.file.service.ConfigBean;
 import org.complitex.osznconnection.file.service.RequestFileBean;
 import org.complitex.osznconnection.file.service.exception.StorageNotFoundException;
+import org.complitex.osznconnection.file.service.warning.WebWarningRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +63,9 @@ public class ProcessManagerBean {
 
     @EJB(beanName = "LogBean")
     private LogBean logBean;
+
+    @EJB
+    private WebWarningRenderer webWarningRenderer;
 
     private List<RequestFile> linkError = new CopyOnWriteArrayList<RequestFile>();
 
@@ -257,7 +261,7 @@ public class ProcessManagerBean {
                     @Override
                     public void onComplete(List<RequestFileGroup> processed) {
                         try {
-                            SaveUtil.createResult(processed);
+                            SaveUtil.createResult(processed, webWarningRenderer);
                         } catch (StorageNotFoundException e) {
                             log.error("Ошибка создания файла Result.txt.", e);
                             logBean.error(Module.NAME, ProcessManagerBean.class, RequestFileGroup.class, null,
