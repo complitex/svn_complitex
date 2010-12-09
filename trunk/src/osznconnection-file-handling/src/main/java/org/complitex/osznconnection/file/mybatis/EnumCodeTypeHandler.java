@@ -27,17 +27,11 @@ public class EnumCodeTypeHandler extends BaseTypeHandler {
     @Override
     public void setNonNullParameter(PreparedStatement ps, int i, Object parameter, JdbcType jdbcType) throws SQLException {
         IEnumCode enumCode = (IEnumCode) parameter;
-//        if (log.isDebugEnabled()) {
-//            log.debug("saving enum: {}, code: {}", enumCode.getClass(), enumCode.getCode());
-//        }
         ps.setInt(i, enumCode.getCode());
     }
 
     @Override
     public IEnumCode getNullableResult(ResultSet rs, String columnName) throws SQLException {
-//        if (log.isDebugEnabled()) {
-//            log.debug("getting code, column: {}, code: {}, was null: {}", new Object[]{columnName, rs.getInt(columnName), rs.wasNull()});
-//        }
         int code = rs.getInt(columnName);
         if (!rs.wasNull()) {
             return EnumCodeManager.valueOf(code);

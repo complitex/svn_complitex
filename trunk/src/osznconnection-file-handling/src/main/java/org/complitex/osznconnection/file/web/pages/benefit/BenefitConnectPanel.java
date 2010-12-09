@@ -13,7 +13,6 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.complitex.osznconnection.file.calculation.entity.BenefitData;
 import org.complitex.osznconnection.file.entity.Benefit;
@@ -24,12 +23,17 @@ import java.util.List;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.model.AbstractReadOnlyModel;
-import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.util.StringUtil;
 import org.complitex.osznconnection.file.calculation.adapter.AccountNotFoundException;
 import org.complitex.osznconnection.file.entity.BenefitDBF;
+import org.complitex.osznconnection.file.entity.RequestFile.TYPE;
+import org.complitex.osznconnection.file.entity.RequestStatus;
+import org.complitex.osznconnection.file.entity.RequestWarning;
+import org.complitex.osznconnection.file.entity.RequestWarningParameter;
+import org.complitex.osznconnection.file.entity.RequestWarningStatus;
 import org.complitex.osznconnection.file.service.BenefitBean;
-import org.complitex.osznconnection.file.web.component.StatusRenderer;
+import org.complitex.osznconnection.file.service.StatusRenderService;
+import org.complitex.osznconnection.file.service.warning.WebWarningRenderer;
 import org.odlabs.wiquery.core.javascript.JsStatement;
 import org.odlabs.wiquery.ui.core.JsScopeUiEvent;
 import org.slf4j.Logger;
@@ -45,11 +49,45 @@ public class BenefitConnectPanel extends Panel {
 
     @EJB(name = "BenefitBean")
     private BenefitBean benefitBean;
+
+    @EJB(name = "StatusRenderService")
+    private StatusRenderService statusRenderService;
     
+    @EJB(name = "WebWarningRenderer")
+    private WebWarningRenderer webWarningRenderer;
+
+    private class BenefitDataModel extends AbstractReadOnlyModel<List<BenefitData>> {
+
+        private List<BenefitData> benefitData;
+
+        protected List<BenefitData> load() {
+            try {
+                return Lists.newArrayList(benefitBean.getBenefitData(benefit));
+            } catch (AccountNotFoundException e) {
+                error(statusRenderService.displayStatus(RequestStatus.ACCOUNT_NUMBER_NOT_FOUND, getLocale()));
+            } catch (Exception e) {
+                log.error("", e);
+                error(getString("common_db_error"));
+            }
+            return null;
+        }
+
+        @Override
+        public List<BenefitData> getObject() {
+            if (benefitData == null) {
+                benefitData = load();
+            }
+            return benefitData;
+        }
+
+        public void clear() {
+            benefitData = null;
+        }
+    }
     private Dialog dialog;
     private Benefit benefit;
     private WebMarkupContainer container;
-    private IModel<List<BenefitData>> dataModel;
+    private BenefitDataModel dataModel;
 
     public BenefitConnectPanel(String id, final MarkupContainer... toUpdate) {
         super(id);
@@ -116,21 +154,7 @@ public class BenefitConnectPanel extends Panel {
             }
         }));
 
-        dataModel = new LoadableDetachableModel<List<BenefitData>>() {
-
-            @Override
-            protected List<BenefitData> load() {
-                try {
-                    return Lists.newArrayList(benefitBean.getBenefitData(benefit));
-                } catch (AccountNotFoundException e) {
-                    error(getString("account_not_found"));
-                } catch (Exception e) {
-                    log.error("", e);
-                    error(getString("common_db_error"));
-                }
-                return null;
-            }
-        };
+        dataModel = new BenefitDataModel();
 
         WebMarkupContainer table = new WebMarkupContainer("table") {
 
@@ -173,7 +197,7 @@ public class BenefitConnectPanel extends Panel {
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
                 BenefitData selectedBenefitData = benefitDataModel.getObject();
                 if (validateBenefitData(selectedBenefitData)) {
-                    benefitBean.connectBenefit(benefit, selectedBenefitData);
+                    benefitBean.connectBenefit(benefit, selectedBenefitData, dataModel.getObject().size() > 1);
 
                     if (toUpdate != null) {
                         for (MarkupContainer container : toUpdate) {
@@ -211,32 +235,51 @@ public class BenefitConnectPanel extends Panel {
 
     private boolean validateBenefitData(BenefitData benefitData) {
         boolean valid = true;
-        String osznBenefitCode = benefitData.getOsznBenefitCode();
-        if (Strings.isEmpty(osznBenefitCode)) {
-            error(getString("benefit_code_not_found"));
+        long osznId = benefit.getOrganizationId();
+        long calculationCenterId = benefitData.getCalcCenterId();
+        String osznBenefitCode = benefitData.getOsznPrivilegeCode();
+        Long privilegeObjectId = benefitData.getPrivilegeObjectId();
+        if (privilegeObjectId == null) {
+            valid = false;
+            RequestWarning warning = new RequestWarning(TYPE.BENEFIT, RequestWarningStatus.PRIVILEGE_OBJECT_NOT_FOUND);
+            warning.addParameter(new RequestWarningParameter(0, benefitData.getCode()));
+            warning.addParameter(new RequestWarningParameter(1, "organization", calculationCenterId));
+            error(webWarningRenderer.display(warning, getLocale()));
+        } else if (osznBenefitCode == null) {
+            RequestWarning warning = new RequestWarning(TYPE.BENEFIT, RequestWarningStatus.PRIVILEGE_CODE_NOT_FOUND);
+            warning.addParameter(new RequestWarningParameter(0, "privilege", privilegeObjectId));
+            warning.addParameter(new RequestWarningParameter(1, "organization", osznId));
+            error(webWarningRenderer.display(warning, getLocale()));
             valid = false;
         } else {
             try {
                 Integer.valueOf(osznBenefitCode);
             } catch (NumberFormatException e) {
-                error(StatusRenderer.displayBenefitCodeError(osznBenefitCode));
+                RequestWarning warning = new RequestWarning(TYPE.BENEFIT, RequestWarningStatus.PRIVILEGE_CODE_INVALID);
+                warning.addParameter(new RequestWarningParameter(0, osznBenefitCode));
+                warning.addParameter(new RequestWarningParameter(1, "organization", osznId));
+                warning.addParameter(new RequestWarningParameter(2, "privilege", privilegeObjectId));
+                error(webWarningRenderer.display(warning, getLocale()));
                 valid = false;
             }
 
             try {
                 Integer.valueOf(benefitData.getOrderFamily());
             } catch (NumberFormatException e) {
-                error(StatusRenderer.displayBenefitOrdFamError(benefitData.getOrderFamily()));
+                RequestWarning warning = new RequestWarning(TYPE.BENEFIT, RequestWarningStatus.ORD_FAM_INVALID);
+                warning.addParameter(new RequestWarningParameter(0, benefitData.getOrderFamily()));
+                warning.addParameter(new RequestWarningParameter(1, "organization", calculationCenterId));
+                error(webWarningRenderer.display(warning, getLocale()));
                 valid = false;
             }
         }
+
         return valid;
     }
 
     private void closeDialog(AjaxRequestTarget target) {
         container.setVisible(false);
         benefit = null;
-        dataModel.detach();
         target.addComponent(container);
         dialog.close(target);
     }
@@ -245,6 +288,7 @@ public class BenefitConnectPanel extends Panel {
         this.benefit = benefit;
 
         container.setVisible(true);
+        dataModel.clear();
         target.addComponent(container);
         dialog.open(target);
     }

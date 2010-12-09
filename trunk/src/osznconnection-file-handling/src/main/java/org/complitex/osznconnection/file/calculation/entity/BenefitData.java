@@ -17,7 +17,9 @@ public class BenefitData implements Serializable {
     private String orderFamily;
     private String code;
     private String userCount;
-    private String osznBenefitCode;
+    private Long calcCenterId;
+    private Long privilegeObjectId;
+    private String osznPrivilegeCode;
 
     public String getFirstName() {
         return firstName;
@@ -91,12 +93,28 @@ public class BenefitData implements Serializable {
         this.userCount = userCount;
     }
 
-    public String getOsznBenefitCode() {
-        return osznBenefitCode;
+    public String getOsznPrivilegeCode() {
+        return osznPrivilegeCode;
     }
 
-    public void setOsznBenefitCode(String osznBenefitCode) {
-        this.osznBenefitCode = osznBenefitCode;
+    public void setOsznPrivilegeCode(String osznBenefitCode) {
+        this.osznPrivilegeCode = osznBenefitCode;
+    }
+
+    public Long getPrivilegeObjectId() {
+        return privilegeObjectId;
+    }
+
+    public void setPrivilegeObjectId(Long privilegeObjectId) {
+        this.privilegeObjectId = privilegeObjectId;
+    }
+
+    public Long getCalcCenterId() {
+        return calcCenterId;
+    }
+
+    public void setCalcCenterId(Long calcCenterId) {
+        this.calcCenterId = calcCenterId;
     }
 
     @Override

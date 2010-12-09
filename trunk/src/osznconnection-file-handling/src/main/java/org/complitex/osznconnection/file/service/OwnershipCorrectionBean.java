@@ -6,12 +6,12 @@ package org.complitex.osznconnection.file.service;
 
 import org.complitex.dictionaryfw.mybatis.Transactional;
 import org.complitex.dictionaryfw.service.AbstractBean;
-import org.complitex.osznconnection.file.entity.Correction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import java.util.List;
+import org.complitex.osznconnection.file.entity.example.CorrectionExample;
 
 /**
  * Класс для работы с коррекциями форм власти
@@ -21,7 +21,7 @@ import java.util.List;
 public class OwnershipCorrectionBean extends AbstractBean {
 
     private static final Logger log = LoggerFactory.getLogger(OwnershipCorrectionBean.class);
-
+    
     private static final String MAPPING_NAMESPACE = OwnershipCorrectionBean.class.getName();
 
     /**
@@ -31,8 +31,8 @@ public class OwnershipCorrectionBean extends AbstractBean {
      * @return
      */
     @Transactional
-    private Long findInternalOwnership(String correction, long organizationId) {
-        Correction example = new Correction();
+    public Long findInternalOwnership(String correction, long organizationId) {
+        CorrectionExample example = new CorrectionExample();
         example.setCorrection(correction);
         example.setOrganizationId(organizationId);
         List<Long> ids = sqlSession().selectList(MAPPING_NAMESPACE + ".findInternalOwnership", example);
@@ -49,28 +49,13 @@ public class OwnershipCorrectionBean extends AbstractBean {
      * @return
      */
     @Transactional
-    private String findOwnershipCode(long objectId, long organizationId) {
-        Correction example = new Correction();
+    public String findOwnershipCode(long objectId, long organizationId) {
+        CorrectionExample example = new CorrectionExample();
         example.setObjectId(objectId);
         example.setOrganizationId(organizationId);
         List<String> codes = sqlSession().selectList(MAPPING_NAMESPACE + ".findOwnershipCode", example);
         if (codes != null && !codes.isEmpty()) {
             return codes.get(0);
-        }
-        return null;
-    }
-
-    /**
-     * Получить код коррекции формы власти по коррекции формы власти ЦН(calculationCenterCorrection), текущему ЦН(calculationCenterId) и ОСЗН(osznId)
-     * @param calculationCenterCorrection
-     * @param calculationCenterId
-     * @param osznId
-     * @return
-     */
-    public String getOSZNOwnershipCode(String calculationCenterCorrection, long calculationCenterId, long osznId) {
-        Long objectId = findInternalOwnership(calculationCenterCorrection, calculationCenterId);
-        if (objectId != null) {
-            return findOwnershipCode(objectId, osznId);
         }
         return null;
     }

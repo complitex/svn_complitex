@@ -59,18 +59,6 @@
         ]]>
     </select>
 
-   <!-- <resultMap id="benefitData" type="hashmap">
-        <result column="ln" property="LAST_NAME" javaType="string" jdbcType="VARCHAR"/>
-        <result column="fn" property="FIRST_NAME" javaType="string" jdbcType="VARCHAR"/>
-        <result column="mn" property="MIDDLE_NAME" javaType="string" jdbcType="VARCHAR"/>
-        <result column="inn" property="INN" javaType="string" jdbcType="VARCHAR"/>
-        <result column="ps" property="SERIAL_NUMBER" javaType="string" jdbcType="VARCHAR"/>
-        <result column="pn" property="PASSPORT_NUMBER" javaType="string" jdbcType="VARCHAR"/>
-        <result column="ord" property="ORD_FAM" javaType="int" jdbcType="INTEGER"/>
-        <result column="cc" property="BENEFIT_CODE" javaType="string" jdbcType="VARCHAR"/>
-        <result column="uc" property="USER_COUNT" javaType="int" jdbcType="INTEGER"/>
-    </resultMap>-->
-
     <resultMap id="benefitData" type="org.complitex.osznconnection.file.calculation.entity.BenefitData">
         <result column="ln" property="lastName"/>
         <result column="fn" property="firstName"/>

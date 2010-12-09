@@ -53,8 +53,13 @@ public class ProcessBenefitTest {
             }
 
             @Override
-            protected String getOSZNPrivilegeCode(String calculationCenterPrivilege, long calculationCenterId, long osznId) {
+            protected Long findInternalPrivilege(String calculationCenterPrivilege, long calculationCenterId) {
                 System.out.println("calculationCenterPrivilege code : " + calculationCenterPrivilege);
+                return 1L;
+            }
+
+            @Override
+            protected String findOSZNPrivilegeCode(Long internalPrivilege, long osznId) {
                 return "11";
             }
         };

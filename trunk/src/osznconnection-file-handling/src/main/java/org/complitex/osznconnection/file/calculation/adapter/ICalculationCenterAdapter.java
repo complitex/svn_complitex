@@ -37,7 +37,7 @@ public interface ICalculationCenterAdapter {
 
     public List<AccountDetail> acquireAccountCorrectionDetails(Payment payment) throws AccountNotFoundException;
 
-    public void processPaymentAndBenefit(Payment payment, Benefit benefit, long calculationCenterId) throws AccountNotFoundException;
+    public void processPaymentAndBenefit(Payment payment, List<Benefit> benefits, long calculationCenterId) throws AccountNotFoundException;
 
     public void processBenefit(Date dat1, List<Benefit> benefits, long calculationCenterId) throws AccountNotFoundException;
 

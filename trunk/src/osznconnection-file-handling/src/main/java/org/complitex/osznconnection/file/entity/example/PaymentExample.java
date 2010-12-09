@@ -1,15 +1,14 @@
 package org.complitex.osznconnection.file.entity.example;
 
-import org.complitex.osznconnection.file.entity.RequestStatus;
-
 import java.io.Serializable;
+import org.complitex.osznconnection.file.entity.RequestStatus;
 
 /**
  *
  * @author Artem
  */
 public class PaymentExample implements Serializable {
-    private String account;
+
     private String firstName;
     private String middleName;
     private String lastName;
@@ -24,6 +23,7 @@ public class PaymentExample implements Serializable {
     private int size;
     private String orderByClause;
     private boolean asc;
+    private String account;
 
     public String getAccount() {
         return account;
@@ -31,62 +31,6 @@ public class PaymentExample implements Serializable {
 
     public void setAccount(String account) {
         this.account = account;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getMiddleName() {
-        return middleName;
-    }
-
-    public void setMiddleName(String middleName) {
-        this.middleName = middleName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public String getStreet() {
-        return street;
-    }
-
-    public void setStreet(String street) {
-        this.street = street;
-    }
-
-    public String getBuilding() {
-        return building;
-    }
-
-    public void setBuilding(String building) {
-        this.building = building;
-    }
-
-    public String getCorp() {
-        return corp;
-    }
-
-    public void setCorp(String corp) {
-        this.corp = corp;
     }
 
     public String getApartment() {
@@ -97,36 +41,60 @@ public class PaymentExample implements Serializable {
         this.apartment = apartment;
     }
 
-    public RequestStatus getStatus() {
-        return status;
+    public boolean isAsc() {
+        return asc;
     }
 
-    public void setStatus(RequestStatus status) {
-        this.status = status;
+    public void setAsc(boolean asc) {
+        this.asc = asc;
     }
 
-    public Long getRequestFileId() {
-        return requestFileId;
+    public String getBuilding() {
+        return building;
     }
 
-    public void setRequestFileId(Long requestFileId) {
-        this.requestFileId = requestFileId;
+    public void setBuilding(String building) {
+        this.building = building;
     }
 
-    public int getStart() {
-        return start;
+    public String getCity() {
+        return city;
     }
 
-    public void setStart(int start) {
-        this.start = start;
+    public void setCity(String city) {
+        this.city = city;
     }
 
-    public int getSize() {
-        return size;
+    public String getCorp() {
+        return corp;
     }
 
-    public void setSize(int size) {
-        this.size = size;
+    public void setCorp(String corp) {
+        this.corp = corp;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getMiddleName() {
+        return middleName;
+    }
+
+    public void setMiddleName(String middleName) {
+        this.middleName = middleName;
     }
 
     public String getOrderByClause() {
@@ -137,11 +105,43 @@ public class PaymentExample implements Serializable {
         this.orderByClause = orderByClause;
     }
 
-    public boolean isAsc() {
-        return asc;
+    public Long getRequestFileId() {
+        return requestFileId;
     }
 
-    public void setAsc(boolean asc) {
-        this.asc = asc;
+    public void setRequestFileId(Long requestFileId) {
+        this.requestFileId = requestFileId;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
+
+    public int getStart() {
+        return start;
+    }
+
+    public void setStart(int start) {
+        this.start = start;
+    }
+
+    public RequestStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(RequestStatus status) {
+        this.status = status;
+    }
+
+    public String getStreet() {
+        return street;
+    }
+
+    public void setStreet(String street) {
+        this.street = street;
     }
 }

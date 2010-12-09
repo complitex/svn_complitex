@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.complitex.osznconnection.file.service.warning.RequestWarningBean">
+
+    <resultMap id="requestWarning" type="org.complitex.osznconnection.file.entity.RequestWarning">
+        <id column="id" property="id"/>
+        <result column="request_id" property="requestId"/>
+        <result column="request_file_type" property="requestFileType"/>
+        <result column="status" property="status"/>
+        <collection property="parameters" ofType="org.complitex.osznconnection.file.entity.RequestWarningParameter">
+            <id column="request_warning_id" property="requestWarningId"/>
+            <id column="order" property="order"/>
+            <result column="type" property="type"/>
+            <result column="value" property="value"/>
+        </collection>
+    </resultMap>
+
+    <select id="getWarnings" resultMap="org.complitex.osznconnection.file.service.warning.RequestWarningBean.requestWarning"
+            parameterType="map">
+        SELECT w.`id`, w.`request_id`, w.`request_file_type`, w.`status`, p.`request_warning_id`, p.`order`, p.`type`, p.`value`
+                    FROM `request_warning` w
+                    LEFT JOIN `request_warning_parameter` p ON w.`id` = p.`request_warning_id`
+                    WHERE w.`request_id` = #{requestId} AND w.`request_file_type` = #{requestFileType}
+                    ORDER BY w.`id`, p.`order`
+    </select>
+
+    <insert id="insertParameter" parameterType="org.complitex.osznconnection.file.entity.RequestWarningParameter">
+        INSERT INTO `request_warning_parameter` (`request_warning_id`, `order`, `type`, `value`) VALUES (#{requestWarningId}, #{order}, #{type}, #{value})
+    </insert>
+
+    <insert id="insertWarning" parameterType="org.complitex.osznconnection.file.entity.RequestWarning" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO `request_warning` (`request_id`, `request_file_type`, `status`) VALUES (#{requestId}, #{requestFileType}, #{status})
+    </insert>
+
+    <delete id="deleteParameters">
+        DELETE FROM `request_warning_parameter`
+            WHERE `request_warning_id` IN (SELECT w.`id` FROM `request_warning` w WHERE
+                w.`request_file_type` = #{requestFileType} AND w.`request_id` IN (SELECT r.`id` FROM `${requestTableName}` r WHERE
+                    r.`request_file_id` = #{requestFileId}))
+    </delete>
+
+    <delete id="deleteWarnings">
+        DELETE FROM `request_warning`
+            WHERE `request_file_type` = #{requestFileType} AND
+                `request_id` IN (SELECT r.`id` FROM `${requestTableName}` r WHERE r.`request_file_id` = #{requestFileId})
+    </delete>
+
+</mapper>

@@ -112,16 +112,18 @@ public class FillTaskBean implements ITaskBean<RequestFileGroup> {
             return;
         }
 
-        Benefit benefit = new Benefit(); //todo add null benefit process
+        List<Benefit> benefits = benefitBean.findByOSZ(payment);
 
         try {
-            adapter.processPaymentAndBenefit(payment, benefit, calculationCenterId);
+            adapter.processPaymentAndBenefit(payment, benefits, calculationCenterId);
         } catch (AccountNotFoundException e) {
             payment.setStatus(RequestStatus.ACCOUNT_NUMBER_NOT_FOUND);
         }
 
         paymentBean.update(payment);
-        benefitBean.populateBenefit(payment.getId(), benefit);
+        for (Benefit benefit : benefits) {
+            benefitBean.populateBenefit(benefit);
+        }
     }
 
     /**

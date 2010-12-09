@@ -47,67 +47,66 @@ public class Benefit extends AbstractRequest {
 
     @Override
     protected void checkSize(String name, Object value) throws FieldWrongSizeException {
-        if (value == null || value instanceof Date){
+        if (value == null || value instanceof Date) {
             return;
         }
 
         BenefitDBF benefitDBF = BenefitDBF.valueOf(name);
 
-        if (value instanceof BigDecimal){
-            if (((BigDecimal) value).scale() > benefitDBF.getScale()){
+        if (value instanceof BigDecimal) {
+            if (((BigDecimal) value).scale() > benefitDBF.getScale()) {
                 throw new FieldWrongSizeException(value.toString());
             }
         }
 
-        if (value.toString().length() > benefitDBF.getLength()){
+        if (value.toString().length() > benefitDBF.getLength()) {
             throw new FieldWrongSizeException(value.toString());
         }
     }
 
-    public String getDisplayName(){
+    public String getDisplayName() {
         String name = "";
 
-        if (getField(BenefitDBF.SUR_NAM) != null){
+        if (getField(BenefitDBF.SUR_NAM) != null) {
             name += getField(BenefitDBF.SUR_NAM);
         }
 
-        if (getField(BenefitDBF.F_NAM) != null){
+        if (getField(BenefitDBF.F_NAM) != null) {
             name += " " + getField(BenefitDBF.F_NAM);
         }
 
-        if (getField(BenefitDBF.M_NAM) != null){
+        if (getField(BenefitDBF.M_NAM) != null) {
             name += " " + getField(BenefitDBF.M_NAM);
         }
 
         return name;
     }
-        
-    public String getDisplayAddress(){
+
+    public String getDisplayAddress() {
         String address = "";
 
-        if (city != null){
+        if (city != null) {
             address += "г. " + city;
         }
 
-        if (street != null){
+        if (street != null) {
             address += " ул. " + street;
         }
 
-        if (buildingNumber != null){
+        if (buildingNumber != null) {
             address += " д. " + buildingNumber;
         }
 
-        if (buildingCorp != null){
+        if (buildingCorp != null) {
             address += " корп. " + buildingCorp;
         }
 
-        if (apartment != null){
+        if (apartment != null) {
             address += " кв. " + apartment;
         }
 
         return address;
     }
-
     private String city;
     private String street;
     private String buildingNumber;
@@ -154,7 +153,7 @@ public class Benefit extends AbstractRequest {
         this.street = street;
     }
 
-    public boolean hasPriv(){
+    public boolean hasPriv() {
         return getField(BenefitDBF.PRIV_CAT) != null;
     }
 }

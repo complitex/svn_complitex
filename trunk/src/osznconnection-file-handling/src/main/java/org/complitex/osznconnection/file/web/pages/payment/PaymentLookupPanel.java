@@ -28,7 +28,6 @@ import org.complitex.osznconnection.file.entity.Payment;
 import org.complitex.osznconnection.file.entity.PaymentDBF;
 import org.complitex.osznconnection.file.entity.RequestStatus;
 import org.complitex.osznconnection.file.service.PaymentLookupBean;
-import org.complitex.osznconnection.file.web.component.StatusRenderer;
 import org.complitex.osznconnection.file.web.component.correction.account.AccountNumberCorrectionPanel;
 import org.odlabs.wiquery.core.javascript.JsStatement;
 import org.odlabs.wiquery.ui.accordion.Accordion;
@@ -42,6 +41,7 @@ import javax.ejb.EJB;
 import java.util.List;
 import java.util.Map;
 import org.complitex.dictionaryfw.util.CloneUtil;
+import org.complitex.osznconnection.file.service.StatusRenderService;
 import org.complitex.osznconnection.information.strategy.street.StreetStrategy;
 
 /**
@@ -57,6 +57,9 @@ public abstract class PaymentLookupPanel extends Panel {
 
     @EJB(name = "PaymentLookupBean")
     private PaymentLookupBean paymentLookupBean;
+
+    @EJB(name = "StatusRenderService")
+    private StatusRenderService statusRenderService;
 
     private IModel<String> accountInfoModel;
     private IModel<String> apartmentModel;
@@ -140,7 +143,7 @@ public abstract class PaymentLookupPanel extends Panel {
                             accountInfoModel.setObject(null);
                             accountModel.setObject(null);
 
-                            error(StatusRenderer.displayValue(RequestStatus.ACCOUNT_NUMBER_NOT_FOUND));
+                            error(statusRenderService.displayStatus(RequestStatus.ACCOUNT_NUMBER_NOT_FOUND, getLocale()));
 
                             target.addComponent(messages);
                             target.addComponent(accountInfo);
@@ -167,7 +170,7 @@ public abstract class PaymentLookupPanel extends Panel {
                             }
                         }
                     } else {
-                        error(StatusRenderer.displayValue(payment.getStatus()));
+                        error(statusRenderService.displayStatus(payment.getStatus(), getLocale()));
                     }
                 }
                 target.addComponent(messages);

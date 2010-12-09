@@ -17,14 +17,19 @@ import org.complitex.osznconnection.file.service.StatusDetailBean;
 
 import javax.ejb.EJB;
 import java.util.List;
+import org.complitex.osznconnection.file.service.StatusRenderService;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 24.11.10 15:49
  */
 public class StatusDetailPanel extends Panel {
+    
     @EJB(name = "StatusDetailBean")
     private StatusDetailBean statusDetailBean;
+
+    @EJB(name = "StatusRenderService")
+    private StatusRenderService statusRenderService;
 
     public StatusDetailPanel(String id, final RequestFile requestFile, final IModel<PaymentExample> exampleModel,
                              final Component... update) {
@@ -71,7 +76,7 @@ public class StatusDetailPanel extends Panel {
                 };
                 rootItem.add(expandRoot);
 
-                String rootName = StatusRenderer.displayValue(root.getRequestStatus()) +
+                String rootName = statusRenderService.displayStatus(root.getRequestStatus(), getLocale()) +
                         " (" + root.getCount() + ")";
                 expandRoot.add(new Label("root_name", rootName));
 

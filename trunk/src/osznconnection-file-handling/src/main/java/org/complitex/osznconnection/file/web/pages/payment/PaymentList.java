@@ -42,6 +42,8 @@ import javax.ejb.EJB;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Iterator;
+import org.complitex.osznconnection.file.service.StatusRenderService;
+import org.complitex.osznconnection.file.service.warning.WebWarningRenderer;
 
 /**
  *
@@ -58,6 +60,12 @@ public final class PaymentList extends TemplatePage {
     @EJB(name = "RequestFileBean")
     private RequestFileBean requestFileBean;
 
+    @EJB(name = "StatusRenderService")
+    private StatusRenderService statusRenderService;
+
+    @EJB(name = "WebWarningRenderer")
+    private WebWarningRenderer webWarningRenderer;
+    
     private IModel<PaymentExample> example;
     private long fileId;
 
@@ -189,14 +197,8 @@ public final class PaymentList extends TemplatePage {
                 item.add(new Label("building", (String) payment.getField(PaymentDBF.BLD_NUM)));
                 item.add(new Label("corp", (String) payment.getField(PaymentDBF.CORP_NUM)));
                 item.add(new Label("apartment", (String) payment.getField(PaymentDBF.FLAT)));
-                item.add(new Label("status", StatusRenderer.displayValue(payment.getStatus())));
-                String statusDetails = "";
-                switch (payment.getStatus()) {
-                    case TARIF_CODE2_1_NOT_FOUND:
-                        statusDetails = StatusRenderer.displayTarifNotFoundDetails(payment.getCalculationCenterCode2_1());
-                        break;
-                }
-                item.add(new Label("statusDetails", statusDetails));
+                item.add(new Label("status", statusRenderService.displayStatus(payment.getStatus(), getLocale())));
+                item.add(new Label("statusDetails", webWarningRenderer.display(payment.getWarnings(), getLocale())));
 
                 AjaxLink addressCorrectionLink = new IndicatingAjaxLink("addressCorrectionLink") {
 

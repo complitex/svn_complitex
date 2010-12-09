@@ -2,7 +2,6 @@ package org.complitex.osznconnection.file.service;
 
 import com.google.common.collect.Maps;
 import org.complitex.dictionaryfw.mybatis.Transactional;
-import org.complitex.dictionaryfw.service.AbstractBean;
 import org.complitex.osznconnection.file.calculation.service.CalculationCenterBean;
 import org.complitex.osznconnection.file.entity.*;
 import org.complitex.osznconnection.file.entity.example.PaymentExample;
@@ -24,7 +23,7 @@ import java.util.Map;
  *         Date: 24.08.2010 18:57:00
  */
 @Stateless(name = "PaymentBean")
-public class PaymentBean extends AbstractBean {
+public class PaymentBean extends AbstractRequestBean {
 
     private static final Logger log = LoggerFactory.getLogger(PaymentBean.class);
 
@@ -72,9 +71,10 @@ public class PaymentBean extends AbstractBean {
     }
 
     @Transactional
-    @SuppressWarnings({"unchecked"})
     public List<Payment> find(PaymentExample example) {
-        return (List<Payment>) sqlSession().selectList(MAPPING_NAMESPACE + ".find", example);
+        List<Payment> payments = sqlSession().selectList(MAPPING_NAMESPACE + ".find", example);
+        loadWarnings(payments, RequestFile.TYPE.PAYMENT);
+        return payments;
     }
 
     @Transactional
@@ -87,7 +87,9 @@ public class PaymentBean extends AbstractBean {
     }
 
     public List<AbstractRequest> getPayments(RequestFile requestFile) {
-        return sqlSession().selectList(MAPPING_NAMESPACE + ".selectPayments", requestFile.getId());
+        List<AbstractRequest> payments = sqlSession().selectList(MAPPING_NAMESPACE + ".selectPayments", requestFile.getId());
+        loadWarnings(payments, RequestFile.TYPE.PAYMENT);
+        return payments;
     }
 
     @Transactional
@@ -250,10 +252,11 @@ public class PaymentBean extends AbstractBean {
      */
     @Transactional
     public void clearBeforeBinding(long fileId) {
-        Payment parameter = new Payment();
-        parameter.setRequestFileId(fileId);
-        parameter.setStatus(RequestStatus.CITY_UNRESOLVED_LOCALLY);
-        sqlSession().update(MAPPING_NAMESPACE + ".clearBeforeBinding", parameter);
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("status", RequestStatus.CITY_UNRESOLVED_LOCALLY);
+        params.put("fileId", fileId);
+        sqlSession().update(MAPPING_NAMESPACE + ".clearBeforeBinding", params);
+        clearWarnings(fileId, RequestFile.TYPE.PAYMENT);
     }
 
     /**
@@ -266,5 +269,6 @@ public class PaymentBean extends AbstractBean {
         params.put("statuses", RequestStatus.notBoundStatuses());
         params.put("fileId", fileId);
         sqlSession().update(MAPPING_NAMESPACE + ".clearBeforeProcessing", params);
+        clearWarnings(fileId, RequestFile.TYPE.PAYMENT);
     }
 }

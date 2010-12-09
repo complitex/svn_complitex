@@ -226,12 +226,19 @@
         <include refid="org.complitex.osznconnection.file.service.BenefitBean.updateByOWN_NUM_SR"/>
     </update>
 
-    <update id="populateBenefit" parameterType="hashmap">
-        UPDATE `benefit` b SET
-        b.`CM_AREA` = #{CM_AREA}, b.`OWN_FRM` = #{OWN_FRM}, b.`HOSTEL` = #{HOSTEL}
-        <include refid="org.complitex.osznconnection.file.service.BenefitBean.updateByOWN_NUM_SR"/>
-        AND b.`OZN` = 1
+    <update id="populateBenefit" parameterType="org.complitex.osznconnection.file.entity.Benefit">
+        UPDATE `benefit` SET
+        `CM_AREA` = #{dbfFields.CM_AREA}, `OWN_FRM` = #{dbfFields.OWN_FRM}, `HOSTEL` = #{dbfFields.HOSTEL}
+        WHERE `id` = #{id}
     </update>
+
+    <select id="findByOSZ" parameterType="org.complitex.osznconnection.file.entity.Payment" resultMap="benefitResultMap">
+        SELECT b.`id`, b.`status`, b.`account_number`, bf.`organization_id` organization_id, b.`request_file_id`
+            FROM `benefit` b
+            JOIN `request_file` bf ON b.`request_file_id` = bf.`id`
+            JOIN `request_file` pf ON (pf.`id` = #{requestFileId} AND pf.`type` = 'PAYMENT' AND pf.`group_id` = bf.`group_id`)
+            WHERE b.`account_number` = #{accountNumber} AND b.`OZN` = 1
+    </select>
 
     <select id="findDat1" parameterType="hashmap" resultType="date">
         SELECT DISTINCT p.`DAT1` FROM `payment` p
@@ -284,27 +291,27 @@
         `id` = #{id}
     </update>
 
-    <update id="clearBeforeBinding" parameterType="org.complitex.osznconnection.file.entity.Benefit">
+    <update id="clearBeforeBinding" parameterType="map">
         UPDATE `benefit` SET
         `status` = #{status},
-        `ORD_FAM` = #{dbfFields.ORD_FAM},
-        `PRIV_CAT` = #{dbfFields.PRIV_CAT},
-        `CM_AREA` = #{dbfFields.CM_AREA},
-        `OWN_FRM` = #{dbfFields.OWN_FRM},
-        `HOSTEL` = #{dbfFields.HOSTEL},
-        `account_number` = #{accountNumber}
+        `ORD_FAM` = NULL,
+        `PRIV_CAT` = NULL,
+        `CM_AREA` = NULL,
+        `OWN_FRM` = NULL,
+        `HOSTEL` = NULL,
+        `account_number` = NULL
         WHERE
-        `request_file_id` = #{requestFileId}
+        `request_file_id` = #{fileId}
     </update>
 
-    <update id="clearBeforeProcessing" parameterType="org.complitex.osznconnection.file.entity.Benefit">
-        UPDATE `benefit` b SET
-        b.`ORD_FAM` = NULL,
-        b.`PRIV_CAT` = NULL,
-        b.`CM_AREA` = NULL,
-        b.`OWN_FRM` = NULL,
-        b.`HOSTEL` = NULL,
-        b.`status` = CASE b.`status`
+    <update id="clearBeforeProcessing" parameterType="map">
+        UPDATE `benefit` SET
+        `ORD_FAM` = NULL,
+        `PRIV_CAT` = NULL,
+        `CM_AREA` = NULL,
+        `OWN_FRM` = NULL,
+        `HOSTEL` = NULL,
+        `status` = CASE `status`
                         <foreach collection="statuses" item="status">
                             WHEN #{status} THEN #{status}
                         </foreach>

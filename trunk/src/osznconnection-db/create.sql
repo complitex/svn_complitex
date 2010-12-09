@@ -1341,7 +1341,6 @@ CREATE TABLE `payment` (
 	`OPP_SERV` VARCHAR(8) COMMENT 'Резерв',
 	`RESERV1` INT(10) COMMENT 'Резерв',
 	`RESERV2` VARCHAR(10) COMMENT 'Резер',
-        `calc_center_code2_1` DOUBLE COMMENT 'Код тарифа на оплату жилья, пришедший из центра начислений',
     PRIMARY KEY (`id`),
     KEY `key_request_file_id` (`request_file_id`),
     KEY `key_account_number` (`account_number`),
@@ -1757,6 +1756,28 @@ CREATE TABLE `preference` (
     CONSTRAINT `fk_preference__user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `request_warning`;
+
+CREATE TABLE `request_warning` (
+    `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+    `request_id` BIGINT(20) NOT NULL,
+    `request_file_type` VARCHAR(50) NOT NULL,
+    `status` BIGINT(20) NOT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `request_warning_parameter`;
+
+CREATE TABLE `request_warning_parameter` (
+    `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+    `request_warning_id` BIGINT(20) NOT NULL,
+    `order` INTEGER NOT NULL,
+    `type` VARCHAR(100) NULL,
+    `value` VARCHAR(500) NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_request_warning_parameter` (`request_warning_id`, `order`),
+    CONSTRAINT `fk_request_warning_parameter__request_warning` FOREIGN KEY (`request_warning_id`) REFERENCES `request_warning` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
