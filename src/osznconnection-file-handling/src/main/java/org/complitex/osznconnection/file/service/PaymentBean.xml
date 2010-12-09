@@ -2,10 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.complitex.osznconnection.file.service.PaymentBean">
 
-    <resultMap id="paymentResultMap" type="org.complitex.osznconnection.file.entity.Payment">
-        <id column="id" property="id"/>
-        <result column="request_file_id" property="requestFileId"/>
-        <result column="account_number" property="accountNumber"/>
+    <resultMap id="paymentResultMap" type="org.complitex.osznconnection.file.entity.Payment"
+                extends="org.complitex.osznconnection.file.service.AbstractRequestBean.abstractRequest">
 
         <result column="internal_city_id" property="internalCityId"/>
         <result column="internal_street_id" property="internalStreetId"/>
@@ -20,9 +18,6 @@
         <result column="outgoing_building_number" property="outgoingBuildingNumber"/>
         <result column="outgoing_building_corp" property="outgoingBuildingCorp"/>
         <result column="outgoing_apartment" property="outgoingApartment"/>
-
-        <result column="status" property="status"/>
-        <result column="organization_id" property="organizationId"/>
 
         <association property="dbfFields" javaType="map">
             <result column="OWN_NUM" property="OWN_NUM"/>
@@ -172,54 +167,66 @@
 
     <sql id="filter">
         <if test="account != null">
-            AND r.`OWN_NUM_SR` LIKE CONCAT('%',#{account},'%')
+            AND p.`OWN_NUM_SR` LIKE CONCAT('%',#{account},'%')
         </if>
         <if test="firstName != null">
-            AND r.`F_NAM` LIKE CONCAT('%',#{firstName},'%')
+            AND p.`F_NAM` LIKE CONCAT('%',#{firstName},'%')
         </if>
         <if test="middleName != null">
-            AND r.`M_NAM` LIKE CONCAT('%',#{middleName},'%')
+            AND p.`M_NAM` LIKE CONCAT('%',#{middleName},'%')
         </if>
         <if test="lastName != null">
-            AND r.`SUR_NAM` LIKE CONCAT('%',#{lastName},'%')
+            AND p.`SUR_NAM` LIKE CONCAT('%',#{lastName},'%')
         </if>
 
         <if test="city != null">
-            AND r.`N_NAME` LIKE CONCAT('%', #{city}, '%')
+            AND p.`N_NAME` LIKE CONCAT('%', #{city}, '%')
         </if>
         <if test="street != null">
-            AND r.`VUL_NAME` LIKE CONCAT('%', #{street}, '%')
+            AND p.`VUL_NAME` LIKE CONCAT('%', #{street}, '%')
         </if>
         <if test="building != null">
-            AND r.`BLD_NUM` LIKE CONCAT('%', #{building}, '%')
+            AND p.`BLD_NUM` LIKE CONCAT('%', #{building}, '%')
         </if>
         <if test="corp != null">
-            AND r.`CORP_NUM` LIKE CONCAT('%', #{corp}, '%')
+            AND p.`CORP_NUM` LIKE CONCAT('%', #{corp}, '%')
         </if>
         <if test="apartment != null">
-            AND r.`FLAT` LIKE CONCAT('%', #{apartment}, '%')
+            AND p.`FLAT` LIKE CONCAT('%', #{apartment}, '%')
         </if>
 
         <if test="status != null">
-            AND r.`status` = #{status}
+            AND p.`status` = #{status}
         </if>
     </sql>
 
     <select id="count" resultType="int" parameterType="org.complitex.osznconnection.file.entity.example.PaymentExample">
-        SELECT COUNT(*) FROM `payment` r WHERE r.`request_file_id` = #{requestFileId}
+        SELECT COUNT(*) FROM `payment` p WHERE p.`request_file_id` = #{requestFileId}
         <include refid="org.complitex.osznconnection.file.service.PaymentBean.filter"/>
     </select>
 
     <select id="find" parameterType="org.complitex.osznconnection.file.entity.example.PaymentExample"
             resultMap="paymentResultMap">
-        SELECT r.`id`, r.`status`, r.`request_file_id`, r.`OWN_NUM_SR`, r.`F_NAM`, r.`M_NAM`, r.`SUR_NAM`,
-        r.`N_NAME`, r.`VUL_NAME`, r.`BLD_NUM`, r.`CORP_NUM`, r.`FLAT`, r.`DAT1`,
-        (SELECT f.`organization_id` FROM `request_file` f WHERE f.`id` = r.`request_file_id`) organization_id,
-        r.`internal_city_id`, r.`internal_street_id`, r.`internal_street_type_id`, r.`internal_building_id`, r.`internal_apartment_id`,
-        r.`outgoing_city`, r.`outgoing_district`, r.`outgoing_street`, r.`outgoing_street_type`, r.`outgoing_building_number`, r.`outgoing_building_corp`,
-        r.`outgoing_apartment`
-        FROM `payment` r WHERE r.`request_file_id` = #{requestFileId}
-        <include refid="org.complitex.osznconnection.file.service.PaymentBean.filter"/>
+        SELECT s.*,  
+        w.`id` warning_id, w.`request_id` warning_reqiest_id, w.`request_file_type` warning_request_file_type, w.`status` warning_status,
+        p.`request_warning_id` param_request_warning_id, p.`order` param_order, p.`type` param_type, p.`value` param_value
+        FROM (
+            SELECT p.`id`, p.`status`, p.`request_file_id`, p.`OWN_NUM_SR`, p.`F_NAM`, p.`M_NAM`, p.`SUR_NAM`,
+                p.`N_NAME`, p.`VUL_NAME`, p.`BLD_NUM`, p.`CORP_NUM`, p.`FLAT`, p.`DAT1`,
+                (SELECT f.`organization_id` FROM `request_file` f WHERE f.`id` = p.`request_file_id`) organization_id,
+                p.`internal_city_id`, p.`internal_street_id`, p.`internal_street_type_id`, p.`internal_building_id`, p.`internal_apartment_id`,
+                p.`outgoing_city`, p.`outgoing_district`, p.`outgoing_street`, p.`outgoing_street_type`, p.`outgoing_building_number`, p.`outgoing_building_corp`,
+                p.`outgoing_apartment`
+            FROM `payment` p
+                WHERE p.`request_file_id` = #{requestFileId}
+                <include refid="org.complitex.osznconnection.file.service.PaymentBean.filter"/>
+            <if test="size != 0">
+                limit #{start},#{size}
+            </if>
+        ) s
+        LEFT JOIN `request_warning` w ON (w.`request_id` = s.`id` AND w.`request_file_type` = 'PAYMENT')
+        LEFT JOIN `request_warning_parameter` p ON w.`id` = p.`request_warning_id`
+        
         <if test="orderByClause != null">
             ORDER BY ${orderByClause}
             <choose>
@@ -231,9 +238,7 @@
                 </otherwise>
             </choose>
         </if>
-        <if test="size != 0">
-            limit #{start},#{size}
-        </if>
+        
     </select>
 
     <select id="findById" parameterType="long" resultMap="paymentResultMap">

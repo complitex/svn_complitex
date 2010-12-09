@@ -55,6 +55,7 @@
         <mapper resource="org/complitex/osznconnection/admin/service/UserBean.xml"/>
         <mapper resource="org/complitex/osznconnection/logging/service/LogListBean.xml"/>
 
+        <mapper resource="org/complitex/osznconnection/file/service/AbstractRequestBean.xml"/>
         <mapper resource="org/complitex/osznconnection/file/service/PaymentBean.xml"/>
         <mapper resource="org/complitex/osznconnection/file/service/CorrectionBean.xml"/>
         <mapper resource="org/complitex/osznconnection/file/service/AddressCorrectionBean.xml"/>

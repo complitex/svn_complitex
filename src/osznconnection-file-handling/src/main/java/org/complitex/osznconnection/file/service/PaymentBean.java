@@ -73,7 +73,6 @@ public class PaymentBean extends AbstractRequestBean {
     @Transactional
     public List<Payment> find(PaymentExample example) {
         List<Payment> payments = sqlSession().selectList(MAPPING_NAMESPACE + ".find", example);
-        loadWarnings(payments, RequestFile.TYPE.PAYMENT);
         return payments;
     }
 
@@ -88,7 +87,6 @@ public class PaymentBean extends AbstractRequestBean {
 
     public List<AbstractRequest> getPayments(RequestFile requestFile) {
         List<AbstractRequest> payments = sqlSession().selectList(MAPPING_NAMESPACE + ".selectPayments", requestFile.getId());
-        loadWarnings(payments, RequestFile.TYPE.PAYMENT);
         return payments;
     }
 

@@ -97,7 +97,6 @@ public class BenefitBean extends AbstractRequestBean {
     @Transactional
     public List<Benefit> find(BenefitExample example) {
         List<Benefit> benefits = sqlSession().selectList(MAPPING_NAMESPACE + ".find", example);
-        loadWarnings(benefits, RequestFile.TYPE.BENEFIT);
         return benefits;
     }
 
@@ -113,7 +112,6 @@ public class BenefitBean extends AbstractRequestBean {
     @SuppressWarnings({"unchecked"})
     public List<AbstractRequest> getBenefits(RequestFile requestFile) {
         List<AbstractRequest> benefits = sqlSession().selectList(MAPPING_NAMESPACE + ".selectBenefits", requestFile.getId());
-        loadWarnings(benefits, RequestFile.TYPE.BENEFIT);
         return benefits;
     }
 
