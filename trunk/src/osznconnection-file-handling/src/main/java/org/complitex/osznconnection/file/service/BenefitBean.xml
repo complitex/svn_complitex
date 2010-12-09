@@ -38,7 +38,13 @@
     </resultMap>
 
     <select id="selectBenefits" resultMap="benefitResultMap" parameterType="long">
-        select * from `benefit` where `request_file_id` = #{id}
+        SELECT b.*,
+            w.`id` warning_id, w.`request_id` warning_reqiest_id, w.`request_file_type` warning_request_file_type, w.`status` warning_status,
+            p.`request_warning_id` param_request_warning_id, p.`order` param_order, p.`type` param_type, p.`value` param_value
+        FROM `benefit` b 
+            LEFT JOIN `request_warning` w ON (w.`request_id` = b.`id` AND w.`request_file_type` = 'BENEFIT')
+            LEFT JOIN `request_warning_parameter` p ON w.`id` = p.`request_warning_id`
+        WHERE b.`request_file_id` = #{id}
     </select>
 
     <insert id="insertBenefit" parameterType="org.complitex.osznconnection.file.entity.Benefit">
