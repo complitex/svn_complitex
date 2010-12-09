@@ -42,7 +42,13 @@ public abstract class AbstractWarningRenderer implements IWarningRenderer {
 
         for (RequestWarning requestWarning : requestWarnings) {
             String currentWarning = display(requestWarning, locale);
-            warning = warning + " " + currentWarning;
+            String toAdd = null;
+            if (Strings.isEmpty(warning)) {
+                toAdd = currentWarning;
+            } else {
+                toAdd = " " + currentWarning;
+            }
+            warning = warning + toAdd;
         }
         return warning;
     }
