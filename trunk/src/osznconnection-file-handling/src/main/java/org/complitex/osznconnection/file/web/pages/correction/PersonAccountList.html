@@ -42,8 +42,16 @@
                                 <td class="filter-td"><input type="text" wicket:id="apartmentFilter"/></td>
                                 <td class="filter-td"><input type="text" wicket:id="accountNumberFilter"/></td>
                                 <td class="filter-td"><input type="text" wicket:id="ownNumSrFilter"/></td>
-                                <td class="filter-td"><input type="text" wicket:id="osznFilter"/></td>
-                                <td class="filter-td"><input type="text" wicket:id="calculationCenterFilter"/></td>
+                                <td class="filter-td">
+                                    <select wicket:id="osznFilter">
+                                        <option></option>
+                                    </select>
+                                </td>
+                                <td class="filter-td">
+                                    <select wicket:id="calculationCenterFilter">
+                                        <option></option>
+                                    </select>
+                                </td>
                                 <td class="filter-td">
                                     <input wicket:id="submit" type="submit" wicket:message="value:find" class="btnSmall default"/>
                                 </td>

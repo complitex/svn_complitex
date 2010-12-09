@@ -4,6 +4,7 @@
  */
 package org.complitex.osznconnection.file.web.pages.correction;
 
+import com.google.common.collect.Lists;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -26,7 +27,6 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionaryfw.service.LocaleBean;
-import org.complitex.dictionaryfw.strategy.StrategyFactory;
 import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
 import org.complitex.osznconnection.commons.web.component.toolbar.ToolbarButton;
@@ -39,6 +39,11 @@ import org.complitex.osznconnection.file.service.CorrectionBean;
 import javax.ejb.EJB;
 import java.util.Iterator;
 import java.util.List;
+import org.complitex.dictionaryfw.entity.DomainObject;
+import org.complitex.dictionaryfw.web.component.DisableAwareDropDownChoice;
+import org.complitex.dictionaryfw.web.component.DomainObjectDisableAwareRenderer;
+import org.complitex.osznconnection.file.web.model.OrganizationModel;
+import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 
 /**
  * Абстрактный класс для списка коррекций.
@@ -52,11 +57,11 @@ public abstract class AbstractCorrectionList extends TemplatePage {
     @EJB(name = "CorrectionBean")
     private CorrectionBean correctionBean;
 
-    @EJB(name = "StrategyFactory")
-    private StrategyFactory strategyFactory;
-
     @EJB(name = "LocaleBean")
     private LocaleBean localeBean;
+
+    @EJB(name = "OrganizationStrategy")
+    private OrganizationStrategy organizationStrategy;
 
     private String entity;
 
@@ -151,11 +156,60 @@ public abstract class AbstractCorrectionList extends TemplatePage {
         };
         dataProvider.setSort(getSortProperty(""), getSortOrder(true));
 
-        filterForm.add(new TextField<String>("organizationFilter", new PropertyModel<String>(example, "organization")));
+        final List<DomainObject> allOuterOrganizations = organizationStrategy.getAllOuterOrganizations();
+        IModel<DomainObject> outerOrganizationModel = new OrganizationModel() {
+
+            @Override
+            public Long getOrganizationId() {
+                return example.getObject().getOrganizationId();
+            }
+
+            @Override
+            public void setOrganizationId(Long organizationId) {
+                example.getObject().setOrganizationId(organizationId);
+            }
+
+            @Override
+            public List<DomainObject> getOrganizations() {
+                return allOuterOrganizations;
+            }
+        };
+        DomainObjectDisableAwareRenderer renderer = new DomainObjectDisableAwareRenderer() {
+
+            @Override
+            public Object getDisplayValue(DomainObject object) {
+                return organizationStrategy.displayDomainObject(object, getLocale());
+            }
+        };
+        DisableAwareDropDownChoice<DomainObject> organizationFilter = new DisableAwareDropDownChoice<DomainObject>("organizationFilter",
+                outerOrganizationModel, allOuterOrganizations, renderer);
+
+        filterForm.add(organizationFilter);
         filterForm.add(new TextField<String>("correctionFilter", new PropertyModel<String>(example, "correction")));
         filterForm.add(new TextField<String>("codeFilter", new PropertyModel<String>(example, "code")));
         filterForm.add(new TextField<String>("internalObjectFilter", new PropertyModel<String>(example, "internalObject")));
-        filterForm.add(new TextField<String>("internalOrganizationFilter", new PropertyModel<String>(example, "internalOrganization")));
+
+        final List<DomainObject> internalOrganizations = Lists.newArrayList(organizationStrategy.getItselfOrganization());
+        IModel<DomainObject> internalOrganizationModel = new OrganizationModel() {
+
+            @Override
+            public Long getOrganizationId() {
+                return example.getObject().getInternalOrganizationId();
+            }
+
+            @Override
+            public void setOrganizationId(Long organizationId) {
+                example.getObject().setInternalOrganizationId(organizationId);
+            }
+
+            @Override
+            public List<DomainObject> getOrganizations() {
+                return internalOrganizations;
+            }
+        };
+        DisableAwareDropDownChoice<DomainObject> internalOrganizationFilter = new DisableAwareDropDownChoice<DomainObject>("internalOrganizationFilter",
+                internalOrganizationModel, internalOrganizations, renderer);
+        filterForm.add(internalOrganizationFilter);
 
         AjaxLink reset = new IndicatingAjaxLink("reset") {
 

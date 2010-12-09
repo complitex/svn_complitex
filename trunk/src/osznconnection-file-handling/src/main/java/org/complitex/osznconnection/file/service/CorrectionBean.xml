@@ -35,11 +35,11 @@
                 AND c.`organization_code` LIKE CONCAT('%', #{code}, '%')
             </if>
 
-            <if test="organization != null">
-                and osc.`value` LIKE CONCAT('%', #{organization}, '%')
+            <if test="organizationId != null">
+                and c.`organization_id` = #{organizationId}
             </if>
-            <if test="internalOrganization != null">
-                and osc_i.`value` LIKE CONCAT('%', #{internalOrganization}, '%')
+            <if test="internalOrganizationId != null">
+                and c.`internal_organization_id` = #{internalOrganizationId}
             </if>
         </where>
     </sql>

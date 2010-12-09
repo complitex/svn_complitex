@@ -55,17 +55,11 @@
             <if test="ownNumSr != null">
                 AND pa.`own_num_sr` LIKE CONCAT('%', #{ownNumSr}, '%')
             </if>
-             <if test="oszn != null">
-                AND EXISTS(SELECT 1 FROM `organization_string_culture` osc WHERE osc.`value` LIKE CONCAT('%', #{oszn}, '%') AND osc.`id` IN
-                (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE' AND oa.`attribute_type_id` = 900
-                AND oa.`object_id` = pa.`oszn_id`)
-                )
+             <if test="osznId != null">
+                pa.`oszn_id` = #{osznId}
             </if>
-            <if test="calculationCenter != null">
-                AND EXISTS(SELECT 1 FROM `organization_string_culture` osc WHERE osc.`value` LIKE CONCAT('%', #{calculationCenter}, '%') AND osc.`id` IN
-                (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE' AND oa.`attribute_type_id` = 900
-                AND oa.`object_id` = pa.`calc_center_id`)
-                )
+            <if test="calculationCenterId != null">
+                pa.`calc_center_id` = #{calculationCenterId}
             </if>
         </where>
     </sql>
