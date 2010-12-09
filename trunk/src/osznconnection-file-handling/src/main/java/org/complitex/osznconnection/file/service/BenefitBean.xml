@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.complitex.osznconnection.file.service.BenefitBean">
-    <resultMap id="benefitResultMap" type="org.complitex.osznconnection.file.entity.Benefit">
-        <id column="id" property="id"/>
-        <result column="request_file_id" property="requestFileId"/>
-        <result column="account_number" property="accountNumber"/>
-        <result column="status" property="status"/>
+
+    <resultMap id="benefitResultMap" type="org.complitex.osznconnection.file.entity.Benefit"
+                extends="org.complitex.osznconnection.file.service.AbstractRequestBean.abstractRequest">
 
         <result column="city" property="city"/>
         <result column="street" property="street"/>
@@ -149,37 +147,45 @@
             LEFT JOIN `payment` p ON (b.`OWN_NUM_SR` = p.`OWN_NUM_SR` AND p.`request_file_id` = pf.`id`)
         WHERE
             b.`request_file_id` = #{requestFileId}
-        <include refid="org.complitex.osznconnection.file.service.BenefitBean.filter"/>
+            <include refid="org.complitex.osznconnection.file.service.BenefitBean.filter"/>
     </select>
 
     <select id="find" resultMap="benefitResultMap"
             parameterType="org.complitex.osznconnection.file.entity.example.BenefitExample">
-        SELECT
-            DISTINCT b.`id`, b.`request_file_id`, b.`OWN_NUM_SR`, b.`F_NAM`, b.`M_NAM`, b.`SUR_NAM`, b.`status`,
-            p.`N_NAME` city, p.`VUL_NAME` street, p.`BLD_NUM` building_number, p.`CORP_NUM` building_corp,
-            p.`FLAT` apartment, bf.`organization_id`, b.`account_number`, b.`IND_COD`, b.`PSP_SER`, b.`PSP_NUM`, b.`PRIV_CAT`
-        FROM
-            `benefit` b
-            JOIN `request_file` bf ON b.`request_file_id` = bf.`id`
-            JOIN `request_file` pf ON (pf.`group_id` = bf.`group_id` AND pf.`type` = 'PAYMENT')
-            LEFT JOIN `payment` p ON (b.`OWN_NUM_SR` = p.`OWN_NUM_SR` AND p.`request_file_id` = pf.`id`)
-        WHERE
-            b.`request_file_id` = #{requestFileId}
-            <include refid="org.complitex.osznconnection.file.service.BenefitBean.filter"/>
-            <if test="orderByClause != null">
-                ORDER BY ${orderByClause}
-                <choose>
-                    <when test="asc">
-                        ASC
-                    </when>
-                    <otherwise>
-                        DESC
-                    </otherwise>
-                </choose>
-            </if>
-            <if test="size != 0">
-                limit #{start},#{size}
-            </if>
+        SELECT s.*,
+        w.`id` warning_id, w.`request_id` warning_reqiest_id, w.`request_file_type` warning_request_file_type, w.`status` warning_status,
+        p.`request_warning_id` param_request_warning_id, p.`order` param_order, p.`type` param_type, p.`value` param_value
+        FROM (
+            SELECT
+                DISTINCT b.`id`, b.`request_file_id`, b.`OWN_NUM_SR`, b.`F_NAM`, b.`M_NAM`, b.`SUR_NAM`, b.`status`,
+                p.`N_NAME` city, p.`VUL_NAME` street, p.`BLD_NUM` building_number, p.`CORP_NUM` building_corp,
+                p.`FLAT` apartment, bf.`organization_id`, b.`account_number`, b.`IND_COD`, b.`PSP_SER`, b.`PSP_NUM`, b.`PRIV_CAT`
+            FROM
+                `benefit` b
+                    JOIN `request_file` bf ON b.`request_file_id` = bf.`id`
+                    JOIN `request_file` pf ON (pf.`group_id` = bf.`group_id` AND pf.`type` = 'PAYMENT')
+                    LEFT JOIN `payment` p ON (b.`OWN_NUM_SR` = p.`OWN_NUM_SR` AND p.`request_file_id` = pf.`id`)
+                WHERE
+                    b.`request_file_id` = #{requestFileId}
+                    <include refid="org.complitex.osznconnection.file.service.BenefitBean.filter"/>
+                <if test="size != 0">
+                    limit #{start},#{size}
+                </if>
+        ) s
+        LEFT JOIN `request_warning` w ON (w.`request_id` = s.`id` AND w.`request_file_type` = 'BENEFIT')
+        LEFT JOIN `request_warning_parameter` p ON w.`id` = p.`request_warning_id`
+        
+        <if test="orderByClause != null">
+            ORDER BY ${orderByClause}
+            <choose>
+                <when test="asc">
+                    ASC
+                </when>
+                <otherwise>
+                    DESC
+                </otherwise>
+            </choose>
+        </if>
     </select>
 
     <select id="countByFile" resultType="int" parameterType="hashmap">

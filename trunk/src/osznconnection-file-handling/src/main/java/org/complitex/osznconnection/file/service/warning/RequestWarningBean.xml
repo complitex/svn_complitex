@@ -3,26 +3,28 @@
 <mapper namespace="org.complitex.osznconnection.file.service.warning.RequestWarningBean">
 
     <resultMap id="requestWarning" type="org.complitex.osznconnection.file.entity.RequestWarning">
-        <id column="id" property="id"/>
-        <result column="request_id" property="requestId"/>
-        <result column="request_file_type" property="requestFileType"/>
-        <result column="status" property="status"/>
+        <id column="warning_id" property="id"/>
+        <result column="warning_request_id" property="requestId"/>
+        <result column="warning_request_file_type" property="requestFileType"/>
+        <result column="warning_status" property="status"/>
         <collection property="parameters" ofType="org.complitex.osznconnection.file.entity.RequestWarningParameter">
-            <id column="request_warning_id" property="requestWarningId"/>
-            <id column="order" property="order"/>
-            <result column="type" property="type"/>
-            <result column="value" property="value"/>
+            <id column="param_request_warning_id" property="requestWarningId"/>
+            <id column="param_order" property="order"/>
+            <result column="param_type" property="type"/>
+            <result column="param_value" property="value"/>
         </collection>
     </resultMap>
 
     <select id="getWarnings" resultMap="org.complitex.osznconnection.file.service.warning.RequestWarningBean.requestWarning"
             parameterType="map">
-        SELECT w.`id`, w.`request_id`, w.`request_file_type`, w.`status`, p.`request_warning_id`, p.`order`, p.`type`, p.`value`
-                    FROM `request_warning` w
-                    LEFT JOIN `request_warning_parameter` p ON w.`id` = p.`request_warning_id`
-                    WHERE w.`request_id` = #{requestId} AND w.`request_file_type` = #{requestFileType}
-                    ORDER BY w.`id`, p.`order`
-    </select>
+        SELECT w.`id` warning_id, w.`request_id` warning_request_id, w.`request_file_type` warning_request_file_type,
+                w.`status` warning_status, p.`request_warning_id` param_request_warning_id, p.`order` param_order, p.`type` param_type,
+                p.`value` param_value
+            FROM `request_warning` w
+            LEFT JOIN `request_warning_parameter` p ON w.`id` = p.`request_warning_id`
+                WHERE w.`request_id` = #{requestId} AND w.`request_file_type` = #{requestFileType}
+            ORDER BY w.`id`, p.`order`
+</select>
 
     <insert id="insertParameter" parameterType="org.complitex.osznconnection.file.entity.RequestWarningParameter">
         INSERT INTO `request_warning_parameter` (`request_warning_id`, `order`, `type`, `value`) VALUES (#{requestWarningId}, #{order}, #{type}, #{value})

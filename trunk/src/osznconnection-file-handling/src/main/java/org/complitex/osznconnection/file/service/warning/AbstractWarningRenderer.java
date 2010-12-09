@@ -4,6 +4,8 @@
  */
 package org.complitex.osznconnection.file.service.warning;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import org.apache.wicket.util.string.Strings;
@@ -25,6 +27,14 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractWarningRenderer implements IWarningRenderer {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractWarningRenderer.class);
+    
+    private static final Comparator<RequestWarningParameter> WARNING_PARAMETER_COMPARATOR = new Comparator<RequestWarningParameter>() {
+
+        @Override
+        public int compare(RequestWarningParameter o1, RequestWarningParameter o2) {
+            return o1.getOrder().compareTo(o2.getOrder());
+        }
+    };
 
     @Override
     public String display(List<RequestWarning> requestWarnings, Locale locale) {
@@ -32,7 +42,7 @@ public abstract class AbstractWarningRenderer implements IWarningRenderer {
 
         for (RequestWarning requestWarning : requestWarnings) {
             String currentWarning = display(requestWarning, locale);
-            warning += currentWarning;
+            warning = warning + " " + currentWarning;
         }
         return warning;
     }
@@ -43,6 +53,7 @@ public abstract class AbstractWarningRenderer implements IWarningRenderer {
         Object[] messageParams = null;
         List<RequestWarningParameter> parameters = requestWarning.getParameters();
         if (!parameters.isEmpty()) {
+            Collections.sort(parameters, WARNING_PARAMETER_COMPARATOR);
             messageParams = new Object[parameters.size()];
             for (int i = 0; i < parameters.size(); i++) {
                 Object parameterValue = handleParameterValue(parameters.get(i), locale);
