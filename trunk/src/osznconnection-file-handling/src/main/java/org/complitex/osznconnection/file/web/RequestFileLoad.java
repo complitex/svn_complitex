@@ -1,11 +1,11 @@
 package org.complitex.osznconnection.file.web;
 
+import java.util.List;
 import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -19,6 +19,9 @@ import org.complitex.osznconnection.file.service.process.ProcessManagerBean;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 
 import javax.ejb.EJB;
+import org.apache.wicket.model.LoadableDetachableModel;
+import org.complitex.dictionaryfw.web.component.DisableAwareDropDownChoice;
+import org.complitex.dictionaryfw.web.component.DomainObjectDisableAwareRenderer;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -44,22 +47,24 @@ public class RequestFileLoad extends FormTemplatePage {
         add(form);
 
         //Организация
+        IModel<List<DomainObject>> osznsModel = new LoadableDetachableModel<List<DomainObject>>() {
+
+            @Override
+            protected List<DomainObject> load() {
+                return organizationStrategy.getAllOSZNs(getLocale());
+            }
+        };
         final IModel<DomainObject> organizationModel = new Model<DomainObject>();
-        IChoiceRenderer<DomainObject> renderer = new IChoiceRenderer<DomainObject>() {
+        DomainObjectDisableAwareRenderer renderer = new DomainObjectDisableAwareRenderer() {
 
             @Override
             public Object getDisplayValue(DomainObject object) {
                 return organizationStrategy.displayDomainObject(object, getLocale());
             }
-
-            @Override
-            public String getIdValue(DomainObject object, int index) {
-                return String.valueOf(object.getId());
-            }
         };
 
-        DropDownChoice<DomainObject> organization = new DropDownChoice<DomainObject>("organization", organizationModel,
-                organizationStrategy.getAllOSZNs(), renderer);
+        DisableAwareDropDownChoice<DomainObject> organization = new DisableAwareDropDownChoice<DomainObject>("organization", organizationModel,
+                osznsModel, renderer);
         organization.setRequired(true);
         form.add(organization);
 

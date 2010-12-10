@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.EJB;
 import java.util.List;
 import java.util.Locale;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.complitex.osznconnection.file.web.model.OrganizationModel;
 
 /**
@@ -161,7 +162,14 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
 
         form.add(code);
 
-        final List<DomainObject> allOuterOrganizations = organizationStrategy.getAllOuterOrganizations();
+        final IModel<List<DomainObject>> allOuterOrganizationsModel = new LoadableDetachableModel<List<DomainObject>>() {
+
+            @Override
+            protected List<DomainObject> load() {
+                return organizationStrategy.getAllOuterOrganizations(getLocale());
+            }
+        };
+
         IModel<DomainObject> outerOrganizationModel = new OrganizationModel() {
 
             @Override
@@ -176,7 +184,7 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
 
             @Override
             public List<DomainObject> getOrganizations() {
-                return allOuterOrganizations;
+                return allOuterOrganizationsModel.getObject();
             }
         };
         DomainObjectDisableAwareRenderer renderer = new DomainObjectDisableAwareRenderer() {
@@ -187,7 +195,7 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
             }
         };
         DisableAwareDropDownChoice<DomainObject> organization = new DisableAwareDropDownChoice<DomainObject>("organization",
-                outerOrganizationModel, allOuterOrganizations, renderer);
+                outerOrganizationModel, allOuterOrganizationsModel, renderer);
         organization.setRequired(true);
         organization.setEnabled(isNew());
         form.add(organization);

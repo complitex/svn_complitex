@@ -39,6 +39,7 @@ import org.complitex.osznconnection.file.service.CorrectionBean;
 import javax.ejb.EJB;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.web.component.DisableAwareDropDownChoice;
 import org.complitex.dictionaryfw.web.component.DomainObjectDisableAwareRenderer;
@@ -156,7 +157,13 @@ public abstract class AbstractCorrectionList extends TemplatePage {
         };
         dataProvider.setSort(getSortProperty(""), getSortOrder(true));
 
-        final List<DomainObject> allOuterOrganizations = organizationStrategy.getAllOuterOrganizations();
+        final IModel<List<DomainObject>> allOuterOrganizationsModel = new LoadableDetachableModel<List<DomainObject>>() {
+
+            @Override
+            protected List<DomainObject> load() {
+                return organizationStrategy.getAllOuterOrganizations(getLocale());
+            }
+        };
         IModel<DomainObject> outerOrganizationModel = new OrganizationModel() {
 
             @Override
@@ -171,7 +178,7 @@ public abstract class AbstractCorrectionList extends TemplatePage {
 
             @Override
             public List<DomainObject> getOrganizations() {
-                return allOuterOrganizations;
+                return allOuterOrganizationsModel.getObject();
             }
         };
         DomainObjectDisableAwareRenderer renderer = new DomainObjectDisableAwareRenderer() {
@@ -182,7 +189,7 @@ public abstract class AbstractCorrectionList extends TemplatePage {
             }
         };
         DisableAwareDropDownChoice<DomainObject> organizationFilter = new DisableAwareDropDownChoice<DomainObject>("organizationFilter",
-                outerOrganizationModel, allOuterOrganizations, renderer);
+                outerOrganizationModel, allOuterOrganizationsModel, renderer);
 
         filterForm.add(organizationFilter);
         filterForm.add(new TextField<String>("correctionFilter", new PropertyModel<String>(example, "correction")));

@@ -44,6 +44,7 @@ import org.complitex.osznconnection.web.resource.WebCommonResourceInitializer;
 
 import javax.ejb.EJB;
 import java.util.*;
+import org.apache.wicket.model.LoadableDetachableModel;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -133,19 +134,21 @@ public class TarifFileList extends TemplatePage {
         filterForm.add(new TextField<String>("name"));
 
         //Организация
-        filterForm.add(new DropDownChoice<DomainObject>("organization",
-                organizationStrategy.getAllOSZNs(), new IChoiceRenderer<DomainObject>() {
+        IModel<List<DomainObject>> osznsModel = new LoadableDetachableModel<List<DomainObject>>() {
+
+            @Override
+            protected List<DomainObject> load() {
+                return organizationStrategy.getAllOSZNs(getLocale());
+            }
+        };
+        DomainObjectDisableAwareRenderer renderer = new DomainObjectDisableAwareRenderer() {
 
             @Override
             public Object getDisplayValue(DomainObject object) {
                 return organizationStrategy.displayDomainObject(object, getLocale());
             }
-
-            @Override
-            public String getIdValue(DomainObject object, int index) {
-                return String.valueOf(object.getId());
-            }
-        }));
+        };
+        filterForm.add(new DisableAwareDropDownChoice<DomainObject>("organization", osznsModel, renderer));
 
         //Месяц
         filterForm.add(new MonthDropDownChoice("month"));

@@ -36,6 +36,7 @@ import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 import javax.ejb.EJB;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.web.component.DisableAwareDropDownChoice;
 import org.complitex.dictionaryfw.web.component.DomainObjectDisableAwareRenderer;
@@ -127,7 +128,13 @@ public class PersonAccountList extends TemplatePage {
         filterForm.add(new TextField<String>("accountNumberFilter", new PropertyModel<String>(example, "accountNumber")));
         filterForm.add(new TextField<String>("ownNumSrFilter", new PropertyModel<String>(example, "ownNumSr")));
 
-        final List<DomainObject> oszns = organizationStrategy.getAllOSZNs();
+        final IModel<List<DomainObject>> osznsModel = new LoadableDetachableModel<List<DomainObject>>() {
+
+            @Override
+            protected List<DomainObject> load() {
+                return organizationStrategy.getAllOSZNs(getLocale());
+            }
+        };
         IModel<DomainObject> osznModel = new OrganizationModel() {
 
             @Override
@@ -142,7 +149,7 @@ public class PersonAccountList extends TemplatePage {
 
             @Override
             public List<DomainObject> getOrganizations() {
-                return oszns;
+                return osznsModel.getObject();
             }
         };
         DomainObjectDisableAwareRenderer renderer = new DomainObjectDisableAwareRenderer() {
@@ -153,11 +160,17 @@ public class PersonAccountList extends TemplatePage {
             }
         };
         DisableAwareDropDownChoice<DomainObject> osznFilter = new DisableAwareDropDownChoice<DomainObject>("osznFilter",
-                osznModel, oszns, renderer);
+                osznModel, osznsModel, renderer);
 
         filterForm.add(osznFilter);
 
-        final List<DomainObject> calculationCentres = organizationStrategy.getAllCalculationCentres();
+        final IModel<List<DomainObject>> calculationCentresModel = new LoadableDetachableModel<List<DomainObject>>() {
+
+            @Override
+            protected List<DomainObject> load() {
+                return organizationStrategy.getAllCalculationCentres(getLocale());
+            }
+        };
         IModel<DomainObject> calculationCenterModel = new OrganizationModel() {
 
             @Override
@@ -172,11 +185,11 @@ public class PersonAccountList extends TemplatePage {
 
             @Override
             public List<DomainObject> getOrganizations() {
-                return calculationCentres;
+                return calculationCentresModel.getObject();
             }
         };
         DisableAwareDropDownChoice<DomainObject> calculationCenterFilter = new DisableAwareDropDownChoice<DomainObject>("calculationCenterFilter",
-                calculationCenterModel, calculationCentres, renderer);
+                calculationCenterModel, calculationCentresModel, renderer);
         filterForm.add(calculationCenterFilter);
 
         AjaxLink reset = new AjaxLink("reset") {
