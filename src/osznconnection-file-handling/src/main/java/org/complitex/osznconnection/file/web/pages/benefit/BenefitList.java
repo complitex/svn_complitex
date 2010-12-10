@@ -189,7 +189,7 @@ public final class BenefitList extends TemplatePage {
                     @Override
                     public boolean isVisible() {
                         return !benefit.hasPriv()
-                                && (benefit.getStatus() == RequestStatus.WRONG_ACCOUNT_NUMBER);
+                                && (benefit.getStatus() == RequestStatus.BENEFIT_OWNER_NOT_ASSOCIATED);
                     }
                 });
             }

@@ -138,7 +138,7 @@ values
 -- (1, 1, 'Иван', 'Иванович', 'Иванов',2),
 -- (1, 0, 'Иван2', 'Иванович2', 'Иванов2',2, '0000000', null),
  (4, 0, 'Петр0','Петрович0','Петров0',2, '11111111', null),
-(4, 1, 'Петр','Петрович','Петров',2, '2142426432', null);
+(4, 1, 'Петр','Петрович','Петров',2, '2142426430', null);
 
 -- Payments
 insert into payment(own_num_sr, f_nam, m_nam, sur_nam, n_name, vul_name, bld_num, corp_num, flat, DAT1, request_file_id)
@@ -190,7 +190,7 @@ insert into ownership_correction(organization_id, correction, object_id, organiz
 -- Privileges corrections
 insert into privilege_correction(organization_id, correction, object_id, organization_code, internal_organization_id) values
 (2,'ПЕНСИОНЕР ПО ВОЗРАСТУ',15,'34',0),
-(1,'ПЕНСИОНЕР ПО ВОЗРАСТУ',15,'1000a',0);
+(1,'ПЕНСИОНЕР ПО ВОЗРАСТУ',15,'1000',0);
 
 -- Tarif
 insert into tarif(`T11_CS_UNI`, `T11_CODE2`, `request_file_id`, `T11_CODE1`) values (0,123,3,1);

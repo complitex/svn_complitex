@@ -39,14 +39,14 @@ public enum RequestStatus implements IEnumCode {
     /* Указывает на то, что запись обработана */
     PROCESSED(215, false, false),
 
-    /* Указывает на то, что не найден тариф в таблице тарифов для заполнения поля CODE2_1.
+    /* Указывает на то, что не найден код тарифа в таблице тарифов для заполнения поля CODE2_1.
      См. org.complitex.osznconnection.file.calculation.adapter.DefaultCalculationCenterAdapter.processData()  */
     TARIF_CODE2_1_NOT_FOUND(216, false, false),
 
-    /* Не верный номер л/c
+    /* Не сопоставлен носитель льготы
         См. org.complitex.osznconnection.file.calculation.adapter.DefaultCalculationCenterAdapter.processBenefitData()
      */
-    WRONG_ACCOUNT_NUMBER(217, false, false),
+    BENEFIT_OWNER_NOT_ASSOCIATED(217, false, false),
 
     /* Указывает на то, что код привилегии не найден в таблице коррекций
         См. org.complitex.osznconnection.file.calculation.adapter.DefaultCalculationCenterAdapter.processBenefitData()
@@ -103,7 +103,7 @@ public enum RequestStatus implements IEnumCode {
         List<RequestStatus> result = notBoundStatuses();
         result.add(ACCOUNT_NUMBER_RESOLVED);
         result.add(TARIF_CODE2_1_NOT_FOUND);
-        result.add(WRONG_ACCOUNT_NUMBER);
+        result.add(BENEFIT_OWNER_NOT_ASSOCIATED);
         result.add(BENEFIT_NOT_FOUND);
         result.add(INVALID_FORMAT);
         return result;
