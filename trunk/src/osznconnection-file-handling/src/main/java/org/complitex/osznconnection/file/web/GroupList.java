@@ -487,6 +487,7 @@ public class GroupList extends TemplatePage {
 
                     @Override
                     public void load(Long organizationId, String districtCode, int monthFrom, int monthTo, int year) {
+                        completedDisplayed = false;
                         processManagerBean.loadGroup(organizationId, districtCode, monthFrom, monthTo, year);
                         addTimer(dataViewContainer, filterForm, messages);
                     }

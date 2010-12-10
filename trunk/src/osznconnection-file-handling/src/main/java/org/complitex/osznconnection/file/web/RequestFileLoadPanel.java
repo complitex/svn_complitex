@@ -20,6 +20,7 @@ import org.odlabs.wiquery.ui.core.JsScopeUiEvent;
 import org.odlabs.wiquery.ui.dialog.Dialog;
 
 import javax.ejb.EJB;
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -35,7 +36,7 @@ public class RequestFileLoadPanel extends Panel {
 
     private final Dialog dialog;
 
-    public static interface ILoader{
+    public static interface ILoader extends Serializable{
         void load(Long organizationId, String districtCode, int monthFrom, int monthTo, int year);
     }
 
