@@ -81,6 +81,37 @@ public class AdminTemplateMenu extends ResourceTemplateMenu {
             log.error("Модуль журнала событий не найден", e);
         }
 
+        try {
+            final Class fileHandlingMenu = Class.forName("org.complitex.osznconnection.file.web.FileHandlingMenu");
+            final Class configEdit = Class.forName("org.complitex.osznconnection.file.web.ConfigEdit");
+
+        links.add(new ITemplateLink(){
+            @Override
+            public String getLabel(Locale locale) {
+                return getString(fileHandlingMenu, locale, "config");
+            }
+
+            @SuppressWarnings({"unchecked"})
+            @Override
+            public Class<? extends Page> getPage() {
+                return configEdit;
+            }
+
+            @Override
+            public PageParameters getParameters() {
+                return PageParameters.NULL;
+            }
+
+            @Override
+            public String getTagId() {
+                return "ConfigEdit";
+            }
+        });
+            }
+        catch (ClassNotFoundException e) {
+            log.error("Модуль обработки файлов запросов не найден", e);
+        }
+
         return links;
     }
 

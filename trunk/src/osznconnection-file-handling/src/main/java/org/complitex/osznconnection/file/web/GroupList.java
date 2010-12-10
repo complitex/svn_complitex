@@ -19,6 +19,7 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.time.Duration;
 import org.complitex.dictionaryfw.entity.DomainObject;
@@ -29,6 +30,7 @@ import org.complitex.dictionaryfw.util.StringUtil;
 import org.complitex.dictionaryfw.web.component.*;
 import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
+import org.complitex.osznconnection.commons.web.component.toolbar.ToolbarButton;
 import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.TemplatePage;
 import org.complitex.osznconnection.file.Module;
@@ -37,6 +39,7 @@ import org.complitex.osznconnection.file.entity.RequestFileGroup;
 import org.complitex.osznconnection.file.entity.RequestFileGroupFilter;
 import org.complitex.osznconnection.file.service.RequestFileGroupBean;
 import org.complitex.osznconnection.file.service.process.ProcessManagerBean;
+import org.complitex.osznconnection.file.web.component.LoadButton;
 import org.complitex.osznconnection.file.web.pages.benefit.BenefitList;
 import org.complitex.osznconnection.file.web.pages.payment.PaymentList;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
@@ -44,7 +47,6 @@ import org.complitex.osznconnection.web.resource.WebCommonResourceInitializer;
 
 import javax.ejb.EJB;
 import java.util.*;
-import org.apache.wicket.model.LoadableDetachableModel;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -72,6 +74,8 @@ public class GroupList extends TemplatePage {
     private boolean completedDisplayed;
 
     private final static String ITEM_GROUP_ID_PREFIX = "item";
+
+    private RequestFileLoadPanel requestFileLoadPanel;
 
     public GroupList(PageParameters parameters){
         super();
@@ -476,6 +480,19 @@ public class GroupList extends TemplatePage {
             completedDisplayed = false;
             dataViewContainer.add(newTimer(filterForm, messages));
         }
+
+        //Диалог загрузки
+        requestFileLoadPanel = new RequestFileLoadPanel("load_panel",
+                new RequestFileLoadPanel.ILoader(){
+
+                    @Override
+                    public void load(Long organizationId, String districtCode, int monthFrom, int monthTo, int year) {
+                        processManagerBean.loadGroup(organizationId, districtCode, monthFrom, monthTo, year);
+                        addTimer(dataViewContainer, filterForm, messages);
+                    }
+                });
+
+        add(requestFileLoadPanel);
     }
 
     private boolean isProcessing() {
@@ -592,5 +609,16 @@ public class GroupList extends TemplatePage {
                 timerIndex++;
             }
         };
+    }
+
+    @Override
+    protected List<ToolbarButton> getToolbarButtons(String id) {
+        return Arrays.asList((ToolbarButton) new LoadButton(id) {
+
+            @Override
+            protected void onClick() {
+                requestFileLoadPanel.open();
+            }
+        });
     }
 }

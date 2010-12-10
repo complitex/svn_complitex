@@ -30,27 +30,6 @@ public class FileHandlingMenu extends ResourceTemplateMenu {
         links.add(new ITemplateLink(){
             @Override
             public String getLabel(Locale locale) {
-                return getString(FileHandlingMenu.class, locale, "request_file_load");
-            }
-            @Override
-            public Class<? extends Page> getPage() {
-                return RequestFileLoad.class;
-            }
-
-            @Override
-            public PageParameters getParameters() {
-                return PageParameters.NULL;
-            }
-
-            @Override
-            public String getTagId() {
-                return "RequestFileLoad";
-            }
-        });
-
-        links.add(new ITemplateLink(){
-            @Override
-            public String getLabel(Locale locale) {
                 return getString(FileHandlingMenu.class, locale, "request_file_group_list");
             }
             @Override
@@ -87,27 +66,6 @@ public class FileHandlingMenu extends ResourceTemplateMenu {
             @Override
             public String getTagId() {
                 return "TarifList";
-            }
-        });
-
-        links.add(new ITemplateLink(){
-            @Override
-            public String getLabel(Locale locale) {
-                return getString(FileHandlingMenu.class, locale, "config");
-            }
-            @Override
-            public Class<? extends Page> getPage() {
-                return ConfigEdit.class;
-            }
-
-            @Override
-            public PageParameters getParameters() {
-                return PageParameters.NULL;
-            }
-
-            @Override
-            public String getTagId() {
-                return "ConfigEdit";
             }
         });
 
