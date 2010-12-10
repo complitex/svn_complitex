@@ -340,6 +340,7 @@ public class TarifFileList extends TemplatePage {
 
                     @Override
                     public void load(Long organizationId, String districtCode, int monthFrom, int monthTo, int year) {
+                        completedDisplayed = false;
                         processManagerBean.loadTarif(organizationId, districtCode, monthFrom, monthTo, year);
                         addTimer(dataViewContainer, filterForm, messages);
                     }
