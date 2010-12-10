@@ -546,7 +546,7 @@ public class DefaultCalculationCenterAdapter extends AbstractCalculationCenterAd
                     if (!theSameBenefits.isEmpty()) {
                         theSameMans = getBenefitDataByINN(benefitData, inn);
                     } else {
-                        setStatus(benefits, RequestStatus.WRONG_ACCOUNT_NUMBER);
+                        setStatus(benefits, RequestStatus.BENEFIT_OWNER_NOT_ASSOCIATED);
                         return;
                     }
                 }

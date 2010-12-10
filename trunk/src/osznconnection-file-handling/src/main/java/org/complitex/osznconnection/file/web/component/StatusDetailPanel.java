@@ -124,7 +124,7 @@ public class StatusDetailPanel extends Panel {
         switch (statusDetail.getRequestStatus()){
             case ACCOUNT_NUMBER_NOT_FOUND:
             case MORE_ONE_ACCOUNTS:
-            case WRONG_ACCOUNT_NUMBER:
+            case BENEFIT_OWNER_NOT_ASSOCIATED:
                 paymentExample.setAccount(statusDetail.getAccount());
                 break;
             case CITY_UNRESOLVED_LOCALLY:

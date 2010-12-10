@@ -1756,6 +1756,10 @@ CREATE TABLE `preference` (
     CONSTRAINT `fk_preference__user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- ------------------------------
+-- Request warning
+-- ------------------------------
+
 DROP TABLE IF EXISTS `request_warning`;
 
 CREATE TABLE `request_warning` (
