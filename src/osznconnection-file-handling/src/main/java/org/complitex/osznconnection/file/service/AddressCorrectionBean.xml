@@ -189,10 +189,12 @@
         left join `organization_attribute` oa on (oa.`object_id` = c.`organization_id`
             and oa.`status` = 'ACTIVE' and oa.`attribute_type_id` = 900)
         left join `organization_string_culture` osc on (osc.`id` = oa.`value_id` and osc.`locale_id` = #{localeId})
+        LEFT JOIN `organization_string_culture` osc_sys ON (osc_sys.`id` = oa.`value_id` and osc_sys.`locale_id` = (SELECT l.`id` FROM `locales` l WHERE l.`system` = 1))
 
         left join `organization_attribute` oa_i on (oa_i.`object_id` = c.`internal_organization_id`
             and oa_i.`status` = 'ACTIVE' and oa_i.`attribute_type_id` = 900)
         left join `organization_string_culture` osc_i on (osc_i.`id` = oa_i.`value_id` and osc_i.`locale_id` = #{localeId})
+        LEFT JOIN `organization_string_culture` osc_i_sys ON (osc_i_sys.`id` = oa.`value_id` and osc_i_sys.`locale_id` = (SELECT l.`id` FROM `locales` l WHERE l.`system` = 1))
 
         <if test="orderByClause == 'object' or internalObject != null">
             left join `building` b on (b.`object_id` = c.`object_id`)
@@ -217,7 +219,7 @@
 
     <select id="findBuildings" parameterType="org.complitex.osznconnection.file.entity.example.BuildingCorrectionExample"
             resultMap="buildingCorrection">
-        SELECT distinct c.`id`, c.*, osc.`value` organization, osc_i.`value` internalOrganization
+        SELECT distinct c.`id`, c.*, IFNULL(osc.`value`, osc_sys.`value`) organization, IFNULL(osc_i.`value`, osc_i_sys.`value`) internalOrganization
 
         FROM `building_correction` c
 
