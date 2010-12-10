@@ -4,8 +4,6 @@
  */
 package org.complitex.osznconnection.file.web.pages.correction;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import java.util.List;
 import javax.ejb.EJB;
@@ -19,7 +17,7 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.ResourceModel;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.web.component.DisableAwareDropDownChoice;
@@ -30,6 +28,7 @@ import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.FormTemplatePage;
 import org.complitex.osznconnection.file.entity.PersonAccount;
 import org.complitex.osznconnection.file.service.PersonAccountLocalBean;
+import org.complitex.osznconnection.file.web.model.OrganizationModel;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,9 +49,8 @@ public final class PersonAccountEdit extends FormTemplatePage {
 
     @EJB(name = "OrganizationStrategy")
     private OrganizationStrategy organizationStrategy;
-
+    
     private Long correctionId;
-
     private PersonAccount personAccount;
 
     public PersonAccountEdit(PageParameters params) {
@@ -104,51 +102,29 @@ public final class PersonAccountEdit extends FormTemplatePage {
         form.add(new TextField<String>("accountNumber").setRequired(true));
         form.add(new TextField<String>("ownNumSr").setRequired(true).setEnabled(false));
 
-        final List<DomainObject> allOSZNs = organizationStrategy.getAllOSZNs();
-
-        abstract class OrganizationModel extends Model<DomainObject> {
+        final IModel<List<DomainObject>> allOsznsModel = new LoadableDetachableModel<List<DomainObject>>() {
 
             @Override
-            public DomainObject getObject() {
-                final Long organizationId = getOrganizationId(model.getObject());
-                if (organizationId != null) {
-                    return Iterables.find(getOrganizations(), new Predicate<DomainObject>() {
-
-                        @Override
-                        public boolean apply(DomainObject object) {
-                            return object.getId().equals(organizationId);
-                        }
-                    });
-                }
-                return null;
+            protected List<DomainObject> load() {
+                return organizationStrategy.getAllOSZNs(getLocale());
             }
+        };
 
-            @Override
-            public void setObject(DomainObject object) {
-                setOrganizationId(model.getObject(), object.getId());
-            }
-
-            public abstract Long getOrganizationId(PersonAccount personAccount);
-
-            public abstract void setOrganizationId(PersonAccount personAccount, Long organizationId);
-
-            public abstract List<DomainObject> getOrganizations();
-        }
         IModel<DomainObject> osznModel = new OrganizationModel() {
 
             @Override
-            public Long getOrganizationId(PersonAccount personAccount) {
-                return personAccount.getOsznId();
+            public Long getOrganizationId() {
+                return model.getObject().getOsznId();
             }
 
             @Override
-            public void setOrganizationId(PersonAccount personAccount, Long organizationId) {
-                personAccount.setOsznId(organizationId);
+            public void setOrganizationId(Long organizationId) {
+                model.getObject().setOsznId(organizationId);
             }
 
             @Override
             public List<DomainObject> getOrganizations() {
-                return allOSZNs;
+                return allOsznsModel.getObject();
             }
         };
         DomainObjectDisableAwareRenderer renderer = new DomainObjectDisableAwareRenderer() {
@@ -158,31 +134,37 @@ public final class PersonAccountEdit extends FormTemplatePage {
                 return organizationStrategy.displayDomainObject(object, getLocale());
             }
         };
-        DisableAwareDropDownChoice<DomainObject> oszn = new DisableAwareDropDownChoice<DomainObject>("oszn", osznModel, allOSZNs, renderer);
+        DisableAwareDropDownChoice<DomainObject> oszn = new DisableAwareDropDownChoice<DomainObject>("oszn", osznModel, allOsznsModel, renderer);
         oszn.setRequired(true);
         oszn.setEnabled(false);
         form.add(oszn);
 
-        final List<DomainObject> allCalculationCentres = organizationStrategy.getAllCalculationCentres();
+        final IModel<List<DomainObject>> allCalculationCentresModel = new LoadableDetachableModel<List<DomainObject>>() {
+
+            @Override
+            protected List<DomainObject> load() {
+                return organizationStrategy.getAllCalculationCentres(getLocale());
+            }
+        };
         IModel<DomainObject> calculationCenterModel = new OrganizationModel() {
 
             @Override
-            public Long getOrganizationId(PersonAccount personAccount) {
-                return personAccount.getCalculationCenterId();
+            public Long getOrganizationId() {
+                return model.getObject().getCalculationCenterId();
             }
 
             @Override
-            public void setOrganizationId(PersonAccount personAccount, Long organizationId) {
-                personAccount.setCalculationCenterId(organizationId);
+            public void setOrganizationId(Long organizationId) {
+                model.getObject().setCalculationCenterId(organizationId);
             }
 
             @Override
             public List<DomainObject> getOrganizations() {
-                return allCalculationCentres;
+                return allCalculationCentresModel.getObject();
             }
         };
         DisableAwareDropDownChoice<DomainObject> calculationCenter = new DisableAwareDropDownChoice<DomainObject>("calculationCenter",
-                calculationCenterModel, allCalculationCentres, renderer);
+                calculationCenterModel, allCalculationCentresModel, renderer);
         calculationCenter.setRequired(true);
         calculationCenter.setEnabled(false);
         form.add(calculationCenter);

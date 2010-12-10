@@ -62,7 +62,7 @@ public class OrganizationStrategy extends AbstractStrategy {
 
     @EJB(beanName = "DistrictStrategy")
     private DistrictStrategy districtStrategy;
-
+    
     @EJB
     private LocaleBean localeBean;
 
@@ -108,30 +108,37 @@ public class OrganizationStrategy extends AbstractStrategy {
         return OrganizationEditComponent.class;
     }
 
-    public List<DomainObject> getAllOuterOrganizations() {
-        List<DomainObject> result = Lists.newArrayList();
-        List<DomainObject> oszns = getAllOSZNs();
-        if (oszns != null) {
-            result.addAll(oszns);
+    public List<DomainObject> getAllOuterOrganizations(Locale locale) {
+        DomainObjectExample example = new DomainObjectExample();
+        example.setOrderByAttributeTypeId(OrganizationStrategy.NAME);
+        example.setLocaleId(localeBean.convert(locale).getId());
+        example.setAsc(true);
+        configureExample(example, ImmutableMap.<String, Long>of(), null);
+        List<DomainObject> outerOrganizations = Lists.newArrayList();
+        DomainObject itself = getItselfOrganization();
+        for (DomainObject organization : find(example)) {
+            if (!organization.getId().equals(itself.getId())) {
+                outerOrganizations.add(organization);
+            }
         }
-        List<DomainObject> calculationCentres = getAllCalculationCentres();
-        if (calculationCentres != null) {
-            result.addAll(calculationCentres);
-        }
-        return result;
+        return outerOrganizations;
     }
 
-    public List<DomainObject> getAllOSZNs() {
+    public List<DomainObject> getAllOSZNs(Locale locale) {
         DomainObjectExample example = new DomainObjectExample();
         example.setEntityTypeId(OSZN);
         example.setOrderByAttributeTypeId(OrganizationStrategy.NAME);
+        example.setLocaleId(localeBean.convert(locale).getId());
+        example.setAsc(true);
         configureExample(example, ImmutableMap.<String, Long>of(), null);
         return (List<DomainObject>) find(example);
     }
 
-    public List<DomainObject> getAllCalculationCentres() {
+    public List<DomainObject> getAllCalculationCentres(Locale locale) {
         DomainObjectExample example = new DomainObjectExample();
         example.setEntityTypeId(CALCULATION_CENTER);
+        example.setLocaleId(localeBean.convert(locale).getId());
+        example.setAsc(true);
         example.setOrderByAttributeTypeId(OrganizationStrategy.NAME);
         configureExample(example, ImmutableMap.<String, Long>of(), null);
         return (List<DomainObject>) find(example);
@@ -151,8 +158,7 @@ public class OrganizationStrategy extends AbstractStrategy {
     }
 
     public DomainObject getItselfOrganization() {
-        DomainObjectExample example = new DomainObjectExample();
-        example.setId(ITSELF_ORGANIZATION_OBJECT_ID);
+        DomainObjectExample example = new DomainObjectExample(ITSELF_ORGANIZATION_OBJECT_ID);
         configureExample(example, ImmutableMap.<String, Long>of(), null);
         return find(example).get(0);
     }
