@@ -1,5 +1,7 @@
 package org.complitex.osznconnection.file.web;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ResourceReference;
@@ -11,7 +13,10 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvid
 import org.apache.wicket.markup.html.JavascriptPackageResource;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.*;
+import org.apache.wicket.markup.html.form.Button;
+import org.apache.wicket.markup.html.form.CheckBox;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
@@ -19,6 +24,7 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.time.Duration;
 import org.complitex.dictionaryfw.entity.DomainObject;
@@ -29,6 +35,7 @@ import org.complitex.dictionaryfw.util.StringUtil;
 import org.complitex.dictionaryfw.web.component.*;
 import org.complitex.dictionaryfw.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionaryfw.web.component.paging.PagingNavigator;
+import org.complitex.osznconnection.commons.web.component.toolbar.ToolbarButton;
 import org.complitex.osznconnection.commons.web.security.SecurityRole;
 import org.complitex.osznconnection.commons.web.template.TemplatePage;
 import org.complitex.osznconnection.file.Module;
@@ -37,6 +44,7 @@ import org.complitex.osznconnection.file.entity.RequestFileFilter;
 import org.complitex.osznconnection.file.entity.RequestFileGroup;
 import org.complitex.osznconnection.file.service.RequestFileBean;
 import org.complitex.osznconnection.file.service.process.ProcessManagerBean;
+import org.complitex.osznconnection.file.web.component.LoadButton;
 import org.complitex.osznconnection.file.web.pages.benefit.BenefitList;
 import org.complitex.osznconnection.file.web.pages.payment.PaymentList;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
@@ -44,7 +52,6 @@ import org.complitex.osznconnection.web.resource.WebCommonResourceInitializer;
 
 import javax.ejb.EJB;
 import java.util.*;
-import org.apache.wicket.model.LoadableDetachableModel;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -72,6 +79,8 @@ public class TarifFileList extends TemplatePage {
     private boolean completedDisplayed = false;
 
     private final static String ITEM_ID_PREFIX = "item";
+
+    private RequestFileLoadPanel requestFileLoadPanel;
 
     public TarifFileList(PageParameters parameters) {
         super();
@@ -324,6 +333,19 @@ public class TarifFileList extends TemplatePage {
             }
         };
         filterForm.add(delete);
+
+         //Диалог загрузки
+        requestFileLoadPanel = new RequestFileLoadPanel("load_panel",
+                new RequestFileLoadPanel.ILoader(){
+
+                    @Override
+                    public void load(Long organizationId, String districtCode, int monthFrom, int monthTo, int year) {
+                        processManagerBean.loadTarif(organizationId, districtCode, monthFrom, monthTo, year);
+                        addTimer(dataViewContainer, filterForm, messages);
+                    }
+                });
+
+        add(requestFileLoadPanel);
     }
 
     private boolean isProcessing() {
@@ -412,5 +434,34 @@ public class TarifFileList extends TemplatePage {
                 }
             }
         };
+    }
+
+    private void addTimer(WebMarkupContainer dataViewContainer, Form<?> filterForm, AjaxFeedbackPanel messages) {
+        boolean needCreateNewTimer = true;
+
+        List<AjaxSelfUpdatingTimerBehavior> timers = null;
+        timers = Lists.newArrayList(Iterables.filter(dataViewContainer.getBehaviors(), AjaxSelfUpdatingTimerBehavior.class));
+        if (timers != null && !timers.isEmpty()) {
+            for (AjaxSelfUpdatingTimerBehavior timer : timers) {
+                if (!timer.isStopped()) {
+                    needCreateNewTimer = false;
+                    break;
+                }
+            }
+        }
+        if (needCreateNewTimer) {
+            dataViewContainer.add(newTimer(filterForm, messages));
+        }
+    }
+
+    @Override
+    protected List<ToolbarButton> getToolbarButtons(String id) {
+        return Arrays.asList((ToolbarButton) new LoadButton(id) {
+
+            @Override
+            protected void onClick() {
+                requestFileLoadPanel.open();
+            }
+        });
     }
 }
