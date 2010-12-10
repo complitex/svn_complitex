@@ -248,11 +248,9 @@ public class PersonAccountList extends TemplatePage {
         filterForm.add(new ArrowOrderByBorder("accountNumberHeader", PersonAccountLocalBean.OrderBy.ACCOUNT_NUMBER.getOrderBy(), dataProvider,
                 data, content));
         filterForm.add(new ArrowOrderByBorder("ownNumSrHeader", PersonAccountLocalBean.OrderBy.OWN_NUM_SR.getOrderBy(), dataProvider, data, content));
-        filterForm.add(new ArrowOrderByBorder("osznHeader",
-                organizationStrategy.getOrderByExpression("pa.`oszn_id`", localeBean.convert(getLocale()).getId(), null), dataProvider, data, content));
-        filterForm.add(new ArrowOrderByBorder("calculationCenterHeader",
-                organizationStrategy.getOrderByExpression("pa.`calc_center_id`", localeBean.convert(getLocale()).getId(), null), dataProvider, data,
-                content));
+        filterForm.add(new ArrowOrderByBorder("osznHeader", PersonAccountLocalBean.OrderBy.OSZN.getOrderBy(), dataProvider, data, content));
+        filterForm.add(new ArrowOrderByBorder("calculationCenterHeader", PersonAccountLocalBean.OrderBy.CALCULATION_CENTER.getOrderBy(),
+                dataProvider, data, content));
 
         content.add(new PagingNavigator("navigator", data, getClass().getName(), content));
     }

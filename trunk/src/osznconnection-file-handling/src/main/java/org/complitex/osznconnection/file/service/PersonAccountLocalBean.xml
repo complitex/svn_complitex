@@ -81,23 +81,31 @@
         SELECT pa.`id`, pa.`city`, pa.`street`, pa.`building_num` buildingNumber, pa.`building_corp` buildingCorp, pa.`apartment`,
                 pa.`first_name` firstName, pa.`middle_name` middleName, pa.`last_name` lastName, pa.`own_num_sr` ownNumSr,
                 pa.`account_number` accountNumber,
-                IFNULL((SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale_id` = #{localeId} AND osc.`id` IN
-                (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE' AND oa.`object_id` = pa.`oszn_id`
-                AND oa.`attribute_type_id` = 900)),
-                (SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale_id` = (SELECT l.`id` FROM `locales` l WHERE l.`system` = 1)
-                AND osc.`id` IN (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE' AND oa.`object_id` = pa.`oszn_id`
-                AND oa.`attribute_type_id` = 900))) oszn,
-                IFNULL((SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale_id` = #{localeId} AND osc.`id` IN
-                (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE' AND oa.`object_id` = pa.`calc_center_id`
-                AND oa.`attribute_type_id` = 900)),
-                (SELECT osc.`value` FROM `organization_string_culture` osc WHERE osc.`locale_id` = (SELECT l.`id` FROM `locales` l WHERE l.`system` = 1)
-                 AND osc.`id` IN (SELECT oa.`value_id` FROM `organization_attribute` oa WHERE oa.`status` = 'ACTIVE'
-                    AND oa.`object_id` = pa.`calc_center_id`
-                    AND oa.`attribute_type_id` = 900))) calculationCenter
+                IFNULL(oszn_value.`value`, oszn_sys_value.`value`) oszn,
+                IFNULL(calc_value.`value`, calc_sys_value.`value`) calculationCenter
         FROM `person_account` pa
+            JOIN `organization_attribute` oszn_a ON (oszn_a.`object_id` = pa.`oszn_id` AND oszn_a.`status` = 'ACTIVE' AND oszn_a.`attribute_type_id` = 900)
+            LEFT JOIN `organization_string_culture` oszn_value ON (oszn_value.`id` = oszn_a.`value_id` AND oszn_value.`locale_id` = #{localeId})
+            JOIN `organization_string_culture` oszn_sys_value ON (oszn_sys_value.`id` = oszn_a.`value_id` AND oszn_sys_value.`locale_id` = (SELECT l.`id` FROM `locales` l WHERE l.`system` = 1))
+
+            JOIN `organization_attribute` calc_a ON (calc_a.`object_id` = pa.`calc_center_id` AND calc_a.`status` = 'ACTIVE' AND calc_a.`attribute_type_id` = 900)
+            LEFT JOIN `organization_string_culture` calc_value ON (calc_value.`id` = calc_a.`value_id` AND calc_value.`locale_id` = #{localeId})
+            JOIN `organization_string_culture` calc_sys_value ON (calc_sys_value.`id` = calc_a.`value_id` AND calc_sys_value.`locale_id` = (SELECT l.`id` FROM `locales` l WHERE l.`system` = 1))
+
         <include refid="org.complitex.osznconnection.file.service.PersonAccountLocalBean.webFilter"/>
         <if test="orderByClause != null">
-            ORDER BY ${orderByClause}
+            ORDER BY
+            <choose>
+                <when test="orderByClause == 'oszn'">
+                    oszn_value.`value`
+                </when>
+                <when test="orderByClause == 'calculation_center'">
+                    calc_value.`value`
+                </when>
+                <otherwise>
+                    ${orderByClause}
+                </otherwise>
+            </choose>
             <choose>
                 <when test="asc">
                     ASC
