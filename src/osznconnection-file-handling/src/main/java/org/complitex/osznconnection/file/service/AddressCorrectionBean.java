@@ -256,23 +256,23 @@ public class AddressCorrectionBean extends CorrectionBean {
         return correction;
     }
 
-    public void insertCorrectionApartment(long parentId, String apartment, long objectId, long organizationId, long internalOrganizationId) {
-        insert("apartment", parentId, apartment, objectId, organizationId, internalOrganizationId);
-    }
+//    public void insertCorrectionApartment(long parentId, String apartment, long objectId, long organizationId, long internalOrganizationId) {
+//        insert("apartment", parentId, apartment, objectId, organizationId, internalOrganizationId);
+//    }
 
-    @Transactional
-    public void insertCorrectionBuilding(Correction parent, String buildingNumber, String buildingCorp, long objectId) {
-        BuildingCorrection correction = new BuildingCorrection();
-
-        correction.setParentId(parent.getId());
-        correction.setCorrection(buildingNumber);
-        correction.setCorrectionCorp(buildingCorp);
-        correction.setOrganizationId(parent.getOrganizationId());
-        correction.setInternalOrganizationId(parent.getInternalOrganizationId());
-        correction.setObjectId(objectId);
-
-        insertBuilding(correction);
-    }
+//    @Transactional
+//    public void insertCorrectionBuilding(Correction parent, String buildingNumber, String buildingCorp, long objectId) {
+//        BuildingCorrection correction = new BuildingCorrection();
+//
+//        correction.setParentId(parent.getId());
+//        correction.setCorrection(buildingNumber);
+//        correction.setCorrectionCorp(buildingCorp);
+//        correction.setOrganizationId(parent.getOrganizationId());
+//        correction.setInternalOrganizationId(parent.getInternalOrganizationId());
+//        correction.setObjectId(objectId);
+//
+//        insertBuilding(correction);
+//    }
 
     /**
      * Вставка коррекции дома.
@@ -288,12 +288,44 @@ public class AddressCorrectionBean extends CorrectionBean {
         sqlSession().insert(ADDRESS_BEAN_MAPPING_NAMESPACE + ".insertBuilding", correction);
     }
 
-    public Correction insertCorrectionStreet(Correction parent, String street, long objectId) {
-        return insert("street", parent.getId(), street, objectId, parent.getOrganizationId(), parent.getInternalOrganizationId());
+//    public Correction insertCorrectionStreet(Correction parent, String street, long objectId) {
+//        return insert("street", parent.getId(), street, objectId, parent.getOrganizationId(), parent.getInternalOrganizationId());
+//    }
+//
+//    public Correction insertCorrectionCity(String city, long objectId, long organizationId, long internalOrganizationId) {
+//        return insert("city", null, city, objectId, organizationId, internalOrganizationId);
+//    }
+
+    public Correction createCityCorrection(String city, long cityObjectId, long organizationId, long internalOrganizationId){
+        Correction correction = new Correction("city");
+        correction.setParentId(null);
+        correction.setCorrection(city);
+        correction.setOrganizationId(organizationId);
+        correction.setInternalOrganizationId(internalOrganizationId);
+        correction.setObjectId(cityObjectId);
+        return correction;
     }
 
-    public Correction insertCorrectionCity(String city, long objectId, long organizationId, long internalOrganizationId) {
-        return insert("city", null, city, objectId, organizationId, internalOrganizationId);
+    public Correction createStreetCorrection(String street, long cityCorrectionId, long streetObjectId, long organizationId, long internalOrganizationId){
+        Correction correction = new Correction("street");
+        correction.setParentId(cityCorrectionId);
+        correction.setCorrection(street);
+        correction.setOrganizationId(organizationId);
+        correction.setInternalOrganizationId(internalOrganizationId);
+        correction.setObjectId(streetObjectId);
+        return correction;
+    }
+
+    public BuildingCorrection createBuildingCorrection(String number, String corp, long streetCorrectionId, long buildingObjectId, long organizationId,
+            long internalOrganizationId){
+        BuildingCorrection correction = new BuildingCorrection();
+        correction.setParentId(streetCorrectionId);
+        correction.setCorrection(number);
+        correction.setCorrectionCorp(corp);
+        correction.setOrganizationId(organizationId);
+        correction.setInternalOrganizationId(internalOrganizationId);
+        correction.setObjectId(buildingObjectId);
+        return correction;
     }
 
     /**
@@ -547,7 +579,12 @@ public class AddressCorrectionBean extends CorrectionBean {
     }
 
     @Transactional
-    public boolean checkBuildingExistence(BuildingCorrection correction) {
-        return (Integer) sqlSession().selectOne(ADDRESS_BEAN_MAPPING_NAMESPACE + ".checkBuildingExistence", correction) > 0;
+    @Override
+    public boolean checkExistence(Correction correction) {
+        if (correction instanceof BuildingCorrection) {
+            return (Integer) sqlSession().selectOne(ADDRESS_BEAN_MAPPING_NAMESPACE + ".checkBuildingExistence", correction) > 0;
+        } else {
+            return super.checkExistence(correction);
+        }
     }
 }
