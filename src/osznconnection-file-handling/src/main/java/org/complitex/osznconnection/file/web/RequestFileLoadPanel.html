@@ -18,12 +18,16 @@
                     <td><select wicket:id="organization"></select></td>
                 </tr>
                 <tr>
-                    <th><wicket:message key="period"/><b class="blue">*</b>:</th>
-                    <td>
-                        <wicket:message key="from"/>: <select wicket:id="from"></select>
-                        <wicket:message key="to"/>: <select wicket:id="to"></select>
-                        <wicket:message key="year"/>: <select wicket:id="year"></select>
-                    </td>
+                    <th><wicket:message key="period"/>&nbsp;<wicket:message key="from"/><b class="blue">*</b>:</th>
+                    <td><select wicket:id="from"></select></td>
+                </tr>
+                <tr>
+                    <th><wicket:message key="to"/><b class="blue">*</b>:</th>
+                    <td><select wicket:id="to"></select></td>
+                </tr>
+                <tr>
+                    <th> <wicket:message key="year"/><b class="blue">*</b>:</th>
+                    <td><select wicket:id="year"></select></td>
                 </tr>
                 </tbody>
             </table>
