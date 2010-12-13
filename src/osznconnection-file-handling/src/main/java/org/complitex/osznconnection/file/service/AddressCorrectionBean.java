@@ -72,8 +72,6 @@ public class AddressCorrectionBean extends CorrectionBean {
 
         throw new RuntimeException("More one correction found. Parameters: [entityTable = " + entityTable + ", parentId = " + parentId + ", correction = "
                 + correction + ", organizationId = " + organizationId + "]. Corrections are in inconsistent state.");
-
-//        return (Correction) sqlSession().selectOne(ADDRESS_BEAN_MAPPING_NAMESPACE + ".findCorrectionAddress", params);
     }
 
     /**
@@ -129,8 +127,6 @@ public class AddressCorrectionBean extends CorrectionBean {
 
         throw new RuntimeException("More one correction found. Parameters: [entityTable = building, parentId = " + parent.getParentId()
                 + ", correction = " + correction + ", organizationId = " + parent.getOrganizationId() + "]. Corrections are in inconsistent state.");
-
-//        return (BuildingCorrection) sqlSession().selectOne(ADDRESS_BEAN_MAPPING_NAMESPACE + ".findCorrectionBuilding", params);
     }
 
 //    public Long findCorrectionApartment(long buildingId, String apartment, long organizationId) {
@@ -413,11 +409,32 @@ public class AddressCorrectionBean extends CorrectionBean {
     }
 
     @Transactional
+    public List<Correction> getCityCorrections(CorrectionExample example) {
+        return sqlSession().selectList(ADDRESS_BEAN_MAPPING_NAMESPACE + ".selectCityCorrections", example);
+    }
+
+    @Transactional
     public Correction getStreetCorrection(Long id) {
         Correction correction = (Correction) sqlSession().selectOne(ADDRESS_BEAN_MAPPING_NAMESPACE + ".selectStreetCorrection", id);
 
         if (correction != null) {
             correction.setEntity("street");
+        }
+
+        return correction;
+    }
+
+    @Transactional
+    public List<Correction> getStreetCorrections(CorrectionExample example) {
+        return sqlSession().selectList(ADDRESS_BEAN_MAPPING_NAMESPACE + ".selectStreetCorrections", example);
+    }
+
+    @Transactional
+    public Correction getDistrictCorrection(Long id) {
+        Correction correction = (Correction) sqlSession().selectOne(ADDRESS_BEAN_MAPPING_NAMESPACE + ".selectDistrictCorrection", id);
+
+        if (correction != null) {
+            correction.setEntity("district");
         }
 
         return correction;
@@ -476,7 +493,7 @@ public class AddressCorrectionBean extends CorrectionBean {
     @Transactional
     @Override
     public List<Correction> find(CorrectionExample example) {
-        if ("street".equals(example.getEntity())){
+        if ("street".equals(example.getEntity()) || "district".equals(example.getEntity())) {
             example.setParentEntity("city");
         }
 
@@ -504,6 +521,33 @@ public class AddressCorrectionBean extends CorrectionBean {
             }
         }
 
+        if ("district".equals(example.getEntity())) {
+            Strategy districtStrategy = strategyFactory.getStrategy("district");
+            Strategy cityStrategy = strategyFactory.getStrategy("city");
+
+            for (Correction c : list) {
+                //load city
+                c.setParent(getCityCorrection(c.getParentId()));
+
+                try {
+                    DomainObject district = districtStrategy.findById(c.getObjectId());
+                    DomainObject city = cityStrategy.findById(district.getParentId());
+
+                    String displayCity = cityStrategy.displayDomainObject(city, localeBean.convert(localeBean.getLocale(example.getLocaleId())));
+                    String displayDistrict = c.getDisplayObject();
+                    c.setDisplayObject(displayCity + ", " + displayDistrict);
+                } catch (Exception e) {
+                    log.warn("[Полный адрес не найден]", e);
+                    c.setDisplayObject("[Полный адрес не найден]");
+                }
+            }
+        }
+
         return list;
+    }
+
+    @Transactional
+    public boolean checkBuildingExistence(BuildingCorrection correction) {
+        return (Integer) sqlSession().selectOne(ADDRESS_BEAN_MAPPING_NAMESPACE + ".checkBuildingExistence", correction) > 0;
     }
 }

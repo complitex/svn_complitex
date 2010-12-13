@@ -99,6 +99,11 @@ public final class OwnershipCorrectionEdit extends FormTemplatePage {
             }
 
             @Override
+            protected String getNullObjectErrorMessage() {
+                return getString("ownership_required");
+            }
+
+            @Override
             protected boolean isOrganizationCodeRequired() {
                 return true;
             }

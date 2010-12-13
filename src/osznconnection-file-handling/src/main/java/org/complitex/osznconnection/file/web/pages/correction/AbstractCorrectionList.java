@@ -4,6 +4,7 @@
  */
 package org.complitex.osznconnection.file.web.pages.correction;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -43,6 +44,7 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.complitex.dictionaryfw.entity.DomainObject;
 import org.complitex.dictionaryfw.web.component.DisableAwareDropDownChoice;
 import org.complitex.dictionaryfw.web.component.DomainObjectDisableAwareRenderer;
+import org.complitex.osznconnection.commons.web.component.toolbar.AddItemButton;
 import org.complitex.osznconnection.file.web.model.OrganizationModel;
 import org.complitex.osznconnection.organization.strategy.OrganizationStrategy;
 
@@ -270,15 +272,13 @@ public abstract class AbstractCorrectionList extends TemplatePage {
 
     @Override
     protected List<? extends ToolbarButton> getToolbarButtons(String id) {
-//        return ImmutableList.of(new AddItemButton(id) {
-//
-//            @Override
-//            protected void onClick() {
-//                setResponsePage(getEditPage(), getEditPageParams(null));
-//            }
-//        });
+        return ImmutableList.of(new AddItemButton(id) {
 
-        return null;
+            @Override
+            protected void onClick() {
+                setResponsePage(getEditPage(), getEditPageParams(null));
+            }
+        });
     }
 }
 

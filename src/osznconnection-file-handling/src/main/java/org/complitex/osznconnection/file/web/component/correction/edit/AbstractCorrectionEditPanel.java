@@ -4,6 +4,7 @@
  */
 package org.complitex.osznconnection.file.web.component.correction.edit;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -28,7 +29,12 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.EJB;
 import java.util.List;
 import java.util.Locale;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.util.string.Strings;
 import org.complitex.osznconnection.file.web.model.OrganizationModel;
 
 /**
@@ -44,11 +50,9 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
 
     @EJB(name = "OrganizationStrategy")
     private OrganizationStrategy organizationStrategy;
-
+    
     private Long correctionId;
-
     private Correction correction;
-
     private WebMarkupContainer form;
 
     public AbstractCorrectionEditPanel(String id, String entity, Long correctionId) {
@@ -79,7 +83,7 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
         return correction;
     }
 
-    protected String getDisplayCorrection(){
+    protected String displayCorrection() {
         return correction.getCorrection();
     }
 
@@ -87,8 +91,37 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
 
     protected abstract Panel internalObjectPanel(String id);
 
+    protected abstract String getNullObjectErrorMessage();
+
+    protected String getNullCorrectionErroMessage(){
+        return new StringResourceModel("Required", Model.ofMap(ImmutableMap.of("label", getString("correction")))).getObject();
+    };
+
+    protected boolean freezeOrganization(){
+        return false;
+    }
+
     protected boolean validate() {
-        return true;
+        boolean valid = true;
+        if (Strings.isEmpty(getModel().getCorrection())) {
+            error(getNullCorrectionErroMessage());
+            valid = false;
+        }
+
+        if (getModel().getObjectId() == null) {
+            error(getNullObjectErrorMessage());
+            valid = false;
+        }
+
+        if (valid && validateExistence()) {
+            error(getString("exist"));
+            valid = false;
+        }
+        return valid;
+    }
+
+    protected boolean validateExistence(){
+        return correctionBean.checkExistence(getModel());
     }
 
     protected abstract void back();
@@ -137,6 +170,10 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
         return false;
     }
 
+    protected Panel getCorrectionInputPanel(String id) {
+        return new DefaultCorrectionInputPanel(id, new PropertyModel<String>(getModel(), "correction"));
+    }
+
     protected void init() {
         IModel<String> labelModel = new ResourceModel("label");
         add(new Label("title", labelModel));
@@ -148,8 +185,6 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
         form = new Form("form");
         add(form);
 
-        form.add(new Label("correction", getDisplayCorrection()));
-
         WebMarkupContainer codeRequiredContainer = new WebMarkupContainer("codeRequiredContainer");
         form.add(codeRequiredContainer);
 
@@ -157,7 +192,7 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
 
         codeRequiredContainer.setVisible(isOrganizationCodeRequired);
 
-        TextField<String> code = new TextField<String>("code", new PropertyModel<String>(this.correction, "code"));
+        TextField<String> code = new TextField<String>("code", new PropertyModel<String>(correction, "code"));
         code.setRequired(isOrganizationCodeRequired);
 
         form.add(code);
@@ -194,14 +229,24 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
                 return organizationStrategy.displayDomainObject(object, getLocale());
             }
         };
-        DisableAwareDropDownChoice<DomainObject> organization = new DisableAwareDropDownChoice<DomainObject>("organization",
+        final DisableAwareDropDownChoice<DomainObject> organization = new DisableAwareDropDownChoice<DomainObject>("organization",
                 outerOrganizationModel, allOuterOrganizationsModel, renderer);
+        if (freezeOrganization()) {
+            organization.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
+                @Override
+                protected void onUpdate(AjaxRequestTarget target) {
+                    organization.setEnabled(false);
+                    target.addComponent(organization);
+                }
+            });
+        }
         organization.setRequired(true);
         organization.setEnabled(isNew());
         form.add(organization);
 
         if (isNew()) {
-            this.correction.setInternalOrganizationId(OrganizationStrategy.ITSELF_ORGANIZATION_OBJECT_ID);
+            correction.setInternalOrganizationId(OrganizationStrategy.ITSELF_ORGANIZATION_OBJECT_ID);
         }
 
         final List<DomainObject> internalOrganizations = Lists.newArrayList(organizationStrategy.getItselfOrganization());
@@ -230,6 +275,11 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
         form.add(new Label("internalObjectLabel", internalObjectLabel(getLocale())));
         form.add(internalObjectPanel("internalObject"));
 
+        // correction input panel
+        form.add(getCorrectionInputPanel("correctionInput").setVisible(isNew()));
+        //correction label
+        form.add(new Label("correctionLabel", displayCorrection()).setVisible(!isNew()));
+
         //save-cancel functional
         Button submit = new Button("submit") {
 
@@ -237,7 +287,6 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
             public void onSubmit() {
                 if (AbstractCorrectionEditPanel.this.validate()) {
                     saveOrUpdate();
-
                 }
             }
         };
