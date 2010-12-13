@@ -31,6 +31,9 @@ import javax.ejb.EJB;
 import java.util.List;
 import java.util.Map;
 import org.apache.wicket.model.AbstractReadOnlyModel;
+import org.complitex.osznconnection.file.service.exception.DublicateCorrectionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Панель для корректировки адреса вручную, когда нет соответствующей коррекции и поиск по локальной адресной базе не дал результатов.
@@ -38,11 +41,12 @@ import org.apache.wicket.model.AbstractReadOnlyModel;
  */
 public class AddressCorrectionPanel extends Panel {
 
+    private static final Logger log = LoggerFactory.getLogger(AddressCorrectionPanel.class);
+
     private enum CORRECTED_ENTITY {
 
         CITY, STREET, BUILDING;
     }
-    
     @EJB(name = "StrategyFactory")
     private StrategyFactory strategyFactory;
 
@@ -114,21 +118,27 @@ public class AddressCorrectionPanel extends Panel {
             @Override
             public void onClick(AjaxRequestTarget target) {
                 if (validate(componentState)) {
-                    correctAddress(getObjectId(componentState.get("city")),
-                            getObjectId(componentState.get("street")),
-                            getStreetTypeId(componentState.get("street")),
-                            getObjectId(componentState.get("building")),
-                            getObjectId(componentState.get("apartment")));
-
-                    if (toUpdate != null) {
-                        for (MarkupContainer container : toUpdate) {
-                            target.addComponent(container);
+                    try {
+                        correctAddress(getObjectId(componentState.get("city")),
+                                getObjectId(componentState.get("street")),
+                                getStreetTypeId(componentState.get("street")),
+                                getObjectId(componentState.get("building")),
+                                getObjectId(componentState.get("apartment")));
+                        if (toUpdate != null) {
+                            for (MarkupContainer container : toUpdate) {
+                                target.addComponent(container);
+                            }
                         }
+                        closeDialog(target);
+                        return;
+                    } catch (DublicateCorrectionException e) {
+                        error(getString("dublicate_correction_error"));
+                    } catch (Exception e) {
+                        error(getString("db_error"));
+                        log.error("", e);
                     }
-                    closeDialog(target);
-                } else {
-                    target.addComponent(messages);
                 }
+                target.addComponent(messages);
             }
         };
         container.add(save);
@@ -166,7 +176,7 @@ public class AddressCorrectionPanel extends Panel {
                 validated &= street != null && street.getId() != null && street.getId() > 0;
             case CITY:
                 DomainObject city = componentState.get("city");
-                validated = city != null && city.getId() != null && city.getId() > 0;
+                validated &= city != null && city.getId() != null && city.getId() > 0;
                 break;
         }
         if (!validated) {
