@@ -132,4 +132,26 @@
         DELETE FROM `${entity}_correction` WHERE `id` = #{id}
     </delete>
 
+    <select id="checkExistence" resultType="int" parameterType="org.complitex.osznconnection.file.entity.Correction">
+        SELECT COUNT(*) FROM `${entity}_correction` WHERE `object_id` = #{objectId} AND 
+        <choose>
+            <when test="parentId != null">
+                `parent_id` = #{parentId}
+            </when>
+            <otherwise>
+                `parent_id` IS NULL
+            </otherwise>
+        </choose>
+        AND TRIM(`correction`) = TRIM(#{correction}) AND `organization_id` = #{organizationId}
+        AND
+        <choose>
+            <when test="code != null">
+                TRIM(`organization_code`) = TRIM(#{code})
+            </when>
+            <otherwise>
+                `organization_code` IS NULL
+            </otherwise>
+        </choose>
+    </select>
+
 </mapper>

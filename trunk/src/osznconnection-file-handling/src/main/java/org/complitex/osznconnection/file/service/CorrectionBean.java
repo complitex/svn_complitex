@@ -34,7 +34,7 @@ public class CorrectionBean extends AbstractBean {
 
     @EJB(beanName = "StrategyFactory")
     protected StrategyFactory strategyFactory;
-
+    
     @EJB
     private LocaleBean localeBean;
 
@@ -45,7 +45,6 @@ public class CorrectionBean extends AbstractBean {
         ORGANIZATION("organization"),
         INTERNAL_ORGANIZATION("internalOrganization"),
         OBJECT("object");
-
         private String orderBy;
 
         private OrderBy(String orderBy) {
@@ -105,5 +104,10 @@ public class CorrectionBean extends AbstractBean {
     @Transactional
     public void delete(Correction correction) {
         sqlSession().delete(CORRECTION_BEAN_MAPPING_NAMESPACE + ".delete", correction);
+    }
+
+    @Transactional
+    public boolean checkExistence(Correction correction) {
+        return (Integer) sqlSession().selectOne(CORRECTION_BEAN_MAPPING_NAMESPACE + ".checkExistence", correction) > 0;
     }
 }

@@ -53,7 +53,8 @@ public class AddressCorrectionList extends AbstractCorrectionList {
 
     @Override
     protected String displayCorrection(Correction correction) {
-        if ("street".equals(this.getEntity()) && correction.getParent() != null){
+        boolean districtOrStreet = "street".equals(this.getEntity()) || "district".equals(this.getEntity());
+        if (districtOrStreet && correction.getParent() != null) {
             return correction.getParent().getCorrection() + ", " + correction.getCorrection();
         }
 

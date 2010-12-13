@@ -11,6 +11,12 @@
                 javaType="org.complitex.osznconnection.file.entity.Correction"/>
     </resultMap>
 
+    <resultMap id="districtCorrection" type="org.complitex.osznconnection.file.entity.Correction"
+               extends="org.complitex.osznconnection.file.service.CorrectionBean.correction">
+        <association property="parent" column="parent_id" select="selectCityCorrection"
+                javaType="org.complitex.osznconnection.file.entity.Correction"/>
+    </resultMap>
+
     <resultMap id="buildingCorrection" type="org.complitex.osznconnection.file.entity.BuildingCorrection"
                extends="org.complitex.osznconnection.file.service.CorrectionBean.correction">
         <result column="correction_corp" property="correctionCorp"/>
@@ -23,8 +29,25 @@
         select * from `city_correction` where `id` = #{id}
     </select>
 
+    <select id="selectCityCorrections" resultMap="cityCorrection" parameterType="org.complitex.osznconnection.file.entity.example.CorrectionExample">
+        select * from `city_correction` c where c.`organization_id` = #{organizationId} and c.`correction` like concat('%', #{correction},'%')
+            order by c.`correction`
+            limit #{start}, #{size}
+    </select>
+
     <select id="selectStreetCorrection" resultMap="streetCorrection" parameterType="long">
         select * from `street_correction` where `id` = #{id}
+    </select>
+
+    <select id="selectStreetCorrections" resultMap="streetCorrection" parameterType="org.complitex.osznconnection.file.entity.example.CorrectionExample">
+        select * from `street_correction` c where c.`organization_id` = #{organizationId} and c.`parent_id` = #{parentId} and
+            c.`correction` like concat('%', #{correction},'%')
+            order by c.`correction`
+            limit #{start}, #{size}
+    </select>
+
+    <select id="selectDistrictCorrection" resultMap="districtCorrection" parameterType="long">
+        select * from `district_correction` where `id` = #{id}
     </select>
 
     <select id="selectBuildingCorrection" resultMap="buildingCorrection" parameterType="long">
@@ -219,7 +242,7 @@
 
     <select id="findBuildings" parameterType="org.complitex.osznconnection.file.entity.example.BuildingCorrectionExample"
             resultMap="buildingCorrection">
-        SELECT distinct c.`id`, c.*, IFNULL(osc.`value`, osc_sys.`value`) organization, IFNULL(osc_i.`value`, osc_i_sys.`value`) internalOrganization
+        SELECT DISTINCT c.`id`, c.*, IFNULL(osc.`value`, osc_sys.`value`) organization, IFNULL(osc_i.`value`, osc_i_sys.`value`) internalOrganization
 
         FROM `building_correction` c
 
@@ -258,5 +281,29 @@
     <delete id="deleteBuilding" parameterType="org.complitex.osznconnection.file.entity.BuildingCorrection">
         DELETE FROM `building_correction` WHERE `id` = #{id}
     </delete>
+
+    <select id="checkBuildingExistence" resultType="int" parameterType="org.complitex.osznconnection.file.entity.BuildingCorrection">
+        SELECT COUNT(*) FROM `building_correction` WHERE `object_id` = #{objectId} AND
+        `parent_id` = #{parentId}
+        AND TRIM(`correction`) = TRIM(#{correction}) AND `organization_id` = #{organizationId}
+        AND
+        <choose>
+            <when test="code != null">
+                TRIM(`organization_code`) = TRIM(#{code})
+            </when>
+            <otherwise>
+                `organization_code` IS NULL
+            </otherwise>
+        </choose>
+        AND
+        <choose>
+            <when test="correctionCorp != null">
+                TRIM(`correction_corp`) = TRIM(#{correctionCorp})
+            </when>
+            <otherwise>
+                `correction_corp` IS NULL
+            </otherwise>
+        </choose>
+    </select>
 
 </mapper>

@@ -85,12 +85,8 @@ public final class PrivilegeCorrectionEdit extends FormTemplatePage {
             }
 
             @Override
-            protected boolean validate() {
-                boolean valid = getModel().getObjectId() != null;
-                if (!valid) {
-                    error(getString("privilege_required"));
-                }
-                return valid;
+            protected String getNullObjectErrorMessage() {
+                return getString("privilege_required");
             }
 
             private DomainObject findPrivilege(long privilegeId) {

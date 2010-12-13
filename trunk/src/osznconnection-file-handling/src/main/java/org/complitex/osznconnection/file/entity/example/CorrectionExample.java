@@ -25,6 +25,7 @@ public class CorrectionExample implements Serializable {
     private String orderByClause;
     private boolean asc;
     private Long localeId;
+    private Long parentId;
 
     public boolean isAsc() {
         return asc;
@@ -128,5 +129,13 @@ public class CorrectionExample implements Serializable {
 
     public void setInternalOrganizationId(Long internalOrganizationId) {
         this.internalOrganizationId = internalOrganizationId;
+    }
+
+    public Long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
     }
 }

@@ -48,7 +48,7 @@ public class BuildingCorrectionList extends AddressCorrectionList {
     @Override
     protected String displayCorrection(Correction correction) {
         String parentAddress = "";
-        if (correction.getParent() != null && correction.getParent() != null) {
+        if (correction.getParent() != null && correction.getParent().getParent() != null) {
             parentAddress = correction.getParent().getParent().getCorrection()
                     + ", " + correction.getParent().getCorrection()
                     + ", ";

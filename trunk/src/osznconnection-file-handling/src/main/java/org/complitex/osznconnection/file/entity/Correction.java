@@ -11,26 +11,19 @@ import java.io.Serializable;
  * @author Artem
  */
 public class Correction implements Serializable {
+
     private Long id;
-
     private String entity;
-
     private String correction;
-
     private String code;
-
     private Long organizationId;
     private String organization;
-
     private Long objectId;
     private Long internalParentId;
-
     private Long internalOrganizationId;
     private String internalOrganization;
-
     private Long parentId;
     private Correction parent;
-
     private String displayObject;
 
     public Correction() {

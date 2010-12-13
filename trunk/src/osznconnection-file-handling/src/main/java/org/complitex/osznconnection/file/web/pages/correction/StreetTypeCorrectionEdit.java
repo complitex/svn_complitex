@@ -106,6 +106,11 @@ public class StreetTypeCorrectionEdit extends FormTemplatePage {
             }
 
             @Override
+            protected String getNullObjectErrorMessage() {
+                return getString("street_type_required");
+            }
+
+            @Override
             protected void back() {
                 PageParameters parameters = new PageParameters();
                 parameters.put(StreetTypeCorrectionList.CORRECTED_ENTITY, getModel().getEntity());
