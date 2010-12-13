@@ -40,17 +40,18 @@ public class RequestFileLoadPanel extends Panel {
         void load(Long organizationId, String districtCode, int monthFrom, int monthTo, int year);
     }
 
-    public RequestFileLoadPanel(String id, final ILoader loader) {
+    public RequestFileLoadPanel(String id, String title, final ILoader loader) {
         super(id);
 
         dialog = new Dialog("dialog");
         dialog.setModal(true);
-        dialog.setWidth(735);
+        dialog.setWidth(480);
         dialog.setOpenEvent(JsScopeUiEvent.quickScope(new JsStatement().self().chain("parents", "'.ui-dialog:first'").
                 chain("find", "'.ui-dialog-titlebar-close'").
                 chain("hide").render()));
         dialog.setOutputMarkupId(true);
         dialog.setOutputMarkupPlaceholderTag(true);
+        dialog.setTitle(title);
         add(dialog);
 
         dialog.add(new FeedbackPanel("messages"));

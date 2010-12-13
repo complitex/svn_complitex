@@ -483,6 +483,7 @@ public class GroupList extends TemplatePage {
 
         //Диалог загрузки
         requestFileLoadPanel = new RequestFileLoadPanel("load_panel",
+                getString("load_panel_title"),
                 new RequestFileLoadPanel.ILoader(){
 
                     @Override
