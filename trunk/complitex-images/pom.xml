@@ -13,7 +13,7 @@
     <artifactId>complitex-images</artifactId>
     <packaging>jar</packaging>
 
-    <name>Images module</name>
+    <name>Images</name>
 
     <dependencies>
         <dependency>

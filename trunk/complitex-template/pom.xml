@@ -12,14 +12,13 @@
     <artifactId>complitex-template</artifactId>
     <packaging>jar</packaging>
 
-    <name>Template module</name>
+    <name>Template</name>
 
     <dependencies>
         <dependency>
             <groupId>org.complitex</groupId>
             <artifactId>complitex-dictionary</artifactId>
         </dependency>
-        
         <dependency>
             <groupId>org.complitex</groupId>
             <artifactId>complitex-resources</artifactId>
@@ -50,18 +49,20 @@
             <artifactId>wiquery</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-web-api</artifactId>
-       </dependency>
-        <dependency>
             <groupId>org.wicketstuff</groupId>
             <artifactId>wicket-contrib-javaee</artifactId>
         </dependency>
 
         <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+       </dependency>
+
+        <dependency>
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis</artifactId>
        </dependency>
+
         <dependency>
             <groupId>com.google.collections</groupId>
             <artifactId>google-collections</artifactId>
