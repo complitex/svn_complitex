@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.complitex.dictionary.entity.description.Entity">
+
+    <resultMap id="EntityType" type="org.complitex.dictionary.entity.description.EntityType">
+        <id column="entity_type_id" property="id"/>
+        <result column="type_start_date" property="startDate"/>
+        <result column="type_end_date" property="endDate"/>
+        <collection property="entityTypeNames" ofType="StringCulture" column="entity_type_name_id"
+                    select="org.complitex.dictionary.entity.description.Entity.findNames"/>
+    </resultMap>
+
+    <resultMap type="org.complitex.dictionary.entity.description.Entity" id="Entity">
+        <id column="entity_id" property="id"/>
+        <result column="entity_table" property="entityTable"/>
+        <collection property="entityNames" ofType="StringCulture" column="entity_name_id"
+                    select="org.complitex.dictionary.entity.description.Entity.findNames"/>
+        <collection property="entityAttributeTypes" ofType="org.complitex.dictionary.entity.description.EntityAttributeType">
+            <id column="entity_attribute_type_id" property="id"/>
+            <result column="mandatory" property="mandatory" javaType="_boolean" jdbcType="TINYINT"/>
+            <result column="attr_start_date" property="startDate"/>
+            <result column="attr_end_date" property="endDate"/>
+            <result column="system" property="system" javaType="_boolean" jdbcType="TINYINT"/>
+            <collection property="attributeNames" ofType="StringCulture" column="attribute_type_name_id"
+                        select="org.complitex.dictionary.entity.description.Entity.findNames"/>
+                <collection property="entityAttributeValueTypes" ofType="org.complitex.dictionary.entity.description.EntityAttributeValueType">
+                    <id column="entity_attribute_value_type_id" property="id"/>
+                    <result column="attribute_value_type" property="valueType"/>
+                </collection>
+        </collection>
+        <collection property="entityTypes" ofType="org.complitex.dictionary.entity.description.EntityType"
+                resultMap="org.complitex.dictionary.entity.description.Entity.EntityType"/>
+    </resultMap>
+
+    <select id="load" parameterType="hashmap" resultMap="org.complitex.dictionary.entity.description.Entity.Entity">
+        SELECT
+        e.`id` as entity_id,
+        e.`entity_table`,
+        e.`entity_name_id`,
+        eat.`id` as entity_attribute_type_id,
+        eat.`mandatory`,
+        eat.`start_date` as attr_start_date,
+        eat.`end_date` as attr_end_date,
+        eat.`attribute_type_name_id`,
+        eat.`system`,
+        eavt.`id` as entity_attribute_value_type_id,
+        eavt.`attribute_value_type`,
+        et.`id` as entity_type_id,
+        et.`entity_type_name_id`,
+        et.`start_date` as type_start_date,
+        et.`end_date` as type_end_date
+        FROM `entity` e
+        JOIN `entity_attribute_type` eat ON eat.`entity_id` = e.`id`
+        JOIN `entity_attribute_value_type` eavt ON eavt.`attribute_type_id` = eat.`id`
+        LEFT OUTER JOIN `entity_type` et ON et.`entity_id` = e.`id`
+        WHERE e.`entity_table` = #{entity}
+    </select>
+
+    <select id="findNames" parameterType="long" resultMap="org.complitex.dictionary.entity.StringCulture.StringCulture">
+        SELECT sc.* FROM `string_culture` sc WHERE sc.`id` = #{value}
+    </select>
+
+    <insert id="insertEntityType" useGeneratedKeys="true" keyProperty="id"
+            parameterType="org.complitex.dictionary.entity.description.EntityType">
+        INSERT INTO `entity_type`(`entity_id`, `entity_type_name_id`, `start_date`) VALUES (#{entityId}, #{entityTypeNameId}, #{startDate})
+    </insert>
+
+    <insert id="insertAttributeType" useGeneratedKeys="true" keyProperty="id"
+            parameterType="org.complitex.dictionary.entity.description.EntityAttributeType">
+        INSERT INTO `entity_attribute_type`(`entity_id`, `mandatory`, `attribute_type_name_id`, `start_date`) VALUES (#{entityId}, #{mandatory}, #{attributeNameId}, #{startDate})
+    </insert>
+
+    <insert id="insertValueType">
+        INSERT INTO `entity_attribute_value_type`(`attribute_type_id`, `attribute_value_type`) VALUES (#{attributeTypeId}, #{valueType})
+    </insert>
+
+    <select id="allEntities" resultType="string">
+        SELECT e.`entity_table` FROM `entity` e
+    </select>
+
+    <update id="removeAttributeTypes" parameterType="hashmap">
+        UPDATE `entity_attribute_type` SET `end_date` = #{endDate} WHERE `id` IN
+        <foreach item="id" collection="attributeTypeIds" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="removeEntityTypes" parameterType="hashmap">
+        UPDATE `entity_type` SET `end_date` = #{endDate} WHERE `id` IN
+        <foreach item="id" collection="entityTypeIds" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+
+    <select id="allEntityTypes" resultMap="org.complitex.dictionary.entity.description.Entity.EntityType">
+        SELECT et.`id` entity_type_id,
+        et.`entity_type_name_id`,
+        et.`start_date` type_start_date,
+        et.`end_date` type_end_date
+        FROM `entity_type` et
+    </select>
+
+</mapper>

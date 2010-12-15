@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.complitex.dictionary.entity.Attribute">
+
+    <resultMap id="Attribute" type="Attribute">
+        <id column="attribute_id" property="attributeId"/>
+        <id column="object_id" property="objectId"/>
+        <id column="attribute_type_id" property="attributeTypeId"/>
+        <id column="start_date" property="startDate"/>
+        <result column="status" property="status"/>
+        <result column="end_date" property="endDate"/>
+        <result column="value_id" property="valueId"/>
+        <result column="value_type_id" property="valueTypeId"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="Parameter">
+        INSERT INTO `${table}_attribute` (`attribute_id`, `object_id`, `attribute_type_id`, `status`, `start_date`, `end_date`, `value_id`, `value_type_id`) VALUES
+        (#{object.attributeId}, #{object.objectId}, #{object.attributeTypeId}, #{object.status}, #{object.startDate}, #{object.endDate}, #{object.valueId}, #{object.valueTypeId})
+    </insert>
+
+    <update id="update" parameterType="Parameter">
+        UPDATE `${table}_attribute` SET `end_date` = #{object.endDate}, `status` = #{object.status} WHERE
+        `attribute_id` = #{object.attributeId} AND `object_id` = #{object.objectId} AND `attribute_type_id` = #{object.attributeTypeId} AND `start_date` = #{object.startDate}
+    </update>
+
+    <update id="archiveAttributes" parameterType="hashmap">
+        UPDATE `${table}_attribute` SET `end_date` = #{endDate}, `status` = 'ARCHIVE' WHERE
+        `attribute_type_id` IN
+        <foreach item="id" collection="attributeTypeIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="archiveObjectAttributes" parameterType="hashmap">
+        UPDATE `${table}_attribute` SET `end_date` = #{endDate}, `status` = 'ARCHIVE' WHERE
+        `object_id` = #{objectId}
+    </update>
+
+    <select id="find" parameterType="hashmap" resultMap="org.complitex.dictionary.entity.Attribute.Attribute">
+        SELECT aa.*
+        FROM `${table}_attribute` aa WHERE  aa.`object_id` = #{id} AND aa.`status` = 'ACTIVE'
+        ORDER BY aa.`attribute_type_id`, aa.`attribute_id`
+    </select>
+
+    <!-- history -->
+    
+    <select id="findHistoryAttributes" parameterType="DomainObjectExample" resultMap="org.complitex.dictionary.entity.Attribute.Attribute">
+        SELECT aa.*
+        FROM `${table}_attribute` aa
+        WHERE aa.`object_id` = #{id}
+        AND aa.`start_date` <![CDATA[ <= ]]> #{startDate} AND ((aa.`end_date` IS NULL) OR (aa.`end_date` <![CDATA[ > ]]> #{startDate}))
+        ORDER BY aa.`attribute_type_id`, aa.`attribute_id`
+    </select>
+
+</mapper>
