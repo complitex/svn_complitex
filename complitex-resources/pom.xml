@@ -13,7 +13,7 @@
     <artifactId>complitex-resources</artifactId>
     <packaging>jar</packaging>
 
-    <name>Resources module</name>
+    <name>Resources</name>
 
     <dependencies>
         <dependency>
