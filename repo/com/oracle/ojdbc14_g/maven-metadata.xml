@@ -5,8 +5,9 @@
   <versioning>
     <release>14_g</release>
     <versions>
+      <version>10.2.0.3.0</version>
       <version>14_g</version>
     </versions>
-    <lastUpdated>20101215094925</lastUpdated>
+    <lastUpdated>20101215095942</lastUpdated>
   </versioning>
 </metadata>
