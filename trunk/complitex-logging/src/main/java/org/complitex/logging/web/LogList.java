@@ -43,8 +43,8 @@ import java.util.*;
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)
 public class LogList extends TemplatePage{
-    private final static String IMAGE_ARROW_TOP = "images/arrow1top.gif";
-    private final static String IMAGE_ARROW_BOTTOM = "images/arrow1bot.gif";
+    private final static String IMAGE_ARROW_TOP = "images/arrow2top.gif";
+    private final static String IMAGE_ARROW_BOTTOM = "images/arrow2bot.gif";
 
     @EJB(name = "LogListBean")
     private LogListBean logListBean;
