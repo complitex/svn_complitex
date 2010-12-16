@@ -4,15 +4,15 @@
 
     <groupId>org.complitex</groupId>
     <artifactId>complitex</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Complitex</name>
 
     <scm>
-        <connection>scm:svn:https://complitex.googlecode.com/svn/tags/complitex-2.0.0</connection>
-        <developerConnection>scm:svn:https://complitex.googlecode.com/svn/tags/complitex-2.0.0</developerConnection>
-        <url>http://code.google.com/p/complitex/source/browse/tags/complitex-2.0.0</url>
+        <connection>scm:svn:https://complitex.googlecode.com/svn/trunk</connection>
+        <developerConnection>scm:svn:https://complitex.googlecode.com/svn/trunk</developerConnection>
+        <url>http://code.google.com/p/complitex/source/browse</url>
     </scm>
 
     <distributionManagement>
