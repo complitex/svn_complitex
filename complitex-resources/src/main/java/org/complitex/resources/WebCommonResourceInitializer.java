@@ -1,4 +1,4 @@
-package org.comlitex.resources;
+package org.complitex.resources;
 
 import org.apache.wicket.Application;
 import org.apache.wicket.IInitializer;
