@@ -30,7 +30,7 @@ import org.complitex.template.web.template.TemplatePage;
 import org.complitex.logging.service.LogFilter;
 import org.complitex.logging.service.LogListBean;
 import org.complitex.logging.web.component.LogChangePanel;
-import org.comlitex.resources.WebCommonResourceInitializer;
+import org.complitex.resources.WebCommonResourceInitializer;
 
 import javax.ejb.EJB;
 import java.util.*;

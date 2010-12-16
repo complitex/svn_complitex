@@ -6,7 +6,7 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.ResourceModel;
-import org.comlitex.resources.WebCommonResourceInitializer;
+import org.complitex.resources.WebCommonResourceInitializer;
 import org.complitex.template.web.template.TemplateWebApplication;
 import org.odlabs.wiquery.core.commons.CoreJavaScriptResourceReference;
 
