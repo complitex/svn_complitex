@@ -18,11 +18,11 @@
     <distributionManagement>
         <repository>
             <id>complitex-repository</id>
-            <url>dav:https://complitex.googlecode.com/svn/repo</url>
+            <url>scm:svn:https://complitex.googlecode.com/svn/repo</url>
         </repository>
         <snapshotRepository>
             <id>complitex-repository</id>
-            <url>dav:https://complitex.googlecode.com/svn/repo-snapshot</url>
+            <url>scm:svn:https://complitex.googlecode.com/svn/repo-snapshot</url>
         </snapshotRepository>
     </distributionManagement>
 
@@ -36,7 +36,7 @@
         <module>complitex-template</module>
     </modules>
 
-     <repositories>
+    <repositories>
         <repository>
             <id>complitex-repository</id>
             <name>Complitex repository</name>
@@ -287,13 +287,32 @@
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>
         </plugins>
 
         <extensions>
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>
-                <artifactId>wagon-webdav</artifactId>
-                <version>1.0-beta-2</version>
+                <artifactId>wagon-scm</artifactId>
+                <version>1.0-beta-7</version>
+            </extension>
+            <extension>
+                <groupId>org.apache.maven.scm</groupId>
+                <artifactId>maven-scm-manager-plexus</artifactId>
+                <version>1.0</version>
+            </extension>
+            <extension>
+                <groupId>org.apache.maven.scm</groupId>
+                <artifactId>maven-scm-provider-svnexe</artifactId>
+                <version>1.0</version>
             </extension>
         </extensions>
     </build>
