@@ -57,6 +57,15 @@ public class LogBean extends AbstractBean {
         log(module, controller, model, objectId, event, Log.STATUS.ERROR, null, descriptionPattern, descriptionArguments);
     }
 
+    public void warn(String module, Class controllerClass, Class modelClass, Long objectId, Log.EVENT event,
+            String descriptionPattern, Object... descriptionArguments) {
+
+        String controller = controllerClass != null ? controllerClass.getName() : null;
+        String model = modelClass != null ? modelClass.getName() : null;
+
+        log(module, controller, model, objectId, event, Log.STATUS.WARN, null, descriptionPattern, descriptionArguments);
+    }
+
     public void info(String module, Class controllerClass, Class modelClass, String entityName, Long objectId,
             Log.EVENT event, List<LogChange> changes, String descriptionPattern, Object... descriptionArguments) {
 
