@@ -271,6 +271,7 @@ div.wicket-aa {
     background-color: white;
     padding: 2px;
     text-align:left;
+    cursor: pointer;
 }
 
 div.wicket-aa ul {
