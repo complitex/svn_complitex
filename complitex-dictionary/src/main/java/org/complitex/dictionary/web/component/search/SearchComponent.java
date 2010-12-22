@@ -367,8 +367,7 @@ public final class SearchComponent extends Panel {
         DomainObjectExample example = new DomainObjectExample();
         strategy.configureExample(example, SearchComponent.<Long>transformObjects(previousInfo), searchTextInput);
         if (comparisonType == ComparisonType.LIKE) {
-            example.setOrderByExpression(strategy.getOrderByExpression("e.`object_id`", localeBean.convert(getLocale()).getId(),
-                    transformObjects(previousInfo)));
+            example.setOrderByAttributeTypeId(strategy.getDefaultOrderByAttributeId());
             example.setAsc(true);
         }
         example.setSize(size);

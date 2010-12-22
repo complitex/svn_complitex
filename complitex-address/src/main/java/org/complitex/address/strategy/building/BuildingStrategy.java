@@ -61,7 +61,7 @@ public class BuildingStrategy extends AbstractStrategy {
      */
     public static enum OrderBy {
 
-        NUMBER(1500L), CORP(1501L), STRUCTURE(1502L);
+        NUMBER(BuildingAddressStrategy.NUMBER), CORP(BuildingAddressStrategy.CORP), STRUCTURE(BuildingAddressStrategy.STRUCTURE);
 
         private Long orderByAttributeId;
 
@@ -162,9 +162,9 @@ public class BuildingStrategy extends AbstractStrategy {
         addressExample.setComparisonType(buildingExample.getComparisonType());
         addressExample.setLocaleId(buildingExample.getLocaleId());
         addressExample.setOrderByAttributeTypeId(buildingExample.getOrderByAttributeTypeId());
-        if (!Strings.isEmpty(buildingExample.getOrderByExpression())) {
-            addressExample.setOrderByExpression(buildingAddressStrategy.getOrderByExpression("e.`object_id`", buildingExample.getLocaleId(), null));
-        }
+//        if (!Strings.isEmpty(buildingExample.getOrderByExpression())) {
+//            addressExample.setOrderByExpression(buildingAddressStrategy.getOrderByExpression("e.`object_id`", buildingExample.getLocaleId(), null));
+//        }
         addressExample.setStart(buildingExample.getStart());
         addressExample.setSize(buildingExample.getSize());
         addressExample.setStatus(buildingExample.getStatus());
@@ -479,14 +479,8 @@ public class BuildingStrategy extends AbstractStrategy {
     }
 
     @Override
-    public String getOrderByExpression(String objectIdReference, Long localeId, Map<String, Object> params) {
-        StringBuilder orderByBuilder = new StringBuilder();
-        orderByBuilder.append("(SELECT sc.`value` FROM `building` b "
-                + "JOIN `building_address` addr ON (b.`parent_id` = addr.`object_id` AND addr.`status` IN ('ACTIVE', 'INACTIVE')) "
-                + "JOIN `building_address_attribute` num ON (num.`object_id` = addr.`object_id` AND num.`status` = 'ACTIVE' AND num.`attribute_type_id` = 1500) "
-                + "JOIN `building_address_string_culture` sc ON (num.`value_id` = sc.`id` AND sc.`locale_id` = ").append(localeId).append(")").
-                append(" WHERE (b.`status` IN ('ACTIVE', 'INACTIVE')) AND b.`object_id` = ").append(objectIdReference).append(")");
-        return orderByBuilder.toString();
+    public long getDefaultOrderByAttributeId() {
+        return OrderBy.NUMBER.getOrderByAttributeId();
     }
 
     @Transactional
