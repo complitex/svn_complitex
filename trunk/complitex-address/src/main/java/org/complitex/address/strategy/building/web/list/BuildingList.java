@@ -239,9 +239,12 @@ public final class BuildingList extends TemplatePage {
         };
         filterForm.add(dataView);
 
-        filterForm.add(new ArrowOrderByBorder("numberHeader", String.valueOf(BuildingStrategy.OrderBy.NUMBER.getOrderByAttributeId()), dataProvider, dataView, content));
-        filterForm.add(new ArrowOrderByBorder("corpHeader", String.valueOf(BuildingStrategy.OrderBy.CORP.getOrderByAttributeId()), dataProvider, dataView, content));
-        filterForm.add(new ArrowOrderByBorder("structureHeader", String.valueOf(BuildingStrategy.OrderBy.STRUCTURE.getOrderByAttributeId()), dataProvider, dataView, content));
+        filterForm.add(new ArrowOrderByBorder("numberHeader", String.valueOf(BuildingStrategy.OrderBy.NUMBER.getOrderByAttributeId()), dataProvider,
+                dataView, content));
+        filterForm.add(new ArrowOrderByBorder("corpHeader", String.valueOf(BuildingStrategy.OrderBy.CORP.getOrderByAttributeId()), dataProvider,
+                dataView, content));
+        filterForm.add(new ArrowOrderByBorder("structureHeader", String.valueOf(BuildingStrategy.OrderBy.STRUCTURE.getOrderByAttributeId()),
+                dataProvider, dataView, content));
 
         //Reset Action
         AjaxLink reset = new AjaxLink("reset") {

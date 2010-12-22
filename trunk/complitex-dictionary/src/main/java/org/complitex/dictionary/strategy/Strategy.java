@@ -686,18 +686,8 @@ public abstract class Strategy extends AbstractBean {
         return entityBean.getAttributeLabel(getEntityTable(), attribute.getAttributeTypeId(), locale);
     }
 
-    protected long getDefaultOrderByAttributeId() {
+    public long getDefaultOrderByAttributeId() {
         return getEntity().getId();
-    }
-
-    public String getOrderByExpression(String objectIdReference, Long localeId, Map<String, Object> params) {
-        StringBuilder orderByBuilder = new StringBuilder();
-        orderByBuilder.append("(SELECT sc.`value` FROM `").append(getEntityTable()).append("_string_culture` sc WHERE sc.`locale_id` = ").
-                append(localeId).append(" AND sc.`id` = (SELECT orderByAttr.`value_id` FROM `").
-                append(getEntityTable()).append("_attribute` orderByAttr WHERE orderByAttr.`object_id` = ").append(objectIdReference).
-                append(" AND orderByAttr.`status` = 'ACTIVE' AND orderByAttr.`attribute_type_id` = ").
-                append(getDefaultOrderByAttributeId()).append("))");
-        return orderByBuilder.toString();
     }
 
     /*

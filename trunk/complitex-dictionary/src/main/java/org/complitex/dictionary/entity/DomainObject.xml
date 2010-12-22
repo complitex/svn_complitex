@@ -34,9 +34,8 @@
     </sql>
 
     <sql id="orderBy">
-        <choose>
-            <when test="orderByAttributeTypeId != null">
-                ORDER BY (
+        <if test="orderByAttributeTypeId != null">
+            ORDER BY (
                     SELECT sc.`value` FROM `${table}_string_culture` sc WHERE sc.`locale_id` = #{localeId} AND sc.`id` =
                     (SELECT orderByAttr.`value_id` FROM `${table}_attribute` orderByAttr WHERE orderByAttr.`object_id` = e.`object_id`
                         AND orderByAttr.`status` = 'ACTIVE' AND orderByAttr.`attribute_type_id` = #{orderByAttributeTypeId}
@@ -50,21 +49,7 @@
                         DESC
                     </otherwise>
                 </choose>
-            </when>
-            <otherwise>
-                <if test="orderByExpression != null">
-                    ORDER BY ${orderByExpression}
-                    <choose>
-                        <when test="asc">
-                            ASC
-                        </when>
-                        <otherwise>
-                            DESC
-                        </otherwise>
-                    </choose>
-                </if>
-            </otherwise>
-        </choose>
+        </if>
     </sql>
 
     <select id="find" resultMap="org.complitex.dictionary.entity.DomainObject.DomainObject" parameterType="DomainObjectExample">
