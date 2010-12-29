@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
+import org.apache.wicket.PageParameters;
 import org.complitex.dictionary.util.DateUtil;
 
 /**
@@ -63,11 +64,14 @@ public class DomainObjectEditPanel extends Panel {
 
     private DomainObjectInputPanel objectInputPanel;
 
-    public DomainObjectEditPanel(String id, String entity, Long objectId, Long parentId, String parentEntity) {
+    private final String scrollListPageParameterName;
+
+    public DomainObjectEditPanel(String id, String entity, Long objectId, Long parentId, String parentEntity, String scrollListPageParameterName) {
         super(id);
         this.entity = entity;
         this.parentId = parentId;
         this.parentEntity = parentEntity;
+        this.scrollListPageParameterName = scrollListPageParameterName;
 
         if (objectId == null) {
             //create new entity
@@ -197,7 +201,9 @@ public class DomainObjectEditPanel extends Panel {
     private void back() {
         if (!fromParent()) {
             //return to list page for current entity.
-            setResponsePage(getStrategy().getListPage(), getStrategy().getListPageParams());
+            PageParameters listPageParams = getStrategy().getListPageParams();
+            listPageParams.put(scrollListPageParameterName, newObject.getId());
+            setResponsePage(getStrategy().getListPage(), listPageParams);
         } else {
             //return to edit page for parent entity.
             setResponsePage(strategyFactory.getStrategy(parentEntity).getEditPage(),
