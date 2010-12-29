@@ -15,7 +15,6 @@ import org.complitex.dictionary.entity.LogChange;
 import org.complitex.dictionary.entity.User;
 import org.complitex.dictionary.entity.UserGroup;
 import org.complitex.dictionary.service.LogBean;
-import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.util.CloneUtil;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.admin.Module;
@@ -40,15 +39,13 @@ import static org.complitex.dictionary.entity.UserGroup.GROUP_NAME.EMPLOYEES;
  *  Страница создания и редактирования пользователя
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)
-public class UserEdit extends FormTemplatePage{
+public class UserEdit extends FormTemplatePage {
+
     private static final Logger log = LoggerFactory.getLogger(UserEdit.class);
 
     @EJB(name = "UserBean")
     private UserBean userBean;
-
-    @EJB(name = "StringCultureBean")
-    private StringCultureBean stringCultureBean;
-
+    
     @EJB(name = "LogBean")
     private LogBean logBean;
 
@@ -62,7 +59,7 @@ public class UserEdit extends FormTemplatePage{
         init(parameters.getAsLong("user_id"));
     }
 
-    private void init(final Long id){
+    private void init(final Long id) {
         add(new Label("title", new ResourceModel("title")));
         add(new FeedbackPanel("messages"));
 
@@ -77,13 +74,14 @@ public class UserEdit extends FormTemplatePage{
         add(form);
 
         //Сохранить
-        Button save = new Button("save"){
+        Button save = new Button("save") {
+
             @Override
             public void onSubmit() {
                 User user = userModel.getObject();
 
                 try {
-                    if (id == null && !userBean.isUniqueLogin(user.getLogin())){
+                    if (id == null && !userBean.isUniqueLogin(user.getLogin())) {
                         error(getString("error.login_not_unique"));
                         return;
                     }
@@ -95,22 +93,21 @@ public class UserEdit extends FormTemplatePage{
 
                     log.info("Пользователь сохранен: {}", user);
                     getSession().info(getString("info.saved"));
-
+                    back(id);
                 } catch (Exception e) {
                     log.error("Ошибка сохранения пользователя", e);
                     getSession().error(getString("error.saved"));
                 }
-
-                setResponsePage(UserList.class);
             }
         };
         form.add(save);
 
         //Отмена
-        Button cancel = new Button("cancel"){
+        Button cancel = new Button("cancel") {
+
             @Override
             public void onSubmit() {
-               setResponsePage(UserList.class);
+                back(id);
             }
         };
         cancel.setDefaultFormProcessing(false);
@@ -142,7 +139,7 @@ public class UserEdit extends FormTemplatePage{
         form.add(usergroups);
     }
 
-    private IModel<UserGroup> getUserGroup(User user, UserGroup.GROUP_NAME group_name){
+    private IModel<UserGroup> getUserGroup(User user, UserGroup.GROUP_NAME group_name) {
         if (!user.getUserGroups().isEmpty()) {
             for (UserGroup userGroup : user.getUserGroups()) {
                 if (userGroup.getGroupName().equals(group_name)) {
@@ -156,58 +153,58 @@ public class UserEdit extends FormTemplatePage{
         return new Model<UserGroup>(userGroup);
     }
 
-    private List<LogChange> getLogChanges(User oldUser, User newUser){
+    private List<LogChange> getLogChanges(User oldUser, User newUser) {
         List<LogChange> logChanges = new ArrayList<LogChange>();
 
         //логин
-        if (newUser.getId() == null){
+        if (newUser.getId() == null) {
             logChanges.add(new LogChange(getString("login"), null, newUser.getLogin()));
         }
 
         //пароль
-        if (newUser.getNewPassword() != null){
+        if (newUser.getNewPassword() != null) {
             logChanges.add(new LogChange(getString("password"), oldUser.getPassword(),
                     DigestUtils.md5Hex(newUser.getNewPassword())));
         }
 
         //информация о пользователе
-        List<LogChange> userInfoLogChanges = logBean.getLogChanges( userBean.getUserInfoStrategy(),
+        List<LogChange> userInfoLogChanges = logBean.getLogChanges(userBean.getUserInfoStrategy(),
                 oldUser != null ? oldUser.getUserInfo() : null, newUser.getUserInfo(), getLocale());
 
         logChanges.addAll(userInfoLogChanges);
 
         //группы привилегий
-        if (oldUser == null){
-            for (UserGroup ng : newUser.getUserGroups()){
+        if (oldUser == null) {
+            for (UserGroup ng : newUser.getUserGroups()) {
                 logChanges.add(new LogChange(getString("usergroup"), null, getString(ng.getGroupName().name())));
             }
-        }else{
-            for (UserGroup og : oldUser.getUserGroups()){ //deleted group
+        } else {
+            for (UserGroup og : oldUser.getUserGroups()) { //deleted group
                 boolean deleted = true;
 
-                for (UserGroup ng : newUser.getUserGroups()){
-                    if (ng.getGroupName().equals(og.getGroupName())){
+                for (UserGroup ng : newUser.getUserGroups()) {
+                    if (ng.getGroupName().equals(og.getGroupName())) {
                         deleted = false;
                         break;
                     }
                 }
 
-                if (deleted){
+                if (deleted) {
                     logChanges.add(new LogChange(getString("usergroup"), getString(og.getGroupName().name()), null));
                 }
             }
 
-            for (UserGroup ng : newUser.getUserGroups()){ //added group
+            for (UserGroup ng : newUser.getUserGroups()) { //added group
                 boolean added = true;
 
-                for (UserGroup og : oldUser.getUserGroups()){
-                    if (og.getGroupName().equals(ng.getGroupName())){
+                for (UserGroup og : oldUser.getUserGroups()) {
+                    if (og.getGroupName().equals(ng.getGroupName())) {
                         added = false;
                         break;
                     }
                 }
 
-                if (added){
+                if (added) {
                     logChanges.add(new LogChange(getString("usergroup"), null, getString(ng.getGroupName().name())));
                 }
             }
@@ -216,4 +213,13 @@ public class UserEdit extends FormTemplatePage{
         return logChanges;
     }
 
+    private void back(Long userId) {
+        if (userId != null) {
+            PageParameters params = new PageParameters();
+            params.put(UserList.SCROLL_PARAMETER, userId);
+            setResponsePage(UserList.class, params);
+        } else {
+            setResponsePage(UserList.class);
+        }
+    }
 }

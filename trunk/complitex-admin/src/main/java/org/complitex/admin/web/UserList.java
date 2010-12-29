@@ -32,25 +32,34 @@ import org.complitex.admin.service.UserFilter;
 import org.complitex.template.web.component.toolbar.AddUserButton;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
 import org.complitex.template.web.security.SecurityRole;
-import org.complitex.template.web.template.TemplatePage;
 
 import javax.ejb.EJB;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import org.complitex.template.web.pages.ScrollListPage;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 22.07.2010 15:03:45
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)
-public class UserList extends TemplatePage {
+public class UserList extends ScrollListPage {
+
     @EJB(name = "UserBean")
     private UserBean userBean;
 
     public UserList() {
         super();
+        init();
+    }
 
+    public UserList(PageParameters params) {
+        super(params);
+        init();
+    }
+
+    private void init(){
         add(new Label("title", new ResourceModel("title")));
         add(new FeedbackPanel("messages"));
 
@@ -125,8 +134,8 @@ public class UserList extends TemplatePage {
 
                 item.add(new Label("usergroup", getDisplayGroupNames(user)));
 
-                item.add(new BookmarkablePageLinkPanel<User>("action_edit", getString("action_edit"), UserEdit.class,
-                                new PageParameters("user_id=" + user.getId())));
+                item.add(new BookmarkablePageLinkPanel<User>("action_edit", getString("action_edit"), String.valueOf(user.getId()),
+                        UserEdit.class, new PageParameters("user_id=" + user.getId())));
             }
         };
         filterForm.add(dataView);
