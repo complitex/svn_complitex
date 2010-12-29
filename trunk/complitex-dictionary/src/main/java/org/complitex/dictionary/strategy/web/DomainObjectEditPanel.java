@@ -51,19 +51,13 @@ public class DomainObjectEditPanel extends Panel {
 
     @EJB(name = "LogBean")
     private LogBean logBean;
-
+    
     private String entity;
-
     private DomainObject oldObject;
-
     private DomainObject newObject;
-
     private Long parentId;
-
     private String parentEntity;
-
     private DomainObjectInputPanel objectInputPanel;
-
     private final String scrollListPageParameterName;
 
     public DomainObjectEditPanel(String id, String entity, Long objectId, Long parentId, String parentEntity, String scrollListPageParameterName) {
@@ -181,20 +175,22 @@ public class DomainObjectEditPanel extends Panel {
     }
 
     protected void save() {
-        if (validate()) {
-            if (isNew()) {
-                getStrategy().insert(newObject);
-            } else {
-                getStrategy().update(oldObject, newObject, DateUtil.getCurrentDate());
+        try {
+            if (validate()) {
+                if (isNew()) {
+                    getStrategy().insert(newObject);
+                } else {
+                    getStrategy().update(oldObject, newObject, DateUtil.getCurrentDate());
+                }
+
+                logBean.log(Log.STATUS.OK, Module.NAME, DomainObjectEditPanel.class,
+                        isNew() ? Log.EVENT.CREATE : Log.EVENT.EDIT, getStrategy(),
+                        oldObject, newObject, getLocale(), null);
+                back();
             }
-
-            logBean.log(Log.STATUS.OK, Module.NAME, DomainObjectEditPanel.class,
-                    isNew() ? Log.EVENT.CREATE : Log.EVENT.EDIT, getStrategy(),
-                    oldObject, newObject, getLocale(), null);
-
-            //todo: add catch database exception
-
-            back();
+        } catch (Exception e) {
+            log.error("", e);
+            error(getString("db_error"));
         }
     }
 
@@ -212,13 +208,23 @@ public class DomainObjectEditPanel extends Panel {
     }
 
     public void disable() {
-        getStrategy().disable(newObject);
-        back();
+        try {
+            getStrategy().disable(newObject);
+            back();
+        } catch (Exception e) {
+            log.error("", e);
+            error(getString("db_error"));
+        }
     }
 
     public void enable() {
-        getStrategy().enable(newObject);
-        back();
+        try {
+            getStrategy().enable(newObject);
+            back();
+        } catch (Exception e) {
+            log.error("", e);
+            error(getString("db_error"));
+        }
     }
 
     private boolean fromParent() {
