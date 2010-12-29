@@ -39,7 +39,7 @@ public final class DomainObjectEdit extends FormTemplatePage {
     }
 
     private void init(String entity, Long object_id, Long parentId, String parentEntity) {
-        add(editPanel = new DomainObjectEditPanel("editPanel", entity, object_id, parentId, parentEntity));
+        add(editPanel = new DomainObjectEditPanel("editPanel", entity, object_id, parentId, parentEntity, DomainObjectList.SCROLL_PARAMETER));
     }
 
     @Override

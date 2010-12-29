@@ -11,7 +11,6 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
@@ -51,6 +50,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import org.complitex.dictionary.service.LocaleBean;
+import org.complitex.dictionary.web.component.scroll.ScrollBookmarkablePageLink;
 
 /**
  *
@@ -263,8 +263,8 @@ public class DomainObjectListPanel extends Panel {
                     }
                 };
                 item.add(dataColumns);
-                item.add(new BookmarkablePageLink<WebPage>("detailsLink", getStrategy().getEditPage(),
-                        getStrategy().getEditPageParams(object.getId(), null, null)));
+                item.add(new ScrollBookmarkablePageLink<WebPage>("detailsLink", getStrategy().getEditPage(),
+                        getStrategy().getEditPageParams(object.getId(), null, null), String.valueOf(object.getId())));
             }
         };
         filterForm.add(dataView);

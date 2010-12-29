@@ -11,7 +11,6 @@ import org.complitex.dictionary.strategy.web.DomainObjectListPanel;
 import org.complitex.template.web.component.toolbar.AddItemButton;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
 import org.complitex.template.web.security.SecurityRole;
-import org.complitex.template.web.template.TemplatePage;
 
 import java.util.List;
 
@@ -19,13 +18,14 @@ import java.util.List;
  * @author Artem
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)
-public class DomainObjectList extends TemplatePage {
+public class DomainObjectList extends ScrollListPage {
 
     public static final String ENTITY = "entity";
 
     private DomainObjectListPanel listPanel;
 
     public DomainObjectList(PageParameters params) {
+        super(params);
         init(params.getString(ENTITY));
     }
 
