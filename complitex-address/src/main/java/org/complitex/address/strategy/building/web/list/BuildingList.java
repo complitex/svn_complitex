@@ -5,6 +5,7 @@
 package org.complitex.address.strategy.building.web.list;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -15,7 +16,6 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
@@ -40,7 +40,6 @@ import org.complitex.dictionary.web.component.search.SearchComponentState;
 import org.complitex.template.web.component.toolbar.AddItemButton;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
 import org.complitex.template.web.security.SecurityRole;
-import org.complitex.template.web.template.TemplatePage;
 import org.complitex.address.strategy.building.BuildingStrategy;
 import org.complitex.address.strategy.building.entity.Building;
 import org.slf4j.Logger;
@@ -51,13 +50,15 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.complitex.dictionary.web.component.scroll.ScrollBookmarkablePageLink;
+import org.complitex.template.web.pages.ScrollListPage;
 
 /**
  *
  * @author Artem
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)
-public final class BuildingList extends TemplatePage {
+public final class BuildingList extends ScrollListPage {
 
     private static final Logger log = LoggerFactory.getLogger(BuildingList.class);
 
@@ -93,6 +94,11 @@ public final class BuildingList extends TemplatePage {
     private final String page = BuildingList.class.getName();
 
     public BuildingList() {
+        init();
+    }
+
+    public BuildingList(PageParameters params) {
+        super(params);
         init();
     }
 
@@ -233,8 +239,8 @@ public final class BuildingList extends TemplatePage {
                 item.add(new Label("corp", building.getAccompaniedCorp(getLocale())));
                 item.add(new Label("structure", building.getAccompaniedStructure(getLocale())));
 
-                item.add(new BookmarkablePageLink<WebPage>("detailsLink", buildingStrategy.getEditPage(),
-                        buildingStrategy.getEditPageParams(building.getId(), null, null)));
+                item.add(new ScrollBookmarkablePageLink<WebPage>("detailsLink", buildingStrategy.getEditPage(),
+                        buildingStrategy.getEditPageParams(building.getId(), null, null), String.valueOf(building.getId())));
             }
         };
         filterForm.add(dataView);
@@ -287,6 +293,7 @@ public final class BuildingList extends TemplatePage {
         });
     }
 
+    @Override
     public DictionaryFwSession getSession() {
         return (DictionaryFwSession) super.getSession();
     }
