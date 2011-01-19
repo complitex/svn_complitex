@@ -37,6 +37,7 @@ import javax.ejb.EJB;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import org.complitex.dictionary.web.component.scroll.ScrollListBehavior;
 import org.complitex.template.web.pages.ScrollListPage;
 
 /**
@@ -134,7 +135,8 @@ public class UserList extends ScrollListPage {
 
                 item.add(new Label("usergroup", getDisplayGroupNames(user)));
 
-                item.add(new BookmarkablePageLinkPanel<User>("action_edit", getString("action_edit"), String.valueOf(user.getId()),
+                item.add(new BookmarkablePageLinkPanel<User>("action_edit", getString("action_edit"), 
+                        ScrollListBehavior.SCROLL_PREFIX + String.valueOf(user.getId()),
                         UserEdit.class, new PageParameters("user_id=" + user.getId())));
             }
         };
