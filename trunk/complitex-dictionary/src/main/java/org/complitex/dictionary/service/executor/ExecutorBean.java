@@ -106,13 +106,6 @@ public class ExecutorBean {
                 }
 
                 if (next) {
-                    //todo multiuser test test
-                    try {
-                        Thread.sleep(5000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
                     executeNext(queue, task, executorStatus, listener, maxErrors);
                 }
             }
