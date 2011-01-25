@@ -17,6 +17,11 @@ public class ExecuteException extends AbstractException{
         super(pattern, arguments);
     }
 
+    public ExecuteException(Throwable cause, boolean warn, String pattern, Object... arguments) {
+        super(cause, pattern, arguments);
+        this.warn = warn;
+    }
+
     public ExecuteException(boolean warn, String pattern, Object... arguments) {
         super(pattern, arguments);
         this.warn = warn;
