@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.complitex.dictionary.service.PermissionBean">
+    <resultMap id="permissionResultMap" type="org.complitex.dictionary.entity.Permission">
+        <id column="pk_id" property="pkId"/>
+        <result column="permission_id" property="permissionId"/>
+        <result column="table" property="table"/>
+        <result column="entity" property="entity"/>
+        <result column="objectId" property="object_id"/>
+    </resultMap>
+</mapper>
