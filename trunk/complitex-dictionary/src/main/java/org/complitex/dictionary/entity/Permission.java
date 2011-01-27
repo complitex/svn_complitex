@@ -19,6 +19,22 @@ public class Permission {
 
     private List<Permission> permissions;
 
+    public Permission() {
+    }
+
+    public Permission(String table, String entity, Long objectId) {
+        this.table = table;
+        this.entity = entity;
+        this.objectId = objectId;
+    }
+
+    public Permission(Long permissionId, String table, String entity, Long objectId) {
+        this.permissionId = permissionId;
+        this.table = table;
+        this.entity = entity;
+        this.objectId = objectId;
+    }
+
     public Long getPkId() {
         return pkId;
     }

@@ -18,4 +18,6 @@ public class SessionBean extends AbstractBean{
     public Long getCurrentUserId(){
         return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectUserId", sessionContext.getCallerPrincipal().getName());
     }
+
+
 }
