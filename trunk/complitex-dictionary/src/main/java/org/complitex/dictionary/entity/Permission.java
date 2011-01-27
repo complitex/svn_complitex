@@ -1,5 +1,7 @@
 package org.complitex.dictionary.entity;
 
+import java.util.List;
+
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 26.01.11 16:09
@@ -14,6 +16,8 @@ public class Permission {
     private String entity;
 
     private Long objectId;
+
+    private List<Permission> permissions;
 
     public Long getPkId() {
         return pkId;
@@ -53,5 +57,13 @@ public class Permission {
 
     public void setObjectId(Long objectId) {
         this.objectId = objectId;
+    }
+
+    public List<Permission> getPermissions() {
+        return permissions;
+    }
+
+    public void setPermissions(List<Permission> permissions) {
+        this.permissions = permissions;
     }
 }
