@@ -13,11 +13,11 @@ import org.apache.wicket.model.Model;
 import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
-import org.complitex.dictionary.strategy.Strategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
 
 import javax.ejb.EJB;
 import java.util.List;
+import org.complitex.dictionary.strategy.IStrategy;
 
 /**
  *
@@ -99,7 +99,7 @@ public class EntityTypePanel extends Panel {
         }
     }
 
-    private Strategy getEntityTypeStrategy() {
+    private IStrategy getEntityTypeStrategy() {
         return strategyFactory.getStrategy(entityType);
     }
 
@@ -112,7 +112,7 @@ public class EntityTypePanel extends Panel {
     }
 
     private List<? extends DomainObject> getEntityTypes() {
-        Strategy strategy = getEntityTypeStrategy();
+        IStrategy strategy = getEntityTypeStrategy();
         DomainObjectExample example = new DomainObjectExample();
         strategy.configureExample(example, ImmutableMap.<String, Long>of(), null);
         return strategy.find(example);

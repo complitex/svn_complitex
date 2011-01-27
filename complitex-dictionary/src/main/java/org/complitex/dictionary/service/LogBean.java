@@ -2,7 +2,6 @@ package org.complitex.dictionary.service;
 
 import org.apache.ibatis.session.SqlSession;
 import org.complitex.dictionary.entity.*;
-import org.complitex.dictionary.strategy.Strategy;
 import org.complitex.dictionary.util.DateUtil;
 import org.complitex.dictionary.util.StringUtil;
 import org.slf4j.Logger;
@@ -18,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import javax.ejb.EJB;
+import org.complitex.dictionary.strategy.IStrategy;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -76,7 +76,7 @@ public class LogBean extends AbstractBean {
     }
 
     public void log(Log.STATUS status, String module, Class controllerClass, Log.EVENT event,
-            Strategy strategy, DomainObject oldDomainObject, DomainObject newDomainObject,
+            IStrategy strategy, DomainObject oldDomainObject, DomainObject newDomainObject,
             Locale locale, String descriptionPattern, Object... descriptionArguments) {
 
         String controller = controllerClass != null ? controllerClass.getName() : null;
@@ -139,8 +139,7 @@ public class LogBean extends AbstractBean {
         }
     }
 
-    public List<LogChange> getLogChanges(Strategy strategy, DomainObject oldDomainObject, DomainObject newDomainObject,
-            Locale locale) {
+    public List<LogChange> getLogChanges(IStrategy strategy, DomainObject oldDomainObject, DomainObject newDomainObject, Locale locale) {
         List<LogChange> logChanges = new ArrayList<LogChange>();
 
         if (oldDomainObject == null) {

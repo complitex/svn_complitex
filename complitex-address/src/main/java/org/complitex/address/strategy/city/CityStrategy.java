@@ -9,7 +9,6 @@ import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.service.StringCultureBean;
-import org.complitex.dictionary.strategy.Strategy;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionary.strategy.web.DomainObjectListPanel;
 import org.complitex.dictionary.util.ResourceUtil;
@@ -27,6 +26,7 @@ import java.util.Map;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.template.strategy.AbstractStrategy;
 import org.complitex.address.strategy.city.web.edit.CityTypeComponent;
+import org.complitex.dictionary.strategy.IStrategy;
 
 /**
  *
@@ -65,7 +65,7 @@ public class CityStrategy extends AbstractStrategy {
         String cityName = stringBean.displayValue(object.getAttribute(NAME).getLocalizedValues(), locale);
         Long cityTypeId = object.getAttribute(CITY_TYPE).getValueId();
         if (cityTypeId != null) {
-            Strategy cityTypeStrategy = strategyFactory.getStrategy("city_type");
+            IStrategy cityTypeStrategy = strategyFactory.getStrategy("city_type");
             DomainObjectExample example = new DomainObjectExample(cityTypeId);
             cityTypeStrategy.configureExample(example, ImmutableMap.<String, Long>of(), null);
             List<? extends DomainObject> objects = cityTypeStrategy.find(example);

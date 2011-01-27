@@ -21,7 +21,6 @@ import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.ComparisonType;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.service.StringCultureBean;
-import org.complitex.dictionary.strategy.Strategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +31,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.complitex.dictionary.service.LocaleBean;
+import org.complitex.dictionary.strategy.IStrategy;
 
 /**
  *
@@ -362,7 +362,7 @@ public final class SearchComponent extends Panel {
 
     private List<? extends DomainObject> findByExample(String entity, String searchTextInput, Map<String, DomainObject> previousInfo,
             ComparisonType comparisonType, int size) {
-        Strategy strategy = strategyFactory.getStrategy(entity);
+        IStrategy strategy = strategyFactory.getStrategy(entity);
 
         DomainObjectExample example = new DomainObjectExample();
         strategy.configureExample(example, SearchComponent.<Long>transformObjects(previousInfo), searchTextInput);

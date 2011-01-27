@@ -42,6 +42,7 @@ import javax.ejb.EJB;
 import java.io.Serializable;
 import java.util.*;
 import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.complitex.dictionary.strategy.IStrategy;
 
 /**
  *
@@ -146,7 +147,7 @@ public class DomainObjectInputPanel extends Panel {
         return parentId != null && !Strings.isEmpty(parentEntity);
     }
 
-    private Strategy getStrategy() {
+    private IStrategy getStrategy() {
         return strategyFactory.getStrategy(entity);
     }
 
