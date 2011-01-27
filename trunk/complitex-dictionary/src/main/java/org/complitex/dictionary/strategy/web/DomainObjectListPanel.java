@@ -34,7 +34,6 @@ import org.complitex.dictionary.entity.description.EntityAttributeType;
 import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.service.StringCultureBean;
-import org.complitex.dictionary.strategy.Strategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.util.StringUtil;
 import org.complitex.dictionary.web.DictionaryFwSession;
@@ -50,6 +49,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import org.complitex.dictionary.service.LocaleBean;
+import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.web.component.scroll.ScrollBookmarkablePageLink;
 
 /**
@@ -86,7 +86,7 @@ public class DomainObjectListPanel extends Panel {
         init();
     }
 
-    public Strategy getStrategy() {
+    public IStrategy getStrategy() {
         return strategyFactory.getStrategy(entity);
     }
 

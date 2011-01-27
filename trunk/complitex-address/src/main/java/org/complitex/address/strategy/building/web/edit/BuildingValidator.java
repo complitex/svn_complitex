@@ -14,7 +14,6 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.service.StringCultureBean;
-import org.complitex.dictionary.strategy.Strategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.strategy.web.DomainObjectEditPanel;
 import org.complitex.dictionary.strategy.web.validate.IValidator;
@@ -23,6 +22,7 @@ import org.complitex.dictionary.util.Numbers;
 import org.complitex.address.strategy.building.BuildingStrategy;
 import org.complitex.address.strategy.building.entity.Building;
 import org.complitex.address.strategy.building_address.BuildingAddressStrategy;
+import org.complitex.dictionary.strategy.IStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,7 +91,7 @@ public class BuildingValidator implements IValidator {
         } else if (address.getParentEntityId().equals(300L)) {
             Long streetId = address.getParentId();
             if (streetId != null && streetId > 0) {
-                Strategy streetStrategy = getStrategyFactory().getStrategy("street");
+                IStrategy streetStrategy = getStrategyFactory().getStrategy("street");
                 DomainObject streetObject = streetStrategy.findById(streetId);
                 return streetObject.getParentId();
             }
@@ -155,7 +155,7 @@ public class BuildingValidator implements IValidator {
 
                 Long parentEntityId = address.getParentEntityId();
                 String parentEntity = parentEntityId == null ? null : (parentEntityId == 300 ? "street" : (parentEntityId == 400 ? "city" : null));
-                Strategy strategy = getStrategyFactory().getStrategy(parentEntity);
+                IStrategy strategy = getStrategyFactory().getStrategy(parentEntity);
                 DomainObject parentObject = strategy.findById(address.getParentId());
                 String parentTitle = strategy.displayDomainObject(parentObject, editPanel.getLocale());
 

@@ -32,7 +32,6 @@ import org.complitex.dictionary.entity.description.EntityAttributeValueType;
 import org.complitex.dictionary.entity.description.EntityType;
 import org.complitex.dictionary.service.EntityBean;
 import org.complitex.dictionary.service.StringCultureBean;
-import org.complitex.dictionary.strategy.Strategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.util.CloneUtil;
 import org.complitex.dictionary.web.component.StringCulturePanel;
@@ -42,6 +41,7 @@ import javax.ejb.EJB;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
+import org.complitex.dictionary.strategy.IStrategy;
 
 /**
  *
@@ -65,7 +65,7 @@ public class EntityDescriptionPanel extends Panel {
         init(entity, pageParameters);
     }
 
-    private Strategy getStrategy(String entity) {
+    private IStrategy getStrategy(String entity) {
         return strategyFactory.getStrategy(entity);
     }
 

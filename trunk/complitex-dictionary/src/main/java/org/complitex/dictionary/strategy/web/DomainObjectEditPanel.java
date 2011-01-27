@@ -22,7 +22,6 @@ import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.Log;
 import org.complitex.dictionary.service.LogBean;
 import org.complitex.dictionary.service.StringCultureBean;
-import org.complitex.dictionary.strategy.Strategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.util.CloneUtil;
 import org.complitex.dictionary.web.component.ChildrenContainer;
@@ -33,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import org.apache.wicket.PageParameters;
+import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.util.DateUtil;
 
 /**
@@ -80,7 +80,7 @@ public class DomainObjectEditPanel extends Panel {
         init();
     }
 
-    private Strategy getStrategy() {
+    private IStrategy getStrategy() {
         return strategyFactory.getStrategy(entity);
     }
 

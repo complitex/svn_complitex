@@ -13,7 +13,6 @@ import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.mybatis.Transactional;
 import org.complitex.dictionary.service.StringCultureBean;
-import org.complitex.dictionary.strategy.Strategy;
 import org.complitex.dictionary.strategy.web.DomainObjectListPanel;
 import org.complitex.dictionary.util.ResourceUtil;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
@@ -31,6 +30,7 @@ import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.template.strategy.AbstractStrategy;
 import org.complitex.address.strategy.street.web.edit.StreetTypeComponent;
+import org.complitex.dictionary.strategy.IStrategy;
 
 /**
  *
@@ -86,7 +86,7 @@ public class StreetStrategy extends AbstractStrategy {
         }).getLocalizedValues(), locale);
         Long streetTypeId = getStreetType(object);
         if (streetTypeId != null) {
-            Strategy streetTypeStrategy = strategyFactory.getStrategy("street_type");
+            IStrategy streetTypeStrategy = strategyFactory.getStrategy("street_type");
             DomainObjectExample example = new DomainObjectExample(streetTypeId);
             streetTypeStrategy.configureExample(example, ImmutableMap.<String, Long>of(), null);
             List<? extends DomainObject> objects = streetTypeStrategy.find(example);

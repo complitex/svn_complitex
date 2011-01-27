@@ -19,13 +19,13 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
-import org.complitex.dictionary.strategy.Strategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.strategy.web.CanEditUtil;
 
 import javax.ejb.EJB;
 import java.util.List;
 import org.complitex.dictionary.service.LocaleBean;
+import org.complitex.dictionary.strategy.IStrategy;
 
 /**
  *
@@ -53,7 +53,7 @@ public final class Children extends Panel {
         init();
     }
 
-    private Strategy getStrategy() {
+    private IStrategy getStrategy() {
         return strategyFactory.getStrategy(childEntity);
     }
 

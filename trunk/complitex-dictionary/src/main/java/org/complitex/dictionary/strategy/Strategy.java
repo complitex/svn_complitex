@@ -3,8 +3,6 @@ package org.complitex.dictionary.strategy;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.entity.description.Entity;
 import org.complitex.dictionary.entity.description.EntityAttributeType;
@@ -39,33 +37,9 @@ import org.complitex.dictionary.util.DateUtil;
  *
  * @author Artem
  */
-public abstract class Strategy extends AbstractBean {
+public abstract class Strategy extends AbstractBean implements IStrategy {
 
     private static final Logger log = LoggerFactory.getLogger(Strategy.class);
-
-    public static final String DOMAIN_OBJECT_NAMESPACE = "org.complitex.dictionary.entity.DomainObject";
-
-    public static final String ATTRIBUTE_NAMESPACE = "org.complitex.dictionary.entity.Attribute";
-
-    public static final String FIND_BY_ID_OPERATION = "findById";
-
-    public static final String FIND_OPERATION = "find";
-
-    public static final String COUNT_OPERATION = "count";
-
-    public static final String INSERT_OPERATION = "insert";
-
-    public static final String UPDATE_OPERATION = "update";
-
-    public static final String ARCHIVE_ATTRIBUTES_OPERATION = "archiveAttributes";
-
-    public static final String FIND_PARENT_IN_SEARCH_COMPONENT_OPERATION = "findParentInSearchComponent";
-
-    public static final String HAS_HISTORY_OPERATION = "hasHistory";
-
-    public static final String FIND_HISTORY_OBJECT_OPERATION = "findHistoryObject";
-
-    public static final String FIND_HISTORY_ATTRIBUTES_OPERATION = "findHistoryAttributes";
 
     @EJB(beanName = "StrategyFactory")
     private StrategyFactory strategyFactory;
@@ -82,8 +56,7 @@ public abstract class Strategy extends AbstractBean {
     @EJB
     private LocaleBean localeBean;
 
-    public abstract String getEntityTable();
-
+    @Override
     public boolean isSimpleAttributeType(EntityAttributeType entityAttributeType) {
         if (entityAttributeType.getEntityAttributeValueTypes().size() != 1) {
             return false;
@@ -92,6 +65,7 @@ public abstract class Strategy extends AbstractBean {
         }
     }
 
+    @Override
     public boolean isSimpleAttribute(final Attribute attribute) {
         EntityAttributeType entityAttributeType = getEntity().getAttributeType(attribute.getAttributeTypeId());
         if (entityAttributeType != null) {
@@ -102,6 +76,7 @@ public abstract class Strategy extends AbstractBean {
     }
 
     @Transactional
+    @Override
     public void disable(DomainObject object) {
         object.setStatus(StatusType.INACTIVE);
         sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new Parameter(getEntityTable(), object));
@@ -111,7 +86,7 @@ public abstract class Strategy extends AbstractBean {
             for (String childEntity : childrenEntities) {
                 DomainObjectExample example = new DomainObjectExample();
                 example.setStatus(StatusType.ACTIVE.name());
-                Strategy childStrategy = strategyFactory.getStrategy(childEntity);
+                IStrategy childStrategy = strategyFactory.getStrategy(childEntity);
                 childStrategy.configureExample(example, ImmutableMap.of(getEntityTable(), object.getId()), null);
                 List<? extends DomainObject> children = childStrategy.find(example);
                 for (DomainObject child : children) {
@@ -122,6 +97,7 @@ public abstract class Strategy extends AbstractBean {
     }
 
     @Transactional
+    @Override
     public void enable(DomainObject object) {
         object.setStatus(StatusType.ACTIVE);
         sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new Parameter(getEntityTable(), object));
@@ -129,7 +105,7 @@ public abstract class Strategy extends AbstractBean {
         String[] childrenEntities = getChildrenEntities();
         if (childrenEntities != null) {
             for (String childEntity : childrenEntities) {
-                Strategy childStrategy = strategyFactory.getStrategy(childEntity);
+                IStrategy childStrategy = strategyFactory.getStrategy(childEntity);
                 DomainObjectExample example = new DomainObjectExample();
                 example.setStatus(StatusType.INACTIVE.name());
                 childStrategy.configureExample(example, ImmutableMap.of(getEntityTable(), object.getId()), null);
@@ -170,6 +146,7 @@ public abstract class Strategy extends AbstractBean {
     }
 
     @Transactional
+    @Override
     public DomainObject findById(Long id) {
         DomainObjectExample example = new DomainObjectExample(id);
         example.setTable(getEntityTable());
@@ -231,6 +208,7 @@ public abstract class Strategy extends AbstractBean {
 
     @SuppressWarnings({"unchecked"})
     @Transactional
+    @Override
     public List<? extends DomainObject> find(DomainObjectExample example) {
         example.setTable(getEntityTable());
 
@@ -242,6 +220,7 @@ public abstract class Strategy extends AbstractBean {
     }
 
     @Transactional
+    @Override
     public int count(DomainObjectExample example) {
         example.setTable(getEntityTable());
         return (Integer) sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + "." + COUNT_OPERATION, example);
@@ -251,10 +230,12 @@ public abstract class Strategy extends AbstractBean {
      * Simple wrapper around EntityBean.getEntity for convenience.
      * @return Entity description
      */
+    @Override
     public Entity getEntity() {
         return entityBean.getEntity(getEntityTable());
     }
 
+    @Override
     public DomainObject newInstance() {
         DomainObject object = new DomainObject();
         fillAttributes(object);
@@ -277,6 +258,7 @@ public abstract class Strategy extends AbstractBean {
     }
 
     @Transactional
+    @Override
     public void insert(DomainObject object) {
         Date startDate = DateUtil.getCurrentDate();
         object.setId(sequenceBean.nextId(getEntityTable()));
@@ -295,6 +277,7 @@ public abstract class Strategy extends AbstractBean {
     }
 
     @Transactional
+    @Override
     public void archiveAttributes(Collection<Long> attributeTypeIds, Date endDate) {
         if (attributeTypeIds != null && !attributeTypeIds.isEmpty()) {
             Map<String, Object> params = ImmutableMap.<String, Object>builder().
@@ -307,6 +290,7 @@ public abstract class Strategy extends AbstractBean {
     }
 
     @Transactional
+    @Override
     public void update(DomainObject oldObject, DomainObject newObject, Date updateDate) {
         //attributes comparison
         for (Attribute oldAttr : oldObject.getAttributes()) {
@@ -426,6 +410,7 @@ public abstract class Strategy extends AbstractBean {
         }
     }
 
+    @Override
     public void archive(DomainObject object) {
         Date endDate = DateUtil.getCurrentDate();
         object.setStatus(StatusType.ARCHIVE);
@@ -442,6 +427,7 @@ public abstract class Strategy extends AbstractBean {
     /*
      * Search component functionality
      */
+    @Override
     public int getSearchTextFieldSize() {
         return 20;
     }
@@ -453,6 +439,7 @@ public abstract class Strategy extends AbstractBean {
      *  Используется для отображения в пользовательском интерфейсе
      * @return Сортированный список метамодели (описания) атрибутов
      */
+    @Override
     public List<EntityAttributeType> getListColumns() {
         final List<Long> listAttributeTypes = getListAttributeTypes();
         return Lists.newArrayList(Iterables.filter(getEntity().getEntityAttributeTypes(), new Predicate<EntityAttributeType>() {
@@ -478,64 +465,40 @@ public abstract class Strategy extends AbstractBean {
         }));
     }
 
-    public abstract Class<? extends WebPage> getListPage();
-
-    public abstract PageParameters getListPageParams();
-
+    @Override
     public List<String> getSearchFilters() {
         return null;
     }
 
+    @Override
     public ISearchCallback getSearchCallback() {
         return null;
     }
 
-    public abstract String displayDomainObject(DomainObject object, Locale locale);
-
+    @Override
     public void configureExample(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
     }
 
+    @Override
     public String getPluralEntityLabel(Locale locale) {
         return null;
     }
 
-    /*
-     * Edit page related functionality.
-     */
-    public abstract Class<? extends WebPage> getEditPage();
-
-    public abstract PageParameters getEditPageParams(Long objectId, Long parentId, String parentEntity);
-
+    @Override
     public List<String> getParentSearchFilters() {
         return getSearchFilters();
     }
 
+    @Override
     public ISearchCallback getParentSearchCallback() {
         return null;
     }
 
-    public static class RestrictedObjectInfo {
-
-        private String entityTable;
-
-        private Long id;
-
-        public RestrictedObjectInfo(String entityTable, Long id) {
-            this.entityTable = entityTable;
-            this.id = id;
-        }
-
-        public String getEntityTable() {
-            return entityTable;
-        }
-
-        public Long getId() {
-            return id;
-        }
-    }
+    
 
     @SuppressWarnings({"unchecked"})
     @Transactional
+    @Override
     public RestrictedObjectInfo findParentInSearchComponent(long id, Date date) {
         DomainObjectExample example = new DomainObjectExample(id);
         example.setTable(getEntityTable());
@@ -555,6 +518,8 @@ public abstract class Strategy extends AbstractBean {
     /*
      * Helper util method.
      */
+    @Transactional
+    @Override
     public SearchComponentState getSearchComponentStateForParent(Long parentId, String parentEntity, Date date) {
         if (parentId != null && parentEntity != null) {
             SearchComponentState componentState = new SearchComponentState();
@@ -602,22 +567,18 @@ public abstract class Strategy extends AbstractBean {
         return null;
     }
 
+    @Override
     public Class<? extends AbstractComplexAttributesPanel> getComplexAttributesPanelClass() {
         return null;
     }
 
+    @Override
     public IValidator getValidator() {
         return null;
     }
 
-    /*
-     * History related functional.
-     */
-    public abstract Class<? extends WebPage> getHistoryPage();
-
-    public abstract PageParameters getHistoryPageParams(long objectId);
-
     @Transactional
+    @Override
     public List<History> getHistory(long objectId) {
         List<History> historyList = Lists.newArrayList();
 
@@ -630,6 +591,7 @@ public abstract class Strategy extends AbstractBean {
         return historyList;
     }
 
+    @Override
     public TreeSet<Date> getHistoryDates(long objectId) {
         DomainObjectExample example = new DomainObjectExample(objectId);
         example.setTable(getEntityTable());
@@ -645,6 +607,7 @@ public abstract class Strategy extends AbstractBean {
     }
 
     @Transactional
+    @Override
     public DomainObject findHistoryObject(long objectId, Date date) {
         DomainObjectExample example = new DomainObjectExample(objectId);
         example.setTable(getEntityTable());
@@ -662,7 +625,6 @@ public abstract class Strategy extends AbstractBean {
         return object;
     }
 
-    @SuppressWarnings({"unchecked"})
     @Transactional
     protected List<Attribute> loadHistoryAttributes(long objectId, Date date) {
         DomainObjectExample example = new DomainObjectExample(objectId);
@@ -674,18 +636,22 @@ public abstract class Strategy extends AbstractBean {
     /*
      * Description metadata
      */
+    @Override
     public String[] getChildrenEntities() {
         return null;
     }
 
+    @Override
     public String[] getParents() {
         return null;
     }
 
+    @Override
     public String getAttributeLabel(Attribute attribute, Locale locale) {
         return entityBean.getAttributeLabel(getEntityTable(), attribute.getAttributeTypeId(), locale);
     }
 
+    @Override
     public long getDefaultOrderByAttributeId() {
         return getEntity().getId();
     }
@@ -696,6 +662,7 @@ public abstract class Strategy extends AbstractBean {
     /**
      * Default validation
      */
+    @Override
     public Long performDefaultValidation(DomainObject object, Locale locale) {
         Map<String, Object> params = createValidationParams(object, locale);
         List<Long> results = sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + ".defaultValidation", params);
