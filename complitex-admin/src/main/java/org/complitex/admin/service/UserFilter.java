@@ -13,6 +13,7 @@ import java.util.List;
  */
 public class UserFilter extends AbstractFilter{
     private String login;
+    private Long organizationObjectId;
     private List<AttributeExample> attributeExamples = new ArrayList<AttributeExample>();
     private Long sortAttributeTypeId;
     private UserGroup.GROUP_NAME groupName;
@@ -23,6 +24,14 @@ public class UserFilter extends AbstractFilter{
 
     public void setLogin(String login) {
         this.login = login;
+    }
+
+    public Long getOrganizationObjectId() {
+        return organizationObjectId;
+    }
+
+    public void setOrganizationObjectId(Long organizationObjectId) {
+        this.organizationObjectId = organizationObjectId;
     }
 
     public List<AttributeExample> getAttributeExamples() {
