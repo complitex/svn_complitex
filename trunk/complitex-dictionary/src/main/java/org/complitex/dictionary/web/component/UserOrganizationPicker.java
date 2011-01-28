@@ -24,17 +24,17 @@ public final class UserOrganizationPicker extends Panel {
     @EJB(name = "OrganizationStrategy")
     private IOrganizationStrategy organizationStrategy;
 
-    public UserOrganizationPicker(String id, IModel<Long> organizationIdModel) {
+    public UserOrganizationPicker(String id, IModel<Long> organizationIdModel, Long... excludeOrganizationsId) {
         super(id);
-        init(organizationIdModel);
+        init(organizationIdModel, excludeOrganizationsId);
     }
 
-    private void init(final IModel<Long> organizationIdModel) {
+    private void init(final IModel<Long> organizationIdModel, final Long... excludeOrganizationsId) {
         final IModel<List<? extends DomainObject>> userOrganizationsModel = new LoadableDetachableModel<List<? extends DomainObject>>() {
 
             @Override
             protected List<? extends DomainObject> load() {
-                return organizationStrategy.getUserOrganizations(getLocale());
+                return organizationStrategy.getUserOrganizations(getLocale(), excludeOrganizationsId);
             }
         };
         DomainObjectDisableAwareRenderer renderer = new DomainObjectDisableAwareRenderer() {
