@@ -20,6 +20,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.complitex.dictionary.mybatis.inject.JavaEE6ModuleNamingStrategy;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -76,7 +77,7 @@ public abstract class TemplateWebApplication extends ServletAuthWebApplication {
     }
 
     private void initializeJEEInjector() {
-        addComponentInstantiationListener(new JavaEEComponentInjector(this));
+        addComponentInstantiationListener(new JavaEEComponentInjector(this, new JavaEE6ModuleNamingStrategy()));
     }
 
     private void initializeWiQuery() {
