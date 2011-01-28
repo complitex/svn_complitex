@@ -25,7 +25,7 @@
         </dependency>
         <dependency>
             <groupId>org.wicketstuff</groupId>
-            <artifactId>wicket-contrib-javaee</artifactId>
+            <artifactId>javaee-inject</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.wicket</groupId>
