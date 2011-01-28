@@ -7,6 +7,7 @@
         <result column="login" property="login"/>
         <result column="password" property="password"/>        
         <result column="user_info_object_id" property="userInfoObjectId"/>
+        <result column="organization_object_id" property="organizationObjectId"/>
         <collection property="userGroups" ofType="org.complitex.dictionary.entity.UserGroup">
             <id column="user_group_id" property="id"/>
             <result column="user_group_login" property="login"/>
@@ -26,6 +27,7 @@
             u.login as login,
             u.password as password,
             u.user_info_object_id as user_info_object_id,
+            u.organization_object_id as organization_object_id,
             g.id as user_group_id,
             g.login as user_group_login,
             g.group_name as group_name
@@ -53,6 +55,7 @@
             </if>
         <where>
             <if test="login != null">u.login like concat('%', #{login}, '%')</if>
+            <if test="organizationObjectId != null">and u.`organization_object_id` = #{organizationObjectId}</if>
             <if test="groupName != null">and g.`group_name` = #{groupName}</if>
             <foreach collection="attributeExamples" item="item" index="index">
                 <if test="item.value != null">
@@ -79,7 +82,8 @@
             distinct u.id as user_id,
             u.login as login,
             u.password as password,
-            u.user_info_object_id as user_info_object_id
+            u.user_info_object_id as user_info_object_id,
+            u.organization_object_id as organization_object_id
         <include refid="userFilter"/>
         limit #{first}, #{count}
         ) as uc left join `usergroup` gc on uc.`login` = gc.`login`
@@ -91,14 +95,16 @@
     </select>
 
     <insert id="insertUser" parameterType="org.complitex.dictionary.entity.User" keyProperty="id" useGeneratedKeys="true">
-        insert into `user` (`login`, `password`, `user_info_object_id`) values (#{login}, #{password}, #{userInfoObjectId})
+        insert into `user` (`login`, `password`, `user_info_object_id`, `organization_object_id`)
+            values (#{login}, #{password}, #{userInfoObjectId}, #{organizationObjectId})
     </insert>
 
     <update id="updateUser" parameterType="org.complitex.dictionary.entity.User">
         update `user`
         <set>
             <if test="password != null"> `password` = #{password},</if>
-            <if test="userInfoObjectId != null"> `user_info_object_id` = #{userInfoObjectId}</if>
+            <if test="userInfoObjectId != null"> `user_info_object_id` = #{userInfoObjectId},</if>
+            <if test="organizationObjectId != null"> `organization_object_id` = #{organizationObjectId}</if>
         </set>
         where id = #{id}
     </update>

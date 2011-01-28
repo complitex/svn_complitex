@@ -13,6 +13,7 @@ public class User implements Serializable{
     private String password;
     private String newPassword;
     private Long userInfoObjectId;
+    private Long OrganizationObjectId;
     private DomainObject userInfo;    
 
     private List<UserGroup> userGroups;
@@ -55,6 +56,14 @@ public class User implements Serializable{
 
     public void setUserInfoObjectId(Long userInfoObjectId) {
         this.userInfoObjectId = userInfoObjectId;
+    }
+
+    public Long getOrganizationObjectId() {
+        return OrganizationObjectId;
+    }
+
+    public void setOrganizationObjectId(Long organizationObjectId) {
+        OrganizationObjectId = organizationObjectId;
     }
 
     public DomainObject getUserInfo() {

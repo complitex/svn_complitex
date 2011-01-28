@@ -19,6 +19,7 @@ import org.complitex.dictionary.util.CloneUtil;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.admin.Module;
 import org.complitex.admin.service.UserBean;
+import org.complitex.dictionary.web.component.UserOrganizationPicker;
 import org.complitex.template.web.security.SecurityRole;
 import org.complitex.template.web.template.FormTemplatePage;
 import org.slf4j.Logger;
@@ -112,6 +113,10 @@ public class UserEdit extends FormTemplatePage {
         };
         cancel.setDefaultFormProcessing(false);
         form.add(cancel);
+
+         //Организация
+        form.add(new UserOrganizationPicker("organization",
+                new PropertyModel<Long>(userModel, "organizationObjectId")));
 
         //Логин
         RequiredTextField login = new RequiredTextField<String>("login", new PropertyModel<String>(userModel, "login"));
