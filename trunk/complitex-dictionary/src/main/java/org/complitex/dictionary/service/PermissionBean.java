@@ -1,6 +1,5 @@
 package org.complitex.dictionary.service;
 
-import org.apache.ibatis.session.ExecutorType;
 import org.complitex.dictionary.entity.Subject;
 import org.complitex.dictionary.entity.Permission;
 import org.complitex.dictionary.mybatis.Transactional;
@@ -21,8 +20,12 @@ public class PermissionBean extends AbstractBean{
     @EJB(beanName = "SequenceBean")
     private SequenceBean sequenceBean;
 
+    public List<Permission> findPermissions(String table, Subject subject){
+        return findPermissions(table, subject.getEntity(), subject.getObjectId());
+    }
+
     @SuppressWarnings({"unchecked"})
-    public List<Permission> getPermissions(final String table, final String entity, final Long objectId){
+    public List<Permission> findPermissions(final String table, final String entity, final Long objectId){
         return sqlSession().selectList(MAPPING_NAMESPACE + ".selectPermissions",
                 new HashMap<String, Object>(){{
                     put("table", table);
@@ -32,13 +35,17 @@ public class PermissionBean extends AbstractBean{
     }
 
     @SuppressWarnings({"unchecked"})
-    public List<Permission> getPermissions(Long permissionId){
+    public List<Permission> findPermissions(Long permissionId){
         return sqlSession().selectList(MAPPING_NAMESPACE + ".selectPermissionsById", permissionId);
     }
 
-    public Long createPermission(String table, String entity, Long objectId){
+    public Long getPermission(String table, Subject subject){
+        return getPermission(table, subject.getEntity(), subject.getObjectId());
+    }
+
+    public Long getPermission(String table, String entity, Long objectId){
         //Ищем из имеющихся ключей безопасности
-        for (Permission permission : getPermissions(table, entity, objectId)){
+        for (Permission permission : findPermissions(table, entity, objectId)){
             if (permission.getPermissions().size() == 0){
                 return permission.getPermissionId();
             }
@@ -54,7 +61,7 @@ public class PermissionBean extends AbstractBean{
     }
 
     @Transactional
-    public Long createPermission(String table, List<Subject> subjects){
+    public Long getPermission(String table, List<Subject> subjects){
         if (subjects == null || subjects.size() == 0){
             throw new IllegalArgumentException();
         }
@@ -63,12 +70,12 @@ public class PermissionBean extends AbstractBean{
 
         //Одно разрешение
         if (subjects.size() == 1){
-            return createPermission(table, first.getEntity(), first.getObjectId());
+            return getPermission(table, first.getEntity(), first.getObjectId());
         }
 
         //Ищем из имеющихся ключей безопасности
         List<Subject> subList = subjects.subList(1, subjects.size());
-        List<Permission> permissions = getPermissions(table, first.getEntity(), first.getObjectId());
+        List<Permission> permissions = findPermissions(table, first.getEntity(), first.getObjectId());
 
         for (Permission p : permissions){ //находим все ключи по первому субъекту
             if (p.getPermissions().size() == subList.size()){ //если для ключа количество субъектов совпадает

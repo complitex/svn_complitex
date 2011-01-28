@@ -30,9 +30,9 @@
         </where>
     </select>
 
-    <!--<select id="selectPermissionsById" parameterType="long" parameterMap="permissionResultMap">
+    <select id="selectPermissionsById" parameterType="long" resultMap="permissionResultMap">
         select * from `permission` where `permission_id` = #{permissionId}
-    </select>-->
+    </select>
 
     <insert id="insertPermission" parameterType="org.complitex.dictionary.entity.Permission">
         insert into

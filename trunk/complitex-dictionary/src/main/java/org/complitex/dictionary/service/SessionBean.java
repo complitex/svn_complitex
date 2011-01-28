@@ -19,5 +19,9 @@ public class SessionBean extends AbstractBean{
         return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectUserId", sessionContext.getCallerPrincipal().getName());
     }
 
+    public Long getCurrentOrganizationId(){
+        //todo implement user organization
+        return 0L;
+    }
 
 }
