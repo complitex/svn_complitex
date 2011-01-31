@@ -104,6 +104,7 @@
     <select id="count" resultType="integer" parameterType="DomainObjectExample">
         SELECT COUNT(*) FROM `${table}` e WHERE
         <include refid="org.complitex.dictionary.entity.DomainObject.statusFilter"/>
+        <include refid="org.complitex.dictionary.entity.DomainObject.permissionFilter"/>
         <include refid="org.complitex.dictionary.entity.DomainObject.filter"/>
     </select>
 

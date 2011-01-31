@@ -33,6 +33,7 @@ import org.complitex.address.strategy.building.web.edit.BuildingEditComponent;
 import org.complitex.address.strategy.building.web.edit.BuildingValidator;
 import org.complitex.address.strategy.building.web.list.BuildingList;
 import org.complitex.address.strategy.building_address.BuildingAddressStrategy;
+import org.complitex.dictionary.service.SessionBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,16 +45,12 @@ import org.slf4j.LoggerFactory;
 public class BuildingStrategy extends AbstractStrategy {
 
     private static final Logger log = LoggerFactory.getLogger(BuildingStrategy.class);
-
     private static final String RESOURCE_BUNDLE = BuildingStrategy.class.getPackage().getName() + ".Building";
-
     /**
      * Attribute ids
      */
     public static final long DISTRICT = 500;
-
     public static final long BUILDING_ADDRESS = 501;
-
     private static final String BUILDING_NAMESPACE = BuildingStrategy.class.getPackage().getName() + ".Building";
 
     /**
@@ -62,7 +59,6 @@ public class BuildingStrategy extends AbstractStrategy {
     public static enum OrderBy {
 
         NUMBER(BuildingAddressStrategy.NUMBER), CORP(BuildingAddressStrategy.CORP), STRUCTURE(BuildingAddressStrategy.STRUCTURE);
-
         private Long orderByAttributeId;
 
         private OrderBy(Long orderByAttributeId) {
@@ -73,28 +69,22 @@ public class BuildingStrategy extends AbstractStrategy {
             return orderByAttributeId;
         }
     }
-
     /**
      * Filter constants
      */
     public static final String NUMBER = "number";
-
     public static final String CORP = "corp";
-
     public static final String STRUCTURE = "structure";
-
     public static final String STREET = "street";
-
     private static final String CITY = "city";
-
     @EJB
     private StringCultureBean stringBean;
-
     @EJB
     private LocaleBean localeBean;
-
     @EJB
     private BuildingAddressStrategy buildingAddressStrategy;
+    @EJB
+    private SessionBean sessionBean;
 
     @Override
     public String getEntityTable() {
@@ -105,6 +95,7 @@ public class BuildingStrategy extends AbstractStrategy {
     @Transactional
     public List<Building> find(DomainObjectExample example) {
         example.setTable(getEntityTable());
+        example.setAdmin(sessionBean.getCurrentUserId().equals(SessionBean.ADMIN_ID));
 
         List<Building> buildings = Lists.newArrayList();
 
@@ -162,9 +153,6 @@ public class BuildingStrategy extends AbstractStrategy {
         addressExample.setComparisonType(buildingExample.getComparisonType());
         addressExample.setLocaleId(buildingExample.getLocaleId());
         addressExample.setOrderByAttributeTypeId(buildingExample.getOrderByAttributeTypeId());
-//        if (!Strings.isEmpty(buildingExample.getOrderByExpression())) {
-//            addressExample.setOrderByExpression(buildingAddressStrategy.getOrderByExpression("e.`object_id`", buildingExample.getLocaleId(), null));
-//        }
         addressExample.setStart(buildingExample.getStart());
         addressExample.setSize(buildingExample.getSize());
         addressExample.setStatus(buildingExample.getStatus());
@@ -190,6 +178,7 @@ public class BuildingStrategy extends AbstractStrategy {
     @Override
     @Transactional
     public int count(DomainObjectExample example) {
+        example.setAdmin(sessionBean.getCurrentUserId().equals(SessionBean.ADMIN_ID));
         if (example.getId() != null) {
             Building building = findById(example.getId());
             return building == null ? 0 : 1;
@@ -227,6 +216,8 @@ public class BuildingStrategy extends AbstractStrategy {
     public Building findById(Long id) {
         DomainObjectExample example = new DomainObjectExample(id);
         example.setTable(getEntityTable());
+        example.setAdmin(sessionBean.getCurrentUserId().equals(SessionBean.ADMIN_ID));
+
         Building building = (Building) sqlSession().selectOne(BUILDING_NAMESPACE + "." + FIND_BY_ID_OPERATION, example);
         if (building != null) {
             loadAttributes(building);
@@ -339,12 +330,20 @@ public class BuildingStrategy extends AbstractStrategy {
     protected void insertDomainObject(DomainObject object, Date startDate) {
         Building building = (Building) object;
         for (DomainObject buildingAddress : building.getAllAddresses()) {
+            buildingAddress.setPermissionId(building.getPermissionId());
             buildingAddressStrategy.insert(buildingAddress);
         }
         building.enhanceAlternativeAddressAttributes();
         building.setParentId(building.getPrimaryAddress().getId());
         building.setParentEntityId(1500L);
         super.insertDomainObject(object, startDate);
+    }
+
+    @Override
+    protected void insertUpdatedDomainObject(DomainObject object, Date updateDate) {
+        Building building = (Building) object;
+        building.setParentId(building.getPrimaryAddress().getId());
+        super.insertDomainObject(object, updateDate);
     }
 
     @Transactional
@@ -410,6 +409,7 @@ public class BuildingStrategy extends AbstractStrategy {
         }
         if (addedAddresses != null) {
             for (DomainObject newAddress : addedAddresses) {
+                newAddress.setPermissionId(newBuilding.getPermissionId());
                 buildingAddressStrategy.insert(newAddress);
             }
         }
@@ -418,6 +418,7 @@ public class BuildingStrategy extends AbstractStrategy {
             for (Map.Entry<DomainObject, DomainObject> updatedAddress : updatedAddressesMap.entrySet()) {
                 DomainObject oldAddress = updatedAddress.getKey();
                 DomainObject newAddress = updatedAddress.getValue();
+                newAddress.setPermissionId(newBuilding.getPermissionId());
                 buildingAddressStrategy.update(oldAddress, newAddress, updateDate);
             }
         }
