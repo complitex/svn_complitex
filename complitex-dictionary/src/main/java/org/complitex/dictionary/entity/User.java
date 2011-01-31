@@ -1,6 +1,7 @@
 package org.complitex.dictionary.entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,10 +14,26 @@ public class User implements Serializable{
     private String password;
     private String newPassword;
     private Long userInfoObjectId;
-    private Long OrganizationObjectId;
+    private List<UserOrganization> userOrganizations = new ArrayList<UserOrganization>();
     private DomainObject userInfo;    
 
     private List<UserGroup> userGroups;
+
+    public void setMainUserOrganization(UserOrganization userOrganization){
+        for (UserOrganization uo : userOrganizations){
+            uo.setMain(uo.getOrganizationObjectId().equals(userOrganization.getOrganizationObjectId()));
+        }
+    }
+
+    public UserOrganization getMainUserOrganization(){
+        for (UserOrganization userOrganization : userOrganizations){
+            if (userOrganization.isMain()){
+                return userOrganization;
+            }
+        }
+
+        return null;
+    }
 
     public Long getId() {
         return id;
@@ -58,12 +75,12 @@ public class User implements Serializable{
         this.userInfoObjectId = userInfoObjectId;
     }
 
-    public Long getOrganizationObjectId() {
-        return OrganizationObjectId;
+    public List<UserOrganization> getUserOrganizations() {
+        return userOrganizations;
     }
 
-    public void setOrganizationObjectId(Long organizationObjectId) {
-        OrganizationObjectId = organizationObjectId;
+    public void setUserOrganizations(List<UserOrganization> userOrganizations) {
+        this.userOrganizations = userOrganizations;
     }
 
     public DomainObject getUserInfo() {

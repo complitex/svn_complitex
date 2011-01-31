@@ -2,19 +2,24 @@ package org.complitex.admin.web;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.markup.html.WebComponent;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.*;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.complitex.dictionary.entity.Log;
-import org.complitex.dictionary.entity.LogChange;
-import org.complitex.dictionary.entity.User;
-import org.complitex.dictionary.entity.UserGroup;
+import org.complitex.dictionary.entity.*;
 import org.complitex.dictionary.service.LogBean;
+import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.util.CloneUtil;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.admin.Module;
@@ -28,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.EJB;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import static org.complitex.dictionary.entity.UserGroup.GROUP_NAME.ADMINISTRATORS;
@@ -41,8 +47,10 @@ import static org.complitex.dictionary.entity.UserGroup.GROUP_NAME.EMPLOYEES;
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)
 public class UserEdit extends FormTemplatePage {
-
     private static final Logger log = LoggerFactory.getLogger(UserEdit.class);
+
+    @EJB(name = "OrganizationStrategy")
+    private IOrganizationStrategy organizationStrategy;
 
     @EJB(name = "UserBean")
     private UserBean userBean;
@@ -114,10 +122,6 @@ public class UserEdit extends FormTemplatePage {
         cancel.setDefaultFormProcessing(false);
         form.add(cancel);
 
-         //Организация
-        form.add(new UserOrganizationPicker("organization",
-                new PropertyModel<Long>(userModel, "organizationObjectId")));
-
         //Логин
         RequiredTextField login = new RequiredTextField<String>("login", new PropertyModel<String>(userModel, "login"));
         login.setEnabled(id == null);
@@ -142,6 +146,75 @@ public class UserEdit extends FormTemplatePage {
         usergroups.add(new Check<UserGroup>("EMPLOYEES", getUserGroup(userModel.getObject(), EMPLOYEES)));
 
         form.add(usergroups);
+
+        //Организация
+        final WebMarkupContainer organizationContainer = new WebMarkupContainer("organizationContainer");
+        organizationContainer.setOutputMarkupId(true);
+        form.add(organizationContainer);
+
+        RadioGroup<UserOrganization> organizationGroup = new RadioGroup<UserOrganization>("organizationGroup",
+                new PropertyModel<UserOrganization>(userModel, "mainUserOrganization"));
+        organizationContainer.add(organizationGroup);
+
+        organizationGroup.add(new ListView<UserOrganization>("userOrganizations",
+                new PropertyModel<List<? extends UserOrganization>>(userModel, "userOrganizations")){
+            {
+                setReuseItems(true);
+            }
+
+            @Override
+            protected void populateItem(ListItem<UserOrganization> item) {
+                final UserOrganization userOrganization = item.getModelObject();
+
+                item.add(new Radio<UserOrganization>("radio", item.getModel()));
+
+                item.add(new Label("name", organizationStrategy.displayDomainObject(
+                        organizationStrategy.findById(userOrganization.getOrganizationObjectId()), getLocale())));
+
+                item.add(new AjaxLink("delete"){
+
+                    @Override
+                    public void onClick(AjaxRequestTarget target) {
+                        List<UserOrganization> list = userModel.getObject().getUserOrganizations();
+                        for (int i = 0; i < list.size(); ++i){
+                            if (list.get(i).getOrganizationObjectId().equals(userOrganization.getOrganizationObjectId())){
+                                list.remove(i);
+                                break;
+                            }
+                        }
+
+                        target.addComponent(organizationContainer);
+                    }
+                });
+            }
+        });
+
+        //Добавить организацию
+        Form addOrganizationForm = new Form("addOrganizationForm");
+        form.add(addOrganizationForm);
+
+        final IModel<Long> addOrganization = new Model<Long>();
+
+        addOrganizationForm.add(new UserOrganizationPicker("organization", addOrganization));
+        addOrganizationForm.add(new AjaxSubmitLink("addOrganization", addOrganizationForm){
+            @Override
+            protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+                if (addOrganization.getObject() == null){
+                    return;
+                }
+
+                List<UserOrganization> list = userModel.getObject().getUserOrganizations();
+                for (UserOrganization uo : list){
+                    if (uo.getOrganizationObjectId().equals(addOrganization.getObject())){
+                        error(getString("error.organization_already_added"));
+                        return;
+                    }
+                }
+
+                list.add(new UserOrganization(addOrganization.getObject()));
+                target.addComponent(organizationContainer);
+            }
+        });
     }
 
     private IModel<UserGroup> getUserGroup(User user, UserGroup.GROUP_NAME group_name) {

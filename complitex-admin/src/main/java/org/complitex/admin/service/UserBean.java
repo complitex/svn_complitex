@@ -1,8 +1,7 @@
 package org.complitex.admin.service;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.complitex.dictionary.entity.User;
-import org.complitex.dictionary.entity.UserGroup;
+import org.complitex.dictionary.entity.*;
 import org.complitex.dictionary.entity.description.EntityAttributeType;
 import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.mybatis.Transactional;
@@ -13,8 +12,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.util.ArrayList;
 import java.util.List;
-import org.complitex.dictionary.entity.Attribute;
-import org.complitex.dictionary.entity.DomainObject;
+
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.util.DateUtil;
 
@@ -75,10 +73,15 @@ public class UserBean extends AbstractBean {
             //сохранение групп привилегий
             for(UserGroup userGroup : user.getUserGroups()){
                 userGroup.setLogin(user.getLogin());
-
-                //сохранение информации о пользователе
                 sqlSession().insert(STATEMENT_PREFIX + ".insertUserGroup", userGroup);
             }
+
+            //сохранение организаций
+            for (UserOrganization userOrganization : user.getUserOrganizations()){
+                userOrganization.setUserId(user.getId());
+                sqlSession().insert(STATEMENT_PREFIX + ".insertUserOrganization", userOrganization);
+            }
+
         }else{ //Редактирование пользователя
             User dbUser = (User) sqlSession().selectOne(STATEMENT_PREFIX + ".selectUser", user.getId());
 
@@ -112,6 +115,45 @@ public class UserBean extends AbstractBean {
                 if (!contain){
                     userGroup.setLogin(user.getLogin());
                     sqlSession().insert(STATEMENT_PREFIX + ".insertUserGroup", userGroup);
+                }
+            }
+
+            //обновление и удаление организаций
+            for (UserOrganization dbUserOrganization : dbUser.getUserOrganizations()){
+                boolean contain = false;
+
+                for (UserOrganization userOrganization : user.getUserOrganizations()){
+                    if (userOrganization.getOrganizationObjectId().equals(dbUserOrganization.getOrganizationObjectId())){
+                        contain = true;
+
+                        //обновление основной организации
+                        if (dbUserOrganization.isMain() != userOrganization.isMain()){
+                            sqlSession().update(STATEMENT_PREFIX + ".updateUserOrganization", userOrganization);
+                        }
+
+                        break;
+                    }
+                }
+
+                if (!contain){
+                    sqlSession().delete(STATEMENT_PREFIX + ".deleteUserOrganization", dbUserOrganization.getId());
+                }
+            }
+
+            //добавление организаций
+            for (UserOrganization userOrganization : user.getUserOrganizations()){
+                boolean contain = false;
+
+                for (UserOrganization dbUserOrganization : dbUser.getUserOrganizations()){
+                    if (userOrganization.getOrganizationObjectId().equals(dbUserOrganization.getOrganizationObjectId())){
+                        contain = true;
+                        break;
+                    }
+                }
+
+                if (!contain){
+                    userOrganization.setUserId(user.getId());
+                    sqlSession().insert(STATEMENT_PREFIX + ".insertUserOrganization", userOrganization);
                 }
             }
 

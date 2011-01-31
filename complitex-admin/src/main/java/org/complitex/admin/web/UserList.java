@@ -17,10 +17,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
-import org.complitex.dictionary.entity.Attribute;
-import org.complitex.dictionary.entity.DomainObject;
-import org.complitex.dictionary.entity.User;
-import org.complitex.dictionary.entity.UserGroup;
+import org.complitex.dictionary.entity.*;
 import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.web.component.*;
@@ -33,9 +30,8 @@ import org.complitex.template.web.component.toolbar.ToolbarButton;
 import org.complitex.template.web.security.SecurityRole;
 
 import javax.ejb.EJB;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+
 import org.complitex.dictionary.web.component.scroll.ScrollListBehavior;
 import org.complitex.template.web.pages.ScrollListPage;
 
@@ -155,13 +151,15 @@ public class UserList extends ScrollListPage {
                 List<Attribute> attributeColumns = userBean.getAttributeColumns(user.getUserInfo());
                 item.add(new AttributeColumnsPanel("user_info", attributeColumns));
 
-                String organization = "";
-                DomainObject domainObject = organizationStrategy.findById(user.getOrganizationObjectId());
-                if (domainObject != null){
-                    organization = organizationStrategy.displayDomainObject(domainObject, getLocale());
-                }
+                String organizations = "";
+                String separator = "";
+                for (UserOrganization userOrganization : user.getUserOrganizations()){
+                    organizations += separator + (organizationStrategy.displayDomainObject(
+                            organizationStrategy.findById(userOrganization.getOrganizationObjectId()), getLocale()));
 
-                item.add(new Label("organization", organization));
+                    separator = ", ";
+                }
+                item.add(new Label("organizations", organizations));
 
                 item.add(new Label("usergroup", getDisplayGroupNames(user)));
 

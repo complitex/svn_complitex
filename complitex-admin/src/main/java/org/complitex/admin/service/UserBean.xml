@@ -7,11 +7,15 @@
         <result column="login" property="login"/>
         <result column="password" property="password"/>        
         <result column="user_info_object_id" property="userInfoObjectId"/>
-        <result column="organization_object_id" property="organizationObjectId"/>
         <collection property="userGroups" ofType="org.complitex.dictionary.entity.UserGroup">
             <id column="user_group_id" property="id"/>
             <result column="user_group_login" property="login"/>
             <result column="group_name" property="groupName"/>
+        </collection>
+        <collection property="userOrganizations" ofType="org.complitex.dictionary.entity.UserOrganization">
+            <id column="user_organization_id" property="id"/>
+            <result column="organization_object_id" property="organizationObjectId"/>
+            <result column="main" property="main"/>
         </collection>
     </resultMap>
 
@@ -27,12 +31,15 @@
             u.login as login,
             u.password as password,
             u.user_info_object_id as user_info_object_id,
-            u.organization_object_id as organization_object_id,
             g.id as user_group_id,
             g.login as user_group_login,
-            g.group_name as group_name
+            g.group_name as group_name,
+            o.id as user_organization_id,
+            o.organization_object_id as organization_object_id,
+            o.main as main
         from `user` u
             left join `usergroup` g on u.`login` = g.`login`
+            left join `user_organization` o on u.`id` = o.`user_id`
         where u.id = #{id}
     </select>
 
@@ -40,6 +47,7 @@
         from `user` u
             left join `usergroup` g on u.`login` = g.`login`
             left join `user_info` ui on u.`user_info_object_id` = ui.`object_id`
+            left join `user_organization` o on u.`id` = o.`user_id`
             <foreach collection="attributeExamples" item="item" index="index">
                 <if test="item.value != null">
                     left join `user_info_attribute` uia_${index}
@@ -55,7 +63,6 @@
             </if>
         <where>
             <if test="login != null">u.login like concat('%', #{login}, '%')</if>
-            <if test="organizationObjectId != null">and u.`organization_object_id` = #{organizationObjectId}</if>
             <if test="groupName != null">and g.`group_name` = #{groupName}</if>
             <foreach collection="attributeExamples" item="item" index="index">
                 <if test="item.value != null">
@@ -76,17 +83,20 @@
 
     <select id="selectUsers" resultMap="userResultMap" parameterType="org.complitex.admin.service.UserFilter">
         select
-            uc.*, gc.id as user_group_id, gc.login as user_group_login, gc.group_name as group_name
+            uc.*,
+            gc.id as user_group_id, gc.login as user_group_login, gc.group_name as group_name,
+            o.id as user_organization_id, o.organization_object_id as organization_object_id, o.main as main
         from
         (select
             distinct u.id as user_id,
             u.login as login,
             u.password as password,
-            u.user_info_object_id as user_info_object_id,
-            u.organization_object_id as organization_object_id
+            u.user_info_object_id as user_info_object_id
         <include refid="userFilter"/>
         limit #{first}, #{count}
-        ) as uc left join `usergroup` gc on uc.`login` = gc.`login`
+        ) as uc
+        left join `usergroup` gc on uc.`login` = gc.`login`
+        left join `user_organization` o on uc.`user_id` = o.`user_id`
     </select>
 
     <select id="selectUsersCount" resultType="int" parameterType="org.complitex.admin.service.UserFilter">
@@ -95,26 +105,38 @@
     </select>
 
     <insert id="insertUser" parameterType="org.complitex.dictionary.entity.User" keyProperty="id" useGeneratedKeys="true">
-        insert into `user` (`login`, `password`, `user_info_object_id`, `organization_object_id`)
-            values (#{login}, #{password}, #{userInfoObjectId}, #{organizationObjectId})
+        insert into `user` (`login`, `password`, `user_info_object_id`) values (#{login}, #{password}, #{userInfoObjectId})
     </insert>
 
     <update id="updateUser" parameterType="org.complitex.dictionary.entity.User">
         update `user`
         <set>
-            <if test="password != null"> `password` = #{password},</if>
-            <if test="userInfoObjectId != null"> `user_info_object_id` = #{userInfoObjectId},</if>
-            <if test="organizationObjectId != null"> `organization_object_id` = #{organizationObjectId}</if>
+            <if test="password != null"> `password` = #{password}</if>
+            <if test="userInfoObjectId != null"> `user_info_object_id` = #{userInfoObjectId}</if>
         </set>
         where id = #{id}
     </update>
 
     <!--User Group-->
     <insert id="insertUserGroup" parameterType="org.complitex.dictionary.entity.UserGroup">
-        insert into `usergroup` (`login`, `group_name`) values (#{login}, #{groupName});
+        insert into `usergroup` (`login`, `group_name`) values (#{login}, #{groupName})
     </insert>
 
     <delete id="deleteUserGroup" parameterType="long">
         delete from `usergroup` where id = #{id}
     </delete>
+
+    <!--User Organization-->
+    <insert id="insertUserOrganization" parameterType="org.complitex.dictionary.entity.UserOrganization">
+        insert into `user_organization` (`user_id`, `organization_object_id`, `main`)
+            values (#{userId}, #{organizationObjectId}, #{main})
+    </insert>
+
+    <delete id="deleteUserOrganization" parameterType="long">
+        delete from `user_organization` where id = #{id}
+    </delete>
+
+    <update id="updateUserOrganization" parameterType="org.complitex.dictionary.entity.UserOrganization">
+        update `user_organization` set main = #{main} where id = #{id}
+    </update>
 </mapper>
