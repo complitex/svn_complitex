@@ -16,10 +16,6 @@
         <table  border="0" cellspacing="0" cellpadding="0" class="tbForm">
             <tbody>
             <tr>
-                <th><label for="organization"><wicket:message key="organization"/>:</label></th>
-                <td><span id="organization" wicket:id="organization"></span></td>
-            </tr>
-            <tr>
                 <th><label for="login"><wicket:message key="login"/><b class="blue">*</b>:</label></th>
                 <td><input id="login" wicket:id="login" type="text"/></td>
             </tr>
@@ -52,6 +48,26 @@
                             <wicket:message key="EMPLOYEES"/>
                         </li>
                     </ul>
+                </td>
+            </tr>
+            <tr>
+                <th><wicket:message key="organizations"/>:</th>
+                <td>
+                    <div wicket:id="organizationContainer">
+                        <div wicket:id="organizationGroup">
+                            <ul wicket:id="userOrganizations">
+                                <li>
+                                    <input type="radio" wicket:id="radio"/>
+                                    <span wicket:id="name"></span>
+                                    [<a href="#" wicket:id="delete">&times;</a>]
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <form wicket:id="addOrganizationForm" action="#">
+                        <div wicket:id="organization"></div>
+                        <a href="#" wicket:id="addOrganization"><wicket:message key="add"/></a>
+                    </form>
                 </td>
             </tr>
             </tbody>

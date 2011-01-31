@@ -3,13 +3,13 @@
 
 <mapper namespace="org.complitex.dictionary.service.PermissionBean">
     <resultMap id="permissionResultMap" type="org.complitex.dictionary.entity.Permission">
-        <id column="pk_id" property="pkId"/>
+        <id column="pk_id" property="id"/>
         <result column="permission_id" property="permissionId"/>
         <result column="table" property="table"/>
         <result column="entity" property="entity"/>
         <result column="object_id" property="objectId"/>
         <collection property="permissions" ofType="org.complitex.dictionary.entity.Permission">
-            <id column="c_pk_id" property="pkId"/>
+            <id column="c_pk_id" property="id"/>
             <result column="c_permission_id" property="permissionId"/>
             <result column="c_table" property="table"/>
             <result column="c_entity" property="entity"/>
@@ -27,6 +27,16 @@
             <if test="table != null">p1.`table` = #{table, javaType=string}</if>
             <if test="entity != null">and p1.`entity` = #{entity}</if>
             <if test="objectId != null">and p1.`object_id` = #{objectId}</if>
+        </where>
+    </select>
+
+    <select id="findPermissionIds" parameterType="map" resultMap="permissionResultMap">
+        select `permission_id` from `permission`
+        <where>
+            <!--bug: noTypeHandler found without javaType=string-->
+            <if test="table != null">`table` = #{table, javaType=string}</if>
+            <if test="entity != null">and `entity` = #{entity}</if>
+            <if test="objectId != null">and `object_id` = #{objectId}</if>
         </where>
     </select>
 
