@@ -12,6 +12,8 @@ import javax.ejb.Stateless;
 public class SessionBean extends AbstractBean{
     private static final String MAPPING_NAMESPACE = SessionBean.class.getName();
 
+    public static final long ADMIN_ID = 1;
+
     @Resource
     private SessionContext sessionContext;
 
