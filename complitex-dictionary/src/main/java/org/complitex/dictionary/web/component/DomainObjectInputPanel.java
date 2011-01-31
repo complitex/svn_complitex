@@ -348,14 +348,14 @@ public class DomainObjectInputPanel extends Panel {
             try {
                 complexAttributes = clazz.getConstructor(String.class, boolean.class).newInstance("complexAttributes", isHistory());
             } catch (Exception e) {
-                log.warn("Couldn't instantiate complex attributes panel object.", e);
+                log.error("Couldn't instantiate complex attributes panel object.", e);
             }
         }
         if (complexAttributes == null) {
             add(new EmptyPanel("complexAttributes"));
         } else {
             add(complexAttributes);
-        }
+        }        
     }
 
     protected SearchComponentState initParentSearchComponentState() {

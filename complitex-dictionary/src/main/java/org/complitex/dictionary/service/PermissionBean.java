@@ -1,5 +1,7 @@
 package org.complitex.dictionary.service;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.complitex.dictionary.entity.Subject;
 import org.complitex.dictionary.entity.Permission;
 import org.complitex.dictionary.mybatis.Transactional;
@@ -16,6 +18,8 @@ import java.util.*;
 public class PermissionBean extends AbstractBean{
     private static final String MAPPING_NAMESPACE = PermissionBean.class.getName();
     private static final String ENTITY_TABLE = "permission";
+
+    public static final long VISIBLE_BY_ALL_PERMISSION_ID = 0;
 
     @EJB(beanName = "SequenceBean")
     private SequenceBean sequenceBean;
@@ -37,6 +41,14 @@ public class PermissionBean extends AbstractBean{
     @SuppressWarnings({"unchecked"})
     public List<Permission> findPermissions(Long permissionId){
         return sqlSession().selectList(MAPPING_NAMESPACE + ".selectPermissionsById", permissionId);
+    }
+
+    public Set<Long> findSubjectIds(Long permissionId) {
+        Set<Long> subjectIds = Sets.newHashSet();
+        for (Permission permission : findPermissions(permissionId)) {
+            subjectIds.add(permission.getObjectId());
+        }
+        return subjectIds;
     }
 
     public Long getPermission(String table, Subject subject){

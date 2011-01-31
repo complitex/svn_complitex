@@ -10,28 +10,21 @@
         <result column="parent_id" property="parentId"/>
         <result column="parent_entity_id" property="parentEntityId"/>
         <result column="entity_type_id" property="entityTypeId"/>
+        <result column="permission_id" property="permissionId"/>
     </resultMap>
 
     <insert id="insert" parameterType="Parameter">
-        INSERT INTO `${table}` (`object_id`, `status`, `start_date`, `end_date`, `parent_id`, `parent_entity_id`, `entity_type_id`) VALUES
-        (#{object.id}, #{object.status}, #{object.startDate}, #{object.endDate}, #{object.parentId}, #{object.parentEntityId}, #{object.entityTypeId})
+        INSERT INTO `${table}` (`object_id`, `status`, `start_date`, `end_date`, `parent_id`, `parent_entity_id`, `entity_type_id`,
+            `permission_id`) VALUES
+           (#{object.id}, #{object.status}, #{object.startDate}, #{object.endDate}, #{object.parentId}, #{object.parentEntityId}, #{object.entityTypeId},
+           #{object.permissionId})
     </insert>
 
     <select id="findById" resultMap="org.complitex.dictionary.entity.DomainObject.DomainObject" parameterType="DomainObjectExample">
         SELECT e.*
         FROM `${table}` e WHERE (e.`status` IN ('ACTIVE', 'INACTIVE')) AND e.`object_id` = #{id}
+            <include refid="org.complitex.dictionary.entity.DomainObject.permissionFilter"/>
     </select>
-
-    <sql id="statusFilter">
-        <choose>
-            <when test="status == 'ALL'">
-                (e.`status` IN ('ACTIVE', 'INACTIVE'))
-            </when>
-            <otherwise>
-                e.`status` = #{status}
-            </otherwise>
-        </choose>
-    </sql>
 
     <sql id="orderBy">
         <if test="orderByAttributeTypeId != null">
@@ -56,10 +49,28 @@
         SELECT e.*
         FROM `${table}` e WHERE
         <include refid="org.complitex.dictionary.entity.DomainObject.statusFilter"/>
+        <include refid="org.complitex.dictionary.entity.DomainObject.permissionFilter"/>
         <include refid="org.complitex.dictionary.entity.DomainObject.filter"/>
         <include refid="org.complitex.dictionary.entity.DomainObject.orderBy"/>
         <include refid="org.complitex.dictionary.entity.DomainObject.limit"/>
     </select>
+
+    <sql id="permissionFilter">
+        <if test="not admin">
+            AND ((e.`permission_id` = 0) OR (e.`permission_id` IN (#{permissionKeys})))
+        </if>
+    </sql>
+
+    <sql id="statusFilter">
+        <choose>
+            <when test="status == 'ALL'">
+                (e.`status` IN ('ACTIVE', 'INACTIVE'))
+            </when>
+            <otherwise>
+                e.`status` = #{status}
+            </otherwise>
+        </choose>
+    </sql>
 
     <sql id="filter">
         <if test="id != null">

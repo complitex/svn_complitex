@@ -31,6 +31,7 @@ import org.complitex.dictionary.entity.SimpleTypes;
 import org.complitex.dictionary.entity.StatusType;
 import org.complitex.dictionary.entity.StringCulture;
 import org.complitex.dictionary.service.LocaleBean;
+import org.complitex.dictionary.service.SessionBean;
 import org.complitex.dictionary.util.DateUtil;
 
 /**
@@ -55,6 +56,9 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
     @EJB
     private LocaleBean localeBean;
+
+    @EJB
+    private SessionBean sessionBean;
 
     @Override
     public boolean isSimpleAttributeType(EntityAttributeType entityAttributeType) {
@@ -150,6 +154,9 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     public DomainObject findById(Long id) {
         DomainObjectExample example = new DomainObjectExample(id);
         example.setTable(getEntityTable());
+        example.setAdmin(sessionBean.getCurrentUserId().equals(SessionBean.ADMIN_ID));
+        // TODO: fix logic:
+        //example.setPermissionKeys()
 
         DomainObject object = (DomainObject) sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + "." + FIND_BY_ID_OPERATION, example);
         if (object != null) {
@@ -211,6 +218,9 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     @Override
     public List<? extends DomainObject> find(DomainObjectExample example) {
         example.setTable(getEntityTable());
+        example.setAdmin(sessionBean.getCurrentUserId().equals(SessionBean.ADMIN_ID));
+        // TODO: fix logic:
+        //example.setPermissionKeys()
 
         List<DomainObject> objects = sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + "." + FIND_OPERATION, example);
         for (DomainObject object : objects) {
@@ -399,6 +409,14 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         Long newParentEntityId = newObject.getParentEntityId();
 
         if (!Numbers.isEqual(oldParentId, newParentId) || !Numbers.isEqual(oldParentEntityId, newParentEntityId)) {
+            needToUpdateObject = true;
+        }
+
+        //permissions comparison
+        Long oldPermission = oldObject.getPermissionId();
+        Long newPermission = newObject.getPermissionId();
+
+        if(!Numbers.isEqual(oldPermission, newPermission)){
             needToUpdateObject = true;
         }
 

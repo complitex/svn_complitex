@@ -11,6 +11,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import org.complitex.dictionary.service.PermissionBean;
 
 /**
  *
@@ -19,24 +20,18 @@ import java.util.List;
 public class DomainObject implements Serializable {
 
     private Long id;
-
     private StatusType status = StatusType.ACTIVE;
-
     private Date startDate;
-
     private Date endDate;
-
     private Long parentId;
-
     private Long parentEntityId;
-
     private Long entityTypeId;
-
+    private Long permissionId = PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID;
     private List<Attribute> attributes = new ArrayList<Attribute>();
 
-    public Attribute getAttribute(Long attributeTypeId){
-        for (Attribute a : attributes){
-            if (a.getAttributeTypeId().equals(attributeTypeId)){
+    public Attribute getAttribute(Long attributeTypeId) {
+        for (Attribute a : attributes) {
+            if (a.getAttributeTypeId().equals(attributeTypeId)) {
                 return a;
             }
         }
@@ -44,7 +39,7 @@ public class DomainObject implements Serializable {
         return null;
     }
 
-    public List<Attribute> getAttributes(final Long attributeTypeId){
+    public List<Attribute> getAttributes(final Long attributeTypeId) {
         return Lists.newArrayList(Iterables.filter(attributes, new Predicate<Attribute>() {
 
             @Override
@@ -120,5 +115,13 @@ public class DomainObject implements Serializable {
 
     public void setParentEntityId(Long parentEntityId) {
         this.parentEntityId = parentEntityId;
+    }
+
+    public Long getPermissionId() {
+        return permissionId;
+    }
+
+    public void setPermissionId(Long permissionId) {
+        this.permissionId = permissionId;
     }
 }
