@@ -233,6 +233,10 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     @Override
     public int count(DomainObjectExample example) {
         example.setTable(getEntityTable());
+        example.setAdmin(sessionBean.getCurrentUserId().equals(SessionBean.ADMIN_ID));
+        // TODO: fix logic:
+        //example.setPermissionKeys()
+        
         return (Integer) sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + "." + COUNT_OPERATION, example);
     }
 
@@ -424,8 +428,13 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
             oldObject.setStatus(StatusType.ARCHIVE);
             oldObject.setEndDate(updateDate);
             sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new Parameter(getEntityTable(), oldObject));
-            insertDomainObject(newObject, updateDate);
+            insertUpdatedDomainObject(newObject, updateDate);
         }
+    }
+
+    @Transactional
+    protected void insertUpdatedDomainObject(DomainObject object, Date updateDate){
+        insertDomainObject(object, updateDate);
     }
 
     @Override

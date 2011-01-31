@@ -29,8 +29,9 @@ import org.complitex.dictionary.web.component.search.SearchComponent;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
 import org.complitex.address.strategy.building.BuildingStrategy;
 import org.complitex.address.strategy.building.entity.Building;
-import org.complitex.address.strategy.building_address.BuildingAddressStrategy;
 import org.complitex.address.strategy.district.DistrictStrategy;
+import org.complitex.dictionary.strategy.IStrategy;
+import org.complitex.dictionary.strategy.StrategyFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,19 +42,13 @@ import org.slf4j.LoggerFactory;
 public final class BuildingEditComponent extends AbstractComplexAttributesPanel {
 
     private static final Logger log = LoggerFactory.getLogger(BuildingEditComponent.class);
-
-    @EJB(name = "BuildingStrategy")
-    private BuildingStrategy buildingStrategy;
-
-    @EJB(name = "DistrictStrategy")
+    @EJB
     private DistrictStrategy districtStrategy;
-
-    @EJB(name = "StringCultureBean")
+    @EJB
     private StringCultureBean stringBean;
-
-    @EJB(name = "BuildingAddressStrategy")
-    private BuildingAddressStrategy buildingAddressStrategy;
-
+    @EJB
+    private StrategyFactory strategyFactory;
+    
     private SearchComponentState districtComponentState;
 
     private class DistrictSearchCallback implements ISearchCallback, Serializable {
@@ -72,7 +67,6 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
     public BuildingEditComponent(String id, boolean disabled) {
         super(id, disabled);
     }
-
     private FeedbackPanel messages;
 
     private FeedbackPanel findFeedbackPanel() {
@@ -88,7 +82,6 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
         }
         return messages;
     }
-
     private Attribute districtAttribute;
 
     @Override
@@ -110,6 +103,7 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
 
             @Override
             public String getObject() {
+                IStrategy buildingStrategy = strategyFactory.getStrategy("building");
                 return stringBean.displayValue(buildingStrategy.getEntity().getAttributeType(BuildingStrategy.DISTRICT).getAttributeNames(), getLocale());
             }
         });
@@ -194,6 +188,7 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+                IStrategy buildingAddressStrategy = strategyFactory.getStrategy("building_address");
                 DomainObject newBuildingAddress = buildingAddressStrategy.newInstance();
                 building.addAlternativeAddress(newBuildingAddress);
 

@@ -11,6 +11,7 @@
         SELECT DISTINCT e.`object_id`, e.`start_date`, e.`end_date`, e.`status`, e.`parent_id`, e.`parent_entity_id`, e.`entity_type_id`
         FROM `building` e WHERE
         <include refid="org.complitex.dictionary.entity.DomainObject.statusFilter"/>
+        <include refid="org.complitex.dictionary.entity.DomainObject.permissionFilter"/>
         AND (e.`parent_id` = #{additionalParams.buildingAddressId} OR EXISTS
             (SELECT 1 FROM `building_attribute` ba WHERE ba.`object_id` = e.`object_id` AND ba.`status` = 'ACTIVE' AND ba.`attribute_type_id` = 501
                 AND ba.`value_id` = #{additionalParams.buildingAddressId}
@@ -21,6 +22,7 @@
     <select id="findById" resultMap="org.complitex.address.strategy.building.Building.Building" parameterType="DomainObjectExample">
         SELECT e.*
         FROM `${table}` e WHERE (e.`status` IN ('ACTIVE', 'INACTIVE')) AND e.`object_id` = #{id}
+            <include refid="org.complitex.dictionary.entity.DomainObject.permissionFilter"/>
     </select>
 
     <select id="checkBuildingAddress" parameterType="hashmap" resultType="long">
