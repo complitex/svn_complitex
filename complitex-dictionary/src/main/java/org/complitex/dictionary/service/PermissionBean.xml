@@ -3,13 +3,13 @@
 
 <mapper namespace="org.complitex.dictionary.service.PermissionBean">
     <resultMap id="permissionResultMap" type="org.complitex.dictionary.entity.Permission">
-        <id column="pk_id" property="id"/>
+        <id column="pk_id" property="pkId"/>
         <result column="permission_id" property="permissionId"/>
         <result column="table" property="table"/>
         <result column="entity" property="entity"/>
         <result column="object_id" property="objectId"/>
         <collection property="permissions" ofType="org.complitex.dictionary.entity.Permission">
-            <id column="c_pk_id" property="id"/>
+            <id column="c_pk_id" property="pkId"/>
             <result column="c_permission_id" property="permissionId"/>
             <result column="c_table" property="table"/>
             <result column="c_entity" property="entity"/>

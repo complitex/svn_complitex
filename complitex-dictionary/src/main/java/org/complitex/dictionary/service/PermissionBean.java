@@ -85,7 +85,7 @@ public class PermissionBean extends AbstractBean{
     @Transactional
     public Long getPermission(String table, List<Subject> subjects){
         if (subjects == null || subjects.size() == 0){
-            throw new IllegalArgumentException();
+            return null;
         }
 
         Subject first = subjects.get(0);

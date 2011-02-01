@@ -19,12 +19,17 @@ public class SessionBean extends AbstractBean{
     private static final String MAPPING_NAMESPACE = SessionBean.class.getName();
 
     public static final long ADMIN_ID = 1;
+    public static final String ADMIN_LOGIN = "admin";
 
     @Resource
     private SessionContext sessionContext;
 
     @EJB
     private PermissionBean permissionBean;
+
+    public boolean isAdmin(){
+        return ADMIN_LOGIN.equals(sessionContext.getCallerPrincipal().getName());
+    }
 
     public Long getCurrentUserId(){
         return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectUserId",
@@ -72,4 +77,9 @@ public class SessionBean extends AbstractBean{
 
         return "(" + s + ")";
     }
+
+    public Long createPermissionId(String table){
+        return permissionBean.getPermission(table, getCurrentSubjects());
+    }
+
 }
