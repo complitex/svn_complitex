@@ -53,16 +53,12 @@ public class PermissionBean extends AbstractBean{
     
      @SuppressWarnings({"unchecked"})
     public List<Long> findPermissionIds(final String table, final String entity, final Long objectId){
-        List<Long> list =  sqlSession().selectList(MAPPING_NAMESPACE + ".selectPermissionIds",
+        return  sqlSession().selectList(MAPPING_NAMESPACE + ".selectPermissionIds",
                 new HashMap<String, Object>(){{
                     put("table", table);
                     put("entity", entity);
                     put("objectId", objectId);
                 }});
-
-        list.add(VISIBLE_BY_ALL_PERMISSION_ID);
-
-        return list;
     }
 
     public Long getPermission(String table, Subject subject){

@@ -1,7 +1,14 @@
 package org.complitex.dictionary.service;
 
+import org.complitex.dictionary.entity.Permission;
+import org.complitex.dictionary.entity.Subject;
+
 import javax.annotation.Resource;
 import javax.ejb.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -16,14 +23,53 @@ public class SessionBean extends AbstractBean{
     @Resource
     private SessionContext sessionContext;
 
+    @EJB
+    private PermissionBean permissionBean;
+
     public Long getCurrentUserId(){
-        return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectUserId", sessionContext.getCallerPrincipal().getName());
+        return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectUserId",
+                sessionContext.getCallerPrincipal().getName());
     }
 
-    public Long getCurrentOrganizationId(){
-
-        //todo implement user organization
-        return 0L;
+    @SuppressWarnings({"unchecked"})
+    public List<Long> getUserOrganizationObjectIds(){
+        return sqlSession().selectList(MAPPING_NAMESPACE + ".selectOrganizationObjectIds",
+                sessionContext.getCallerPrincipal().getName());
     }
 
+    @SuppressWarnings({"unchecked"})
+    public List<Long> getUserOrganizationPermissionIds(final String table){
+        Map<String, String> parameter = new HashMap<String, String>(){{
+            put("table", table);
+            put("login", sessionContext.getCallerPrincipal().getName());
+        }};
+
+        return sqlSession().selectList(MAPPING_NAMESPACE + ".selectUserOrganizationPermissionIds", parameter);
+    }
+
+    public List<Subject> getCurrentSubjects(){
+        List<Subject> subjects = new ArrayList<Subject>();
+
+        //add organizations
+        for (Long objectId : getUserOrganizationObjectIds()){
+            subjects.add(new Subject("organization", objectId));
+        }
+
+        return subjects;
+    }
+
+    public String getPermissionString(String table){
+        List<Long> permissions = getUserOrganizationPermissionIds(table);
+        permissions.add(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID);
+
+        String s = "";
+        String d = "";
+
+        for (Long p : permissions){
+            s += d + p;
+            d = ", ";
+        }
+
+        return "(" + s + ")";
+    }
 }
