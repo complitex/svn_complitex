@@ -5,4 +5,14 @@
     <select id="selectUserId" parameterType="string" resultType="long">
         select `id` from `user` where `login` = #{login}
     </select>
+
+    <select id="selectUserOrganizationPermissionIds" parameterType="map" resultType="long">
+        select p.`permission_id` from `permission` p
+            left join `user_organization` uo on (p.`object_id` = uo.`organization_object_id` and p.`entity` = 'organization')
+            left join `user` u on uo.`user_id` = u.`id`
+            <where>
+                <if test="table != null">p.`table` = #{table, javaType=string}</if>
+                and u.`login` = #{login}
+            </where>
+    </select>
 </mapper>
