@@ -34,7 +34,7 @@ public class DomainObjectExample implements Serializable {
     private String comparisonType = ComparisonType.LIKE.name();
     private List<AttributeExample> attributeExamples = new ArrayList<AttributeExample>();
     private String status = ShowMode.ALL.name();
-    private String permissionKeys;
+    private String userPermissionString;
     private boolean admin;
 
     public DomainObjectExample() {
@@ -188,12 +188,12 @@ public class DomainObjectExample implements Serializable {
         this.entityTypeId = entityTypeId;
     }
 
-    public String getPermissionKeys() {
-        return permissionKeys;
+    public String getUserPermissionString() {
+        return userPermissionString;
     }
 
-    public void setPermissionKeys(String permissionKeys) {
-        this.permissionKeys = permissionKeys;
+    public void setUserPermissionString(String userPermissionString) {
+        this.userPermissionString = userPermissionString;
     }
 
     public boolean isAdmin() {

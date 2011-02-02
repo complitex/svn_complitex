@@ -96,7 +96,7 @@ public class BuildingStrategy extends AbstractStrategy {
     @Transactional
     public List<Building> find(DomainObjectExample example) {
         example.setTable(getEntityTable());
-        example.setAdmin(sessionBean.getCurrentUserId().equals(SessionBean.ADMIN_ID));
+        prepareExampleForPermissionCheck(example);
 
         List<Building> buildings = Lists.newArrayList();
 
@@ -157,6 +157,8 @@ public class BuildingStrategy extends AbstractStrategy {
         addressExample.setStart(buildingExample.getStart());
         addressExample.setSize(buildingExample.getSize());
         addressExample.setStatus(buildingExample.getStatus());
+        addressExample.setAdmin(buildingExample.isAdmin());
+        addressExample.setUserPermissionString(sessionBean.getPermissionString("building_address"));
 
         AttributeExample numberExample = new AttributeExample(BuildingAddressStrategy.NUMBER);
         numberExample.setValue(number);
@@ -179,7 +181,8 @@ public class BuildingStrategy extends AbstractStrategy {
     @Override
     @Transactional
     public int count(DomainObjectExample example) {
-        example.setAdmin(sessionBean.getCurrentUserId().equals(SessionBean.ADMIN_ID));
+        prepareExampleForPermissionCheck(example);
+
         if (example.getId() != null) {
             Building building = findById(example.getId());
             return building == null ? 0 : 1;
@@ -217,7 +220,7 @@ public class BuildingStrategy extends AbstractStrategy {
     public Building findById(Long id) {
         DomainObjectExample example = new DomainObjectExample(id);
         example.setTable(getEntityTable());
-        example.setAdmin(sessionBean.getCurrentUserId().equals(SessionBean.ADMIN_ID));
+        prepareExampleForPermissionCheck(example);
 
         Building building = (Building) sqlSession().selectOne(BUILDING_NAMESPACE + "." + FIND_BY_ID_OPERATION, example);
         if (building != null) {
@@ -244,7 +247,7 @@ public class BuildingStrategy extends AbstractStrategy {
 
         //set up subject ids to visible-by-all subject
         building.setSubjectIds(Sets.newHashSet(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID));
-        
+
         return building;
     }
 

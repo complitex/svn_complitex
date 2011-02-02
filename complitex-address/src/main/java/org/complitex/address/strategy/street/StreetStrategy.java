@@ -31,7 +31,6 @@ import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.template.strategy.AbstractStrategy;
 import org.complitex.address.strategy.street.web.edit.StreetTypeComponent;
-import org.complitex.dictionary.service.SessionBean;
 import org.complitex.dictionary.strategy.IStrategy;
 
 /**
@@ -46,8 +45,6 @@ public class StreetStrategy extends AbstractStrategy {
     private StringCultureBean stringBean;
     @EJB
     private StrategyFactory strategyFactory;
-    @EJB
-    private SessionBean sessionBean;
 
     /*
      * Attribute type ids
@@ -64,7 +61,7 @@ public class StreetStrategy extends AbstractStrategy {
     @Transactional
     public List<DomainObject> find(DomainObjectExample example) {
         example.setTable(getEntityTable());
-        example.setAdmin(sessionBean.getCurrentUserId().equals(SessionBean.ADMIN_ID));
+        prepareExampleForPermissionCheck(example);
 
         List<DomainObject> objects = sqlSession().selectList(STREET_NAMESPACE + "." + FIND_OPERATION, example);
         for (DomainObject object : objects) {
