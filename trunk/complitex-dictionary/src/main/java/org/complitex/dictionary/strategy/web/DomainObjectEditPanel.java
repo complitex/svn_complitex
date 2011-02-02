@@ -4,15 +4,11 @@
  */
 package org.complitex.dictionary.strategy.web;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import java.util.List;
-import java.util.Set;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.complitex.dictionary.strategy.web.validate.IValidator;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
@@ -36,11 +32,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import org.apache.wicket.PageParameters;
-import org.complitex.dictionary.entity.Subject;
-import org.complitex.dictionary.service.PermissionBean;
+import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.util.DateUtil;
 import org.complitex.dictionary.web.component.permission.DomainObjectPermissionsPanel;
+import org.complitex.dictionary.web.component.permission.PermissionPropagationDialogPanel;
 
 /**
  *
@@ -55,8 +51,6 @@ public class DomainObjectEditPanel extends Panel {
     private StringCultureBean stringBean;
     @EJB(name = "LogBean")
     private LogBean logBean;
-    @EJB
-    private PermissionBean permissionBean;
     private String entity;
     private DomainObject oldObject;
     private DomainObject newObject;
@@ -64,8 +58,6 @@ public class DomainObjectEditPanel extends Panel {
     private String parentEntity;
     private DomainObjectInputPanel objectInputPanel;
     private final String scrollListPageParameterName;
-    private Set<Long> oldSubjectIds;
-    private Set<Long> newSubjectIds;
 
     public DomainObjectEditPanel(String id, String entity, Long objectId, Long parentId, String parentEntity, String scrollListPageParameterName) {
         super(id);
@@ -143,29 +135,52 @@ public class DomainObjectEditPanel extends Panel {
         form.add(historyContainer);
 
         //permissions panel
-        oldSubjectIds = Sets.newHashSet();
-        if (!isNew()) {
-            long permissionId = oldObject.getPermissionId();
-            if (permissionId == PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID) {
-                oldSubjectIds.add(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID);
-            } else {
-                oldSubjectIds.addAll(permissionBean.findSubjectIds(newObject.getPermissionId()));
-            }
-            newSubjectIds = CloneUtil.cloneObject(oldSubjectIds);
-        } else {
-            newSubjectIds = Sets.newHashSet();
-            newSubjectIds.add(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID);
-        }
-
-        DomainObjectPermissionsPanel permissionsPanel = new DomainObjectPermissionsPanel("permissionsPanel", newSubjectIds);
+        DomainObjectPermissionsPanel permissionsPanel = new DomainObjectPermissionsPanel("permissionsPanel", newObject.getSubjectIds());
         form.add(permissionsPanel);
 
-        //save-cancel functional
-        Button submit = new Button("submit") {
+        //permissionPropagationDialogPanel
+        final PermissionPropagationDialogPanel permissionPropagationDialogPanel = new PermissionPropagationDialogPanel("permissionPropagationDialogPanel") {
 
             @Override
-            public void onSubmit() {
-                save();
+            protected void applyPropagation(boolean propagate) {
+                try {
+                    save(propagate);
+                } catch (Exception e) {
+                    log.error("", e);
+                    error(getString("db_error"));
+                }
+
+            }
+        };
+        add(permissionPropagationDialogPanel);
+
+        //save-cancel functional
+        AjaxSubmitLink submit = new AjaxSubmitLink("submit") {
+
+            @Override
+            protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+                try {
+                    if (validate()) {
+                        if (isNew()) {
+                            save(false);
+                        } else {
+                            boolean isAbleToHaveChildren = getStrategy().getChildrenEntities() != null &&  getStrategy().getChildrenEntities().length > 0;
+                            if (isAbleToHaveChildren && getStrategy().isNeedToChangePermission(oldObject.getSubjectIds(), newObject.getSubjectIds())) {
+                                permissionPropagationDialogPanel.open(target);
+                            } else {
+                                save(false);
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    log.error("", e);
+                    error(getString("db_error"));
+                }
+            }
+
+            @Override
+            protected void onError(AjaxRequestTarget target, Form<?> form) {
+                target.addComponent(messages);
             }
         };
         submit.setVisible(CanEditUtil.canEdit(newObject));
@@ -200,52 +215,22 @@ public class DomainObjectEditPanel extends Panel {
         return valid;
     }
 
-    protected void handlePermission() {
-        //check if visible-by-all subject has been selected along with some actual subjects(organizations)
-        if(newSubjectIds.contains(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID) && newSubjectIds.size() > 1){
-            newSubjectIds.clear();
-            newSubjectIds.add(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID);
-        }
-
-        if (oldSubjectIds.equals(newSubjectIds)) {
-            // object references to the same subjects set therefore no need to modify permission_id
+    protected void save(boolean propagate) {
+        //permission related logic
+        if (isNew()) {
+            getStrategy().insert(newObject);
         } else {
-            // object references to new subjects set therefore it has to modify permission_id
-            List<Subject> subjects = Lists.newArrayList();
-            for (Long subjectId : newSubjectIds) {
-                subjects.add(new Subject("organization", subjectId));
-            }
-
-            if (subjects.size() == 1 && subjects.get(0).getObjectId() == PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID) {
-                newObject.setPermissionId(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID);
+            if (!propagate) {
+                getStrategy().update(oldObject, newObject, DateUtil.getCurrentDate());
             } else {
-                Long newPermissionId = permissionBean.getPermission(entity, subjects);
-                newObject.setPermissionId(newPermissionId);
+                getStrategy().updateAndPropagate(oldObject, newObject, DateUtil.getCurrentDate());
             }
         }
-    }
 
-    protected void save() {
-        try {
-            if (validate()) {
-                //permission related logic
-                handlePermission();
-
-                if (isNew()) {
-                    getStrategy().insert(newObject);
-                } else {
-                    getStrategy().update(oldObject, newObject, DateUtil.getCurrentDate());
-                }
-
-                logBean.log(Log.STATUS.OK, Module.NAME, DomainObjectEditPanel.class,
-                        isNew() ? Log.EVENT.CREATE : Log.EVENT.EDIT, getStrategy(),
-                        oldObject, newObject, getLocale(), null);
-                back();
-            }
-        } catch (Exception e) {
-            log.error("", e);
-            error(getString("db_error"));
-        }
+        logBean.log(Log.STATUS.OK, Module.NAME, DomainObjectEditPanel.class,
+                isNew() ? Log.EVENT.CREATE : Log.EVENT.EDIT, getStrategy(),
+                oldObject, newObject, getLocale(), null);
+        back();
     }
 
     private void back() {

@@ -33,6 +33,7 @@ import org.complitex.address.strategy.building.web.edit.BuildingEditComponent;
 import org.complitex.address.strategy.building.web.edit.BuildingValidator;
 import org.complitex.address.strategy.building.web.list.BuildingList;
 import org.complitex.address.strategy.building_address.BuildingAddressStrategy;
+import org.complitex.dictionary.service.PermissionBean;
 import org.complitex.dictionary.service.SessionBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -227,6 +228,10 @@ public class BuildingStrategy extends AbstractStrategy {
             setAlternativeAddresses(building, null);
             fillAttributes(building);
             updateStringsForNewLocales(building);
+
+            //load subject ids
+            Set<Long> subjectIds = loadSubjects(building.getPermissionId());
+            building.setSubjectIds(subjectIds);
         }
         return building;
     }
@@ -236,6 +241,10 @@ public class BuildingStrategy extends AbstractStrategy {
         Building building = new Building();
         fillAttributes(building);
         building.setPrimaryAddress(buildingAddressStrategy.newInstance());
+
+        //set up subject ids to visible-by-all subject
+        building.setSubjectIds(Sets.newHashSet(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID));
+        
         return building;
     }
 
@@ -292,7 +301,7 @@ public class BuildingStrategy extends AbstractStrategy {
 
     @Override
     public String[] getChildrenEntities() {
-        return new String[]{"apartment", "room"};
+        return null;
     }
 
     @Override

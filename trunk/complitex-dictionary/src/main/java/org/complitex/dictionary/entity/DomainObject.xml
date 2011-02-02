@@ -184,4 +184,15 @@
         <include refid="org.complitex.dictionary.entity.DomainObject.findHistoryObject"/>
     </select>
 
+    <!-- permissions -->
+
+    <select id="findChildren" parameterType="map" resultMap="org.complitex.dictionary.entity.DomainObject.DomainObject">
+        SELECT e.* FROM `${entity}` e WHERE e.`status` IN ('ACTIVE', 'INACTIVE') AND e.`parent_id` = #{parentId} AND
+                e.`parent_entity_id` = (SELECT ent.`id` FROM `entity` ent WHERE ent.`entity_table` = #{parentEntity})
+    </select>
+
+    <update id="updatePermissionId" parameterType="map">
+        UPDATE ${entity} e SET e.`permission_id` = #{permissionId} WHERE e.`status` IN ('ACTIVE', 'INACTIVE') AND e.`object_id` = #{id}
+    </update>
+
 </mapper>

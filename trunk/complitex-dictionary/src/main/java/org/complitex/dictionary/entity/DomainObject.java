@@ -11,7 +11,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import org.complitex.dictionary.service.PermissionBean;
+import java.util.Set;
 
 /**
  *
@@ -26,8 +26,9 @@ public class DomainObject implements Serializable {
     private Long parentId;
     private Long parentEntityId;
     private Long entityTypeId;
-    private Long permissionId = PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID;
+    private Long permissionId;
     private List<Attribute> attributes = new ArrayList<Attribute>();
+    private Set<Long> subjectIds;
 
     public Attribute getAttribute(Long attributeTypeId) {
         for (Attribute a : attributes) {
@@ -123,5 +124,13 @@ public class DomainObject implements Serializable {
 
     public void setPermissionId(Long permissionId) {
         this.permissionId = permissionId;
+    }
+
+    public Set<Long> getSubjectIds() {
+        return subjectIds;
+    }
+
+    public void setSubjectIds(Set<Long> subjectIds) {
+        this.subjectIds = subjectIds;
     }
 }

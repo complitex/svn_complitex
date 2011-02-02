@@ -7,6 +7,7 @@
         SELECT e.*
         FROM `${table}` e WHERE
         <include refid="org.complitex.dictionary.entity.DomainObject.statusFilter"/>
+        <include refid="org.complitex.dictionary.entity.DomainObject.permissionFilter"/>
         <include refid="org.complitex.dictionary.entity.DomainObject.filter"/>
         <if test="additionalParams != null and additionalParams['district'] != null">
             AND EXISTS(

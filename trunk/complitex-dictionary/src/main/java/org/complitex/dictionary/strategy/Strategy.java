@@ -26,13 +26,18 @@ import java.util.*;
 import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.History;
+import org.complitex.dictionary.entity.Log.STATUS;
 import org.complitex.dictionary.entity.Parameter;
 import org.complitex.dictionary.entity.SimpleTypes;
 import org.complitex.dictionary.entity.StatusType;
 import org.complitex.dictionary.entity.StringCulture;
+import org.complitex.dictionary.entity.Subject;
 import org.complitex.dictionary.service.LocaleBean;
+import org.complitex.dictionary.service.LogBean;
+import org.complitex.dictionary.service.PermissionBean;
 import org.complitex.dictionary.service.SessionBean;
 import org.complitex.dictionary.util.DateUtil;
+import org.complitex.dictionary.util.ResourceUtil;
 
 /**
  *
@@ -41,24 +46,22 @@ import org.complitex.dictionary.util.DateUtil;
 public abstract class Strategy extends AbstractBean implements IStrategy {
 
     private static final Logger log = LoggerFactory.getLogger(Strategy.class);
-
     @EJB(beanName = "StrategyFactory")
     private StrategyFactory strategyFactory;
-
     @EJB(beanName = "SequenceBean")
     private SequenceBean sequenceBean;
-
     @EJB(beanName = "StringCultureBean")
     private StringCultureBean stringBean;
-
     @EJB(beanName = "EntityBean")
     private EntityBean entityBean;
-
     @EJB
     private LocaleBean localeBean;
-
     @EJB
     private SessionBean sessionBean;
+    @EJB
+    private PermissionBean permissionBean;
+    @EJB
+    private LogBean logBean;
 
     @Override
     public boolean isSimpleAttributeType(EntityAttributeType entityAttributeType) {
@@ -163,9 +166,23 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
             loadAttributes(object);
             fillAttributes(object);
             updateStringsForNewLocales(object);
+
+            //load subject ids
+            Set<Long> subjectIds = loadSubjects(object.getPermissionId());
+            object.setSubjectIds(subjectIds);
         }
 
         return object;
+    }
+
+    @Transactional
+    @Override
+    public Set<Long> loadSubjects(long permissionId) {
+        if (permissionId == PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID) {
+            return Sets.newHashSet(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID);
+        } else {
+            return permissionBean.findSubjectIds(permissionId);
+        }
     }
 
     protected void updateStringsForNewLocales(DomainObject object) {
@@ -236,7 +253,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         example.setAdmin(sessionBean.getCurrentUserId().equals(SessionBean.ADMIN_ID));
         // TODO: fix logic:
         //example.setPermissionKeys()
-        
+
         return (Integer) sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + "." + COUNT_OPERATION, example);
     }
 
@@ -253,6 +270,10 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     public DomainObject newInstance() {
         DomainObject object = new DomainObject();
         fillAttributes(object);
+
+        //set up subject ids to visible-by-all subject
+        object.setSubjectIds(Sets.newHashSet(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID));
+
         return object;
     }
 
@@ -276,11 +297,27 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     public void insert(DomainObject object) {
         Date startDate = DateUtil.getCurrentDate();
         object.setId(sequenceBean.nextId(getEntityTable()));
+        object.setPermissionId(getNewPermissionId(object.getSubjectIds()));
         insertDomainObject(object, startDate);
         for (Attribute attribute : object.getAttributes()) {
             attribute.setObjectId(object.getId());
             attribute.setStartDate(startDate);
             insertAttribute(attribute);
+        }
+    }
+
+    @Transactional
+    protected Long getNewPermissionId(Set<Long> newSubjectIds) {
+        // object references to new subjects set therefore it has to modify permission_id
+        List<Subject> subjects = Lists.newArrayList();
+        for (Long subjectId : newSubjectIds) {
+            subjects.add(new Subject("organization", subjectId));
+        }
+
+        if (subjects.size() == 1 && subjects.get(0).getObjectId() == PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID) {
+            return PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID;
+        } else {
+            return permissionBean.getPermission(getEntityTable(), subjects);
         }
     }
 
@@ -306,6 +343,18 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     @Transactional
     @Override
     public void update(DomainObject oldObject, DomainObject newObject, Date updateDate) {
+        //permission comparison
+        if (isNeedToChangePermission(oldObject.getSubjectIds(), newObject.getSubjectIds())) {
+            newObject.setPermissionId(getNewPermissionId(newObject.getSubjectIds()));
+        }
+
+        long oldPermission = oldObject.getPermissionId();
+        long newPermission = newObject.getPermissionId();
+
+        if (!Numbers.isEqual(oldPermission, newPermission)) {
+            updatePermissionId(newObject);
+        }
+
         //attributes comparison
         for (Attribute oldAttr : oldObject.getAttributes()) {
             boolean removed = true;
@@ -416,14 +465,6 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
             needToUpdateObject = true;
         }
 
-        //permissions comparison
-        Long oldPermission = oldObject.getPermissionId();
-        Long newPermission = newObject.getPermissionId();
-
-        if(!Numbers.isEqual(oldPermission, newPermission)){
-            needToUpdateObject = true;
-        }
-
         if (needToUpdateObject) {
             oldObject.setStatus(StatusType.ARCHIVE);
             oldObject.setEndDate(updateDate);
@@ -432,8 +473,95 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         }
     }
 
+    @Override
+    public boolean isNeedToChangePermission(Set<Long> oldSubjectIds, Set<Long> newSubjectIds) {
+        return !newSubjectIds.equals(oldSubjectIds);
+    }
+
     @Transactional
-    protected void insertUpdatedDomainObject(DomainObject object, Date updateDate){
+    @Override
+    public void updateAndPropagate(DomainObject oldObject, final DomainObject newObject, Date updateDate) {
+        if (getChildrenEntities() == null || getChildrenEntities().length == 0) {
+            throw new RuntimeException("Illegal call of updateAndPropagate() as `" + getEntityTable() + "` entity is not able to has children.");
+        }
+        update(oldObject, newObject, updateDate);
+
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    changeChildrenPermission(newObject.getId(), newObject.getSubjectIds());
+                } catch (Exception e) {
+                    log.error("Process of changing children permissions has been failed.", e);
+                    logBean.logPermissionChange(STATUS.ERROR, getEntityTable(), newObject.getId(), getChangeChildrenPermissionError());
+                }
+                log.info("Process of changing children permissions has been successful.");
+                //logBean.logPermissionChange(STATUS.OK, getEntityTable(), newObject.getId(), getChangeChildrenPermissionSuccess());
+            }
+        }).start();
+    }
+
+    protected String getChangeChildrenPermissionError() {
+        return ResourceUtil.getString(Strategy.class.getName(), "change_children_permission_error", localeBean.getSystemLocale());
+    }
+
+    protected String getChangeChildrenPermissionSuccess() {
+        return ResourceUtil.getString(Strategy.class.getName(), "change_children_permission_success", localeBean.getSystemLocale());
+    }
+
+    @Transactional
+    @Override
+    public List<? extends DomainObject> findChildren(long parentId, String childEntity) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("entity", childEntity);
+        params.put("parentId", parentId);
+        params.put("parentEntity", getEntityTable());
+        return sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + "." + FIND_CHILDREN_OPERATION, params);
+    }
+
+    @Transactional
+    @Override
+    public void changeChildrenPermission(long parentId, Set<Long> subjectIds) {
+        String[] childrenEntities = getChildrenEntities();
+        if (childrenEntities != null && childrenEntities.length > 0) {
+            for (String childEntity : childrenEntities) {
+                changeChildrentPermission(childEntity, parentId, subjectIds);
+            }
+        }
+    }
+
+    @Transactional
+    protected void changeChildrentPermission(String childEntity, long parentId, Set<Long> subjectIds) {
+        IStrategy childStrategy = strategyFactory.getStrategy(childEntity);
+        List<? extends DomainObject> children = findChildren(parentId, childEntity);
+        for (DomainObject child : children) {
+            childStrategy.loadSubjects(child.getPermissionId());
+            if (childStrategy.isNeedToChangePermission(child.getSubjectIds(), subjectIds)) {
+                child.setSubjectIds(subjectIds);
+                long oldPermission = child.getPermissionId();
+                child.setPermissionId(getNewPermissionId(child.getSubjectIds()));
+                long newPermission = child.getPermissionId();
+                if (!Numbers.isEqual(oldPermission, newPermission)) {
+                    childStrategy.updatePermissionId(child);
+                }
+            }
+            childStrategy.changeChildrenPermission(child.getId(), subjectIds);
+        }
+    }
+
+    @Transactional
+    @Override
+    public void updatePermissionId(DomainObject object) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("entity", getEntityTable());
+        params.put("id", object.getId());
+        params.put("permissionId", object.getPermissionId());
+        sqlSession().update(DOMAIN_OBJECT_NAMESPACE + ".updatePermissionId", params);
+    }
+
+    @Transactional
+    protected void insertUpdatedDomainObject(DomainObject object, Date updateDate) {
         insertDomainObject(object, updateDate);
     }
 
@@ -520,8 +648,6 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     public ISearchCallback getParentSearchCallback() {
         return null;
     }
-
-    
 
     @SuppressWarnings({"unchecked"})
     @Transactional

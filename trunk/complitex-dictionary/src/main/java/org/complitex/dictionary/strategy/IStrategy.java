@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
@@ -42,6 +43,7 @@ public interface IStrategy {
     String HAS_HISTORY_OPERATION = "hasHistory";
     String INSERT_OPERATION = "insert";
     String UPDATE_OPERATION = "update";
+    String FIND_CHILDREN_OPERATION = "findChildren";
 
     void archive(DomainObject object);
 
@@ -154,4 +156,21 @@ public interface IStrategy {
 
     @Transactional
     void update(DomainObject oldObject, DomainObject newObject, Date updateDate);
+
+    @Transactional
+    void updateAndPropagate(DomainObject oldObject, DomainObject newObject, Date updateDate);
+
+    @Transactional
+    void changeChildrenPermission(long parentId, Set<Long> subjectIds);
+
+    boolean isNeedToChangePermission(Set<Long> oldSubjectIds, Set<Long> newSubjectIds);
+
+    @Transactional
+    Set<Long> loadSubjects(long permissionId);
+
+    @Transactional
+    void updatePermissionId(DomainObject object);
+
+    @Transactional
+    List<? extends DomainObject> findChildren(long parentId, String childEntity);
 }

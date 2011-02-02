@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.complitex.address.strategy.district.District">
+
+    <!-- permission -->
+    
+    <select id="findChildren" parameterType="long" resultMap="org.complitex.dictionary.entity.DomainObject.DomainObject">
+        SELECT e.* FROM `street` e WHERE e.`status` IN ('ACTIVE', 'INACTIVE')
+        AND EXISTS(
+            SELECT 1 FROM `building` b
+            JOIN `building_attribute` a ON (b.`object_id` = a.`object_id` AND a.`status` = 'ACTIVE' AND a.`attribute_type_id` = 500)
+            JOIN `building_address` addr ON (((b.`parent_id` = addr.`object_id`) OR
+                EXISTS(SELECT 1 FROM `building_attribute` ba WHERE ba.`object_id` = b.`object_id` AND ba.`status` = 'ACTIVE' AND ba.`attribute_type_id` = 501
+                AND ba.`value_id` = addr.`object_id`)) AND (addr.`status` IN ('ACTIVE', 'INACTIVE')))
+            WHERE b.`status` IN ('ACTIVE', 'INACTIVE') AND addr.`parent_id` = e.`object_id` AND addr.`parent_entity_id` = 300
+                AND a.`value_id` = #{parentId})
+    </select>
+
+</mapper>
