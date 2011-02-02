@@ -2,6 +2,7 @@ package org.complitex.admin.web;
 
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.complitex.template.web.template.ITemplateLink;
 import org.complitex.template.web.template.ResourceTemplateMenu;
 import org.slf4j.Logger;
@@ -17,6 +18,7 @@ import java.util.Locale;
  *
  *   Меню администрирование
  */
+@AuthorizeInstantiation("ADMIN_MODULE_EDIT")
 public class AdminTemplateMenu extends ResourceTemplateMenu {
     private static final Logger log = LoggerFactory.getLogger(AdminTemplateMenu.class);
 

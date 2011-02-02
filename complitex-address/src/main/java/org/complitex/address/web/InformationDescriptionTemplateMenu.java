@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.template.web.pages.EntityDescription;
 import org.complitex.template.web.template.ITemplateLink;
@@ -20,6 +21,7 @@ import org.complitex.dictionary.util.EjbBeanLocator;
  *
  * @author Artem
  */
+@AuthorizeInstantiation("ADDRESS_MODULE_EDIT")
 public class InformationDescriptionTemplateMenu extends ResourceTemplateMenu {
 
     @Override
