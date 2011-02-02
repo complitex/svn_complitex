@@ -7,6 +7,7 @@ package org.complitex.address.web;
 import com.google.common.collect.Lists;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.complitex.template.web.template.ITemplateLink;
 import org.complitex.template.web.template.ResourceTemplateMenu;
 import org.complitex.address.BookEntities;
@@ -22,6 +23,7 @@ import org.complitex.dictionary.util.EjbBeanLocator;
  *
  * @author Artem
  */
+@AuthorizeInstantiation("ADDRESS_MODULE_EDIT")
 public class InformationTemplateMenu extends ResourceTemplateMenu {
 
     private static IStrategy getStrategy(String entity) {
