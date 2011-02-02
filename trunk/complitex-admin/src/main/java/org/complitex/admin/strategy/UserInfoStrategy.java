@@ -2,10 +2,14 @@ package org.complitex.admin.strategy;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
+import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.DomainObject;
 
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.util.Locale;
+
+import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.template.strategy.AbstractStrategy;
 
 /**
@@ -14,6 +18,12 @@ import org.complitex.template.strategy.AbstractStrategy;
  */
 @Stateless(name = "User_infoStrategy")
 public class UserInfoStrategy extends AbstractStrategy {
+    @EJB(beanName = "StringCultureBean")
+    private StringCultureBean stringBean;
+
+    public final static Long LAST_NAME = 1000L;
+    public final static Long FIRST_NAME = 1001L;
+    public final static Long MIDDLE_NAME = 1002L;
 
     @Override
     public String getEntityTable() {
@@ -32,7 +42,23 @@ public class UserInfoStrategy extends AbstractStrategy {
 
     @Override
     public String displayDomainObject(DomainObject object, Locale locale) {
-        return null;
+        Attribute lastName = object.getAttribute(LAST_NAME);
+        Attribute firstName = object.getAttribute(FIRST_NAME);
+        Attribute middleName = object.getAttribute(MIDDLE_NAME);
+
+        String s = "";
+
+        if (lastName != null){
+            s += stringBean.displayValue(lastName.getLocalizedValues(), locale);
+        }
+        if (firstName != null){
+            s += " " + stringBean.displayValue(firstName.getLocalizedValues(), locale);
+        }
+        if (middleName != null){
+            s += " " + stringBean.displayValue(middleName.getLocalizedValues(), locale);
+        }
+
+        return s;
     }
 
     @Override

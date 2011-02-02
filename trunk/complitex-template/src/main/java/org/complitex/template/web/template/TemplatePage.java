@@ -17,6 +17,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.util.string.Strings;
+import org.complitex.dictionary.service.SessionBean;
 import org.complitex.resources.WebCommonResourceInitializer;
 import org.complitex.dictionary.entity.PreferenceKey;
 import org.complitex.template.web.component.LocalePicker;
@@ -26,6 +27,7 @@ import org.odlabs.wiquery.core.commons.CoreJavaScriptResourceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ejb.EJB;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,6 +44,9 @@ public abstract class TemplatePage extends WebPage {
     private static final Logger log = LoggerFactory.getLogger(TemplatePage.class);
 
     private String page = getClass().getName();
+
+    @EJB(name = "SessionBean")
+    private SessionBean sessionBean;
 
     protected TemplatePage() {
         add(JavascriptPackageResource.getHeaderContribution(CoreJavaScriptResourceReference.get()));
@@ -94,12 +99,8 @@ public abstract class TemplatePage extends WebPage {
             }
         });
 
-//        User user = userProfileBean.getCurrentUser();
-//
-//
-//        add(new Label("current_user_fullname", user.getFullName()
-//                + (user.getJob() != null ? ", " + user.getJob().getDisplayName(getLocale(), systemLocale) : "")));
-//        add(new Label("current_user_department", user.getDepartment().getDisplayName(getLocale(), systemLocale)));
+        add(new Label("current_user_fullname", sessionBean.getCurrentUserFullName(getLocale())));
+        add(new Label("current_user_department",sessionBean.getMainUserOrganizationName(getLocale())));
 
         add(new Form("exit") {
 

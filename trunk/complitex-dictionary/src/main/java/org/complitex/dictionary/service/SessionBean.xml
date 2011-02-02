@@ -11,6 +11,11 @@
             where u.`login` = #{login}
     </select>
 
+    <select id="selectMainOrganizationObjectId" parameterType="string" resultType="long">
+        select uo.`organization_object_id` from `user_organization` uo left join `user` u on uo.`user_id` = u.`id`
+            where u.`login` = #{login} and uo.`main` = true limit 1
+    </select>
+
     <select id="selectUserOrganizationPermissionIds" parameterType="map" resultType="long" useCache="false">
         select p.`permission_id` from `user` u
             left join `user_organization` uo on uo.`user_id` = u.`id`
