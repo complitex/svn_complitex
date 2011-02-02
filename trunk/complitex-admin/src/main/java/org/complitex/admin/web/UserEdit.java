@@ -25,6 +25,7 @@ import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.admin.Module;
 import org.complitex.admin.service.UserBean;
 import org.complitex.dictionary.web.component.UserOrganizationPicker;
+import org.complitex.dictionary.web.component.list.AjaxRemovableListView;
 import org.complitex.template.web.security.SecurityRole;
 import org.complitex.template.web.template.FormTemplatePage;
 import org.slf4j.Logger;
@@ -165,6 +166,7 @@ public class UserEdit extends FormTemplatePage {
             @Override
             protected void populateItem(ListItem<UserOrganization> item) {
                 final UserOrganization userOrganization = item.getModelObject();
+                final ListView listView = this;
 
                 item.add(new Radio<UserOrganization>("radio", item.getModel()));
 
@@ -182,6 +184,8 @@ public class UserEdit extends FormTemplatePage {
                                 break;
                             }
                         }
+
+                        listView.removeAll();
 
                         target.addComponent(organizationContainer);
                     }

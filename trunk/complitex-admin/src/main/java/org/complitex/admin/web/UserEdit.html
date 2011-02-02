@@ -38,16 +38,18 @@
             <tr>
                 <th><wicket:message key="usergroup"/>:</th>
                 <td>
-                    <ul wicket:id="usergroups">
-                        <li>
-                            <input type="checkbox" wicket:id="ADMINISTRATORS"/>
-                            <wicket:message key="ADMINISTRATORS"/>
-                        </li>
-                        <li>
-                            <input type="checkbox" wicket:id="EMPLOYEES"/>
-                            <wicket:message key="EMPLOYEES"/>
-                        </li>
-                    </ul>
+                    <div wicket:id="usergroups">
+                        <ul>
+                            <li>
+                                <input type="checkbox" wicket:id="ADMINISTRATORS"/>
+                                <wicket:message key="ADMINISTRATORS"/>
+                            </li>
+                            <li>
+                                <input type="checkbox" wicket:id="EMPLOYEES"/>
+                                <wicket:message key="EMPLOYEES"/>
+                            </li>
+                        </ul>
+                    </div>
                 </td>
             </tr>
             <tr>
@@ -55,8 +57,8 @@
                 <td>
                     <div wicket:id="organizationContainer">
                         <div wicket:id="organizationGroup">
-                            <ul wicket:id="userOrganizations">
-                                <li>
+                            <ul>
+                                <li wicket:id="userOrganizations">
                                     <input type="radio" wicket:id="radio"/>
                                     <span wicket:id="name"></span>
                                     [<a href="#" wicket:id="delete">&times;</a>]
@@ -64,9 +66,14 @@
                             </ul>
                         </div>
                     </div>
+
                     <form wicket:id="addOrganizationForm" action="#">
-                        <div wicket:id="organization"></div>
-                        <a href="#" wicket:id="addOrganization"><wicket:message key="add"/></a>
+                        <table>
+                            <tr>
+                                <td><div wicket:id="organization"></div></td>
+                                <td><a href="#" wicket:id="addOrganization"><wicket:message key="add"/></a></td>
+                            </tr>
+                        </table>
                     </form>
                 </td>
             </tr>
