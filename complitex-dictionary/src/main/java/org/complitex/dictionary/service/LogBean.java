@@ -87,6 +87,13 @@ public class LogBean extends AbstractBean {
                 descriptionPattern, descriptionArguments);
     }
 
+    public void logPermissionChange(Log.STATUS status, String entity, Long objectId, String descriptionPattern, Object... descriptionArguments) {
+        String controller = "changeChildrenPermissionProcess";
+        String model = DomainObject.class.getName() + "#" + entity;
+        String module = org.complitex.dictionary.Module.NAME;
+        log(module, controller, model, objectId, Log.EVENT.SETTING_PERMISSION, status, null, descriptionPattern, descriptionArguments);
+    }
+
     public void error(String module, Class controllerClass, Class modelClass, String entityName, Long objectId,
             Log.EVENT event, List<LogChange> changes, String descriptionPattern, Object... descriptionArguments) {
 

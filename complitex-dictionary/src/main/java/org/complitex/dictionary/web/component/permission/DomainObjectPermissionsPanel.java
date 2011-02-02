@@ -16,6 +16,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.complitex.dictionary.entity.DomainObject;
+import org.complitex.dictionary.service.PermissionBean;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.web.component.DomainObjectDisableAwareRenderer;
 
@@ -30,7 +31,7 @@ public final class DomainObjectPermissionsPanel extends Panel {
     private static final DomainObject VISIBLE_BY_ALL = new DomainObject();
 
     static {
-        VISIBLE_BY_ALL.setId(0L);
+        VISIBLE_BY_ALL.setId(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID);
     }
 
     public DomainObjectPermissionsPanel(String id, Set<Long> subjectIds) {
@@ -53,7 +54,7 @@ public final class DomainObjectPermissionsPanel extends Panel {
 
             @Override
             public Object getDisplayValue(DomainObject object) {
-                if (object.getId().equals(0L)) {
+                if (object.getId().equals(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID)) {
                     return getString("visible_by_all");
                 } else {
                     return organizationStrategy.displayDomainObject(object, getLocale());
@@ -93,6 +94,7 @@ public final class DomainObjectPermissionsPanel extends Panel {
                             return subject.getId();
                         }
                     })));
+                    normalizeSubjectIds(subjectIds);
                 }
             }
 
@@ -103,5 +105,13 @@ public final class DomainObjectPermissionsPanel extends Panel {
 
         ListMultipleChoice<DomainObject> subjects = new ListMultipleChoice<DomainObject>("subjects", subjectsModel, allSubjectsModel, renderer);
         add(subjects);
+    }
+
+    private void normalizeSubjectIds(Set<Long> subjectIds) {
+        //check if visible-by-all subject has been selected along with some actual subjects(organizations)
+        if (subjectIds.contains(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID) && subjectIds.size() > 1) {
+            subjectIds.clear();
+            subjectIds.add(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID);
+        }
     }
 }

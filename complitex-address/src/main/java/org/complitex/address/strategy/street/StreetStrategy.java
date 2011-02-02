@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import java.util.Set;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.entity.Attribute;
@@ -30,6 +31,7 @@ import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.template.strategy.AbstractStrategy;
 import org.complitex.address.strategy.street.web.edit.StreetTypeComponent;
+import org.complitex.dictionary.service.SessionBean;
 import org.complitex.dictionary.strategy.IStrategy;
 
 /**
@@ -40,18 +42,17 @@ import org.complitex.dictionary.strategy.IStrategy;
 public class StreetStrategy extends AbstractStrategy {
 
     private static final String STREET_NAMESPACE = StreetStrategy.class.getPackage().getName() + ".Street";
-
     @EJB
     private StringCultureBean stringBean;
-
     @EJB
     private StrategyFactory strategyFactory;
+    @EJB
+    private SessionBean sessionBean;
 
     /*
      * Attribute type ids
      */
     private static final long NAME = 300;
-
     public static final long STREET_TYPE = 301;
 
     @Override
@@ -63,6 +64,8 @@ public class StreetStrategy extends AbstractStrategy {
     @Transactional
     public List<DomainObject> find(DomainObjectExample example) {
         example.setTable(getEntityTable());
+        example.setAdmin(sessionBean.getCurrentUserId().equals(SessionBean.ADMIN_ID));
+
         List<DomainObject> objects = sqlSession().selectList(STREET_NAMESPACE + "." + FIND_OPERATION, example);
         for (DomainObject object : objects) {
             loadAttributes(object);
@@ -199,5 +202,10 @@ public class StreetStrategy extends AbstractStrategy {
             }
         }
         return null;
+    }
+
+    @Override
+    public void changeChildrenPermission(long parentId, Set<Long> subjectIds) {
+        changeChildrentPermission("building_address", parentId, subjectIds);
     }
 }

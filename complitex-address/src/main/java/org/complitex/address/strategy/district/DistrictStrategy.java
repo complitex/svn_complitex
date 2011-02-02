@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import org.complitex.dictionary.mybatis.Transactional;
 import org.complitex.template.strategy.AbstractStrategy;
 
 /**
@@ -30,6 +31,7 @@ import org.complitex.template.strategy.AbstractStrategy;
 @Stateless(name = "DistrictStrategy")
 public class DistrictStrategy extends AbstractStrategy {
 
+    private static final String DISTRICT_NAMESPACE = DistrictStrategy.class.getPackage().getName() + ".District";
     @EJB(beanName = "StringCultureBean")
     private StringCultureBean stringBean;
 
@@ -37,7 +39,6 @@ public class DistrictStrategy extends AbstractStrategy {
      * Attribute type ids
      */
     private static final long NAME = 600;
-
     private static final long CODE = 601;
 
     @Override
@@ -133,5 +134,11 @@ public class DistrictStrategy extends AbstractStrategy {
     public String getDistrictCode(long districtId) {
         DomainObject district = findById(districtId);
         return stringBean.getSystemStringCulture(district.getAttribute(CODE).getLocalizedValues()).getValue();
+    }
+
+    @Transactional
+    @Override
+    public List<? extends DomainObject> findChildren(long parentId, String childEntity) {
+        return sqlSession().selectList(DISTRICT_NAMESPACE + "." + FIND_CHILDREN_OPERATION, parentId);
     }
 }

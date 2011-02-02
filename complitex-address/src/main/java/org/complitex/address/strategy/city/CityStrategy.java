@@ -145,7 +145,7 @@ public class CityStrategy extends AbstractStrategy {
 
     @Override
     public String[] getChildrenEntities() {
-        return new String[]{"street"};
+        return new String[]{"district"};
     }
 
     @Override
