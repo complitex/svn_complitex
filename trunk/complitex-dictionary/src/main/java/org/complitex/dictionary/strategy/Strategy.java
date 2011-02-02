@@ -46,13 +46,13 @@ import org.complitex.dictionary.util.ResourceUtil;
 public abstract class Strategy extends AbstractBean implements IStrategy {
 
     private static final Logger log = LoggerFactory.getLogger(Strategy.class);
-    @EJB(beanName = "StrategyFactory")
+    @EJB
     private StrategyFactory strategyFactory;
-    @EJB(beanName = "SequenceBean")
+    @EJB
     private SequenceBean sequenceBean;
-    @EJB(beanName = "StringCultureBean")
+    @EJB
     private StringCultureBean stringBean;
-    @EJB(beanName = "EntityBean")
+    @EJB
     private EntityBean entityBean;
     @EJB
     private LocaleBean localeBean;
@@ -157,9 +157,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     public DomainObject findById(Long id) {
         DomainObjectExample example = new DomainObjectExample(id);
         example.setTable(getEntityTable());
-        example.setAdmin(sessionBean.getCurrentUserId().equals(SessionBean.ADMIN_ID));
-        // TODO: fix logic:
-        //example.setPermissionKeys()
+        prepareExampleForPermissionCheck(example);
 
         DomainObject object = (DomainObject) sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + "." + FIND_BY_ID_OPERATION, example);
         if (object != null) {
@@ -230,14 +228,17 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         return null;
     }
 
+    protected void prepareExampleForPermissionCheck(DomainObjectExample example) {
+        example.setAdmin(sessionBean.isAdmin());
+        example.setUserPermissionString(sessionBean.getPermissionString(getEntityTable()));
+    }
+
     @SuppressWarnings({"unchecked"})
     @Transactional
     @Override
     public List<? extends DomainObject> find(DomainObjectExample example) {
         example.setTable(getEntityTable());
-        example.setAdmin(sessionBean.getCurrentUserId().equals(SessionBean.ADMIN_ID));
-        // TODO: fix logic:
-        //example.setPermissionKeys()
+        prepareExampleForPermissionCheck(example);
 
         List<DomainObject> objects = sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + "." + FIND_OPERATION, example);
         for (DomainObject object : objects) {
@@ -250,9 +251,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     @Override
     public int count(DomainObjectExample example) {
         example.setTable(getEntityTable());
-        example.setAdmin(sessionBean.getCurrentUserId().equals(SessionBean.ADMIN_ID));
-        // TODO: fix logic:
-        //example.setPermissionKeys()
+        prepareExampleForPermissionCheck(example);
 
         return (Integer) sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + "." + COUNT_OPERATION, example);
     }

@@ -16,4 +16,6 @@ import org.complitex.dictionary.strategy.IStrategy;
 public interface IOrganizationStrategy extends IStrategy {
 
     List<? extends DomainObject> getUserOrganizations(Locale locale, Long... excludeOrganizationsId);
+
+    List<? extends DomainObject> getChildrenOrganizations(Locale locale, long parentOrganizationId);
 }
