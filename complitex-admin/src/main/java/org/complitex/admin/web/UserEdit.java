@@ -6,7 +6,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
-import org.apache.wicket.markup.html.WebComponent;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.*;
@@ -17,15 +16,14 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.complitex.admin.Module;
+import org.complitex.admin.service.UserBean;
 import org.complitex.dictionary.entity.*;
 import org.complitex.dictionary.service.LogBean;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.util.CloneUtil;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
-import org.complitex.admin.Module;
-import org.complitex.admin.service.UserBean;
 import org.complitex.dictionary.web.component.UserOrganizationPicker;
-import org.complitex.dictionary.web.component.list.AjaxRemovableListView;
 import org.complitex.template.web.security.SecurityRole;
 import org.complitex.template.web.template.FormTemplatePage;
 import org.slf4j.Logger;
@@ -34,11 +32,9 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.EJB;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
-import static org.complitex.dictionary.entity.UserGroup.GROUP_NAME.ADMINISTRATORS;
-import static org.complitex.dictionary.entity.UserGroup.GROUP_NAME.EMPLOYEES;
+import static org.complitex.dictionary.entity.UserGroup.GROUP_NAME.*;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -145,6 +141,7 @@ public class UserEdit extends FormTemplatePage {
 
         usergroups.add(new Check<UserGroup>("ADMINISTRATORS", getUserGroup(userModel.getObject(), ADMINISTRATORS)));
         usergroups.add(new Check<UserGroup>("EMPLOYEES", getUserGroup(userModel.getObject(), EMPLOYEES)));
+        usergroups.add(new Check<UserGroup>("EMPLOYEES_CHILD_VIEW", getUserGroup(userModel.getObject(), EMPLOYEES_CHILD_VIEW)));
 
         form.add(usergroups);
 
