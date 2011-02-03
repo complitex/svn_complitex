@@ -48,6 +48,10 @@ public class LocaleBean extends AbstractBean {
     }
 
     public Locale convert(java.util.Locale locale) {
+        if (locale == null){
+            return systemLocaleObject;
+        }
+
         return localesMap.get(locale);
     }
 

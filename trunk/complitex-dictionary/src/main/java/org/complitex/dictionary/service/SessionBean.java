@@ -3,9 +3,9 @@ package org.complitex.dictionary.service;
 import org.complitex.dictionary.entity.Subject;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
-import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 
 import javax.annotation.Resource;
+import javax.annotation.security.DeclareRoles;
 import javax.ejb.*;
 import java.util.*;
 
@@ -13,7 +13,8 @@ import java.util.*;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 29.11.10 19:00
  */
-@Stateful(name = "SessionBean")
+@Stateless(name = "SessionBean")
+@DeclareRoles("CHILD_ORGANIZATION_VIEW")
 public class SessionBean extends AbstractBean {
     private static final String MAPPING_NAMESPACE = SessionBean.class.getName();
 
@@ -49,6 +50,48 @@ public class SessionBean extends AbstractBean {
     }
 
     @SuppressWarnings({"unchecked"})
+    public List<Long> getOrganizationChildrenObjectId(Long parentObjectId){
+        return sqlSession().selectList(MAPPING_NAMESPACE + ".selectOrganizationChildrenObjectIds", parentObjectId);
+    }
+
+    public List<Long> getUserOrganizationTreeObjectIds(){
+        List<Long> objectIds = new ArrayList<Long>();
+
+        for (Long objectId : getUserOrganizationObjectIds()){
+            addChildOrganizations(objectIds, objectId);
+        }
+
+        return objectIds;
+    }
+
+    private void addChildOrganizations(List<Long> objectIds, Long objectId){
+        objectIds.add(objectId);
+
+        for (Long id : getOrganizationChildrenObjectId(objectId)){
+            if (!objectIds.contains(id)){
+                addChildOrganizations(objectIds, id);
+            }
+        }
+    }
+
+    @SuppressWarnings({"unchecked"})
+    public List<Long> getUserOrganizationTreePermissionIds(String table){
+        String s = "";
+        String d = "";
+
+        for (Long p : getUserOrganizationTreeObjectIds()) {
+            s += d + p;
+            d = ", ";
+        }
+
+        Map<String, String> parameter = new HashMap<String, String>();
+        parameter.put("table", table);
+        parameter.put("organizations", "(" + s + ")");
+
+        return sqlSession().selectList(MAPPING_NAMESPACE + ".selectUserOrganizationTreePermissionIds", parameter);
+    }
+
+    @SuppressWarnings({"unchecked"})
     public Long getMainUserOrganizationObjectId() {
         return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectMainOrganizationObjectId",
                 sessionContext.getCallerPrincipal().getName());
@@ -76,7 +119,9 @@ public class SessionBean extends AbstractBean {
     }
 
     public String getPermissionString(String table) {
-        List<Long> permissions = getUserOrganizationPermissionIds(table);
+        List<Long> permissions = sessionContext.isCallerInRole("CHILD_ORGANIZATION_VIEW")
+                ? getUserOrganizationTreePermissionIds(table)
+                : getUserOrganizationPermissionIds(table);
         permissions.add(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID);
 
         String s = "";
