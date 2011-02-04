@@ -5,16 +5,25 @@
 
     <!-- permission -->
     
-    <select id="findChildren" parameterType="long" resultMap="org.complitex.dictionary.entity.DomainObject.DomainObject">
-        SELECT e.* FROM `street` e WHERE e.`status` IN ('ACTIVE', 'INACTIVE')
-        AND EXISTS(
-            SELECT 1 FROM `building` b
-            JOIN `building_attribute` a ON (b.`object_id` = a.`object_id` AND a.`status` = 'ACTIVE' AND a.`attribute_type_id` = 500)
-            JOIN `building_address` addr ON (((b.`parent_id` = addr.`object_id`) OR
-                EXISTS(SELECT 1 FROM `building_attribute` ba WHERE ba.`object_id` = b.`object_id` AND ba.`status` = 'ACTIVE' AND ba.`attribute_type_id` = 501
-                AND ba.`value_id` = addr.`object_id`)) AND (addr.`status` IN ('ACTIVE', 'INACTIVE')))
-            WHERE b.`status` IN ('ACTIVE', 'INACTIVE') AND addr.`parent_id` = e.`object_id` AND addr.`parent_entity_id` = 300
-                AND a.`value_id` = #{parentId})
+    <select id="findChildren" parameterType="map" resultMap="org.complitex.dictionary.entity.DomainObject.DomainObjectPermissionInfo">
+        SELECT e.`object_id`, e.`permission_id` FROM `street` e
+                JOIN `building_address` addr ON (addr.`parent_id` = e.`object_id` AND addr.`status` IN ('ACTIVE', 'INACTIVE') AND addr.`parent_entity_id` = 300)
+                JOIN `building` b ON (b.`parent_id` = addr.`object_id` AND b.`status` IN ('ACTIVE', 'INACTIVE'))
+                JOIN `building_attribute` district_attr ON (b.`object_id` = district_attr.`object_id` AND district_attr.`status` = 'ACTIVE' AND district_attr.`attribute_type_id` = 500
+                    AND district_attr.`value_id` = #{parentId})
+            WHERE e.`status` IN ('ACTIVE', 'INACTIVE')
+        UNION
+        SELECT e.`object_id`, e.`permission_id` FROM `street` e
+                JOIN `building_address` addr ON (addr.`parent_id` = e.`object_id` AND addr.`status` IN ('ACTIVE', 'INACTIVE') AND addr.`parent_entity_id` = 300)
+                JOIN `building_attribute` district_attr ON (district_attr.`status` = 'ACTIVE' AND district_attr.`attribute_type_id` = 500
+                    AND district_attr.`value_id` = #{parentId})
+                JOIN `building_attribute` ref_attr ON (ref_attr.`status` = 'ACTIVE' AND ref_attr.`attribute_type_id` = 501
+                    AND ref_attr.`value_id` = addr.`object_id`)
+                JOIN `building` b ON (b.`status` IN ('ACTIVE', 'INACTIVE') AND b.`object_id` = district_attr.`object_id` AND b.`object_id` = ref_attr.`object_id`)
+            WHERE e.`status` IN ('ACTIVE', 'INACTIVE')
+        
+        ORDER BY 1
+        <include refid="org.complitex.dictionary.entity.DomainObject.limit"/>
     </select>
 
 </mapper>

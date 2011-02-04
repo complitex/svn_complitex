@@ -2,6 +2,7 @@ package org.complitex.address.strategy.district;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.entity.DomainObject;
@@ -138,7 +139,11 @@ public class DistrictStrategy extends AbstractStrategy {
 
     @Transactional
     @Override
-    public List<? extends DomainObject> findChildren(long parentId, String childEntity) {
-        return sqlSession().selectList(DISTRICT_NAMESPACE + "." + FIND_CHILDREN_OPERATION, parentId);
+    public List<? extends DomainObjectPermissionInfo> findChildren(long parentId, String childEntity, int start, int size) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("parentId", parentId);
+        params.put("start", start);
+        params.put("size", size);
+        return sqlSession().selectList(DISTRICT_NAMESPACE + "." + FIND_CHILDREN_OPERATION, params);
     }
 }

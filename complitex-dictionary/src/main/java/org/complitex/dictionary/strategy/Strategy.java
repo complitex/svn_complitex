@@ -46,6 +46,7 @@ import org.complitex.dictionary.util.ResourceUtil;
 public abstract class Strategy extends AbstractBean implements IStrategy {
 
     private static final Logger log = LoggerFactory.getLogger(Strategy.class);
+    private static final int CHILDREN_BATCH = 500;
     @EJB
     private StrategyFactory strategyFactory;
     @EJB
@@ -166,8 +167,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
             updateStringsForNewLocales(object);
 
             //load subject ids
-            Set<Long> subjectIds = loadSubjects(object.getPermissionId());
-            object.setSubjectIds(subjectIds);
+            object.setSubjectIds(loadSubjects(object.getPermissionId()));
         }
 
         return object;
@@ -351,7 +351,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         long newPermission = newObject.getPermissionId();
 
         if (!Numbers.isEqual(oldPermission, newPermission)) {
-            updatePermissionId(newObject);
+            updatePermissionId(newObject.getId(), newObject.getPermissionId());
         }
 
         //attributes comparison
@@ -511,11 +511,13 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
     @Transactional
     @Override
-    public List<? extends DomainObject> findChildren(long parentId, String childEntity) {
+    public List<? extends DomainObjectPermissionInfo> findChildren(long parentId, String childEntity, int start, int size) {
         Map<String, Object> params = Maps.newHashMap();
         params.put("entity", childEntity);
         params.put("parentId", parentId);
         params.put("parentEntity", getEntityTable());
+        params.put("start", start);
+        params.put("size", size);
         return sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + "." + FIND_CHILDREN_OPERATION, params);
     }
 
@@ -533,29 +535,48 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     @Transactional
     protected void changeChildrentPermission(String childEntity, long parentId, Set<Long> subjectIds) {
         IStrategy childStrategy = strategyFactory.getStrategy(childEntity);
-        List<? extends DomainObject> children = findChildren(parentId, childEntity);
-        for (DomainObject child : children) {
-            childStrategy.loadSubjects(child.getPermissionId());
-            if (childStrategy.isNeedToChangePermission(child.getSubjectIds(), subjectIds)) {
-                child.setSubjectIds(subjectIds);
-                long oldPermission = child.getPermissionId();
-                child.setPermissionId(getNewPermissionId(child.getSubjectIds()));
-                long newPermission = child.getPermissionId();
-                if (!Numbers.isEqual(oldPermission, newPermission)) {
-                    childStrategy.updatePermissionId(child);
+
+        int i = 0;
+        boolean allChildrenLoaded = false;
+//        time = System.currentTimeMillis();
+        while (!allChildrenLoaded) {
+
+            List<? extends DomainObjectPermissionInfo> children = findChildren(parentId, childEntity, i, CHILDREN_BATCH);
+//            log.info("Find children of {}, parent id: {}, iteration: {} took {} sec.",
+//                    new Object[]{getEntityTable(), parentId, i, (System.currentTimeMillis() - time)/1000});
+            if (children.size() > 0) {
+                //process children
+                for (DomainObjectPermissionInfo child : children) {
+                    Set<Long> childSubjectIds = childStrategy.loadSubjects(child.getPermissionId());
+                    if (childStrategy.isNeedToChangePermission(childSubjectIds, subjectIds)) {
+                        long oldPermission = child.getPermissionId();
+                        child.setPermissionId(getNewPermissionId(subjectIds));
+                        long newPermission = child.getPermissionId();
+                        if (!Numbers.isEqual(oldPermission, newPermission)) {
+                            childStrategy.updatePermissionId(child.getId(), child.getPermissionId());
+                        }
+                    }
+                    childStrategy.changeChildrenPermission(child.getId(), subjectIds);
                 }
+
+                if (children.size() < CHILDREN_BATCH) {
+                    allChildrenLoaded = true;
+                } else {
+                    i += CHILDREN_BATCH;
+                }
+            } else {
+                allChildrenLoaded = true;
             }
-            childStrategy.changeChildrenPermission(child.getId(), subjectIds);
         }
     }
 
     @Transactional
     @Override
-    public void updatePermissionId(DomainObject object) {
+    public void updatePermissionId(long objectId, long permissionId) {
         Map<String, Object> params = Maps.newHashMap();
         params.put("entity", getEntityTable());
-        params.put("id", object.getId());
-        params.put("permissionId", object.getPermissionId());
+        params.put("id", objectId);
+        params.put("permissionId", permissionId);
         sqlSession().update(DOMAIN_OBJECT_NAMESPACE + ".updatePermissionId", params);
     }
 

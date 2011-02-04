@@ -186,9 +186,16 @@
 
     <!-- permissions -->
 
-    <select id="findChildren" parameterType="map" resultMap="org.complitex.dictionary.entity.DomainObject.DomainObject">
-        SELECT e.* FROM `${entity}` e WHERE e.`status` IN ('ACTIVE', 'INACTIVE') AND e.`parent_id` = #{parentId} AND
+    <resultMap id="DomainObjectPermissionInfo" type="org.complitex.dictionary.strategy.IStrategy$DomainObjectPermissionInfo">
+        <id column="object_id" property="id"/>
+        <result column="permission_id" property="permissionId"/>
+    </resultMap>
+
+    <select id="findChildren" parameterType="map" resultMap="org.complitex.dictionary.entity.DomainObject.DomainObjectPermissionInfo">
+        SELECT e.`object_id`, e.`permission_id` FROM `${entity}` e WHERE e.`status` IN ('ACTIVE', 'INACTIVE') AND e.`parent_id` = #{parentId} AND
                 e.`parent_entity_id` = (SELECT ent.`id` FROM `entity` ent WHERE ent.`entity_table` = #{parentEntity})
+            ORDER BY e.`object_id`
+                 <include refid="org.complitex.dictionary.entity.DomainObject.limit"/>
     </select>
 
     <update id="updatePermissionId" parameterType="map">

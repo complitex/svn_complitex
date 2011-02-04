@@ -233,8 +233,7 @@ public class BuildingStrategy extends AbstractStrategy {
             updateStringsForNewLocales(building);
 
             //load subject ids
-            Set<Long> subjectIds = loadSubjects(building.getPermissionId());
-            building.setSubjectIds(subjectIds);
+             building.setSubjectIds(loadSubjects(building.getPermissionId()));
         }
         return building;
     }
@@ -421,7 +420,7 @@ public class BuildingStrategy extends AbstractStrategy {
         }
         if (addedAddresses != null) {
             for (DomainObject newAddress : addedAddresses) {
-                newAddress.setPermissionId(newBuilding.getPermissionId());
+                newAddress.setSubjectIds(newBuilding.getSubjectIds());
                 buildingAddressStrategy.insert(newAddress);
             }
         }
@@ -430,7 +429,7 @@ public class BuildingStrategy extends AbstractStrategy {
             for (Map.Entry<DomainObject, DomainObject> updatedAddress : updatedAddressesMap.entrySet()) {
                 DomainObject oldAddress = updatedAddress.getKey();
                 DomainObject newAddress = updatedAddress.getValue();
-                newAddress.setPermissionId(newBuilding.getPermissionId());
+                newAddress.setSubjectIds(newBuilding.getSubjectIds());
                 buildingAddressStrategy.update(oldAddress, newAddress, updateDate);
             }
         }
