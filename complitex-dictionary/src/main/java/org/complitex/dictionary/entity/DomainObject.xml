@@ -57,7 +57,7 @@
 
     <sql id="permissionFilter">
         <if test="not admin">
-            AND (e.`permission_id` IN (#{userPermissionString}))
+            AND (e.`permission_id` IN ${userPermissionString})
         </if>
     </sql>
 

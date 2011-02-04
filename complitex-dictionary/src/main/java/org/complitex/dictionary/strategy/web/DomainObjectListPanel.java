@@ -263,8 +263,20 @@ public class DomainObjectListPanel extends Panel {
                     }
                 };
                 item.add(dataColumns);
-                item.add(new ScrollBookmarkablePageLink<WebPage>("detailsLink", getStrategy().getEditPage(),
-                        getStrategy().getEditPageParams(object.getId(), null, null), String.valueOf(object.getId())));
+                ScrollBookmarkablePageLink<WebPage> detailsLink = new ScrollBookmarkablePageLink<WebPage>("detailsLink", getStrategy().getEditPage(),
+                        getStrategy().getEditPageParams(object.getId(), null, null), String.valueOf(object.getId()));
+                detailsLink.add(new Label("editMessage", new AbstractReadOnlyModel<String>() {
+
+                    @Override
+                    public String getObject() {
+                        if(DomainObjectAccessUtil.canAddNew(entity)){
+                            return getString("edit");
+                        } else {
+                            return getString("view");
+                        }
+                    }
+                }));
+                item.add(detailsLink);
             }
         };
         filterForm.add(dataView);

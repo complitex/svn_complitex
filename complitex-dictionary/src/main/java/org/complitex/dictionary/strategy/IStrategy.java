@@ -172,6 +172,9 @@ public interface IStrategy {
     void updatePermissionId(long objectId, long permissionId);
 
     @Transactional
+    Long getNewPermissionId(Set<Long> newSubjectIds);
+
+    @Transactional
     List<? extends DomainObjectPermissionInfo> findChildren(long parentId, String childEntity, int start, int size);
 
     public static class DomainObjectPermissionInfo {
