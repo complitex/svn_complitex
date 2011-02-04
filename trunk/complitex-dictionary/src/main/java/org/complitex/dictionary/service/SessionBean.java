@@ -19,6 +19,7 @@ public class SessionBean extends AbstractBean {
     private static final String MAPPING_NAMESPACE = SessionBean.class.getName();
 
     private static final String ORGANIZATION_ENTITY = "organization";
+    private static final String CHILD_ORGANIZATION_VIEW_ROLE = "CHILD_ORGANIZATION_VIEW";
 
     public static final String ADMIN_LOGIN = "admin";
 
@@ -39,14 +40,20 @@ public class SessionBean extends AbstractBean {
     }
 
     public Long getCurrentUserId() {
-        return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectUserId",
-                sessionContext.getCallerPrincipal().getName());
+        return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectUserId", getCurrentUserLogin());
+    }
+
+    public String getCurrentUserLogin(){
+        return sessionContext.getCallerPrincipal().getName();
+    }
+
+    public boolean hasRole(String role){
+        return sessionContext.isCallerInRole(role);
     }
 
     @SuppressWarnings({"unchecked"})
     public List<Long> getUserOrganizationObjectIds() {
-        return sqlSession().selectList(MAPPING_NAMESPACE + ".selectOrganizationObjectIds",
-                sessionContext.getCallerPrincipal().getName());
+        return sqlSession().selectList(MAPPING_NAMESPACE + ".selectOrganizationObjectIds", getCurrentUserLogin());
     }
 
     @SuppressWarnings({"unchecked"})
@@ -93,18 +100,16 @@ public class SessionBean extends AbstractBean {
 
     @SuppressWarnings({"unchecked"})
     public Long getMainUserOrganizationObjectId() {
-        return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectMainOrganizationObjectId",
-                sessionContext.getCallerPrincipal().getName());
+        return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectMainOrganizationObjectId", getCurrentUserLogin());
     }
 
     @SuppressWarnings({"unchecked"})
     public List<Long> getUserOrganizationPermissionIds(final String table){
-        Map<String, String> parameter = new HashMap<String, String>(){{
-                put("table", table);
-                put("login", sessionContext.getCallerPrincipal().getName());
-        }};
-
-        return sqlSession().selectList(MAPPING_NAMESPACE + ".selectUserOrganizationPermissionIds", parameter);
+        return sqlSession().selectList(MAPPING_NAMESPACE + ".selectUserOrganizationPermissionIds",
+                new HashMap<String, String>(){{
+                    put("table", table);
+                    put("login", getCurrentUserLogin());
+                }});
     }
 
     public List<Subject> getCurrentSubjects() {
@@ -119,7 +124,7 @@ public class SessionBean extends AbstractBean {
     }
 
     public String getPermissionString(String table) {
-        List<Long> permissions = sessionContext.isCallerInRole("CHILD_ORGANIZATION_VIEW")
+        List<Long> permissions = hasRole(CHILD_ORGANIZATION_VIEW_ROLE)
                 ? getUserOrganizationTreePermissionIds(table)
                 : getUserOrganizationPermissionIds(table);
         permissions.add(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID);
@@ -129,6 +134,22 @@ public class SessionBean extends AbstractBean {
 
         for (Long p : permissions) {
             s += d + p;
+            d = ", ";
+        }
+
+        return "(" + s + ")";
+    }
+
+    public String getOrganizationString(){
+        List<Long> organizationObjectIds = hasRole(CHILD_ORGANIZATION_VIEW_ROLE)
+                ? getUserOrganizationTreeObjectIds()
+                : getUserOrganizationObjectIds();
+
+        String s = "";
+        String d = "";
+
+        for (Long o : organizationObjectIds) {
+            s += d + o;
             d = ", ";
         }
 
@@ -149,5 +170,17 @@ public class SessionBean extends AbstractBean {
         Long oId = getMainUserOrganizationObjectId();
 
         return oId != null ? strategy.displayDomainObject(strategy.findById(oId), locale) : "";
+    }
+
+    public boolean hasPermission(final Long permissionId){
+        if (PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID.equals(permissionId) || isAdmin()){
+            return true;
+        }
+
+        return (Boolean) sqlSession().selectOne(MAPPING_NAMESPACE + ".hasPermission",
+                new HashMap<String, Object>(){{
+                    put("permissionId", permissionId);
+                    put("organizations", getOrganizationString());
+                }});
     }
 }

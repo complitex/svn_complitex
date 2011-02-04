@@ -19,7 +19,7 @@ public class PermissionBean extends AbstractBean{
     private static final String MAPPING_NAMESPACE = PermissionBean.class.getName();
     private static final String ENTITY_TABLE = "permission";
 
-    public static final long VISIBLE_BY_ALL_PERMISSION_ID = 0;
+    public static final Long VISIBLE_BY_ALL_PERMISSION_ID = 0L;
     
     @EJB(beanName = "SequenceBean")
     private SequenceBean sequenceBean;
