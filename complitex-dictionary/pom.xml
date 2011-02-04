@@ -24,6 +24,10 @@
             <artifactId>wicket</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.wicket</groupId>
+            <artifactId>wicket-auth-roles</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.wicketstuff</groupId>
             <artifactId>javaee-inject</artifactId>
         </dependency>

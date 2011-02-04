@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import org.complitex.template.strategy.AbstractStrategy;
+import org.complitex.template.web.security.SecurityRole;
 
 /**
  *
@@ -70,5 +71,10 @@ public class CountryStrategy extends AbstractStrategy {
     @Override
     public String[] getChildrenEntities() {
         return new String[]{"region"};
+    }
+
+    @Override
+    public String[] getEditRoles() {
+        return new String[]{SecurityRole.ADDRESS_MODULE_EDIT};
     }
 }

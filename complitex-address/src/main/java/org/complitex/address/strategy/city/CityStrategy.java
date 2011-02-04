@@ -27,6 +27,7 @@ import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.template.strategy.AbstractStrategy;
 import org.complitex.address.strategy.city.web.edit.CityTypeComponent;
 import org.complitex.dictionary.strategy.IStrategy;
+import org.complitex.template.web.security.SecurityRole;
 
 /**
  *
@@ -174,5 +175,10 @@ public class CityStrategy extends AbstractStrategy {
             }
         }
         return null;
+    }
+
+    @Override
+    public String[] getEditRoles() {
+        return new String[]{SecurityRole.ADDRESS_MODULE_EDIT};
     }
 }

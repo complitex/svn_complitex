@@ -29,7 +29,7 @@ import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.strategy.Strategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
-import org.complitex.dictionary.strategy.web.CanEditUtil;
+import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
 import org.complitex.dictionary.web.DictionaryFwSession;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
 import org.complitex.dictionary.web.component.search.SearchComponent;
@@ -237,7 +237,7 @@ public class DomainObjectInputPanel extends Panel {
         types = new DisableAwareDropDownChoice<EntityType>("types", typeModel, entityTypes, renderer);
         types.setLabel(new ResourceModel("entity_type"));
         types.setRequired(true);
-        types.setEnabled(!isHistory() && CanEditUtil.canEdit(object));
+        types.setEnabled(!isHistory() && DomainObjectAccessUtil.canEdit(entity, object));
         typeContainer.add(types);
 
 
@@ -290,32 +290,32 @@ public class DomainObjectInputPanel extends Panel {
                             }
                         };
                         IModel<String> model = new SimpleTypeModel<String>(systemLocaleStringCulture, stringConverter);
-                        input = new StringPanel("input", model, attrType.isMandatory(), labelModel, !isHistory() && CanEditUtil.canEdit(object));
+                        input = new StringPanel("input", model, attrType.isMandatory(), labelModel, !isHistory() && DomainObjectAccessUtil.canEdit(entity, object));
                     }
                     break;
                     case STRING_CULTURE: {
                         IModel<List<StringCulture>> model = new PropertyModel<List<StringCulture>>(attr, "localizedValues");
-                        input = new StringCulturePanel("input", model, attrType.isMandatory(), labelModel, !isHistory() && CanEditUtil.canEdit(object));
+                        input = new StringCulturePanel("input", model, attrType.isMandatory(), labelModel, !isHistory() && DomainObjectAccessUtil.canEdit(entity, object));
                     }
                     break;
                     case INTEGER: {
                         IModel<Integer> model = new SimpleTypeModel<Integer>(systemLocaleStringCulture, new IntegerConverter());
-                        input = new IntegerPanel("input", model, attrType.isMandatory(), labelModel, !isHistory() && CanEditUtil.canEdit(object));
+                        input = new IntegerPanel("input", model, attrType.isMandatory(), labelModel, !isHistory() && DomainObjectAccessUtil.canEdit(entity, object));
                     }
                     break;
                     case DATE: {
                         IModel<Date> model = new SimpleTypeModel<Date>(systemLocaleStringCulture, new DateConverter());
-                        input = new DatePanel("input", model, attrType.isMandatory(), labelModel, !isHistory() && CanEditUtil.canEdit(object));
+                        input = new DatePanel("input", model, attrType.isMandatory(), labelModel, !isHistory() && DomainObjectAccessUtil.canEdit(entity, object));
                     }
                     break;
                     case BOOLEAN: {
                         IModel<Boolean> model = new SimpleTypeModel<Boolean>(systemLocaleStringCulture, new BooleanConverter());
-                        input = new BooleanPanel("input", model, labelModel, !isHistory() && CanEditUtil.canEdit(object));
+                        input = new BooleanPanel("input", model, labelModel, !isHistory() && DomainObjectAccessUtil.canEdit(entity, object));
                     }
                     break;
                     case DOUBLE: {
                         IModel<Double> model = new SimpleTypeModel<Double>(systemLocaleStringCulture, new DoubleConverter());
-                        input = new DoublePanel("input", model, attrType.isMandatory(), labelModel, !isHistory() && CanEditUtil.canEdit(object));
+                        input = new DoublePanel("input", model, attrType.isMandatory(), labelModel, !isHistory() && DomainObjectAccessUtil.canEdit(entity, object));
                     }
                     break;
                 }
@@ -336,7 +336,7 @@ public class DomainObjectInputPanel extends Panel {
             parentContainer.add(new EmptyPanel("parentSearch"));
         } else {
             SearchComponent parentSearchComponent = new SearchComponent("parentSearch", getParentSearchComponentState(), parentFilters,
-                    parentSearchCallback, !isHistory() && CanEditUtil.canEdit(object));
+                    parentSearchCallback, !isHistory() && DomainObjectAccessUtil.canEdit(entity, object));
             parentContainer.add(parentSearchComponent);
             parentSearchComponent.invokeCallback();
         }

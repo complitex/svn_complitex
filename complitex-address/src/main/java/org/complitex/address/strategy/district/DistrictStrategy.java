@@ -24,6 +24,7 @@ import java.util.Locale;
 import java.util.Map;
 import org.complitex.dictionary.mybatis.Transactional;
 import org.complitex.template.strategy.AbstractStrategy;
+import org.complitex.template.web.security.SecurityRole;
 
 /**
  *
@@ -145,5 +146,10 @@ public class DistrictStrategy extends AbstractStrategy {
         params.put("start", start);
         params.put("size", size);
         return sqlSession().selectList(DISTRICT_NAMESPACE + "." + FIND_CHILDREN_OPERATION, params);
+    }
+
+    @Override
+    public String[] getEditRoles() {
+        return new String[]{SecurityRole.ADDRESS_MODULE_EDIT};
     }
 }

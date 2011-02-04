@@ -21,6 +21,7 @@ import org.complitex.dictionary.mybatis.Transactional;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.search.SearchComponent;
 import org.complitex.template.strategy.AbstractStrategy;
+import org.complitex.template.web.security.SecurityRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -164,5 +165,10 @@ public class BuildingAddressStrategy extends AbstractStrategy {
     public void disable(DomainObject object) {
         object.setStatus(StatusType.INACTIVE);
         sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new Parameter(getEntityTable(), object));
+    }
+
+    @Override
+    public String[] getEditRoles() {
+        return new String[]{SecurityRole.ADDRESS_MODULE_EDIT};
     }
 }

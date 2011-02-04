@@ -18,6 +18,7 @@ import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.util.ResourceUtil;
 import org.complitex.template.strategy.AbstractStrategy;
 import org.complitex.address.resource.CommonResources;
+import org.complitex.template.web.security.SecurityRole;
 
 /**
  *
@@ -65,5 +66,10 @@ public class StreetTypeStrategy extends AbstractStrategy {
     @Override
     public String getPluralEntityLabel(Locale locale) {
         return ResourceUtil.getString(CommonResources.class.getName(), getEntityTable(), locale);
+    }
+
+    @Override
+    public String[] getEditRoles() {
+        return new String[]{SecurityRole.ADDRESS_MODULE_EDIT};
     }
 }
