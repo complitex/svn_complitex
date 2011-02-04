@@ -169,8 +169,30 @@ public interface IStrategy {
     Set<Long> loadSubjects(long permissionId);
 
     @Transactional
-    void updatePermissionId(DomainObject object);
+    void updatePermissionId(long objectId, long permissionId);
 
     @Transactional
-    List<? extends DomainObject> findChildren(long parentId, String childEntity);
+    List<? extends DomainObjectPermissionInfo> findChildren(long parentId, String childEntity, int start, int size);
+
+    public static class DomainObjectPermissionInfo {
+
+        private Long id;
+        private Long permissionId;
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public Long getPermissionId() {
+            return permissionId;
+        }
+
+        public void setPermissionId(Long permissionId) {
+            this.permissionId = permissionId;
+        }
+    }
 }
