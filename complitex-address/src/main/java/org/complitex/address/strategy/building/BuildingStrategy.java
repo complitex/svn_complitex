@@ -246,7 +246,9 @@ public class BuildingStrategy extends AbstractStrategy {
         building.setPrimaryAddress(buildingAddressStrategy.newInstance());
 
         //set up subject ids to visible-by-all subject
-        building.setSubjectIds(Sets.newHashSet(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID));
+        Set<Long> defaultSubjectIds = Sets.newHashSet(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID);
+        building.setSubjectIds(defaultSubjectIds);
+        building.getPrimaryAddress().setSubjectIds(defaultSubjectIds);
 
         return building;
     }
@@ -342,7 +344,6 @@ public class BuildingStrategy extends AbstractStrategy {
     protected void insertDomainObject(DomainObject object, Date startDate) {
         Building building = (Building) object;
         for (DomainObject buildingAddress : building.getAllAddresses()) {
-            buildingAddress.setPermissionId(building.getPermissionId());
             buildingAddressStrategy.insert(buildingAddress);
         }
         building.enhanceAlternativeAddressAttributes();
