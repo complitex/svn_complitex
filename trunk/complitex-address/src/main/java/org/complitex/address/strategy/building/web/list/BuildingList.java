@@ -240,8 +240,20 @@ public final class BuildingList extends ScrollListPage {
                 item.add(new Label("corp", building.getAccompaniedCorp(getLocale())));
                 item.add(new Label("structure", building.getAccompaniedStructure(getLocale())));
 
-                item.add(new ScrollBookmarkablePageLink<WebPage>("detailsLink", buildingStrategy.getEditPage(),
-                        buildingStrategy.getEditPageParams(building.getId(), null, null), String.valueOf(building.getId())));
+                ScrollBookmarkablePageLink<WebPage> detailsLink = new ScrollBookmarkablePageLink<WebPage>("detailsLink", buildingStrategy.getEditPage(),
+                        buildingStrategy.getEditPageParams(building.getId(), null, null), String.valueOf(building.getId()));
+                detailsLink.add(new Label("editMessage", new AbstractReadOnlyModel<String>() {
+
+                    @Override
+                    public String getObject() {
+                        if(DomainObjectAccessUtil.canAddNew("building")){
+                            return getString("edit");
+                        } else {
+                            return getString("view");
+                        }
+                    }
+                }));
+                item.add(detailsLink);
             }
         };
         filterForm.add(dataView);

@@ -306,7 +306,8 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     }
 
     @Transactional
-    protected Long getNewPermissionId(Set<Long> newSubjectIds) {
+    @Override
+    public Long getNewPermissionId(Set<Long> newSubjectIds) {
         // object references to new subjects set therefore it has to modify permission_id
         List<Subject> subjects = Lists.newArrayList();
         for (Long subjectId : newSubjectIds) {
@@ -550,10 +551,10 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
                     Set<Long> childSubjectIds = childStrategy.loadSubjects(child.getPermissionId());
                     if (childStrategy.isNeedToChangePermission(childSubjectIds, subjectIds)) {
                         long oldPermission = child.getPermissionId();
-                        child.setPermissionId(getNewPermissionId(subjectIds));
+                        child.setPermissionId(childStrategy.getNewPermissionId(subjectIds));
                         long newPermission = child.getPermissionId();
                         if (!Numbers.isEqual(oldPermission, newPermission)) {
-                            childStrategy.updatePermissionId(child.getId(), child.getPermissionId());
+                            childStrategy.updatePermissionId(child.getId(), newPermission);
                         }
                     }
                     childStrategy.changeChildrenPermission(child.getId(), subjectIds);
