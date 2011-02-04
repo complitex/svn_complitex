@@ -36,4 +36,9 @@
             on oa.`object_id` = o.`object_id` and oa.`attribute_type_id` = 903
             where oa.`value_id` = #{parentObjectId}
     </select>
+
+    <select id="hasPermission" parameterType="map" resultType="boolean">
+        select count(*) > 0 from `permission` p where p.`permission_id` = #{permissionId} and p.`entity` = 'organization'
+            and  p.`object_id` in ${organizations}
+    </select>
 </mapper>
