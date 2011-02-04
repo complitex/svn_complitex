@@ -195,4 +195,6 @@ public interface IStrategy {
             this.permissionId = permissionId;
         }
     }
+
+    String[] getEditRoles();
 }

@@ -21,7 +21,7 @@ import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
-import org.complitex.dictionary.strategy.web.CanEditUtil;
+import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.list.AjaxRemovableListView;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
@@ -132,7 +132,7 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
         }
         districtContainer.add(new SearchComponent("district", districtComponentState,
                 ImmutableList.of("country", "region", "city", "district"), new DistrictSearchCallback(),
-                !isDisabled() && CanEditUtil.canEdit(building)));
+                !isDisabled() && DomainObjectAccessUtil.canEdit("building", building)));
 
         districtContainer.setVisible(districtAttribute != null);
 
@@ -179,7 +179,7 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
                 };
                 item.add(alternativeAddess);
                 addRemoveSubmitLink("remove", findParent(Form.class), item, null, attributesContainer, feedbackPanel).
-                        setVisible(!isDisabled() && CanEditUtil.canEdit(building));
+                        setVisible(!isDisabled() && DomainObjectAccessUtil.canEdit("building", building));
             }
         };
         attributesContainer.add(alternativeAdresses);
@@ -201,7 +201,7 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
                 target.addComponent(feedbackPanel);
             }
         };
-        add.setVisible(!isDisabled() && CanEditUtil.canEdit(building));
+        add.setVisible(!isDisabled() && DomainObjectAccessUtil.canEdit("building", building));
         add(add);
     }
 }

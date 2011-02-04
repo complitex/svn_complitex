@@ -87,7 +87,7 @@ public class DomainObjectEditPanel extends Panel {
         return newObject;
     }
 
-    public boolean isNew() {
+    private boolean isNew() {
         return oldObject == null;
     }
 
@@ -136,6 +136,7 @@ public class DomainObjectEditPanel extends Panel {
 
         //permissions panel
         DomainObjectPermissionsPanel permissionsPanel = new DomainObjectPermissionsPanel("permissionsPanel", newObject.getSubjectIds());
+        permissionsPanel.setVisible(DomainObjectAccessUtil.canEdit(entity, newObject));
         form.add(permissionsPanel);
 
         //permissionPropagationDialogPanel
@@ -183,7 +184,7 @@ public class DomainObjectEditPanel extends Panel {
                 target.addComponent(messages);
             }
         };
-        submit.setVisible(CanEditUtil.canEdit(newObject));
+        submit.setVisible(DomainObjectAccessUtil.canEdit(entity, newObject));
         form.add(submit);
         Link cancel = new Link("cancel") {
 
@@ -192,7 +193,7 @@ public class DomainObjectEditPanel extends Panel {
                 back();
             }
         };
-        cancel.setVisible(CanEditUtil.canEdit(newObject));
+        cancel.setVisible(DomainObjectAccessUtil.canEdit(entity, newObject));
         form.add(cancel);
         Link back = new Link("back") {
 
@@ -201,7 +202,7 @@ public class DomainObjectEditPanel extends Panel {
                 back();
             }
         };
-        back.setVisible(!CanEditUtil.canEdit(newObject));
+        back.setVisible(!DomainObjectAccessUtil.canEdit(entity, newObject));
         form.add(back);
         add(form);
     }

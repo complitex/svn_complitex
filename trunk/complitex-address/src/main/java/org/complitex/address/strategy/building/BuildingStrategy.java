@@ -35,6 +35,7 @@ import org.complitex.address.strategy.building.web.list.BuildingList;
 import org.complitex.address.strategy.building_address.BuildingAddressStrategy;
 import org.complitex.dictionary.service.PermissionBean;
 import org.complitex.dictionary.service.SessionBean;
+import org.complitex.template.web.security.SecurityRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -549,5 +550,10 @@ public class BuildingStrategy extends AbstractStrategy {
             buildingAddressStrategy.disable(address);
         }
         super.disable(building);
+    }
+
+    @Override
+    public String[] getEditRoles() {
+        return new String[]{SecurityRole.ADDRESS_MODULE_EDIT};
     }
 }

@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import org.complitex.template.strategy.AbstractStrategy;
+import org.complitex.template.web.security.SecurityRole;
 
 /**
  *
@@ -143,5 +144,10 @@ public class RoomStrategy extends AbstractStrategy {
     @Override
     public int getSearchTextFieldSize() {
         return 5;
+    }
+
+    @Override
+    public String[] getEditRoles() {
+        return new String[]{SecurityRole.ADDRESS_MODULE_EDIT};
     }
 }

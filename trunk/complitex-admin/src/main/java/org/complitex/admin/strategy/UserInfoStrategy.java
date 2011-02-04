@@ -11,6 +11,7 @@ import java.util.Locale;
 
 import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.template.strategy.AbstractStrategy;
+import org.complitex.template.web.security.SecurityRole;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -79,5 +80,10 @@ public class UserInfoStrategy extends AbstractStrategy {
     @Override
     public PageParameters getHistoryPageParams(long objectId) {
         return null;
+    }
+
+     @Override
+    public String[] getEditRoles() {
+        return new String[]{SecurityRole.ADMIN_MODULE_EDIT};
     }
 }

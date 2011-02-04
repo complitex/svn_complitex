@@ -50,6 +50,7 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
 import org.complitex.dictionary.web.component.scroll.ScrollBookmarkablePageLink;
 import org.complitex.template.web.pages.ScrollListPage;
 
@@ -289,6 +290,14 @@ public final class BuildingList extends ScrollListPage {
             @Override
             protected void onClick() {
                 setResponsePage(buildingStrategy.getEditPage(), buildingStrategy.getEditPageParams(null, null, null));
+            }
+
+            @Override
+            protected void onBeforeRender() {
+                if (!DomainObjectAccessUtil.canAddNew("building")) {
+                    setVisible(false);
+                }
+                super.onBeforeRender();
             }
         });
     }

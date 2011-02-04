@@ -20,7 +20,7 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.strategy.StrategyFactory;
-import org.complitex.dictionary.strategy.web.CanEditUtil;
+import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
 
 import javax.ejb.EJB;
 import java.util.List;
@@ -131,7 +131,7 @@ public final class Children extends Panel {
         BookmarkablePageLink addLink = new BookmarkablePageLink("add", getStrategy().getEditPage(), getStrategy().
                 getEditPageParams(null, parentObject.getId(), parentEntity));
         content.add(addLink);
-        if (!CanEditUtil.canEdit(parentObject)) {
+        if (!DomainObjectAccessUtil.canEdit(parentEntity, parentObject)) {
             addLink.setVisible(false);
         }
     }

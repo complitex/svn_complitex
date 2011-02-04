@@ -32,6 +32,7 @@ import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.template.strategy.AbstractStrategy;
 import org.complitex.address.strategy.street.web.edit.StreetTypeComponent;
 import org.complitex.dictionary.strategy.IStrategy;
+import org.complitex.template.web.security.SecurityRole;
 
 /**
  *
@@ -204,5 +205,10 @@ public class StreetStrategy extends AbstractStrategy {
     @Override
     public void changeChildrenPermission(long parentId, Set<Long> subjectIds) {
         changeChildrentPermission("building_address", parentId, subjectIds);
+    }
+
+    @Override
+    public String[] getEditRoles() {
+        return new String[]{SecurityRole.ADDRESS_MODULE_EDIT};
     }
 }

@@ -16,12 +16,13 @@ import java.util.List;
 import java.util.Locale;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.util.EjbBeanLocator;
+import org.complitex.template.web.security.SecurityRole;
 
 /**
  *
  * @author Artem
  */
-@AuthorizeInstantiation("ADDRESS_MODULE_EDIT")
+@AuthorizeInstantiation(SecurityRole.ADDRESS_MODULE_EDIT)
 public class InformationDescriptionTemplateMenu extends ResourceTemplateMenu {
 
     @Override

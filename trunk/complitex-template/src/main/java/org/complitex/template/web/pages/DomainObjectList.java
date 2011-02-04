@@ -13,6 +13,7 @@ import org.complitex.template.web.component.toolbar.ToolbarButton;
 import org.complitex.template.web.security.SecurityRole;
 
 import java.util.List;
+import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
 
 /**
  * @author Artem
@@ -23,6 +24,7 @@ public class DomainObjectList extends ScrollListPage {
     public static final String ENTITY = "entity";
 
     private DomainObjectListPanel listPanel;
+    private String entity;
 
     public DomainObjectList(PageParameters params) {
         super(params);
@@ -30,6 +32,7 @@ public class DomainObjectList extends ScrollListPage {
     }
 
     private void init(String entity) {
+        this.entity = entity;
         add(listPanel = new DomainObjectListPanel("listPanel", entity));
     }
 
@@ -40,6 +43,14 @@ public class DomainObjectList extends ScrollListPage {
             @Override
             protected void onClick() {
                 setResponsePage(listPanel.getStrategy().getEditPage(), listPanel.getStrategy().getEditPageParams(null, null, null));
+            }
+
+            @Override
+            protected void onBeforeRender() {
+                if (!DomainObjectAccessUtil.canAddNew(entity)) {
+                    setVisible(false);
+                }
+                super.onBeforeRender();
             }
         });
     }

@@ -18,12 +18,13 @@ import java.util.Locale;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.util.EjbBeanLocator;
+import org.complitex.template.web.security.SecurityRole;
 
 /**
  *
  * @author Artem
  */
-@AuthorizeInstantiation("ADDRESS_MODULE_EDIT")
+@AuthorizeInstantiation(SecurityRole.AUTHORIZED)
 public class InformationTemplateMenu extends ResourceTemplateMenu {
 
     private static IStrategy getStrategy(String entity) {
