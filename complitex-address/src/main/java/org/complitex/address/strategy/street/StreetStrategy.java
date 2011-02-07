@@ -205,14 +205,14 @@ public class StreetStrategy extends AbstractStrategy {
 
     @Transactional
     @Override
-    public void changeChildrenPermissions(long parentId, Set<Long> subjectIds) {
-        changeChildrenPermissions("building_address", parentId, subjectIds);
+    public void replaceChildrenPermissions(long parentId, Set<Long> subjectIds) {
+        replaceChildrenPermissions("building_address", parentId, subjectIds);
     }
 
     @Transactional
     @Override
-    protected void changeChildrenSubject(long parentId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds) {
-        changeChildrenSubject("building_address", parentId, addSubjectIds, removeSubjectIds);
+    protected void changeChildrenPermissions(long parentId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds) {
+        changeChildrenPermissions("building_address", parentId, addSubjectIds, removeSubjectIds);
     }
 
     @Override
