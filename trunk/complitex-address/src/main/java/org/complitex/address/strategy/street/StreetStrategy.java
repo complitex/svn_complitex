@@ -188,6 +188,7 @@ public class StreetStrategy extends AbstractStrategy {
         return streetObject.getAttribute(STREET_TYPE).getValueId();
     }
 
+    @Transactional
     @Override
     public Long performDefaultValidation(DomainObject streetObject, Locale locale) {
         Map<String, Object> params = super.createValidationParams(streetObject, locale);
@@ -202,9 +203,16 @@ public class StreetStrategy extends AbstractStrategy {
         return null;
     }
 
+    @Transactional
     @Override
-    public void changeChildrenPermission(long parentId, Set<Long> subjectIds) {
-        changeChildrentPermission("building_address", parentId, subjectIds);
+    public void changeChildrenPermissions(long parentId, Set<Long> subjectIds) {
+        changeChildrenPermissions("building_address", parentId, subjectIds);
+    }
+
+    @Transactional
+    @Override
+    protected void changeChildrenSubject(long parentId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds) {
+        changeChildrenSubject("building_address", parentId, addSubjectIds, removeSubjectIds);
     }
 
     @Override
