@@ -164,7 +164,7 @@ public interface IStrategy {
     void updateAndPropagate(DomainObject oldObject, DomainObject newObject, Date updateDate);
 
     @Transactional
-    void changeChildrenPermissions(long parentId, Set<Long> subjectIds);
+    void replaceChildrenPermissions(long parentId, Set<Long> subjectIds);
 
     boolean isNeedToChangePermission(Set<Long> oldSubjectIds, Set<Long> newSubjectIds);
 
@@ -205,7 +205,7 @@ public interface IStrategy {
     String[] getEditRoles();
 
     @Transactional
-    void changeSubjectsAcrossTree(long objectId, long permissionId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds);
+    void changeChildrenPermissions(long objectId, long permissionId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds);
 
-    void changeSubjectsAcrossTreeInDistinctThread(long objectId, long permissionId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds);
+    void changeChildrenPermissionsInDistinctThread(long objectId, long permissionId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds);
 }

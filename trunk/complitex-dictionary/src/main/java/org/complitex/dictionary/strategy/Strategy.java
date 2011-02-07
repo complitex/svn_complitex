@@ -490,24 +490,24 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
             public void run() {
 //                long start = System.currentTimeMillis();
                 try {
-                    changeChildrenPermissions(newObject.getId(), newObject.getSubjectIds());
-                    log.info("Process of changing {} children permissions has been successful.", getEntityTable());
-                    //logBean.logPermissionChange(STATUS.OK, getEntityTable(), newObject.getId(), getChangeChildrenPermissionSuccess());
+                    replaceChildrenPermissions(newObject.getId(), newObject.getSubjectIds());
+                    log.info("Process of replacement {} children permissions has been successful.", getEntityTable());
+                    //logBean.logReplaceChildrenPermissions(STATUS.OK, getEntityTable(), newObject.getId(), getReplaceChildrenPermissionsSuccess());
                 } catch (Exception e) {
-                    log.error("Process of changing " + getEntityTable() + " children permissions has been failed.", e);
-                    logBean.logPermissionChange(STATUS.ERROR, getEntityTable(), newObject.getId(), getChangeChildrenPermissionError());
+                    log.error("Process of replacement " + getEntityTable() + " children permissions has been failed.", e);
+                    logBean.logReplaceChildrenPermissions(STATUS.ERROR, getEntityTable(), newObject.getId(), getReplaceChildrenPermissionsError());
                 }
 //                log.info("Process took {} sec.", (System.currentTimeMillis() - start)/1000);
             }
         }).start();
     }
 
-    protected String getChangeChildrenPermissionError() {
-        return ResourceUtil.getString(Strategy.class.getName(), "change_children_permission_error", localeBean.getSystemLocale());
+    protected String getReplaceChildrenPermissionsError() {
+        return ResourceUtil.getString(Strategy.class.getName(), "replace_children_permissions_error", localeBean.getSystemLocale());
     }
 
-    protected String getChangeChildrenPermissionSuccess() {
-        return ResourceUtil.getString(Strategy.class.getName(), "change_children_permission_success", localeBean.getSystemLocale());
+    protected String getReplaceChildrenPermissionsSuccess() {
+        return ResourceUtil.getString(Strategy.class.getName(), "replace_children_permissions_success", localeBean.getSystemLocale());
     }
 
     @Transactional
@@ -524,17 +524,17 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
     @Transactional
     @Override
-    public void changeChildrenPermissions(long parentId, Set<Long> subjectIds) {
+    public void replaceChildrenPermissions(long parentId, Set<Long> subjectIds) {
         String[] childrenEntities = getChildrenEntities();
         if (childrenEntities != null && childrenEntities.length > 0) {
             for (String childEntity : childrenEntities) {
-                changeChildrenPermissions(childEntity, parentId, subjectIds);
+                replaceChildrenPermissions(childEntity, parentId, subjectIds);
             }
         }
     }
 
     @Transactional
-    protected void changeChildrenPermissions(String childEntity, long parentId, Set<Long> subjectIds) {
+    protected void replaceChildrenPermissions(String childEntity, long parentId, Set<Long> subjectIds) {
         IStrategy childStrategy = strategyFactory.getStrategy(childEntity);
 
         int i = 0;
@@ -554,7 +554,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
                             childStrategy.updatePermissionId(child.getId(), newPermission);
                         }
                     }
-                    childStrategy.changeChildrenPermissions(child.getId(), subjectIds);
+                    childStrategy.replaceChildrenPermissions(child.getId(), subjectIds);
                 }
 
                 if (children.size() < CHILDREN_BATCH) {
@@ -878,7 +878,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
     @Transactional
     @Override
-    public void changeSubjectsAcrossTree(long objectId, long permissionId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds) {
+    public void changeChildrenPermissions(long objectId, long permissionId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds) {
         Set<Long> currentSubjectIds = loadSubjects(permissionId);
         Set<Long> newSubjectIds = Sets.newHashSet(currentSubjectIds);
 
@@ -908,11 +908,11 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
                 updatePermissionId(objectId, newPermissionId);
             }
         }
-        changeChildrenSubject(objectId, addSubjectIds, removeSubjectIds);
+        changeChildrenPermissions(objectId, addSubjectIds, removeSubjectIds);
     }
 
     @Override
-    public void changeSubjectsAcrossTreeInDistinctThread(final long objectId, final long permissionId, final Set<Long> addSubjectIds,
+    public void changeChildrenPermissionsInDistinctThread(final long objectId, final long permissionId, final Set<Long> addSubjectIds,
             final Set<Long> removeSubjectIds) {
         new Thread(new Runnable() {
 
@@ -920,38 +920,38 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
             public void run() {
 //                long start = System.currentTimeMillis();
                 try {
-                    changeSubjectsAcrossTree(objectId, permissionId, addSubjectIds, removeSubjectIds);
+                    changeChildrenPermissions(objectId, permissionId, addSubjectIds, removeSubjectIds);
                     log.info("Process of changing permissions for {} tree has been successful.", getEntityTable());
-//                    logBean.logChangeSubjectsAcrossTree(STATUS.OK, getEntityTable(), objectId, getChangeSubjectsAcrossTreeSuccess());
+//                    logBean.logChangeSubjectsAcrossTree(STATUS.OK, getEntityTable(), objectId, getChangeChildrenPermissionsSuccess());
                 } catch (Exception e) {
                     log.error("Process of changing permissions for " + getEntityTable() + " tree has been failed.", e);
-                    logBean.logChangeSubjectsAcrossTree(STATUS.ERROR, getEntityTable(), objectId, getChangeSubjectsAcrossTreeError());
+                    logBean.logChangeChildrenPermissions(STATUS.ERROR, getEntityTable(), objectId, getChangeChildrenPermissionsError());
                 }
 //                log.info("Process took {} sec.", (System.currentTimeMillis() - start)/1000);
             }
         }).start();
     }
 
-    protected String getChangeSubjectsAcrossTreeError() {
-        return ResourceUtil.getString(Strategy.class.getName(), "change_subjects_across_tree_error", localeBean.getSystemLocale());
+    protected String getChangeChildrenPermissionsError() {
+        return ResourceUtil.getString(Strategy.class.getName(), "change_children_permissions_error", localeBean.getSystemLocale());
     }
 
-    protected String getChangeSubjectsAcrossTreeSuccess() {
-        return ResourceUtil.getString(Strategy.class.getName(), "change_subjects_across_tree_success", localeBean.getSystemLocale());
+    protected String getChangeChildrenPermissionsSuccess() {
+        return ResourceUtil.getString(Strategy.class.getName(), "change_children_permissions_success", localeBean.getSystemLocale());
     }
 
     @Transactional
-    protected void changeChildrenSubject(long parentId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds) {
+    protected void changeChildrenPermissions(long parentId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds) {
         String[] childrenEntities = getChildrenEntities();
         if (childrenEntities != null && childrenEntities.length > 0) {
             for (String childEntity : childrenEntities) {
-                changeChildrenSubject(childEntity, parentId, addSubjectIds, removeSubjectIds);
+                changeChildrenPermissions(childEntity, parentId, addSubjectIds, removeSubjectIds);
             }
         }
     }
 
     @Transactional
-    protected void changeChildrenSubject(String childEntity, long parentId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds) {
+    protected void changeChildrenPermissions(String childEntity, long parentId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds) {
         IStrategy childStrategy = strategyFactory.getStrategy(childEntity);
 
         int i = 0;
@@ -962,7 +962,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
             if (children.size() > 0) {
                 //process children
                 for (DomainObjectPermissionInfo child : children) {
-                    childStrategy.changeSubjectsAcrossTree(child.getId(), child.getPermissionId(), addSubjectIds, removeSubjectIds);
+                    childStrategy.changeChildrenPermissions(child.getId(), child.getPermissionId(), addSubjectIds, removeSubjectIds);
                 }
 
                 if (children.size() < CHILDREN_BATCH) {
