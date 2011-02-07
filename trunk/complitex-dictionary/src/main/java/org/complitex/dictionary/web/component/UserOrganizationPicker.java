@@ -67,6 +67,7 @@ public final class UserOrganizationPicker extends Panel {
             }
         };
         DisableAwareDropDownChoice<DomainObject> select = new DisableAwareDropDownChoice<DomainObject>("select", model, userOrganizationsModel, renderer);
+        select.setNullValid(true);
         add(select);
     }
 }

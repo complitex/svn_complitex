@@ -490,14 +490,16 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
             @Override
             public void run() {
+//                long start = System.currentTimeMillis();
                 try {
                     changeChildrenPermission(newObject.getId(), newObject.getSubjectIds());
+                    log.info("Process of changing children permissions has been successful.");
+                    //logBean.logPermissionChange(STATUS.OK, getEntityTable(), newObject.getId(), getChangeChildrenPermissionSuccess());
                 } catch (Exception e) {
                     log.error("Process of changing children permissions has been failed.", e);
                     logBean.logPermissionChange(STATUS.ERROR, getEntityTable(), newObject.getId(), getChangeChildrenPermissionError());
                 }
-                log.info("Process of changing children permissions has been successful.");
-                //logBean.logPermissionChange(STATUS.OK, getEntityTable(), newObject.getId(), getChangeChildrenPermissionSuccess());
+//                log.info("Process took {} sec.", (System.currentTimeMillis() - start)/1000);
             }
         }).start();
     }
@@ -539,12 +541,9 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
         int i = 0;
         boolean allChildrenLoaded = false;
-//        time = System.currentTimeMillis();
         while (!allChildrenLoaded) {
 
             List<? extends DomainObjectPermissionInfo> children = findChildren(parentId, childEntity, i, CHILDREN_BATCH);
-//            log.info("Find children of {}, parent id: {}, iteration: {} took {} sec.",
-//                    new Object[]{getEntityTable(), parentId, i, (System.currentTimeMillis() - time)/1000});
             if (children.size() > 0) {
                 //process children
                 for (DomainObjectPermissionInfo child : children) {
