@@ -45,6 +45,7 @@ public interface IStrategy {
     String UPDATE_OPERATION = "update";
     String FIND_CHILDREN_OPERATION = "findChildren";
 
+    @Transactional
     void archive(DomainObject object);
 
     @Transactional
@@ -113,6 +114,7 @@ public interface IStrategy {
     @Transactional
     List<History> getHistory(long objectId);
 
+    @Transactional
     TreeSet<Date> getHistoryDates(long objectId);
 
     Class<? extends WebPage> getHistoryPage();
@@ -152,6 +154,7 @@ public interface IStrategy {
 
     DomainObject newInstance();
 
+    @Transactional
     Long performDefaultValidation(DomainObject object, Locale locale);
 
     @Transactional
@@ -161,7 +164,7 @@ public interface IStrategy {
     void updateAndPropagate(DomainObject oldObject, DomainObject newObject, Date updateDate);
 
     @Transactional
-    void changeChildrenPermission(long parentId, Set<Long> subjectIds);
+    void changeChildrenPermissions(long parentId, Set<Long> subjectIds);
 
     boolean isNeedToChangePermission(Set<Long> oldSubjectIds, Set<Long> newSubjectIds);
 
@@ -200,4 +203,9 @@ public interface IStrategy {
     }
 
     String[] getEditRoles();
+
+    @Transactional
+    void changeSubjectsAcrossTree(long objectId, long permissionId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds);
+
+    void changeSubjectsAcrossTreeInDistinctThread(long objectId, long permissionId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds);
 }
