@@ -155,10 +155,14 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
     @Transactional
     @Override
-    public DomainObject findById(Long id) {
+    public DomainObject findById(long id, boolean runAsAdmin) {
         DomainObjectExample example = new DomainObjectExample(id);
         example.setTable(getEntityTable());
-        prepareExampleForPermissionCheck(example);
+        if(!runAsAdmin){
+            prepareExampleForPermissionCheck(example);
+        } else {
+            example.setAdmin(true);
+        }
 
         DomainObject object = (DomainObject) sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + "." + FIND_BY_ID_OPERATION, example);
         if (object != null) {
@@ -229,8 +233,11 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     }
 
     protected void prepareExampleForPermissionCheck(DomainObjectExample example) {
-        example.setAdmin(sessionBean.isAdmin());
-        example.setUserPermissionString(sessionBean.getPermissionString(getEntityTable()));
+        boolean isAdmin = sessionBean.isAdmin();
+        example.setAdmin(isAdmin);
+        if (!isAdmin) {
+            example.setUserPermissionString(sessionBean.getPermissionString(getEntityTable()));
+        }
     }
 
     @SuppressWarnings({"unchecked"})
@@ -717,14 +724,9 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
                     DomainObject object = new DomainObject();
                     object.setId(-1L);
                     if (date == null) {
-                        DomainObjectExample example = new DomainObjectExample(ids.get(searchFilter));
-                        example.setTable(searchFilter);
-
-                        strategyFactory.getStrategy(searchFilter).configureExample(example, ids, null);
-                        List<? extends DomainObject> objects = strategyFactory.getStrategy(searchFilter).find(example);
-                        if (objects != null && !objects.isEmpty()) {
-                            object = objects.get(0);
-                        }
+                        long id = ids.get(searchFilter);
+                        IStrategy searchFilterStrategy = strategyFactory.getStrategy(searchFilter);
+                        object = searchFilterStrategy.findById(id, true);
                     } else {
                         DomainObject historyObject = strategyFactory.getStrategy(searchFilter).findHistoryObject(ids.get(searchFilter), date);
                         if (historyObject != null) {

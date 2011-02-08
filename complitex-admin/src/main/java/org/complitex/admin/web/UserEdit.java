@@ -168,7 +168,7 @@ public class UserEdit extends FormTemplatePage {
                 item.add(new Radio<UserOrganization>("radio", item.getModel()));
 
                 item.add(new Label("name", organizationStrategy.displayDomainObject(
-                        organizationStrategy.findById(userOrganization.getOrganizationObjectId()), getLocale())));
+                        organizationStrategy.findById(userOrganization.getOrganizationObjectId(), false), getLocale())));
 
                 item.add(new AjaxLink("delete"){
 

@@ -102,7 +102,7 @@ public class BuildingStrategy extends AbstractStrategy {
         List<Building> buildings = Lists.newArrayList();
 
         if (example.getId() != null) {
-            Building building = findById(example.getId());
+            Building building = findById(example.getId(), false);
             Long streetId = (Long) example.getAdditionalParam(STREET);
             if (streetId != null && streetId > 0) {
                 DomainObject address = building.getAddress(streetId);
@@ -185,7 +185,7 @@ public class BuildingStrategy extends AbstractStrategy {
         prepareExampleForPermissionCheck(example);
 
         if (example.getId() != null) {
-            Building building = findById(example.getId());
+            Building building = findById(example.getId(), false);
             return building == null ? 0 : 1;
         } else {
             DomainObjectExample addressExample = createAddressExample(example);
@@ -195,7 +195,7 @@ public class BuildingStrategy extends AbstractStrategy {
 
     private DomainObject findBuildingAddress(long id, Date date) {
         if (date == null) {
-            return buildingAddressStrategy.findById(id);
+            return buildingAddressStrategy.findById(id, false);
         } else {
             return buildingAddressStrategy.findHistoryObject(id, date);
         }
@@ -218,10 +218,14 @@ public class BuildingStrategy extends AbstractStrategy {
 
     @Override
     @Transactional
-    public Building findById(Long id) {
+    public Building findById(long id, boolean runAsAdmin) {
         DomainObjectExample example = new DomainObjectExample(id);
         example.setTable(getEntityTable());
-        prepareExampleForPermissionCheck(example);
+        if (!runAsAdmin) {
+            prepareExampleForPermissionCheck(example);
+        } else {
+            example.setAdmin(true);
+        }
 
         Building building = (Building) sqlSession().selectOne(BUILDING_NAMESPACE + "." + FIND_BY_ID_OPERATION, example);
         if (building != null) {
@@ -234,7 +238,7 @@ public class BuildingStrategy extends AbstractStrategy {
             updateStringsForNewLocales(building);
 
             //load subject ids
-             building.setSubjectIds(loadSubjects(building.getPermissionId()));
+            building.setSubjectIds(loadSubjects(building.getPermissionId()));
         }
         return building;
     }
