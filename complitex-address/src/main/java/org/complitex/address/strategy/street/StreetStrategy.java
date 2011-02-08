@@ -2,7 +2,6 @@ package org.complitex.address.strategy.street;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import java.util.Set;
@@ -88,14 +87,9 @@ public class StreetStrategy extends AbstractStrategy {
         Long streetTypeId = getStreetType(object);
         if (streetTypeId != null) {
             IStrategy streetTypeStrategy = strategyFactory.getStrategy("street_type");
-            DomainObjectExample example = new DomainObjectExample(streetTypeId);
-            streetTypeStrategy.configureExample(example, ImmutableMap.<String, Long>of(), null);
-            List<? extends DomainObject> objects = streetTypeStrategy.find(example);
-            if (objects.size() == 1) {
-                DomainObject streetType = objects.get(0);
-                String streetTypeName = streetTypeStrategy.displayDomainObject(streetType, locale);
-                return streetTypeName + " " + streetName;
-            }
+            DomainObject streetType = streetTypeStrategy.findById(streetTypeId, true);
+            String streetTypeName = streetTypeStrategy.displayDomainObject(streetType, locale);
+            return streetTypeName + " " + streetName;
         }
         return streetName;
     }

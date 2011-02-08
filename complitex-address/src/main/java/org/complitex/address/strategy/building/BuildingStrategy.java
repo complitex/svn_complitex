@@ -193,22 +193,22 @@ public class BuildingStrategy extends AbstractStrategy {
         }
     }
 
-    private DomainObject findBuildingAddress(long id, Date date) {
+    private DomainObject findBuildingAddress(long id, boolean runAsAdmin, Date date) {
         if (date == null) {
-            return buildingAddressStrategy.findById(id, false);
+            return buildingAddressStrategy.findById(id, runAsAdmin);
         } else {
             return buildingAddressStrategy.findHistoryObject(id, date);
         }
     }
 
-    private void setPrimaryAddress(Building building, Date date) {
-        building.setPrimaryAddress(findBuildingAddress(building.getParentId(), date));
+    private void setPrimaryAddress(Building building, boolean runAsAdmin, Date date) {
+        building.setPrimaryAddress(findBuildingAddress(building.getParentId(), false, date));
     }
 
-    private void setAlternativeAddresses(Building building, Date date) {
+    private void setAlternativeAddresses(Building building, boolean runAsAdmin, Date date) {
         for (Attribute attr : building.getAttributes()) {
             if (attr.getAttributeTypeId().equals(BUILDING_ADDRESS)) {
-                DomainObject alternativeAddress = findBuildingAddress(attr.getValueId(), date);
+                DomainObject alternativeAddress = findBuildingAddress(attr.getValueId(), runAsAdmin, date);
                 if (alternativeAddress != null) {
                     building.addAlternativeAddress(alternativeAddress);
                 }
@@ -230,10 +230,10 @@ public class BuildingStrategy extends AbstractStrategy {
         Building building = (Building) sqlSession().selectOne(BUILDING_NAMESPACE + "." + FIND_BY_ID_OPERATION, example);
         if (building != null) {
             loadAttributes(building);
-            DomainObject primaryAddress = findBuildingAddress(building.getParentId(), null);
+            DomainObject primaryAddress = findBuildingAddress(building.getParentId(), runAsAdmin, null);
             building.setPrimaryAddress(primaryAddress);
             building.setAccompaniedAddress(primaryAddress);
-            setAlternativeAddresses(building, null);
+            setAlternativeAddresses(building, runAsAdmin, null);
             fillAttributes(building);
             updateStringsForNewLocales(building);
 
@@ -529,8 +529,8 @@ public class BuildingStrategy extends AbstractStrategy {
         List<Attribute> historyAttributes = loadHistoryAttributes(objectId, date);
         loadStringCultures(historyAttributes);
         building.setAttributes(historyAttributes);
-        setPrimaryAddress(building, date);
-        setAlternativeAddresses(building, date);
+        setPrimaryAddress(building, false, date);
+        setAlternativeAddresses(building, false, date);
         updateStringsForNewLocales(building);
         return building;
     }

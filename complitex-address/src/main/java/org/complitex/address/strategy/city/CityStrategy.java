@@ -1,7 +1,6 @@
 package org.complitex.address.strategy.city;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.util.string.Strings;
@@ -37,10 +36,8 @@ import org.complitex.template.web.security.SecurityRole;
 public class CityStrategy extends AbstractStrategy {
 
     private static final String CITY_NAMESPACE = CityStrategy.class.getPackage().getName() + ".City";
-
     @EJB
     private StringCultureBean stringBean;
-
     @EJB
     private StrategyFactory strategyFactory;
 
@@ -48,7 +45,6 @@ public class CityStrategy extends AbstractStrategy {
      * Attribute type ids
      */
     private static final long NAME = 400;
-
     public static final long CITY_TYPE = 401;
 
     @Override
@@ -67,14 +63,9 @@ public class CityStrategy extends AbstractStrategy {
         Long cityTypeId = object.getAttribute(CITY_TYPE).getValueId();
         if (cityTypeId != null) {
             IStrategy cityTypeStrategy = strategyFactory.getStrategy("city_type");
-            DomainObjectExample example = new DomainObjectExample(cityTypeId);
-            cityTypeStrategy.configureExample(example, ImmutableMap.<String, Long>of(), null);
-            List<? extends DomainObject> objects = cityTypeStrategy.find(example);
-            if (objects.size() == 1) {
-                DomainObject cityType = objects.get(0);
-                String cityTypeName = cityTypeStrategy.displayDomainObject(cityType, locale);
-                return cityTypeName + " " + cityName;
-            }
+            DomainObject cityType = cityTypeStrategy.findById(cityTypeId, true);
+            String cityTypeName = cityTypeStrategy.displayDomainObject(cityType, locale);
+            return cityTypeName + " " + cityName;
         }
         return cityName;
     }
