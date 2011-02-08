@@ -73,7 +73,7 @@ public class DomainObjectEditPanel extends Panel {
 
         } else {
             //edit existing entity
-            newObject = getStrategy().findById(objectId);
+            newObject = getStrategy().findById(objectId, false);
             oldObject = CloneUtil.cloneObject(newObject);
         }
         init();

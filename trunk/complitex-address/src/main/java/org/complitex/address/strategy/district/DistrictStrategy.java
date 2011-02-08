@@ -134,7 +134,7 @@ public class DistrictStrategy extends AbstractStrategy {
     }
 
     public String getDistrictCode(long districtId) {
-        DomainObject district = findById(districtId);
+        DomainObject district = findById(districtId, true);
         return stringBean.getSystemStringCulture(district.getAttribute(CODE).getLocalizedValues()).getValue();
     }
 

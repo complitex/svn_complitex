@@ -68,7 +68,7 @@ public interface IStrategy {
     List<? extends DomainObject> find(DomainObjectExample example);
 
     @Transactional
-    DomainObject findById(Long id);
+    DomainObject findById(long id, boolean runAsAdmin);
 
     @Transactional
     DomainObject findHistoryObject(long objectId, Date date);

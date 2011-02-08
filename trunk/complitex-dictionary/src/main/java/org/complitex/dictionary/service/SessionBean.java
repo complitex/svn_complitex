@@ -169,7 +169,7 @@ public class SessionBean extends AbstractBean {
 
         Long oId = getMainUserOrganizationObjectId();
 
-        return oId != null ? strategy.displayDomainObject(strategy.findById(oId), locale) : "";
+        return oId != null ? strategy.displayDomainObject(strategy.findById(oId, false), locale) : "";
     }
 
     public boolean hasPermission(final Long permissionId){

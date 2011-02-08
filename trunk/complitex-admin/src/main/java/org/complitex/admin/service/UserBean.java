@@ -51,7 +51,7 @@ public class UserBean extends AbstractBean {
         User user = (User) sqlSession().selectOne(STATEMENT_PREFIX + ".selectUser", id);
 
         if (user.getUserInfoObjectId() != null){
-            user.setUserInfo(getUserInfoStrategy().findById(user.getUserInfoObjectId()));
+            user.setUserInfo(getUserInfoStrategy().findById(user.getUserInfoObjectId(), false));
         }else{
             user.setUserInfo(getUserInfoStrategy().newInstance());
         }
@@ -168,7 +168,7 @@ public class UserBean extends AbstractBean {
             //сохранение информации о пользователе
             if (user.getUserInfoObjectId() != null){
                 DomainObject userInfo = user.getUserInfo();
-                getUserInfoStrategy().update(getUserInfoStrategy().findById(userInfo.getId()), userInfo, DateUtil.getCurrentDate());
+                getUserInfoStrategy().update(getUserInfoStrategy().findById(userInfo.getId(), false), userInfo, DateUtil.getCurrentDate());
             }else{
                 getUserInfoStrategy().insert(user.getUserInfo());
                 user.setUserInfoObjectId(user.getUserInfo().getId());
@@ -184,7 +184,7 @@ public class UserBean extends AbstractBean {
         //todo change to db load
         for (User user : users){
             if (user.getUserInfoObjectId() != null){
-                user.setUserInfo(getUserInfoStrategy().findById(user.getUserInfoObjectId()));
+                user.setUserInfo(getUserInfoStrategy().findById(user.getUserInfoObjectId(), false));
             }
         }
 
