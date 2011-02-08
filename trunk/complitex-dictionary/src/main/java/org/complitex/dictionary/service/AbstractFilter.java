@@ -12,7 +12,6 @@ public class AbstractFilter implements Serializable {
     private String sortProperty;
     private boolean ascending;
 
-    private String permissions;
     private boolean admin;
 
     public int getFirst() {
@@ -45,14 +44,6 @@ public class AbstractFilter implements Serializable {
 
     public void setAscending(boolean ascending) {
         this.ascending = ascending;
-    }
-
-    public String getPermissions() {
-        return permissions;
-    }
-
-    public void setPermissions(String permissions) {
-        this.permissions = permissions;
     }
 
     public boolean isAdmin() {
