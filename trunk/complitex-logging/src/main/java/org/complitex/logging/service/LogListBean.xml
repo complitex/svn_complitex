@@ -35,7 +35,7 @@
             <if test="objectId != null">and `object_id` = #{objectId}</if>
             <if test="event != null">and `event` = #{event}</if>
             <if test="status != null">and `status` = #{status}</if>
-            <if test="description != null">and `description` = #{description}</if>
+            <if test="description != null">and `description` like CONCAT('%',#{description},'%')</if>
         </where>
     </sql>
 
