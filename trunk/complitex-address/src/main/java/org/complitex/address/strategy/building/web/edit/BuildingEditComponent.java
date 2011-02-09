@@ -126,7 +126,7 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
             districtId = districtAttribute.getValueId();
             DomainObject district = null;
             if (districtId != null) {
-                district = districtStrategy.findById(districtId, false);
+                district = districtStrategy.findById(districtId, true);
                 districtComponentState.put("district", district);
             }
         }
