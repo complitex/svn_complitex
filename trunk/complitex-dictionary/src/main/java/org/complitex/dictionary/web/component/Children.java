@@ -15,8 +15,6 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.AbstractReadOnlyModel;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.LoadableDetachableModel;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.strategy.StrategyFactory;
@@ -24,7 +22,7 @@ import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
 
 import javax.ejb.EJB;
 import java.util.List;
-import org.complitex.dictionary.service.LocaleBean;
+import org.apache.wicket.model.IModel;
 import org.complitex.dictionary.strategy.IStrategy;
 
 /**
@@ -33,16 +31,10 @@ import org.complitex.dictionary.strategy.IStrategy;
  */
 public final class Children extends Panel {
 
-    @EJB(name = "StrategyFactory")
+    @EJB
     private StrategyFactory strategyFactory;
-
-    @EJB(name = "LocaleBean")
-    private LocaleBean localeBean;
-
     private String childEntity;
-
     private String parentEntity;
-
     private DomainObject parentObject;
 
     public Children(String id, String parentEntity, DomainObject parentObject, String childEntity) {
@@ -53,7 +45,7 @@ public final class Children extends Panel {
         init();
     }
 
-    private IStrategy getStrategy() {
+    private IStrategy getChildrenStrategy() {
         return strategyFactory.getStrategy(childEntity);
     }
 
@@ -104,14 +96,22 @@ public final class Children extends Panel {
         toggleLink.add(toggleStatus);
         add(toggleLink);
 
-        IModel<List<? extends DomainObject>> childrenModel = new LoadableDetachableModel<List<? extends DomainObject>>() {
+        IModel<List<? extends DomainObject>> childrenModel = new AbstractReadOnlyModel<List<? extends DomainObject>>() {
+
+            private List<? extends DomainObject> children;
 
             @Override
-            protected List<? extends DomainObject> load() {
+            public List<? extends DomainObject> getObject() {
+                if (children == null) {
+                    initChildren();
+                }
+                return children;
+            }
+
+            private void initChildren() {
                 DomainObjectExample example = new DomainObjectExample();
-                example.setLocaleId(localeBean.convert(getLocale()).getId());
-                getStrategy().configureExample(example, ImmutableMap.of(parentEntity, parentObject.getId()), null);
-                return getStrategy().find(example);
+                getChildrenStrategy().configureExample(example, ImmutableMap.of(parentEntity, parentObject.getId()), null);
+                children = getChildrenStrategy().find(example);
             }
         };
 
@@ -120,16 +120,16 @@ public final class Children extends Panel {
             @Override
             protected void populateItem(ListItem<DomainObject> item) {
                 DomainObject child = item.getModelObject();
-                BookmarkablePageLink<WebPage> link = new BookmarkablePageLink<WebPage>("link", getStrategy().getEditPage(),
-                        getStrategy().getEditPageParams(child.getId(), parentObject.getId(), parentEntity));
-                link.add(new Label("displayName", getStrategy().displayDomainObject(child, getLocale())));
+                BookmarkablePageLink<WebPage> link = new BookmarkablePageLink<WebPage>("link", getChildrenStrategy().getEditPage(),
+                        getChildrenStrategy().getEditPageParams(child.getId(), parentObject.getId(), parentEntity));
+                link.add(new Label("displayName", getChildrenStrategy().displayDomainObject(child, getLocale())));
                 item.add(link);
             }
         };
         children.setReuseItems(true);
         content.add(children);
-        BookmarkablePageLink addLink = new BookmarkablePageLink("add", getStrategy().getEditPage(), getStrategy().
-                getEditPageParams(null, parentObject.getId(), parentEntity));
+        BookmarkablePageLink addLink = new BookmarkablePageLink("add", getChildrenStrategy().getEditPage(),
+                getChildrenStrategy().getEditPageParams(null, parentObject.getId(), parentEntity));
         content.add(addLink);
         if (!DomainObjectAccessUtil.canEdit(parentEntity, parentObject)) {
             addLink.setVisible(false);
