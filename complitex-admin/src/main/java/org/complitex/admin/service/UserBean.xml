@@ -111,7 +111,7 @@
     <update id="updateUser" parameterType="org.complitex.dictionary.entity.User">
         update `user`
         <set>
-            <if test="password != null"> `password` = #{password}</if>
+            <if test="password != null"> `password` = #{password},</if>
             <if test="userInfoObjectId != null"> `user_info_object_id` = #{userInfoObjectId}</if>
         </set>
         where id = #{id}
