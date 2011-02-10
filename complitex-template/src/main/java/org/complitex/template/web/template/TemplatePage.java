@@ -99,8 +99,11 @@ public abstract class TemplatePage extends WebPage {
             }
         });
 
-        add(new Label("current_user_fullname", sessionBean.getCurrentUserFullName(getLocale())));
-        add(new Label("current_user_department",sessionBean.getMainUserOrganizationName(getLocale())));
+        String fullName = sessionBean.getCurrentUserFullName(getLocale());
+        String depName = sessionBean.getMainUserOrganizationName(getLocale());
+
+        add(new Label("current_user_fullname", fullName != null ? fullName : ""));
+        add(new Label("current_user_department", depName != null ? depName : ""));
 
         add(new Form("exit") {
 
