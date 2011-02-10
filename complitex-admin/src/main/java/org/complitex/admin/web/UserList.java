@@ -39,7 +39,7 @@ import org.complitex.template.web.pages.ScrollListPage;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 22.07.2010 15:03:45
  */
-@AuthorizeInstantiation(SecurityRole.AUTHORIZED)
+@AuthorizeInstantiation(SecurityRole.ADMIN_MODULE_EDIT)
 public class UserList extends ScrollListPage {
     @EJB(name = "OrganizationStrategy")
     private IOrganizationStrategy organizationStrategy;
@@ -155,7 +155,7 @@ public class UserList extends ScrollListPage {
                 String separator = "";
                 for (UserOrganization userOrganization : user.getUserOrganizations()){
                     organizations += separator + (organizationStrategy.displayDomainObject(
-                            organizationStrategy.findById(userOrganization.getOrganizationObjectId(), false), getLocale()));
+                            organizationStrategy.findById(userOrganization.getOrganizationObjectId(), true), getLocale()));
 
                     separator = ", ";
                 }

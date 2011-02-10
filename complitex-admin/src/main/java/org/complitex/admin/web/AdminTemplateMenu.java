@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import org.complitex.template.web.security.SecurityRole;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -18,7 +19,7 @@ import java.util.Locale;
  *
  *   Меню администрирование
  */
-@AuthorizeInstantiation("ADMIN_MODULE_EDIT")
+@AuthorizeInstantiation(SecurityRole.ADMIN_MODULE_EDIT)
 public class AdminTemplateMenu extends ResourceTemplateMenu {
     private static final Logger log = LoggerFactory.getLogger(AdminTemplateMenu.class);
 
