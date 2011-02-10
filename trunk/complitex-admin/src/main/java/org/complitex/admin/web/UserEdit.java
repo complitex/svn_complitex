@@ -42,7 +42,7 @@ import static org.complitex.dictionary.entity.UserGroup.GROUP_NAME.*;
  *
  *  Страница создания и редактирования пользователя
  */
-@AuthorizeInstantiation(SecurityRole.AUTHORIZED)
+@AuthorizeInstantiation(SecurityRole.ADMIN_MODULE_EDIT)
 public class UserEdit extends FormTemplatePage {
     private static final Logger log = LoggerFactory.getLogger(UserEdit.class);
 
@@ -168,7 +168,7 @@ public class UserEdit extends FormTemplatePage {
                 item.add(new Radio<UserOrganization>("radio", item.getModel()));
 
                 item.add(new Label("name", organizationStrategy.displayDomainObject(
-                        organizationStrategy.findById(userOrganization.getOrganizationObjectId(), false), getLocale())));
+                        organizationStrategy.findById(userOrganization.getOrganizationObjectId(), true), getLocale())));
 
                 item.add(new AjaxLink("delete"){
 
