@@ -191,15 +191,37 @@
         <result column="permission_id" property="permissionId"/>
     </resultMap>
 
-    <select id="findChildren" parameterType="map" resultMap="org.complitex.dictionary.entity.DomainObject.DomainObjectPermissionInfo">
+    <select id="findChildrenPermissionInfo" parameterType="map" resultMap="org.complitex.dictionary.entity.DomainObject.DomainObjectPermissionInfo">
         SELECT e.`object_id`, e.`permission_id` FROM `${entity}` e WHERE e.`status` IN ('ACTIVE', 'INACTIVE') AND e.`parent_id` = #{parentId} AND
                 e.`parent_entity_id` = (SELECT ent.`id` FROM `entity` ent WHERE ent.`entity_table` = #{parentEntity})
             ORDER BY e.`object_id`
-                 <include refid="org.complitex.dictionary.entity.DomainObject.limit"/>
+        <include refid="org.complitex.dictionary.entity.DomainObject.limit"/>
     </select>
 
     <update id="updatePermissionId" parameterType="map">
-        UPDATE ${entity} e SET e.`permission_id` = #{permissionId} WHERE e.`status` IN ('ACTIVE', 'INACTIVE') AND e.`object_id` = #{id}
+        UPDATE `${entity}` e SET e.`permission_id` = #{permissionId} WHERE e.`status` IN ('ACTIVE', 'INACTIVE') AND e.`object_id` = #{id}
+    </update>
+
+    <!-- disable/enable functionality -->
+    <select id="findChildrenActivityInfo" parameterType="map" resultType="long">
+        SELECT e.`object_id` FROM `${entity}` e WHERE e.`parent_id` = #{parentId} AND
+                e.`parent_entity_id` = (SELECT ent.`id` FROM `entity` ent WHERE ent.`entity_table` = #{parentEntity})
+            ORDER BY e.`object_id`
+        <include refid="org.complitex.dictionary.entity.DomainObject.limit"/>
+    </select>
+
+    <update id="updateChildrenActivity" parameterType="map">
+        UPDATE `${entity}` e SET e.`status` = #{status} WHERE e.`parent_id` = #{parentId} AND
+                e.`parent_entity_id` = (SELECT ent.`id` FROM `entity` ent WHERE ent.`entity_table` = #{parentEntity})
+                AND
+                <choose>
+                    <when test="enabled">
+                        e.`status` = 'ACTIVE'
+                    </when>
+                    <otherwise>
+                        e.`status` = 'INACTIVE'
+                    </otherwise>
+                </choose>
     </update>
 
 </mapper>

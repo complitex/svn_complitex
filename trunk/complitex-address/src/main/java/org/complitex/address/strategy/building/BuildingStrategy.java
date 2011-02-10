@@ -33,8 +33,10 @@ import org.complitex.address.strategy.building.web.edit.BuildingEditComponent;
 import org.complitex.address.strategy.building.web.edit.BuildingValidator;
 import org.complitex.address.strategy.building.web.list.BuildingList;
 import org.complitex.address.strategy.building_address.BuildingAddressStrategy;
+import org.complitex.dictionary.entity.StatusType;
 import org.complitex.dictionary.service.PermissionBean;
 import org.complitex.dictionary.service.SessionBean;
+import org.complitex.dictionary.util.Numbers;
 import org.complitex.template.web.security.SecurityRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -309,7 +311,7 @@ public class BuildingStrategy extends AbstractStrategy {
     }
 
     @Override
-    public String[] getChildrenEntities() {
+    public String[] getRealChildren() {
         return null;
     }
 
@@ -539,26 +541,60 @@ public class BuildingStrategy extends AbstractStrategy {
     @Override
     public void enable(DomainObject object) {
         Building building = (Building) object;
-        List<DomainObject> addresses = building.getAllAddresses();
-        for (DomainObject address : addresses) {
-            buildingAddressStrategy.enable(address);
-        }
-        super.enable(building);
+        DomainObject primaryAddress = building.getPrimaryAddress();
+        buildingAddressStrategy.enable(primaryAddress);
     }
 
     @Transactional
     @Override
     public void disable(DomainObject object) {
         Building building = (Building) object;
-        List<DomainObject> addresses = building.getAllAddresses();
-        for (DomainObject address : addresses) {
-            buildingAddressStrategy.disable(address);
-        }
-        super.disable(building);
+        DomainObject primaryAddress = building.getPrimaryAddress();
+        buildingAddressStrategy.disable(primaryAddress);
+    }
+
+    @Override
+    public void changeChildrenActivity(long parentId, boolean enable) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("buildingId", parentId);
+        params.put("enabled", !enable);
+        params.put("status", enable ? StatusType.ACTIVE : StatusType.INACTIVE);
+        sqlSession().update(BUILDING_NAMESPACE + ".updateReferencedAddresses", params);
     }
 
     @Override
     public String[] getEditRoles() {
         return new String[]{SecurityRole.ADDRESS_MODULE_EDIT};
+    }
+
+    @Transactional
+    protected List<DomainObjectPermissionInfo> getReferenceAddressPermissionInfo(long buildingId) {
+        return sqlSession().selectList(BUILDING_NAMESPACE + ".findReferenceAddressPermissionInfo", buildingId);
+    }
+
+    @Transactional
+    @Override
+    public void replaceChildrenPermissions(long parentId, Set<Long> subjectIds) {
+        List<DomainObjectPermissionInfo> referenceAddressPermissionInfo = getReferenceAddressPermissionInfo(parentId);
+        for (DomainObjectPermissionInfo addressPermissionInfo : referenceAddressPermissionInfo) {
+            Set<Long> addressSubjectIds = buildingAddressStrategy.loadSubjects(addressPermissionInfo.getPermissionId());
+            if (buildingAddressStrategy.isNeedToChangePermission(addressSubjectIds, subjectIds)) {
+                long oldPermission = addressPermissionInfo.getPermissionId();
+                addressPermissionInfo.setPermissionId(buildingAddressStrategy.getNewPermissionId(subjectIds));
+                long newPermission = addressPermissionInfo.getPermissionId();
+                if (!Numbers.isEqual(oldPermission, newPermission)) {
+                    buildingAddressStrategy.updatePermissionId(addressPermissionInfo.getId(), newPermission);
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void changeChildrenPermissions(long parentId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds) {
+        List<DomainObjectPermissionInfo> referenceAddressPermissionInfo = getReferenceAddressPermissionInfo(parentId);
+        for (DomainObjectPermissionInfo addressPermissionInfo : referenceAddressPermissionInfo) {
+            buildingAddressStrategy.changeChildrenPermissions(addressPermissionInfo.getId(), addressPermissionInfo.getPermissionId(),
+                    addSubjectIds, removeSubjectIds);
+        }
     }
 }

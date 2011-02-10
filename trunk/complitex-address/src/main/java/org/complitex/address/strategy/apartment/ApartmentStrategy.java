@@ -121,7 +121,7 @@ public class ApartmentStrategy extends AbstractStrategy {
     }
 
     @Override
-    public String[] getChildrenEntities() {
+    public String[] getRealChildren() {
         return new String[]{"room"};
     }
 
