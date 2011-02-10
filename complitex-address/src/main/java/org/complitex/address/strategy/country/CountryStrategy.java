@@ -69,7 +69,7 @@ public class CountryStrategy extends AbstractStrategy {
     }
 
     @Override
-    public String[] getChildrenEntities() {
+    public String[] getRealChildren() {
         return new String[]{"region"};
     }
 

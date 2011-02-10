@@ -114,7 +114,7 @@ public class BuildingAddressStrategy extends AbstractStrategy {
     }
 
     @Override
-    public String[] getChildrenEntities() {
+    public String[] getRealChildren() {
         return new String[]{"building"};
     }
 
@@ -151,20 +151,6 @@ public class BuildingAddressStrategy extends AbstractStrategy {
     @Override
     public PageParameters getHistoryPageParams(long objectId) {
         return null;
-    }
-
-    @Transactional
-    @Override
-    public void enable(DomainObject object) {
-        object.setStatus(StatusType.ACTIVE);
-        sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new Parameter(getEntityTable(), object));
-    }
-
-    @Transactional
-    @Override
-    public void disable(DomainObject object) {
-        object.setStatus(StatusType.INACTIVE);
-        sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new Parameter(getEntityTable(), object));
     }
 
     @Override

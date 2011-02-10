@@ -11,7 +11,8 @@ import java.util.List;
  * Модель лога журнала событий
  */
 public class Log implements Serializable{
-    public static enum EVENT {SYSTEM_START, SYSTEM_STOP, USER_LOGIN, USER_LOGOFF, LIST, VIEW, CREATE, EDIT, REMOVE, GETTING_DATA, SETTING_PERMISSION}
+    public static enum EVENT {SYSTEM_START, SYSTEM_STOP, USER_LOGIN, USER_LOGOFF, LIST, VIEW, CREATE, EDIT, REMOVE, GETTING_DATA, SETTING_PERMISSION,
+        DISABLE, ENABLE}
     public static enum STATUS {OK, ERROR, WARN}
 
     private Long id;

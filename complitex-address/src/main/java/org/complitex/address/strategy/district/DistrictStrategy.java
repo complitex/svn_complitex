@@ -3,6 +3,8 @@ package org.complitex.address.strategy.district;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import java.util.Set;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.entity.DomainObject;
@@ -22,7 +24,10 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import org.complitex.dictionary.entity.StatusType;
 import org.complitex.dictionary.mybatis.Transactional;
+import org.complitex.dictionary.strategy.IStrategy;
+import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.template.strategy.AbstractStrategy;
 import org.complitex.template.web.security.SecurityRole;
 
@@ -34,8 +39,10 @@ import org.complitex.template.web.security.SecurityRole;
 public class DistrictStrategy extends AbstractStrategy {
 
     private static final String DISTRICT_NAMESPACE = DistrictStrategy.class.getPackage().getName() + ".District";
-    @EJB(beanName = "StringCultureBean")
+    @EJB
     private StringCultureBean stringBean;
+    @EJB
+    private StrategyFactory strategyFactory;
 
     /*
      * Attribute type ids
@@ -124,7 +131,12 @@ public class DistrictStrategy extends AbstractStrategy {
     }
 
     @Override
-    public String[] getChildrenEntities() {
+    public String[] getRealChildren() {
+        return null;
+    }
+
+    @Override
+    public String[] getLogicalChildren() {
         return new String[]{"street"};
     }
 
@@ -140,16 +152,45 @@ public class DistrictStrategy extends AbstractStrategy {
 
     @Transactional
     @Override
-    public List<? extends DomainObjectPermissionInfo> findChildren(long parentId, String childEntity, int start, int size) {
+    protected List<DomainObjectPermissionInfo> findChildrenPermissionInfo(long parentId, String childEntity, int start, int size) {
         Map<String, Object> params = Maps.newHashMap();
         params.put("parentId", parentId);
         params.put("start", start);
         params.put("size", size);
-        return sqlSession().selectList(DISTRICT_NAMESPACE + "." + FIND_CHILDREN_OPERATION, params);
+        return sqlSession().selectList(DISTRICT_NAMESPACE + "." + FIND_CHILDREN_PERMISSION_INFO_OPERATION, params);
     }
 
     @Override
     public String[] getEditRoles() {
         return new String[]{SecurityRole.ADDRESS_MODULE_EDIT};
+    }
+
+    @Transactional
+    protected Set<Long> findChildrenActivityInfo(long districtId) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("districtId", districtId);
+        return Sets.newHashSet(sqlSession().selectList(DISTRICT_NAMESPACE + "." + FIND_CHILDREN_ACTIVITY_INFO_OPERATION, params));
+    }
+
+    @Transactional
+    protected void updateChildrenActivity(Set<Long> streetIds, boolean enabled) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("enabled", enabled);
+        params.put("streetIds", streetIds);
+        params.put("status", enabled ? StatusType.INACTIVE : StatusType.ACTIVE);
+        sqlSession().update(DISTRICT_NAMESPACE + "." + UPDATE_CHILDREN_ACTIVITY_OPERATION, params);
+    }
+
+    @Override
+    public void changeChildrenActivity(long parentId, boolean enable) {
+        IStrategy streetStrategy = strategyFactory.getStrategy("street");
+
+        Set<Long> streetIds = findChildrenActivityInfo(parentId);
+        if (streetIds.size() > 0) {
+            for (long childId : streetIds) {
+                streetStrategy.changeChildrenActivity(childId, enable);
+            }
+            updateChildrenActivity(streetIds, !enable);
+        }
     }
 }

@@ -165,7 +165,7 @@ public class DomainObjectEditPanel extends Panel {
                         if (isNew()) {
                             save(false);
                         } else {
-                            boolean isAbleToHaveChildren = getStrategy().getChildrenEntities() != null &&  getStrategy().getChildrenEntities().length > 0;
+                            boolean isAbleToHaveChildren = getStrategy().getLogicalChildren() != null &&  getStrategy().getLogicalChildren().length > 0;
                             if (isAbleToHaveChildren && getStrategy().isNeedToChangePermission(oldObject.getSubjectIds(), newObject.getSubjectIds())) {
                                 permissionPropagationDialogPanel.open(target);
                             } else {

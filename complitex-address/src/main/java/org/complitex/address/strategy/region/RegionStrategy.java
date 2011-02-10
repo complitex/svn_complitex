@@ -120,7 +120,7 @@ public class RegionStrategy extends AbstractStrategy {
     }
 
     @Override
-    public String[] getChildrenEntities() {
+    public String[] getRealChildren() {
         return new String[]{"city"};
     }
 

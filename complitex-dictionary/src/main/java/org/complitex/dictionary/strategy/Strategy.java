@@ -46,7 +46,8 @@ import org.complitex.dictionary.util.ResourceUtil;
 public abstract class Strategy extends AbstractBean implements IStrategy {
 
     private static final Logger log = LoggerFactory.getLogger(Strategy.class);
-    private static final int CHILDREN_BATCH = 500;
+    private static final int PERMISSIONS_CHILDREN_BATCH = 500;
+    private static final int ACTIVITY_CHILDREN_BATCH = 5000;
     @EJB
     private StrategyFactory strategyFactory;
     @EJB
@@ -83,46 +84,105 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         }
     }
 
-    @Transactional
-    @Override
-    public void disable(DomainObject object) {
-        object.setStatus(StatusType.INACTIVE);
-        sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new Parameter(getEntityTable(), object));
+    protected String getDisableSuccess() {
+        return ResourceUtil.getString(Strategy.class.getName(), "disable_success", localeBean.getSystemLocale());
+    }
 
-        String[] childrenEntities = getChildrenEntities();
+    protected String getDisableError() {
+        return ResourceUtil.getString(Strategy.class.getName(), "disable_error", localeBean.getSystemLocale());
+    }
+
+    protected String getEnableSuccess() {
+        return ResourceUtil.getString(Strategy.class.getName(), "enable_success", localeBean.getSystemLocale());
+    }
+
+    protected String getEnableError() {
+        return ResourceUtil.getString(Strategy.class.getName(), "enable_error", localeBean.getSystemLocale());
+    }
+
+    @Override
+    public void disable(final DomainObject object) {
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+//                long start = System.currentTimeMillis();
+                try {
+                    changeObjectActivity(object, false);
+                    log.info("Disabling of {} tree has been successful.", getEntityTable());
+//                    logBean.logChangeObjectActivity(STATUS.OK, getEntityTable(), object.getId(), false, getDisableSuccess());
+                } catch (Exception e) {
+                    log.error("Disabling of " + getEntityTable() + " tree has been failed.", e);
+                    logBean.logChangeObjectActivity(STATUS.ERROR, getEntityTable(), object.getId(), false, getDisableError());
+                }
+//                log.info("Process of disabling of {} tree took {} sec.", getEntityTable(), (System.currentTimeMillis() - start) / 1000);
+            }
+        }).start();
+    }
+
+    @Transactional
+    protected void changeObjectActivity(DomainObject object, boolean enable) {
+        object.setStatus(enable ? StatusType.ACTIVE : StatusType.INACTIVE);
+        sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new Parameter(getEntityTable(), object));
+        changeChildrenActivity(object.getId(), enable);
+    }
+
+    @Override
+    public void enable(final DomainObject object) {
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+//                long start = System.currentTimeMillis();
+                try {
+                    changeObjectActivity(object, true);
+                    log.info("Enabling of {} tree has been successful.", getEntityTable());
+//                    logBean.logChangeObjectActivity(STATUS.OK, getEntityTable(), object.getId(), true, getEnableSuccess());
+                } catch (Exception e) {
+                    log.error("Enabling of " + getEntityTable() + " tree has been failed.", e);
+                    logBean.logChangeObjectActivity(STATUS.ERROR, getEntityTable(), object.getId(), true, getEnableError());
+                }
+//                log.info("Process of enabling of {} tree took {} sec.", getEntityTable(), (System.currentTimeMillis() - start) / 1000);
+            }
+        }).start();
+    }
+
+    @Override
+    public void changeChildrenActivity(long parentId, boolean enable) {
+        String[] childrenEntities = getLogicalChildren();
         if (childrenEntities != null) {
             for (String childEntity : childrenEntities) {
-                DomainObjectExample example = new DomainObjectExample();
-                example.setStatus(StatusType.ACTIVE.name());
-                IStrategy childStrategy = strategyFactory.getStrategy(childEntity);
-                childStrategy.configureExample(example, ImmutableMap.of(getEntityTable(), object.getId()), null);
-                List<? extends DomainObject> children = childStrategy.find(example);
-                for (DomainObject child : children) {
-                    childStrategy.disable(child);
-                }
+                changeChildrenActivity(parentId, childEntity, enable);
             }
         }
     }
 
     @Transactional
-    @Override
-    public void enable(DomainObject object) {
-        object.setStatus(StatusType.ACTIVE);
-        sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new Parameter(getEntityTable(), object));
+    protected void changeChildrenActivity(long parentId, String childEntity, boolean enable) {
+        IStrategy childStrategy = strategyFactory.getStrategy(childEntity);
 
-        String[] childrenEntities = getChildrenEntities();
-        if (childrenEntities != null) {
-            for (String childEntity : childrenEntities) {
-                IStrategy childStrategy = strategyFactory.getStrategy(childEntity);
-                DomainObjectExample example = new DomainObjectExample();
-                example.setStatus(StatusType.INACTIVE.name());
-                childStrategy.configureExample(example, ImmutableMap.of(getEntityTable(), object.getId()), null);
-                List<? extends DomainObject> children = childStrategy.find(example);
-                for (DomainObject child : children) {
-                    childStrategy.enable(child);
+        int i = 0;
+        boolean allChildrenLoaded = false;
+        while (!allChildrenLoaded) {
+
+            Set<Long> childrenIds = findChildrenActivityInfo(parentId, childEntity, i, ACTIVITY_CHILDREN_BATCH);
+            if (childrenIds.size() > 0) {
+                //process children
+                for (long childId : childrenIds) {
+                    childStrategy.changeChildrenActivity(childId, enable);
                 }
+
+                if (childrenIds.size() < ACTIVITY_CHILDREN_BATCH) {
+                    allChildrenLoaded = true;
+                } else {
+                    i += ACTIVITY_CHILDREN_BATCH;
+                }
+            } else {
+                allChildrenLoaded = true;
             }
         }
+
+        updateChildrenActivity(parentId, childEntity, !enable);
     }
 
     protected void loadAttributes(DomainObject object) {
@@ -158,7 +218,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     public DomainObject findById(long id, boolean runAsAdmin) {
         DomainObjectExample example = new DomainObjectExample(id);
         example.setTable(getEntityTable());
-        if(!runAsAdmin){
+        if (!runAsAdmin) {
             prepareExampleForPermissionCheck(example);
         } else {
             example.setAdmin(true);
@@ -486,7 +546,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     @Transactional
     @Override
     public void updateAndPropagate(DomainObject oldObject, final DomainObject newObject, Date updateDate) {
-        if (getChildrenEntities() == null || getChildrenEntities().length == 0) {
+        if (getLogicalChildren() == null || getLogicalChildren().length == 0) {
             throw new RuntimeException("Illegal call of updateAndPropagate() as `" + getEntityTable() + "` entity is not able to has children.");
         }
         update(oldObject, newObject, updateDate);
@@ -518,21 +578,20 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     }
 
     @Transactional
-    @Override
-    public List<? extends DomainObjectPermissionInfo> findChildren(long parentId, String childEntity, int start, int size) {
+    protected List<DomainObjectPermissionInfo> findChildrenPermissionInfo(long parentId, String childEntity, int start, int size) {
         Map<String, Object> params = Maps.newHashMap();
         params.put("entity", childEntity);
         params.put("parentId", parentId);
         params.put("parentEntity", getEntityTable());
         params.put("start", start);
         params.put("size", size);
-        return sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + "." + FIND_CHILDREN_OPERATION, params);
+        return sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + "." + FIND_CHILDREN_PERMISSION_INFO_OPERATION, params);
     }
 
     @Transactional
     @Override
     public void replaceChildrenPermissions(long parentId, Set<Long> subjectIds) {
-        String[] childrenEntities = getChildrenEntities();
+        String[] childrenEntities = getLogicalChildren();
         if (childrenEntities != null && childrenEntities.length > 0) {
             for (String childEntity : childrenEntities) {
                 replaceChildrenPermissions(childEntity, parentId, subjectIds);
@@ -548,7 +607,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         boolean allChildrenLoaded = false;
         while (!allChildrenLoaded) {
 
-            List<? extends DomainObjectPermissionInfo> children = findChildren(parentId, childEntity, i, CHILDREN_BATCH);
+            List<DomainObjectPermissionInfo> children = findChildrenPermissionInfo(parentId, childEntity, i, PERMISSIONS_CHILDREN_BATCH);
             if (children.size() > 0) {
                 //process children
                 for (DomainObjectPermissionInfo child : children) {
@@ -564,10 +623,10 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
                     childStrategy.replaceChildrenPermissions(child.getId(), subjectIds);
                 }
 
-                if (children.size() < CHILDREN_BATCH) {
+                if (children.size() < PERMISSIONS_CHILDREN_BATCH) {
                     allChildrenLoaded = true;
                 } else {
-                    i += CHILDREN_BATCH;
+                    i += PERMISSIONS_CHILDREN_BATCH;
                 }
             } else {
                 allChildrenLoaded = true;
@@ -812,8 +871,13 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
      * Description metadata
      */
     @Override
-    public String[] getChildrenEntities() {
+    public String[] getRealChildren() {
         return null;
+    }
+
+    @Override
+    public String[] getLogicalChildren() {
+        return getRealChildren();
     }
 
     @Override
@@ -944,7 +1008,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
     @Transactional
     protected void changeChildrenPermissions(long parentId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds) {
-        String[] childrenEntities = getChildrenEntities();
+        String[] childrenEntities = getLogicalChildren();
         if (childrenEntities != null && childrenEntities.length > 0) {
             for (String childEntity : childrenEntities) {
                 changeChildrenPermissions(childEntity, parentId, addSubjectIds, removeSubjectIds);
@@ -960,21 +1024,43 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         boolean allChildrenLoaded = false;
         while (!allChildrenLoaded) {
 
-            List<? extends DomainObjectPermissionInfo> children = findChildren(parentId, childEntity, i, CHILDREN_BATCH);
+            List<DomainObjectPermissionInfo> children = findChildrenPermissionInfo(parentId, childEntity, i, PERMISSIONS_CHILDREN_BATCH);
             if (children.size() > 0) {
                 //process children
                 for (DomainObjectPermissionInfo child : children) {
                     childStrategy.changeChildrenPermissions(child.getId(), child.getPermissionId(), addSubjectIds, removeSubjectIds);
                 }
 
-                if (children.size() < CHILDREN_BATCH) {
+                if (children.size() < PERMISSIONS_CHILDREN_BATCH) {
                     allChildrenLoaded = true;
                 } else {
-                    i += CHILDREN_BATCH;
+                    i += PERMISSIONS_CHILDREN_BATCH;
                 }
             } else {
                 allChildrenLoaded = true;
             }
         }
+    }
+
+    @Transactional
+    protected Set<Long> findChildrenActivityInfo(long parentId, String childEntity, int start, int size) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("entity", childEntity);
+        params.put("parentId", parentId);
+        params.put("parentEntity", getEntityTable());
+        params.put("start", start);
+        params.put("size", size);
+        return Sets.newHashSet(sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + "." + FIND_CHILDREN_ACTIVITY_INFO_OPERATION, params));
+    }
+
+    @Transactional
+    protected void updateChildrenActivity(long parentId, String childEntity, boolean enabled) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("entity", childEntity);
+        params.put("parentId", parentId);
+        params.put("parentEntity", getEntityTable());
+        params.put("enabled", enabled);
+        params.put("status", enabled ? StatusType.INACTIVE : StatusType.ACTIVE);
+        sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_CHILDREN_ACTIVITY_OPERATION, params);
     }
 }

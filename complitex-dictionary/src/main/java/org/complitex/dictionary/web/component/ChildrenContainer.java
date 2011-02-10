@@ -20,7 +20,7 @@ import org.complitex.dictionary.strategy.IStrategy;
  */
 public final class ChildrenContainer extends Panel {
 
-    @EJB(name = "StrategyFactory")
+    @EJB
     private StrategyFactory strategyFactory;
     private String entity;
     private DomainObject object;
@@ -37,7 +37,7 @@ public final class ChildrenContainer extends Panel {
     }
 
     private void init() {
-        String[] childrenEntities = getStrategy().getChildrenEntities();
+        String[] childrenEntities = getStrategy().getLogicalChildren();
         if (childrenEntities == null) {
             childrenEntities = new String[0];
         }

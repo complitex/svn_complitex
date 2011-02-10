@@ -43,7 +43,9 @@ public interface IStrategy {
     String HAS_HISTORY_OPERATION = "hasHistory";
     String INSERT_OPERATION = "insert";
     String UPDATE_OPERATION = "update";
-    String FIND_CHILDREN_OPERATION = "findChildren";
+    String FIND_CHILDREN_PERMISSION_INFO_OPERATION = "findChildrenPermissionInfo";
+    String FIND_CHILDREN_ACTIVITY_INFO_OPERATION = "findChildrenActivityInfo";
+    String UPDATE_CHILDREN_ACTIVITY_OPERATION = "updateChildrenActivity";
 
     @Transactional
     void archive(DomainObject object);
@@ -56,12 +58,10 @@ public interface IStrategy {
     @Transactional
     int count(DomainObjectExample example);
 
-    @Transactional
     void disable(DomainObject object);
 
     String displayDomainObject(DomainObject object, Locale locale);
 
-    @Transactional
     void enable(DomainObject object);
 
     @Transactional
@@ -97,7 +97,9 @@ public interface IStrategy {
 
     String getAttributeLabel(Attribute attribute, Locale locale);
 
-    String[] getChildrenEntities();
+    String[] getRealChildren();
+
+    String[] getLogicalChildren();
 
     Class<? extends AbstractComplexAttributesPanel> getComplexAttributesPanelClass();
 
@@ -177,9 +179,6 @@ public interface IStrategy {
     @Transactional
     Long getNewPermissionId(Set<Long> newSubjectIds);
 
-    @Transactional
-    List<? extends DomainObjectPermissionInfo> findChildren(long parentId, String childEntity, int start, int size);
-
     public static class DomainObjectPermissionInfo {
 
         private Long id;
@@ -208,4 +207,7 @@ public interface IStrategy {
     void changeChildrenPermissions(long objectId, long permissionId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds);
 
     void changeChildrenPermissionsInDistinctThread(long objectId, long permissionId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds);
+
+    @Transactional
+    void changeChildrenActivity(long parentId, boolean enable);
 }
