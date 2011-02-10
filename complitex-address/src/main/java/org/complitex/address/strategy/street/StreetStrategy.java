@@ -164,7 +164,12 @@ public class StreetStrategy extends AbstractStrategy {
     }
 
     @Override
-    public String[] getChildrenEntities() {
+    public String[] getRealChildren() {
+        return new String[]{"building_address"};
+    }
+
+    @Override
+    public String[] getLogicalChildren() {
         return new String[]{"building"};
     }
 
@@ -207,6 +212,12 @@ public class StreetStrategy extends AbstractStrategy {
     @Override
     protected void changeChildrenPermissions(long parentId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds) {
         changeChildrenPermissions("building_address", parentId, addSubjectIds, removeSubjectIds);
+    }
+
+    @Transactional
+    @Override
+    public void changeChildrenActivity(long parentId, boolean enable) {
+        changeChildrenActivity(parentId, "building_address", enable);
     }
 
     @Override
