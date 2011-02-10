@@ -186,7 +186,7 @@ public class DistrictStrategy extends AbstractStrategy {
         IStrategy streetStrategy = strategyFactory.getStrategy("street");
 
         Set<Long> streetIds = findChildrenActivityInfo(parentId);
-        if (streetIds.size() > 0) {
+        if (!streetIds.isEmpty()) {
             for (long childId : streetIds) {
                 streetStrategy.changeChildrenActivity(childId, enable);
             }
