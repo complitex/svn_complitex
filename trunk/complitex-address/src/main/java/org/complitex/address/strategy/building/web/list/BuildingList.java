@@ -63,10 +63,10 @@ public final class BuildingList extends ScrollListPage {
 
     private static final Logger log = LoggerFactory.getLogger(BuildingList.class);
 
-    @EJB(name = "BuildingStrategy")
+    @EJB
     private BuildingStrategy buildingStrategy;
 
-    @EJB(name = "LocaleBean")
+    @EJB
     private LocaleBean localeBean;
 
     private class BuildingSearchCallback implements ISearchCallback, Serializable {
@@ -135,7 +135,8 @@ public final class BuildingList extends ScrollListPage {
             add(new EmptyPanel("searchComponent"));
         } else {
             SearchComponentState componentState = getSearchComponentStateFromSession();
-            SearchComponent searchComponent = new SearchComponent("searchComponent", componentState, searchFilters, new BuildingSearchCallback(), true);
+            SearchComponent searchComponent = new SearchComponent("searchComponent", componentState, searchFilters, new BuildingSearchCallback(),
+                    ShowMode.ALL, true);
             add(searchComponent);
             searchComponent.invokeCallback();
         }

@@ -58,13 +58,13 @@ import org.complitex.dictionary.web.component.scroll.ScrollBookmarkablePageLink;
  */
 public class DomainObjectListPanel extends Panel {
 
-    @EJB(name = "StrategyFactory")
+    @EJB
     private StrategyFactory strategyFactory;
 
-    @EJB(name = "StringCultureBean")
+    @EJB
     private StringCultureBean stringBean;
 
-    @EJB(name = "LocaleBean")
+    @EJB
     private LocaleBean localeBean;
 
     private String entity;
@@ -135,7 +135,8 @@ public class DomainObjectListPanel extends Panel {
             add(new EmptyPanel("searchComponent"));
         } else {
             SearchComponentState componentState = getSearchComponentStateFromSession();
-            SearchComponent searchComponent = new SearchComponent("searchComponent", componentState, searchFilters, getStrategy().getSearchCallback(), true);
+            SearchComponent searchComponent = new SearchComponent("searchComponent", componentState, searchFilters, getStrategy().getSearchCallback(),
+                    ShowMode.ALL, true);
             add(searchComponent);
             searchComponent.invokeCallback();
         }
