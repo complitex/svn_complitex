@@ -546,7 +546,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     @Transactional
     @Override
     public void updateAndPropagate(DomainObject oldObject, final DomainObject newObject, Date updateDate) {
-        if (getLogicalChildren() == null || getLogicalChildren().length == 0) {
+        if (!canPropagatePermissions(newObject)) {
             throw new RuntimeException("Illegal call of updateAndPropagate() as `" + getEntityTable() + "` entity is not able to has children.");
         }
         update(oldObject, newObject, updateDate);
@@ -600,6 +600,20 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     }
 
     @Transactional
+    @Override
+    public void replaceObjectPermissions(DomainObjectPermissionInfo objectPermissionInfo, Set<Long> subjectIds) {
+        Set<Long> oldSubjectIds = loadSubjects(objectPermissionInfo.getPermissionId());
+        if (isNeedToChangePermission(oldSubjectIds, subjectIds)) {
+            long oldPermission = objectPermissionInfo.getPermissionId();
+            objectPermissionInfo.setPermissionId(getNewPermissionId(subjectIds));
+            long newPermission = objectPermissionInfo.getPermissionId();
+            if (!Numbers.isEqual(oldPermission, newPermission)) {
+                updatePermissionId(objectPermissionInfo.getId(), newPermission);
+            }
+        }
+    }
+
+    @Transactional
     protected void replaceChildrenPermissions(String childEntity, long parentId, Set<Long> subjectIds) {
         IStrategy childStrategy = strategyFactory.getStrategy(childEntity);
 
@@ -611,15 +625,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
             if (children.size() > 0) {
                 //process children
                 for (DomainObjectPermissionInfo child : children) {
-                    Set<Long> childSubjectIds = childStrategy.loadSubjects(child.getPermissionId());
-                    if (childStrategy.isNeedToChangePermission(childSubjectIds, subjectIds)) {
-                        long oldPermission = child.getPermissionId();
-                        child.setPermissionId(childStrategy.getNewPermissionId(subjectIds));
-                        long newPermission = child.getPermissionId();
-                        if (!Numbers.isEqual(oldPermission, newPermission)) {
-                            childStrategy.updatePermissionId(child.getId(), newPermission);
-                        }
-                    }
+                    childStrategy.replaceObjectPermissions(child, subjectIds);
                     childStrategy.replaceChildrenPermissions(child.getId(), subjectIds);
                 }
 
@@ -944,7 +950,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
     @Transactional
     @Override
-    public void changeChildrenPermissions(long objectId, long permissionId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds) {
+    public void changeObjectPermissions(long objectId, long permissionId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds) {
         Set<Long> currentSubjectIds = loadSubjects(permissionId);
         Set<Long> newSubjectIds = Sets.newHashSet(currentSubjectIds);
 
@@ -978,7 +984,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     }
 
     @Override
-    public void changeChildrenPermissionsInDistinctThread(final long objectId, final long permissionId, final Set<Long> addSubjectIds,
+    public void changeObjectPermissionsInDistinctThread(final long objectId, final long permissionId, final Set<Long> addSubjectIds,
             final Set<Long> removeSubjectIds) {
         new Thread(new Runnable() {
 
@@ -986,7 +992,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
             public void run() {
 //                long start = System.currentTimeMillis();
                 try {
-                    changeChildrenPermissions(objectId, permissionId, addSubjectIds, removeSubjectIds);
+                    changeObjectPermissions(objectId, permissionId, addSubjectIds, removeSubjectIds);
                     log.info("Process of changing permissions for {} tree has been successful.", getEntityTable());
 //                    logBean.logChangeSubjectsAcrossTree(STATUS.OK, getEntityTable(), objectId, getChangeChildrenPermissionsSuccess());
                 } catch (Exception e) {
@@ -1028,7 +1034,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
             if (children.size() > 0) {
                 //process children
                 for (DomainObjectPermissionInfo child : children) {
-                    childStrategy.changeChildrenPermissions(child.getId(), child.getPermissionId(), addSubjectIds, removeSubjectIds);
+                    childStrategy.changeObjectPermissions(child.getId(), child.getPermissionId(), addSubjectIds, removeSubjectIds);
                 }
 
                 if (children.size() < PERMISSIONS_CHILDREN_BATCH) {
@@ -1062,5 +1068,10 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         params.put("enabled", enabled);
         params.put("status", enabled ? StatusType.INACTIVE : StatusType.ACTIVE);
         sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_CHILDREN_ACTIVITY_OPERATION, params);
+    }
+
+    @Override
+    public boolean canPropagatePermissions(DomainObject object) {
+        return getLogicalChildren() != null && getLogicalChildren().length > 0;
     }
 }
