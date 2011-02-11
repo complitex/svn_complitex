@@ -279,8 +279,4 @@ public class DomainObjectEditPanel extends Panel {
     protected DictionaryFwSession getDictionaryFwSession() {
         return (DictionaryFwSession) getSession();
     }
-
-//    public SearchComponentState getParentSearchComponentState() {
-//        return objectInputPanel.getParentSearchComponentState();
-//    }
 }
