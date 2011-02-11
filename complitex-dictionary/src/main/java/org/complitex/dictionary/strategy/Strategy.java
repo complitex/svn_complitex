@@ -555,7 +555,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
             @Override
             public void run() {
-//                long start = System.currentTimeMillis();
+                long start = System.currentTimeMillis();
                 try {
                     replaceChildrenPermissions(newObject.getId(), newObject.getSubjectIds());
                     log.info("Process of replacement {} children permissions has been successful.", getEntityTable());
@@ -564,7 +564,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
                     log.error("Process of replacement " + getEntityTable() + " children permissions has been failed.", e);
                     logBean.logReplaceChildrenPermissions(STATUS.ERROR, getEntityTable(), newObject.getId(), getReplaceChildrenPermissionsError());
                 }
-//                log.info("Process took {} sec.", (System.currentTimeMillis() - start)/1000);
+                log.info("Process took {} sec.", (System.currentTimeMillis() - start)/1000);
             }
         }).start();
     }
