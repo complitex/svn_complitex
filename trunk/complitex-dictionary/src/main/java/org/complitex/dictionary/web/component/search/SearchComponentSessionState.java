@@ -24,4 +24,8 @@ public class SearchComponentSessionState implements Serializable {
     public SearchComponentState get(String mainEntity) {
         return stateMap.get(mainEntity);
     }
+
+    public void clear() {
+        stateMap.clear();
+    }
 }
