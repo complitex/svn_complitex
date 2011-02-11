@@ -79,10 +79,10 @@ public class DomainObjectInputPanel extends Panel {
 
     private static final Logger log = LoggerFactory.getLogger(DomainObjectInputPanel.class);
 
-    @EJB(name = "StrategyFactory")
+    @EJB
     private StrategyFactory strategyFactory;
 
-    @EJB(name = "StringCultureBean")
+    @EJB
     private StringCultureBean stringBean;
 
     private SearchComponentState searchComponentState;
@@ -336,7 +336,7 @@ public class DomainObjectInputPanel extends Panel {
             parentContainer.add(new EmptyPanel("parentSearch"));
         } else {
             SearchComponent parentSearchComponent = new SearchComponent("parentSearch", getParentSearchComponentState(), parentFilters,
-                    parentSearchCallback, !isHistory() && DomainObjectAccessUtil.canEdit(entity, object));
+                    parentSearchCallback, ShowMode.ACTIVE, !isHistory() && DomainObjectAccessUtil.canEdit(entity, object));
             parentContainer.add(parentSearchComponent);
             parentSearchComponent.invokeCallback();
         }

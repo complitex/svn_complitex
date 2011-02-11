@@ -32,6 +32,7 @@ import org.complitex.address.strategy.building.entity.Building;
 import org.complitex.address.strategy.district.DistrictStrategy;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
+import org.complitex.dictionary.web.component.ShowMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -131,7 +132,7 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
             }
         }
         districtContainer.add(new SearchComponent("district", districtComponentState,
-                ImmutableList.of("country", "region", "city", "district"), new DistrictSearchCallback(),
+                ImmutableList.of("country", "region", "city", "district"), new DistrictSearchCallback(), ShowMode.ACTIVE,
                 !isDisabled() && DomainObjectAccessUtil.canEdit("building", building)));
 
         districtContainer.setVisible(districtAttribute != null);
