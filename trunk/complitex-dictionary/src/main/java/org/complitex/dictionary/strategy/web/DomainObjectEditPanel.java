@@ -45,11 +45,11 @@ import org.complitex.dictionary.web.component.permission.PermissionPropagationDi
 public class DomainObjectEditPanel extends Panel {
 
     private static final Logger log = LoggerFactory.getLogger(DomainObjectEditPanel.class);
-    @EJB(name = "StrategyFactory")
+    @EJB
     private StrategyFactory strategyFactory;
-    @EJB(name = "StringCultureBean")
+    @EJB
     private StringCultureBean stringBean;
-    @EJB(name = "LogBean")
+    @EJB
     private LogBean logBean;
     private String entity;
     private DomainObject oldObject;
