@@ -26,7 +26,6 @@ import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.util.CloneUtil;
 import org.complitex.dictionary.web.component.ChildrenContainer;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
-import org.complitex.dictionary.web.component.search.SearchComponentState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +34,7 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.util.DateUtil;
+import org.complitex.dictionary.web.DictionaryFwSession;
 import org.complitex.dictionary.web.component.permission.DomainObjectPermissionsPanel;
 import org.complitex.dictionary.web.component.permission.PermissionPropagationDialogPanel;
 
@@ -253,6 +253,7 @@ public class DomainObjectEditPanel extends Panel {
     public void disable() {
         try {
             getStrategy().disable(newObject);
+            getDictionaryFwSession().getSearchComponentSessionState().clear();
             back();
         } catch (Exception e) {
             log.error("", e);
@@ -263,6 +264,7 @@ public class DomainObjectEditPanel extends Panel {
     public void enable() {
         try {
             getStrategy().enable(newObject);
+            getDictionaryFwSession().getSearchComponentSessionState().clear();
             back();
         } catch (Exception e) {
             log.error("", e);
@@ -274,7 +276,11 @@ public class DomainObjectEditPanel extends Panel {
         return parentId != null && !Strings.isEmpty(parentEntity);
     }
 
-    public SearchComponentState getParentSearchComponentState() {
-        return objectInputPanel.getParentSearchComponentState();
+    protected DictionaryFwSession getDictionaryFwSession() {
+        return (DictionaryFwSession) getSession();
     }
+
+//    public SearchComponentState getParentSearchComponentState() {
+//        return objectInputPanel.getParentSearchComponentState();
+//    }
 }
