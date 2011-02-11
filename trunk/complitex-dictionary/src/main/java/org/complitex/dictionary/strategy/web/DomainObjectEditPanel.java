@@ -214,7 +214,7 @@ public class DomainObjectEditPanel extends Panel {
         boolean valid = objectInputPanel.validateParent();
         IValidator validator = getStrategy().getValidator();
         if (validator != null) {
-            valid = validator.validate(newObject, this);
+            valid &= validator.validate(newObject, this);
         }
         return valid;
     }
