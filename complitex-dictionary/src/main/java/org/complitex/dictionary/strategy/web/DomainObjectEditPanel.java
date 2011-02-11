@@ -172,10 +172,13 @@ public class DomainObjectEditPanel extends Panel {
                                 save(false);
                             }
                         }
+                    } else {
+                        target.addComponent(messages);
                     }
                 } catch (Exception e) {
                     log.error("", e);
                     error(getString("db_error"));
+                    target.addComponent(messages);
                 }
             }
 
