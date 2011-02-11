@@ -168,6 +168,9 @@ public interface IStrategy {
     @Transactional
     void replaceChildrenPermissions(long parentId, Set<Long> subjectIds);
 
+    @Transactional
+    void replaceObjectPermissions(DomainObjectPermissionInfo objectPermissionInfo, Set<Long> subjectIds);
+
     boolean isNeedToChangePermission(Set<Long> oldSubjectIds, Set<Long> newSubjectIds);
 
     @Transactional
@@ -204,10 +207,12 @@ public interface IStrategy {
     String[] getEditRoles();
 
     @Transactional
-    void changeChildrenPermissions(long objectId, long permissionId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds);
+    void changeObjectPermissions(long objectId, long permissionId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds);
 
-    void changeChildrenPermissionsInDistinctThread(long objectId, long permissionId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds);
+    void changeObjectPermissionsInDistinctThread(long objectId, long permissionId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds);
 
     @Transactional
     void changeChildrenActivity(long parentId, boolean enable);
+
+    boolean canPropagatePermissions(DomainObject object);
 }

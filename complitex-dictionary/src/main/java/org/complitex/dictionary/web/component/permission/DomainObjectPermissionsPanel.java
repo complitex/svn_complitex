@@ -11,13 +11,13 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Set;
 import javax.ejb.EJB;
-import org.apache.wicket.markup.html.form.ListMultipleChoice;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.service.PermissionBean;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
+import org.complitex.dictionary.web.component.DisableAwareListMultipleChoice;
 import org.complitex.dictionary.web.component.DomainObjectDisableAwareRenderer;
 
 /**
@@ -54,7 +54,7 @@ public final class DomainObjectPermissionsPanel extends Panel {
 
             @Override
             public Object getDisplayValue(DomainObject object) {
-                if (object.getId().equals(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID)) {
+                if (object.getId().equals(VISIBLE_BY_ALL.getId())) {
                     return getString("visible_by_all");
                 } else {
                     return organizationStrategy.displayDomainObject(object, getLocale());
@@ -103,12 +103,12 @@ public final class DomainObjectPermissionsPanel extends Panel {
             }
         };
 
-        ListMultipleChoice<DomainObject> subjects = new ListMultipleChoice<DomainObject>("subjects", subjectsModel, allSubjectsModel, renderer);
+        DisableAwareListMultipleChoice<DomainObject> subjects = new DisableAwareListMultipleChoice<DomainObject>("subjects",
+                subjectsModel, allSubjectsModel, renderer);
         add(subjects);
     }
 
     private void normalizeSubjectIds(Set<Long> subjectIds) {
-        //check if visible-by-all subject has been selected along with some actual subjects(organizations)
         if (subjectIds.contains(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID) && subjectIds.size() > 1) {
             subjectIds.clear();
             subjectIds.add(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID);
