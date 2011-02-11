@@ -43,7 +43,7 @@ public abstract class AbstractAutoCompleteTextField<CHOICE> extends TextField {
      *            the type to set
      */
     public AbstractAutoCompleteTextField(final String id, final Class<?> type) {
-        this(id, (IModel) null, type, false);
+        this(id, null, type, false);
     }
 
     /**
@@ -89,7 +89,7 @@ public abstract class AbstractAutoCompleteTextField<CHOICE> extends TextField {
      *            the preselect to set
      */
     public AbstractAutoCompleteTextField(final String id, final IModel model, final boolean preselect) {
-        this(id, model, (Class<?>) null, preselect);
+        this(id, model, null, preselect);
     }
 
     /**
@@ -103,7 +103,7 @@ public abstract class AbstractAutoCompleteTextField<CHOICE> extends TextField {
      *            the settings to set
      */
     public AbstractAutoCompleteTextField(final String id, final IModel model, final AutoCompleteSettings settings) {
-        this(id, model, (Class<?>) null, settings);
+        this(id, model, null, settings);
     }
 
     /**
@@ -115,7 +115,7 @@ public abstract class AbstractAutoCompleteTextField<CHOICE> extends TextField {
      *            the model to set
      */
     public AbstractAutoCompleteTextField(final String id, final IModel model) {
-        this(id, model, (Class<?>) null, false);
+        this(id, model, null, false);
     }
 
     /**
@@ -127,7 +127,7 @@ public abstract class AbstractAutoCompleteTextField<CHOICE> extends TextField {
      *            the preselect to set
      */
     public AbstractAutoCompleteTextField(final String id, final boolean preselect) {
-        this(id, (IModel) null, preselect);
+        this(id, null, preselect);
     }
 
     /**
@@ -139,7 +139,7 @@ public abstract class AbstractAutoCompleteTextField<CHOICE> extends TextField {
      *            the settings to set
      */
     public AbstractAutoCompleteTextField(final String id, final AutoCompleteSettings settings) {
-        this(id, (IModel) null, settings);
+        this(id, null, settings);
 
     }
 
@@ -150,7 +150,7 @@ public abstract class AbstractAutoCompleteTextField<CHOICE> extends TextField {
      *            the ID to set
      */
     public AbstractAutoCompleteTextField(final String id) {
-        this(id, (IModel) null, false);
+        this(id, null, false);
 
     }
 
@@ -191,7 +191,7 @@ public abstract class AbstractAutoCompleteTextField<CHOICE> extends TextField {
      *            the renderer to set
      */
     public AbstractAutoCompleteTextField(final String id, final IModel model, final IAutoCompleteRenderer renderer) {
-        this(id, model, (Class<?>) null, renderer, false);
+        this(id, model, null, renderer, false);
     }
 
     /**
@@ -317,7 +317,7 @@ public abstract class AbstractAutoCompleteTextField<CHOICE> extends TextField {
                     return choiceItem;
                 }
             }
-            LOG.info("Unable to find choice selection for \"{}\"", getConvertedInput());
+            LOG.debug("Unable to find choice selection for \"{}\"", getConvertedInput());
         } catch (final Throwable e) {
             LOG.error("Unable to find choice selection", e);
         }
