@@ -9,6 +9,7 @@ import org.complitex.dictionary.entity.DomainObject;
 
 import java.io.Serializable;
 import java.util.Map;
+import org.complitex.dictionary.entity.StatusType;
 
 /**
  *
@@ -42,5 +43,14 @@ public class SearchComponentState implements Serializable {
 
     public Map<String, DomainObject> getState() {
         return state;
+    }
+
+    public boolean hasDisabledObjects() {
+        for (DomainObject object : getState().values()) {
+            if (object.getStatus() == StatusType.INACTIVE) {
+                return true;
+            }
+        }
+        return false;
     }
 }

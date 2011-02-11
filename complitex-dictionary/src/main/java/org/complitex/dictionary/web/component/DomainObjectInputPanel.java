@@ -53,7 +53,6 @@ public class DomainObjectInputPanel extends Panel {
     private static class SimpleTypeModel<T extends Serializable> extends Model<T> {
 
         private StringCulture systemLocaleStringCulture;
-
         private IConverter<T> converter;
 
         public SimpleTypeModel(StringCulture systemLocaleStringCulture, IConverter<T> converter) {
@@ -76,27 +75,17 @@ public class DomainObjectInputPanel extends Panel {
             }
         }
     }
-
     private static final Logger log = LoggerFactory.getLogger(DomainObjectInputPanel.class);
-
     @EJB
     private StrategyFactory strategyFactory;
-
     @EJB
     private StringCultureBean stringBean;
-
     private SearchComponentState searchComponentState;
-
     private String entity;
-
     private DomainObject object;
-
     private Long parentId;
-
     private String parentEntity;
-
     private Date date;
-
     private DisableAwareDropDownChoice<EntityType> types;
 
     /**
@@ -245,9 +234,9 @@ public class DomainObjectInputPanel extends Panel {
         final Map<Attribute, EntityAttributeType> attrToTypeMap = Maps.newLinkedHashMap();
         for (Attribute attr : object.getAttributes()) {
             EntityAttributeType attrType = description.getAttributeType(attr.getAttributeTypeId());
-                if(getStrategy().isSimpleAttributeType(attrType)){
-                    attrToTypeMap.put(attr, attrType);
-                }
+            if (getStrategy().isSimpleAttributeType(attrType)) {
+                attrToTypeMap.put(attr, attrType);
+            }
         }
 
         ListView<Attribute> simpleAttributes = new ListView<Attribute>("simpleAttributes", Lists.newArrayList(attrToTypeMap.keySet())) {
@@ -355,7 +344,7 @@ public class DomainObjectInputPanel extends Panel {
             add(new EmptyPanel("complexAttributes"));
         } else {
             add(complexAttributes);
-        }        
+        }
     }
 
     protected SearchComponentState initParentSearchComponentState() {
@@ -364,6 +353,9 @@ public class DomainObjectInputPanel extends Panel {
         if (object.getId() == null) {
             if (!fromParent()) {
                 componentState = getSearchComponentStateFromSession();
+                if (componentState.hasDisabledObjects()) {
+                    componentState = new SearchComponentState();
+                }
             } else {
                 componentState = getStrategy().getSearchComponentStateForParent(parentId, parentEntity, null);
             }
