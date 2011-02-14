@@ -139,7 +139,11 @@ public interface IStrategy {
 
     ISearchCallback getSearchCallback();
 
+    @Transactional
     SearchComponentState getSearchComponentStateForParent(Long parentId, String parentEntity, Date date);
+
+    @Transactional
+    boolean checkEnable(SearchComponentState componentState);
 
     List<String> getSearchFilters();
 

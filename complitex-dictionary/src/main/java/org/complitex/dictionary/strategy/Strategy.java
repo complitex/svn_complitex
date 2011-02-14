@@ -564,7 +564,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
                     log.error("Process of replacement " + getEntityTable() + " children permissions has been failed.", e);
                     logBean.logReplaceChildrenPermissions(STATUS.ERROR, getEntityTable(), newObject.getId(), getReplaceChildrenPermissionsError());
                 }
-                log.info("Process took {} sec.", (System.currentTimeMillis() - start)/1000);
+                log.info("Process took {} sec.", (System.currentTimeMillis() - start) / 1000);
             }
         }).start();
     }
@@ -804,6 +804,38 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
             }
         }
         return null;
+    }
+
+    /**
+     * Helper method
+     * @return
+     */
+    @Transactional
+    @Override
+    public boolean checkEnable(SearchComponentState componentState) {
+        if (componentState == null) {
+            return true;
+        }
+
+        Map<String, DomainObject> state = componentState.getState();
+        if (state == null || state.isEmpty()) {
+            return true;
+        }
+
+        for (Map.Entry<String, DomainObject> entry : state.entrySet()) {
+            String entity = entry.getKey();
+            IStrategy strategy = strategyFactory.getStrategy(entity);
+            DomainObject sessionObject = entry.getValue();
+            long objectId = sessionObject.getId();
+            DomainObject freshObject = strategy.findById(objectId, true);
+            if (freshObject == null) {
+                return false;
+            }
+            if (freshObject.getStatus() == StatusType.INACTIVE) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override

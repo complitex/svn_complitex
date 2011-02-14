@@ -353,9 +353,12 @@ public class DomainObjectInputPanel extends Panel {
         if (object.getId() == null) {
             if (!fromParent()) {
                 componentState = getSearchComponentStateFromSession();
-                if (componentState.hasDisabledObjects()) {
+                boolean checkEnable = getStrategy().checkEnable(componentState);
+                if (!checkEnable) {
                     componentState = new SearchComponentState();
+                    updateSearchComponentSessionState(componentState);
                 }
+
             } else {
                 componentState = getStrategy().getSearchComponentStateForParent(parentId, parentEntity, null);
             }
@@ -396,5 +399,10 @@ public class DomainObjectInputPanel extends Panel {
             searchComponentSessionState.put(entity, componentState);
         }
         return componentState;
+    }
+
+    protected void updateSearchComponentSessionState(SearchComponentState componentState) {
+        SearchComponentSessionState searchComponentSessionState = getDictionaryFwSession().getSearchComponentSessionState();
+        searchComponentSessionState.put(entity, componentState);
     }
 }
