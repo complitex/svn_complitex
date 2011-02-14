@@ -34,7 +34,6 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.util.DateUtil;
-import org.complitex.dictionary.web.DictionaryFwSession;
 import org.complitex.dictionary.web.component.permission.DomainObjectPermissionsPanel;
 import org.complitex.dictionary.web.component.permission.PermissionPropagationDialogPanel;
 
@@ -272,9 +271,5 @@ public class DomainObjectEditPanel extends Panel {
 
     private boolean fromParent() {
         return parentId != null && !Strings.isEmpty(parentEntity);
-    }
-
-    protected DictionaryFwSession getDictionaryFwSession() {
-        return (DictionaryFwSession) getSession();
     }
 }

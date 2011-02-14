@@ -9,7 +9,6 @@ import org.complitex.dictionary.entity.DomainObject;
 
 import java.io.Serializable;
 import java.util.Map;
-import org.complitex.dictionary.entity.StatusType;
 
 /**
  *
