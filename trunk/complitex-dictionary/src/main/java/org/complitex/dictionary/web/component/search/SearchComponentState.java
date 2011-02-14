@@ -44,13 +44,4 @@ public class SearchComponentState implements Serializable {
     public Map<String, DomainObject> getState() {
         return state;
     }
-
-    public boolean hasDisabledObjects() {
-        for (DomainObject object : getState().values()) {
-            if (object.getStatus() == StatusType.INACTIVE) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

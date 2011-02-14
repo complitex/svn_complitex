@@ -253,7 +253,6 @@ public class DomainObjectEditPanel extends Panel {
     public void disable() {
         try {
             getStrategy().disable(newObject);
-            getDictionaryFwSession().getSearchComponentSessionState().clear();
             back();
         } catch (Exception e) {
             log.error("", e);
@@ -264,7 +263,6 @@ public class DomainObjectEditPanel extends Panel {
     public void enable() {
         try {
             getStrategy().enable(newObject);
-            getDictionaryFwSession().getSearchComponentSessionState().clear();
             back();
         } catch (Exception e) {
             log.error("", e);
