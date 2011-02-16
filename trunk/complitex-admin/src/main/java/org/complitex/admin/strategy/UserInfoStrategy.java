@@ -1,8 +1,11 @@
 package org.complitex.admin.strategy;
 
+import org.complitex.admin.web.UserInfoComplexAttributesPanel;
 import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.DomainObject;
-import org.complitex.dictionary.service.StringCultureBean;
+import org.complitex.dictionary.service.NameBean;
+import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
+import org.complitex.dictionary.util.StringUtil;
 import org.complitex.template.strategy.AbstractStrategy;
 import org.complitex.template.web.security.SecurityRole;
 
@@ -16,12 +19,12 @@ import java.util.Locale;
  */
 @Stateless(name = "User_infoStrategy")
 public class UserInfoStrategy extends AbstractStrategy {
-    @EJB(beanName = "StringCultureBean")
-    private StringCultureBean stringBean;
-
     public final static Long LAST_NAME = 1000L;
     public final static Long FIRST_NAME = 1001L;
     public final static Long MIDDLE_NAME = 1002L;
+
+    @EJB
+    private NameBean nameBean;
 
     @Override
     public String getEntityTable() {
@@ -30,27 +33,45 @@ public class UserInfoStrategy extends AbstractStrategy {
 
     @Override
     public String displayDomainObject(DomainObject object, Locale locale) {
-        Attribute lastName = object.getAttribute(LAST_NAME);
         Attribute firstName = object.getAttribute(FIRST_NAME);
         Attribute middleName = object.getAttribute(MIDDLE_NAME);
+        Attribute lastName = object.getAttribute(LAST_NAME);
 
         String s = "";
 
         if (lastName != null){
-            s += stringBean.displayValue(lastName.getLocalizedValues(), locale);
+            s += StringUtil.valueOf(nameBean.getLastName(lastName.getValueId()));
         }
         if (firstName != null){
-            s += " " + stringBean.displayValue(firstName.getLocalizedValues(), locale);
+            s += " " + StringUtil.valueOf(nameBean.getFirstName(firstName.getValueId()));
         }
         if (middleName != null){
-            s += " " + stringBean.displayValue(middleName.getLocalizedValues(), locale);
+            s += " " + StringUtil.valueOf(nameBean.getMiddleName(middleName.getValueId()));
         }
 
         return s;
     }
 
     @Override
+    public String displayAttribute(Attribute attribute, Locale locale) {
+        if (FIRST_NAME.equals(attribute.getAttributeTypeId())){
+            return StringUtil.valueOf(nameBean.getFirstName(attribute.getValueId()));
+        }else if (MIDDLE_NAME.equals(attribute.getAttributeTypeId())){
+            return StringUtil.valueOf(nameBean.getMiddleName(attribute.getValueId()));
+        }else if (LAST_NAME.equals(attribute.getAttributeTypeId())){
+            return StringUtil.valueOf(nameBean.getLastName(attribute.getValueId()));
+        }
+
+        return super.displayAttribute(attribute, locale);
+    }
+
+    @Override
     public String[] getEditRoles() {
         return new String[]{SecurityRole.ADMIN_MODULE_EDIT};
+    }
+
+    @Override
+    public Class<? extends AbstractComplexAttributesPanel> getComplexAttributesPanelClass() {
+        return UserInfoComplexAttributesPanel.class;
     }
 }

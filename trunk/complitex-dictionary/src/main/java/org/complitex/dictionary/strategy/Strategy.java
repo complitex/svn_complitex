@@ -4,18 +4,19 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
 import org.apache.wicket.util.string.Strings;
+import org.complitex.dictionary.entity.*;
+import org.complitex.dictionary.entity.Log.STATUS;
 import org.complitex.dictionary.entity.description.Entity;
 import org.complitex.dictionary.entity.description.EntityAttributeType;
 import org.complitex.dictionary.entity.description.EntityAttributeValueType;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.mybatis.Transactional;
-import org.complitex.dictionary.service.AbstractBean;
-import org.complitex.dictionary.service.EntityBean;
-import org.complitex.dictionary.service.SequenceBean;
-import org.complitex.dictionary.service.StringCultureBean;
+import org.complitex.dictionary.service.*;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionary.strategy.web.validate.IValidator;
+import org.complitex.dictionary.util.DateUtil;
 import org.complitex.dictionary.util.Numbers;
+import org.complitex.dictionary.util.ResourceUtil;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
 import org.slf4j.Logger;
@@ -23,21 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import java.util.*;
-import org.complitex.dictionary.entity.Attribute;
-import org.complitex.dictionary.entity.DomainObject;
-import org.complitex.dictionary.entity.History;
-import org.complitex.dictionary.entity.Log.STATUS;
-import org.complitex.dictionary.entity.Parameter;
-import org.complitex.dictionary.entity.SimpleTypes;
-import org.complitex.dictionary.entity.StatusType;
-import org.complitex.dictionary.entity.StringCulture;
-import org.complitex.dictionary.entity.Subject;
-import org.complitex.dictionary.service.LocaleBean;
-import org.complitex.dictionary.service.LogBean;
-import org.complitex.dictionary.service.PermissionBean;
-import org.complitex.dictionary.service.SessionBean;
-import org.complitex.dictionary.util.DateUtil;
-import org.complitex.dictionary.util.ResourceUtil;
+import java.util.Locale;
 
 /**
  *
@@ -1105,5 +1092,10 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     @Override
     public boolean canPropagatePermissions(DomainObject object) {
         return getLogicalChildren() != null && getLogicalChildren().length > 0;
+    }
+
+    @Override
+    public String displayAttribute(Attribute attribute, Locale locale) {
+        return stringBean.displayValue(attribute.getLocalizedValues(), locale);
     }
 }

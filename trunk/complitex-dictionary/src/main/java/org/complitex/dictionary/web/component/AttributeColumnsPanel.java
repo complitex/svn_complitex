@@ -5,9 +5,8 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.complitex.dictionary.entity.Attribute;
-import org.complitex.dictionary.service.StringCultureBean;
+import org.complitex.dictionary.strategy.IStrategy;
 
-import javax.ejb.EJB;
 import java.util.List;
 
 /**
@@ -15,22 +14,13 @@ import java.util.List;
  *         Date: 14.08.2010 18:32:35
  */
 public class AttributeColumnsPanel extends Panel {
-    @EJB(name = "StringCultureBean")     //todo performance inject
-    private StringCultureBean stringBean;
-
-    public AttributeColumnsPanel(String id, List<Attribute> attributes) {
+    public AttributeColumnsPanel(String id, final IStrategy strategy, List<Attribute> attributes) {
         super(id);
 
         ListView columns = new ListView<Attribute>("columns", attributes){
             @Override
             protected void populateItem(ListItem<Attribute> item) {
-                Attribute attribute = item.getModelObject();
-
-                String value = stringBean.displayValue(attribute.getLocalizedValues(), getLocale());
-
-                //todo value by type
-
-                item.add(new Label("column", value));                
+                item.add(new Label("column", strategy.displayAttribute(item.getModelObject(), getLocale())));
             }
         };
         columns.setReuseItems(true);
