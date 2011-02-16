@@ -4,13 +4,6 @@
  */
 package org.complitex.dictionary.strategy;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
 import org.complitex.dictionary.entity.Attribute;
@@ -24,6 +17,8 @@ import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionary.strategy.web.validate.IValidator;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
+
+import java.util.*;
 
 /**
  *
@@ -61,6 +56,8 @@ public interface IStrategy {
     void disable(DomainObject object);
 
     String displayDomainObject(DomainObject object, Locale locale);
+
+    String displayAttribute(Attribute attribute, Locale locale);
 
     void enable(DomainObject object);
 

@@ -17,23 +17,28 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
-import org.complitex.dictionary.entity.*;
+import org.complitex.admin.service.UserBean;
+import org.complitex.admin.service.UserFilter;
+import org.complitex.dictionary.entity.Attribute;
+import org.complitex.dictionary.entity.User;
+import org.complitex.dictionary.entity.UserGroup;
+import org.complitex.dictionary.entity.UserOrganization;
 import org.complitex.dictionary.entity.example.AttributeExample;
+import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.web.component.*;
 import org.complitex.dictionary.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionary.web.component.paging.PagingNavigator;
-import org.complitex.admin.service.UserBean;
-import org.complitex.admin.service.UserFilter;
+import org.complitex.dictionary.web.component.scroll.ScrollListBehavior;
 import org.complitex.template.web.component.toolbar.AddUserButton;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
+import org.complitex.template.web.pages.ScrollListPage;
 import org.complitex.template.web.security.SecurityRole;
 
 import javax.ejb.EJB;
-import java.util.*;
-
-import org.complitex.dictionary.web.component.scroll.ScrollListBehavior;
-import org.complitex.template.web.pages.ScrollListPage;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -43,6 +48,9 @@ import org.complitex.template.web.pages.ScrollListPage;
 public class UserList extends ScrollListPage {
     @EJB(name = "OrganizationStrategy")
     private IOrganizationStrategy organizationStrategy;
+
+    @EJB(name = "User_infoStrategy")
+    private IStrategy userInfoStrategy;
 
     @EJB(name = "UserBean")
     private UserBean userBean;
@@ -149,7 +157,7 @@ public class UserList extends ScrollListPage {
                 item.add(new Label("login", user.getLogin()));
 
                 List<Attribute> attributeColumns = userBean.getAttributeColumns(user.getUserInfo());
-                item.add(new AttributeColumnsPanel("user_info", attributeColumns));
+                item.add(new AttributeColumnsPanel("user_info", userInfoStrategy, attributeColumns));
 
                 String organizations = "";
                 String separator = "";
