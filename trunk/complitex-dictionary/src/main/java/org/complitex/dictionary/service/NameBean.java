@@ -4,6 +4,7 @@ import org.complitex.dictionary.entity.Name;
 import org.complitex.dictionary.mybatis.Transactional;
 
 import javax.ejb.Stateless;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -17,18 +18,30 @@ public class NameBean extends AbstractBean{
     /*select names by filter*/
 
     @SuppressWarnings({"unchecked"})
-    public List<String> getFirstNames(String filter){
-        return sqlSession().selectList(NS + ".selectFirstNames", filter);
+    public List<String> getFirstNames(final String filter, final int size){
+        return sqlSession().selectList(NS + ".selectFirstNames",
+                new HashMap(){{
+                    put("filter", filter);
+                    put("size", size);
+                }});
     }
 
     @SuppressWarnings({"unchecked"})
-    public List<String> getMiddleNames(String filter){
-        return sqlSession().selectList(NS + ".selectMiddleNames", filter);
+    public List<String> getMiddleNames(final String filter, final int size){
+        return sqlSession().selectList(NS + ".selectMiddleNames",
+                new HashMap(){{
+                    put("filter", filter);
+                    put("size", size);
+                }});
     }
 
     @SuppressWarnings({"unchecked"})
-    public List<String> getLastNames(String filter){
-        return sqlSession().selectList(NS + ".selectLastNames", filter);
+    public List<String> getLastNames(final String filter, final int size){
+        return sqlSession().selectList(NS + ".selectLastNames",
+                new HashMap(){{
+                    put("filter", filter);
+                    put("size", size);
+                }});
     }
 
     /*select name by id*/
