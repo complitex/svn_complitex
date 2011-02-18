@@ -14,6 +14,8 @@ import java.util.Iterator;
  *         Date: 15.02.11 15:41
  */
 public class FullNamePanel extends Panel {
+    private final static int AUTOCOMPLETE_SIZE = 10;
+
     @EJB(name = "NameBean")
     private NameBean nameBean;
 
@@ -30,7 +32,7 @@ public class FullNamePanel extends Panel {
 
             @Override
             protected Iterator<String> getChoices(String input) {
-                return nameBean.getFirstNames(input).iterator();
+                return nameBean.getFirstNames(input, AUTOCOMPLETE_SIZE).iterator();
             }
 
             @Override
@@ -48,7 +50,7 @@ public class FullNamePanel extends Panel {
 
             @Override
             protected Iterator<String> getChoices(String input) {
-                return nameBean.getMiddleNames(input).iterator();
+                return nameBean.getMiddleNames(input, AUTOCOMPLETE_SIZE).iterator();
             }
 
             @Override
@@ -66,7 +68,7 @@ public class FullNamePanel extends Panel {
 
             @Override
             protected Iterator<String> getChoices(String input) {
-                return nameBean.getLastNames(input).iterator();
+                return nameBean.getLastNames(input, AUTOCOMPLETE_SIZE).iterator();
             }
 
             @Override

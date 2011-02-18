@@ -3,16 +3,16 @@
 <mapper namespace="org.complitex.dictionary.service.NameBean">
     <!--select names by filter-->
 
-    <select id="selectFirstNames" parameterType="string" resultType="string">
-        select `name` from `first_name` where `name` like CONCAT('%', #{filter}, '%')
+    <select id="selectFirstNames" parameterType="map" resultType="string">
+        select `name` from `first_name` where `name` like CONCAT('%', #{filter}, '%') limit #{size}
     </select>
 
-    <select id="selectMiddleNames" parameterType="string" resultType="string">
-        select `name` from `middle_name` where `name` like CONCAT('%', #{filter}, '%')
+    <select id="selectMiddleNames" parameterType="map" resultType="string">
+        select `name` from `middle_name` where `name` like CONCAT('%', #{filter}, '%') limit #{size}
     </select>
 
-    <select id="selectLastNames" parameterType="string" resultType="string">
-        select `name` from `last_name` where `name` like CONCAT('%', #{filter}, '%')
+    <select id="selectLastNames" parameterType="map" resultType="string">
+        select `name` from `last_name` where `name` like CONCAT('%', #{filter}, '%') limit #{size}
     </select>
 
     <!--select name by id-->
