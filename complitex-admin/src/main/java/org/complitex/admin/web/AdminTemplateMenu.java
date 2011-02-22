@@ -3,6 +3,7 @@ package org.complitex.admin.web;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.complitex.template.web.security.SecurityRole;
 import org.complitex.template.web.template.ITemplateLink;
 import org.complitex.template.web.template.ResourceTemplateMenu;
 import org.slf4j.Logger;
@@ -11,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import org.complitex.template.web.security.SecurityRole;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -85,13 +85,12 @@ public class AdminTemplateMenu extends ResourceTemplateMenu {
         }
 
         try {
-            final Class fileHandlingMenu = Class.forName("org.complitex.osznconnection.file.web.FileHandlingMenu");
-            final Class configEdit = Class.forName("org.complitex.osznconnection.file.web.ConfigEdit");
+            final Class configEdit = Class.forName("org.complitex.template.web.pages.ConfigEdit");
 
         links.add(new ITemplateLink(){
             @Override
             public String getLabel(Locale locale) {
-                return getString(fileHandlingMenu, locale, "config");
+                return getString(configEdit, locale, "title");
             }
 
             @SuppressWarnings({"unchecked"})
