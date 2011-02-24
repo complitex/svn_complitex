@@ -1,44 +1,40 @@
 package org.complitex.address.strategy.building;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import org.apache.wicket.util.string.Strings;
-import org.complitex.dictionary.entity.Attribute;
-import org.complitex.dictionary.entity.DomainObject;
-import org.complitex.dictionary.entity.example.DomainObjectExample;
-import org.complitex.dictionary.mybatis.Transactional;
-import org.complitex.dictionary.service.LocaleBean;
-import org.complitex.dictionary.service.StringCultureBean;
-import org.complitex.dictionary.util.ResourceUtil;
-import org.complitex.address.resource.CommonResources;
-
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-import java.text.MessageFormat;
-import java.util.*;
+import com.google.common.collect.*;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
-import org.complitex.dictionary.entity.description.EntityAttributeType;
-import org.complitex.dictionary.entity.description.EntityAttributeValueType;
-import org.complitex.dictionary.entity.example.AttributeExample;
-import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
-import org.complitex.dictionary.strategy.web.validate.IValidator;
-import org.complitex.template.strategy.AbstractStrategy;
+import org.apache.wicket.util.string.Strings;
+import org.complitex.address.resource.CommonResources;
 import org.complitex.address.strategy.building.entity.Building;
 import org.complitex.address.strategy.building.web.edit.BuildingEditComponent;
 import org.complitex.address.strategy.building.web.edit.BuildingValidator;
 import org.complitex.address.strategy.building.web.list.BuildingList;
 import org.complitex.address.strategy.building_address.BuildingAddressStrategy;
+import org.complitex.dictionary.entity.Attribute;
+import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.StatusType;
+import org.complitex.dictionary.entity.description.EntityAttributeType;
+import org.complitex.dictionary.entity.description.EntityAttributeValueType;
+import org.complitex.dictionary.entity.example.AttributeExample;
+import org.complitex.dictionary.entity.example.DomainObjectExample;
+import org.complitex.dictionary.mybatis.Transactional;
+import org.complitex.dictionary.service.LocaleBean;
 import org.complitex.dictionary.service.PermissionBean;
 import org.complitex.dictionary.service.SessionBean;
+import org.complitex.dictionary.service.StringCultureBean;
+import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
+import org.complitex.dictionary.strategy.web.validate.IValidator;
+import org.complitex.dictionary.util.ResourceUtil;
+import org.complitex.template.strategy.AbstractStrategy;
 import org.complitex.template.web.security.SecurityRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
+import java.text.MessageFormat;
+import java.util.*;
 
 /**
  *
@@ -80,6 +76,9 @@ public class BuildingStrategy extends AbstractStrategy {
     public static final String STRUCTURE = "structure";
     public static final String STREET = "street";
     private static final String CITY = "city";
+
+    public static final long PARENT_ENTITY_ID = 1500L;
+
     @EJB
     private StringCultureBean stringBean;
     @EJB
@@ -353,7 +352,7 @@ public class BuildingStrategy extends AbstractStrategy {
         }
         building.enhanceAlternativeAddressAttributes();
         building.setParentId(building.getPrimaryAddress().getId());
-        building.setParentEntityId(1500L);
+        building.setParentEntityId(PARENT_ENTITY_ID);
         super.insertDomainObject(object, startDate);
     }
 

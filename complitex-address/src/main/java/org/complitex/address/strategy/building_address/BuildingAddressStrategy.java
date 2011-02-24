@@ -1,29 +1,28 @@
 package org.complitex.address.strategy.building_address;
 
 import com.google.common.collect.ImmutableList;
-import java.io.Serializable;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.util.string.Strings;
+import org.complitex.address.resource.CommonResources;
+import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.util.ResourceUtil;
-import org.complitex.dictionary.web.component.search.ISearchCallback;
-import org.complitex.address.resource.CommonResources;
-
-import javax.ejb.Stateless;
-import java.util.*;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.complitex.dictionary.entity.DomainObject;
-import org.complitex.dictionary.entity.Parameter;
-import org.complitex.dictionary.entity.StatusType;
-import org.complitex.dictionary.mybatis.Transactional;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
+import org.complitex.dictionary.web.component.search.ISearchCallback;
 import org.complitex.dictionary.web.component.search.SearchComponent;
 import org.complitex.template.strategy.AbstractStrategy;
 import org.complitex.template.web.security.SecurityRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.ejb.Stateless;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  *
@@ -39,6 +38,8 @@ public class BuildingAddressStrategy extends AbstractStrategy {
     public static final long CORP = 1501;
 
     public static final long STRUCTURE = 1502;
+
+    public static final long PARENT_STREET_ENTITY_ID = 300L;
 
     @Override
     public String getEntityTable() {
@@ -94,7 +95,7 @@ public class BuildingAddressStrategy extends AbstractStrategy {
             Long streetId = ids.get("street");
             if (streetId != null && streetId > 0) {
                 inputPanel.getObject().setParentId(streetId);
-                inputPanel.getObject().setParentEntityId(300L);
+                inputPanel.getObject().setParentEntityId(PARENT_STREET_ENTITY_ID);
             } else {
                 Long cityId = ids.get("city");
                 if (cityId != null && cityId > 0) {

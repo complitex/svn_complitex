@@ -224,6 +224,14 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         return object;
     }
 
+    public Long getObjectId(final Long externalId){
+        return (Long) sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + ".selectObjectIdByExternalId",
+                new HashMap<String, Object>(){{
+                    put("table", getEntityTable());
+                    put("externalId", externalId);
+                }});
+    }
+
     @Transactional
     @Override
     public Set<Long> loadSubjects(long permissionId) {

@@ -1,4 +1,4 @@
-package org.complitex.dictionary.service;
+package org.complitex.dictionary.service.exception;
 
 import java.text.MessageFormat;
 

@@ -7,6 +7,7 @@ package org.complitex.dictionary.entity;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -27,6 +28,7 @@ public class DomainObject implements Serializable {
     private Long parentEntityId;
     private Long entityTypeId;
     private Long permissionId;
+    private Long externalId;
     private List<Attribute> attributes = new ArrayList<Attribute>();
     private Set<Long> subjectIds;
 
@@ -124,6 +126,14 @@ public class DomainObject implements Serializable {
 
     public void setPermissionId(Long permissionId) {
         this.permissionId = permissionId;
+    }
+
+    public Long getExternalId() {
+        return externalId;
+    }
+
+    public void setExternalId(Long externalId) {
+        this.externalId = externalId;
     }
 
     public Set<Long> getSubjectIds() {

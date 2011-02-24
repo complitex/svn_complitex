@@ -4,17 +4,22 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.util.string.Strings;
+import org.complitex.address.resource.CommonResources;
+import org.complitex.address.strategy.city.web.edit.CityTypeComponent;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.service.StringCultureBean;
+import org.complitex.dictionary.strategy.IStrategy;
+import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionary.strategy.web.DomainObjectListPanel;
 import org.complitex.dictionary.util.ResourceUtil;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
 import org.complitex.dictionary.web.component.search.SearchComponent;
-import org.complitex.address.resource.CommonResources;
+import org.complitex.template.strategy.AbstractStrategy;
+import org.complitex.template.web.security.SecurityRole;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -22,11 +27,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import org.complitex.dictionary.strategy.StrategyFactory;
-import org.complitex.template.strategy.AbstractStrategy;
-import org.complitex.address.strategy.city.web.edit.CityTypeComponent;
-import org.complitex.dictionary.strategy.IStrategy;
-import org.complitex.template.web.security.SecurityRole;
 
 /**
  *
@@ -44,8 +44,9 @@ public class CityStrategy extends AbstractStrategy {
     /*
      * Attribute type ids
      */
-    private static final long NAME = 400;
+    public static final long NAME = 400;
     public static final long CITY_TYPE = 401;
+    public static final long PARENT_ENTITY_ID = 700L;
 
     @Override
     protected List<Long> getListAttributeTypes() {
@@ -80,6 +81,7 @@ public class CityStrategy extends AbstractStrategy {
         configureExampleImpl(example, ids, searchTextInput);
     }
 
+    @SuppressWarnings({"EjbClassBasicInspection"})
     private static void configureExampleImpl(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
         if (!Strings.isEmpty(searchTextInput)) {
             AttributeExample attrExample = example.getAttributeExample(NAME);
@@ -122,7 +124,7 @@ public class CityStrategy extends AbstractStrategy {
             Long regionId = ids.get("region");
             if (regionId != null && regionId > 0) {
                 inputPanel.getObject().setParentId(regionId);
-                inputPanel.getObject().setParentEntityId(700L);
+                inputPanel.getObject().setParentEntityId(PARENT_ENTITY_ID);
             } else {
                 inputPanel.getObject().setParentId(null);
                 inputPanel.getObject().setParentEntityId(null);
@@ -155,6 +157,7 @@ public class CityStrategy extends AbstractStrategy {
         return CityTypeComponent.class;
     }
 
+    @SuppressWarnings({"EjbClassBasicInspection"})
     public static Long getCityType(DomainObject cityObject) {
         return cityObject.getAttribute(CITY_TYPE).getValueId();
     }

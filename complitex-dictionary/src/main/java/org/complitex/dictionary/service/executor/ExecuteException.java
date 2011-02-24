@@ -1,12 +1,12 @@
 package org.complitex.dictionary.service.executor;
 
-import org.complitex.dictionary.service.AbstractException;
+import org.complitex.dictionary.service.exception.AbstractException;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 29.10.10 18:55
  */
-public class ExecuteException extends AbstractException{
+public class ExecuteException extends AbstractException {
     private boolean warn = false;
 
     public ExecuteException(Throwable cause, String pattern, Object... arguments) {

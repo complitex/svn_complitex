@@ -67,6 +67,8 @@ public interface IStrategy {
     @Transactional
     DomainObject findById(long id, boolean runAsAdmin);
 
+    public Long getObjectId(final Long externalId);
+
     @Transactional
     DomainObject findHistoryObject(long objectId, Date date);
 
