@@ -5,20 +5,21 @@
 package org.complitex.address.strategy.city_type;
 
 import com.google.common.collect.Lists;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
 import org.apache.wicket.util.string.Strings;
+import org.complitex.address.resource.CommonResources;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.util.ResourceUtil;
 import org.complitex.template.strategy.AbstractStrategy;
-import org.complitex.address.resource.CommonResources;
 import org.complitex.template.web.security.SecurityRole;
+
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  *
@@ -27,7 +28,7 @@ import org.complitex.template.web.security.SecurityRole;
 @Stateless(name = "City_typeStrategy")
 public class CityTypeStrategy extends AbstractStrategy {
 
-    private static final long NAME = 1300;
+    public static final long NAME = 1300;
 
     @EJB
     private StringCultureBean stringBean;

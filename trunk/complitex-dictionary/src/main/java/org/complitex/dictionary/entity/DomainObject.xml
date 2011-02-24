@@ -11,19 +11,26 @@
         <result column="parent_entity_id" property="parentEntityId"/>
         <result column="entity_type_id" property="entityTypeId"/>
         <result column="permission_id" property="permissionId"/>
+        <result column="external_id" property="externalId"/>
     </resultMap>
 
     <insert id="insert" parameterType="Parameter">
-        INSERT INTO `${table}` (`object_id`, `status`, `start_date`, `end_date`, `parent_id`, `parent_entity_id`, `entity_type_id`,
-            `permission_id`) VALUES
-           (#{object.id}, #{object.status}, #{object.startDate}, #{object.endDate}, #{object.parentId}, #{object.parentEntityId}, #{object.entityTypeId},
-           #{object.permissionId})
+        INSERT INTO
+            `${table}` (`object_id`, `status`, `start_date`, `end_date`, `parent_id`, `parent_entity_id`,
+                `entity_type_id`, `permission_id`, `external_id`)
+        VALUES
+           (#{object.id}, #{object.status}, #{object.startDate}, #{object.endDate}, #{object.parentId},
+            #{object.parentEntityId}, #{object.entityTypeId}, #{object.permissionId}, #{object.externalId})
     </insert>
 
     <select id="findById" resultMap="org.complitex.dictionary.entity.DomainObject.DomainObject" parameterType="DomainObjectExample">
         SELECT e.*
         FROM `${table}` e WHERE (e.`status` IN ('ACTIVE', 'INACTIVE')) AND e.`object_id` = #{id}
             <include refid="org.complitex.dictionary.entity.DomainObject.permissionFilter"/>
+    </select>
+
+    <select id="selectObjectIdByExternalId" resultType="long" parameterType="map">
+        SELECT e.`object_id` FROM `${table}` e WHERE e.`external_id` = #{externalId}
     </select>
 
     <sql id="orderBy">

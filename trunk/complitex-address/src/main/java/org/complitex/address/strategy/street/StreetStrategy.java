@@ -4,21 +4,26 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import java.util.Set;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.util.string.Strings;
+import org.complitex.address.resource.CommonResources;
+import org.complitex.address.strategy.street.web.edit.StreetTypeComponent;
 import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.mybatis.Transactional;
 import org.complitex.dictionary.service.StringCultureBean;
+import org.complitex.dictionary.strategy.IStrategy;
+import org.complitex.dictionary.strategy.StrategyFactory;
+import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionary.strategy.web.DomainObjectListPanel;
 import org.complitex.dictionary.util.ResourceUtil;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
 import org.complitex.dictionary.web.component.search.SearchComponent;
-import org.complitex.address.resource.CommonResources;
+import org.complitex.template.strategy.AbstractStrategy;
+import org.complitex.template.web.security.SecurityRole;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -26,12 +31,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import org.complitex.dictionary.strategy.StrategyFactory;
-import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
-import org.complitex.template.strategy.AbstractStrategy;
-import org.complitex.address.strategy.street.web.edit.StreetTypeComponent;
-import org.complitex.dictionary.strategy.IStrategy;
-import org.complitex.template.web.security.SecurityRole;
+import java.util.Set;
 
 /**
  *
@@ -49,14 +49,16 @@ public class StreetStrategy extends AbstractStrategy {
     /*
      * Attribute type ids
      */
-    private static final long NAME = 300;
-    public static final long STREET_TYPE = 301;
+    public static final long NAME = 300L;
+    public static final long STREET_TYPE = 301L;
+    public static final long PARENT_ENTITY_ID = 400L;
 
     @Override
     public String getEntityTable() {
         return "street";
     }
 
+    @SuppressWarnings({"unchecked"})
     @Override
     @Transactional
     public List<DomainObject> find(DomainObjectExample example) {
@@ -99,6 +101,7 @@ public class StreetStrategy extends AbstractStrategy {
         return ImmutableList.of("country", "region", "city");
     }
 
+    @SuppressWarnings({"EjbClassBasicInspection"})
     private static void configureExampleImpl(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
         if (!Strings.isEmpty(searchTextInput)) {
             AttributeExample attrExample = example.getAttributeExample(NAME);
@@ -150,7 +153,7 @@ public class StreetStrategy extends AbstractStrategy {
             Long cityId = ids.get("city");
             if (cityId != null && cityId > 0) {
                 inputPanel.getObject().setParentId(cityId);
-                inputPanel.getObject().setParentEntityId(400L);
+                inputPanel.getObject().setParentEntityId(PARENT_ENTITY_ID);
             } else {
                 inputPanel.getObject().setParentId(null);
                 inputPanel.getObject().setParentEntityId(null);
@@ -183,10 +186,12 @@ public class StreetStrategy extends AbstractStrategy {
         return new String[]{"city"};
     }
 
+    @SuppressWarnings({"EjbClassBasicInspection"})
     public static Long getStreetType(DomainObject streetObject) {
         return streetObject.getAttribute(STREET_TYPE).getValueId();
     }
 
+    @SuppressWarnings({"unchecked"})
     @Transactional
     @Override
     public Long performDefaultValidation(DomainObject streetObject, Locale locale) {

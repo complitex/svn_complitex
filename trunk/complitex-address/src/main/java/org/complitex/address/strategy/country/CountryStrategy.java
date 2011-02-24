@@ -2,20 +2,20 @@ package org.complitex.address.strategy.country;
 
 import com.google.common.collect.Lists;
 import org.apache.wicket.util.string.Strings;
+import org.complitex.address.resource.CommonResources;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.util.ResourceUtil;
-import org.complitex.address.resource.CommonResources;
+import org.complitex.template.strategy.AbstractStrategy;
+import org.complitex.template.web.security.SecurityRole;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import org.complitex.template.strategy.AbstractStrategy;
-import org.complitex.template.web.security.SecurityRole;
 
 /**
  *
@@ -30,7 +30,7 @@ public class CountryStrategy extends AbstractStrategy {
     /*
      * Attribute type ids
      */
-    private static final long NAME = 800L;
+    public static final long NAME = 800L;
 
     @Override
     protected List<Long> getListAttributeTypes() {
