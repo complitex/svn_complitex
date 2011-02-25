@@ -23,8 +23,13 @@ import org.complitex.dictionary.util.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
+import javax.transaction.SystemException;
+import javax.transaction.UserTransaction;
 import java.io.IOException;
 
 /**
@@ -32,8 +37,12 @@ import java.io.IOException;
  *         Date: 18.02.11 16:16
  */
 @Stateless
+@TransactionManagement(TransactionManagementType.BEAN)
 public class AddressImport extends AbstractBean{
     private final static Logger log = LoggerFactory.getLogger(AddressImport.class);
+
+    @Resource
+    private UserTransaction userTransaction;
 
     @EJB
     private StringCultureBean stringCultureBean;
@@ -69,6 +78,8 @@ public class AddressImport extends AbstractBean{
         try {
             //todo add files validation
 
+            userTransaction.begin();
+
             importCountry();
             importRegion();
             importCityType();
@@ -77,12 +88,15 @@ public class AddressImport extends AbstractBean{
             importStreetType();
             importStreet();
             importBuilding();
-        } catch (ImportFileNotFoundException e) {
-            log.error("Ошибка импорта. Файл не найден.", e);
-        } catch (ImportFileReadException e) {
-            log.error("Ошибка импорта. Ошибка чтения файла.", e);
-        } catch (ImportObjectLinkException e) {
-            log.error("Ошибка импорта. Ошибка чтения файла.", e);
+
+            userTransaction.commit();
+        } catch (Exception e) {
+            log.error("Ошибка импорта", e);
+            try {
+                userTransaction.rollback();
+            } catch (SystemException e1) {
+                log.error("Ошибка отката транзакции", e);
+            }
         }
     }
 
@@ -91,11 +105,13 @@ public class AddressImport extends AbstractBean{
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    public void importCountry() throws ImportFileNotFoundException, ImportFileReadException {
+    private void importCountry() throws ImportFileNotFoundException, ImportFileReadException {
         CSVReader reader = AddressImportStorage.getInstance().getCsvReader(AddressImportFile.COUNTRY);
 
         try {
             String[] line;
+
+            reader.readNext(); //Skip column names line
 
             while ((line = reader.readNext()) != null){
                 DomainObject domainObject = countryStrategy.newInstance();
@@ -128,11 +144,13 @@ public class AddressImport extends AbstractBean{
      * @throws ImportFileReadException
      * @throws ImportObjectLinkException
      */
-    public void importRegion() throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
+    private void importRegion() throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
         CSVReader reader = AddressImportStorage.getInstance().getCsvReader(AddressImportFile.REGION);
 
         try {
             String[] line;
+
+            reader.readNext(); //Skip column names line
 
             while ((line = reader.readNext()) != null) {
                 DomainObject domainObject = regionStrategy.newInstance();
@@ -172,11 +190,13 @@ public class AddressImport extends AbstractBean{
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    public void importCityType() throws ImportFileNotFoundException, ImportFileReadException {
+    private void importCityType() throws ImportFileNotFoundException, ImportFileReadException {
         CSVReader reader = AddressImportStorage.getInstance().getCsvReader(AddressImportFile.CITY_TYPE);
 
         try {
             String[] line;
+
+            reader.readNext(); //Skip column names line
 
             while ((line = reader.readNext()) != null){
                 DomainObject domainObject = cityTypeStrategy.newInstance();
@@ -208,11 +228,13 @@ public class AddressImport extends AbstractBean{
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    public void importCity() throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
+    private void importCity() throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
         CSVReader reader = AddressImportStorage.getInstance().getCsvReader(AddressImportFile.CITY);
 
         try {
             String[] line;
+
+            reader.readNext(); //Skip column names line
 
             while ((line = reader.readNext()) != null) {
                 DomainObject domainObject = cityStrategy.newInstance();
@@ -259,11 +281,13 @@ public class AddressImport extends AbstractBean{
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    public void importDistrict() throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
-         CSVReader reader = AddressImportStorage.getInstance().getCsvReader(AddressImportFile.DISTRICT);
+    private void importDistrict() throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
+        CSVReader reader = AddressImportStorage.getInstance().getCsvReader(AddressImportFile.DISTRICT);
 
         try {
             String[] line;
+
+            reader.readNext(); //Skip column names line
 
             while ((line = reader.readNext()) != null) {
                 DomainObject domainObject = districtStrategy.newInstance();
@@ -307,11 +331,13 @@ public class AddressImport extends AbstractBean{
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    public void importStreetType() throws ImportFileNotFoundException, ImportFileReadException {
+    private void importStreetType() throws ImportFileNotFoundException, ImportFileReadException {
         CSVReader reader = AddressImportStorage.getInstance().getCsvReader(AddressImportFile.STREET_TYPE);
 
         try {
             String[] line;
+
+            reader.readNext(); //Skip column names line
 
             while ((line = reader.readNext()) != null){
                 DomainObject domainObject = streetTypeStrategy.newInstance();
@@ -343,11 +369,13 @@ public class AddressImport extends AbstractBean{
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    public void importStreet() throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
+    private void importStreet() throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
         CSVReader reader = AddressImportStorage.getInstance().getCsvReader(AddressImportFile.STREET);
 
         try {
             String[] line;
+
+            reader.readNext(); //Skip column names line
 
             while ((line = reader.readNext()) != null) {
                 DomainObject domainObject = streetStrategy.newInstance();
@@ -394,11 +422,13 @@ public class AddressImport extends AbstractBean{
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    public void importBuilding() throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
+    private void importBuilding() throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
         CSVReader reader = AddressImportStorage.getInstance().getCsvReader(AddressImportFile.BUILDING);
 
         try {
             String[] line;
+
+            reader.readNext(); //Skip column names line
 
             while ((line = reader.readNext()) != null) {
                 Long buildingId = buildingStrategy.getObjectId(Long.parseLong(line[0]));
