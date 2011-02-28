@@ -110,6 +110,7 @@ public final class Children extends Panel {
 
             private void initChildren() {
                 DomainObjectExample example = new DomainObjectExample();
+                example.setStatus(ShowMode.ACTIVE.name());
                 getChildrenStrategy().configureExample(example, ImmutableMap.of(parentEntity, parentObject.getId()), null);
                 children = getChildrenStrategy().find(example);
             }
