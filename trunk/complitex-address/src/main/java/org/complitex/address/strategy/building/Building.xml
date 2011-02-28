@@ -71,17 +71,9 @@
         <include refid="org.complitex.dictionary.entity.DomainObject.findHistoryObject"/>
     </select>
 
-    <!-- permissions -->
-    <select id="findReferenceAddressPermissionInfo" parameterType="long" resultMap="org.complitex.dictionary.entity.DomainObject.DomainObjectPermissionInfo">
-        SELECT e.`object_id`, e.`permission_id` FROM `building_address` e WHERE e.`status` IN ('ACTIVE', 'INACTIVE') AND 
-                EXISTS(SELECT 1 FROM `building_attribute` ba WHERE ba.`status` = 'ACTIVE' AND ba.`attribute_type_id` = 501
-                    AND ba.`object_id` = #{buildingId} AND e.`object_id` = ba.`value_id`)
-    </select>
-
     <!-- disable/enable functionality -->
-    <update id="updateReferencedAddresses" parameterType="map">
-        UPDATE `building_address` e SET e.`status` = #{status} WHERE EXISTS(SELECT 1 FROM `building_attribute` ba WHERE ba.`status` = 'ACTIVE'
-                        AND ba.`attribute_type_id` = 501 AND ba.`object_id` = #{buildingId} AND e.`object_id` = ba.`value_id`)
+    <update id="updateBuildingActivity" parameterType="map">
+        UPDATE `building` e SET e.`status` = #{status} WHERE e.`object_id` = #{buildingId}
                 AND
                 <choose>
                     <when test="enabled">
@@ -92,5 +84,5 @@
                     </otherwise>
                 </choose>
     </update>
-
+    
 </mapper>

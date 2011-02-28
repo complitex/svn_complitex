@@ -87,22 +87,22 @@ public class LogBean extends AbstractBean {
                 descriptionPattern, descriptionArguments);
     }
 
-    public void logReplaceChildrenPermissions(Log.STATUS status, String entity, Long objectId, String descriptionPattern, Object... descriptionArguments) {
-        String controller = "replaceChildrenPermissions";
+    public void logReplacePermissions(Log.STATUS status, String entity, Long objectId, String descriptionPattern, Object... descriptionArguments) {
+        String controller = "replacePermissions";
         String model = DomainObject.class.getName() + "#" + entity;
         String module = org.complitex.dictionary.Module.NAME;
         log(module, controller, model, objectId, Log.EVENT.SETTING_PERMISSION, status, null, descriptionPattern, descriptionArguments);
     }
 
-    public void logChangeChildrenPermissions(Log.STATUS status, String entity, Long objectId, String descriptionPattern, Object... descriptionArguments) {
-        String controller = "changeChildrenPermissions";
+    public void logChangePermissions(Log.STATUS status, String entity, Long objectId, String descriptionPattern, Object... descriptionArguments) {
+        String controller = "changePermissions";
         String model = DomainObject.class.getName() + "#" + entity;
         String module = org.complitex.dictionary.Module.NAME;
         log(module, controller, model, objectId, Log.EVENT.SETTING_PERMISSION, status, null, descriptionPattern, descriptionArguments);
     }
 
-    public void logChangeObjectActivity(Log.STATUS status, String entity, Long objectId, boolean enable, String descriptionPattern, Object... descriptionArguments){
-        String controller = "changeObjectActivity";
+    public void logChangeActivity(Log.STATUS status, String entity, Long objectId, boolean enable, String descriptionPattern, Object... descriptionArguments){
+        String controller = "changeActivity";
         String model = DomainObject.class.getName() + "#" + entity;
         String module = org.complitex.dictionary.Module.NAME;
         log(module, controller, model, objectId, enable ? Log.EVENT.ENABLE : Log.EVENT.DISABLE, status, null, descriptionPattern, descriptionArguments);
