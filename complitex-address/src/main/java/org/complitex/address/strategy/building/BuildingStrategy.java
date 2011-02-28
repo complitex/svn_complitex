@@ -76,9 +76,7 @@ public class BuildingStrategy extends AbstractStrategy {
     public static final String STRUCTURE = "structure";
     public static final String STREET = "street";
     private static final String CITY = "city";
-
     public static final long PARENT_ENTITY_ID = 1500L;
-
     @EJB
     private StringCultureBean stringBean;
     @EJB
@@ -193,22 +191,22 @@ public class BuildingStrategy extends AbstractStrategy {
         }
     }
 
-    private DomainObject findBuildingAddress(long id, boolean runAsAdmin, Date date) {
+    private DomainObject findBuildingAddress(long id, Date date) {
         if (date == null) {
-            return buildingAddressStrategy.findById(id, runAsAdmin);
+            return buildingAddressStrategy.findById(id, true);
         } else {
             return buildingAddressStrategy.findHistoryObject(id, date);
         }
     }
 
-    private void setPrimaryAddress(Building building, boolean runAsAdmin, Date date) {
-        building.setPrimaryAddress(findBuildingAddress(building.getParentId(), false, date));
+    private void setPrimaryAddress(Building building, Date date) {
+        building.setPrimaryAddress(findBuildingAddress(building.getParentId(), date));
     }
 
-    private void setAlternativeAddresses(Building building, boolean runAsAdmin, Date date) {
+    private void setAlternativeAddresses(Building building, Date date) {
         for (Attribute attr : building.getAttributes()) {
             if (attr.getAttributeTypeId().equals(BUILDING_ADDRESS)) {
-                DomainObject alternativeAddress = findBuildingAddress(attr.getValueId(), runAsAdmin, date);
+                DomainObject alternativeAddress = findBuildingAddress(attr.getValueId(), date);
                 if (alternativeAddress != null) {
                     building.addAlternativeAddress(alternativeAddress);
                 }
@@ -230,10 +228,10 @@ public class BuildingStrategy extends AbstractStrategy {
         Building building = (Building) sqlSession().selectOne(BUILDING_NAMESPACE + "." + FIND_BY_ID_OPERATION, example);
         if (building != null) {
             loadAttributes(building);
-            DomainObject primaryAddress = findBuildingAddress(building.getParentId(), runAsAdmin, null);
+            DomainObject primaryAddress = findBuildingAddress(building.getParentId(), null);
             building.setPrimaryAddress(primaryAddress);
             building.setAccompaniedAddress(primaryAddress);
-            setAlternativeAddresses(building, runAsAdmin, null);
+            setAlternativeAddresses(building, null);
             fillAttributes(building);
             updateStringsForNewLocales(building);
 
@@ -306,11 +304,6 @@ public class BuildingStrategy extends AbstractStrategy {
     @Override
     public String getPluralEntityLabel(Locale locale) {
         return ResourceUtil.getString(CommonResources.class.getName(), getEntityTable(), locale);
-    }
-
-    @Override
-    public String[] getRealChildren() {
-        return null;
     }
 
     @Override
@@ -529,36 +522,20 @@ public class BuildingStrategy extends AbstractStrategy {
         List<Attribute> historyAttributes = loadHistoryAttributes(objectId, date);
         loadStringCultures(historyAttributes);
         building.setAttributes(historyAttributes);
-        setPrimaryAddress(building, false, date);
-        setAlternativeAddresses(building, false, date);
+        setPrimaryAddress(building, date);
+        setAlternativeAddresses(building, date);
         updateStringsForNewLocales(building);
         return building;
     }
 
-    @Transactional
     @Override
-    public void enable(DomainObject object) {
-        Building building = (Building) object;
-        DomainObject primaryAddress = building.getPrimaryAddress();
-        buildingAddressStrategy.enable(primaryAddress);
-    }
+    protected void changeActivity(DomainObject object, boolean enable) {
+        super.changeActivity(object, enable);
 
-    @Transactional
-    @Override
-    public void disable(DomainObject object) {
         Building building = (Building) object;
-        DomainObject primaryAddress = building.getPrimaryAddress();
-        buildingAddressStrategy.disable(primaryAddress);
-    }
-
-    @Transactional
-    @Override
-    public void changeChildrenActivity(long parentId, boolean enable) {
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("buildingId", parentId);
-        params.put("enabled", !enable);
-        params.put("status", enable ? StatusType.ACTIVE : StatusType.INACTIVE);
-        sqlSession().update(BUILDING_NAMESPACE + ".updateReferencedAddresses", params);
+        for (DomainObject address : building.getAllAddresses()) {
+            buildingAddressStrategy.updateBuildingAddressActivity(address.getId(), !enable);
+        }
     }
 
     @Override
@@ -567,26 +544,11 @@ public class BuildingStrategy extends AbstractStrategy {
     }
 
     @Transactional
-    protected List<DomainObjectPermissionInfo> getReferenceAddressPermissionInfo(long buildingId) {
-        return sqlSession().selectList(BUILDING_NAMESPACE + ".findReferenceAddressPermissionInfo", buildingId);
-    }
-
-    @Transactional
-    @Override
-    public void replaceChildrenPermissions(long parentId, Set<Long> subjectIds) {
-        List<DomainObjectPermissionInfo> referenceAddressPermissionInfo = getReferenceAddressPermissionInfo(parentId);
-        for (DomainObjectPermissionInfo addressPermissionInfo : referenceAddressPermissionInfo) {
-            buildingAddressStrategy.replaceObjectPermissions(addressPermissionInfo, subjectIds);
-        }
-    }
-
-    @Transactional
-    @Override
-    protected void changeChildrenPermissions(long parentId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds) {
-        List<DomainObjectPermissionInfo> referenceAddressPermissionInfo = getReferenceAddressPermissionInfo(parentId);
-        for (DomainObjectPermissionInfo addressPermissionInfo : referenceAddressPermissionInfo) {
-            buildingAddressStrategy.changeObjectPermissions(addressPermissionInfo.getId(), addressPermissionInfo.getPermissionId(),
-                    addSubjectIds, removeSubjectIds);
-        }
+    public void updateBuildingActivity(long buildingId, boolean enabled) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("buildingId", buildingId);
+        params.put("enabled", enabled);
+        params.put("status", enabled ? StatusType.INACTIVE : StatusType.ACTIVE);
+        sqlSession().update(BUILDING_NAMESPACE + ".updateBuildingActivity", params);
     }
 }
