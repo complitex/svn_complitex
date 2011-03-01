@@ -96,13 +96,13 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
                 long start = System.currentTimeMillis();
                 try {
                     changeActivity(object, false);
-                    log.info("Disabling of {} tree has been successful.", getEntityTable());
+                    log.info("The process of disabling of {} tree has been successful.", getEntityTable());
                     logBean.logChangeActivity(STATUS.OK, getEntityTable(), object.getId(), false, getDisableSuccess());
                 } catch (Exception e) {
-                    log.error("Disabling of " + getEntityTable() + " tree has been failed.", e);
+                    log.error("The process of disabling of " + getEntityTable() + " tree has been failed.", e);
                     logBean.logChangeActivity(STATUS.ERROR, getEntityTable(), object.getId(), false, getDisableError());
                 }
-                log.info("Process of disabling of {} tree took {} sec.", getEntityTable(), (System.currentTimeMillis() - start) / 1000);
+                log.info("The process of disabling of {} tree took {} sec.", getEntityTable(), (System.currentTimeMillis() - start) / 1000);
             }
         }).start();
     }
@@ -123,17 +123,18 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
                 long start = System.currentTimeMillis();
                 try {
                     changeActivity(object, true);
-                    log.info("Enabling of {} tree has been successful.", getEntityTable());
+                    log.info("The process of enabling of {} tree has been successful.", getEntityTable());
                     logBean.logChangeActivity(STATUS.OK, getEntityTable(), object.getId(), true, getEnableSuccess());
                 } catch (Exception e) {
-                    log.error("Enabling of " + getEntityTable() + " tree has been failed.", e);
+                    log.error("The process of enabling of " + getEntityTable() + " tree has been failed.", e);
                     logBean.logChangeActivity(STATUS.ERROR, getEntityTable(), object.getId(), true, getEnableError());
                 }
-                log.info("Process of enabling of {} tree took {} sec.", getEntityTable(), (System.currentTimeMillis() - start) / 1000);
+                log.info("The process of enabling of {} tree took {} sec.", getEntityTable(), (System.currentTimeMillis() - start) / 1000);
             }
         }).start();
     }
 
+    @Transactional
     @Override
     public void changeChildrenActivity(long parentId, boolean enable) {
         String[] childrenEntities = getLogicalChildren();
@@ -224,12 +225,15 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     }
 
     @Override
-    public Long getObjectId(final Long externalId){
+    public Long getObjectId(final Long externalId) {
         return (Long) sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + ".selectObjectIdByExternalId",
-                new HashMap<String, Object>(){{
-                    put("table", getEntityTable());
-                    put("externalId", externalId);
-                }});
+                new HashMap<String, Object>() {
+
+                    {
+                        put("table", getEntityTable());
+                        put("externalId", externalId);
+                    }
+                });
     }
 
     @Transactional
@@ -551,18 +555,19 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
                 long start = System.currentTimeMillis();
                 try {
                     propagatePermissions(newObject);
-                    log.info("Process of replacement {} children permissions has been successful.", getEntityTable());
+                    log.info("The process of permissions replacement for {} tree has been successful.", getEntityTable());
                     logBean.logReplacePermissions(STATUS.OK, getEntityTable(), newObject.getId(), getReplacePermissionsSuccess());
                 } catch (Exception e) {
-                    log.error("Process of replacement " + getEntityTable() + " children permissions has been failed.", e);
+                    log.error("The process of permissions replacement for " + getEntityTable() + " tree has been failed.", e);
                     logBean.logReplacePermissions(STATUS.ERROR, getEntityTable(), newObject.getId(), getReplacePermissionsError());
                 }
-                log.info("Replacement of childrent permissions took {} sec.", (System.currentTimeMillis() - start) / 1000);
+                log.info("The process of permissions replacement for {} tree took {} sec.", getEntityTable(),
+                        (System.currentTimeMillis() - start) / 1000);
             }
         }).start();
     }
 
-    protected void propagatePermissions(DomainObject object){
+    protected void propagatePermissions(DomainObject object) {
         replaceChildrenPermissions(object.getId(), object.getSubjectIds());
     }
 
@@ -988,7 +993,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     }
 
     @Transactional
-    protected void changeObjectPermissions(DomainObjectPermissionInfo objectPermissionInfo, Set<Long> addSubjectIds, Set<Long> removeSubjectIds){
+    protected void changeObjectPermissions(DomainObjectPermissionInfo objectPermissionInfo, Set<Long> addSubjectIds, Set<Long> removeSubjectIds) {
         Set<Long> currentSubjectIds = loadSubjects(objectPermissionInfo.getPermissionId());
         Set<Long> newSubjectIds = Sets.newHashSet(currentSubjectIds);
 
@@ -1033,13 +1038,13 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
                     permissionInfo.setId(objectId);
                     permissionInfo.setPermissionId(permissionId);
                     changePermissions(permissionInfo, addSubjectIds, removeSubjectIds);
-                    log.info("Process of changing permissions for {} tree has been successful.", getEntityTable());
+                    log.info("The process of permissions change for {} tree has been successful.", getEntityTable());
                     logBean.logChangePermissions(STATUS.OK, getEntityTable(), objectId, getChangePermissionsSuccess());
                 } catch (Exception e) {
-                    log.error("Process of changing permissions for " + getEntityTable() + " tree has been failed.", e);
+                    log.error("The process of permissions change for " + getEntityTable() + " tree has been failed.", e);
                     logBean.logChangePermissions(STATUS.ERROR, getEntityTable(), objectId, getChangePermissionsError());
                 }
-                log.info("Process of changing of permissions took {} sec.", (System.currentTimeMillis() - start)/1000);
+                log.info("The process of permissions change for {} tree took {} sec.", getEntityTable(), (System.currentTimeMillis() - start) / 1000);
             }
         }).start();
     }
