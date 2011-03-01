@@ -349,6 +349,7 @@ public class BuildingStrategy extends AbstractStrategy {
         super.insertDomainObject(object, startDate);
     }
 
+    @Transactional
     @Override
     protected void insertUpdatedDomainObject(DomainObject object, Date updateDate) {
         Building building = (Building) object;
