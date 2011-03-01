@@ -6,7 +6,6 @@ package org.complitex.dictionary.web.component;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
@@ -22,7 +21,9 @@ import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
 
 import javax.ejb.EJB;
 import java.util.List;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.model.IModel;
+import org.complitex.dictionary.entity.StatusType;
 import org.complitex.dictionary.strategy.IStrategy;
 
 /**
@@ -79,7 +80,7 @@ public final class Children extends Panel {
         final ToggleModel toggleModel = new ToggleModel();
         final Label toggleStatus = new Label("toggleStatus", toggleModel);
         toggleStatus.setOutputMarkupId(true);
-        AjaxLink toggleLink = new AjaxLink("toggleLink") {
+        IndicatingAjaxLink<Void> toggleLink = new IndicatingAjaxLink<Void>("toggleLink") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -110,7 +111,11 @@ public final class Children extends Panel {
 
             private void initChildren() {
                 DomainObjectExample example = new DomainObjectExample();
-                example.setStatus(ShowMode.ACTIVE.name());
+                if (StatusType.ACTIVE.equals(parentObject.getStatus())) {
+                    example.setStatus(ShowMode.ACTIVE.name());
+                } else {
+                    example.setStatus(ShowMode.ALL.name());
+                }
                 getChildrenStrategy().configureExample(example, ImmutableMap.of(parentEntity, parentObject.getId()), null);
                 children = getChildrenStrategy().find(example);
             }

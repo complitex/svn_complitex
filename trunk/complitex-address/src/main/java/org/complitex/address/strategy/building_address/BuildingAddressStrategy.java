@@ -266,6 +266,7 @@ public class BuildingAddressStrategy extends AbstractStrategy {
         sqlSession().update(BUILDING_ADDRESS_NAMESPACE + ".updateBuildingAddressActivity", params);
     }
 
+    @Transactional
     @Override
     public void changeChildrenActivity(long parentId, boolean enable) {
         long buildingAddressId = parentId;
