@@ -527,6 +527,7 @@ public class BuildingStrategy extends AbstractStrategy {
         return building;
     }
 
+    @Transactional
     @Override
     protected void changeActivity(DomainObject object, boolean enable) {
         super.changeActivity(object, enable);
