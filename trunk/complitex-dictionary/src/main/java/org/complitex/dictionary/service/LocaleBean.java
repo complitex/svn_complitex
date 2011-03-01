@@ -16,7 +16,7 @@ import org.complitex.dictionary.entity.Locale;
  *
  * @author Artem
  */
-@Singleton(name = "LocaleBean")
+@Singleton
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 public class LocaleBean extends AbstractBean {
 
