@@ -6,7 +6,7 @@ import java.text.MessageFormat;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 29.10.10 18:53
  */
-public class AbstractException extends Exception{
+public abstract class AbstractException extends Exception{
     private boolean initial = false;
 
     public AbstractException(boolean initial, Throwable cause, String pattern, Object... arguments) {
