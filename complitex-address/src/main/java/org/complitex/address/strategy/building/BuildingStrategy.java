@@ -308,7 +308,7 @@ public class BuildingStrategy extends AbstractStrategy {
 
     @Override
     public IValidator getValidator() {
-        return new BuildingValidator(this, localeBean.getSystemLocale(), stringBean);
+        return new BuildingValidator(localeBean.getSystemLocale());
     }
 
     @Override
@@ -352,8 +352,6 @@ public class BuildingStrategy extends AbstractStrategy {
     @Transactional
     @Override
     protected void insertUpdatedDomainObject(DomainObject object, Date updateDate) {
-        Building building = (Building) object;
-        building.setParentId(building.getPrimaryAddress().getId());
         super.insertDomainObject(object, updateDate);
     }
 

@@ -34,16 +34,10 @@ public class BuildingValidator implements IValidator {
 
     private static final Logger log = LoggerFactory.getLogger(BuildingValidator.class);
 
-    private BuildingStrategy buildingStrategy;
+    private final Locale systemLocale;
 
-    private Locale systemLocale;
-
-    private StringCultureBean stringBean;
-
-    public BuildingValidator(BuildingStrategy buildingStrategy, Locale systemLocale, StringCultureBean stringBean) {
-        this.buildingStrategy = buildingStrategy;
+    public BuildingValidator(Locale systemLocale) {
         this.systemLocale = systemLocale;
-        this.stringBean = stringBean;
     }
 
     @Override
@@ -121,7 +115,6 @@ public class BuildingValidator implements IValidator {
     private void error(String key, Component component, IModel<?> model) {
         component.error(findEditComponent(component).getString(key, model));
     }
-
     private BuildingEditComponent editComponent;
 
     private BuildingEditComponent findEditComponent(Component component) {
@@ -141,6 +134,9 @@ public class BuildingValidator implements IValidator {
     private boolean validateAdresses(Building building, DomainObjectEditPanel editPanel) {
         List<DomainObject> addresses = building.getAllAddresses();
 
+        BuildingStrategy buildingStrategy = EjbBeanLocator.getBean("BuildingStrategy");
+        StringCultureBean stringBean = EjbBeanLocator.getBean(StringCultureBean.class);
+
         boolean valid = true;
 
         for (DomainObject address : addresses) {
@@ -152,22 +148,8 @@ public class BuildingValidator implements IValidator {
                     Strings.isEmpty(structure) ? null : structure, address.getParentEntityId(), address.getParentId(), systemLocale);
             if (existingBuildingId != null) {
                 valid = false;
-
-                Long parentEntityId = address.getParentEntityId();
-                String parentEntity = parentEntityId == null ? null : (parentEntityId == 300 ? "street" : (parentEntityId == 400 ? "city" : null));
-                IStrategy strategy = getStrategyFactory().getStrategy(parentEntity);
-                DomainObject parentObject = strategy.findById(address.getParentId(), true);
-                String parentTitle = strategy.displayDomainObject(parentObject, editPanel.getLocale());
-
-                IModel<?> model = Model.ofMap(ImmutableMap.builder().
-                        put("id", existingBuildingId).
-                        put("number", number).
-                        put("corp", corp != null ? corp : "").
-                        put("structure", structure != null ? structure : "").
-                        put("parent", parentTitle).
-                        put("locale", systemLocale).
-                        build());
-                error("address_exists_already", editPanel, model);
+                printExistingAddressErrorMessage(existingBuildingId, number, corp, structure, address.getParentId(), address.getParentEntityId(),
+                        systemLocale, editPanel);
             }
         }
         return valid;
@@ -175,5 +157,38 @@ public class BuildingValidator implements IValidator {
 
     private StrategyFactory getStrategyFactory() {
         return EjbBeanLocator.getBean(StrategyFactory.class);
+    }
+
+    private void printExistingAddressErrorMessage(long id, String number, String corp, String structure, Long parentId, Long parentEntityId,
+            Locale locale, DomainObjectEditPanel editPanel) {
+        String parentEntity = parentEntityId == null ? null : (parentEntityId == 300 ? "street" : (parentEntityId == 400 ? "city" : null));
+        IStrategy strategy = getStrategyFactory().getStrategy(parentEntity);
+        DomainObject parentObject = strategy.findById(parentId, true);
+        String parentTitle = strategy.displayDomainObject(parentObject, editPanel.getLocale());
+
+        IModel<?> model = Model.ofMap(ImmutableMap.builder().
+                put("id", id).
+                put("number", number).
+                put("corp", corp).
+                put("structure", structure).
+                put("parent", parentTitle).
+                put("locale", locale).
+                build());
+
+        String errorMessageKey = null;
+        if (Strings.isEmpty(corp)) {
+            if (Strings.isEmpty(structure)) {
+                errorMessageKey = "address_exists_already_number";
+            } else {
+                errorMessageKey = "address_exists_already_number_structure";
+            }
+        } else {
+            if (Strings.isEmpty(structure)) {
+                errorMessageKey = "address_exists_already_number_corp";
+            } else {
+                errorMessageKey = "address_exists_already_number_corp_structure";
+            }
+        }
+        error(errorMessageKey, editPanel, model);
     }
 }

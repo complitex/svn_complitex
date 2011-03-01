@@ -27,15 +27,15 @@ import org.complitex.dictionary.entity.Locale;
  *
  * @author Artem
  */
-@Stateless(name = "StringCultureBean")
+@Stateless
 public class StringCultureBean extends AbstractBean {
 
     private static final String MAPPING_NAMESPACE = "org.complitex.dictionary.entity.StringCulture";
 
-    @EJB(beanName = "SequenceBean")
+    @EJB
     private SequenceBean sequenceBean;
 
-    @EJB(beanName = "LocaleBean")
+    @EJB
     private LocaleBean localeBean;
 
     private static class StringCultureComparator implements Comparator<StringCulture> {
