@@ -144,7 +144,7 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
 
             @Override
             public SearchComponentState initParentSearchComponentState() {
-                final SearchComponentState primaryAddressComponentState = super.initParentSearchComponentState();
+                SearchComponentState primaryAddressComponentState = super.initParentSearchComponentState();
 
                 if (primaryBuildingAddress.getId() == null) {
                     primaryAddressComponentState.updateState(parentSearchComponentState);
@@ -167,7 +167,7 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
 
                     @Override
                     public SearchComponentState initParentSearchComponentState() {
-                        SearchComponentState alternativeAddressComponentState;
+                        SearchComponentState alternativeAddressComponentState = null;
                         if (address.getId() == null) {
                             alternativeAddressComponentState = new SearchComponentState();
                             alternativeAddressComponentState.updateState(parentSearchComponentState);
