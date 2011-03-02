@@ -1,6 +1,7 @@
 package org.complitex.address.service;
 
 import au.com.bytecode.opencsv.CSVReader;
+import org.complitex.address.entity.AddressImportFile;
 import org.complitex.address.strategy.building.BuildingStrategy;
 import org.complitex.address.strategy.building.entity.Building;
 import org.complitex.address.strategy.building_address.BuildingAddressStrategy;
@@ -11,9 +12,10 @@ import org.complitex.address.strategy.district.DistrictStrategy;
 import org.complitex.address.strategy.region.RegionStrategy;
 import org.complitex.address.strategy.street.StreetStrategy;
 import org.complitex.address.strategy.street_type.StreetTypeStrategy;
+import org.complitex.dictionary.entity.AbstractImportService;
 import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.DomainObject;
-import org.complitex.dictionary.service.AbstractBean;
+import org.complitex.dictionary.service.IImportListener;
 import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.service.exception.ImportFileNotFoundException;
 import org.complitex.dictionary.service.exception.ImportFileReadException;
@@ -33,8 +35,8 @@ import static org.complitex.address.entity.AddressImportFile.*;
  *         Date: 18.02.11 16:16
  */
 @Stateless
-public class AddressImport extends AbstractBean{
-    private final static Logger log = LoggerFactory.getLogger(AddressImport.class);
+public class AddressImportService extends AbstractImportService{
+    private final static Logger log = LoggerFactory.getLogger(AddressImportService.class);
 
     @EJB
     private StringCultureBean stringCultureBean;
@@ -66,9 +68,7 @@ public class AddressImport extends AbstractBean{
     @EJB
     private BuildingAddressStrategy buildingAddressStrategy;
 
-    private AddressImportStorage storage = AddressImportStorage.getInstance();
-
-    public void process(IAddressImportListener listener)
+    public void process(IImportListener<AddressImportFile> listener)
             throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
         importCountry(listener);
         importRegion(listener);
@@ -85,11 +85,11 @@ public class AddressImport extends AbstractBean{
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    private void importCountry(IAddressImportListener listener)
+    private void importCountry(IImportListener<AddressImportFile> listener)
             throws ImportFileNotFoundException, ImportFileReadException {
-        listener.beginImport(COUNTRY, storage.getRecordCount(COUNTRY));
+        listener.beginImport(COUNTRY, getRecordCount(COUNTRY));
 
-        CSVReader reader = storage.getCsvReader(COUNTRY);
+        CSVReader reader = getCsvReader(COUNTRY);
 
         int recordIndex = 0;
 
@@ -103,10 +103,10 @@ public class AddressImport extends AbstractBean{
                 Attribute name = domainObject.getAttribute(CountryStrategy.NAME);
 
                 //COUNTRY_ID
-                domainObject.setExternalId(Long.parseLong(line[0]));
+                domainObject.setExternalId(Long.parseLong(line[0].trim()));
 
                 //Название страны
-                stringCultureBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[1]);
+                stringCultureBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[1].trim());
 
                 countryStrategy.insert(domainObject);
 
@@ -133,11 +133,11 @@ public class AddressImport extends AbstractBean{
      * @throws ImportFileReadException
      * @throws ImportObjectLinkException
      */
-    private void importRegion(IAddressImportListener listener)
+    private void importRegion(IImportListener<AddressImportFile> listener)
             throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
-        listener.beginImport(REGION, storage.getRecordCount(REGION));
+        listener.beginImport(REGION, getRecordCount(REGION));
 
-        CSVReader reader = storage.getCsvReader(REGION);
+        CSVReader reader = getCsvReader(REGION);
 
         int recordIndex = 0;
 
@@ -150,10 +150,10 @@ public class AddressImport extends AbstractBean{
                 DomainObject domainObject = regionStrategy.newInstance();
 
                 //REGION_ID
-                domainObject.setExternalId(Long.parseLong(line[0]));
+                domainObject.setExternalId(Long.parseLong(line[0].trim()));
 
                 //COUNTRY_ID
-                Long countryId = countryStrategy.getObjectId(Long.parseLong(line[1]));
+                Long countryId = countryStrategy.getObjectId(Long.parseLong(line[1].trim()));
                 if (countryId == null) {
                     throw new ImportObjectLinkException(REGION.getFileName(), recordIndex, line[1]);
                 }
@@ -162,7 +162,7 @@ public class AddressImport extends AbstractBean{
 
                 //Название региона
                 Attribute name = domainObject.getAttribute(RegionStrategy.NAME);
-                stringCultureBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[2]);
+                stringCultureBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[2].trim());
 
                 regionStrategy.insert(domainObject);
 
@@ -188,11 +188,11 @@ public class AddressImport extends AbstractBean{
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    private void importCityType(IAddressImportListener listener)
+    private void importCityType(IImportListener<AddressImportFile> listener)
             throws ImportFileNotFoundException, ImportFileReadException {
-        listener.beginImport(CITY_TYPE, storage.getRecordCount(CITY_TYPE));
+        listener.beginImport(CITY_TYPE, getRecordCount(CITY_TYPE));
 
-        CSVReader reader = storage.getCsvReader(CITY_TYPE);
+        CSVReader reader = getCsvReader(CITY_TYPE);
 
         int recordIndex = 0;
 
@@ -205,11 +205,11 @@ public class AddressImport extends AbstractBean{
                 DomainObject domainObject = cityTypeStrategy.newInstance();
 
                 //CITY_TYPE_ID
-                domainObject.setExternalId(Long.parseLong(line[0]));
+                domainObject.setExternalId(Long.parseLong(line[0].trim()));
 
                 //Название типа населенного пункта
                 Attribute name = domainObject.getAttribute(CityTypeStrategy.NAME);
-                stringCultureBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[2]);
+                stringCultureBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[2].trim());
 
                 cityTypeStrategy.insert(domainObject);
 
@@ -235,11 +235,11 @@ public class AddressImport extends AbstractBean{
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    private void importCity(IAddressImportListener listener)
+    private void importCity(IImportListener<AddressImportFile> listener)
             throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
-        listener.beginImport(CITY, storage.getRecordCount(CITY));
+        listener.beginImport(CITY, getRecordCount(CITY));
 
-        CSVReader reader = storage.getCsvReader(CITY);
+        CSVReader reader = getCsvReader(CITY);
 
         int recordIndex = 0;
 
@@ -252,10 +252,10 @@ public class AddressImport extends AbstractBean{
                 DomainObject domainObject = cityStrategy.newInstance();
 
                 //CITY_ID
-                domainObject.setExternalId(Long.parseLong(line[0]));
+                domainObject.setExternalId(Long.parseLong(line[0].trim()));
 
                 //REGION_ID
-                Long regionId = regionStrategy.getObjectId(Long.parseLong(line[1]));
+                Long regionId = regionStrategy.getObjectId(Long.parseLong(line[1].trim()));
                 if (regionId == null) {
                     throw new ImportObjectLinkException(CITY.getFileName(), recordIndex, line[1]);
                 }
@@ -263,7 +263,7 @@ public class AddressImport extends AbstractBean{
                 domainObject.setParentId(regionId);
 
                 //CITY_TYPE_ID
-                Long cityTypeId = cityTypeStrategy.getObjectId(Long.parseLong(line[2]));
+                Long cityTypeId = cityTypeStrategy.getObjectId(Long.parseLong(line[2].trim()));
                 if (cityTypeId == null) {
                     throw new ImportObjectLinkException(CITY.getFileName(), recordIndex, line[2]);
                 }
@@ -271,7 +271,7 @@ public class AddressImport extends AbstractBean{
 
                 //Название населенного пункта
                 Attribute name = domainObject.getAttribute(CityStrategy.NAME);
-                stringCultureBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[3]);
+                stringCultureBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[3].trim());
 
                 cityStrategy.insert(domainObject);
 
@@ -297,11 +297,11 @@ public class AddressImport extends AbstractBean{
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    private void importDistrict(IAddressImportListener listener)
+    private void importDistrict(IImportListener<AddressImportFile> listener)
             throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
-        listener.beginImport(DISTRICT, storage.getRecordCount(DISTRICT));
+        listener.beginImport(DISTRICT, getRecordCount(DISTRICT));
 
-        CSVReader reader = storage.getCsvReader(DISTRICT);
+        CSVReader reader = getCsvReader(DISTRICT);
 
         int recordIndex = 0;
 
@@ -314,10 +314,10 @@ public class AddressImport extends AbstractBean{
                 DomainObject domainObject = districtStrategy.newInstance();
 
                 //DISTRICT_ID
-                domainObject.setExternalId(Long.parseLong(line[0]));
+                domainObject.setExternalId(Long.parseLong(line[0].trim()));
 
                 //CITY_ID
-                Long cityId = cityStrategy.getObjectId(Long.parseLong(line[1]));
+                Long cityId = cityStrategy.getObjectId(Long.parseLong(line[1].trim()));
                 if (cityId == null) {
                     throw new ImportObjectLinkException(DISTRICT.getFileName(), recordIndex, line[1]);
                 }
@@ -326,11 +326,11 @@ public class AddressImport extends AbstractBean{
 
                 //Код района
                 Attribute code = domainObject.getAttribute(DistrictStrategy.CODE);
-                stringCultureBean.getSystemStringCulture(code.getLocalizedValues()).setValue(line[2]);
+                stringCultureBean.getSystemStringCulture(code.getLocalizedValues()).setValue(line[2].trim());
 
                 //Название района
                 Attribute name = domainObject.getAttribute(DistrictStrategy.NAME);
-                stringCultureBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[3]);
+                stringCultureBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[3].trim());
 
                 districtStrategy.insert(domainObject);
 
@@ -356,11 +356,11 @@ public class AddressImport extends AbstractBean{
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    private void importStreetType(IAddressImportListener listener)
+    private void importStreetType(IImportListener<AddressImportFile> listener)
             throws ImportFileNotFoundException, ImportFileReadException {
-        listener.beginImport(STREET_TYPE, storage.getRecordCount(STREET_TYPE));
+        listener.beginImport(STREET_TYPE, getRecordCount(STREET_TYPE));
 
-        CSVReader reader = storage.getCsvReader(STREET_TYPE);
+        CSVReader reader = getCsvReader(STREET_TYPE);
 
         int recordIndex = 0;
 
@@ -373,11 +373,11 @@ public class AddressImport extends AbstractBean{
                 DomainObject domainObject = streetTypeStrategy.newInstance();
 
                 //STREET_TYPE_ID
-                domainObject.setExternalId(Long.parseLong(line[0]));
+                domainObject.setExternalId(Long.parseLong(line[0].trim()));
 
                 //Название типа улицы
                 Attribute name = domainObject.getAttribute(StreetTypeStrategy.NAME);
-                stringCultureBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[2]);
+                stringCultureBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[2].trim());
 
                 streetTypeStrategy.insert(domainObject);
 
@@ -403,11 +403,11 @@ public class AddressImport extends AbstractBean{
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    private void importStreet(IAddressImportListener listener)
+    private void importStreet(IImportListener<AddressImportFile> listener)
             throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
-        listener.beginImport(STREET, storage.getRecordCount(STREET));
+        listener.beginImport(STREET, getRecordCount(STREET));
 
-        CSVReader reader = storage.getCsvReader(STREET);
+        CSVReader reader = getCsvReader(STREET);
 
         int recordIndex = 0;
 
@@ -420,10 +420,10 @@ public class AddressImport extends AbstractBean{
                 DomainObject domainObject = streetStrategy.newInstance();
 
                 //STREET_ID
-                domainObject.setExternalId(Long.parseLong(line[0]));
+                domainObject.setExternalId(Long.parseLong(line[0].trim()));
 
                 //CITY_ID
-                Long cityId = cityStrategy.getObjectId(Long.parseLong(line[1]));
+                Long cityId = cityStrategy.getObjectId(Long.parseLong(line[1].trim()));
                 if (cityId == null) {
                     throw new ImportObjectLinkException(STREET.getFileName(), recordIndex, line[1]);
                 }
@@ -431,7 +431,7 @@ public class AddressImport extends AbstractBean{
                 domainObject.setParentId(cityId);
 
                 //STREET_TYPE_ID
-                Long streetTypeId = streetTypeStrategy.getObjectId(Long.parseLong(line[2]));
+                Long streetTypeId = streetTypeStrategy.getObjectId(Long.parseLong(line[2].trim()));
                 if (streetTypeId == null) {
                     throw new ImportObjectLinkException(STREET.getFileName(), recordIndex, line[2]);
                 }
@@ -439,7 +439,7 @@ public class AddressImport extends AbstractBean{
 
                 //Название улицы
                 Attribute name = domainObject.getAttribute(StreetStrategy.NAME);
-                stringCultureBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[3]);
+                stringCultureBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[3].trim());
 
                 streetStrategy.insert(domainObject);
 
@@ -465,11 +465,11 @@ public class AddressImport extends AbstractBean{
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    private void importBuilding(IAddressImportListener listener)
+    private void importBuilding(IImportListener<AddressImportFile> listener)
             throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
-        listener.beginImport(BUILDING, storage.getRecordCount(BUILDING));
+        listener.beginImport(BUILDING, getRecordCount(BUILDING));
 
-        CSVReader reader = storage.getCsvReader(BUILDING);
+        CSVReader reader = getCsvReader(BUILDING);
 
         int recordIndex = 0;
 
@@ -479,7 +479,7 @@ public class AddressImport extends AbstractBean{
             while ((line = reader.readNext()) != null) {
                 recordIndex++;
 
-                Long buildingId = buildingStrategy.getObjectId(Long.parseLong(line[0]));
+                Long buildingId = buildingStrategy.getObjectId(Long.parseLong(line[0].trim()));
 
                 Building building;
                 DomainObject buildingAddress;
@@ -488,10 +488,10 @@ public class AddressImport extends AbstractBean{
                     building = (Building) buildingStrategy.newInstance();
 
                     //BUILDING_ID
-                    building.setExternalId(Long.parseLong(line[0]));
+                    building.setExternalId(Long.parseLong(line[0].trim()));
 
                     //DISTRICT_ID
-                    Long districtId = districtStrategy.getObjectId(Long.parseLong(line[1]));
+                    Long districtId = districtStrategy.getObjectId(Long.parseLong(line[1].trim()));
                     if (districtId == null) {
                         throw new ImportObjectLinkException(BUILDING.getFileName(), recordIndex, line[1]);
                     }
@@ -508,7 +508,7 @@ public class AddressImport extends AbstractBean{
                 }
 
                 //STREET_ID
-                Long streetId = streetStrategy.getObjectId(Long.parseLong(line[2]));
+                Long streetId = streetStrategy.getObjectId(Long.parseLong(line[2].trim()));
                 if (streetId == null) {
                     throw new ImportObjectLinkException(BUILDING.getFileName(), recordIndex, line[2]);
                 }
@@ -517,15 +517,15 @@ public class AddressImport extends AbstractBean{
 
                 //Номер дома
                 Attribute number = buildingAddress.getAttribute(BuildingAddressStrategy.NUMBER);
-                stringCultureBean.getSystemStringCulture(number.getLocalizedValues()).setValue(line[3]);
+                stringCultureBean.getSystemStringCulture(number.getLocalizedValues()).setValue(line[3].trim());
 
                 //Корпус
                 Attribute corp = buildingAddress.getAttribute(BuildingAddressStrategy.CORP);
-                stringCultureBean.getSystemStringCulture(corp.getLocalizedValues()).setValue(line[4]);
+                stringCultureBean.getSystemStringCulture(corp.getLocalizedValues()).setValue(line[4].trim());
 
                 //Строение
                 Attribute structure = buildingAddress.getAttribute(BuildingAddressStrategy.STRUCTURE);
-                stringCultureBean.getSystemStringCulture(structure.getLocalizedValues()).setValue(line[5]);
+                stringCultureBean.getSystemStringCulture(structure.getLocalizedValues()).setValue(line[5].trim());
 
                 if (buildingId == null){
                     buildingStrategy.insert(building);
