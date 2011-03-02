@@ -781,22 +781,25 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
                 ids.put(currentParentEntity, currentParentId);
                 parentData = strategyFactory.getStrategy(currentParentEntity).findParentInSearchComponent(currentParentId, date);
             }
-            List<String> searchFilters = getParentSearchFilters();
-            if (searchFilters != null && !searchFilters.isEmpty()) {
-                for (String searchFilter : searchFilters) {
-                    Long idForFilter = ids.get(searchFilter);
+            List<String> parentSearchFilters = getParentSearchFilters();
+            if (parentSearchFilters != null && !parentSearchFilters.isEmpty()) {
+                for (String parentSearchFilter : parentSearchFilters) {
+                    Long idForFilter = ids.get(parentSearchFilter);
                     if (idForFilter == null) {
-                        ids.put(searchFilter, -1L);
+                        ids.put(parentSearchFilter, -1L);
                     }
                 }
 
-                for (String searchFilter : searchFilters) {
+                for (String searchFilter : parentSearchFilters) {
                     DomainObject object = new DomainObject();
                     object.setId(-1L);
                     if (date == null) {
                         long id = ids.get(searchFilter);
                         IStrategy searchFilterStrategy = strategyFactory.getStrategy(searchFilter);
-                        object = searchFilterStrategy.findById(id, true);
+                        DomainObject objectFromDb = searchFilterStrategy.findById(id, true);
+                        if (objectFromDb != null) {
+                            object = objectFromDb;
+                        }
                     } else {
                         DomainObject historyObject = strategyFactory.getStrategy(searchFilter).findHistoryObject(ids.get(searchFilter), date);
                         if (historyObject != null) {
@@ -828,16 +831,18 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         }
 
         for (Map.Entry<String, DomainObject> entry : state.entrySet()) {
-            String entity = entry.getKey();
-            IStrategy strategy = strategyFactory.getStrategy(entity);
             DomainObject sessionObject = entry.getValue();
             long objectId = sessionObject.getId();
-            DomainObject freshObject = strategy.findById(objectId, true);
-            if (freshObject == null) {
-                return false;
-            }
-            if (freshObject.getStatus() == StatusType.INACTIVE) {
-                return false;
+            if (objectId > -1) {
+                String entity = entry.getKey();
+                IStrategy strategy = strategyFactory.getStrategy(entity);
+                DomainObject freshObject = strategy.findById(objectId, true);
+                if (freshObject == null) {
+                    return false;
+                }
+                if (freshObject.getStatus() == StatusType.INACTIVE) {
+                    return false;
+                }
             }
         }
         return true;
