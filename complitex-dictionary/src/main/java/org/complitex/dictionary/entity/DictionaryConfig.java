@@ -1,17 +1,15 @@
-package org.complitex.address.entity;
-
-import org.complitex.dictionary.entity.IConfig;
+package org.complitex.dictionary.entity;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
- *         Date: 22.02.11 15:31
+ *         Date: 02.03.11 16:31
  */
-public enum AddressConfig implements IConfig{
-    ADDRESS_IMPORT_FILE_STORAGE_DIR("c:\\storage\\import");
+public enum DictionaryConfig implements IConfig{
+    IMPORT_FILE_STORAGE_DIR("c:\\storage\\import");
 
     private String defaultValue;
 
-    AddressConfig(String defaultValue) {
+    DictionaryConfig(String defaultValue) {
         this.defaultValue = defaultValue;
     }
 

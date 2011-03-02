@@ -1,10 +1,12 @@
 package org.complitex.address.entity;
 
+import org.complitex.dictionary.entity.IImportFile;
+
 /**
 * @author Anatoly A. Ivanov java@inheaven.ru
 *         Date: 22.02.11 16:05
 */
-public enum AddressImportFile {
+public enum AddressImportFile implements IImportFile{
     COUNTRY("country.csv"),
     REGION("region.csv"),
     CITY_TYPE("city_type.csv"),
@@ -20,6 +22,7 @@ public enum AddressImportFile {
         this.fileName = fileName;
     }
 
+    @Override
     public String getFileName() {
         return fileName;
     }
