@@ -6,4 +6,6 @@ package org.complitex.dictionary.entity;
  */
 public interface IImportFile {
     public String getFileName();
+
+    public String name();
 }

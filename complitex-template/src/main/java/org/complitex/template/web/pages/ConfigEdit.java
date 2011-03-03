@@ -56,7 +56,7 @@ public class ConfigEdit extends FormTemplatePage{
             protected void populateItem(ListItem<IConfig> item) {
                 IConfig config = item.getModelObject();
 
-                item.add(new Label("label", getStringOrKey(config.getName())));
+                item.add(new Label("label", getStringOrKey(config.name())));
                 item.add(new TextField<String>("config", model.get(config)));
             }
         };
