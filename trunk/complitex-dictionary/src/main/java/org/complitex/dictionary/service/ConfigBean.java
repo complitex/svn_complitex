@@ -26,11 +26,11 @@ public class ConfigBean extends AbstractBean{
         resourceBundle.add(bundle);
 
         for (IConfig config : configs){
-            if (!isExist(config.getName())){
-                insert(config.getName(), config.getDefaultValue());
+            if (!isExist(config.name())){
+                insert(config.name(), config.getDefaultValue());
             }
 
-            configMap.put(config, getValue(config.getName()));
+            configMap.put(config, getValue(config.name()));
         }
     }
 
@@ -54,7 +54,7 @@ public class ConfigBean extends AbstractBean{
      */
     public String getString(IConfig config, boolean flush){
         if (flush){
-            String value = getValue(config.getName());
+            String value = getValue(config.name());
 
             if (value == null){
                 value = config.getDefaultValue();
@@ -87,7 +87,7 @@ public class ConfigBean extends AbstractBean{
     @Transactional
     public void update(final IConfig config, final String value){
         sqlSession().update(MAPPING_NAMESPACE + ".updateConfig", new HashMap<String, String>() {{
-            put("name", config.getName());
+            put("name", config.name());
             put("value", value);
         }});
     }

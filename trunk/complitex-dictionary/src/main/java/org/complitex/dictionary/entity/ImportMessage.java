@@ -6,25 +6,25 @@ import java.io.Serializable;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 01.03.11 13:30
  */
-public class ImportMessage<T extends Enum&IImportFile> implements Serializable{
-    private T importFile;
+public class ImportMessage implements Serializable{
+    private IImportFile importFile;
     private int count;
     private int index;
 
     public ImportMessage() {
     }
 
-    public ImportMessage(T importFile, int count, int index) {
+    public ImportMessage(IImportFile importFile, int count, int index) {
         this.importFile = importFile;
         this.count = count;
         this.index = index;
     }
 
-    public T getImportFile() {
+    public IImportFile getImportFile() {
         return importFile;
     }
 
-    public void setImportFile(T importFile) {
+    public void setImportFile(IImportFile importFile) {
         this.importFile = importFile;
     }
 

@@ -5,7 +5,7 @@ package org.complitex.dictionary.entity;
  *         Date: 22.02.11 13:10
  */
 public interface IConfig {
-    public String getName();
+    public String name();
 
     public String getDefaultValue();
 }

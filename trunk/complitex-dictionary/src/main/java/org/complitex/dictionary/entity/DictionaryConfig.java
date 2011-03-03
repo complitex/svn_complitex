@@ -14,11 +14,6 @@ public enum DictionaryConfig implements IConfig{
     }
 
     @Override
-    public String getName() {
-        return name();
-    }
-
-    @Override
     public String getDefaultValue() {
         return defaultValue;
     }
