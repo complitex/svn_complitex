@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.complitex.admin.service.UserBean">
+    <resultMap id="userResultMap" type="org.complitex.dictionary.entity.User">
+        <id column="user_id" property="id"/>
+        <result column="login" property="login"/>
+        <result column="password" property="password"/>        
+        <result column="user_info_object_id" property="userInfoObjectId"/>
+        <collection property="userGroups" ofType="org.complitex.dictionary.entity.UserGroup">
+            <id column="user_group_id" property="id"/>
+            <result column="user_group_login" property="login"/>
+            <result column="group_name" property="groupName"/>
+        </collection>
+        <collection property="userOrganizations" ofType="org.complitex.dictionary.entity.UserOrganization">
+            <id column="user_organization_id" property="id"/>
+            <result column="organization_object_id" property="organizationObjectId"/>
+            <result column="main" property="main"/>
+        </collection>
+    </resultMap>
+
+    <!--User-->
+
+    <select id="isUniqueLogin" resultType="boolean" parameterType="string">
+        select count(*) = 0 from `user` u where u.`login` = #{login}
+    </select>
+
+    <select id="selectUser" resultMap="userResultMap" parameterType="long">
+        select
+            distinct u.id as user_id,
+            u.login as login,
+            u.password as password,
+            u.user_info_object_id as user_info_object_id,
+            g.id as user_group_id,
+            g.login as user_group_login,
+            g.group_name as group_name,
+            o.id as user_organization_id,
+            o.organization_object_id as organization_object_id,
+            o.main as main
+        from `user` u
+            left join `usergroup` g on u.`login` = g.`login`
+            left join `user_organization` o on u.`id` = o.`user_id`
+        where u.id = #{id}
+    </select>
+
+    <sql id="userFilter">
+        from `user` u
+            left join `usergroup` g on u.`login` = g.`login`
+            left join `user_info` ui on u.`user_info_object_id` = ui.`object_id`
+            left join `user_organization` o on u.`id` = o.`user_id`
+
+            left join `user_info_attribute` uia_ln on (ui.`object_id` = uia_ln.`object_id`
+                and uia_ln.`attribute_type_id` = 1000)
+            left join `last_name` ln on uia_ln.`value_id` = ln.`id`
+
+            left join `user_info_attribute` uia_fn on (ui.`object_id` = uia_fn.`object_id`
+                and uia_fn.`attribute_type_id` = 1001)
+            left join `first_name` fn on uia_fn.`value_id` = fn.`id`
+
+            left join `user_info_attribute` uia_mn on (ui.`object_id` = uia_mn.`object_id`
+                and uia_mn.`attribute_type_id` = 1002)
+            left join `middle_name` mn on uia_mn.`value_id` = mn.`id`
+
+        <where>
+            <if test="login != null">u.login like concat('%', #{login}, '%')</if>
+            <if test="groupName != null">and g.`group_name` = #{groupName}</if>
+            <foreach collection="attributeExamples" item="item" index="index">
+                <if test="item.value != null">
+                    <choose>
+                        <when test="item.attributeTypeId == '1000'">
+                            and ln.`name` like concat('%', #{item.value}, '%')
+                        </when>
+                        <when test="item.attributeTypeId == '1001'">
+                            and fn.`name` like concat('%', #{item.value}, '%')
+                        </when>
+                        <when test="item.attributeTypeId == '1002'">
+                            and mn.`name` like concat('%', #{item.value}, '%')
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </where>
+
+        <if test="sortAttributeTypeId != null">
+            <choose>
+                <when test="sortAttributeTypeId== '1000'">
+                    order by ln.`name`
+                </when>
+                <when test="sortAttributeTypeId == '1001'">
+                    order by fn.`name`
+                </when>
+                <when test="sortAttributeTypeId == '1002'">
+                    order by mn.`name`
+                </when>
+            </choose>
+            <choose><when test="ascending">asc</when><otherwise>desc</otherwise></choose>
+        </if>
+        <if test="sortProperty == 'login'">
+            order by u.`login` <choose><when test="ascending">asc</when><otherwise>desc</otherwise></choose>
+        </if>        
+    </sql>
+
+    <select id="selectUsers" resultMap="userResultMap" parameterType="org.complitex.admin.service.UserFilter">
+        select
+            uc.*,
+            gc.id as user_group_id, gc.login as user_group_login, gc.group_name as group_name,
+            o.id as user_organization_id, o.organization_object_id as organization_object_id, o.main as main
+        from
+        (select
+            distinct u.id as user_id,
+            u.login as login,
+            u.password as password,
+            u.user_info_object_id as user_info_object_id
+        <include refid="userFilter"/>
+        limit #{first}, #{count}
+        ) as uc
+        left join `usergroup` gc on uc.`login` = gc.`login`
+        left join `user_organization` o on uc.`user_id` = o.`user_id`
+    </select>
+
+    <select id="selectUsersCount" resultType="int" parameterType="org.complitex.admin.service.UserFilter">
+        select count(distinct u.id)
+        <include refid="userFilter"/>
+    </select>
+
+    <insert id="insertUser" parameterType="org.complitex.dictionary.entity.User" keyProperty="id" useGeneratedKeys="true">
+        insert into `user` (`login`, `password`, `user_info_object_id`) values (#{login}, #{password}, #{userInfoObjectId})
+    </insert>
+
+    <update id="updateUser" parameterType="org.complitex.dictionary.entity.User">
+        update `user`
+        <set>
+            <if test="password != null"> `password` = #{password},</if>
+            <if test="userInfoObjectId != null"> `user_info_object_id` = #{userInfoObjectId}</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--User Group-->
+    <insert id="insertUserGroup" parameterType="org.complitex.dictionary.entity.UserGroup">
+        insert into `usergroup` (`login`, `group_name`) values (#{login}, #{groupName})
+    </insert>
+
+    <delete id="deleteUserGroup" parameterType="long">
+        delete from `usergroup` where id = #{id}
+    </delete>
+
+    <!--User Organization-->
+    <insert id="insertUserOrganization" parameterType="org.complitex.dictionary.entity.UserOrganization">
+        insert into `user_organization` (`user_id`, `organization_object_id`, `main`)
+            values (#{userId}, #{organizationObjectId}, #{main})
+    </insert>
+
+    <delete id="deleteUserOrganization" parameterType="long">
+        delete from `user_organization` where id = #{id}
+    </delete>
+
+    <update id="updateUserOrganization" parameterType="org.complitex.dictionary.entity.UserOrganization">
+        update `user_organization` set main = #{main} where id = #{id}
+    </update>
+</mapper>

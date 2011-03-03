@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:wicket="http://wicket.apache.org">
+    <head>
+        <wicket:head>
+            <title wicket:id="title"></title>
+        </wicket:head>
+    </head>
+    <body>
+        <wicket:extend>
+            <h2 wicket:id="label" style="margin-bottom: 20px;"></h2>
+            <div wicket:id="searchComponent">
+            </div>
+            <div wicket:id="content" style="margin-top: 20px;">
+                <form action="#" wicket:id="filterForm">
+                    <table cellpadding="0" cellspacing="0" border="0" style="width: 100%">
+                        <tr>
+                            <td align="right">
+                                <div>
+                                    <span wicket:id="showModePanel"></span>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                    <table class="tbColor bookContent" cellpadding="0" cellspacing="0" border="0">
+                        <thead>
+                            <tr>
+                                <th>№</th>
+                                <th>
+                                    <span wicket:id="numberHeader">
+                                        <wicket:message key="number"/>
+                                    </span>
+                                </th>
+                                <th>
+                                    <span wicket:id="corpHeader">
+                                        <wicket:message key="corp"/>
+                                    </span>
+                                </th>
+                                <th>
+                                    <span wicket:id="structureHeader">
+                                        <wicket:message key="structure"/>
+                                    </span>
+                                </th>
+                                <th style="width:110px">
+                                    <input wicket:id="reset" type="button" wicket:message="value:reset" class="btnSmall"/>
+                                </th>
+                            </tr>
+                            <tr>
+                                <td class="filter-td" style="width:30px"><input type="text" wicket:id="id"/></td>
+                                <td class="filter-td">
+                                    <input type="text" wicket:id="numberFilter"></input>
+                                </td>
+                                <td class="filter-td">
+                                    <input type="text" wicket:id="corpFilter"></input>
+                                </td>
+                                <td class="filter-td">
+                                    <input type="text" wicket:id="structureFilter"></input>
+                                </td>
+                                <td class="filter-td">
+                                    <input wicket:id="submit" type="submit" wicket:message="value:find" class="btnSmall default"/>
+                                </td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr wicket:id="data">
+                                <td><span wicket:id="id"></span></td>
+                                <td>
+                                    <span wicket:id="number"></span>
+                                </td>
+                                <td>
+                                    <span wicket:id="corp"></span>
+                                </td>
+                                <td>
+                                    <span wicket:id="structure"></span>
+                                </td>
+                                <td>
+                                    <a wicket:id="detailsLink">
+                                        <span wicket:id="editMessage"></span>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+                <div wicket:id="navigator"></div>
+            </div>
+        </wicket:extend>
+    </body>
+</html>
