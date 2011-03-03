@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.util.string.Strings;
-import org.complitex.address.resource.CommonResources;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
@@ -14,8 +13,7 @@ import org.complitex.dictionary.util.ResourceUtil;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
 import org.complitex.dictionary.web.component.search.SearchComponent;
-import org.complitex.template.strategy.AbstractStrategy;
-import org.complitex.template.web.security.SecurityRole;
+import org.complitex.address.resource.CommonResources;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -23,6 +21,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import org.complitex.template.strategy.AbstractStrategy;
 
 /**
  *
@@ -37,8 +36,7 @@ public class RegionStrategy extends AbstractStrategy {
     /*
      * Attribute type ids
      */
-    public static final long NAME = 700L;
-    public static final long PARENT_ENTITY_ID = 800L;
+    private static final long NAME = 700L;
 
     @Override
     protected List<Long> getListAttributeTypes() {
@@ -121,17 +119,12 @@ public class RegionStrategy extends AbstractStrategy {
     }
 
     @Override
-    public String[] getRealChildren() {
+    public String[] getChildrenEntities() {
         return new String[]{"city"};
     }
 
     @Override
     public String[] getParents() {
         return new String[]{"country"};
-    }
-
-    @Override
-    public String[] getEditRoles() {
-        return new String[]{SecurityRole.ADDRESS_MODULE_EDIT};
     }
 }

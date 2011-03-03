@@ -1,6 +1,7 @@
 package org.complitex.dictionary.web.component.paging;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -34,32 +35,31 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.apache.wicket.markup.html.JavascriptPackageResource;
-import org.complitex.resources.WebCommonResourceInitializer;
 
 /**
  *
  * @author Artem
  */
 public class PagingNavigator extends Panel {
-
     private static final Logger log = LoggerFactory.getLogger(PagingNavigator.class);
-    
+
     private static final int LEFT_OFFSET = 3;
     private static final int RIGHT_OFFSET = 3;
     private static final List<Integer> SUPPORTED_PAGE_SIZES = Arrays.asList(10, 20, 30, 50, 100);
+    
     private DataView dataView;
     private WebMarkupContainer pageBar;
     private Form newPageForm;
     private WebMarkupContainer allPagesRegion;
     private PropertyModel<Integer> rowsPerPagePropertyModel;
-    private Component[] toUpdate;
+    private MarkupContainer[] toUpdate;
+
     private String page;
 
-    public PagingNavigator(String id, final DataView dataView, final String page, Component... toUpdate) {
+    public PagingNavigator(String id, final DataView dataView, final String page,
+                           MarkupContainer... toUpdate) {
         super(id);
         setOutputMarkupId(true);
-        add(JavascriptPackageResource.getHeaderContribution(WebCommonResourceInitializer.SCROLL_JS));
 
         this.dataView = dataView;
         this.page = page;
@@ -229,8 +229,7 @@ public class PagingNavigator extends Panel {
         pageNavigator.add(allPagesRegion);
     }
 
-    @Override
-    public DictionaryFwSession getSession() {
+    public DictionaryFwSession getSession(){
         return (DictionaryFwSession) super.getSession();
     }
 
@@ -262,25 +261,31 @@ public class PagingNavigator extends Panel {
      *            the increment
      * @return the increment link
      */
-    protected AbstractLink newPagingNavigationIncrementLink(String id, IPageable pageable, int increment) {
+    protected AbstractLink newPagingNavigationIncrementLink(String id, IPageable pageable,
+            int increment) {
         return new AjaxPagingNavigationIncrementLink(id, pageable, increment) {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
                 super.onClick(target);
-                appendScrollupJavascript(target);
                 updatePageComponents(target);
             }
         };
     }
 
     protected void updatePageComponents(AjaxRequestTarget target) {
+        boolean updateSelf = true;
         if (toUpdate != null) {
-            for (Component container : toUpdate) {
+            for (MarkupContainer container : toUpdate) {
+                if (updateSelf && container.contains(this, true)) {
+                    updateSelf = false;
+                }
                 target.addComponent(container);
             }
         }
-        target.addComponent(this);
+        if (updateSelf) {
+            target.addComponent(this);
+        }
     }
 
     /**
@@ -301,15 +306,9 @@ public class PagingNavigator extends Panel {
             @Override
             public void onClick(AjaxRequestTarget target) {
                 super.onClick(target);
-                appendScrollupJavascript(target);
                 updatePageComponents(target);
             }
         };
-    }
-
-    protected void appendScrollupJavascript(AjaxRequestTarget target) {
-            String javascript = "scrollTo(0, {axis:'y'});";
-            target.appendJavascript(javascript);
     }
 
     @Override
@@ -325,9 +324,9 @@ public class PagingNavigator extends Panel {
     @Override
     protected void onAfterRender() {
         super.onAfterRender();
+
         getSession().putPreference(page, PreferenceKey.PAGE_INDEX, dataView.getCurrentPage(), true);
     }
-
     /**
      * Appends title attribute to navigation links
      *
@@ -336,6 +335,7 @@ public class PagingNavigator extends Panel {
     private final class TitleResourceAppender extends AbstractBehavior {
 
         private static final long serialVersionUID = 1L;
+
         private final String resourceKey;
 
         /**
@@ -363,8 +363,10 @@ public class PagingNavigator extends Panel {
     private final class TitlePageNumberAppender extends AbstractBehavior {
 
         private static final long serialVersionUID = 1L;
+
         /** resource key for the message */
         private static final String RES = "PagingNavigation.page";
+
         /** page number */
         private final int page;
 

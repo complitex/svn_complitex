@@ -12,11 +12,6 @@
             <result column="user_group_login" property="login"/>
             <result column="group_name" property="groupName"/>
         </collection>
-        <collection property="userOrganizations" ofType="org.complitex.dictionary.entity.UserOrganization">
-            <id column="user_organization_id" property="id"/>
-            <result column="organization_object_id" property="organizationObjectId"/>
-            <result column="main" property="main"/>
-        </collection>
     </resultMap>
 
     <!--User-->
@@ -33,13 +28,9 @@
             u.user_info_object_id as user_info_object_id,
             g.id as user_group_id,
             g.login as user_group_login,
-            g.group_name as group_name,
-            o.id as user_organization_id,
-            o.organization_object_id as organization_object_id,
-            o.main as main
+            g.group_name as group_name
         from `user` u
             left join `usergroup` g on u.`login` = g.`login`
-            left join `user_organization` o on u.`id` = o.`user_id`
         where u.id = #{id}
     </select>
 
@@ -47,53 +38,33 @@
         from `user` u
             left join `usergroup` g on u.`login` = g.`login`
             left join `user_info` ui on u.`user_info_object_id` = ui.`object_id`
-            left join `user_organization` o on u.`id` = o.`user_id`
-
-            left join `user_info_attribute` uia_ln on (ui.`object_id` = uia_ln.`object_id`
-                and uia_ln.`attribute_type_id` = 1000)
-            left join `last_name` ln on uia_ln.`value_id` = ln.`id`
-
-            left join `user_info_attribute` uia_fn on (ui.`object_id` = uia_fn.`object_id`
-                and uia_fn.`attribute_type_id` = 1001)
-            left join `first_name` fn on uia_fn.`value_id` = fn.`id`
-
-            left join `user_info_attribute` uia_mn on (ui.`object_id` = uia_mn.`object_id`
-                and uia_mn.`attribute_type_id` = 1002)
-            left join `middle_name` mn on uia_mn.`value_id` = mn.`id`
-
+            <foreach collection="attributeExamples" item="item" index="index">
+                <if test="item.value != null">
+                    left join `user_info_attribute` uia_${index}
+                        on (ui.`object_id` = uia_${index}.`object_id`
+                            and uia_${index}.`attribute_type_id` = #{item.attributeTypeId})
+                    left join `user_info_string_culture` uis_${index} on uia_${index}.`value_id` = uis_${index}.`id`
+                </if>
+            </foreach>
+            <if test="sortAttributeTypeId != null">
+                left join `user_info_attribute` uia_sort on ui.`object_id` = uia_sort.`object_id`
+                left join `user_info_string_culture` uis_sort on (uia_sort.`value_id` = uis_sort.`id`
+                    and uia_sort.`attribute_type_id` = ${sortAttributeTypeId})
+            </if>
         <where>
             <if test="login != null">u.login like concat('%', #{login}, '%')</if>
             <if test="groupName != null">and g.`group_name` = #{groupName}</if>
             <foreach collection="attributeExamples" item="item" index="index">
                 <if test="item.value != null">
-                    <choose>
-                        <when test="item.attributeTypeId == '1000'">
-                            and ln.`name` like concat('%', #{item.value}, '%')
-                        </when>
-                        <when test="item.attributeTypeId == '1001'">
-                            and fn.`name` like concat('%', #{item.value}, '%')
-                        </when>
-                        <when test="item.attributeTypeId == '1002'">
-                            and mn.`name` like concat('%', #{item.value}, '%')
-                        </when>
-                    </choose>
+                     and uis_${index}.`value` like concat('%', #{item.value}, '%')
                 </if>
             </foreach>
-        </where>
-
+            <if test="sortAttributeTypeId != null">
+                and (uis_sort.`value` is not null or uia_sort.`attribute_type_id` is null)
+            </if>
+        </where>         
         <if test="sortAttributeTypeId != null">
-            <choose>
-                <when test="sortAttributeTypeId== '1000'">
-                    order by ln.`name`
-                </when>
-                <when test="sortAttributeTypeId == '1001'">
-                    order by fn.`name`
-                </when>
-                <when test="sortAttributeTypeId == '1002'">
-                    order by mn.`name`
-                </when>
-            </choose>
-            <choose><when test="ascending">asc</when><otherwise>desc</otherwise></choose>
+            order by uis_sort.`value` <choose><when test="ascending">asc</when><otherwise>desc</otherwise></choose>
         </if>
         <if test="sortProperty == 'login'">
             order by u.`login` <choose><when test="ascending">asc</when><otherwise>desc</otherwise></choose>
@@ -102,9 +73,7 @@
 
     <select id="selectUsers" resultMap="userResultMap" parameterType="org.complitex.admin.service.UserFilter">
         select
-            uc.*,
-            gc.id as user_group_id, gc.login as user_group_login, gc.group_name as group_name,
-            o.id as user_organization_id, o.organization_object_id as organization_object_id, o.main as main
+            uc.*, gc.id as user_group_id, gc.login as user_group_login, gc.group_name as group_name
         from
         (select
             distinct u.id as user_id,
@@ -113,9 +82,7 @@
             u.user_info_object_id as user_info_object_id
         <include refid="userFilter"/>
         limit #{first}, #{count}
-        ) as uc
-        left join `usergroup` gc on uc.`login` = gc.`login`
-        left join `user_organization` o on uc.`user_id` = o.`user_id`
+        ) as uc left join `usergroup` gc on uc.`login` = gc.`login`
     </select>
 
     <select id="selectUsersCount" resultType="int" parameterType="org.complitex.admin.service.UserFilter">
@@ -138,24 +105,10 @@
 
     <!--User Group-->
     <insert id="insertUserGroup" parameterType="org.complitex.dictionary.entity.UserGroup">
-        insert into `usergroup` (`login`, `group_name`) values (#{login}, #{groupName})
+        insert into `usergroup` (`login`, `group_name`) values (#{login}, #{groupName});
     </insert>
 
     <delete id="deleteUserGroup" parameterType="long">
         delete from `usergroup` where id = #{id}
     </delete>
-
-    <!--User Organization-->
-    <insert id="insertUserOrganization" parameterType="org.complitex.dictionary.entity.UserOrganization">
-        insert into `user_organization` (`user_id`, `organization_object_id`, `main`)
-            values (#{userId}, #{organizationObjectId}, #{main})
-    </insert>
-
-    <delete id="deleteUserOrganization" parameterType="long">
-        delete from `user_organization` where id = #{id}
-    </delete>
-
-    <update id="updateUserOrganization" parameterType="org.complitex.dictionary.entity.UserOrganization">
-        update `user_organization` set main = #{main} where id = #{id}
-    </update>
 </mapper>

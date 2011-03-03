@@ -12,6 +12,7 @@ import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.complitex.dictionary.entity.History;
 import org.complitex.dictionary.service.StringCultureBean;
+import org.complitex.dictionary.strategy.Strategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 
@@ -21,7 +22,6 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import org.complitex.dictionary.strategy.IStrategy;
 
 /**
  *
@@ -48,7 +48,7 @@ public class HistoryPanel extends Panel {
         init();
     }
 
-    private IStrategy getStrategy() {
+    private Strategy getStrategy() {
         return strategyFactory.getStrategy(entity);
     }
 

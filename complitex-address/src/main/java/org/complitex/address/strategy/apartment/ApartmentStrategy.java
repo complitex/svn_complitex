@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import org.complitex.template.strategy.AbstractStrategy;
-import org.complitex.template.web.security.SecurityRole;
 
 /**
  *
@@ -83,11 +82,6 @@ public class ApartmentStrategy extends AbstractStrategy {
         return ImmutableList.of("country", "region", "city", "street", "building");
     }
 
-    @Override
-    public String[] getEditRoles() {
-        return new String[]{SecurityRole.ADDRESS_MODULE_EDIT};
-    }
-
     private static class SearchCallback implements ISearchCallback, Serializable {
 
         @Override
@@ -121,7 +115,7 @@ public class ApartmentStrategy extends AbstractStrategy {
     }
 
     @Override
-    public String[] getRealChildren() {
+    public String[] getChildrenEntities() {
         return new String[]{"room"};
     }
 

@@ -8,11 +8,9 @@
     </resultMap>
 
     <select id="find" resultMap="org.complitex.address.strategy.building.Building.Building" parameterType="DomainObjectExample">
-        SELECT DISTINCT e.`object_id`, e.`start_date`, e.`end_date`, e.`status`, e.`parent_id`, e.`parent_entity_id`, e.`entity_type_id`,
-                        e.`permission_id`
+        SELECT DISTINCT e.`object_id`, e.`start_date`, e.`end_date`, e.`status`, e.`parent_id`, e.`parent_entity_id`, e.`entity_type_id`
         FROM `building` e WHERE
         <include refid="org.complitex.dictionary.entity.DomainObject.statusFilter"/>
-        <include refid="org.complitex.dictionary.entity.DomainObject.permissionFilter"/>
         AND (e.`parent_id` = #{additionalParams.buildingAddressId} OR EXISTS
             (SELECT 1 FROM `building_attribute` ba WHERE ba.`object_id` = e.`object_id` AND ba.`status` = 'ACTIVE' AND ba.`attribute_type_id` = 501
                 AND ba.`value_id` = #{additionalParams.buildingAddressId}
@@ -23,27 +21,26 @@
     <select id="findById" resultMap="org.complitex.address.strategy.building.Building.Building" parameterType="DomainObjectExample">
         SELECT e.*
         FROM `${table}` e WHERE (e.`status` IN ('ACTIVE', 'INACTIVE')) AND e.`object_id` = #{id}
-            <include refid="org.complitex.dictionary.entity.DomainObject.permissionFilter"/>
     </select>
 
     <select id="checkBuildingAddress" parameterType="hashmap" resultType="long">
         SELECT DISTINCT b.`object_id` FROM `building` b
-            JOIN `building_address` addr ON (addr.`status` IN ('ACTIVE', 'INACTIVE') AND ((b.`parent_id` = addr.`object_id`) OR
-                EXISTS(SELECT 1 FROM `building_attribute` ba WHERE ba.`object_id` = b.`object_id` AND ba.`status` = 'ACTIVE'
-                    AND ba.`attribute_type_id` = 501 AND ba.`value_id` = addr.`object_id`)))
+            JOIN `building_address` addr ON (((b.`parent_id` = addr.`object_id`) OR
+            EXISTS(SELECT 1 FROM `building_attribute` ba WHERE ba.`object_id` = b.`object_id` AND ba.`status` = 'ACTIVE' AND ba.`attribute_type_id` = 501
+            AND ba.`value_id` = addr.`object_id`)) AND (addr.`status` IN ('ACTIVE', 'INACTIVE')))
             JOIN `building_address_attribute` num ON (num.`object_id` = addr.`object_id` AND num.`status` = 'ACTIVE' AND num.`attribute_type_id` = 1500)
             LEFT JOIN `building_address_attribute` corp ON (corp.`object_id` = addr.`object_id` AND corp.`status` = 'ACTIVE' AND corp.`attribute_type_id` = 1501)
             LEFT JOIN `building_address_attribute` struc ON (struc.`object_id` = addr.`object_id` AND struc.`status` = 'ACTIVE' AND struc.`attribute_type_id` = 1502)
-        WHERE b.`status` IN ('ACTIVE', 'INACTIVE') AND
-            num.`value_id` IN (SELECT sc.`id` FROM `building_address_string_culture` sc WHERE sc.`value` = #{number} AND sc.`locale_id` = #{localeId}) AND
-                <choose>
-                    <when test="corp == null">
-                        corp.`value_id` IS NULL
-                    </when>
-                    <otherwise>
-                        corp.`value_id` IN (SELECT sc.`id` FROM `building_address_string_culture` sc WHERE sc.`value` = #{corp} AND sc.`locale_id` = #{localeId})
-                    </otherwise>
-                </choose>
+        WHERE (b.`status` IN ('ACTIVE', 'INACTIVE')) AND
+        num.`value_id` IN (SELECT sc.`id` FROM `building_address_string_culture` sc WHERE sc.`value` = #{number} AND sc.`locale_id` = #{localeId}) AND
+            <choose>
+                <when test="corp == null">
+                    corp.`value_id` IS NULL
+                </when>
+                <otherwise>
+                    corp.`value_id` IN (SELECT sc.`id` FROM `building_address_string_culture` sc WHERE sc.`value` = #{corp} AND sc.`locale_id` = #{localeId})
+                </otherwise>
+            </choose>
             AND
             <choose>
                 <when test="structure == null">
@@ -71,18 +68,4 @@
         <include refid="org.complitex.dictionary.entity.DomainObject.findHistoryObject"/>
     </select>
 
-    <!-- disable/enable functionality -->
-    <update id="updateBuildingActivity" parameterType="map">
-        UPDATE `building` e SET e.`status` = #{status} WHERE e.`object_id` = #{buildingId}
-                AND
-                <choose>
-                    <when test="enabled">
-                        e.`status` = 'ACTIVE'
-                    </when>
-                    <otherwise>
-                        e.`status` = 'INACTIVE'
-                    </otherwise>
-                </choose>
-    </update>
-    
 </mapper>

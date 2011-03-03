@@ -1,35 +1,28 @@
 package org.complitex.address.strategy.building_address;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import java.util.Set;
+import java.io.Serializable;
 import org.apache.wicket.PageParameters;
-import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.util.string.Strings;
-import org.complitex.address.resource.CommonResources;
-import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.util.ResourceUtil;
-import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
-import org.complitex.dictionary.web.component.search.SearchComponent;
-import org.complitex.template.strategy.AbstractStrategy;
-import org.complitex.template.web.security.SecurityRole;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.complitex.address.resource.CommonResources;
 
 import javax.ejb.Stateless;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import javax.ejb.EJB;
-import org.complitex.address.strategy.building.BuildingStrategy;
+import java.util.*;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.complitex.dictionary.entity.DomainObject;
+import org.complitex.dictionary.entity.Parameter;
 import org.complitex.dictionary.entity.StatusType;
 import org.complitex.dictionary.mybatis.Transactional;
+import org.complitex.dictionary.web.component.DomainObjectInputPanel;
+import org.complitex.dictionary.web.component.search.SearchComponent;
+import org.complitex.template.strategy.AbstractStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -39,13 +32,12 @@ import org.complitex.dictionary.mybatis.Transactional;
 public class BuildingAddressStrategy extends AbstractStrategy {
 
     private static final Logger log = LoggerFactory.getLogger(BuildingAddressStrategy.class);
-    private static final String BUILDING_ADDRESS_NAMESPACE = BuildingAddressStrategy.class.getPackage().getName() + ".BuildingAddress";
+
     public static final long NUMBER = 1500;
+
     public static final long CORP = 1501;
+
     public static final long STRUCTURE = 1502;
-    public static final long PARENT_STREET_ENTITY_ID = 300L;
-    @EJB
-    private BuildingStrategy buildingStrategy;
 
     @Override
     public String getEntityTable() {
@@ -101,7 +93,7 @@ public class BuildingAddressStrategy extends AbstractStrategy {
             Long streetId = ids.get("street");
             if (streetId != null && streetId > 0) {
                 inputPanel.getObject().setParentId(streetId);
-                inputPanel.getObject().setParentEntityId(PARENT_STREET_ENTITY_ID);
+                inputPanel.getObject().setParentEntityId(300L);
             } else {
                 Long cityId = ids.get("city");
                 if (cityId != null && cityId > 0) {
@@ -121,7 +113,7 @@ public class BuildingAddressStrategy extends AbstractStrategy {
     }
 
     @Override
-    public String[] getRealChildren() {
+    public String[] getChildrenEntities() {
         return new String[]{"building"};
     }
 
@@ -160,135 +152,17 @@ public class BuildingAddressStrategy extends AbstractStrategy {
         return null;
     }
 
+    @Transactional
     @Override
-    public String[] getEditRoles() {
-        return new String[]{SecurityRole.ADDRESS_MODULE_EDIT};
-    }
-
-    @Transactional
-    private List<DomainObjectPermissionInfo> findBuildingPermissionInfoByParent(long buildingAddressId) {
-        return sqlSession().selectList(BUILDING_ADDRESS_NAMESPACE + ".findBuildingPermissionInfoByParent", buildingAddressId);
-    }
-
-    @Transactional
-    private List<DomainObjectPermissionInfo> findBuildingPermissionInfoByReference(long buildingAddressId) {
-        return sqlSession().selectList(BUILDING_ADDRESS_NAMESPACE + ".findBuildingPermissionInfoByReference", buildingAddressId);
-    }
-
-    @Transactional
-    private List<DomainObjectPermissionInfo> findReferenceAddressPermissionInfo(long buildingId) {
-        return sqlSession().selectList(BUILDING_ADDRESS_NAMESPACE + ".findReferenceAddressPermissionInfo", buildingId);
-    }
-
-    @Transactional
-    private List<DomainObjectPermissionInfo> findParentAddressPermissionInfo(long buildingId) {
-        return sqlSession().selectList(BUILDING_ADDRESS_NAMESPACE + ".findParentAddressPermissionInfo", buildingId);
-    }
-
-    @Transactional
-    private Set<Long> findBuildingActivityInfoByParent(long buildingId) {
-        return Sets.newHashSet(sqlSession().selectList(BUILDING_ADDRESS_NAMESPACE + ".findBuildingActivityInfoByParent", buildingId));
-    }
-
-    @Transactional
-    private Set<Long> findBuildingActivityInfoByReference(long buildingId) {
-        return Sets.newHashSet(sqlSession().selectList(BUILDING_ADDRESS_NAMESPACE + ".findBuildingActivityInfoByReference", buildingId));
-    }
-
-    @Transactional
-    private Set<Long> findReferenceAddressActivityInfo(long buildingId) {
-        return Sets.newHashSet(sqlSession().selectList(BUILDING_ADDRESS_NAMESPACE + ".findReferenceAddressActivityInfo", buildingId));
-    }
-
-    @Transactional
-    private Set<Long> findParentAddressActivityInfo(long buildingId) {
-        return Sets.newHashSet(sqlSession().selectList(BUILDING_ADDRESS_NAMESPACE + ".findParentAddressActivityInfo", buildingId));
+    public void enable(DomainObject object) {
+        object.setStatus(StatusType.ACTIVE);
+        sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new Parameter(getEntityTable(), object));
     }
 
     @Transactional
     @Override
-    protected void replaceChildrenPermissions(long parentId, Set<Long> subjectIds) {
-        long buildingAddressId = parentId;
-
-        List<DomainObjectPermissionInfo> buildingPermissionInfoByParent = findBuildingPermissionInfoByParent(buildingAddressId);
-        for (DomainObjectPermissionInfo buildingPermissionInfo : buildingPermissionInfoByParent) {
-            long buildingId = buildingPermissionInfo.getId();
-            List<DomainObjectPermissionInfo> referenceAddressPermissionInfos = findReferenceAddressPermissionInfo(buildingId);
-            for (DomainObjectPermissionInfo referenceAddressPermissionInfo : referenceAddressPermissionInfos) {
-                replaceObjectPermissions(referenceAddressPermissionInfo, subjectIds);
-            }
-            buildingStrategy.replacePermissions(buildingPermissionInfo, subjectIds);
-        }
-
-        List<DomainObjectPermissionInfo> buildingPermissionInfoByReference = findBuildingPermissionInfoByReference(buildingAddressId);
-        for (DomainObjectPermissionInfo buildingPermissionInfo : buildingPermissionInfoByReference) {
-            long buildingId = buildingPermissionInfo.getId();
-            List<DomainObjectPermissionInfo> parentAddressPermissionInfos = findParentAddressPermissionInfo(buildingId);
-            for (DomainObjectPermissionInfo parentAddressPermissionInfo : parentAddressPermissionInfos) {
-                replaceObjectPermissions(parentAddressPermissionInfo, subjectIds);
-            }
-            buildingStrategy.replacePermissions(buildingPermissionInfo, subjectIds);
-        }
-    }
-
-    @Transactional
-    @Override
-    protected void changeChildrenPermissions(long parentId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds) {
-        long buildingAddressId = parentId;
-
-        List<DomainObjectPermissionInfo> buildingPermissionInfoByParent = findBuildingPermissionInfoByParent(buildingAddressId);
-        for (DomainObjectPermissionInfo buildingPermissionInfo : buildingPermissionInfoByParent) {
-            long buildingId = buildingPermissionInfo.getId();
-            List<DomainObjectPermissionInfo> referenceAddressPermissionInfos = findReferenceAddressPermissionInfo(buildingId);
-            for (DomainObjectPermissionInfo referenceAddressPermissionInfo : referenceAddressPermissionInfos) {
-                changeObjectPermissions(referenceAddressPermissionInfo, addSubjectIds, removeSubjectIds);
-            }
-            buildingStrategy.changePermissions(buildingPermissionInfo, addSubjectIds, removeSubjectIds);
-        }
-
-        List<DomainObjectPermissionInfo> buildingPermissionInfoByReference = findBuildingPermissionInfoByReference(buildingAddressId);
-        for (DomainObjectPermissionInfo buildingPermissionInfo : buildingPermissionInfoByReference) {
-            long buildingId = buildingPermissionInfo.getId();
-            List<DomainObjectPermissionInfo> parentAddressPermissionInfos = findParentAddressPermissionInfo(buildingId);
-            for (DomainObjectPermissionInfo parentAddressPermissionInfo : parentAddressPermissionInfos) {
-                changeObjectPermissions(parentAddressPermissionInfo, addSubjectIds, removeSubjectIds);
-            }
-            buildingStrategy.changePermissions(buildingPermissionInfo, addSubjectIds, removeSubjectIds);
-        }
-    }
-
-    @Transactional
-    public void updateBuildingAddressActivity(long addressId, boolean enabled) {
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("addressId", addressId);
-        params.put("enabled", enabled);
-        params.put("status", enabled ? StatusType.INACTIVE : StatusType.ACTIVE);
-        sqlSession().update(BUILDING_ADDRESS_NAMESPACE + ".updateBuildingAddressActivity", params);
-    }
-
-    @Transactional
-    @Override
-    public void changeChildrenActivity(long parentId, boolean enable) {
-        long buildingAddressId = parentId;
-
-        Set<Long> buildingActivityInfoByParent = findBuildingActivityInfoByParent(buildingAddressId);
-        for (long buildingId : buildingActivityInfoByParent) {
-            Set<Long> referenceAddressActivityInfo = findReferenceAddressActivityInfo(buildingId);
-            for (long referenceAddressId : referenceAddressActivityInfo) {
-                updateBuildingAddressActivity(referenceAddressId, !enable);
-            }
-            buildingStrategy.changeChildrenActivity(buildingAddressId, enable);
-        }
-        updateChildrenActivity(parentId, "building", !enable);
-
-        Set<Long> buildingActivityInfoByReference = findBuildingActivityInfoByReference(buildingAddressId);
-        for (long buildingId : buildingActivityInfoByReference) {
-            Set<Long> parentAddressActivityInfo = findParentAddressActivityInfo(buildingId);
-            for (long parentAddressId : parentAddressActivityInfo) {
-                updateBuildingAddressActivity(parentAddressId, !enable);
-            }
-            buildingStrategy.changeChildrenActivity(parentId, enable);
-            buildingStrategy.updateBuildingActivity(buildingId, !enable);
-        }
+    public void disable(DomainObject object) {
+        object.setStatus(StatusType.INACTIVE);
+        sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new Parameter(getEntityTable(), object));
     }
 }

@@ -4,44 +4,22 @@
 <mapper namespace="org.complitex.address.strategy.street.Street">
 
     <select id="find" resultMap="org.complitex.dictionary.entity.DomainObject.DomainObject" parameterType="DomainObjectExample">
-        SELECT e.* FROM `street` e WHERE
+        SELECT e.*
+        FROM `${table}` e WHERE
         <include refid="org.complitex.dictionary.entity.DomainObject.statusFilter"/>
-        <include refid="org.complitex.dictionary.entity.DomainObject.permissionFilter"/>
         <include refid="org.complitex.dictionary.entity.DomainObject.filter"/>
-        <include refid="org.complitex.address.strategy.street.Street.filterByDistrict"/>
+        <if test="additionalParams != null and additionalParams['district'] != null">
+            AND EXISTS(
+                SELECT 1 FROM `building` b
+                    JOIN `building_attribute` a ON (b.`object_id` = a.`object_id` AND a.`status` = 'ACTIVE' AND a.`attribute_type_id` = 500)
+                    JOIN `building_address` addr ON (((b.`parent_id` = addr.`object_id`) OR
+                        EXISTS(SELECT 1 FROM `building_attribute` ba WHERE ba.`object_id` = b.`object_id` AND ba.`status` = 'ACTIVE' AND ba.`attribute_type_id` = 501
+                        AND ba.`value_id` = addr.`object_id`)) AND (addr.`status` IN ('ACTIVE', 'INACTIVE')))
+                    WHERE b.`status` IN ('ACTIVE', 'INACTIVE') AND addr.`parent_id` = e.`object_id` AND addr.`parent_entity_id` = 300
+                        AND a.`value_id` = #{additionalParams.district})
+        </if>
         <include refid="org.complitex.dictionary.entity.DomainObject.orderBy"/>
         <include refid="org.complitex.dictionary.entity.DomainObject.limit"/>
-    </select>
-    
-    <sql id="filterByDistrict">
-        <if test="additionalParams != null and additionalParams['district'] != null">
-            AND (EXISTS(
-                    SELECT 1 FROM `building` b
-                        JOIN `building_attribute` district_attr ON (b.`object_id` = district_attr.`object_id` AND district_attr.`status` = 'ACTIVE' AND district_attr.`attribute_type_id` = 500
-                            AND district_attr.`value_id` = #{additionalParams.district})
-                        JOIN `building_address` addr ON (b.`parent_id` = addr.`object_id` AND addr.`parent_entity_id` = 300)
-                    WHERE b.`status` IN ('ACTIVE', 'INACTIVE') AND addr.`parent_id` = e.`object_id`
-                    )
-                 OR
-                 EXISTS(
-                    SELECT 1 FROM `building` b
-                        JOIN `building_address` addr ON (addr.`status` IN ('ACTIVE', 'INACTIVE') AND addr.`parent_entity_id` = 300)
-                        JOIN `building_attribute` district_attr ON (b.`object_id` = district_attr.`object_id` AND district_attr.`status` = 'ACTIVE' AND district_attr.`attribute_type_id` = 500
-                            AND district_attr.`value_id` = #{additionalParams.district})
-                        JOIN `building_attribute` ref_attr ON (b.`object_id` = ref_attr.`object_id` AND ref_attr.`status` = 'ACTIVE' AND ref_attr.`attribute_type_id` = 501
-                            AND ref_attr.`value_id` = addr.`object_id`)
-                    WHERE b.`status` IN ('ACTIVE', 'INACTIVE') AND addr.`parent_id` = e.`object_id`
-                    )
-            )
-        </if>
-    </sql>
-
-    <select id="count" resultType="integer" parameterType="DomainObjectExample">
-        SELECT COUNT(*) FROM `street` e WHERE
-        <include refid="org.complitex.dictionary.entity.DomainObject.statusFilter"/>
-        <include refid="org.complitex.dictionary.entity.DomainObject.permissionFilter"/>
-        <include refid="org.complitex.dictionary.entity.DomainObject.filter"/>
-        <include refid="org.complitex.address.strategy.street.Street.filterByDistrict"/>
     </select>
 
     <!-- Validation -->

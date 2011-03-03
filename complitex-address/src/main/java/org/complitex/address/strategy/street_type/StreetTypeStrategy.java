@@ -5,21 +5,19 @@
 package org.complitex.address.strategy.street_type;
 
 import com.google.common.collect.Lists;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
 import org.apache.wicket.util.string.Strings;
-import org.complitex.address.resource.CommonResources;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.util.ResourceUtil;
 import org.complitex.template.strategy.AbstractStrategy;
-import org.complitex.template.web.security.SecurityRole;
-
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import org.complitex.address.resource.CommonResources;
 
 /**
  *
@@ -35,7 +33,7 @@ public class StreetTypeStrategy extends AbstractStrategy {
     /*
      * Attribute type ids
      */
-    public static final long NAME = 1400L;
+    private static final long NAME = 1400;
 
     @Override
     public String getEntityTable() {
@@ -67,10 +65,5 @@ public class StreetTypeStrategy extends AbstractStrategy {
     @Override
     public String getPluralEntityLabel(Locale locale) {
         return ResourceUtil.getString(CommonResources.class.getName(), getEntityTable(), locale);
-    }
-
-    @Override
-    public String[] getEditRoles() {
-        return new String[]{SecurityRole.ADDRESS_MODULE_EDIT};
     }
 }

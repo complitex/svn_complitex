@@ -17,23 +17,22 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
-import org.complitex.admin.service.UserBean;
-import org.complitex.admin.service.UserFilter;
 import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.User;
 import org.complitex.dictionary.entity.UserGroup;
-import org.complitex.dictionary.entity.UserOrganization;
 import org.complitex.dictionary.entity.example.AttributeExample;
-import org.complitex.dictionary.strategy.IStrategy;
-import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
-import org.complitex.dictionary.web.component.*;
+import org.complitex.dictionary.web.component.AttributeColumnsPanel;
+import org.complitex.dictionary.web.component.AttributeFiltersPanel;
+import org.complitex.dictionary.web.component.AttributeHeadersPanel;
+import org.complitex.dictionary.web.component.BookmarkablePageLinkPanel;
 import org.complitex.dictionary.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionary.web.component.paging.PagingNavigator;
-import org.complitex.dictionary.web.component.scroll.ScrollListBehavior;
+import org.complitex.admin.service.UserBean;
+import org.complitex.admin.service.UserFilter;
 import org.complitex.template.web.component.toolbar.AddUserButton;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
-import org.complitex.template.web.pages.ScrollListPage;
 import org.complitex.template.web.security.SecurityRole;
+import org.complitex.template.web.template.TemplatePage;
 
 import javax.ejb.EJB;
 import java.util.Arrays;
@@ -44,28 +43,14 @@ import java.util.List;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 22.07.2010 15:03:45
  */
-@AuthorizeInstantiation(SecurityRole.ADMIN_MODULE_EDIT)
-public class UserList extends ScrollListPage {
-    @EJB(name = "OrganizationStrategy")
-    private IOrganizationStrategy organizationStrategy;
-
-    @EJB(name = "User_infoStrategy")
-    private IStrategy userInfoStrategy;
-
+@AuthorizeInstantiation(SecurityRole.AUTHORIZED)
+public class UserList extends TemplatePage {
     @EJB(name = "UserBean")
     private UserBean userBean;
 
     public UserList() {
         super();
-        init();
-    }
 
-    public UserList(PageParameters params) {
-        super(params);
-        init();
-    }
-
-    private void init(){
         add(new Label("title", new ResourceModel("title")));
         add(new FeedbackPanel("messages"));
 
@@ -85,7 +70,6 @@ public class UserList extends ScrollListPage {
                 UserFilter filterObject = filterModel.getObject();
                 filterObject.setLogin(null);
                 filterObject.setGroupName(null);
-                filterObject.setOrganizationObjectId(null);
                 for (AttributeExample attributeExample : filterObject.getAttributeExamples()){
                     attributeExample.setValue(null);
                 }                                                   
@@ -94,27 +78,7 @@ public class UserList extends ScrollListPage {
         filterForm.add(filterReset);
 
         filterForm.add(new TextField<String>("login", new PropertyModel<String>(filterModel, "login")));
-
         filterForm.add(new AttributeFiltersPanel("user_info", filterObject.getAttributeExamples()));
-
-        filterForm.add(new DropDownChoice<UserGroup.GROUP_NAME>("usergroups",
-                new PropertyModel<UserGroup.GROUP_NAME>(filterModel, "groupName"),
-                new ListModel<UserGroup.GROUP_NAME>(Arrays.asList(UserGroup.GROUP_NAME.values())),
-                new IChoiceRenderer<UserGroup.GROUP_NAME>(){
-
-                    @Override
-                    public Object getDisplayValue(UserGroup.GROUP_NAME object) {
-                        return getStringOrKey(object.name());
-                    }
-
-                    @Override
-                    public String getIdValue(UserGroup.GROUP_NAME object, int index) {
-                        return object.name();
-                    }
-                }));
-
-        filterForm.add(new UserOrganizationPicker("organization",
-                new PropertyModel<Long>(filterModel, "organizationObjectId")));
 
         //Модель
         final SortableDataProvider<User> dataProvider = new SortableDataProvider<User>(){
@@ -157,32 +121,37 @@ public class UserList extends ScrollListPage {
                 item.add(new Label("login", user.getLogin()));
 
                 List<Attribute> attributeColumns = userBean.getAttributeColumns(user.getUserInfo());
-                item.add(new AttributeColumnsPanel("user_info", userInfoStrategy, attributeColumns));
-
-                String organizations = "";
-                String separator = "";
-                for (UserOrganization userOrganization : user.getUserOrganizations()){
-                    organizations += separator + (organizationStrategy.displayDomainObject(
-                            organizationStrategy.findById(userOrganization.getOrganizationObjectId(), true), getLocale()));
-
-                    separator = ", ";
-                }
-                item.add(new Label("organizations", organizations));
+                item.add(new AttributeColumnsPanel("user_info", attributeColumns));
 
                 item.add(new Label("usergroup", getDisplayGroupNames(user)));
 
-                item.add(new BookmarkablePageLinkPanel<User>("action_edit", getString("action_edit"), 
-                        ScrollListBehavior.SCROLL_PREFIX + String.valueOf(user.getId()),
-                        UserEdit.class, new PageParameters("user_id=" + user.getId())));
+                item.add(new BookmarkablePageLinkPanel<User>("action_edit", getString("action_edit"), UserEdit.class,
+                                new PageParameters("user_id=" + user.getId())));
             }
         };
         filterForm.add(dataView);
 
         //Названия колонок и сортировка
         filterForm.add(new ArrowOrderByBorder("header.login", "login", dataProvider, dataView, filterForm));
-        filterForm.add(new ArrowOrderByBorder("header.organization", "organization", dataProvider, dataView, filterForm));
         filterForm.add(new AttributeHeadersPanel("header.user_info", userBean.getUserInfoStrategy().getListColumns(),
                 dataProvider, dataView, filterForm));
+
+        DropDownChoice<UserGroup.GROUP_NAME> usergroups = new DropDownChoice<UserGroup.GROUP_NAME>("usergroups",
+                new PropertyModel<UserGroup.GROUP_NAME>(filterModel, "groupName"),
+                new ListModel<UserGroup.GROUP_NAME>(Arrays.asList(UserGroup.GROUP_NAME.values())),
+                new IChoiceRenderer<UserGroup.GROUP_NAME>(){
+
+                    @Override
+                    public Object getDisplayValue(UserGroup.GROUP_NAME object) {
+                        return getStringOrKey(object.name());
+                    }
+
+                    @Override
+                    public String getIdValue(UserGroup.GROUP_NAME object, int index) {
+                        return object.name();
+                    }
+                });
+        filterForm.add(usergroups);
 
         //Постраничная навигация
         filterForm.add(new PagingNavigator("paging", dataView, getClass().getName(), filterForm));

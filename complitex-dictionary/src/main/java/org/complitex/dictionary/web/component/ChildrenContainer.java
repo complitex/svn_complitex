@@ -9,10 +9,10 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.complitex.dictionary.entity.DomainObject;
+import org.complitex.dictionary.strategy.Strategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
 
 import javax.ejb.EJB;
-import org.complitex.dictionary.strategy.IStrategy;
 
 /**
  *
@@ -20,9 +20,11 @@ import org.complitex.dictionary.strategy.IStrategy;
  */
 public final class ChildrenContainer extends Panel {
 
-    @EJB
+    @EJB(name = "StrategyFactory")
     private StrategyFactory strategyFactory;
+
     private String entity;
+
     private DomainObject object;
 
     public ChildrenContainer(String id, String entity, DomainObject object) {
@@ -32,12 +34,12 @@ public final class ChildrenContainer extends Panel {
         init();
     }
 
-    private IStrategy getStrategy() {
+    private Strategy getStrategy() {
         return strategyFactory.getStrategy(entity);
     }
 
     private void init() {
-        String[] childrenEntities = getStrategy().getLogicalChildren();
+        String[] childrenEntities = getStrategy().getChildrenEntities();
         if (childrenEntities == null) {
             childrenEntities = new String[0];
         }

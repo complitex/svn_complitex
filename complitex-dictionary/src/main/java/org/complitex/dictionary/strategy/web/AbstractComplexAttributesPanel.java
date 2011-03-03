@@ -5,7 +5,6 @@
 package org.complitex.dictionary.strategy.web;
 
 import org.apache.wicket.markup.html.panel.Panel;
-import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 
 /**
@@ -38,10 +37,6 @@ public abstract class AbstractComplexAttributesPanel extends Panel {
 
     protected DomainObjectInputPanel getInputPanel() {
         return this.findParent(DomainObjectInputPanel.class);
-    }
-
-    protected DomainObject getDomainObject(){
-        return getInputPanel().getObject();
     }
 
     protected abstract void init();

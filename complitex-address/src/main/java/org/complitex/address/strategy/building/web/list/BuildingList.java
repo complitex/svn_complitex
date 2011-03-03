@@ -5,7 +5,6 @@
 package org.complitex.address.strategy.building.web.list;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -16,6 +15,7 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
@@ -40,6 +40,7 @@ import org.complitex.dictionary.web.component.search.SearchComponentState;
 import org.complitex.template.web.component.toolbar.AddItemButton;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
 import org.complitex.template.web.security.SecurityRole;
+import org.complitex.template.web.template.TemplatePage;
 import org.complitex.address.strategy.building.BuildingStrategy;
 import org.complitex.address.strategy.building.entity.Building;
 import org.slf4j.Logger;
@@ -50,23 +51,20 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
-import org.complitex.dictionary.web.component.scroll.ScrollBookmarkablePageLink;
-import org.complitex.template.web.pages.ScrollListPage;
 
 /**
  *
  * @author Artem
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)
-public final class BuildingList extends ScrollListPage {
+public final class BuildingList extends TemplatePage {
 
     private static final Logger log = LoggerFactory.getLogger(BuildingList.class);
 
-    @EJB
+    @EJB(name = "BuildingStrategy")
     private BuildingStrategy buildingStrategy;
 
-    @EJB
+    @EJB(name = "LocaleBean")
     private LocaleBean localeBean;
 
     private class BuildingSearchCallback implements ISearchCallback, Serializable {
@@ -95,11 +93,6 @@ public final class BuildingList extends ScrollListPage {
     private final String page = BuildingList.class.getName();
 
     public BuildingList() {
-        init();
-    }
-
-    public BuildingList(PageParameters params) {
-        super(params);
         init();
     }
 
@@ -135,8 +128,7 @@ public final class BuildingList extends ScrollListPage {
             add(new EmptyPanel("searchComponent"));
         } else {
             SearchComponentState componentState = getSearchComponentStateFromSession();
-            SearchComponent searchComponent = new SearchComponent("searchComponent", componentState, searchFilters, new BuildingSearchCallback(),
-                    ShowMode.ALL, true);
+            SearchComponent searchComponent = new SearchComponent("searchComponent", componentState, searchFilters, new BuildingSearchCallback(), true);
             add(searchComponent);
             searchComponent.invokeCallback();
         }
@@ -241,30 +233,15 @@ public final class BuildingList extends ScrollListPage {
                 item.add(new Label("corp", building.getAccompaniedCorp(getLocale())));
                 item.add(new Label("structure", building.getAccompaniedStructure(getLocale())));
 
-                ScrollBookmarkablePageLink<WebPage> detailsLink = new ScrollBookmarkablePageLink<WebPage>("detailsLink", buildingStrategy.getEditPage(),
-                        buildingStrategy.getEditPageParams(building.getId(), null, null), String.valueOf(building.getId()));
-                detailsLink.add(new Label("editMessage", new AbstractReadOnlyModel<String>() {
-
-                    @Override
-                    public String getObject() {
-                        if(DomainObjectAccessUtil.canAddNew("building")){
-                            return getString("edit");
-                        } else {
-                            return getString("view");
-                        }
-                    }
-                }));
-                item.add(detailsLink);
+                item.add(new BookmarkablePageLink<WebPage>("detailsLink", buildingStrategy.getEditPage(),
+                        buildingStrategy.getEditPageParams(building.getId(), null, null)));
             }
         };
         filterForm.add(dataView);
 
-        filterForm.add(new ArrowOrderByBorder("numberHeader", String.valueOf(BuildingStrategy.OrderBy.NUMBER.getOrderByAttributeId()), dataProvider,
-                dataView, content));
-        filterForm.add(new ArrowOrderByBorder("corpHeader", String.valueOf(BuildingStrategy.OrderBy.CORP.getOrderByAttributeId()), dataProvider,
-                dataView, content));
-        filterForm.add(new ArrowOrderByBorder("structureHeader", String.valueOf(BuildingStrategy.OrderBy.STRUCTURE.getOrderByAttributeId()),
-                dataProvider, dataView, content));
+        filterForm.add(new ArrowOrderByBorder("numberHeader", String.valueOf(BuildingStrategy.OrderBy.NUMBER.getOrderByAttributeId()), dataProvider, dataView, content));
+        filterForm.add(new ArrowOrderByBorder("corpHeader", String.valueOf(BuildingStrategy.OrderBy.CORP.getOrderByAttributeId()), dataProvider, dataView, content));
+        filterForm.add(new ArrowOrderByBorder("structureHeader", String.valueOf(BuildingStrategy.OrderBy.STRUCTURE.getOrderByAttributeId()), dataProvider, dataView, content));
 
         //Reset Action
         AjaxLink reset = new AjaxLink("reset") {
@@ -304,18 +281,9 @@ public final class BuildingList extends ScrollListPage {
             protected void onClick() {
                 setResponsePage(buildingStrategy.getEditPage(), buildingStrategy.getEditPageParams(null, null, null));
             }
-
-            @Override
-            protected void onBeforeRender() {
-                if (!DomainObjectAccessUtil.canAddNew("building")) {
-                    setVisible(false);
-                }
-                super.onBeforeRender();
-            }
         });
     }
 
-    @Override
     public DictionaryFwSession getSession() {
         return (DictionaryFwSession) super.getSession();
     }

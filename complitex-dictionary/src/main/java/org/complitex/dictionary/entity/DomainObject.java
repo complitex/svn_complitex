@@ -7,12 +7,10 @@ package org.complitex.dictionary.entity;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 /**
  *
@@ -21,20 +19,24 @@ import java.util.Set;
 public class DomainObject implements Serializable {
 
     private Long id;
-    private StatusType status = StatusType.ACTIVE;
-    private Date startDate;
-    private Date endDate;
-    private Long parentId;
-    private Long parentEntityId;
-    private Long entityTypeId;
-    private Long permissionId;
-    private Long externalId;
-    private List<Attribute> attributes = new ArrayList<Attribute>();
-    private Set<Long> subjectIds;
 
-    public Attribute getAttribute(Long attributeTypeId) {
-        for (Attribute a : attributes) {
-            if (a.getAttributeTypeId().equals(attributeTypeId)) {
+    private StatusType status = StatusType.ACTIVE;
+
+    private Date startDate;
+
+    private Date endDate;
+
+    private Long parentId;
+
+    private Long parentEntityId;
+
+    private Long entityTypeId;
+
+    private List<Attribute> attributes = new ArrayList<Attribute>();
+
+    public Attribute getAttribute(Long attributeTypeId){
+        for (Attribute a : attributes){
+            if (a.getAttributeTypeId().equals(attributeTypeId)){
                 return a;
             }
         }
@@ -42,7 +44,7 @@ public class DomainObject implements Serializable {
         return null;
     }
 
-    public List<Attribute> getAttributes(final Long attributeTypeId) {
+    public List<Attribute> getAttributes(final Long attributeTypeId){
         return Lists.newArrayList(Iterables.filter(attributes, new Predicate<Attribute>() {
 
             @Override
@@ -118,29 +120,5 @@ public class DomainObject implements Serializable {
 
     public void setParentEntityId(Long parentEntityId) {
         this.parentEntityId = parentEntityId;
-    }
-
-    public Long getPermissionId() {
-        return permissionId;
-    }
-
-    public void setPermissionId(Long permissionId) {
-        this.permissionId = permissionId;
-    }
-
-    public Long getExternalId() {
-        return externalId;
-    }
-
-    public void setExternalId(Long externalId) {
-        this.externalId = externalId;
-    }
-
-    public Set<Long> getSubjectIds() {
-        return subjectIds;
-    }
-
-    public void setSubjectIds(Set<Long> subjectIds) {
-        this.subjectIds = subjectIds;
     }
 }

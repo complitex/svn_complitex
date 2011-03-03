@@ -3,20 +3,21 @@ package org.complitex.dictionary.strategy;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
+import org.apache.wicket.PageParameters;
+import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.util.string.Strings;
-import org.complitex.dictionary.entity.*;
-import org.complitex.dictionary.entity.Log.STATUS;
 import org.complitex.dictionary.entity.description.Entity;
 import org.complitex.dictionary.entity.description.EntityAttributeType;
 import org.complitex.dictionary.entity.description.EntityAttributeValueType;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.mybatis.Transactional;
-import org.complitex.dictionary.service.*;
+import org.complitex.dictionary.service.AbstractBean;
+import org.complitex.dictionary.service.EntityBean;
+import org.complitex.dictionary.service.SequenceBean;
+import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionary.strategy.web.validate.IValidator;
-import org.complitex.dictionary.util.DateUtil;
 import org.complitex.dictionary.util.Numbers;
-import org.complitex.dictionary.util.ResourceUtil;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
 import org.slf4j.Logger;
@@ -24,35 +25,65 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import java.util.*;
-import java.util.Locale;
+import org.complitex.dictionary.entity.Attribute;
+import org.complitex.dictionary.entity.DomainObject;
+import org.complitex.dictionary.entity.History;
+import org.complitex.dictionary.entity.Parameter;
+import org.complitex.dictionary.entity.SimpleTypes;
+import org.complitex.dictionary.entity.StatusType;
+import org.complitex.dictionary.entity.StringCulture;
+import org.complitex.dictionary.service.LocaleBean;
+import org.complitex.dictionary.util.DateUtil;
 
 /**
  *
  * @author Artem
  */
-public abstract class Strategy extends AbstractBean implements IStrategy {
+public abstract class Strategy extends AbstractBean {
 
     private static final Logger log = LoggerFactory.getLogger(Strategy.class);
-    private static final int PERMISSIONS_CHILDREN_BATCH = 500;
-    private static final int ACTIVITY_CHILDREN_BATCH = 5000;
-    @EJB
+
+    public static final String DOMAIN_OBJECT_NAMESPACE = "org.complitex.dictionary.entity.DomainObject";
+
+    public static final String ATTRIBUTE_NAMESPACE = "org.complitex.dictionary.entity.Attribute";
+
+    public static final String FIND_BY_ID_OPERATION = "findById";
+
+    public static final String FIND_OPERATION = "find";
+
+    public static final String COUNT_OPERATION = "count";
+
+    public static final String INSERT_OPERATION = "insert";
+
+    public static final String UPDATE_OPERATION = "update";
+
+    public static final String ARCHIVE_ATTRIBUTES_OPERATION = "archiveAttributes";
+
+    public static final String FIND_PARENT_IN_SEARCH_COMPONENT_OPERATION = "findParentInSearchComponent";
+
+    public static final String HAS_HISTORY_OPERATION = "hasHistory";
+
+    public static final String FIND_HISTORY_OBJECT_OPERATION = "findHistoryObject";
+
+    public static final String FIND_HISTORY_ATTRIBUTES_OPERATION = "findHistoryAttributes";
+
+    @EJB(beanName = "StrategyFactory")
     private StrategyFactory strategyFactory;
-    @EJB
+
+    @EJB(beanName = "SequenceBean")
     private SequenceBean sequenceBean;
-    @EJB
+
+    @EJB(beanName = "StringCultureBean")
     private StringCultureBean stringBean;
-    @EJB
+
+    @EJB(beanName = "EntityBean")
     private EntityBean entityBean;
+
     @EJB
     private LocaleBean localeBean;
-    @EJB
-    private SessionBean sessionBean;
-    @EJB
-    private PermissionBean permissionBean;
-    @EJB
-    private LogBean logBean;
 
-    @Override
+    public abstract String getEntityTable();
+
     public boolean isSimpleAttributeType(EntityAttributeType entityAttributeType) {
         if (entityAttributeType.getEntityAttributeValueTypes().size() != 1) {
             return false;
@@ -61,7 +92,6 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         }
     }
 
-    @Override
     public boolean isSimpleAttribute(final Attribute attribute) {
         EntityAttributeType entityAttributeType = getEntity().getAttributeType(attribute.getAttributeTypeId());
         if (entityAttributeType != null) {
@@ -71,105 +101,44 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         }
     }
 
-    protected String getDisableSuccess() {
-        return ResourceUtil.getString(Strategy.class.getName(), "disable_success", localeBean.getSystemLocale());
-    }
-
-    protected String getDisableError() {
-        return ResourceUtil.getString(Strategy.class.getName(), "disable_error", localeBean.getSystemLocale());
-    }
-
-    protected String getEnableSuccess() {
-        return ResourceUtil.getString(Strategy.class.getName(), "enable_success", localeBean.getSystemLocale());
-    }
-
-    protected String getEnableError() {
-        return ResourceUtil.getString(Strategy.class.getName(), "enable_error", localeBean.getSystemLocale());
-    }
-
-    @Override
-    public void disable(final DomainObject object) {
-        new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                long start = System.currentTimeMillis();
-                try {
-                    changeActivity(object, false);
-                    log.info("The process of disabling of {} tree has been successful.", getEntityTable());
-                    logBean.logChangeActivity(STATUS.OK, getEntityTable(), object.getId(), false, getDisableSuccess());
-                } catch (Exception e) {
-                    log.error("The process of disabling of " + getEntityTable() + " tree has been failed.", e);
-                    logBean.logChangeActivity(STATUS.ERROR, getEntityTable(), object.getId(), false, getDisableError());
-                }
-                log.info("The process of disabling of {} tree took {} sec.", getEntityTable(), (System.currentTimeMillis() - start) / 1000);
-            }
-        }).start();
-    }
-
     @Transactional
-    protected void changeActivity(DomainObject object, boolean enable) {
-        object.setStatus(enable ? StatusType.ACTIVE : StatusType.INACTIVE);
+    public void disable(DomainObject object) {
+        object.setStatus(StatusType.INACTIVE);
         sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new Parameter(getEntityTable(), object));
-        changeChildrenActivity(object.getId(), enable);
-    }
 
-    @Override
-    public void enable(final DomainObject object) {
-        new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                long start = System.currentTimeMillis();
-                try {
-                    changeActivity(object, true);
-                    log.info("The process of enabling of {} tree has been successful.", getEntityTable());
-                    logBean.logChangeActivity(STATUS.OK, getEntityTable(), object.getId(), true, getEnableSuccess());
-                } catch (Exception e) {
-                    log.error("The process of enabling of " + getEntityTable() + " tree has been failed.", e);
-                    logBean.logChangeActivity(STATUS.ERROR, getEntityTable(), object.getId(), true, getEnableError());
-                }
-                log.info("The process of enabling of {} tree took {} sec.", getEntityTable(), (System.currentTimeMillis() - start) / 1000);
-            }
-        }).start();
-    }
-
-    @Transactional
-    @Override
-    public void changeChildrenActivity(long parentId, boolean enable) {
-        String[] childrenEntities = getLogicalChildren();
+        String[] childrenEntities = getChildrenEntities();
         if (childrenEntities != null) {
             for (String childEntity : childrenEntities) {
-                changeChildrenActivity(parentId, childEntity, enable);
+                DomainObjectExample example = new DomainObjectExample();
+                example.setStatus(StatusType.ACTIVE.name());
+                Strategy childStrategy = strategyFactory.getStrategy(childEntity);
+                childStrategy.configureExample(example, ImmutableMap.of(getEntityTable(), object.getId()), null);
+                List<? extends DomainObject> children = childStrategy.find(example);
+                for (DomainObject child : children) {
+                    childStrategy.disable(child);
+                }
             }
         }
     }
 
     @Transactional
-    protected void changeChildrenActivity(long parentId, String childEntity, boolean enable) {
-        IStrategy childStrategy = strategyFactory.getStrategy(childEntity);
+    public void enable(DomainObject object) {
+        object.setStatus(StatusType.ACTIVE);
+        sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new Parameter(getEntityTable(), object));
 
-        int i = 0;
-        boolean allChildrenLoaded = false;
-        while (!allChildrenLoaded) {
-
-            Set<Long> childrenIds = findChildrenActivityInfo(parentId, childEntity, i, ACTIVITY_CHILDREN_BATCH);
-            if (childrenIds.size() > 0) {
-                //process children
-                for (long childId : childrenIds) {
-                    childStrategy.changeChildrenActivity(childId, enable);
+        String[] childrenEntities = getChildrenEntities();
+        if (childrenEntities != null) {
+            for (String childEntity : childrenEntities) {
+                Strategy childStrategy = strategyFactory.getStrategy(childEntity);
+                DomainObjectExample example = new DomainObjectExample();
+                example.setStatus(StatusType.INACTIVE.name());
+                childStrategy.configureExample(example, ImmutableMap.of(getEntityTable(), object.getId()), null);
+                List<? extends DomainObject> children = childStrategy.find(example);
+                for (DomainObject child : children) {
+                    childStrategy.enable(child);
                 }
-
-                if (childrenIds.size() < ACTIVITY_CHILDREN_BATCH) {
-                    allChildrenLoaded = true;
-                } else {
-                    i += ACTIVITY_CHILDREN_BATCH;
-                }
-            } else {
-                allChildrenLoaded = true;
             }
         }
-        updateChildrenActivity(parentId, childEntity, !enable);
     }
 
     protected void loadAttributes(DomainObject object) {
@@ -201,48 +170,18 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     }
 
     @Transactional
-    @Override
-    public DomainObject findById(long id, boolean runAsAdmin) {
+    public DomainObject findById(Long id) {
         DomainObjectExample example = new DomainObjectExample(id);
         example.setTable(getEntityTable());
-        if (!runAsAdmin) {
-            prepareExampleForPermissionCheck(example);
-        } else {
-            example.setAdmin(true);
-        }
 
         DomainObject object = (DomainObject) sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + "." + FIND_BY_ID_OPERATION, example);
         if (object != null) {
             loadAttributes(object);
             fillAttributes(object);
             updateStringsForNewLocales(object);
-
-            //load subject ids
-            object.setSubjectIds(loadSubjects(object.getPermissionId()));
         }
 
         return object;
-    }
-
-    @Override
-    public Long getObjectId(final Long externalId) {
-        return (Long) sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + ".selectObjectIdByExternalId",
-                new HashMap<String, Object>() {
-
-                    {
-                        put("table", getEntityTable());
-                        put("externalId", externalId);
-                    }
-                });
-    }
-
-    @Transactional
-    protected Set<Long> loadSubjects(long permissionId) {
-        if (permissionId == PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID) {
-            return Sets.newHashSet(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID);
-        } else {
-            return permissionBean.findSubjectIds(permissionId);
-        }
     }
 
     protected void updateStringsForNewLocales(DomainObject object) {
@@ -290,20 +229,10 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         return null;
     }
 
-    protected void prepareExampleForPermissionCheck(DomainObjectExample example) {
-        boolean isAdmin = sessionBean.isAdmin();
-        example.setAdmin(isAdmin);
-        if (!isAdmin) {
-            example.setUserPermissionString(sessionBean.getPermissionString(getEntityTable()));
-        }
-    }
-
     @SuppressWarnings({"unchecked"})
     @Transactional
-    @Override
     public List<? extends DomainObject> find(DomainObjectExample example) {
         example.setTable(getEntityTable());
-        prepareExampleForPermissionCheck(example);
 
         List<DomainObject> objects = sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + "." + FIND_OPERATION, example);
         for (DomainObject object : objects) {
@@ -313,11 +242,8 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     }
 
     @Transactional
-    @Override
     public int count(DomainObjectExample example) {
         example.setTable(getEntityTable());
-        prepareExampleForPermissionCheck(example);
-
         return (Integer) sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + "." + COUNT_OPERATION, example);
     }
 
@@ -325,19 +251,13 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
      * Simple wrapper around EntityBean.getEntity for convenience.
      * @return Entity description
      */
-    @Override
     public Entity getEntity() {
         return entityBean.getEntity(getEntityTable());
     }
 
-    @Override
     public DomainObject newInstance() {
         DomainObject object = new DomainObject();
         fillAttributes(object);
-
-        //set up subject ids to visible-by-all subject
-        object.setSubjectIds(Sets.newHashSet(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID));
-
         return object;
     }
 
@@ -357,29 +277,14 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     }
 
     @Transactional
-    @Override
     public void insert(DomainObject object) {
         Date startDate = DateUtil.getCurrentDate();
         object.setId(sequenceBean.nextId(getEntityTable()));
-        object.setPermissionId(getNewPermissionId(object.getSubjectIds()));
         insertDomainObject(object, startDate);
         for (Attribute attribute : object.getAttributes()) {
             attribute.setObjectId(object.getId());
             attribute.setStartDate(startDate);
             insertAttribute(attribute);
-        }
-    }
-
-    @Transactional
-    protected Long getNewPermissionId(Set<Long> newSubjectIds) {
-        if (newSubjectIds.size() == 1 && newSubjectIds.contains(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID)) {
-            return PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID;
-        } else {
-            List<Subject> subjects = Lists.newArrayList();
-            for (Long subjectId : newSubjectIds) {
-                subjects.add(new Subject("organization", subjectId));
-            }
-            return permissionBean.getPermission(getEntityTable(), subjects);
         }
     }
 
@@ -390,7 +295,6 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     }
 
     @Transactional
-    @Override
     public void archiveAttributes(Collection<Long> attributeTypeIds, Date endDate) {
         if (attributeTypeIds != null && !attributeTypeIds.isEmpty()) {
             Map<String, Object> params = ImmutableMap.<String, Object>builder().
@@ -403,20 +307,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     }
 
     @Transactional
-    @Override
     public void update(DomainObject oldObject, DomainObject newObject, Date updateDate) {
-        //permission comparison
-        if (isNeedToChangePermission(oldObject.getSubjectIds(), newObject.getSubjectIds())) {
-            newObject.setPermissionId(getNewPermissionId(newObject.getSubjectIds()));
-        }
-
-        long oldPermission = oldObject.getPermissionId();
-        long newPermission = newObject.getPermissionId();
-
-        if (!Numbers.isEqual(oldPermission, newPermission)) {
-            updatePermissionId(newObject.getId(), newObject.getPermissionId());
-        }
-
         //attributes comparison
         for (Attribute oldAttr : oldObject.getAttributes()) {
             boolean removed = true;
@@ -531,137 +422,10 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
             oldObject.setStatus(StatusType.ARCHIVE);
             oldObject.setEndDate(updateDate);
             sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new Parameter(getEntityTable(), oldObject));
-            insertUpdatedDomainObject(newObject, updateDate);
+            insertDomainObject(newObject, updateDate);
         }
     }
 
-    @Override
-    public boolean isNeedToChangePermission(Set<Long> oldSubjectIds, Set<Long> newSubjectIds) {
-        return !newSubjectIds.equals(oldSubjectIds);
-    }
-
-    @Transactional
-    @Override
-    public void updateAndPropagate(DomainObject oldObject, final DomainObject newObject, Date updateDate) {
-        if (!canPropagatePermissions(newObject)) {
-            throw new RuntimeException("Illegal call of updateAndPropagate() as `" + getEntityTable() + "` entity is not able to has children.");
-        }
-        update(oldObject, newObject, updateDate);
-
-        new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                long start = System.currentTimeMillis();
-                try {
-                    propagatePermissions(newObject);
-                    log.info("The process of permissions replacement for {} tree has been successful.", getEntityTable());
-                    logBean.logReplacePermissions(STATUS.OK, getEntityTable(), newObject.getId(), getReplacePermissionsSuccess());
-                } catch (Exception e) {
-                    log.error("The process of permissions replacement for " + getEntityTable() + " tree has been failed.", e);
-                    logBean.logReplacePermissions(STATUS.ERROR, getEntityTable(), newObject.getId(), getReplacePermissionsError());
-                }
-                log.info("The process of permissions replacement for {} tree took {} sec.", getEntityTable(),
-                        (System.currentTimeMillis() - start) / 1000);
-            }
-        }).start();
-    }
-
-    protected void propagatePermissions(DomainObject object) {
-        replaceChildrenPermissions(object.getId(), object.getSubjectIds());
-    }
-
-    protected String getReplacePermissionsError() {
-        return ResourceUtil.getString(Strategy.class.getName(), "replace_permissions_error", localeBean.getSystemLocale());
-    }
-
-    protected String getReplacePermissionsSuccess() {
-        return ResourceUtil.getString(Strategy.class.getName(), "replace_permissions_success", localeBean.getSystemLocale());
-    }
-
-    @Transactional
-    protected List<DomainObjectPermissionInfo> findChildrenPermissionInfo(long parentId, String childEntity, int start, int size) {
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("entity", childEntity);
-        params.put("parentId", parentId);
-        params.put("parentEntity", getEntityTable());
-        params.put("start", start);
-        params.put("size", size);
-        return sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + "." + FIND_CHILDREN_PERMISSION_INFO_OPERATION, params);
-    }
-
-    @Transactional
-    @Override
-    public void replacePermissions(DomainObjectPermissionInfo objectPermissionInfo, Set<Long> subjectIds) {
-        replaceObjectPermissions(objectPermissionInfo, subjectIds);
-        replaceChildrenPermissions(objectPermissionInfo.getId(), subjectIds);
-    }
-
-    @Transactional
-    protected void replaceChildrenPermissions(long parentId, Set<Long> subjectIds) {
-        String[] childrenEntities = getLogicalChildren();
-        if (childrenEntities != null && childrenEntities.length > 0) {
-            for (String childEntity : childrenEntities) {
-                replaceChildrenPermissions(childEntity, parentId, subjectIds);
-            }
-        }
-    }
-
-    @Transactional
-    protected void replaceObjectPermissions(DomainObjectPermissionInfo objectPermissionInfo, Set<Long> subjectIds) {
-        Set<Long> oldSubjectIds = loadSubjects(objectPermissionInfo.getPermissionId());
-        if (isNeedToChangePermission(oldSubjectIds, subjectIds)) {
-            long oldPermission = objectPermissionInfo.getPermissionId();
-            objectPermissionInfo.setPermissionId(getNewPermissionId(subjectIds));
-            long newPermission = objectPermissionInfo.getPermissionId();
-            if (!Numbers.isEqual(oldPermission, newPermission)) {
-                updatePermissionId(objectPermissionInfo.getId(), newPermission);
-            }
-        }
-    }
-
-    @Transactional
-    protected void replaceChildrenPermissions(String childEntity, long parentId, Set<Long> subjectIds) {
-        IStrategy childStrategy = strategyFactory.getStrategy(childEntity);
-
-        int i = 0;
-        boolean allChildrenLoaded = false;
-        while (!allChildrenLoaded) {
-
-            List<DomainObjectPermissionInfo> childrenPermissionInfo = findChildrenPermissionInfo(parentId, childEntity, i, PERMISSIONS_CHILDREN_BATCH);
-            if (childrenPermissionInfo.size() > 0) {
-                //process children
-                for (DomainObjectPermissionInfo childPermissionInfo : childrenPermissionInfo) {
-                    childStrategy.replacePermissions(childPermissionInfo, subjectIds);
-                }
-
-                if (childrenPermissionInfo.size() < PERMISSIONS_CHILDREN_BATCH) {
-                    allChildrenLoaded = true;
-                } else {
-                    i += PERMISSIONS_CHILDREN_BATCH;
-                }
-            } else {
-                allChildrenLoaded = true;
-            }
-        }
-    }
-
-    @Transactional
-    protected void updatePermissionId(long objectId, long permissionId) {
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("entity", getEntityTable());
-        params.put("id", objectId);
-        params.put("permissionId", permissionId);
-        sqlSession().update(DOMAIN_OBJECT_NAMESPACE + ".updatePermissionId", params);
-    }
-
-    @Transactional
-    protected void insertUpdatedDomainObject(DomainObject object, Date updateDate) {
-        insertDomainObject(object, updateDate);
-    }
-
-    @Transactional
-    @Override
     public void archive(DomainObject object) {
         Date endDate = DateUtil.getCurrentDate();
         object.setStatus(StatusType.ARCHIVE);
@@ -678,7 +442,6 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     /*
      * Search component functionality
      */
-    @Override
     public int getSearchTextFieldSize() {
         return 20;
     }
@@ -690,7 +453,6 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
      *  Используется для отображения в пользовательском интерфейсе
      * @return Сортированный список метамодели (описания) атрибутов
      */
-    @Override
     public List<EntityAttributeType> getListColumns() {
         final List<Long> listAttributeTypes = getListAttributeTypes();
         return Lists.newArrayList(Iterables.filter(getEntity().getEntityAttributeTypes(), new Predicate<EntityAttributeType>() {
@@ -716,38 +478,64 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         }));
     }
 
-    @Override
+    public abstract Class<? extends WebPage> getListPage();
+
+    public abstract PageParameters getListPageParams();
+
     public List<String> getSearchFilters() {
         return null;
     }
 
-    @Override
     public ISearchCallback getSearchCallback() {
         return null;
     }
 
-    @Override
+    public abstract String displayDomainObject(DomainObject object, Locale locale);
+
     public void configureExample(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
     }
 
-    @Override
     public String getPluralEntityLabel(Locale locale) {
         return null;
     }
 
-    @Override
+    /*
+     * Edit page related functionality.
+     */
+    public abstract Class<? extends WebPage> getEditPage();
+
+    public abstract PageParameters getEditPageParams(Long objectId, Long parentId, String parentEntity);
+
     public List<String> getParentSearchFilters() {
         return getSearchFilters();
     }
 
-    @Override
     public ISearchCallback getParentSearchCallback() {
         return null;
     }
 
+    public static class RestrictedObjectInfo {
+
+        private String entityTable;
+
+        private Long id;
+
+        public RestrictedObjectInfo(String entityTable, Long id) {
+            this.entityTable = entityTable;
+            this.id = id;
+        }
+
+        public String getEntityTable() {
+            return entityTable;
+        }
+
+        public Long getId() {
+            return id;
+        }
+    }
+
     @SuppressWarnings({"unchecked"})
     @Transactional
-    @Override
     public RestrictedObjectInfo findParentInSearchComponent(long id, Date date) {
         DomainObjectExample example = new DomainObjectExample(id);
         example.setTable(getEntityTable());
@@ -767,8 +555,6 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     /*
      * Helper util method.
      */
-    @Transactional
-    @Override
     public SearchComponentState getSearchComponentStateForParent(Long parentId, String parentEntity, Date date) {
         if (parentId != null && parentEntity != null) {
             SearchComponentState componentState = new SearchComponentState();
@@ -781,24 +567,26 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
                 ids.put(currentParentEntity, currentParentId);
                 parentData = strategyFactory.getStrategy(currentParentEntity).findParentInSearchComponent(currentParentId, date);
             }
-            List<String> parentSearchFilters = getParentSearchFilters();
-            if (parentSearchFilters != null && !parentSearchFilters.isEmpty()) {
-                for (String parentSearchFilter : parentSearchFilters) {
-                    Long idForFilter = ids.get(parentSearchFilter);
+            List<String> searchFilters = getParentSearchFilters();
+            if (searchFilters != null && !searchFilters.isEmpty()) {
+                for (String searchFilter : searchFilters) {
+                    Long idForFilter = ids.get(searchFilter);
                     if (idForFilter == null) {
-                        ids.put(parentSearchFilter, -1L);
+                        ids.put(searchFilter, -1L);
                     }
                 }
 
-                for (String searchFilter : parentSearchFilters) {
+                for (String searchFilter : searchFilters) {
                     DomainObject object = new DomainObject();
                     object.setId(-1L);
                     if (date == null) {
-                        long id = ids.get(searchFilter);
-                        IStrategy searchFilterStrategy = strategyFactory.getStrategy(searchFilter);
-                        DomainObject objectFromDb = searchFilterStrategy.findById(id, true);
-                        if (objectFromDb != null) {
-                            object = objectFromDb;
+                        DomainObjectExample example = new DomainObjectExample(ids.get(searchFilter));
+                        example.setTable(searchFilter);
+
+                        strategyFactory.getStrategy(searchFilter).configureExample(example, ids, null);
+                        List<? extends DomainObject> objects = strategyFactory.getStrategy(searchFilter).find(example);
+                        if (objects != null && !objects.isEmpty()) {
+                            object = objects.get(0);
                         }
                     } else {
                         DomainObject historyObject = strategyFactory.getStrategy(searchFilter).findHistoryObject(ids.get(searchFilter), date);
@@ -814,52 +602,22 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         return null;
     }
 
-    /**
-     * Helper method
-     * @return
-     */
-    @Transactional
-    @Override
-    public boolean checkEnable(SearchComponentState componentState) {
-        if (componentState == null) {
-            return true;
-        }
-
-        Map<String, DomainObject> state = componentState.getState();
-        if (state == null || state.isEmpty()) {
-            return true;
-        }
-
-        for (Map.Entry<String, DomainObject> entry : state.entrySet()) {
-            DomainObject sessionObject = entry.getValue();
-            long objectId = sessionObject.getId();
-            if (objectId > -1) {
-                String entity = entry.getKey();
-                IStrategy strategy = strategyFactory.getStrategy(entity);
-                DomainObject freshObject = strategy.findById(objectId, true);
-                if (freshObject == null) {
-                    return false;
-                }
-                if (freshObject.getStatus() == StatusType.INACTIVE) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    @Override
     public Class<? extends AbstractComplexAttributesPanel> getComplexAttributesPanelClass() {
         return null;
     }
 
-    @Override
     public IValidator getValidator() {
         return null;
     }
 
+    /*
+     * History related functional.
+     */
+    public abstract Class<? extends WebPage> getHistoryPage();
+
+    public abstract PageParameters getHistoryPageParams(long objectId);
+
     @Transactional
-    @Override
     public List<History> getHistory(long objectId) {
         List<History> historyList = Lists.newArrayList();
 
@@ -872,8 +630,6 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         return historyList;
     }
 
-    @Transactional
-    @Override
     public TreeSet<Date> getHistoryDates(long objectId) {
         DomainObjectExample example = new DomainObjectExample(objectId);
         example.setTable(getEntityTable());
@@ -889,7 +645,6 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     }
 
     @Transactional
-    @Override
     public DomainObject findHistoryObject(long objectId, Date date) {
         DomainObjectExample example = new DomainObjectExample(objectId);
         example.setTable(getEntityTable());
@@ -907,6 +662,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         return object;
     }
 
+    @SuppressWarnings({"unchecked"})
     @Transactional
     protected List<Attribute> loadHistoryAttributes(long objectId, Date date) {
         DomainObjectExample example = new DomainObjectExample(objectId);
@@ -918,29 +674,30 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     /*
      * Description metadata
      */
-    @Override
-    public String[] getRealChildren() {
+    public String[] getChildrenEntities() {
         return null;
     }
 
-    @Override
-    public String[] getLogicalChildren() {
-        return getRealChildren();
-    }
-
-    @Override
     public String[] getParents() {
         return null;
     }
 
-    @Override
     public String getAttributeLabel(Attribute attribute, Locale locale) {
         return entityBean.getAttributeLabel(getEntityTable(), attribute.getAttributeTypeId(), locale);
     }
 
-    @Override
-    public long getDefaultOrderByAttributeId() {
+    protected long getDefaultOrderByAttributeId() {
         return getEntity().getId();
+    }
+
+    public String getOrderByExpression(String objectIdReference, Long localeId, Map<String, Object> params) {
+        StringBuilder orderByBuilder = new StringBuilder();
+        orderByBuilder.append("(SELECT sc.`value` FROM `").append(getEntityTable()).append("_string_culture` sc WHERE sc.`locale_id` = ").
+                append(localeId).append(" AND sc.`id` = (SELECT orderByAttr.`value_id` FROM `").
+                append(getEntityTable()).append("_attribute` orderByAttr WHERE orderByAttr.`object_id` = ").append(objectIdReference).
+                append(" AND orderByAttr.`status` = 'ACTIVE' AND orderByAttr.`attribute_type_id` = ").
+                append(getDefaultOrderByAttributeId()).append("))");
+        return orderByBuilder.toString();
     }
 
     /*
@@ -949,8 +706,6 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     /**
      * Default validation
      */
-    @Transactional
-    @Override
     public Long performDefaultValidation(DomainObject object, Locale locale) {
         Map<String, Object> params = createValidationParams(object, locale);
         List<Long> results = sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + ".defaultValidation", params);
@@ -988,145 +743,5 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         params.put("parentEntityId", object.getParentEntityId());
         params.put("entityTypeId", object.getEntityTypeId());
         return params;
-    }
-
-    @Transactional
-    @Override
-    public void changePermissions(DomainObjectPermissionInfo objectPermissionInfo, Set<Long> addSubjectIds, Set<Long> removeSubjectIds) {
-        changeObjectPermissions(objectPermissionInfo, addSubjectIds, removeSubjectIds);
-        changeChildrenPermissions(objectPermissionInfo.getId(), addSubjectIds, removeSubjectIds);
-    }
-
-    @Transactional
-    protected void changeObjectPermissions(DomainObjectPermissionInfo objectPermissionInfo, Set<Long> addSubjectIds, Set<Long> removeSubjectIds) {
-        Set<Long> currentSubjectIds = loadSubjects(objectPermissionInfo.getPermissionId());
-        Set<Long> newSubjectIds = Sets.newHashSet(currentSubjectIds);
-
-        if (addSubjectIds != null) {
-            if (addSubjectIds.contains(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID)) {
-                newSubjectIds.clear();
-                newSubjectIds.add(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID);
-            } else {
-                if (currentSubjectIds.contains(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID)) {
-                    newSubjectIds.remove(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID);
-                }
-                newSubjectIds.addAll(addSubjectIds);
-            }
-        }
-        if (removeSubjectIds != null) {
-            newSubjectIds.removeAll(removeSubjectIds);
-        }
-
-        if (newSubjectIds.isEmpty()) {
-            newSubjectIds.add(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID);
-        }
-
-        if (isNeedToChangePermission(currentSubjectIds, newSubjectIds)) {
-            Long oldPermissionId = objectPermissionInfo.getPermissionId();
-            Long newPermissionId = getNewPermissionId(newSubjectIds);
-            if (!Numbers.isEqual(oldPermissionId, newPermissionId)) {
-                updatePermissionId(objectPermissionInfo.getId(), newPermissionId);
-            }
-        }
-    }
-
-    @Override
-    public void changePermissionsInDistinctThread(final long objectId, final long permissionId, final Set<Long> addSubjectIds,
-            final Set<Long> removeSubjectIds) {
-        new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                long start = System.currentTimeMillis();
-                try {
-                    DomainObjectPermissionInfo permissionInfo = new DomainObjectPermissionInfo();
-                    permissionInfo.setId(objectId);
-                    permissionInfo.setPermissionId(permissionId);
-                    changePermissions(permissionInfo, addSubjectIds, removeSubjectIds);
-                    log.info("The process of permissions change for {} tree has been successful.", getEntityTable());
-                    logBean.logChangePermissions(STATUS.OK, getEntityTable(), objectId, getChangePermissionsSuccess());
-                } catch (Exception e) {
-                    log.error("The process of permissions change for " + getEntityTable() + " tree has been failed.", e);
-                    logBean.logChangePermissions(STATUS.ERROR, getEntityTable(), objectId, getChangePermissionsError());
-                }
-                log.info("The process of permissions change for {} tree took {} sec.", getEntityTable(), (System.currentTimeMillis() - start) / 1000);
-            }
-        }).start();
-    }
-
-    protected String getChangePermissionsError() {
-        return ResourceUtil.getString(Strategy.class.getName(), "change_permissions_error", localeBean.getSystemLocale());
-    }
-
-    protected String getChangePermissionsSuccess() {
-        return ResourceUtil.getString(Strategy.class.getName(), "change_permissions_success", localeBean.getSystemLocale());
-    }
-
-    @Transactional
-    protected void changeChildrenPermissions(long parentId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds) {
-        String[] childrenEntities = getLogicalChildren();
-        if (childrenEntities != null && childrenEntities.length > 0) {
-            for (String childEntity : childrenEntities) {
-                changeChildrenPermissions(childEntity, parentId, addSubjectIds, removeSubjectIds);
-            }
-        }
-    }
-
-    @Transactional
-    protected void changeChildrenPermissions(String childEntity, long parentId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds) {
-        IStrategy childStrategy = strategyFactory.getStrategy(childEntity);
-
-        int i = 0;
-        boolean allChildrenLoaded = false;
-        while (!allChildrenLoaded) {
-
-            List<DomainObjectPermissionInfo> childrenPermissionInfo = findChildrenPermissionInfo(parentId, childEntity, i, PERMISSIONS_CHILDREN_BATCH);
-            if (childrenPermissionInfo.size() > 0) {
-                //process children
-                for (DomainObjectPermissionInfo childPermissionInfo : childrenPermissionInfo) {
-                    childStrategy.changePermissions(childPermissionInfo, addSubjectIds, removeSubjectIds);
-                }
-
-                if (childrenPermissionInfo.size() < PERMISSIONS_CHILDREN_BATCH) {
-                    allChildrenLoaded = true;
-                } else {
-                    i += PERMISSIONS_CHILDREN_BATCH;
-                }
-            } else {
-                allChildrenLoaded = true;
-            }
-        }
-    }
-
-    @Transactional
-    protected Set<Long> findChildrenActivityInfo(long parentId, String childEntity, int start, int size) {
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("entity", childEntity);
-        params.put("parentId", parentId);
-        params.put("parentEntity", getEntityTable());
-        params.put("start", start);
-        params.put("size", size);
-        return Sets.newHashSet(sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + "." + FIND_CHILDREN_ACTIVITY_INFO_OPERATION, params));
-    }
-
-    @Transactional
-    protected void updateChildrenActivity(long parentId, String childEntity, boolean enabled) {
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("entity", childEntity);
-        params.put("parentId", parentId);
-        params.put("parentEntity", getEntityTable());
-        params.put("enabled", enabled);
-        params.put("status", enabled ? StatusType.INACTIVE : StatusType.ACTIVE);
-        sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_CHILDREN_ACTIVITY_OPERATION, params);
-    }
-
-    @Override
-    public boolean canPropagatePermissions(DomainObject object) {
-        return getLogicalChildren() != null && getLogicalChildren().length > 0;
-    }
-
-    @Override
-    public String displayAttribute(Attribute attribute, Locale locale) {
-        return stringBean.displayValue(attribute.getLocalizedValues(), locale);
     }
 }

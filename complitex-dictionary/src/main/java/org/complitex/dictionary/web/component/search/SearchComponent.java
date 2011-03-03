@@ -21,6 +21,7 @@ import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.ComparisonType;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.service.StringCultureBean;
+import org.complitex.dictionary.strategy.Strategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +32,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.complitex.dictionary.service.LocaleBean;
-import org.complitex.dictionary.strategy.IStrategy;
-import org.complitex.dictionary.web.component.ShowMode;
 
 /**
  *
@@ -43,12 +42,11 @@ public final class SearchComponent extends Panel {
     public static class SearchFilterSettings implements Serializable {
 
         private String searchFilter;
-        private boolean enabled;
-        private ShowMode showMode;
 
-        public SearchFilterSettings(String searchFilter, ShowMode showMode, boolean enabled) {
+        private boolean enabled;
+
+        public SearchFilterSettings(String searchFilter, boolean enabled) {
             this.searchFilter = searchFilter;
-            this.showMode = showMode;
             this.enabled = enabled;
         }
 
@@ -59,23 +57,19 @@ public final class SearchComponent extends Panel {
         public String getSearchFilter() {
             return searchFilter;
         }
-
-        public ShowMode getShowMode() {
-            return showMode;
-        }
     }
 
     private static final String NOT_SPECIFIED_KEY = "not_specified";
 
     private static final Logger log = LoggerFactory.getLogger(SearchComponent.class);
 
-    @EJB
+    @EJB(name = "StringCultureBean")
     private StringCultureBean stringBean;
 
-    @EJB
+    @EJB(name = "StrategyFactory")
     private StrategyFactory strategyFactory;
 
-    @EJB
+    @EJB(name = "LocaleBean")
     private LocaleBean localeBean;
 
     private static final int AUTO_COMPLETE_SIZE = 10;
@@ -92,16 +86,12 @@ public final class SearchComponent extends Panel {
 
     private List<IModel<DomainObject>> filterModels;
 
-    private ShowMode showMode;
-
-    public SearchComponent(String id, SearchComponentState componentState, List<String> searchFilters, ISearchCallback callback, ShowMode showMode,
-            boolean enabled) {
+    public SearchComponent(String id, SearchComponentState componentState, List<String> searchFilters, ISearchCallback callback, boolean enabled) {
         super(id);
         setOutputMarkupId(true);
         this.componentState = componentState;
         this.searchFilters = searchFilters;
         this.callback = callback;
-        this.showMode = showMode;
         this.enabled = enabled;
         init();
     }
@@ -221,23 +211,14 @@ public final class SearchComponent extends Panel {
 
                         List<DomainObject> choiceList = Lists.newArrayList();
 
-                        ShowMode currentShowMode = (filterSettings == null) ? SearchComponent.this.showMode :
-                            Iterables.find(filterSettings, new Predicate<SearchFilterSettings>() {
-
-                            @Override
-                            public boolean apply(SearchFilterSettings input) {
-                                return entity.equals(input.getSearchFilter());
-                            }
-                        }).getShowMode();
-
                         List<? extends DomainObject> equalToExample = findByExample(entity, searchTextInput, previousInfo, ComparisonType.EQUALITY,
-                                currentShowMode, AUTO_COMPLETE_SIZE);
+                                AUTO_COMPLETE_SIZE);
                         if (equalToExample.size() == AUTO_COMPLETE_SIZE) {
                             choiceList.addAll(equalToExample);
                         } else {
                             choiceList.addAll(equalToExample);
                             List<? extends DomainObject> likeExample = findByExample(entity, searchTextInput, previousInfo, ComparisonType.LIKE,
-                                    currentShowMode, AUTO_COMPLETE_SIZE);
+                                    AUTO_COMPLETE_SIZE);
                             if (equalToExample.isEmpty()) {
                                 choiceList.addAll(likeExample);
                             } else {
@@ -380,19 +361,19 @@ public final class SearchComponent extends Panel {
     }
 
     private List<? extends DomainObject> findByExample(String entity, String searchTextInput, Map<String, DomainObject> previousInfo,
-            ComparisonType comparisonType, ShowMode showMode, int size) {
-        IStrategy strategy = strategyFactory.getStrategy(entity);
+            ComparisonType comparisonType, int size) {
+        Strategy strategy = strategyFactory.getStrategy(entity);
 
         DomainObjectExample example = new DomainObjectExample();
         strategy.configureExample(example, SearchComponent.<Long>transformObjects(previousInfo), searchTextInput);
         if (comparisonType == ComparisonType.LIKE) {
-            example.setOrderByAttributeTypeId(strategy.getDefaultOrderByAttributeId());
+            example.setOrderByExpression(strategy.getOrderByExpression("e.`object_id`", localeBean.convert(getLocale()).getId(),
+                    transformObjects(previousInfo)));
             example.setAsc(true);
         }
         example.setSize(size);
         example.setLocaleId(localeBean.convert(getLocale()).getId());
         example.setComparisonType(comparisonType.name());
-        example.setStatus(showMode.name());
         return strategy.find(example);
     }
 

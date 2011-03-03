@@ -4,25 +4,25 @@
 
     <groupId>org.complitex</groupId>
     <artifactId>complitex</artifactId>
-    <version>2.0.1</version>
+    <version>2.0.0</version>
     <packaging>pom</packaging>
 
     <name>Complitex</name>
 
     <scm>
-        <connection>scm:svn:https://complitex.googlecode.com/svn/trunk</connection>
-        <developerConnection>scm:svn:https://complitex.googlecode.com/svn/trunk</developerConnection>
-        <url>http://code.google.com/p/complitex/source/browse</url>
+        <connection>scm:svn:https://complitex.googlecode.com/svn/tags/complitex-2.0.0</connection>
+        <developerConnection>scm:svn:https://complitex.googlecode.com/svn/tags/complitex-2.0.0</developerConnection>
+        <url>http://code.google.com/p/complitex/source/browse/tags/complitex-2.0.0</url>
     </scm>
 
     <distributionManagement>
         <repository>
             <id>complitex-repository</id>
-            <url>svn:https://complitex.googlecode.com/svn/repo</url>
+            <url>dav:https://complitex.googlecode.com/svn/repo</url>
         </repository>
         <snapshotRepository>
             <id>complitex-repository</id>
-            <url>svn:https://complitex.googlecode.com/svn/repo-snapshot</url>
+            <url>dav:https://complitex.googlecode.com/svn/repo-snapshot</url>
         </snapshotRepository>
     </distributionManagement>
 
@@ -36,18 +36,7 @@
         <module>complitex-template</module>
     </modules>
 
-    <properties>
-        <!-- wicket version -->
-        <wicket.version>1.4.16</wicket.version>
-
-        <!-- source encoding -->
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <!--skip test-->
-        <maven.test.skip>true</maven.test.skip>
-    </properties>
-
-    <repositories>
+     <repositories>
         <repository>
             <id>complitex-repository</id>
             <name>Complitex repository</name>
@@ -108,34 +97,28 @@
             <dependency>
                 <groupId>org.apache.wicket</groupId>
                 <artifactId>wicket</artifactId>
-                <version>${wicket.version}</version>
+                <version>1.4.14</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.wicket</groupId>
                 <artifactId>wicket-auth-roles</artifactId>
-                <version>${wicket.version}</version>
+                <version>1.4.14</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.wicket</groupId>
                 <artifactId>wicket-ioc</artifactId>
-                <version>${wicket.version}</version>
+                <version>1.4.14</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.wicket</groupId>
                 <artifactId>wicket-datetime</artifactId>
-                <version>${wicket.version}</version>
+                <version>1.4.14</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.wicket</groupId>
                 <artifactId>wicket-extensions</artifactId>
-                <version>${wicket.version}</version>
+                <version>1.4.14</version>
             </dependency>
-            <dependency>
-                <groupId>org.wicketstuff</groupId>
-                <artifactId>javaee-inject</artifactId>
-                <version>1.4.15</version>
-            </dependency>
-
             <dependency>
                 <groupId>org.odlabs.wiquery</groupId>
                 <artifactId>wiquery</artifactId>
@@ -146,6 +129,11 @@
                         <artifactId>log4j</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.wicketstuff</groupId>
+                <artifactId>wicket-contrib-javaee</artifactId>
+                <version>1.1</version>
             </dependency>
 
             <!-- Java EE API -->
@@ -184,12 +172,12 @@
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-core</artifactId>
-                <version>0.9.27</version>
+                <version>0.9.18</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
-                <version>0.9.27</version>
+                <version>0.9.18</version>
             </dependency>
 
             <!-- mysql connector -->
@@ -299,35 +287,13 @@
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.6</version>
-                <configuration>
-                    <skipTests>true</skipTests>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>com.googlecode.maven-overview-plugin</groupId>
-                <artifactId>maven-overview-plugin</artifactId>
-                <version>1.6</version>
-                <configuration>
-                    <exclusions>
-                        <exclusion>
-                            <scope>test</scope>
-                        </exclusion>
-                    </exclusions>
-                </configuration>
-            </plugin>
         </plugins>
 
         <extensions>
             <extension>
-                <groupId>com.google.code.maven-svn-wagon</groupId>
-                <artifactId>maven-svn-wagon</artifactId>
-                <version>1.3</version>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-webdav</artifactId>
+                <version>1.0-beta-2</version>
             </extension>
         </extensions>
     </build>

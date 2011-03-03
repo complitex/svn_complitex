@@ -21,7 +21,7 @@ import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
-import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
+import org.complitex.dictionary.strategy.web.CanEditUtil;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.list.AjaxRemovableListView;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
@@ -29,10 +29,8 @@ import org.complitex.dictionary.web.component.search.SearchComponent;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
 import org.complitex.address.strategy.building.BuildingStrategy;
 import org.complitex.address.strategy.building.entity.Building;
+import org.complitex.address.strategy.building_address.BuildingAddressStrategy;
 import org.complitex.address.strategy.district.DistrictStrategy;
-import org.complitex.dictionary.strategy.IStrategy;
-import org.complitex.dictionary.strategy.StrategyFactory;
-import org.complitex.dictionary.web.component.ShowMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,13 +41,19 @@ import org.slf4j.LoggerFactory;
 public final class BuildingEditComponent extends AbstractComplexAttributesPanel {
 
     private static final Logger log = LoggerFactory.getLogger(BuildingEditComponent.class);
-    @EJB
+
+    @EJB(name = "BuildingStrategy")
+    private BuildingStrategy buildingStrategy;
+
+    @EJB(name = "DistrictStrategy")
     private DistrictStrategy districtStrategy;
-    @EJB
+
+    @EJB(name = "StringCultureBean")
     private StringCultureBean stringBean;
-    @EJB
-    private StrategyFactory strategyFactory;
-    
+
+    @EJB(name = "BuildingAddressStrategy")
+    private BuildingAddressStrategy buildingAddressStrategy;
+
     private SearchComponentState districtComponentState;
 
     private class DistrictSearchCallback implements ISearchCallback, Serializable {
@@ -68,6 +72,7 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
     public BuildingEditComponent(String id, boolean disabled) {
         super(id, disabled);
     }
+
     private FeedbackPanel messages;
 
     private FeedbackPanel findFeedbackPanel() {
@@ -83,6 +88,7 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
         }
         return messages;
     }
+
     private Attribute districtAttribute;
 
     @Override
@@ -104,7 +110,6 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
 
             @Override
             public String getObject() {
-                IStrategy buildingStrategy = strategyFactory.getStrategy("building");
                 return stringBean.displayValue(buildingStrategy.getEntity().getAttributeType(BuildingStrategy.DISTRICT).getAttributeNames(), getLocale());
             }
         });
@@ -127,13 +132,13 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
             districtId = districtAttribute.getValueId();
             DomainObject district = null;
             if (districtId != null) {
-                district = districtStrategy.findById(districtId, true);
+                district = districtStrategy.findById(districtId);
                 districtComponentState.put("district", district);
             }
         }
         districtContainer.add(new SearchComponent("district", districtComponentState,
-                ImmutableList.of("country", "region", "city", "district"), new DistrictSearchCallback(), ShowMode.ACTIVE,
-                !isDisabled() && DomainObjectAccessUtil.canEdit("building", building)));
+                ImmutableList.of("country", "region", "city", "district"), new DistrictSearchCallback(),
+                !isDisabled() && CanEditUtil.canEdit(building)));
 
         districtContainer.setVisible(districtAttribute != null);
 
@@ -144,7 +149,7 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
 
             @Override
             public SearchComponentState initParentSearchComponentState() {
-                SearchComponentState primaryAddressComponentState = super.initParentSearchComponentState();
+                final SearchComponentState primaryAddressComponentState = super.initParentSearchComponentState();
 
                 if (primaryBuildingAddress.getId() == null) {
                     primaryAddressComponentState.updateState(parentSearchComponentState);
@@ -167,7 +172,7 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
 
                     @Override
                     public SearchComponentState initParentSearchComponentState() {
-                        SearchComponentState alternativeAddressComponentState = null;
+                        SearchComponentState alternativeAddressComponentState;
                         if (address.getId() == null) {
                             alternativeAddressComponentState = new SearchComponentState();
                             alternativeAddressComponentState.updateState(parentSearchComponentState);
@@ -180,7 +185,7 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
                 };
                 item.add(alternativeAddess);
                 addRemoveSubmitLink("remove", findParent(Form.class), item, null, attributesContainer, feedbackPanel).
-                        setVisible(!isDisabled() && DomainObjectAccessUtil.canEdit("building", building));
+                        setVisible(!isDisabled() && CanEditUtil.canEdit(building));
             }
         };
         attributesContainer.add(alternativeAdresses);
@@ -189,7 +194,6 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-                IStrategy buildingAddressStrategy = strategyFactory.getStrategy("building_address");
                 DomainObject newBuildingAddress = buildingAddressStrategy.newInstance();
                 building.addAlternativeAddress(newBuildingAddress);
 
@@ -202,7 +206,7 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
                 target.addComponent(feedbackPanel);
             }
         };
-        add.setVisible(!isDisabled() && DomainObjectAccessUtil.canEdit("building", building));
+        add.setVisible(!isDisabled() && CanEditUtil.canEdit(building));
         add(add);
     }
 }

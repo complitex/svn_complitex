@@ -7,7 +7,7 @@ package org.complitex.address.web;
 import com.google.common.collect.Lists;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
-import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.complitex.dictionary.strategy.Strategy;
 import org.complitex.template.web.template.ITemplateLink;
 import org.complitex.template.web.template.ResourceTemplateMenu;
 import org.complitex.address.BookEntities;
@@ -15,19 +15,16 @@ import org.complitex.address.resource.CommonResources;
 
 import java.util.List;
 import java.util.Locale;
-import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.util.EjbBeanLocator;
-import org.complitex.template.web.security.SecurityRole;
 
 /**
  *
  * @author Artem
  */
-@AuthorizeInstantiation(SecurityRole.AUTHORIZED)
 public class InformationTemplateMenu extends ResourceTemplateMenu {
 
-    private static IStrategy getStrategy(String entity) {
+    private static Strategy getStrategy(String entity) {
         return EjbBeanLocator.getBean(StrategyFactory.class).getStrategy(entity);
     }
 

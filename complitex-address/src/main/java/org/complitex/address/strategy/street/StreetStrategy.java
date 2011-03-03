@@ -2,28 +2,24 @@ package org.complitex.address.strategy.street;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.util.string.Strings;
-import org.complitex.address.resource.CommonResources;
-import org.complitex.address.strategy.street.web.edit.StreetTypeComponent;
 import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.mybatis.Transactional;
 import org.complitex.dictionary.service.StringCultureBean;
-import org.complitex.dictionary.strategy.IStrategy;
-import org.complitex.dictionary.strategy.StrategyFactory;
-import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
+import org.complitex.dictionary.strategy.Strategy;
 import org.complitex.dictionary.strategy.web.DomainObjectListPanel;
 import org.complitex.dictionary.util.ResourceUtil;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
 import org.complitex.dictionary.web.component.search.SearchComponent;
-import org.complitex.template.strategy.AbstractStrategy;
-import org.complitex.template.web.security.SecurityRole;
+import org.complitex.address.resource.CommonResources;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -31,7 +27,10 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
+import org.complitex.dictionary.strategy.StrategyFactory;
+import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
+import org.complitex.template.strategy.AbstractStrategy;
+import org.complitex.address.strategy.street.web.edit.StreetTypeComponent;
 
 /**
  *
@@ -41,30 +40,29 @@ import java.util.Set;
 public class StreetStrategy extends AbstractStrategy {
 
     private static final String STREET_NAMESPACE = StreetStrategy.class.getPackage().getName() + ".Street";
+
     @EJB
     private StringCultureBean stringBean;
+
     @EJB
     private StrategyFactory strategyFactory;
 
     /*
      * Attribute type ids
      */
-    public static final long NAME = 300L;
-    public static final long STREET_TYPE = 301L;
-    public static final long PARENT_ENTITY_ID = 400L;
+    private static final long NAME = 300;
+
+    public static final long STREET_TYPE = 301;
 
     @Override
     public String getEntityTable() {
         return "street";
     }
 
-    @SuppressWarnings({"unchecked"})
     @Override
     @Transactional
     public List<DomainObject> find(DomainObjectExample example) {
         example.setTable(getEntityTable());
-        prepareExampleForPermissionCheck(example);
-
         List<DomainObject> objects = sqlSession().selectList(STREET_NAMESPACE + "." + FIND_OPERATION, example);
         for (DomainObject object : objects) {
             loadAttributes(object);
@@ -88,10 +86,15 @@ public class StreetStrategy extends AbstractStrategy {
         }).getLocalizedValues(), locale);
         Long streetTypeId = getStreetType(object);
         if (streetTypeId != null) {
-            IStrategy streetTypeStrategy = strategyFactory.getStrategy("street_type");
-            DomainObject streetType = streetTypeStrategy.findById(streetTypeId, true);
-            String streetTypeName = streetTypeStrategy.displayDomainObject(streetType, locale);
-            return streetTypeName + " " + streetName;
+            Strategy streetTypeStrategy = strategyFactory.getStrategy("street_type");
+            DomainObjectExample example = new DomainObjectExample(streetTypeId);
+            streetTypeStrategy.configureExample(example, ImmutableMap.<String, Long>of(), null);
+            List<? extends DomainObject> objects = streetTypeStrategy.find(example);
+            if (objects.size() == 1) {
+                DomainObject streetType = objects.get(0);
+                String streetTypeName = streetTypeStrategy.displayDomainObject(streetType, locale);
+                return streetTypeName + " " + streetName;
+            }
         }
         return streetName;
     }
@@ -101,7 +104,6 @@ public class StreetStrategy extends AbstractStrategy {
         return ImmutableList.of("country", "region", "city");
     }
 
-    @SuppressWarnings({"EjbClassBasicInspection"})
     private static void configureExampleImpl(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
         if (!Strings.isEmpty(searchTextInput)) {
             AttributeExample attrExample = example.getAttributeExample(NAME);
@@ -153,7 +155,7 @@ public class StreetStrategy extends AbstractStrategy {
             Long cityId = ids.get("city");
             if (cityId != null && cityId > 0) {
                 inputPanel.getObject().setParentId(cityId);
-                inputPanel.getObject().setParentEntityId(PARENT_ENTITY_ID);
+                inputPanel.getObject().setParentEntityId(400L);
             } else {
                 inputPanel.getObject().setParentId(null);
                 inputPanel.getObject().setParentEntityId(null);
@@ -167,12 +169,7 @@ public class StreetStrategy extends AbstractStrategy {
     }
 
     @Override
-    public String[] getRealChildren() {
-        return new String[]{"building_address"};
-    }
-
-    @Override
-    public String[] getLogicalChildren() {
+    public String[] getChildrenEntities() {
         return new String[]{"building"};
     }
 
@@ -186,13 +183,10 @@ public class StreetStrategy extends AbstractStrategy {
         return new String[]{"city"};
     }
 
-    @SuppressWarnings({"EjbClassBasicInspection"})
     public static Long getStreetType(DomainObject streetObject) {
         return streetObject.getAttribute(STREET_TYPE).getValueId();
     }
 
-    @SuppressWarnings({"unchecked"})
-    @Transactional
     @Override
     public Long performDefaultValidation(DomainObject streetObject, Locale locale) {
         Map<String, Object> params = super.createValidationParams(streetObject, locale);
@@ -205,28 +199,5 @@ public class StreetStrategy extends AbstractStrategy {
             }
         }
         return null;
-    }
-
-    @Transactional
-    @Override
-    public void replaceChildrenPermissions(long parentId, Set<Long> subjectIds) {
-        replaceChildrenPermissions("building_address", parentId, subjectIds);
-    }
-
-    @Transactional
-    @Override
-    protected void changeChildrenPermissions(long parentId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds) {
-        changeChildrenPermissions("building_address", parentId, addSubjectIds, removeSubjectIds);
-    }
-
-    @Transactional
-    @Override
-    public void changeChildrenActivity(long parentId, boolean enable) {
-        changeChildrenActivity(parentId, "building_address", enable);
-    }
-
-    @Override
-    public String[] getEditRoles() {
-        return new String[]{SecurityRole.ADDRESS_MODULE_EDIT};
     }
 }

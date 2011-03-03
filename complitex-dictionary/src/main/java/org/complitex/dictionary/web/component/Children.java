@@ -6,6 +6,7 @@ package org.complitex.dictionary.web.component;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
@@ -14,17 +15,17 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.AbstractReadOnlyModel;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
+import org.complitex.dictionary.strategy.Strategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
-import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
+import org.complitex.dictionary.strategy.web.CanEditUtil;
 
 import javax.ejb.EJB;
 import java.util.List;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
-import org.apache.wicket.model.IModel;
-import org.complitex.dictionary.entity.StatusType;
-import org.complitex.dictionary.strategy.IStrategy;
+import org.complitex.dictionary.service.LocaleBean;
 
 /**
  *
@@ -32,10 +33,16 @@ import org.complitex.dictionary.strategy.IStrategy;
  */
 public final class Children extends Panel {
 
-    @EJB
+    @EJB(name = "StrategyFactory")
     private StrategyFactory strategyFactory;
+
+    @EJB(name = "LocaleBean")
+    private LocaleBean localeBean;
+
     private String childEntity;
+
     private String parentEntity;
+
     private DomainObject parentObject;
 
     public Children(String id, String parentEntity, DomainObject parentObject, String childEntity) {
@@ -46,7 +53,7 @@ public final class Children extends Panel {
         init();
     }
 
-    private IStrategy getChildrenStrategy() {
+    private Strategy getStrategy() {
         return strategyFactory.getStrategy(childEntity);
     }
 
@@ -80,7 +87,7 @@ public final class Children extends Panel {
         final ToggleModel toggleModel = new ToggleModel();
         final Label toggleStatus = new Label("toggleStatus", toggleModel);
         toggleStatus.setOutputMarkupId(true);
-        IndicatingAjaxLink<Void> toggleLink = new IndicatingAjaxLink<Void>("toggleLink") {
+        AjaxLink toggleLink = new AjaxLink("toggleLink") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -97,27 +104,14 @@ public final class Children extends Panel {
         toggleLink.add(toggleStatus);
         add(toggleLink);
 
-        IModel<List<? extends DomainObject>> childrenModel = new AbstractReadOnlyModel<List<? extends DomainObject>>() {
-
-            private List<? extends DomainObject> children;
+        IModel<List<? extends DomainObject>> childrenModel = new LoadableDetachableModel<List<? extends DomainObject>>() {
 
             @Override
-            public List<? extends DomainObject> getObject() {
-                if (children == null) {
-                    initChildren();
-                }
-                return children;
-            }
-
-            private void initChildren() {
+            protected List<? extends DomainObject> load() {
                 DomainObjectExample example = new DomainObjectExample();
-                if (StatusType.ACTIVE.equals(parentObject.getStatus())) {
-                    example.setStatus(ShowMode.ACTIVE.name());
-                } else {
-                    example.setStatus(ShowMode.ALL.name());
-                }
-                getChildrenStrategy().configureExample(example, ImmutableMap.of(parentEntity, parentObject.getId()), null);
-                children = getChildrenStrategy().find(example);
+                example.setLocaleId(localeBean.convert(getLocale()).getId());
+                getStrategy().configureExample(example, ImmutableMap.of(parentEntity, parentObject.getId()), null);
+                return getStrategy().find(example);
             }
         };
 
@@ -126,18 +120,18 @@ public final class Children extends Panel {
             @Override
             protected void populateItem(ListItem<DomainObject> item) {
                 DomainObject child = item.getModelObject();
-                BookmarkablePageLink<WebPage> link = new BookmarkablePageLink<WebPage>("link", getChildrenStrategy().getEditPage(),
-                        getChildrenStrategy().getEditPageParams(child.getId(), parentObject.getId(), parentEntity));
-                link.add(new Label("displayName", getChildrenStrategy().displayDomainObject(child, getLocale())));
+                BookmarkablePageLink<WebPage> link = new BookmarkablePageLink<WebPage>("link", getStrategy().getEditPage(),
+                        getStrategy().getEditPageParams(child.getId(), parentObject.getId(), parentEntity));
+                link.add(new Label("displayName", getStrategy().displayDomainObject(child, getLocale())));
                 item.add(link);
             }
         };
         children.setReuseItems(true);
         content.add(children);
-        BookmarkablePageLink addLink = new BookmarkablePageLink("add", getChildrenStrategy().getEditPage(),
-                getChildrenStrategy().getEditPageParams(null, parentObject.getId(), parentEntity));
+        BookmarkablePageLink addLink = new BookmarkablePageLink("add", getStrategy().getEditPage(), getStrategy().
+                getEditPageParams(null, parentObject.getId(), parentEntity));
         content.add(addLink);
-        if (!DomainObjectAccessUtil.canEdit(parentEntity, parentObject)) {
+        if (!CanEditUtil.canEdit(parentObject)) {
             addLink.setVisible(false);
         }
     }

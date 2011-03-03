@@ -24,6 +24,7 @@ public class DomainObjectExample implements Serializable {
     private int size;
     private Long localeId;
     private Long orderByAttributeTypeId;
+    private String orderByExpression;
     private boolean asc;
     private Long id;
     private String parentEntity;
@@ -34,8 +35,6 @@ public class DomainObjectExample implements Serializable {
     private String comparisonType = ComparisonType.LIKE.name();
     private List<AttributeExample> attributeExamples = new ArrayList<AttributeExample>();
     private String status = ShowMode.ALL.name();
-    private String userPermissionString;
-    private boolean admin;
 
     public DomainObjectExample() {
     }
@@ -188,19 +187,11 @@ public class DomainObjectExample implements Serializable {
         this.entityTypeId = entityTypeId;
     }
 
-    public String getUserPermissionString() {
-        return userPermissionString;
+    public String getOrderByExpression() {
+        return orderByExpression;
     }
 
-    public void setUserPermissionString(String userPermissionString) {
-        this.userPermissionString = userPermissionString;
-    }
-
-    public boolean isAdmin() {
-        return admin;
-    }
-
-    public void setAdmin(boolean admin) {
-        this.admin = admin;
+    public void setOrderByExpression(String orderByExpression) {
+        this.orderByExpression = orderByExpression;
     }
 }

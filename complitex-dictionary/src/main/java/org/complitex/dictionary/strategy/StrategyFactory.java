@@ -19,7 +19,7 @@ import org.complitex.dictionary.util.EjbBeanLocator;
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 public class StrategyFactory {
 
-    public IStrategy getStrategy(String entityTable) {
+    public Strategy getStrategy(String entityTable) {
         String strategyName = Strings.capitalize(entityTable) + "Strategy";
         return EjbBeanLocator.getBean(strategyName);
     }

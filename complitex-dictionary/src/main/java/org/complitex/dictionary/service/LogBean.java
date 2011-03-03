@@ -2,6 +2,7 @@ package org.complitex.dictionary.service;
 
 import org.apache.ibatis.session.SqlSession;
 import org.complitex.dictionary.entity.*;
+import org.complitex.dictionary.strategy.Strategy;
 import org.complitex.dictionary.util.DateUtil;
 import org.complitex.dictionary.util.StringUtil;
 import org.slf4j.Logger;
@@ -17,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import javax.ejb.EJB;
-import org.complitex.dictionary.strategy.IStrategy;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -57,15 +57,6 @@ public class LogBean extends AbstractBean {
         log(module, controller, model, objectId, event, Log.STATUS.ERROR, null, descriptionPattern, descriptionArguments);
     }
 
-    public void warn(String module, Class controllerClass, Class modelClass, Long objectId, Log.EVENT event,
-            String descriptionPattern, Object... descriptionArguments) {
-
-        String controller = controllerClass != null ? controllerClass.getName() : null;
-        String model = modelClass != null ? modelClass.getName() : null;
-
-        log(module, controller, model, objectId, event, Log.STATUS.WARN, null, descriptionPattern, descriptionArguments);
-    }
-
     public void info(String module, Class controllerClass, Class modelClass, String entityName, Long objectId,
             Log.EVENT event, List<LogChange> changes, String descriptionPattern, Object... descriptionArguments) {
 
@@ -76,7 +67,7 @@ public class LogBean extends AbstractBean {
     }
 
     public void log(Log.STATUS status, String module, Class controllerClass, Log.EVENT event,
-            IStrategy strategy, DomainObject oldDomainObject, DomainObject newDomainObject,
+            Strategy strategy, DomainObject oldDomainObject, DomainObject newDomainObject,
             Locale locale, String descriptionPattern, Object... descriptionArguments) {
 
         String controller = controllerClass != null ? controllerClass.getName() : null;
@@ -85,27 +76,6 @@ public class LogBean extends AbstractBean {
         log(module, controller, model, newDomainObject.getId(), event, status,
                 getLogChanges(strategy, oldDomainObject, newDomainObject, locale),
                 descriptionPattern, descriptionArguments);
-    }
-
-    public void logReplacePermissions(Log.STATUS status, String entity, Long objectId, String descriptionPattern, Object... descriptionArguments) {
-        String controller = "replacePermissions";
-        String model = DomainObject.class.getName() + "#" + entity;
-        String module = org.complitex.dictionary.Module.NAME;
-        log(module, controller, model, objectId, Log.EVENT.SETTING_PERMISSION, status, null, descriptionPattern, descriptionArguments);
-    }
-
-    public void logChangePermissions(Log.STATUS status, String entity, Long objectId, String descriptionPattern, Object... descriptionArguments) {
-        String controller = "changePermissions";
-        String model = DomainObject.class.getName() + "#" + entity;
-        String module = org.complitex.dictionary.Module.NAME;
-        log(module, controller, model, objectId, Log.EVENT.SETTING_PERMISSION, status, null, descriptionPattern, descriptionArguments);
-    }
-
-    public void logChangeActivity(Log.STATUS status, String entity, Long objectId, boolean enable, String descriptionPattern, Object... descriptionArguments){
-        String controller = "changeActivity";
-        String model = DomainObject.class.getName() + "#" + entity;
-        String module = org.complitex.dictionary.Module.NAME;
-        log(module, controller, model, objectId, enable ? Log.EVENT.ENABLE : Log.EVENT.DISABLE, status, null, descriptionPattern, descriptionArguments);
     }
 
     public void error(String module, Class controllerClass, Class modelClass, String entityName, Long objectId,
@@ -160,7 +130,8 @@ public class LogBean extends AbstractBean {
         }
     }
 
-    public List<LogChange> getLogChanges(IStrategy strategy, DomainObject oldDomainObject, DomainObject newDomainObject, Locale locale) {
+    public List<LogChange> getLogChanges(Strategy strategy, DomainObject oldDomainObject, DomainObject newDomainObject,
+            Locale locale) {
         List<LogChange> logChanges = new ArrayList<LogChange>();
 
         if (oldDomainObject == null) {

@@ -22,11 +22,6 @@
                 </th>
                 <wicket:container wicket:id="header.user_info"/>
                 <th>
-                    <span wicket:id="header.organization">
-                        <wicket:message key="organization"/>
-                    </span>
-                </th>
-                <th>
                     <wicket:message key="usergroup"/>
                 </th>
                 <th class="center">
@@ -36,8 +31,7 @@
             <tr>
                 <th><input type="text" wicket:id="login"/></th>
                 <wicket:container wicket:id="user_info"/>
-                <th><span wicket:id="organization"></span></th>
-                <th><select wicket:id="usergroups"></select></th>
+                <th><select wicket:id="usergroups"/></th>
                 <th class="center">
                     <input class="btnSmall default" type="submit" tabindex="0" wicket:message="value:filter"/>
                 </th>
@@ -47,7 +41,6 @@
             <tr wicket:id="users">
                 <td><span wicket:id="login"></span></td>
                 <wicket:container wicket:id="user_info"/>
-                <td><span wicket:id="organizations"></span></td>
                 <td><span wicket:id="usergroup"></span></td>
                 <td><span wicket:id="action_edit"></span></td>
             </tr>

@@ -17,10 +17,8 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.util.string.Strings;
-import org.complitex.dictionary.entity.PreferenceKey;
-import org.complitex.dictionary.service.SessionBean;
-import org.complitex.dictionary.util.ResourceUtil;
 import org.complitex.resources.WebCommonResourceInitializer;
+import org.complitex.dictionary.entity.PreferenceKey;
 import org.complitex.template.web.component.LocalePicker;
 import org.complitex.template.web.component.toolbar.HelpButton;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
@@ -28,9 +26,10 @@ import org.odlabs.wiquery.core.commons.CoreJavaScriptResourceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.EJB;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -43,11 +42,6 @@ public abstract class TemplatePage extends WebPage {
     private static final Logger log = LoggerFactory.getLogger(TemplatePage.class);
 
     private String page = getClass().getName();
-
-    private Set<String> resourceBundle = new HashSet<String>();
-
-    @EJB(name = "SessionBean")
-    private SessionBean sessionBean;
 
     protected TemplatePage() {
         add(JavascriptPackageResource.getHeaderContribution(CoreJavaScriptResourceReference.get()));
@@ -100,11 +94,12 @@ public abstract class TemplatePage extends WebPage {
             }
         });
 
-        String fullName = sessionBean.getCurrentUserFullName(getLocale());
-        String depName = sessionBean.getMainUserOrganizationName(getLocale());
-
-        add(new Label("current_user_fullname", fullName != null ? fullName : ""));
-        add(new Label("current_user_department", depName != null ? depName : ""));
+//        User user = userProfileBean.getCurrentUser();
+//
+//
+//        add(new Label("current_user_fullname", user.getFullName()
+//                + (user.getJob() != null ? ", " + user.getJob().getDisplayName(getLocale(), systemLocale) : "")));
+//        add(new Label("current_user_department", user.getDepartment().getDisplayName(getLocale(), systemLocale)));
 
         add(new Form("exit") {
 
@@ -212,25 +207,7 @@ public abstract class TemplatePage extends WebPage {
     }
 
     protected String getStringOrKey(String key) {
-        if (key == null){
-            return "";
-        }
-
-        try {
-            return getString(key);
-        } catch (MissingResourceException e) {
-            //resource is not found
-        }
-
-        for (String bundle : resourceBundle){
-            try {
-                return ResourceUtil.getString(bundle, key, getLocale());
-            } catch (MissingResourceException e) {
-                //resource is not found
-            }
-        }
-
-        return key;
+        return key != null ? getString(key, null, key) : "";
     }
 
     protected String getStringOrKey(Enum key) {
@@ -244,14 +221,6 @@ public abstract class TemplatePage extends WebPage {
             log.error("Ошибка форматирования файла свойств", e);
             return key;
         }
-    }
-
-    protected void addResourceBundle(String bundle){
-        resourceBundle.add(bundle);
-    }
-
-    protected void addAllResourceBundle(Collection<String> bundle){
-        resourceBundle.addAll(bundle);
     }
 
     /* Template Session Preferences*/

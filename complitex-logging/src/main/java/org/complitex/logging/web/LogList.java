@@ -56,7 +56,7 @@ public class LogList extends TemplatePage{
 
     private void init(){
 
-        add(JavascriptPackageResource.getHeaderContribution(WebCommonResourceInitializer.IE_SELECT_FIX_JS));
+        add(JavascriptPackageResource.getHeaderContribution(WebCommonResourceInitializer.IE_SELECT_FIX_RESOURCE_NAME_JS));
 
         add(new Label("title", getString("title")));
         add(new FeedbackPanel("messages"));

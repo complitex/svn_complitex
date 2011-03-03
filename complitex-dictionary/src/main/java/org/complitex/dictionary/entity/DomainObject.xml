@@ -10,32 +10,33 @@
         <result column="parent_id" property="parentId"/>
         <result column="parent_entity_id" property="parentEntityId"/>
         <result column="entity_type_id" property="entityTypeId"/>
-        <result column="permission_id" property="permissionId"/>
-        <result column="external_id" property="externalId"/>
     </resultMap>
 
     <insert id="insert" parameterType="Parameter">
-        INSERT INTO
-            `${table}` (`object_id`, `status`, `start_date`, `end_date`, `parent_id`, `parent_entity_id`,
-                `entity_type_id`, `permission_id`, `external_id`)
-        VALUES
-           (#{object.id}, #{object.status}, #{object.startDate}, #{object.endDate}, #{object.parentId},
-            #{object.parentEntityId}, #{object.entityTypeId}, #{object.permissionId}, #{object.externalId})
+        INSERT INTO `${table}` (`object_id`, `status`, `start_date`, `end_date`, `parent_id`, `parent_entity_id`, `entity_type_id`) VALUES
+        (#{object.id}, #{object.status}, #{object.startDate}, #{object.endDate}, #{object.parentId}, #{object.parentEntityId}, #{object.entityTypeId})
     </insert>
 
     <select id="findById" resultMap="org.complitex.dictionary.entity.DomainObject.DomainObject" parameterType="DomainObjectExample">
         SELECT e.*
         FROM `${table}` e WHERE (e.`status` IN ('ACTIVE', 'INACTIVE')) AND e.`object_id` = #{id}
-            <include refid="org.complitex.dictionary.entity.DomainObject.permissionFilter"/>
     </select>
 
-    <select id="selectObjectIdByExternalId" resultType="long" parameterType="map">
-        SELECT e.`object_id` FROM `${table}` e WHERE e.`external_id` = #{externalId}
-    </select>
+    <sql id="statusFilter">
+        <choose>
+            <when test="status == 'ALL'">
+                (e.`status` IN ('ACTIVE', 'INACTIVE'))
+            </when>
+            <otherwise>
+                e.`status` = #{status}
+            </otherwise>
+        </choose>
+    </sql>
 
     <sql id="orderBy">
-        <if test="orderByAttributeTypeId != null">
-            ORDER BY (
+        <choose>
+            <when test="orderByAttributeTypeId != null">
+                ORDER BY (
                     SELECT sc.`value` FROM `${table}_string_culture` sc WHERE sc.`locale_id` = #{localeId} AND sc.`id` =
                     (SELECT orderByAttr.`value_id` FROM `${table}_attribute` orderByAttr WHERE orderByAttr.`object_id` = e.`object_id`
                         AND orderByAttr.`status` = 'ACTIVE' AND orderByAttr.`attribute_type_id` = #{orderByAttributeTypeId}
@@ -49,35 +50,31 @@
                         DESC
                     </otherwise>
                 </choose>
-        </if>
+            </when>
+            <otherwise>
+                <if test="orderByExpression != null">
+                    ORDER BY ${orderByExpression}
+                    <choose>
+                        <when test="asc">
+                            ASC
+                        </when>
+                        <otherwise>
+                            DESC
+                        </otherwise>
+                    </choose>
+                </if>
+            </otherwise>
+        </choose>
     </sql>
 
     <select id="find" resultMap="org.complitex.dictionary.entity.DomainObject.DomainObject" parameterType="DomainObjectExample">
         SELECT e.*
         FROM `${table}` e WHERE
         <include refid="org.complitex.dictionary.entity.DomainObject.statusFilter"/>
-        <include refid="org.complitex.dictionary.entity.DomainObject.permissionFilter"/>
         <include refid="org.complitex.dictionary.entity.DomainObject.filter"/>
         <include refid="org.complitex.dictionary.entity.DomainObject.orderBy"/>
         <include refid="org.complitex.dictionary.entity.DomainObject.limit"/>
     </select>
-
-    <sql id="permissionFilter">
-        <if test="not admin">
-            AND (e.`permission_id` IN ${userPermissionString})
-        </if>
-    </sql>
-
-    <sql id="statusFilter">
-        <choose>
-            <when test="status == 'ALL'">
-                (e.`status` IN ('ACTIVE', 'INACTIVE'))
-            </when>
-            <otherwise>
-                e.`status` = #{status}
-            </otherwise>
-        </choose>
-    </sql>
 
     <sql id="filter">
         <if test="id != null">
@@ -111,7 +108,6 @@
     <select id="count" resultType="integer" parameterType="DomainObjectExample">
         SELECT COUNT(*) FROM `${table}` e WHERE
         <include refid="org.complitex.dictionary.entity.DomainObject.statusFilter"/>
-        <include refid="org.complitex.dictionary.entity.DomainObject.permissionFilter"/>
         <include refid="org.complitex.dictionary.entity.DomainObject.filter"/>
     </select>
 
@@ -190,45 +186,5 @@
     <select id="findHistoryObject" parameterType="DomainObjectExample" resultMap="org.complitex.dictionary.entity.DomainObject.DomainObject">
         <include refid="org.complitex.dictionary.entity.DomainObject.findHistoryObject"/>
     </select>
-
-    <!-- permissions -->
-
-    <resultMap id="DomainObjectPermissionInfo" type="org.complitex.dictionary.strategy.IStrategy$DomainObjectPermissionInfo">
-        <id column="object_id" property="id"/>
-        <result column="permission_id" property="permissionId"/>
-    </resultMap>
-
-    <select id="findChildrenPermissionInfo" parameterType="map" resultMap="org.complitex.dictionary.entity.DomainObject.DomainObjectPermissionInfo">
-        SELECT e.`object_id`, e.`permission_id` FROM `${entity}` e WHERE e.`status` IN ('ACTIVE', 'INACTIVE') AND e.`parent_id` = #{parentId} AND
-                e.`parent_entity_id` = (SELECT ent.`id` FROM `entity` ent WHERE ent.`entity_table` = #{parentEntity})
-            ORDER BY e.`object_id`
-        <include refid="org.complitex.dictionary.entity.DomainObject.limit"/>
-    </select>
-
-    <update id="updatePermissionId" parameterType="map">
-        UPDATE `${entity}` e SET e.`permission_id` = #{permissionId} WHERE e.`status` IN ('ACTIVE', 'INACTIVE') AND e.`object_id` = #{id}
-    </update>
-
-    <!-- disable/enable functionality -->
-    <select id="findChildrenActivityInfo" parameterType="map" resultType="long">
-        SELECT e.`object_id` FROM `${entity}` e WHERE e.`parent_id` = #{parentId} AND
-                e.`parent_entity_id` = (SELECT ent.`id` FROM `entity` ent WHERE ent.`entity_table` = #{parentEntity})
-            ORDER BY e.`object_id`
-        <include refid="org.complitex.dictionary.entity.DomainObject.limit"/>
-    </select>
-
-    <update id="updateChildrenActivity" parameterType="map">
-        UPDATE `${entity}` e SET e.`status` = #{status} WHERE e.`parent_id` = #{parentId} AND
-                e.`parent_entity_id` = (SELECT ent.`id` FROM `entity` ent WHERE ent.`entity_table` = #{parentEntity})
-                AND
-                <choose>
-                    <when test="enabled">
-                        e.`status` = 'ACTIVE'
-                    </when>
-                    <otherwise>
-                        e.`status` = 'INACTIVE'
-                    </otherwise>
-                </choose>
-    </update>
 
 </mapper>

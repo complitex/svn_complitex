@@ -1,25 +1,22 @@
 package org.complitex.address.strategy.city;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.util.string.Strings;
-import org.complitex.address.resource.CommonResources;
-import org.complitex.address.strategy.city.web.edit.CityTypeComponent;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.service.StringCultureBean;
-import org.complitex.dictionary.strategy.IStrategy;
-import org.complitex.dictionary.strategy.StrategyFactory;
+import org.complitex.dictionary.strategy.Strategy;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionary.strategy.web.DomainObjectListPanel;
 import org.complitex.dictionary.util.ResourceUtil;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
 import org.complitex.dictionary.web.component.search.SearchComponent;
-import org.complitex.template.strategy.AbstractStrategy;
-import org.complitex.template.web.security.SecurityRole;
+import org.complitex.address.resource.CommonResources;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -27,6 +24,9 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import org.complitex.dictionary.strategy.StrategyFactory;
+import org.complitex.template.strategy.AbstractStrategy;
+import org.complitex.address.strategy.city.web.edit.CityTypeComponent;
 
 /**
  *
@@ -36,17 +36,19 @@ import java.util.Map;
 public class CityStrategy extends AbstractStrategy {
 
     private static final String CITY_NAMESPACE = CityStrategy.class.getPackage().getName() + ".City";
+
     @EJB
     private StringCultureBean stringBean;
+
     @EJB
     private StrategyFactory strategyFactory;
 
     /*
      * Attribute type ids
      */
-    public static final long NAME = 400;
+    private static final long NAME = 400;
+
     public static final long CITY_TYPE = 401;
-    public static final long PARENT_ENTITY_ID = 700L;
 
     @Override
     protected List<Long> getListAttributeTypes() {
@@ -63,10 +65,15 @@ public class CityStrategy extends AbstractStrategy {
         String cityName = stringBean.displayValue(object.getAttribute(NAME).getLocalizedValues(), locale);
         Long cityTypeId = object.getAttribute(CITY_TYPE).getValueId();
         if (cityTypeId != null) {
-            IStrategy cityTypeStrategy = strategyFactory.getStrategy("city_type");
-            DomainObject cityType = cityTypeStrategy.findById(cityTypeId, true);
-            String cityTypeName = cityTypeStrategy.displayDomainObject(cityType, locale);
-            return cityTypeName + " " + cityName;
+            Strategy cityTypeStrategy = strategyFactory.getStrategy("city_type");
+            DomainObjectExample example = new DomainObjectExample(cityTypeId);
+            cityTypeStrategy.configureExample(example, ImmutableMap.<String, Long>of(), null);
+            List<? extends DomainObject> objects = cityTypeStrategy.find(example);
+            if (objects.size() == 1) {
+                DomainObject cityType = objects.get(0);
+                String cityTypeName = cityTypeStrategy.displayDomainObject(cityType, locale);
+                return cityTypeName + " " + cityName;
+            }
         }
         return cityName;
     }
@@ -81,7 +88,6 @@ public class CityStrategy extends AbstractStrategy {
         configureExampleImpl(example, ids, searchTextInput);
     }
 
-    @SuppressWarnings({"EjbClassBasicInspection"})
     private static void configureExampleImpl(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
         if (!Strings.isEmpty(searchTextInput)) {
             AttributeExample attrExample = example.getAttributeExample(NAME);
@@ -124,7 +130,7 @@ public class CityStrategy extends AbstractStrategy {
             Long regionId = ids.get("region");
             if (regionId != null && regionId > 0) {
                 inputPanel.getObject().setParentId(regionId);
-                inputPanel.getObject().setParentEntityId(PARENT_ENTITY_ID);
+                inputPanel.getObject().setParentEntityId(700L);
             } else {
                 inputPanel.getObject().setParentId(null);
                 inputPanel.getObject().setParentEntityId(null);
@@ -138,13 +144,8 @@ public class CityStrategy extends AbstractStrategy {
     }
 
     @Override
-    public String[] getRealChildren() {
-        return new String[]{"district", "street"};
-    }
-
-    @Override
-    public String[] getLogicalChildren() {
-        return new String[]{"district"};
+    public String[] getChildrenEntities() {
+        return new String[]{"street"};
     }
 
     @Override
@@ -157,7 +158,6 @@ public class CityStrategy extends AbstractStrategy {
         return CityTypeComponent.class;
     }
 
-    @SuppressWarnings({"EjbClassBasicInspection"})
     public static Long getCityType(DomainObject cityObject) {
         return cityObject.getAttribute(CITY_TYPE).getValueId();
     }
@@ -174,10 +174,5 @@ public class CityStrategy extends AbstractStrategy {
             }
         }
         return null;
-    }
-
-    @Override
-    public String[] getEditRoles() {
-        return new String[]{SecurityRole.ADDRESS_MODULE_EDIT};
     }
 }

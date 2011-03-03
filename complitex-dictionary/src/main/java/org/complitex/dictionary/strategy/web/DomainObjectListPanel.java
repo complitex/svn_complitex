@@ -11,6 +11,7 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
@@ -34,6 +35,7 @@ import org.complitex.dictionary.entity.description.EntityAttributeType;
 import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.service.StringCultureBean;
+import org.complitex.dictionary.strategy.Strategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.util.StringUtil;
 import org.complitex.dictionary.web.DictionaryFwSession;
@@ -49,8 +51,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import org.complitex.dictionary.service.LocaleBean;
-import org.complitex.dictionary.strategy.IStrategy;
-import org.complitex.dictionary.web.component.scroll.ScrollBookmarkablePageLink;
 
 /**
  *
@@ -58,13 +58,13 @@ import org.complitex.dictionary.web.component.scroll.ScrollBookmarkablePageLink;
  */
 public class DomainObjectListPanel extends Panel {
 
-    @EJB
+    @EJB(name = "StrategyFactory")
     private StrategyFactory strategyFactory;
 
-    @EJB
+    @EJB(name = "StringCultureBean")
     private StringCultureBean stringBean;
 
-    @EJB
+    @EJB(name = "LocaleBean")
     private LocaleBean localeBean;
 
     private String entity;
@@ -86,7 +86,7 @@ public class DomainObjectListPanel extends Panel {
         init();
     }
 
-    public IStrategy getStrategy() {
+    public Strategy getStrategy() {
         return strategyFactory.getStrategy(entity);
     }
 
@@ -135,8 +135,7 @@ public class DomainObjectListPanel extends Panel {
             add(new EmptyPanel("searchComponent"));
         } else {
             SearchComponentState componentState = getSearchComponentStateFromSession();
-            SearchComponent searchComponent = new SearchComponent("searchComponent", componentState, searchFilters, getStrategy().getSearchCallback(),
-                    ShowMode.ALL, true);
+            SearchComponent searchComponent = new SearchComponent("searchComponent", componentState, searchFilters, getStrategy().getSearchCallback(), true);
             add(searchComponent);
             searchComponent.invokeCallback();
         }
@@ -264,20 +263,8 @@ public class DomainObjectListPanel extends Panel {
                     }
                 };
                 item.add(dataColumns);
-                ScrollBookmarkablePageLink<WebPage> detailsLink = new ScrollBookmarkablePageLink<WebPage>("detailsLink", getStrategy().getEditPage(),
-                        getStrategy().getEditPageParams(object.getId(), null, null), String.valueOf(object.getId()));
-                detailsLink.add(new Label("editMessage", new AbstractReadOnlyModel<String>() {
-
-                    @Override
-                    public String getObject() {
-                        if(DomainObjectAccessUtil.canAddNew(entity)){
-                            return getString("edit");
-                        } else {
-                            return getString("view");
-                        }
-                    }
-                }));
-                item.add(detailsLink);
+                item.add(new BookmarkablePageLink<WebPage>("detailsLink", getStrategy().getEditPage(),
+                        getStrategy().getEditPageParams(object.getId(), null, null)));
             }
         };
         filterForm.add(dataView);

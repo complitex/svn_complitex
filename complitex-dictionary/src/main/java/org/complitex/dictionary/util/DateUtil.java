@@ -80,11 +80,4 @@ public class DateUtil {
     public static boolean isCurrentDay(Date date) {
         return isTheSameDay(date, getCurrentDate());
     }
-
-    public static Date getFirstDayOf(Date monthOrYear) {
-        Calendar firstDay = Calendar.getInstance();
-        firstDay.setTime(monthOrYear);
-        firstDay.set(Calendar.DAY_OF_MONTH, 1);
-        return firstDay.getTime();
-    }
 }

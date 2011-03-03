@@ -5,7 +5,10 @@ import org.complitex.dictionary.service.LogBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.*;
+import javax.ejb.ConcurrencyManagement;
+import javax.ejb.ConcurrencyManagementType;
+import javax.ejb.EJB;
+import javax.ejb.Singleton;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -13,14 +16,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.complitex.dictionary.service.executor.ExecutorStatus.STATUS;
-import static org.complitex.dictionary.service.executor.ExecutorStatus.STATUS.*;
-
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 01.11.10 12:50
  */
-@Stateless(name = "ExecutorBean")
+@Singleton(name = "ExecutorBean")
+@ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 public class ExecutorBean {
     private static final Logger log = LoggerFactory.getLogger(ExecutorBean.class);
 
@@ -30,20 +31,61 @@ public class ExecutorBean {
     @EJB(beanName = "LogBean")
     private LogBean logBean;
 
+    public static enum STATUS {
+        NEW, RUNNING, COMPLETED, CRITICAL_ERROR, CANCELED
+    }
+
+    protected STATUS status = STATUS.NEW;
+
+    protected int successCount = 0;
+    protected int skippedCount = 0;
+    protected int errorCount = 0;
+    protected AtomicBoolean stop = new AtomicBoolean(false);
+
+    protected List<ILoggable> processed = new CopyOnWriteArrayList<ILoggable>();
+
+    private AtomicInteger runningThread = new AtomicInteger(0);
+
+    public STATUS getStatus() {
+        return status;
+    }
+
+    private void setStatus(STATUS status) {
+        this.status = status;
+    }
+
+    public int getSuccessCount() {
+        return successCount;
+    }
+
+    public int getSkippedCount() {
+        return skippedCount;
+    }
+
+    public int getErrorCount() {
+        return errorCount;
+    }
+
+    public List<ILoggable> getProcessed() {
+        return processed;
+    }
+
+    public boolean isStop() {
+        return stop.get();
+    }
+
     @SuppressWarnings({"unchecked"})
     private <T extends ILoggable> void executeNext(final Queue<T> queue, final ITaskBean<T> task,
-                                                   final ExecutorStatus executorStatus,
-                                                   final IExecutorListener<T> listener,
-                                                   final int maxErrors){
+                                                   final IExecutorListener<T> listener, final int maxErrors){
         T object = queue.poll();
 
         //Все задачи выполнены
         if (object == null){
-            if (executorStatus.isDone()){
-                executorStatus.complete();
+            if (STATUS.RUNNING.equals(status) && runningThread.get() == 0){
+                status = STATUS.COMPLETED;
 
                 if (listener != null) {
-                    listener.onComplete((List<T>) executorStatus.getProcessed());
+                    listener.onComplete((List<T>) processed);
                 }
 
                 log.info("Процесс {} завершен", task.getControllerClass());
@@ -54,9 +96,9 @@ public class ExecutorBean {
         }
 
         //Отмена процесса
-        if (executorStatus.isStop()){
-            if (executorStatus.isRunning()) {
-                executorStatus.cancel();
+        if (stop.get()){
+            if (STATUS.RUNNING.equals(status)) {
+                status = STATUS.CANCELED;
 
                 log.warn("Процесс {} отменен пользователем", task.getControllerClass());
                 logError(object, task, "Процесс {0} отменен пользователем", task.getControllerClass().getSimpleName());
@@ -66,9 +108,9 @@ public class ExecutorBean {
         }
 
         //Похоже что-то отломалось
-        if (executorStatus.getErrorCount() > maxErrors){
-            if (executorStatus.isDone()){
-                executorStatus.criticalError();
+        if (errorCount > maxErrors){
+            if (STATUS.RUNNING.equals(status) && runningThread.get() == 0){
+                status = STATUS.CRITICAL_ERROR;
 
                 log.error("Превышено количество ошибок в процессе {}", task.getControllerClass());
                 logError(object, task, "Превышено количество ошибок в процессе {0}", task.getControllerClass().getSimpleName());
@@ -78,35 +120,35 @@ public class ExecutorBean {
         }
 
         //Выполняем задачу
-        executorStatus.startTask();
+        runningThread.incrementAndGet();
         asyncTaskBean.execute(object, task, new ITaskListener<T>(){
 
             @Override
             public void done(T object, STATUS status) {
                 boolean next = true;
 
-                executorStatus.getProcessed().add(object);
-                executorStatus.stopTask();
+                processed.add(object);
+                runningThread.decrementAndGet();
 
                 switch (status){
                     case SUCCESS:
-                        executorStatus.incrementSuccessCount();
+                        successCount++;
                         break;
                     case SKIPPED:
-                        executorStatus.incrementSkippedCount();
+                        skippedCount++;
                         break;
                     case ERROR:
-                        executorStatus.incrementErrorCount();
+                        errorCount++;
                         break;
                     case CRITICAL_ERROR:
-                        executorStatus.incrementErrorCount();
-                        executorStatus.criticalError();
+                        errorCount++;
+                        setStatus(ExecutorBean.STATUS.CRITICAL_ERROR);
                         next = false;
                         break;
                 }
 
                 if (next) {
-                    executeNext(queue, task, executorStatus, listener, maxErrors);
+                    executeNext(queue, task, listener, maxErrors);
                 }
             }
         });
@@ -114,35 +156,50 @@ public class ExecutorBean {
         log.info("Выполнение процесса {} над объектом {}", task.getControllerClass().getSimpleName(), object);
     }
 
-    public <T extends ILoggable> void execute(List<T> objects, final ITaskBean<T> task,
-                                              final ExecutorStatus executorStatus, IExecutorListener<T> listener,
+    private <T extends ILoggable> void executeNext(final Queue<T> queue, final ITaskBean<T> task, final int maxErrors){
+        executeNext(queue, task, null, maxErrors);
+    }
+
+
+    public <T extends ILoggable> void execute(List<T> objects, final ITaskBean<T> task, IExecutorListener<T> listener,
                                               int maxThread, final int maxErrors){
-        if (executorStatus.isRunning()){
+        stop.set(false);
+
+        successCount = 0;
+        skippedCount = 0;
+        errorCount = 0;
+
+        processed.clear();
+
+        if (status.equals(STATUS.RUNNING)){
             throw new IllegalStateException();
         }
 
         if (objects == null || objects.isEmpty()){
-            executorStatus.complete();
+            status = STATUS.COMPLETED;
             return;
         }
-
-        executorStatus.start();
 
         log.info("Начат процесс {}, количество объектов: {}", task.getControllerClass().getSimpleName(), objects.size());
         logInfo(objects.get(0).getClass(), task, "Начат процесс {0}, количество объектов: {1}",
                 task.getControllerClass().getSimpleName(), objects.size());
 
+        status = STATUS.RUNNING;
+
         Queue<T> queue = new ConcurrentLinkedQueue<T>();
         queue.addAll(objects);
 
         for (int i = 0; i < maxThread; ++i){
-            executeNext(queue, task, executorStatus, listener, maxErrors);
+            executeNext(queue, task, listener, maxErrors);
         }
     }
 
-    public <T extends ILoggable> void execute(List<T> objects, final ITaskBean<T> task, ExecutorStatus executorStatus,
-                                              int maxThread, final int maxErrors){
-        execute(objects, task, executorStatus, null, maxThread, maxErrors);
+    public <T extends ILoggable> void execute(List<T> objects, final ITaskBean<T> task, int maxThread, final int maxErrors){
+        execute(objects, task, null, maxThread, maxErrors);
+    }
+
+    public void cancel(){
+        stop.set(true);
     }
 
     private <T extends ILoggable> void logError(T object, ITaskBean<T> task, String decs, Object... args){

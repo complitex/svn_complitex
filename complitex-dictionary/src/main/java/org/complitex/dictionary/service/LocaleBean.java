@@ -16,7 +16,7 @@ import org.complitex.dictionary.entity.Locale;
  *
  * @author Artem
  */
-@Singleton
+@Singleton(name = "LocaleBean")
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 public class LocaleBean extends AbstractBean {
 
@@ -48,10 +48,6 @@ public class LocaleBean extends AbstractBean {
     }
 
     public Locale convert(java.util.Locale locale) {
-        if (locale == null){
-            return systemLocaleObject;
-        }
-
         return localesMap.get(locale);
     }
 
