@@ -32,6 +32,7 @@
         <module>complitex-dictionary</module>
         <module>complitex-images</module>
         <module>complitex-logging</module>
+        <module>complitex-organization</module>
         <module>complitex-resources</module>
         <module>complitex-template</module>
     </modules>
@@ -91,6 +92,11 @@
             <dependency>
                 <groupId>org.complitex</groupId>
                 <artifactId>complitex-logging</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.complitex</groupId>
+                <artifactId>complitex-organization</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

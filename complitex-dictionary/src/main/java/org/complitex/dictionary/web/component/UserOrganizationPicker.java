@@ -6,14 +6,15 @@ package org.complitex.dictionary.web.component;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import java.util.List;
-import javax.ejb.EJB;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
+
+import javax.ejb.EJB;
+import java.util.List;
 
 /**
  *

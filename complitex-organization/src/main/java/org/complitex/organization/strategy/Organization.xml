@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.complitex.osznconnection.organization.strategy.Organization">
+
+    <select id="find" resultMap="org.complitex.dictionary.entity.DomainObject.DomainObject" parameterType="DomainObjectExample">
+        SELECT e.* FROM `organization` e WHERE
+        <include refid="org.complitex.dictionary.entity.DomainObject.statusFilter"/>
+        <include refid="org.complitex.dictionary.entity.DomainObject.permissionFilter"/>
+        <include refid="org.complitex.osznconnection.organization.strategy.Organization.filter"/>
+        <include refid="org.complitex.dictionary.entity.DomainObject.orderBy"/>
+        <include refid="org.complitex.dictionary.entity.DomainObject.limit"/>
+    </select>
+
+    <sql id="filter">
+        <if test="id != null">
+            AND e.`object_id` = #{id}
+        </if>
+        <foreach item="attrExample" collection="attributeExamples">
+            <choose>
+                <when test="attrExample.attributeTypeId == 903">
+                    AND EXISTS(SELECT 1 FROM `organization_attribute` parent_attr WHERE parent_attr.`object_id` = e.`object_id`
+                            AND parent_attr.`status` = 'ACTIVE' AND parent_attr.`attribute_type_id` = #{attrExample.attributeTypeId}
+                            AND parent_attr.`value_id` = #{attrExample.value})
+                </when>
+                <otherwise>
+                    <if test="attrExample.value != null">
+                        AND EXISTS(SELECT 1 FROM `organization_attribute` attr WHERE attr.`object_id` = e.`object_id`
+                            AND attr.`status` = 'ACTIVE' AND attr.`attribute_type_id` = #{attrExample.attributeTypeId}
+                            AND attr.`value_id` IN (SELECT sc.`id` FROM `${table}_string_culture` sc WHERE sc.`value`
+                                <choose>
+                                    <when test="comparisonType == 'LIKE'">
+                                        LIKE '%${attrExample.value}%'
+                                    </when>
+                                    <when test="comparisonType == 'EQUALITY'">
+                                        = #{attrExample.value}
+                                    </when>
+                                </choose>
+                            )
+                        )
+                    </if>
+                </otherwise>
+            </choose>
+        </foreach>
+        <if test="parentId != null and parentEntity != null">
+            AND e.`parent_entity_id` = (SELECT ent.`id` FROM `entity` ent WHERE ent.`entity_table` = #{parentEntity}) AND e.`parent_id` = #{parentId}
+        </if>
+        <choose>
+            <when test="entityTypeId != null">
+                AND e.`entity_type_id` = #{entityTypeId}
+            </when>
+            <otherwise>
+                <if test="additionalParams != null and additionalParams['entityTypeIds'] != null">
+                    AND e.`entity_type_id` IN
+                    <foreach open="(" close=")" separator="," item="id" collection="additionalParams['entityTypeIds']">
+                        #{id}
+                    </foreach>
+                </if>
+            </otherwise>
+        </choose>
+    </sql>
+
+    <select id="count" resultType="integer" parameterType="DomainObjectExample">
+        SELECT COUNT(*) FROM `organization` e WHERE
+        <include refid="org.complitex.dictionary.entity.DomainObject.statusFilter"/>
+        <include refid="org.complitex.dictionary.entity.DomainObject.permissionFilter"/>
+        <include refid="org.complitex.osznconnection.organization.strategy.Organization.filter"/>
+    </select>
+
+    <!-- Validation -->
+
+    <select id="validateCode" resultType="long" parameterType="string">
+        SELECT DISTINCT o.`object_id` FROM `organization` o
+                                    JOIN `organization_attribute` a ON (o.`object_id` = a.`object_id` AND a.`status` = 'ACTIVE'
+                                        AND a.`attribute_type_id` = 901)
+                                    JOIN `organization_string_culture` sc ON (a.`value_id` = sc.`id` AND sc.`value` = #{code} AND
+                                        sc.`locale_id` = (SELECT l.`id` FROM `locales` l WHERE l.`system` = 1))
+            WHERE o.`status` IN ('ACTIVE', 'INACTIVE')
+    </select>
+
+    <select id="validateName" resultType="long" parameterType="map">
+        SELECT DISTINCT o.`object_id` FROM `organization` o
+                                    JOIN `organization_attribute` a ON (o.`object_id` = a.`object_id` AND a.`status` = 'ACTIVE' AND
+                                        a.`attribute_type_id` = 900)
+                                    JOIN `organization_string_culture` sc ON (a.`value_id` = sc.`id` AND sc.`locale_id` = #{localeId}
+                                        AND sc.`value` = #{name})
+            WHERE o.`status` IN ('ACTIVE', 'INACTIVE')
+    </select>
+
+    <select id="findOrganizationChildrenObjectIds" parameterType="long" resultType="long">
+        SELECT o.`object_id` FROM `organization` o
+            LEFT JOIN `organization_attribute` oa ON (oa.`status` = 'ACTIVE' AND oa.`object_id` = o.`object_id` AND oa.`attribute_type_id` = 903)
+            WHERE oa.`value_id` = #{parentId} AND o.`status` IN ('ACTIVE', 'INACTIVE')
+    </select>
+
+    <select id="findOrganizationChildrenPermissionInfo" parameterType="long" resultMap="org.complitex.dictionary.entity.DomainObject.DomainObjectPermissionInfo">
+        SELECT DISTINCT o.`object_id`, o.`permission_id` FROM `organization` o
+            LEFT JOIN `organization_attribute` oa ON (oa.`status` = 'ACTIVE' AND oa.`object_id` = o.`object_id` AND oa.`attribute_type_id` = 903)
+            WHERE oa.`value_id` = #{parentId} AND o.`status` IN ('ACTIVE', 'INACTIVE')
+    </select>
+
+    <!-- disable/enable functionality -->
+    <update id="updateChildrenActivity" parameterType="map">
+        UPDATE `organization` e SET e.`status` = #{status} WHERE e.`object_id` IN
+                <foreach open="(" close=")" separator="," collection="childrenIds" item="id">
+                    #{id}
+                </foreach>
+                AND
+                <choose>
+                    <when test="enabled">
+                        e.`status` = 'ACTIVE'
+                    </when>
+                    <otherwise>
+                        e.`status` = 'INACTIVE'
+                    </otherwise>
+                </choose>
+    </update>
+
+</mapper>
