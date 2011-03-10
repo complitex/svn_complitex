@@ -16,7 +16,7 @@ import org.complitex.dictionary.util.ResourceUtil;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
 import org.complitex.dictionary.web.component.search.SearchComponent;
-import org.complitex.template.strategy.AbstractStrategy;
+import org.complitex.template.strategy.TemplateStrategy;
 import org.complitex.template.web.security.SecurityRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +36,7 @@ import org.complitex.dictionary.mybatis.Transactional;
  * @author Artem
  */
 @Stateless(name = "Building_addressStrategy")
-public class BuildingAddressStrategy extends AbstractStrategy {
+public class BuildingAddressStrategy extends TemplateStrategy {
 
     private static final Logger log = LoggerFactory.getLogger(BuildingAddressStrategy.class);
     private static final String BUILDING_ADDRESS_NAMESPACE = BuildingAddressStrategy.class.getPackage().getName() + ".BuildingAddress";

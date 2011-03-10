@@ -20,7 +20,7 @@ import org.complitex.dictionary.util.ResourceUtil;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
 import org.complitex.dictionary.web.component.search.SearchComponent;
-import org.complitex.template.strategy.AbstractStrategy;
+import org.complitex.template.strategy.TemplateStrategy;
 import org.complitex.template.web.security.SecurityRole;
 
 import javax.ejb.EJB;
@@ -36,7 +36,7 @@ import java.util.Set;
  * @author Artem
  */
 @Stateless(name = "DistrictStrategy")
-public class DistrictStrategy extends AbstractStrategy {
+public class DistrictStrategy extends TemplateStrategy {
 
     private static final String DISTRICT_NAMESPACE = DistrictStrategy.class.getPackage().getName() + ".District";
     @EJB

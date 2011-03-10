@@ -21,7 +21,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import org.complitex.template.strategy.AbstractStrategy;
+import org.complitex.template.strategy.TemplateStrategy;
 import org.complitex.template.web.security.SecurityRole;
 
 /**
@@ -29,7 +29,7 @@ import org.complitex.template.web.security.SecurityRole;
  * @author Artem
  */
 @Stateless(name = "ApartmentStrategy")
-public class ApartmentStrategy extends AbstractStrategy {
+public class ApartmentStrategy extends TemplateStrategy {
 
     @EJB(beanName = "StringCultureBean")
     private StringCultureBean stringBean;

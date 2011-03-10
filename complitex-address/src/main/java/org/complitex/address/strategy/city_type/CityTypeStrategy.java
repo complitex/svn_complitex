@@ -12,7 +12,7 @@ import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.util.ResourceUtil;
-import org.complitex.template.strategy.AbstractStrategy;
+import org.complitex.template.strategy.TemplateStrategy;
 import org.complitex.template.web.security.SecurityRole;
 
 import javax.ejb.EJB;
@@ -26,7 +26,7 @@ import java.util.Map;
  * @author Artem
  */
 @Stateless(name = "City_typeStrategy")
-public class CityTypeStrategy extends AbstractStrategy {
+public class CityTypeStrategy extends TemplateStrategy {
 
     public static final long NAME = 1300;
 

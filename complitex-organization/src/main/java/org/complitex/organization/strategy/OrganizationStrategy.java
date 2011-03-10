@@ -21,7 +21,7 @@ import org.complitex.dictionary.util.Numbers;
 import org.complitex.dictionary.util.ResourceUtil;
 import org.complitex.organization.strategy.web.edit.OrganizationEditComponent;
 import org.complitex.organization.strategy.web.edit.OrganizationValidator;
-import org.complitex.template.strategy.AbstractStrategy;
+import org.complitex.template.strategy.TemplateStrategy;
 import org.complitex.template.web.security.SecurityRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +35,7 @@ import java.util.*;
  * @author Artem
  */
 @Stateless
-public class OrganizationStrategy extends AbstractStrategy implements IOrganizationStrategy {
+public class OrganizationStrategy extends TemplateStrategy implements IOrganizationStrategy {
     private static final Logger log = LoggerFactory.getLogger(OrganizationStrategy.class);
 
     private static final String ORGANIZATION_NAMESPACE = OrganizationStrategy.class.getPackage().getName() + ".Organization";

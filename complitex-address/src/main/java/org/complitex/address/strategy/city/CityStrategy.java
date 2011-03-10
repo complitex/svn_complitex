@@ -18,7 +18,7 @@ import org.complitex.dictionary.util.ResourceUtil;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
 import org.complitex.dictionary.web.component.search.SearchComponent;
-import org.complitex.template.strategy.AbstractStrategy;
+import org.complitex.template.strategy.TemplateStrategy;
 import org.complitex.template.web.security.SecurityRole;
 
 import javax.ejb.EJB;
@@ -33,7 +33,7 @@ import java.util.Map;
  * @author Artem
  */
 @Stateless(name = "CityStrategy")
-public class CityStrategy extends AbstractStrategy {
+public class CityStrategy extends TemplateStrategy {
 
     private static final String CITY_NAMESPACE = CityStrategy.class.getPackage().getName() + ".City";
     @EJB
