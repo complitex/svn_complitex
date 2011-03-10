@@ -16,18 +16,18 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.service.PermissionBean;
-import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.web.component.DisableAwareListMultipleChoice;
 import org.complitex.dictionary.web.component.DomainObjectDisableAwareRenderer;
+import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 
 /**
  *
  * @author Artem
  */
 public final class DomainObjectPermissionsPanel extends Panel {
-
     @EJB(name = "OrganizationStrategy")
     private IOrganizationStrategy organizationStrategy;
+
     private static final DomainObject VISIBLE_BY_ALL = new DomainObject();
 
     static {

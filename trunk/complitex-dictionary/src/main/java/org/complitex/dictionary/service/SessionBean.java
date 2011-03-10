@@ -165,11 +165,15 @@ public class SessionBean extends AbstractBean {
     }
 
     public String getMainUserOrganizationName(Locale locale){
-        IStrategy strategy = strategyFactory.getStrategy(ORGANIZATION_ENTITY);
+        try {
+            IStrategy strategy = strategyFactory.getStrategy(ORGANIZATION_ENTITY);
 
-        Long oId = getMainUserOrganizationObjectId();
+            Long oId = getMainUserOrganizationObjectId();
 
-        return oId != null ? strategy.displayDomainObject(strategy.findById(oId, false), locale) : "";
+            return oId != null ? strategy.displayDomainObject(strategy.findById(oId, false), locale) : "";
+        } catch (Exception e) {
+            return "[NA]";
+        }
     }
 
     public boolean hasPermission(final Long permissionId){
