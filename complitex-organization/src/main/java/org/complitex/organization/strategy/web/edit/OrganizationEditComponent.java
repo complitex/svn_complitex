@@ -169,7 +169,7 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
         if (entityTypeId != null && isDistrictVisible(entityTypeId)) {
             districtContainer.setVisible(true);
 
-            if (isDistrictRequired(entityTypeId)) {
+            if (isDistrictNotRequired(entityTypeId)) {
                 districtRequiredContainer.setVisible(false);
             }
         } else {
@@ -207,7 +207,7 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
         return entityTypeId.equals(IOrganizationStrategy.USER_ORGANIZATION);
     }
 
-    protected boolean isDistrictRequired(Long entityTypeId){
+    protected boolean isDistrictNotRequired(Long entityTypeId){
         return entityTypeId.equals(IOrganizationStrategy.USER_ORGANIZATION);
     }
 }
