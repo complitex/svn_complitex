@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.template.strategy;
 
 import org.apache.wicket.PageParameters;
@@ -17,7 +13,13 @@ import org.complitex.template.web.pages.HistoryPage;
  *
  * @author Artem
  */
-public abstract class AbstractStrategy extends Strategy {
+public abstract class TemplateStrategy extends Strategy {
+    public static final String ENTITY = "entity";
+    public static final String STRATEGY = "strategy";
+    public static final String OBJECT_ID = "object_id";
+    public static final String PARENT_ID = "parent_id";
+    public static final String PARENT_ENTITY = "parent_entity";
+
 
     @Override
     public Class<? extends WebPage> getListPage() {
@@ -27,7 +29,7 @@ public abstract class AbstractStrategy extends Strategy {
     @Override
     public PageParameters getListPageParams() {
         PageParameters params = new PageParameters();
-        params.put(DomainObjectList.ENTITY, getEntityTable());
+        params.put(ENTITY, getEntityTable());
         return params;
     }
 
@@ -39,10 +41,10 @@ public abstract class AbstractStrategy extends Strategy {
     @Override
     public PageParameters getEditPageParams(Long objectId, Long parentId, String parentEntity) {
         PageParameters params = new PageParameters();
-        params.put(DomainObjectEdit.ENTITY, getEntityTable());
-        params.put(DomainObjectEdit.OBJECT_ID, objectId);
-        params.put(DomainObjectEdit.PARENT_ID, parentId);
-        params.put(DomainObjectEdit.PARENT_ENTITY, parentEntity);
+        params.put(ENTITY, getEntityTable());
+        params.put(OBJECT_ID, objectId);
+        params.put(PARENT_ID, parentId);
+        params.put(PARENT_ENTITY, parentEntity);
         return params;
     }
 
@@ -54,8 +56,8 @@ public abstract class AbstractStrategy extends Strategy {
     @Override
     public PageParameters getHistoryPageParams(long objectId) {
         PageParameters params = new PageParameters();
-        params.put(HistoryPage.ENTITY, getEntityTable());
-        params.put(HistoryPage.OBJECT_ID, objectId);
+        params.put(ENTITY, getEntityTable());
+        params.put(OBJECT_ID, objectId);
         return params;
     }
 

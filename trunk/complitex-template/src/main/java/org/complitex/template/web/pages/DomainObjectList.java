@@ -22,18 +22,16 @@ import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
 public class DomainObjectList extends ScrollListPage {
 
     public static final String ENTITY = "entity";
+    public static final String STRATEGY = "strategy";
 
     private DomainObjectListPanel listPanel;
     private String entity;
 
     public DomainObjectList(PageParameters params) {
         super(params);
-        init(params.getString(ENTITY));
-    }
 
-    private void init(String entity) {
-        this.entity = entity;
-        add(listPanel = new DomainObjectListPanel("listPanel", entity));
+        this.entity = params.getString(ENTITY);
+        add(listPanel = new DomainObjectListPanel("listPanel", entity, params.getString(STRATEGY)));
     }
 
     @Override

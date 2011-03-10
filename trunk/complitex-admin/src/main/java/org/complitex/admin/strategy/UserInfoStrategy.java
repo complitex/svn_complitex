@@ -6,7 +6,7 @@ import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.service.NameBean;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionary.util.StringUtil;
-import org.complitex.template.strategy.AbstractStrategy;
+import org.complitex.template.strategy.TemplateStrategy;
 import org.complitex.template.web.security.SecurityRole;
 
 import javax.ejb.EJB;
@@ -18,7 +18,7 @@ import java.util.Locale;
  *         Date: 10.08.2010 14:43:55
  */
 @Stateless(name = "User_infoStrategy")
-public class UserInfoStrategy extends AbstractStrategy {
+public class UserInfoStrategy extends TemplateStrategy {
     public final static Long LAST_NAME = 1000L;
     public final static Long FIRST_NAME = 1001L;
     public final static Long MIDDLE_NAME = 1002L;

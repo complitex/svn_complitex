@@ -35,6 +35,7 @@ import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.strategy.StrategyFactory;
+import org.complitex.dictionary.util.EjbBeanLocator;
 import org.complitex.dictionary.util.StringUtil;
 import org.complitex.dictionary.web.DictionaryFwSession;
 import org.complitex.dictionary.web.component.*;
@@ -69,6 +70,8 @@ public class DomainObjectListPanel extends Panel {
 
     private String entity;
 
+    private String strategyName;
+
     private DomainObjectExample example;
 
     private WebMarkupContainer content;
@@ -77,9 +80,11 @@ public class DomainObjectListPanel extends Panel {
 
     private final String page;
 
-    public DomainObjectListPanel(String id, String entity) {
+    public DomainObjectListPanel(String id, String entity, String strategyName) {
         super(id);
+
         this.entity = entity;
+        this.strategyName = strategyName;
 
         page = getClass().getName() + "#" + entity;
 
@@ -87,7 +92,7 @@ public class DomainObjectListPanel extends Panel {
     }
 
     public IStrategy getStrategy() {
-        return strategyFactory.getStrategy(entity);
+        return strategyFactory.getStrategy(entity, strategyName);
     }
 
     public DomainObjectExample getExample() {
@@ -135,8 +140,8 @@ public class DomainObjectListPanel extends Panel {
             add(new EmptyPanel("searchComponent"));
         } else {
             SearchComponentState componentState = getSearchComponentStateFromSession();
-            SearchComponent searchComponent = new SearchComponent("searchComponent", componentState, searchFilters, getStrategy().getSearchCallback(),
-                    ShowMode.ALL, true);
+            SearchComponent searchComponent = new SearchComponent("searchComponent", componentState, searchFilters,
+                    getStrategy().getSearchCallback(), ShowMode.ALL, true);
             add(searchComponent);
             searchComponent.invokeCallback();
         }
@@ -264,8 +269,9 @@ public class DomainObjectListPanel extends Panel {
                     }
                 };
                 item.add(dataColumns);
-                ScrollBookmarkablePageLink<WebPage> detailsLink = new ScrollBookmarkablePageLink<WebPage>("detailsLink", getStrategy().getEditPage(),
-                        getStrategy().getEditPageParams(object.getId(), null, null), String.valueOf(object.getId()));
+                ScrollBookmarkablePageLink<WebPage> detailsLink = new ScrollBookmarkablePageLink<WebPage>("detailsLink",
+                        getStrategy().getEditPage(), getStrategy().getEditPageParams(object.getId(), null, null),
+                        String.valueOf(object.getId()));
                 detailsLink.add(new Label("editMessage", new AbstractReadOnlyModel<String>() {
 
                     @Override

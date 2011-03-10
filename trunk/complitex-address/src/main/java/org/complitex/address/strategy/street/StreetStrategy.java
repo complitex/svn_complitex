@@ -22,7 +22,7 @@ import org.complitex.dictionary.util.ResourceUtil;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
 import org.complitex.dictionary.web.component.search.SearchComponent;
-import org.complitex.template.strategy.AbstractStrategy;
+import org.complitex.template.strategy.TemplateStrategy;
 import org.complitex.template.web.security.SecurityRole;
 
 import javax.ejb.EJB;
@@ -38,7 +38,7 @@ import java.util.Set;
  * @author Artem
  */
 @Stateless
-public class StreetStrategy extends AbstractStrategy {
+public class StreetStrategy extends TemplateStrategy {
 
     private static final String STREET_NAMESPACE = StreetStrategy.class.getPackage().getName() + ".Street";
     @EJB

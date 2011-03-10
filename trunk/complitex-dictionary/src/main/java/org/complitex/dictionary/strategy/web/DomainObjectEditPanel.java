@@ -42,15 +42,20 @@ import org.complitex.dictionary.web.component.permission.PermissionPropagationDi
  * @author Artem
  */
 public class DomainObjectEditPanel extends Panel {
-
     private static final Logger log = LoggerFactory.getLogger(DomainObjectEditPanel.class);
+
     @EJB
     private StrategyFactory strategyFactory;
+
     @EJB
     private StringCultureBean stringBean;
+
     @EJB
     private LogBean logBean;
+
     private String entity;
+    private String strategyName;
+
     private DomainObject oldObject;
     private DomainObject newObject;
     private Long parentId;
@@ -58,9 +63,12 @@ public class DomainObjectEditPanel extends Panel {
     private DomainObjectInputPanel objectInputPanel;
     private final String scrollListPageParameterName;
 
-    public DomainObjectEditPanel(String id, String entity, Long objectId, Long parentId, String parentEntity, String scrollListPageParameterName) {
+    public DomainObjectEditPanel(String id, String entity, String strategyName, Long objectId, Long parentId,
+                                 String parentEntity, String scrollListPageParameterName) {
         super(id);
+
         this.entity = entity;
+        this.strategyName = strategyName;
         this.parentId = parentId;
         this.parentEntity = parentEntity;
         this.scrollListPageParameterName = scrollListPageParameterName;
@@ -79,7 +87,7 @@ public class DomainObjectEditPanel extends Panel {
     }
 
     private IStrategy getStrategy() {
-        return strategyFactory.getStrategy(entity);
+        return strategyFactory.getStrategy(entity, strategyName);
     }
 
     public DomainObject getObject() {
@@ -110,7 +118,8 @@ public class DomainObjectEditPanel extends Panel {
         Form form = new Form("form");
 
         //input panel
-        objectInputPanel = new DomainObjectInputPanel("domainObjectInputPanel", newObject, entity, parentId, parentEntity);
+        objectInputPanel = new DomainObjectInputPanel("domainObjectInputPanel", newObject, entity, strategyName,
+                parentId, parentEntity);
         form.add(objectInputPanel);
 
         //children

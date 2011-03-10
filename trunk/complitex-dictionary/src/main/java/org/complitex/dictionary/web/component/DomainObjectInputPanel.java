@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.dictionary.web.component;
 
 import com.google.common.base.Predicate;
@@ -76,12 +72,16 @@ public class DomainObjectInputPanel extends Panel {
         }
     }
     private static final Logger log = LoggerFactory.getLogger(DomainObjectInputPanel.class);
+
     @EJB
     private StrategyFactory strategyFactory;
+
     @EJB
     private StringCultureBean stringBean;
+
     private SearchComponentState searchComponentState;
     private String entity;
+    private String strategyName;
     private DomainObject object;
     private Long parentId;
     private String parentEntity;
@@ -115,10 +115,12 @@ public class DomainObjectInputPanel extends Panel {
      * @param parentId
      * @param parentEntity
      */
-    public DomainObjectInputPanel(String id, DomainObject object, String entity, Long parentId, String parentEntity) {
+    public DomainObjectInputPanel(String id, DomainObject object, String entity, String strategyName, Long parentId,
+                                  String parentEntity) {
         super(id);
         this.object = object;
         this.entity = entity;
+        this.strategyName = strategyName;
         this.parentId = parentId;
         this.parentEntity = parentEntity;
         init();
@@ -137,7 +139,7 @@ public class DomainObjectInputPanel extends Panel {
     }
 
     private IStrategy getStrategy() {
-        return strategyFactory.getStrategy(entity);
+        return strategyFactory.getStrategy(entity, strategyName);
     }
 
     public DomainObject getObject() {
