@@ -181,6 +181,7 @@ CREATE TABLE `room` (
   UNIQUE KEY `unique_object_id__start_date` (`object_id`,`start_date`),
   UNIQUE KEY `unique_external_id` (`external_id`),
   KEY `key_object_id` (`object_id`),
+  KEY `key_parent_id` (`parent_id`),
   KEY `key_parent_entity_id` (`parent_entity_id`),
   KEY `key_entity_type_id` (`entity_type_id`),
   KEY `key_start_date` (`start_date`),
