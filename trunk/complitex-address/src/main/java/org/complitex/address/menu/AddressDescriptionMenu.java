@@ -1,21 +1,19 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package org.complitex.address.web;
+package org.complitex.address.menu;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.complitex.dictionary.service.StringCultureBean;
+import org.complitex.template.web.pages.EntityDescription;
 import org.complitex.template.web.template.ITemplateLink;
 import org.complitex.template.web.template.ResourceTemplateMenu;
-import org.complitex.address.BookEntities;
 import org.complitex.address.resource.CommonResources;
 
 import java.util.List;
 import java.util.Locale;
-import org.complitex.dictionary.strategy.IStrategy;
+import org.complitex.address.AddressInfoProvider;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.util.EjbBeanLocator;
 import org.complitex.template.web.security.SecurityRole;
@@ -24,42 +22,39 @@ import org.complitex.template.web.security.SecurityRole;
  *
  * @author Artem
  */
-@AuthorizeInstantiation(SecurityRole.AUTHORIZED)
-public class InformationTemplateMenu extends ResourceTemplateMenu {
-
-    private static IStrategy getStrategy(String entity) {
-        return EjbBeanLocator.getBean(StrategyFactory.class).getStrategy(entity);
-    }
+@AuthorizeInstantiation(SecurityRole.ADDRESS_MODULE_EDIT)
+public class AddressDescriptionMenu extends ResourceTemplateMenu {
 
     @Override
     public String getTitle(Locale locale) {
-        return getString(CommonResources.class, locale, "information_menu");
+        return getString(CommonResources.class, locale, "address_description_menu");
     }
 
     @Override
     public List<ITemplateLink> getTemplateLinks(final Locale locale) {
         List<ITemplateLink> links = Lists.newArrayList();
-        for (final String bookEntity : BookEntities.getEntities()) {
+        for (final String address : getAddressInfoProvider().getAddressInfo().getAddressDescriptions()) {
             links.add(new ITemplateLink() {
 
                 @Override
                 public String getLabel(Locale locale) {
-                    return getStrategy(bookEntity).getPluralEntityLabel(locale);
+                    return EjbBeanLocator.getBean(StringCultureBean.class).displayValue(EjbBeanLocator.getBean(StrategyFactory.class).
+                            getStrategy(address).getEntity().getEntityNames(), locale);
                 }
 
                 @Override
                 public Class<? extends Page> getPage() {
-                    return getStrategy(bookEntity).getListPage();
+                    return EntityDescription.class;
                 }
 
                 @Override
                 public PageParameters getParameters() {
-                    return getStrategy(bookEntity).getListPageParams();
+                    return new PageParameters(ImmutableMap.of(EntityDescription.ENTITY, address));
                 }
 
                 @Override
                 public String getTagId() {
-                    return bookEntity + "_book_item";
+                    return address + "_address_description_item";
                 }
             });
         }
@@ -68,6 +63,10 @@ public class InformationTemplateMenu extends ResourceTemplateMenu {
 
     @Override
     public String getTagId() {
-        return "information_menu";
+        return "address_description_menu";
+    }
+
+    private static AddressInfoProvider getAddressInfoProvider() {
+        return EjbBeanLocator.getBean(AddressInfoProvider.class);
     }
 }
