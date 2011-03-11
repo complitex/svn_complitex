@@ -17,6 +17,18 @@ INSERT INTO `street_type_attribute`(`attribute_id`, `object_id`, `attribute_type
 (1,10011,1400,10011,1400), (1,10012,1400,10012,1400), (1,10013,1400,10013,1400), (1,10014,1400,10014,1400), (1,10015,1400,10015,1400)
 , (1,10016,1400,10016,1400);
 
+-- Rooms
+insert into room(object_id, parent_id, parent_entity_id) values (1,1,100), (2,1,100), (3,2,100), (4,2,100);
+insert into room_string_culture(id, locale_id, value) values (1,1, UPPER('1а')), (1,2, UPPER('1a')), (2,1, UPPER('1б')), (2,2, UPPER('1b')),
+(3,1, UPPER('2а')), (3,2, UPPER('2a')), (4,1, UPPER('2б')), (4,2, UPPER('2b'));
+insert into room_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
+(1,1,200,1,200), (1,2,200,2,200), (1,3,200,3,200), (1,4,200,4,200);
+
+-- Apartments
+insert into apartment(object_id, parent_id, parent_entity_id) values (1,1,500), (2,1,500);
+insert into apartment_string_culture(id, locale_id, value) values (1,1, UPPER('10')), (1,2, UPPER('10')), (2,1, UPPER('20')), (2,2, UPPER('20'));
+insert into apartment_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
+(1,1,100,1,100), (1,2,100,2,100);
 
 -- Building Addresses
 insert into building_address(object_id, parent_id, parent_entity_id) values (1,1,300), (2,3,300), (3,1,300), (4,1,300), (5,2,300), (6,2,300),

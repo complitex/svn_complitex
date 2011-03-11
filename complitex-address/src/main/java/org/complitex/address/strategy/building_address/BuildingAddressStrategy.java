@@ -186,13 +186,13 @@ public class BuildingAddressStrategy extends TemplateStrategy {
     }
 
     @Transactional
-    private Set<Long> findBuildingActivityInfoByParent(long buildingId) {
-        return Sets.newHashSet(sqlSession().selectList(BUILDING_ADDRESS_NAMESPACE + ".findBuildingActivityInfoByParent", buildingId));
+    private Set<Long> findBuildingActivityInfoByParent(long buildingAddressId) {
+        return Sets.newHashSet(sqlSession().selectList(BUILDING_ADDRESS_NAMESPACE + ".findBuildingActivityInfoByParent", buildingAddressId));
     }
 
     @Transactional
-    private Set<Long> findBuildingActivityInfoByReference(long buildingId) {
-        return Sets.newHashSet(sqlSession().selectList(BUILDING_ADDRESS_NAMESPACE + ".findBuildingActivityInfoByReference", buildingId));
+    private Set<Long> findBuildingActivityInfoByReference(long buildingAddressId) {
+        return Sets.newHashSet(sqlSession().selectList(BUILDING_ADDRESS_NAMESPACE + ".findBuildingActivityInfoByReference", buildingAddressId));
     }
 
     @Transactional
@@ -277,9 +277,9 @@ public class BuildingAddressStrategy extends TemplateStrategy {
             for (long referenceAddressId : referenceAddressActivityInfo) {
                 updateBuildingAddressActivity(referenceAddressId, !enable);
             }
-            buildingStrategy.changeChildrenActivity(buildingAddressId, enable);
+            buildingStrategy.changeChildrenActivity(buildingId, enable);
         }
-        updateChildrenActivity(parentId, "building", !enable);
+        updateChildrenActivity(buildingAddressId, "building", !enable);
 
         Set<Long> buildingActivityInfoByReference = findBuildingActivityInfoByReference(buildingAddressId);
         for (long buildingId : buildingActivityInfoByReference) {
@@ -287,7 +287,7 @@ public class BuildingAddressStrategy extends TemplateStrategy {
             for (long parentAddressId : parentAddressActivityInfo) {
                 updateBuildingAddressActivity(parentAddressId, !enable);
             }
-            buildingStrategy.changeChildrenActivity(parentId, enable);
+            buildingStrategy.changeChildrenActivity(buildingId, enable);
             buildingStrategy.updateBuildingActivity(buildingId, !enable);
         }
     }
