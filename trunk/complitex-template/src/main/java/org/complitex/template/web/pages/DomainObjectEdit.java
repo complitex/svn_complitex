@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import org.apache.wicket.PageParameters;
 import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
 import org.complitex.dictionary.strategy.web.DomainObjectEditPanel;
-import org.complitex.template.strategy.TemplateStrategy;
 import org.complitex.template.web.component.toolbar.DisableItemButton;
 import org.complitex.template.web.component.toolbar.EnableItemButton;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
@@ -23,8 +22,8 @@ import static org.complitex.template.strategy.TemplateStrategy.*;
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)
 public final class DomainObjectEdit extends FormTemplatePage {
-    private static final Logger log = LoggerFactory.getLogger(DomainObjectEdit.class);
 
+    private static final Logger log = LoggerFactory.getLogger(DomainObjectEdit.class);
     private DomainObjectEditPanel editPanel;
     private String entity;
 
@@ -51,7 +50,7 @@ public final class DomainObjectEdit extends FormTemplatePage {
 
             @Override
             protected void onBeforeRender() {
-                if (!DomainObjectAccessUtil.canEdit(entity, editPanel.getObject())) {
+                if (!DomainObjectAccessUtil.canDisable(entity, editPanel.getObject())) {
                     setVisible(false);
                 }
                 super.onBeforeRender();
@@ -65,7 +64,7 @@ public final class DomainObjectEdit extends FormTemplatePage {
 
             @Override
             protected void onBeforeRender() {
-                if (!DomainObjectAccessUtil.canEditDisabled(entity, editPanel.getObject())) {
+                if (!DomainObjectAccessUtil.canEnable(entity, editPanel.getObject())) {
                     setVisible(false);
                 }
                 super.onBeforeRender();

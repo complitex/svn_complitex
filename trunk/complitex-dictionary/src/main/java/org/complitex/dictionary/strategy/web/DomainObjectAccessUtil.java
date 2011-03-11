@@ -43,7 +43,11 @@ public final class DomainObjectAccessUtil {
         return (isNew(object) || object.getStatus() == StatusType.ACTIVE) && getApplication().hasAnyRole(new Roles(getEditRoles(entity)));
     }
 
-    public static boolean canEditDisabled(String entity, DomainObject object) {
+    public static boolean canDisable(String entity, DomainObject object) {
+        return !isNew(object) && (object.getStatus() == StatusType.ACTIVE) && getApplication().hasAnyRole(new Roles(getEditRoles(entity)));
+    }
+
+    public static boolean canEnable(String entity, DomainObject object){
         return !isNew(object) && (object.getStatus() == StatusType.INACTIVE) && getApplication().hasAnyRole(new Roles(getEditRoles(entity)));
     }
 
