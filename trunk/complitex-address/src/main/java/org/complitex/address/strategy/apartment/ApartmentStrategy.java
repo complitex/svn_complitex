@@ -137,6 +137,6 @@ public class ApartmentStrategy extends TemplateStrategy {
 
     @Override
     public int getSearchTextFieldSize() {
-        return 5;
+        return 3;
     }
 }
