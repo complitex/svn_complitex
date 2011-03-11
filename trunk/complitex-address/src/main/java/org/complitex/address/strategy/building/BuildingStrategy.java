@@ -551,4 +551,9 @@ public class BuildingStrategy extends TemplateStrategy {
         params.put("status", enabled ? StatusType.INACTIVE : StatusType.ACTIVE);
         sqlSession().update(BUILDING_NAMESPACE + ".updateBuildingActivity", params);
     }
+
+    @Override
+    public String[] getRealChildren() {
+        return new String[]{"apartment", "room"};
+    }
 }
