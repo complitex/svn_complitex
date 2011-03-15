@@ -22,13 +22,16 @@ public final class ChildrenContainer extends Panel {
 
     @EJB
     private StrategyFactory strategyFactory;
+
+    private String strategyName;
     private String entity;
     private DomainObject object;
 
-    public ChildrenContainer(String id, String entity, DomainObject object) {
+    public ChildrenContainer(String id, String strategyName, String entity, DomainObject object) {
         super(id);
         this.entity = entity;
         this.object = object;
+        this.strategyName = strategyName;
         init();
     }
 
@@ -46,7 +49,7 @@ public final class ChildrenContainer extends Panel {
             @Override
             protected void populateItem(ListItem<String> item) {
                 String childEntity = item.getModelObject();
-                item.add(new Children("children", entity, object, childEntity));
+                item.add(new Children("children", entity, object, strategyName, childEntity));
             }
         };
         add(childrenContainers);

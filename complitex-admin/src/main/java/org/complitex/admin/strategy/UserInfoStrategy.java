@@ -17,7 +17,7 @@ import java.util.Locale;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 10.08.2010 14:43:55
  */
-@Stateless(name = "User_infoStrategy")
+@Stateless
 public class UserInfoStrategy extends TemplateStrategy {
     public final static Long LAST_NAME = 1000L;
     public final static Long FIRST_NAME = 1001L;

@@ -123,7 +123,7 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
         }
 
         districtContainer.add(new SearchComponent("district", componentState, ImmutableList.of("city", "district"), new DistrictSearchCallback(),
-                ShowMode.ACTIVE, !isDisabled() && DomainObjectAccessUtil.canEdit("organization", currentOrganization)));
+                ShowMode.ACTIVE, !isDisabled() && DomainObjectAccessUtil.canEdit(null, "organization", currentOrganization)));
         setDistrictVisibility(districtContainer, districtRequired, currentOrganization.getEntityTypeId());
 
         //parent
@@ -152,7 +152,7 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
             excludeOrganizationIds.addAll(organizationStrategy.getTreeChildrenOrganizationIds(currentOrganization.getId()));
             Long[] excludeAsArray = new Long[excludeOrganizationIds.size()];
             UserOrganizationPicker parent = new UserOrganizationPicker("parent", parentModel, excludeOrganizationIds.toArray(excludeAsArray));
-            parent.setEnabled(!isDisabled() && DomainObjectAccessUtil.canEdit("organization", currentOrganization));
+            parent.setEnabled(!isDisabled() && DomainObjectAccessUtil.canEdit(null, "organization", currentOrganization));
             parentContainer.add(parent);
         }
 

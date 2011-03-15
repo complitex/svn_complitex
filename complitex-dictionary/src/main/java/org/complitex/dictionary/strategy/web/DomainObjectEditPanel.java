@@ -87,7 +87,7 @@ public class DomainObjectEditPanel extends Panel {
     }
 
     private IStrategy getStrategy() {
-        return strategyFactory.getStrategy(entity, strategyName);
+        return strategyFactory.getStrategy(strategyName, entity);
     }
 
     public DomainObject getObject() {
@@ -125,7 +125,7 @@ public class DomainObjectEditPanel extends Panel {
         //children
         Component childrenContainer = new EmptyPanel("childrenContainer");
         if (oldObject != null) {
-            childrenContainer = new ChildrenContainer("childrenContainer", entity, newObject);
+            childrenContainer = new ChildrenContainer(strategyName, "childrenContainer", entity, newObject);
         }
         form.add(childrenContainer);
 
@@ -144,7 +144,7 @@ public class DomainObjectEditPanel extends Panel {
 
         //permissions panel
         DomainObjectPermissionsPanel permissionsPanel = new DomainObjectPermissionsPanel("permissionsPanel", newObject.getSubjectIds());
-        permissionsPanel.setEnabled(DomainObjectAccessUtil.canEdit(entity, newObject));
+        permissionsPanel.setEnabled(DomainObjectAccessUtil.canEdit(strategyName, entity, newObject));
         form.add(permissionsPanel);
 
         //permissionPropagationDialogPanel
@@ -174,7 +174,8 @@ public class DomainObjectEditPanel extends Panel {
                             save(false);
                         } else {
                             boolean canPopagatePermissions = getStrategy().canPropagatePermissions(newObject);
-                            if (canPopagatePermissions && getStrategy().isNeedToChangePermission(oldObject.getSubjectIds(), newObject.getSubjectIds())) {
+                            if (canPopagatePermissions && getStrategy().isNeedToChangePermission(oldObject.getSubjectIds(),
+                                    newObject.getSubjectIds())) {
                                 permissionPropagationDialogPanel.open(target);
                             } else {
                                 save(false);
@@ -195,7 +196,7 @@ public class DomainObjectEditPanel extends Panel {
                 target.addComponent(messages);
             }
         };
-        submit.setVisible(DomainObjectAccessUtil.canEdit(entity, newObject));
+        submit.setVisible(DomainObjectAccessUtil.canEdit(strategyName, entity, newObject));
         form.add(submit);
         Link cancel = new Link("cancel") {
 
@@ -204,7 +205,7 @@ public class DomainObjectEditPanel extends Panel {
                 back();
             }
         };
-        cancel.setVisible(DomainObjectAccessUtil.canEdit(entity, newObject));
+        cancel.setVisible(DomainObjectAccessUtil.canEdit(strategyName, entity, newObject));
         form.add(cancel);
         Link back = new Link("back") {
 
@@ -213,7 +214,7 @@ public class DomainObjectEditPanel extends Panel {
                 back();
             }
         };
-        back.setVisible(!DomainObjectAccessUtil.canEdit(entity, newObject));
+        back.setVisible(!DomainObjectAccessUtil.canEdit(strategyName, entity, newObject));
         form.add(back);
         add(form);
     }

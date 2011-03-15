@@ -25,7 +25,9 @@ public final class DomainObjectEdit extends FormTemplatePage {
 
     private static final Logger log = LoggerFactory.getLogger(DomainObjectEdit.class);
     private DomainObjectEditPanel editPanel;
+
     private String entity;
+    private String strategy;
 
     public DomainObjectEdit(PageParameters parameters) {
         init(parameters.getString(ENTITY), parameters.getString(STRATEGY),
@@ -35,6 +37,8 @@ public final class DomainObjectEdit extends FormTemplatePage {
 
     private void init(String entity, String strategy, Long object_id, Long parentId, String parentEntity) {
         this.entity = entity;
+        this.strategy = strategy;
+
         add(editPanel = new DomainObjectEditPanel("editPanel", entity, strategy, object_id, parentId, parentEntity,
                 DomainObjectList.SCROLL_PARAMETER));
     }
@@ -50,7 +54,7 @@ public final class DomainObjectEdit extends FormTemplatePage {
 
             @Override
             protected void onBeforeRender() {
-                if (!DomainObjectAccessUtil.canDisable(entity, editPanel.getObject())) {
+                if (!DomainObjectAccessUtil.canDisable(strategy, entity, editPanel.getObject())) {
                     setVisible(false);
                 }
                 super.onBeforeRender();
@@ -64,7 +68,7 @@ public final class DomainObjectEdit extends FormTemplatePage {
 
             @Override
             protected void onBeforeRender() {
-                if (!DomainObjectAccessUtil.canEnable(entity, editPanel.getObject())) {
+                if (!DomainObjectAccessUtil.canEnable(strategy, entity, editPanel.getObject())) {
                     setVisible(false);
                 }
                 super.onBeforeRender();
