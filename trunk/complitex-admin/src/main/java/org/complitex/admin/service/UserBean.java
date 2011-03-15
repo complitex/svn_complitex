@@ -1,6 +1,7 @@
 package org.complitex.admin.service;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.complitex.admin.strategy.UserInfoStrategy;
 import org.complitex.dictionary.entity.*;
 import org.complitex.dictionary.entity.description.EntityAttributeType;
 import org.complitex.dictionary.entity.example.AttributeExample;
@@ -23,20 +24,15 @@ import org.complitex.dictionary.util.DateUtil;
 @Stateless(name = "UserBean")
 public class UserBean extends AbstractBean {
     public static final String STATEMENT_PREFIX = UserBean.class.getCanonicalName();
-    public static final String USER_INFO_ENTITY_TABLE = "user_info";
 
-    @EJB(beanName = "StrategyFactory")
-    private StrategyFactory strategyFactory;
-
-    public IStrategy getUserInfoStrategy(){
-        return strategyFactory.getStrategy(USER_INFO_ENTITY_TABLE);
-    }
+    @EJB
+    private UserInfoStrategy userInfoStrategy;
 
     public User newUser(){
         User user = new User();
 
         user.setUserGroups(new ArrayList<UserGroup>());
-        user.setUserInfo(getUserInfoStrategy().newInstance());
+        user.setUserInfo(userInfoStrategy.newInstance());
 
         return user;
     }
@@ -51,9 +47,9 @@ public class UserBean extends AbstractBean {
         User user = (User) sqlSession().selectOne(STATEMENT_PREFIX + ".selectUser", id);
 
         if (user.getUserInfoObjectId() != null){
-            user.setUserInfo(getUserInfoStrategy().findById(user.getUserInfoObjectId(), false));
+            user.setUserInfo(userInfoStrategy.findById(user.getUserInfoObjectId(), false));
         }else{
-            user.setUserInfo(getUserInfoStrategy().newInstance());
+            user.setUserInfo(userInfoStrategy.newInstance());
         }
 
         return user;
@@ -63,7 +59,7 @@ public class UserBean extends AbstractBean {
     public void save(User user){
         if (user.getId() == null){ //Сохранение нового пользователя
             //сохранение информации о пользователе
-            getUserInfoStrategy().insert(user.getUserInfo());
+            userInfoStrategy.insert(user.getUserInfo());
             user.setUserInfoObjectId(user.getUserInfo().getId());
 
             user.setPassword(DigestUtils.md5Hex(user.getLogin())); //md5 password
@@ -168,9 +164,9 @@ public class UserBean extends AbstractBean {
             //сохранение информации о пользователе
             if (user.getUserInfoObjectId() != null){
                 DomainObject userInfo = user.getUserInfo();
-                getUserInfoStrategy().update(getUserInfoStrategy().findById(userInfo.getId(), false), userInfo, DateUtil.getCurrentDate());
+                userInfoStrategy.update(userInfoStrategy.findById(userInfo.getId(), false), userInfo, DateUtil.getCurrentDate());
             }else{
-                getUserInfoStrategy().insert(user.getUserInfo());
+                userInfoStrategy.insert(user.getUserInfo());
                 user.setUserInfoObjectId(user.getUserInfo().getId());
                 sqlSession().update(STATEMENT_PREFIX + ".updateUser", user);
             }
@@ -184,7 +180,7 @@ public class UserBean extends AbstractBean {
         //todo change to db load
         for (User user : users){
             if (user.getUserInfoObjectId() != null){
-                user.setUserInfo(getUserInfoStrategy().findById(user.getUserInfoObjectId(), false));
+                user.setUserInfo(userInfoStrategy.findById(user.getUserInfoObjectId(), false));
             }
         }
 
@@ -199,7 +195,7 @@ public class UserBean extends AbstractBean {
     public UserFilter newUserFilter(){
         UserFilter userFilter = new UserFilter();
 
-        for (EntityAttributeType entityAttributeType : getUserInfoStrategy().getListColumns()){
+        for (EntityAttributeType entityAttributeType : userInfoStrategy.getListColumns()){
             userFilter.getAttributeExamples().add(new AttributeExample(entityAttributeType.getId()));
         }
 
@@ -208,10 +204,10 @@ public class UserBean extends AbstractBean {
 
     public List<Attribute> getAttributeColumns(DomainObject object) {
         if (object == null) {
-            return getUserInfoStrategy().newInstance().getAttributes();
+            return userInfoStrategy.newInstance().getAttributes();
         }
 
-        List<EntityAttributeType> entityAttributeTypes = getUserInfoStrategy().getListColumns();
+        List<EntityAttributeType> entityAttributeTypes = userInfoStrategy.getListColumns();
         List<Attribute> attributeColumns = new ArrayList<Attribute>(entityAttributeTypes.size());
 
         for (EntityAttributeType entityAttributeType : entityAttributeTypes) {

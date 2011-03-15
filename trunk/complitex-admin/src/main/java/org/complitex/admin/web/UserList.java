@@ -19,6 +19,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
 import org.complitex.admin.service.UserBean;
 import org.complitex.admin.service.UserFilter;
+import org.complitex.admin.strategy.UserInfoStrategy;
 import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.User;
 import org.complitex.dictionary.entity.UserGroup;
@@ -46,13 +47,13 @@ import java.util.List;
  */
 @AuthorizeInstantiation(SecurityRole.ADMIN_MODULE_EDIT)
 public class UserList extends ScrollListPage {
-    @EJB(name = "OrganizationStrategy")
+    @EJB
     private IOrganizationStrategy organizationStrategy;
 
-    @EJB(name = "User_infoStrategy")
-    private IStrategy userInfoStrategy;
+    @EJB
+    private UserInfoStrategy userInfoStrategy;
 
-    @EJB(name = "UserBean")
+    @EJB
     private UserBean userBean;
 
     public UserList() {
@@ -181,7 +182,7 @@ public class UserList extends ScrollListPage {
         //Названия колонок и сортировка
         filterForm.add(new ArrowOrderByBorder("header.login", "login", dataProvider, dataView, filterForm));
         filterForm.add(new ArrowOrderByBorder("header.organization", "organization", dataProvider, dataView, filterForm));
-        filterForm.add(new AttributeHeadersPanel("header.user_info", userBean.getUserInfoStrategy().getListColumns(),
+        filterForm.add(new AttributeHeadersPanel("header.user_info", userInfoStrategy.getListColumns(),
                 dataProvider, dataView, filterForm));
 
         //Постраничная навигация

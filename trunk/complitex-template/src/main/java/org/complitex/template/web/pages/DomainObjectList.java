@@ -25,13 +25,17 @@ public class DomainObjectList extends ScrollListPage {
     public static final String STRATEGY = "strategy";
 
     private DomainObjectListPanel listPanel;
+
     private String entity;
+    private String strategy;
 
     public DomainObjectList(PageParameters params) {
         super(params);
 
-        this.entity = params.getString(ENTITY);
-        add(listPanel = new DomainObjectListPanel("listPanel", entity, params.getString(STRATEGY)));
+        entity = params.getString(ENTITY);
+        strategy = params.getString(STRATEGY);
+
+        add(listPanel = new DomainObjectListPanel("listPanel", entity, strategy));
     }
 
     @Override
@@ -45,7 +49,7 @@ public class DomainObjectList extends ScrollListPage {
 
             @Override
             protected void onBeforeRender() {
-                if (!DomainObjectAccessUtil.canAddNew(entity)) {
+                if (!DomainObjectAccessUtil.canAddNew(strategy, entity)) {
                     setVisible(false);
                 }
                 super.onBeforeRender();

@@ -34,15 +34,19 @@ public final class Children extends Panel {
 
     @EJB
     private StrategyFactory strategyFactory;
+
     private String childEntity;
+    private String childStrategyName;
     private String parentEntity;
     private DomainObject parentObject;
 
-    public Children(String id, String parentEntity, DomainObject parentObject, String childEntity) {
+    public Children(String id, String parentEntity, DomainObject parentObject,
+                    String childStrategyName, String childEntity) {
         super(id);
         this.childEntity = childEntity;
         this.parentEntity = parentEntity;
         this.parentObject = parentObject;
+        this.childStrategyName = childStrategyName;
         init();
     }
 
@@ -137,7 +141,7 @@ public final class Children extends Panel {
         BookmarkablePageLink addLink = new BookmarkablePageLink("add", getChildrenStrategy().getEditPage(),
                 getChildrenStrategy().getEditPageParams(null, parentObject.getId(), parentEntity));
         content.add(addLink);
-        if (!DomainObjectAccessUtil.canEdit(parentEntity, parentObject)) {
+        if (!DomainObjectAccessUtil.canEdit(childStrategyName, parentEntity, parentObject)) {
             addLink.setVisible(false);
         }
     }

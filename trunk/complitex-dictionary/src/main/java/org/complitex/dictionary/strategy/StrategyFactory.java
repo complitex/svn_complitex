@@ -20,7 +20,7 @@ public class StrategyFactory {
         return EjbBeanLocator.getBean(strategyName);
     }
 
-     public IStrategy getStrategy(String entityTable, String strategyName) {
+     public IStrategy getStrategy(String strategyName, String entityTable) {
          if (strategyName == null || strategyName.isEmpty()){
              return getStrategy(entityTable);
          }

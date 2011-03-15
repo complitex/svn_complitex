@@ -18,6 +18,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.complitex.admin.Module;
 import org.complitex.admin.service.UserBean;
+import org.complitex.admin.strategy.UserInfoStrategy;
 import org.complitex.dictionary.entity.*;
 import org.complitex.dictionary.service.LogBean;
 import org.complitex.dictionary.util.CloneUtil;
@@ -46,11 +47,14 @@ import static org.complitex.dictionary.entity.UserGroup.GROUP_NAME.*;
 public class UserEdit extends FormTemplatePage {
     private static final Logger log = LoggerFactory.getLogger(UserEdit.class);
 
-    @EJB(name = "OrganizationStrategy")
+    @EJB
     private IOrganizationStrategy organizationStrategy;
 
     @EJB(name = "UserBean")
     private UserBean userBean;
+
+    @EJB
+    private UserInfoStrategy userInfoStrategy;
     
     @EJB(name = "LogBean")
     private LogBean logBean;
@@ -132,7 +136,7 @@ public class UserEdit extends FormTemplatePage {
 
         //Информация о пользователе
         DomainObjectInputPanel userInfo = new DomainObjectInputPanel("user_info", userModel.getObject().getUserInfo(),
-                null, UserBean.USER_INFO_ENTITY_TABLE, null, null);
+                "user_info", "UserInfoStrategy", null, null);
         form.add(userInfo);
 
         //Группы привилегий
@@ -247,7 +251,7 @@ public class UserEdit extends FormTemplatePage {
         }
 
         //информация о пользователе
-        List<LogChange> userInfoLogChanges = logBean.getLogChanges(userBean.getUserInfoStrategy(),
+        List<LogChange> userInfoLogChanges = logBean.getLogChanges(userInfoStrategy,
                 oldUser != null ? oldUser.getUserInfo() : null, newUser.getUserInfo(), getLocale());
 
         logChanges.addAll(userInfoLogChanges);

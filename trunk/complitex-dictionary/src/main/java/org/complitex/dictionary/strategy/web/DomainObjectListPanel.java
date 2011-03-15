@@ -92,7 +92,7 @@ public class DomainObjectListPanel extends Panel {
     }
 
     public IStrategy getStrategy() {
-        return strategyFactory.getStrategy(entity, strategyName);
+        return strategyFactory.getStrategy(strategyName, entity);
     }
 
     public DomainObjectExample getExample() {
@@ -276,7 +276,7 @@ public class DomainObjectListPanel extends Panel {
 
                     @Override
                     public String getObject() {
-                        if(DomainObjectAccessUtil.canAddNew(entity)){
+                        if(DomainObjectAccessUtil.canAddNew(strategyName, entity)){
                             return getString("edit");
                         } else {
                             return getString("view");

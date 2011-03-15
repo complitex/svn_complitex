@@ -133,7 +133,7 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
         }
         districtContainer.add(new SearchComponent("district", districtComponentState,
                 ImmutableList.of("country", "region", "city", "district"), new DistrictSearchCallback(), ShowMode.ACTIVE,
-                !isDisabled() && DomainObjectAccessUtil.canEdit("building", building)));
+                !isDisabled() && DomainObjectAccessUtil.canEdit(null, "building", building)));
 
         districtContainer.setVisible(districtAttribute != null);
 
@@ -180,7 +180,7 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
                 };
                 item.add(alternativeAddess);
                 addRemoveSubmitLink("remove", findParent(Form.class), item, null, attributesContainer, feedbackPanel).
-                        setVisible(!isDisabled() && DomainObjectAccessUtil.canEdit("building", building));
+                        setVisible(!isDisabled() && DomainObjectAccessUtil.canEdit(null, "building", building));
             }
         };
         attributesContainer.add(alternativeAdresses);
@@ -202,7 +202,7 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
                 target.addComponent(feedbackPanel);
             }
         };
-        add.setVisible(!isDisabled() && DomainObjectAccessUtil.canEdit("building", building));
+        add.setVisible(!isDisabled() && DomainObjectAccessUtil.canEdit(null, "building", building));
         add(add);
     }
 }

@@ -247,7 +247,7 @@ public final class BuildingList extends ScrollListPage {
 
                     @Override
                     public String getObject() {
-                        if(DomainObjectAccessUtil.canAddNew("building")){
+                        if(DomainObjectAccessUtil.canAddNew(null, "building")){
                             return getString("edit");
                         } else {
                             return getString("view");
@@ -307,7 +307,7 @@ public final class BuildingList extends ScrollListPage {
 
             @Override
             protected void onBeforeRender() {
-                if (!DomainObjectAccessUtil.canAddNew("building")) {
+                if (!DomainObjectAccessUtil.canAddNew(null, "building")) {
                     setVisible(false);
                 }
                 super.onBeforeRender();

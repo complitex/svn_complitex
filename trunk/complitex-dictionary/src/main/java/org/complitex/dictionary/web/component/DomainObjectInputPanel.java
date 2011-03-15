@@ -139,7 +139,7 @@ public class DomainObjectInputPanel extends Panel {
     }
 
     private IStrategy getStrategy() {
-        return strategyFactory.getStrategy(entity, strategyName);
+        return strategyFactory.getStrategy(strategyName, entity);
     }
 
     public DomainObject getObject() {
@@ -228,7 +228,7 @@ public class DomainObjectInputPanel extends Panel {
         types = new DisableAwareDropDownChoice<EntityType>("types", typeModel, entityTypes, renderer);
         types.setLabel(new ResourceModel("entity_type"));
         types.setRequired(true);
-        types.setEnabled(!isHistory() && DomainObjectAccessUtil.canEdit(entity, object));
+        types.setEnabled(!isHistory() && DomainObjectAccessUtil.canEdit(strategyName, entity, object));
         typeContainer.add(types);
 
 
@@ -281,32 +281,38 @@ public class DomainObjectInputPanel extends Panel {
                             }
                         };
                         IModel<String> model = new SimpleTypeModel<String>(systemLocaleStringCulture, stringConverter);
-                        input = new StringPanel("input", model, attrType.isMandatory(), labelModel, !isHistory() && DomainObjectAccessUtil.canEdit(entity, object));
+                        input = new StringPanel("input", model, attrType.isMandatory(), labelModel, !isHistory()
+                                && DomainObjectAccessUtil.canEdit(strategyName, entity, object));
                     }
                     break;
                     case STRING_CULTURE: {
                         IModel<List<StringCulture>> model = new PropertyModel<List<StringCulture>>(attr, "localizedValues");
-                        input = new StringCulturePanel("input", model, attrType.isMandatory(), labelModel, !isHistory() && DomainObjectAccessUtil.canEdit(entity, object));
+                        input = new StringCulturePanel("input", model, attrType.isMandatory(), labelModel, !isHistory()
+                                && DomainObjectAccessUtil.canEdit(strategyName, entity, object));
                     }
                     break;
                     case INTEGER: {
                         IModel<Integer> model = new SimpleTypeModel<Integer>(systemLocaleStringCulture, new IntegerConverter());
-                        input = new IntegerPanel("input", model, attrType.isMandatory(), labelModel, !isHistory() && DomainObjectAccessUtil.canEdit(entity, object));
+                        input = new IntegerPanel("input", model, attrType.isMandatory(), labelModel, !isHistory()
+                                && DomainObjectAccessUtil.canEdit(strategyName, entity, object));
                     }
                     break;
                     case DATE: {
                         IModel<Date> model = new SimpleTypeModel<Date>(systemLocaleStringCulture, new DateConverter());
-                        input = new DatePanel("input", model, attrType.isMandatory(), labelModel, !isHistory() && DomainObjectAccessUtil.canEdit(entity, object));
+                        input = new DatePanel("input", model, attrType.isMandatory(), labelModel, !isHistory()
+                                && DomainObjectAccessUtil.canEdit(strategyName, entity, object));
                     }
                     break;
                     case BOOLEAN: {
                         IModel<Boolean> model = new SimpleTypeModel<Boolean>(systemLocaleStringCulture, new BooleanConverter());
-                        input = new BooleanPanel("input", model, labelModel, !isHistory() && DomainObjectAccessUtil.canEdit(entity, object));
+                        input = new BooleanPanel("input", model, labelModel, !isHistory()
+                                && DomainObjectAccessUtil.canEdit(strategyName, entity, object));
                     }
                     break;
                     case DOUBLE: {
                         IModel<Double> model = new SimpleTypeModel<Double>(systemLocaleStringCulture, new DoubleConverter());
-                        input = new DoublePanel("input", model, attrType.isMandatory(), labelModel, !isHistory() && DomainObjectAccessUtil.canEdit(entity, object));
+                        input = new DoublePanel("input", model, attrType.isMandatory(), labelModel, !isHistory()
+                                && DomainObjectAccessUtil.canEdit(strategyName, entity, object));
                     }
                     break;
                 }
@@ -327,7 +333,8 @@ public class DomainObjectInputPanel extends Panel {
             parentContainer.add(new EmptyPanel("parentSearch"));
         } else {
             SearchComponent parentSearchComponent = new SearchComponent("parentSearch", getParentSearchComponentState(), parentFilters,
-                    parentSearchCallback, ShowMode.ACTIVE, !isHistory() && DomainObjectAccessUtil.canEdit(entity, object));
+                    parentSearchCallback, ShowMode.ACTIVE, !isHistory()
+                            && DomainObjectAccessUtil.canEdit(strategyName, entity, object));
             parentContainer.add(parentSearchComponent);
             parentSearchComponent.invokeCallback();
         }

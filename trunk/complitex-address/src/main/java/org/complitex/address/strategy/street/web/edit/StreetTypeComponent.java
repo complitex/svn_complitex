@@ -25,7 +25,7 @@ public class StreetTypeComponent extends AbstractComplexAttributesPanel {
     protected void init() {
         DomainObject street = getInputPanel().getObject();
         EntityTypePanel streetType = new EntityTypePanel("streetType", "street_type", street, StreetStrategy.STREET_TYPE,
-                new ResourceModel("street_type"), !isDisabled() && DomainObjectAccessUtil.canEdit("street", street));
+                new ResourceModel("street_type"), !isDisabled() && DomainObjectAccessUtil.canEdit(null, "street", street));
         add(streetType);
     }
 }

@@ -1,5 +1,6 @@
 package org.complitex.admin.service;
 
+import org.complitex.admin.strategy.UserInfoStrategy;
 import org.complitex.dictionary.service.IUserProfileBean;
 import org.complitex.dictionary.strategy.StrategyFactory;
 
@@ -18,11 +19,14 @@ public class UserProfileBean implements IUserProfileBean{
     @EJB
     private UserBean userBean;
 
+    @EJB
+    private UserInfoStrategy userInfoStrategy;
+
     @EJB(beanName = "StrategyFactory")
     private StrategyFactory strategyFactory;
 
     @Override
     public String getFullName(Long userId, Locale locale) {
-        return strategyFactory.getStrategy(USER_INFO_ENTITY).displayDomainObject(userBean.getUser(userId).getUserInfo(), locale);
+        return userInfoStrategy.displayDomainObject(userBean.getUser(userId).getUserInfo(), locale);
     }
 }

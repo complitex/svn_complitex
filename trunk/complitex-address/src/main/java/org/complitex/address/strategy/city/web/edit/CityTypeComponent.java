@@ -25,7 +25,7 @@ public class CityTypeComponent extends AbstractComplexAttributesPanel {
     protected void init() {
         DomainObject city = getInputPanel().getObject();
         EntityTypePanel cityType = new EntityTypePanel("cityType", "city_type", city, CityStrategy.CITY_TYPE,
-                new ResourceModel("city_type"), !isDisabled() && DomainObjectAccessUtil.canEdit("city", city));
+                new ResourceModel("city_type"), !isDisabled() && DomainObjectAccessUtil.canEdit(null, "city", city));
         add(cityType);
     }
 }
