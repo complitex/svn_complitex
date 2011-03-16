@@ -14,8 +14,9 @@ import java.io.*;
 public class ImportStorageUtil {
     public static CSVReader getCsvReader(String dir, IImportFile file) throws ImportFileNotFoundException {
         try {
-            return new CSVReader(new FileReader(new File(dir, file.getFileName())), ',', '"', 1);
-        } catch (FileNotFoundException e) {
+            return new CSVReader(new InputStreamReader(new FileInputStream(
+                    new File(dir, file.getFileName())), "cp1251"), ',', '"', 1);
+        } catch (Exception e) {
             throw new ImportFileNotFoundException(e, file.getFileName());
         }
     }
