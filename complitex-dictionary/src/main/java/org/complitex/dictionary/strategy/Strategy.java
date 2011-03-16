@@ -850,7 +850,12 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     }
 
     @Override
-    public Class<? extends AbstractComplexAttributesPanel> getComplexAttributesPanelClass() {
+    public Class<? extends AbstractComplexAttributesPanel> getComplexAttributesPanelBeforeClass() {
+        return null;
+    }
+    
+    @Override
+    public Class<? extends AbstractComplexAttributesPanel> getComplexAttributesPanelAfterClass() {
         return null;
     }
 

@@ -72,13 +72,10 @@ public class DomainObjectInputPanel extends Panel {
         }
     }
     private static final Logger log = LoggerFactory.getLogger(DomainObjectInputPanel.class);
-
     @EJB
     private StrategyFactory strategyFactory;
-
     @EJB
     private StringCultureBean stringBean;
-
     private SearchComponentState searchComponentState;
     private String entity;
     private String strategyName;
@@ -274,7 +271,7 @@ public class DomainObjectInputPanel extends Panel {
                     break;
                     case BIG_STRING: {
                         IModel<String> model = new SimpleTypeModel<String>(systemLocaleStringCulture, new StringConverter());
-                        input = new BigStringPanel("input", model, attrType.isMandatory(), labelModel, !isHistory() 
+                        input = new BigStringPanel("input", model, attrType.isMandatory(), labelModel, !isHistory()
                                 && DomainObjectAccessUtil.canEdit(strategyName, entity, object));
                     }
                     break;
@@ -327,23 +324,30 @@ public class DomainObjectInputPanel extends Panel {
         } else {
             SearchComponent parentSearchComponent = new SearchComponent("parentSearch", getParentSearchComponentState(), parentFilters,
                     parentSearchCallback, ShowMode.ACTIVE, !isHistory()
-                            && DomainObjectAccessUtil.canEdit(strategyName, entity, object));
+                    && DomainObjectAccessUtil.canEdit(strategyName, entity, object));
             parentContainer.add(parentSearchComponent);
             parentSearchComponent.invokeCallback();
         }
 
         //complex attributes
+        //before simple attributes:
+        addComplexAttributesPanel("complexAttributesBefore", getStrategy().getComplexAttributesPanelBeforeClass());
+
+        //after simple attributes:
+        addComplexAttributesPanel("complexAttributesAfter", getStrategy().getComplexAttributesPanelAfterClass());
+    }
+
+    protected void addComplexAttributesPanel(String id, Class<? extends AbstractComplexAttributesPanel> complexAttributesPanelClass) {
         AbstractComplexAttributesPanel complexAttributes = null;
-        Class<? extends AbstractComplexAttributesPanel> clazz = getStrategy().getComplexAttributesPanelClass();
-        if (clazz != null) {
+        if (complexAttributesPanelClass != null) {
             try {
-                complexAttributes = clazz.getConstructor(String.class, boolean.class).newInstance("complexAttributes", isHistory());
+                complexAttributes = complexAttributesPanelClass.getConstructor(String.class, boolean.class).newInstance(id, isHistory());
             } catch (Exception e) {
                 log.error("Couldn't instantiate complex attributes panel object.", e);
             }
         }
         if (complexAttributes == null) {
-            add(new EmptyPanel("complexAttributes"));
+            add(new EmptyPanel(id));
         } else {
             add(complexAttributes);
         }

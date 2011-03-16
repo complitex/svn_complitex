@@ -71,7 +71,7 @@ public class UserInfoStrategy extends TemplateStrategy {
     }
 
     @Override
-    public Class<? extends AbstractComplexAttributesPanel> getComplexAttributesPanelClass() {
+    public Class<? extends AbstractComplexAttributesPanel> getComplexAttributesPanelAfterClass() {
         return UserInfoComplexAttributesPanel.class;
     }
 }
