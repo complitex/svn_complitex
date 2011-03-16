@@ -47,7 +47,7 @@ import static org.complitex.dictionary.entity.UserGroup.GROUP_NAME.*;
 public class UserEdit extends FormTemplatePage {
     private static final Logger log = LoggerFactory.getLogger(UserEdit.class);
 
-    @EJB
+    @EJB(name = "OrganizationStrategy")
     private IOrganizationStrategy organizationStrategy;
 
     @EJB(name = "UserBean")
