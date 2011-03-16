@@ -47,7 +47,7 @@ import java.util.List;
  */
 @AuthorizeInstantiation(SecurityRole.ADMIN_MODULE_EDIT)
 public class UserList extends ScrollListPage {
-    @EJB
+    @EJB(name = "OrganizationStrategy")
     private IOrganizationStrategy organizationStrategy;
 
     @EJB
