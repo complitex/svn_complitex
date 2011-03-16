@@ -115,8 +115,7 @@ public class DomainObjectInputPanel extends Panel {
      * @param parentId
      * @param parentEntity
      */
-    public DomainObjectInputPanel(String id, DomainObject object, String entity, String strategyName, Long parentId,
-                                  String parentEntity) {
+    public DomainObjectInputPanel(String id, DomainObject object, String entity, String strategyName, Long parentId, String parentEntity) {
         super(id);
         this.object = object;
         this.entity = entity;
@@ -268,20 +267,14 @@ public class DomainObjectInputPanel extends Panel {
                 final StringCulture systemLocaleStringCulture = stringBean.getSystemStringCulture(attr.getLocalizedValues());
                 switch (type) {
                     case STRING: {
-                        IConverter<String> stringConverter = new IConverter<String>() {
-
-                            @Override
-                            public String toString(String object) {
-                                return object;
-                            }
-
-                            @Override
-                            public String toObject(String value) {
-                                return value;
-                            }
-                        };
-                        IModel<String> model = new SimpleTypeModel<String>(systemLocaleStringCulture, stringConverter);
+                        IModel<String> model = new SimpleTypeModel<String>(systemLocaleStringCulture, new StringConverter());
                         input = new StringPanel("input", model, attrType.isMandatory(), labelModel, !isHistory()
+                                && DomainObjectAccessUtil.canEdit(strategyName, entity, object));
+                    }
+                    break;
+                    case BIG_STRING: {
+                        IModel<String> model = new SimpleTypeModel<String>(systemLocaleStringCulture, new StringConverter());
+                        input = new BigStringPanel("input", model, attrType.isMandatory(), labelModel, !isHistory() 
                                 && DomainObjectAccessUtil.canEdit(strategyName, entity, object));
                     }
                     break;
