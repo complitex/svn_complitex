@@ -250,6 +250,11 @@ public class DomainObjectListPanel extends Panel {
                                 case STRING:
                                     attributeValue = systemLocaleValue;
                                     break;
+                                case BIG_STRING:
+                                    if(!Strings.isEmpty(systemLocaleValue)){
+                                        attributeValue = systemLocaleValue.substring(0, SimpleTypes.BIG_STRING_VIEW_LENGTH);
+                                    }
+                                    break;
                                 case DOUBLE:
                                     attributeValue = new DoubleConverter().toObject(systemLocaleValue).toString();
                                     break;
@@ -339,6 +344,7 @@ public class DomainObjectListPanel extends Panel {
                 SimpleTypes valueType = SimpleTypes.valueOf(attributeType.getEntityAttributeValueTypes().get(0).getValueType().toUpperCase());
                 switch (valueType) {
                     case STRING:
+                    case BIG_STRING:
                     case STRING_CULTURE:
                     case INTEGER:
                     case DOUBLE: {

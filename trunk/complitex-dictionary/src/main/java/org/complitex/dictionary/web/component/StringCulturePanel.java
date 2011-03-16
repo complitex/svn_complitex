@@ -24,7 +24,7 @@ import java.util.List;
  */
 public class StringCulturePanel extends Panel {
 
-    @EJB(name = "LocaleBean")
+    @EJB
     private LocaleBean localeBean;
 
     /**
