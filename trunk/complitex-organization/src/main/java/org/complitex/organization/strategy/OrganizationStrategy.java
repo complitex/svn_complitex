@@ -186,7 +186,7 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
     }
 
     @Override
-    public Class<? extends AbstractComplexAttributesPanel> getComplexAttributesPanelClass() {
+    public Class<? extends AbstractComplexAttributesPanel> getComplexAttributesPanelAfterClass() {
         return OrganizationEditComponent.class;
     }
 

@@ -100,7 +100,9 @@ public interface IStrategy {
 
     String[] getLogicalChildren();
 
-    Class<? extends AbstractComplexAttributesPanel> getComplexAttributesPanelClass();
+    Class<? extends AbstractComplexAttributesPanel> getComplexAttributesPanelBeforeClass();
+
+    Class<? extends AbstractComplexAttributesPanel> getComplexAttributesPanelAfterClass();
 
     long getDefaultOrderByAttributeId();
 

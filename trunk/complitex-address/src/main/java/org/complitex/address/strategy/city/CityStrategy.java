@@ -153,7 +153,7 @@ public class CityStrategy extends TemplateStrategy {
     }
 
     @Override
-    public Class<? extends AbstractComplexAttributesPanel> getComplexAttributesPanelClass() {
+    public Class<? extends AbstractComplexAttributesPanel> getComplexAttributesPanelAfterClass() {
         return CityTypeComponent.class;
     }
 

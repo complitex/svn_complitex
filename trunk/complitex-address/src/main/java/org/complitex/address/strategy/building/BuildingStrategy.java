@@ -312,7 +312,7 @@ public class BuildingStrategy extends TemplateStrategy {
     }
 
     @Override
-    public Class<? extends AbstractComplexAttributesPanel> getComplexAttributesPanelClass() {
+    public Class<? extends AbstractComplexAttributesPanel> getComplexAttributesPanelAfterClass() {
         return BuildingEditComponent.class;
     }
 
