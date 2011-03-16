@@ -125,7 +125,7 @@ public class DomainObjectEditPanel extends Panel {
         //children
         Component childrenContainer = new EmptyPanel("childrenContainer");
         if (oldObject != null) {
-            childrenContainer = new ChildrenContainer(strategyName, "childrenContainer", entity, newObject);
+            childrenContainer = new ChildrenContainer("childrenContainer", strategyName, entity, newObject);
         }
         form.add(childrenContainer);
 
