@@ -32,7 +32,7 @@ INSERT INTO `sequence` (`sequence_name`, `sequence_value`) VALUES
 ('organization',1), ('organization_string_culture',1),
 ('user_info', 1), ('user_info_string_culture', 1);
 
---Permission
+-- Permission
 INSERT INTO `permission` (`permission_id`, `table`, `entity`, `object_id`) VALUE (0, 'ALL', 'ALL', 0);
 INSERT INTO `sequence` (`sequence_name`, `sequence_value`) VALUES ('permission', 1);
 
