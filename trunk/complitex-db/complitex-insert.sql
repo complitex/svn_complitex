@@ -78,6 +78,9 @@ INSERT INTO `entity`(`id`, `entity_table`, `entity_name_id`, `strategy_factory`)
 INSERT INTO `string_culture`(`id`, `locale_id`, `value`) VALUES (1401, 1, UPPER('Название')), (1401, 2, UPPER('Назва'));
 INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (1400, 1400, 1, 1401, 1);
 INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (1400, 1400, UPPER('string_culture'));
+INSERT INTO `string_culture`(`id`, `locale_id`, `value`) VALUES (1402, 1, UPPER('Полное название')), (1402, 2, UPPER('Полное название'));
+INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (1401, 1400, 1, 1402, 1);
+INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (1401, 1401, UPPER('string_culture'));
 
 -- --------------------------------
 -- City
@@ -101,6 +104,9 @@ INSERT INTO `entity`(`id`, `entity_table`, `entity_name_id`, `strategy_factory`)
 INSERT INTO `string_culture`(`id`, `locale_id`, `value`) VALUES (1301, 1, UPPER('Название')), (1301, 2, UPPER('Назва'));
 INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (1300, 1300, 1, 1301, 1);
 INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (1300, 1300, UPPER('string_culture'));
+INSERT INTO `string_culture`(`id`, `locale_id`, `value`) VALUES (1302, 1, UPPER('Полное название')), (1302, 2, UPPER('Полное название'));
+INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (1301, 1300, 1, 1302, 1);
+INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (1301, 1301, UPPER('string_culture'));
 
 -- --------------------------------
 -- Building
