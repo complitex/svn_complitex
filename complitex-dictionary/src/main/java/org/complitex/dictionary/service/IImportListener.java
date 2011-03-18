@@ -9,5 +9,5 @@ import org.complitex.dictionary.entity.IImportFile;
 public interface IImportListener {
     public void beginImport(IImportFile importFile, int recordCount);
     public void recordProcessed(IImportFile importFile, int recordIndex);
-    public void completeImport(IImportFile importFile);
+    public void completeImport(IImportFile importFile, int recordCount);
 }

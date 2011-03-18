@@ -114,7 +114,7 @@ public class AddressImportService extends AbstractImportService{
                 listener.recordProcessed(COUNTRY, recordIndex);
             }
 
-            listener.completeImport(COUNTRY);
+            listener.completeImport(COUNTRY, recordIndex);
         } catch (IOException e) {
             throw new ImportFileReadException(e, COUNTRY.getFileName(), recordIndex);
         } catch (NumberFormatException e){
@@ -170,7 +170,7 @@ public class AddressImportService extends AbstractImportService{
                 listener.recordProcessed(REGION, recordIndex);
             }
 
-            listener.completeImport(REGION);
+            listener.completeImport(REGION, recordIndex);
         } catch (IOException e) {
             throw new ImportFileReadException(e, REGION.getFileName(), recordIndex);
         } catch (NumberFormatException e) {
@@ -217,7 +217,7 @@ public class AddressImportService extends AbstractImportService{
                 listener.recordProcessed(CITY_TYPE, recordIndex);
             }
 
-            listener.completeImport(CITY_TYPE);
+            listener.completeImport(CITY_TYPE, recordIndex);
         } catch (IOException e) {
             throw new ImportFileReadException(e, CITY_TYPE.getFileName(), recordIndex);
         } catch (NumberFormatException e){
@@ -279,7 +279,7 @@ public class AddressImportService extends AbstractImportService{
                 listener.recordProcessed(CITY, recordIndex);
             }
 
-            listener.completeImport(CITY);
+            listener.completeImport(CITY, recordIndex);
         } catch (IOException e) {
             throw new ImportFileReadException(e, CITY.getFileName(), recordIndex);
         } catch (NumberFormatException e) {
@@ -338,7 +338,7 @@ public class AddressImportService extends AbstractImportService{
                 listener.recordProcessed(DISTRICT, recordIndex);
             }
 
-            listener.completeImport(DISTRICT);
+            listener.completeImport(DISTRICT, recordIndex);
         } catch (IOException e) {
             throw new ImportFileReadException(e, DISTRICT.getFileName(), recordIndex);
         } catch (NumberFormatException e) {
@@ -385,7 +385,7 @@ public class AddressImportService extends AbstractImportService{
                 listener.recordProcessed(STREET_TYPE, recordIndex);
             }
 
-            listener.completeImport(STREET_TYPE);
+            listener.completeImport(STREET_TYPE, recordIndex);
         } catch (IOException e) {
             throw new ImportFileReadException(e, STREET_TYPE.getFileName(), recordIndex);
         } catch (NumberFormatException e){
@@ -447,7 +447,7 @@ public class AddressImportService extends AbstractImportService{
                 listener.recordProcessed(STREET, recordIndex);
             }
 
-            listener.completeImport(STREET);
+            listener.completeImport(STREET, recordIndex);
         } catch (IOException e) {
             throw new ImportFileReadException(e, STREET.getFileName(), recordIndex);
         } catch (NumberFormatException e) {
@@ -538,7 +538,7 @@ public class AddressImportService extends AbstractImportService{
                 listener.recordProcessed(BUILDING, recordIndex);
             }
 
-            listener.completeImport(BUILDING);
+            listener.completeImport(BUILDING, recordIndex);
         } catch (IOException e) {
             throw new ImportFileReadException(e, BUILDING.getFileName(), recordIndex);
         } catch (NumberFormatException e) {
