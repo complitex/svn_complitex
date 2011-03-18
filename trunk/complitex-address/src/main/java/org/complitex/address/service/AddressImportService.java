@@ -15,6 +15,7 @@ import org.complitex.address.strategy.street_type.StreetTypeStrategy;
 import org.complitex.dictionary.entity.AbstractImportService;
 import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.DomainObject;
+import org.complitex.dictionary.entity.IImportFile;
 import org.complitex.dictionary.service.IImportListener;
 import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.service.exception.ImportFileNotFoundException;
@@ -68,7 +69,7 @@ public class AddressImportService extends AbstractImportService{
     @EJB
     private BuildingAddressStrategy buildingAddressStrategy;
 
-    public void process(IImportListener<AddressImportFile> listener)
+    public void process(IImportListener listener)
             throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
         importCountry(listener);
         importRegion(listener);
@@ -85,7 +86,7 @@ public class AddressImportService extends AbstractImportService{
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    private void importCountry(IImportListener<AddressImportFile> listener)
+    public void importCountry(IImportListener listener)
             throws ImportFileNotFoundException, ImportFileReadException {
         listener.beginImport(COUNTRY, getRecordCount(COUNTRY));
 
@@ -133,7 +134,7 @@ public class AddressImportService extends AbstractImportService{
      * @throws ImportFileReadException
      * @throws ImportObjectLinkException
      */
-    private void importRegion(IImportListener<AddressImportFile> listener)
+    public void importRegion(IImportListener listener)
             throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
         listener.beginImport(REGION, getRecordCount(REGION));
 
@@ -188,7 +189,7 @@ public class AddressImportService extends AbstractImportService{
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    private void importCityType(IImportListener<AddressImportFile> listener)
+    public void importCityType(IImportListener listener)
             throws ImportFileNotFoundException, ImportFileReadException {
         listener.beginImport(CITY_TYPE, getRecordCount(CITY_TYPE));
 
@@ -235,7 +236,7 @@ public class AddressImportService extends AbstractImportService{
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    private void importCity(IImportListener<AddressImportFile> listener)
+    public void importCity(IImportListener listener)
             throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
         listener.beginImport(CITY, getRecordCount(CITY));
 
@@ -297,7 +298,7 @@ public class AddressImportService extends AbstractImportService{
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    private void importDistrict(IImportListener<AddressImportFile> listener)
+    public void importDistrict(IImportListener listener)
             throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
         listener.beginImport(DISTRICT, getRecordCount(DISTRICT));
 
@@ -356,7 +357,7 @@ public class AddressImportService extends AbstractImportService{
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    private void importStreetType(IImportListener<AddressImportFile> listener)
+    public void importStreetType(IImportListener listener)
             throws ImportFileNotFoundException, ImportFileReadException {
         listener.beginImport(STREET_TYPE, getRecordCount(STREET_TYPE));
 
@@ -403,7 +404,7 @@ public class AddressImportService extends AbstractImportService{
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    private void importStreet(IImportListener<AddressImportFile> listener)
+    public void importStreet(IImportListener listener)
             throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
         listener.beginImport(STREET, getRecordCount(STREET));
 
@@ -465,7 +466,7 @@ public class AddressImportService extends AbstractImportService{
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    private void importBuilding(IImportListener<AddressImportFile> listener)
+    public void importBuilding(IImportListener listener)
             throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
         listener.beginImport(BUILDING, getRecordCount(BUILDING));
 
