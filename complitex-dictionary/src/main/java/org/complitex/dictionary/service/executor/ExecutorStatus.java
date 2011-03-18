@@ -69,14 +69,16 @@ public class ExecutorStatus {
         return stop.get();
     }
 
-    public void start(){
-        stop.set(false);
-
+    public void init(){
         successCount = 0;
         skippedCount = 0;
         errorCount = 0;
 
         processed.clear();
+    }
+
+    public void start(){
+        stop.set(false);
 
         status = RUNNING;
     }
