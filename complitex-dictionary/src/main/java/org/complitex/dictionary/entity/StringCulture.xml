@@ -22,4 +22,15 @@
         insert into `string_culture`(`id`, `locale_id`, `value`) values (#{id}, #{localeId}, UPPER(#{value}))
     </insert>
 
+    <!-- deletion -->
+    <delete id="delete" parameterType="map">
+        DELETE FROM `${table}_string_culture` WHERE `id` IN
+           (SELECT a.`value_id` FROM `${table}_attribute` a WHERE a.`object_id` = #{objectId}
+                AND a.`attribute_type_id` IN
+                    <foreach open="(" separator="," close=")" collection="localizedAttributeTypeIds" item="id">
+                        #{id}
+                    </foreach>
+            )
+    </delete>
+
 </mapper>

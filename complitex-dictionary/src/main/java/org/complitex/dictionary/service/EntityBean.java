@@ -26,10 +26,10 @@ public class EntityBean extends AbstractBean {
 
     private static final String MAPPING_NAMESPACE = "org.complitex.dictionary.entity.description.Entity";
 
-    @EJB(beanName = "StringCultureBean")
+    @EJB
     private StringCultureBean stringBean;
 
-    @EJB(beanName = "StrategyFactory")
+    @EJB
     private StrategyFactory strategyFactory;
 
     /**
@@ -178,10 +178,6 @@ public class EntityBean extends AbstractBean {
         }
     }
 
-    /*
-     * Unused while.
-     */
-    @SuppressWarnings({"unchecked"})
     @Transactional
     public Collection<String> getAllEntities() {
         return sqlSession().selectList(MAPPING_NAMESPACE + ".allEntities");

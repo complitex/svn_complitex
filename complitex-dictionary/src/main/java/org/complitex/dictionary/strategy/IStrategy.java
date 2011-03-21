@@ -41,6 +41,7 @@ public interface IStrategy {
     String FIND_CHILDREN_PERMISSION_INFO_OPERATION = "findChildrenPermissionInfo";
     String FIND_CHILDREN_ACTIVITY_INFO_OPERATION = "findChildrenActivityInfo";
     String UPDATE_CHILDREN_ACTIVITY_OPERATION = "updateChildrenActivity";
+    String DELETE_OPERATION = "delete";
 
     @Transactional
     void archive(DomainObject object);
@@ -208,4 +209,7 @@ public interface IStrategy {
     void changeChildrenActivity(long parentId, boolean enable);
 
     boolean canPropagatePermissions(DomainObject object);
+
+    @Transactional
+    void delete(long objectId) throws DeleteException;
 }
