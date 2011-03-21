@@ -3,6 +3,7 @@ package org.complitex.dictionary.strategy;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
+import java.sql.SQLException;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.entity.*;
 import org.complitex.dictionary.entity.Log.STATUS;
@@ -25,6 +26,8 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.EJB;
 import java.util.*;
 import java.util.Locale;
+import org.apache.ibatis.exceptions.PersistenceException;
+import org.complitex.dictionary.mysql.MySqlErrors;
 
 /**
  *
@@ -1140,19 +1143,13 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     @Override
     public void delete(long objectId) throws DeleteException {
         deleteChecks(objectId);
-            
-        try {
-            deleteStrings(objectId);
-            deleteAttribute(objectId);
-            deleteObject(objectId);
-        } catch (Exception e) {
-            log.info("", e);
-            throw new DeleteException(e);
-        }
+        deleteStrings(objectId);
+        deleteAttribute(objectId);
+        deleteObject(objectId);
     }
 
     @Transactional
-    protected void deleteChecks(long objectId) throws DeleteException{
+    protected void deleteChecks(long objectId) throws DeleteException {
         childrenExistCheck(objectId);
         referenceExistCheck(objectId);
     }
@@ -1174,11 +1171,32 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     }
 
     @Transactional
-    protected void deleteObject(long objectId) {
+    protected void deleteObject(long objectId) throws DeleteException {
         Map<String, Object> params = Maps.newHashMap();
         params.put("table", getEntityTable());
         params.put("objectId", objectId);
-        sqlSession().delete(DOMAIN_OBJECT_NAMESPACE + "." + DELETE_OPERATION, params);
+        try {
+            sqlSession().delete(DOMAIN_OBJECT_NAMESPACE + "." + DELETE_OPERATION, params);
+        } catch (Exception e) {
+            SQLException sqlException = null;
+            Throwable t = e;
+            while (true) {
+                if (t == null) {
+                    break;
+                }
+                if (t instanceof SQLException) {
+                    sqlException = (SQLException) t;
+                    break;
+                }
+                t = t.getCause();
+            }
+
+            if (sqlException != null && MySqlErrors.isIntegrityConstraintViolationError(sqlException)) {
+                throw new DeleteException();
+            } else {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     @Transactional

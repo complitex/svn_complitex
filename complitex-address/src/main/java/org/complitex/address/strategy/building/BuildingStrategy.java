@@ -570,18 +570,13 @@ public class BuildingStrategy extends TemplateStrategy {
 
         Set<Long> addressIds = findBuildingAddresses(objectId);
 
-        try {
-            deleteStrings(objectId);
-            deleteAttribute(objectId);
-            deleteObject(objectId);
+        deleteStrings(objectId);
+        deleteAttribute(objectId);
+        deleteObject(objectId);
 
-            //delete building address:
-            for (Long addressId : addressIds) {
-                buildingAddressStrategy.delete(addressId);
-            }
-        } catch (Exception e) {
-            log.info("", e);
-            throw new DeleteException(e);
+        //delete building address:
+        for (Long addressId : addressIds) {
+            buildingAddressStrategy.delete(addressId);
         }
     }
 }
