@@ -50,4 +50,8 @@
         value
             (#{permissionId}, #{table}, #{entity}, #{objectId});
     </insert>
+
+    <select id="organizationPermissionExist" parameterType="map" resultType="int">
+        SELECT 1 FROM DUAL WHERE EXISTS(SELECT 1 FROM `permission` WHERE `entity` = #{organizationTable} AND `object_id` = #{organizationId})
+    </select>
 </mapper>

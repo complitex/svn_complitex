@@ -14,6 +14,7 @@ import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.mybatis.Transactional;
 import org.complitex.dictionary.service.LocaleBean;
 import org.complitex.dictionary.service.StringCultureBean;
+import org.complitex.dictionary.strategy.DeleteException;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionary.strategy.web.validate.IValidator;
@@ -29,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.util.*;
+import org.complitex.dictionary.service.PermissionBean;
 
 /**
  *
@@ -36,19 +38,18 @@ import java.util.*;
  */
 @Stateless
 public class OrganizationStrategy extends TemplateStrategy implements IOrganizationStrategy {
-    private static final Logger log = LoggerFactory.getLogger(OrganizationStrategy.class);
 
+    private static final Logger log = LoggerFactory.getLogger(OrganizationStrategy.class);
     private static final String ORGANIZATION_NAMESPACE = OrganizationStrategy.class.getPackage().getName() + ".Organization";
     private static final String RESOURCE_BUNDLE = OrganizationStrategy.class.getName();
-
     @EJB
     private StringCultureBean stringBean;
-
     @EJB
     private DistrictStrategy districtStrategy;
-
     @EJB
     private LocaleBean localeBean;
+    @EJB
+    private PermissionBean permissionBean;
 
     @Override
     public String getEntityTable() {
@@ -213,7 +214,6 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
         return (Integer) sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + "." + COUNT_OPERATION, example);
     }
 
-
     @Override
     public Attribute getDistrictAttribute(DomainObject organization) {
         return organization.getAttribute(DISTRICT);
@@ -286,7 +286,7 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
     public List<? extends DomainObject> getUserOrganizations(Locale locale, Long... excludeOrganizationsId) {
         DomainObjectExample example = new DomainObjectExample();
         example.setEntityTypeId(USER_ORGANIZATION);
-        if(locale != null){
+        if (locale != null) {
             example.setOrderByAttributeTypeId(NAME);
             example.setLocaleId(localeBean.convert(locale).getId());
             example.setAsc(true);
@@ -344,5 +344,14 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
         params.put("enabled", enabled);
         params.put("status", enabled ? StatusType.INACTIVE : StatusType.ACTIVE);
         sqlSession().update(ORGANIZATION_NAMESPACE + "." + UPDATE_CHILDREN_ACTIVITY_OPERATION, params);
+    }
+
+    @Transactional
+    @Override
+    protected void deleteChecks(long objectId) throws DeleteException {
+        if (permissionBean.isOrganizationPermissionExists(getEntityTable(), objectId)) {
+            throw new DeleteException();
+        }
+        super.deleteChecks(objectId);
     }
 }

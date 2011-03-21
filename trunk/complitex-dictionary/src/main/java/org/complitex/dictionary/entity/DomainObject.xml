@@ -231,4 +231,19 @@
                 </choose>
     </update>
 
+    <!-- deletion -->
+    <delete id="delete" parameterType="map">
+        DELETE FROM `${table}` WHERE `object_id` = #{objectId}
+    </delete>
+
+    <select id="childrenExistCheck" parameterType="map" resultType="int">
+        SELECT 1 FROM DUAL WHERE EXISTS(SELECT e.`object_id` FROM `${childEntity}` e WHERE e.`parent_id` = #{objectId}
+            AND e.`parent_entity_id` = #{entityId})
+    </select>
+
+    <select id="referenceExistCheck" parameterType="map" resultType="int">
+        SELECT 1 FROM DUAL WHERE EXISTS(SELECT a.`object_id` FROM `${referenceEntity}_attribute` a WHERE a.`value_id` = #{objectId}
+            AND a.`attribute_type_id` = #{attributeTypeId})
+    </select>
+
 </mapper>

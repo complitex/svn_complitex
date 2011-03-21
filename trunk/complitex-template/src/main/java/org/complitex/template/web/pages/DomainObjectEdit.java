@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.complitex.template.web.component.toolbar.DeleteItemButton;
 import org.complitex.template.web.security.SecurityRole;
 
 import static org.complitex.template.strategy.TemplateStrategy.*;
@@ -25,7 +26,6 @@ public final class DomainObjectEdit extends FormTemplatePage {
 
     private static final Logger log = LoggerFactory.getLogger(DomainObjectEdit.class);
     private DomainObjectEditPanel editPanel;
-
     private String entity;
     private String strategy;
 
@@ -69,6 +69,20 @@ public final class DomainObjectEdit extends FormTemplatePage {
             @Override
             protected void onBeforeRender() {
                 if (!DomainObjectAccessUtil.canEnable(strategy, entity, editPanel.getObject())) {
+                    setVisible(false);
+                }
+                super.onBeforeRender();
+            }
+        }, new DeleteItemButton(id) {
+
+            @Override
+            protected void onClick() {
+                editPanel.delete();
+            }
+
+            @Override
+            protected void onBeforeRender() {
+                if (!DomainObjectAccessUtil.canDelete(strategy, entity, editPanel.getObject())) {
                     setVisible(false);
                 }
                 super.onBeforeRender();

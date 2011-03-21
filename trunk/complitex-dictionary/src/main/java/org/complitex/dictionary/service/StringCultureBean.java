@@ -8,6 +8,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.Collections;
 import java.util.Comparator;
 import org.apache.wicket.util.string.Strings;
@@ -20,6 +21,7 @@ import javax.ejb.Stateless;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import javax.annotation.PostConstruct;
 import org.complitex.dictionary.entity.Locale;
 
@@ -31,10 +33,8 @@ import org.complitex.dictionary.entity.Locale;
 public class StringCultureBean extends AbstractBean {
 
     private static final String MAPPING_NAMESPACE = "org.complitex.dictionary.entity.StringCulture";
-
     @EJB
     private SequenceBean sequenceBean;
-
     @EJB
     private LocaleBean localeBean;
 
@@ -59,11 +59,10 @@ public class StringCultureBean extends AbstractBean {
             return o1.getLocaleId().compareTo(o2.getLocaleId());
         }
     }
-
     private StringCultureComparator stringCultureComparator;
 
     @PostConstruct
-    private void init(){
+    private void init() {
         stringCultureComparator = new StringCultureComparator(localeBean.getSystemLocaleObject().getId());
     }
 
@@ -174,5 +173,13 @@ public class StringCultureBean extends AbstractBean {
                 put("id", id).
                 build();
         return sqlSession().selectList(MAPPING_NAMESPACE + ".find", params);
+    }
+
+    public void delete(String entityTable, long objectId, Set<Long> localizedAttributeTypeIds) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("table", entityTable);
+        params.put("objectId", objectId);
+        params.put("localizedAttributeTypeIds", localizedAttributeTypeIds);
+        sqlSession().delete(MAPPING_NAMESPACE + ".delete", params);
     }
 }

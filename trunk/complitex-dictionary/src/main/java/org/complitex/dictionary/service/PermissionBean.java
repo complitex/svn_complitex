@@ -1,6 +1,6 @@
 package org.complitex.dictionary.service;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.complitex.dictionary.entity.Subject;
 import org.complitex.dictionary.entity.Permission;
@@ -135,5 +135,13 @@ public class PermissionBean extends AbstractBean{
         }
 
         return permissionId;
+    }
+
+    @Transactional
+    public boolean isOrganizationPermissionExists(String organizationTable, long organizationId){
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("organizationTable", organizationTable);
+        params.put("organizationId", organizationId);
+        return sqlSession().selectOne(MAPPING_NAMESPACE+".organizationPermissionExist", params) != null;
     }
 }

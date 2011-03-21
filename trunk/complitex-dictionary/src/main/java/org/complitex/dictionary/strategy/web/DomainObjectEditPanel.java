@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.EJB;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
+import org.complitex.dictionary.strategy.DeleteException;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.util.DateUtil;
 import org.complitex.dictionary.web.component.permission.DomainObjectPermissionsPanel;
@@ -42,20 +43,16 @@ import org.complitex.dictionary.web.component.permission.PermissionPropagationDi
  * @author Artem
  */
 public class DomainObjectEditPanel extends Panel {
-    private static final Logger log = LoggerFactory.getLogger(DomainObjectEditPanel.class);
 
+    private static final Logger log = LoggerFactory.getLogger(DomainObjectEditPanel.class);
     @EJB
     private StrategyFactory strategyFactory;
-
     @EJB
     private StringCultureBean stringBean;
-
     @EJB
     private LogBean logBean;
-
     private String entity;
     private String strategyName;
-
     private DomainObject oldObject;
     private DomainObject newObject;
     private Long parentId;
@@ -64,7 +61,7 @@ public class DomainObjectEditPanel extends Panel {
     private final String scrollListPageParameterName;
 
     public DomainObjectEditPanel(String id, String entity, String strategyName, Long objectId, Long parentId,
-                                 String parentEntity, String scrollListPageParameterName) {
+            String parentEntity, String scrollListPageParameterName) {
         super(id);
 
         this.entity = entity;
@@ -273,6 +270,18 @@ public class DomainObjectEditPanel extends Panel {
         try {
             getStrategy().enable(newObject);
             back();
+        } catch (Exception e) {
+            log.error("", e);
+            error(getString("db_error"));
+        }
+    }
+
+    public void delete() {
+        try {
+            getStrategy().delete(newObject.getId());
+            back();
+        } catch (DeleteException e) {
+            error(getString("delete_error"));
         } catch (Exception e) {
             log.error("", e);
             error(getString("db_error"));

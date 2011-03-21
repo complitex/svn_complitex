@@ -52,4 +52,9 @@
         ORDER BY aa.`attribute_type_id`, aa.`attribute_id`
     </select>
 
+    <!-- deletion -->
+    <delete id="delete" parameterType="map">
+        DELETE FROM `${table}_attribute` WHERE `object_id` = #{objectId}
+    </delete>
+
 </mapper>

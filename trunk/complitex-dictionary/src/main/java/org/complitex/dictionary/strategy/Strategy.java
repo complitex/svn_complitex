@@ -853,7 +853,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     public Class<? extends AbstractComplexAttributesPanel> getComplexAttributesPanelBeforeClass() {
         return null;
     }
-    
+
     @Override
     public Class<? extends AbstractComplexAttributesPanel> getComplexAttributesPanelAfterClass() {
         return null;
@@ -1134,5 +1134,108 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     @Override
     public String displayAttribute(Attribute attribute, Locale locale) {
         return stringBean.displayValue(attribute.getLocalizedValues(), locale);
+    }
+
+    @Transactional
+    @Override
+    public void delete(long objectId) throws DeleteException {
+        deleteChecks(objectId);
+            
+        try {
+            deleteStrings(objectId);
+            deleteAttribute(objectId);
+            deleteObject(objectId);
+        } catch (Exception e) {
+            log.info("", e);
+            throw new DeleteException(e);
+        }
+    }
+
+    @Transactional
+    protected void deleteChecks(long objectId) throws DeleteException{
+        childrenExistCheck(objectId);
+        referenceExistCheck(objectId);
+    }
+
+    @Transactional
+    protected void deleteStrings(long objectId) {
+        Set<Long> localizedAttributeTypeIds = getLocalizedAttributeTypeIds();
+        if (localizedAttributeTypeIds != null && !localizedAttributeTypeIds.isEmpty()) {
+            stringBean.delete(getEntityTable(), objectId, localizedAttributeTypeIds);
+        }
+    }
+
+    @Transactional
+    protected void deleteAttribute(long objectId) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("table", getEntityTable());
+        params.put("objectId", objectId);
+        sqlSession().delete(ATTRIBUTE_NAMESPACE + "." + DELETE_OPERATION, params);
+    }
+
+    @Transactional
+    protected void deleteObject(long objectId) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("table", getEntityTable());
+        params.put("objectId", objectId);
+        sqlSession().delete(DOMAIN_OBJECT_NAMESPACE + "." + DELETE_OPERATION, params);
+    }
+
+    @Transactional
+    protected void childrenExistCheck(long objectId) throws DeleteException {
+        String[] realChildren = getRealChildren();
+        if (realChildren != null && realChildren.length > 0) {
+            for (String childEntity : realChildren) {
+                if (childrenExistCheck(childEntity, objectId)) {
+                    throw new DeleteException();
+                }
+            }
+        }
+    }
+
+    @Transactional
+    protected boolean childrenExistCheck(String childEntity, long objectId) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("childEntity", childEntity);
+        params.put("objectId", objectId);
+        params.put("entityId", getEntity().getId());
+        Object result = sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + ".childrenExistCheck", params);
+        return result != null;
+    }
+
+    @Transactional
+    protected Set<Long> getLocalizedAttributeTypeIds() {
+        Set<Long> localizedAttributeTypeIds = Sets.newHashSet();
+        for (EntityAttributeType attributeType : getEntity().getEntityAttributeTypes()) {
+            if (attributeType.getEntityAttributeValueTypes().size() == 1
+                    && SimpleTypes.isSimpleType(attributeType.getEntityAttributeValueTypes().get(0).getValueType())) {
+                localizedAttributeTypeIds.add(attributeType.getId());
+            }
+        }
+        return localizedAttributeTypeIds;
+    }
+
+    @Transactional
+    protected void referenceExistCheck(long objectId) throws DeleteException {
+        for (String entityTable : entityBean.getAllEntities()) {
+            Entity entity = entityBean.getEntity(entityTable);
+            for (EntityAttributeType attributeType : entity.getEntityAttributeTypes()) {
+                for (EntityAttributeValueType attributeValueType : attributeType.getEntityAttributeValueTypes()) {
+                    if (getEntityTable().equals(attributeValueType.getValueType())) {
+                        String referenceEntity = entity.getEntityTable();
+                        long attributeTypeId = attributeType.getId();
+
+                        Map<String, Object> params = Maps.newHashMap();
+                        params.put("referenceEntity", referenceEntity);
+                        params.put("objectId", objectId);
+                        params.put("attributeTypeId", attributeTypeId);
+                        Object result = sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + ".referenceExistCheck", params);
+                        if (result != null) {
+                            throw new DeleteException();
+                        }
+                    }
+                }
+            }
+        }
     }
 }

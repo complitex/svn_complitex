@@ -35,6 +35,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.text.MessageFormat;
 import java.util.*;
+import org.complitex.dictionary.strategy.DeleteException;
 
 /**
  *
@@ -497,12 +498,17 @@ public class BuildingStrategy extends TemplateStrategy {
     @Override
     public TreeSet<Date> getHistoryDates(long objectId) {
         TreeSet<Date> historyDates = super.getHistoryDates(objectId);
-        Set<Long> addressIds = Sets.newHashSet(sqlSession().selectList(BUILDING_NAMESPACE + ".findBuildingAddresses", objectId));
+        Set<Long> addressIds = findBuildingAddresses(objectId);
         for (Long addressId : addressIds) {
             TreeSet<Date> addressHistoryDates = buildingAddressStrategy.getHistoryDates(addressId);
             historyDates.addAll(addressHistoryDates);
         }
         return historyDates;
+    }
+
+    @Transactional
+    private Set<Long> findBuildingAddresses(long buildingId) {
+        return Sets.newHashSet(sqlSession().selectList(BUILDING_NAMESPACE + ".findBuildingAddresses", buildingId));
     }
 
     @Transactional
@@ -555,5 +561,27 @@ public class BuildingStrategy extends TemplateStrategy {
     @Override
     public String[] getRealChildren() {
         return new String[]{"apartment", "room"};
+    }
+
+    @Transactional
+    @Override
+    public void delete(long objectId) throws DeleteException {
+        deleteChecks(objectId);
+
+        Set<Long> addressIds = findBuildingAddresses(objectId);
+
+        try {
+            deleteStrings(objectId);
+            deleteAttribute(objectId);
+            deleteObject(objectId);
+
+            //delete building address:
+            for (Long addressId : addressIds) {
+                buildingAddressStrategy.delete(addressId);
+            }
+        } catch (Exception e) {
+            log.info("", e);
+            throw new DeleteException(e);
+        }
     }
 }

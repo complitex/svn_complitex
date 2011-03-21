@@ -57,4 +57,8 @@ public final class DomainObjectAccessUtil {
     private static IRoleCheckingStrategy getApplication() {
         return (IRoleCheckingStrategy) Application.get();
     }
+
+    public static boolean canDelete(String strategyName, String entity, DomainObject object){
+        return !isNew(object) && getApplication().hasAnyRole(new Roles(getEditRoles(strategyName, entity)));
+    }
 }
