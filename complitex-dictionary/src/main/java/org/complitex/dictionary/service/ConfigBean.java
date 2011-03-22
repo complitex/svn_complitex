@@ -46,6 +46,20 @@ public class ConfigBean extends AbstractBean{
         return configMap.keySet();
     }
 
+    public Map<String, List<IConfig>> getConfigGroups(){
+        Map<String, List<IConfig>> map = new LinkedHashMap<String, List<IConfig>>();
+
+        for (IConfig c : getConfigs()){
+            if (!map.containsKey(c.getGroupKey())){
+                map.put(c.getGroupKey(), new ArrayList<IConfig>());
+            }
+
+            map.get(c.getGroupKey()).add(0, c);
+        }
+
+        return map;
+    }
+
     /**
      * Возвращает строковое значение параметра
      * @param config имя

@@ -8,4 +8,6 @@ public interface IConfig {
     public String name();
 
     public String getDefaultValue();
+
+    public String getGroupKey();
 }

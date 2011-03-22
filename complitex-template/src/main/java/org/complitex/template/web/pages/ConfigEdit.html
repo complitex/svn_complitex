@@ -12,15 +12,18 @@
 
     <div id="messages" wicket:id="messages"></div>
 
-    <form action="ConfigEdit.html#" wicket:id="form">
-        <table  border="0" cellspacing="0" cellpadding="0" class="tbForm">
-            <tbody>
-            <tr wicket:id="listView">
-                <th><span wicket:id="label"></span>:</th>
-                <td><input id="login" wicket:id="config" type="text"/></td>
-            </tr>
-            </tbody>
-        </table>
+    <form action="#" wicket:id="form">
+        <fieldset wicket:id="groupNames" style="margin-bottom:20px">
+            <legend wicket:id="groupName"></legend>
+            <table  border="0" cellspacing="0" cellpadding="0" class="tbForm">
+                <tbody>
+                <tr wicket:id="listView">
+                    <th><span wicket:id="label"></span>:</th>
+                    <td><input id="login" wicket:id="config" type="text"/></td>
+                </tr>
+                </tbody>
+            </table>
+        </fieldset>
 
         <input type="submit" class="btnBig" wicket:message="value:save" wicket:id="save"/>
     </form>

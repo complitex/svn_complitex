@@ -50,18 +50,33 @@ public class ConfigEdit extends FormTemplatePage{
         //add localization bundles
         addAllResourceBundle(configBean.getResourceBundles());
 
-        ListView<IConfig> listView = new ListView<IConfig>("listView", configs){
+        final Map<String, List<IConfig>> configGroupMap = configBean.getConfigGroups();
+
+        ListView<String> groupNames = new ListView<String>("groupNames", new ArrayList<String>(configGroupMap.keySet())){
 
             @Override
-            protected void populateItem(ListItem<IConfig> item) {
-                IConfig config = item.getModelObject();
+            protected void populateItem(ListItem<String> item) {
+                String groupKey = item.getModelObject();
 
-                item.add(new Label("label", getStringOrKey(config.name())));
-                item.add(new TextField<String>("config", model.get(config)));
+                item.add(new Label("groupName", getStringOrKey(groupKey)));
+
+                item.add(new ListView<IConfig>("listView", configGroupMap.get(groupKey)){
+                    {
+                        setReuseItems(true);
+                    }
+
+                    @Override
+                    protected void populateItem(ListItem<IConfig> item) {
+                        IConfig config = item.getModelObject();
+
+                        item.add(new Label("label", getStringOrKey(config.name())));
+                        item.add(new TextField<String>("config", model.get(config)));
+                    }
+                });
             }
         };
-        listView.setReuseItems(true);
-        form.add(listView);
+        groupNames.setReuseItems(true);
+        form.add(groupNames);
 
         Button save = new Button("save"){
             @Override
