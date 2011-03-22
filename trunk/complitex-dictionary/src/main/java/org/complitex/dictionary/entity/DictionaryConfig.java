@@ -17,4 +17,9 @@ public enum DictionaryConfig implements IConfig{
     public String getDefaultValue() {
         return defaultValue;
     }
+
+    @Override
+    public String getGroupKey() {
+        return "import";
+    }
 }
