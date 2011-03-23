@@ -15,7 +15,6 @@ import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 public abstract class AbstractComplexAttributesPanel extends Panel {
 
     private boolean disabled;
-
     private boolean firstRendering = true;
 
     @Override
@@ -40,9 +39,15 @@ public abstract class AbstractComplexAttributesPanel extends Panel {
         return this.findParent(DomainObjectInputPanel.class);
     }
 
-    protected DomainObject getDomainObject(){
+    protected DomainObject getDomainObject() {
         return getInputPanel().getObject();
     }
 
     protected abstract void init();
+
+    public void onInsert() {
+    }
+
+    public void onUpdate() {
+    }
 }
