@@ -40,6 +40,8 @@ import org.complitex.dictionary.web.component.ShowMode;
  */
 public final class SearchComponent extends Panel {
 
+    public static final long NOT_SPECIFIED_ID = -1;
+
     public static class SearchFilterSettings implements Serializable {
 
         private String searchFilter;

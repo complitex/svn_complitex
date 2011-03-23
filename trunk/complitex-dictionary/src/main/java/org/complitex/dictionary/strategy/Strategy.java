@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.EJB;
 import java.util.*;
 import java.util.Locale;
-import org.apache.ibatis.exceptions.PersistenceException;
 import org.complitex.dictionary.mysql.MySqlErrors;
 
 /**
@@ -276,9 +275,9 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
                         }
                         toAdd.add(attribute);
                     } else {
-                        List<Attribute> complexAttributes = fillAttributesWithManyValueTypes(attributeType);
-                        if (complexAttributes != null && !complexAttributes.isEmpty()) {
-                            toAdd.addAll(complexAttributes);
+                        Attribute manyValueTypesAttribute = fillManyValueTypesAttribute(attributeType, object.getId());
+                        if (manyValueTypesAttribute != null) {
+                            toAdd.add(manyValueTypesAttribute);
                         }
                     }
                 }
@@ -289,7 +288,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         }
     }
 
-    protected List<Attribute> fillAttributesWithManyValueTypes(EntityAttributeType attributeType) {
+    protected Attribute fillManyValueTypesAttribute(EntityAttributeType attributeType, Long objectId) {
         return null;
     }
 

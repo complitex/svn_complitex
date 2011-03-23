@@ -228,8 +228,10 @@ public class DomainObjectEditPanel extends Panel {
     protected void save(boolean propagate) {
         //permission related logic
         if (isNew()) {
+            onInsert();
             getStrategy().insert(newObject);
         } else {
+            onUpdate();
             if (!propagate) {
                 getStrategy().update(oldObject, newObject, DateUtil.getCurrentDate());
             } else {
@@ -241,6 +243,28 @@ public class DomainObjectEditPanel extends Panel {
                 isNew() ? Log.EVENT.CREATE : Log.EVENT.EDIT, getStrategy(),
                 oldObject, newObject, getLocale(), null);
         back();
+    }
+
+    protected void onInsert(){
+        visitChildren(AbstractComplexAttributesPanel.class, new IVisitor<AbstractComplexAttributesPanel>() {
+
+            @Override
+            public Object component(AbstractComplexAttributesPanel complexAttributesPanel) {
+                complexAttributesPanel.onInsert();
+                return CONTINUE_TRAVERSAL;
+            }
+        });
+    }
+
+    protected void onUpdate(){
+        visitChildren(AbstractComplexAttributesPanel.class, new IVisitor<AbstractComplexAttributesPanel>() {
+
+            @Override
+            public Object component(AbstractComplexAttributesPanel complexAttributesPanel) {
+                complexAttributesPanel.onUpdate();
+                return CONTINUE_TRAVERSAL;
+            }
+        });
     }
 
     private void back() {
