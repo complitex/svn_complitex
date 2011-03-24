@@ -1,6 +1,7 @@
 package org.complitex.address.service;
 
 import au.com.bytecode.opencsv.CSVReader;
+import org.complitex.address.Module;
 import org.complitex.address.entity.AddressImportFile;
 import org.complitex.address.strategy.building.BuildingStrategy;
 import org.complitex.address.strategy.building.entity.Building;
@@ -12,22 +13,23 @@ import org.complitex.address.strategy.district.DistrictStrategy;
 import org.complitex.address.strategy.region.RegionStrategy;
 import org.complitex.address.strategy.street.StreetStrategy;
 import org.complitex.address.strategy.street_type.StreetTypeStrategy;
-import org.complitex.dictionary.entity.AbstractImportService;
-import org.complitex.dictionary.entity.Attribute;
-import org.complitex.dictionary.entity.DomainObject;
-import org.complitex.dictionary.entity.IImportFile;
+import org.complitex.dictionary.entity.*;
+import org.complitex.dictionary.service.ConfigBean;
 import org.complitex.dictionary.service.IImportListener;
+import org.complitex.dictionary.service.LogBean;
 import org.complitex.dictionary.service.StringCultureBean;
-import org.complitex.dictionary.service.exception.ImportFileNotFoundException;
-import org.complitex.dictionary.service.exception.ImportFileReadException;
-import org.complitex.dictionary.service.exception.ImportObjectLinkException;
+import org.complitex.dictionary.service.exception.*;
 import org.complitex.dictionary.util.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
+import javax.annotation.Resource;
+import javax.ejb.*;
+import javax.transaction.*;
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.complitex.address.entity.AddressImportFile.*;
 
@@ -35,9 +37,14 @@ import static org.complitex.address.entity.AddressImportFile.*;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 18.02.11 16:16
  */
-@Stateless
+@Singleton
+@ConcurrencyManagement(ConcurrencyManagementType.BEAN)
+@TransactionManagement(TransactionManagementType.BEAN)
 public class AddressImportService extends AbstractImportService{
     private final static Logger log = LoggerFactory.getLogger(AddressImportService.class);
+
+    @Resource
+    private UserTransaction userTransaction;
 
     @EJB
     private StringCultureBean stringCultureBean;
@@ -69,16 +76,133 @@ public class AddressImportService extends AbstractImportService{
     @EJB
     private BuildingAddressStrategy buildingAddressStrategy;
 
-    public void process(IImportListener listener)
+    @EJB
+    private ConfigBean configBean;
+
+    @EJB
+    private LogBean logBean;
+
+    private boolean processing;
+    private boolean error;
+    private boolean success;
+
+    private String errorMessage;
+
+    private Map<IImportFile, ImportMessage> messages = new LinkedHashMap<IImportFile, ImportMessage>();
+
+    private IImportListener listener = new IImportListener() {
+
+        @Override
+        public void beginImport(IImportFile importFile, int recordCount) {
+            messages.put(importFile, new ImportMessage(importFile, recordCount, 0));
+        }
+
+        @Override
+        public void recordProcessed(IImportFile importFile, int recordIndex) {
+            messages.get(importFile).setIndex(recordIndex);
+        }
+
+        @Override
+        public void completeImport(IImportFile importFile, int recordCount) {
+            logBean.info(Module.NAME, AddressImportService.class, importFile.getClass(), null, Log.EVENT.CREATE,
+                    "Имя файла: {0}, количество записей: {1}", importFile.getFileName(), recordCount);
+        }
+    };
+
+    public boolean isProcessing() {
+        return processing;
+    }
+
+    public boolean isError() {
+        return error;
+    }
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public ImportMessage getMessage(IImportFile importFile){
+        return messages.get(importFile);
+    }
+
+    private void init(){
+        messages.clear();
+        processing = true;
+        error = false;
+        success = false;
+        errorMessage = null;
+    }
+
+    public <T extends IImportFile> void process(T importFile, IImportListener listener)
             throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
-        importCountry(listener);
-        importRegion(listener);
-        importCityType(listener);
-        importCity(listener);
-        importDistrict(listener);
-        importStreetType(listener);
-        importStreet(listener);
-        importBuilding(listener);
+        switch ((AddressImportFile)importFile){
+            case COUNTRY:
+                importCountry(listener);
+                break;
+            case REGION:
+                importRegion(listener);
+                break;
+            case CITY_TYPE:
+                importCityType(listener);
+                break;
+            case CITY:
+                importCity(listener);
+                break;
+            case DISTRICT:
+                importDistrict(listener);
+                break;
+            case STREET_TYPE:
+                importStreetType(listener);
+                break;
+            case STREET:
+                importStreet(listener);
+                break;
+            case BUILDING:
+                importBuilding(listener);
+                break;
+        }
+    }
+
+    @Asynchronous
+    public <T extends IImportFile> void process(List<T> addressFiles){
+        if (processing){
+            return;
+        }
+
+        init();
+
+        configBean.getString(DictionaryConfig.IMPORT_FILE_STORAGE_DIR, true); //reload config cache
+
+        try {
+            for(T t : addressFiles){
+                userTransaction.begin();
+
+                process(t, listener);
+
+                userTransaction.commit();
+            }
+
+            success = true;
+        } catch (Exception e) {
+            log.error("Ошибка импорта", e);
+
+            try {
+                userTransaction.rollback();
+            } catch (SystemException e1) {
+                log.error("Ошибка отката транзакции", e1);
+            }
+
+            error = true;
+            errorMessage = e instanceof AbstractException ? e.getMessage() : new ImportCriticalException(e).getMessage();
+
+            logBean.error(Module.NAME, AddressImportService.class, null, null, Log.EVENT.CREATE, errorMessage);
+        }finally {
+            processing = false;
+        }
     }
 
     /**
