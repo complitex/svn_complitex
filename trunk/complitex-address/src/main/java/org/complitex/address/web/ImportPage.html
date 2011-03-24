@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"  xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+
+<body>
+<wicket:extend>
+    <div>
+        <h1><wicket:message key="title"/></h1>
+
+        <div wicket:id="container">
+            <div wicket:id="messages"></div>
+            <ul>
+                <li wicket:id="error" class="feedbackPanelERROR"></li>
+            </ul>
+
+            <form action="#" wicket:id="form">
+                <h2><wicket:message key="import"/></h2>
+                <span wicket:id="address"></span>
+                <br/>
+
+                <input type="submit" class="btnBig" wicket:id="process" wicket:message="value:process"/>
+            </form>
+        </div>
+    </div>
+</wicket:extend>
+</body>
+</html>
