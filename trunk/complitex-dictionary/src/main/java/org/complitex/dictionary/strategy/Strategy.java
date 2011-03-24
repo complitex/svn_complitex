@@ -430,51 +430,57 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
                     EntityAttributeType attributeType = getEntity().getAttributeType(oldAttr.getAttributeTypeId());
 
-                    if (isSimpleAttributeType(attributeType)) {
-                        String attrValueType = attributeType.getEntityAttributeValueTypes().get(0).getValueType();
-                        SimpleTypes simpleType = SimpleTypes.valueOf(attrValueType.toUpperCase());
-                        switch (simpleType) {
-                            case STRING_CULTURE: {
-                                boolean valueChanged = false;
-                                for (StringCulture oldString : oldAttr.getLocalizedValues()) {
-                                    for (StringCulture newString : newAttr.getLocalizedValues()) {
-                                        //compare strings
-                                        if (oldString.getLocaleId().equals(newString.getLocaleId())) {
-                                            if (!Strings.isEqual(oldString.getValue(), newString.getValue())) {
-                                                valueChanged = true;
-                                                break;
+                    Long oldValueTypeId = oldAttr.getValueTypeId();
+                    Long newValueTypeId = newAttr.getValueTypeId();
+
+                    if (!Numbers.isEqual(oldValueTypeId, newValueTypeId)) {
+                        needToUpdateAttribute = true;
+                    } else {
+                        String attributeValueType = attributeType.getAttributeValueType(oldAttr.getValueTypeId()).getValueType();
+                        if (SimpleTypes.isSimpleType(attributeValueType)) {
+                            SimpleTypes simpleType = SimpleTypes.valueOf(attributeValueType.toUpperCase());
+                            switch (simpleType) {
+                                case STRING_CULTURE: {
+                                    boolean valueChanged = false;
+                                    for (StringCulture oldString : oldAttr.getLocalizedValues()) {
+                                        for (StringCulture newString : newAttr.getLocalizedValues()) {
+                                            //compare strings
+                                            if (oldString.getLocaleId().equals(newString.getLocaleId())) {
+                                                if (!Strings.isEqual(oldString.getValue(), newString.getValue())) {
+                                                    valueChanged = true;
+                                                    break;
+                                                }
                                             }
                                         }
                                     }
-                                }
 
-                                if (valueChanged) {
-                                    needToUpdateAttribute = true;
+                                    if (valueChanged) {
+                                        needToUpdateAttribute = true;
+                                    }
                                 }
-                            }
-                            break;
+                                break;
 
-                            case BOOLEAN:
-                            case DATE:
-                            case DOUBLE:
-                            case INTEGER:
-                            case BIG_STRING:
-                            case STRING: {
-                                String oldString = stringBean.getSystemStringCulture(oldAttr.getLocalizedValues()).getValue();
-                                String newString = stringBean.getSystemStringCulture(newAttr.getLocalizedValues()).getValue();
-                                if (!Strings.isEqual(oldString, newString)) {
-                                    needToUpdateAttribute = true;
+                                case BOOLEAN:
+                                case DATE:
+                                case DOUBLE:
+                                case INTEGER:
+                                case BIG_STRING:
+                                case STRING: {
+                                    String oldString = stringBean.getSystemStringCulture(oldAttr.getLocalizedValues()).getValue();
+                                    String newString = stringBean.getSystemStringCulture(newAttr.getLocalizedValues()).getValue();
+                                    if (!Strings.isEqual(oldString, newString)) {
+                                        needToUpdateAttribute = true;
+                                    }
                                 }
+                                break;
                             }
-                            break;
-                        }
-                    } else {
-                        Long oldValueId = oldAttr.getValueId();
-                        Long oldValueTypeId = oldAttr.getValueTypeId();
-                        Long newValueId = newAttr.getValueId();
-                        Long newValueTypeId = newAttr.getValueTypeId();
-                        if (!Numbers.isEqual(oldValueId, newValueId) || !Numbers.isEqual(oldValueTypeId, newValueTypeId)) {
-                            needToUpdateAttribute = true;
+                        } else {
+                            //reference object ids
+                            Long oldValueId = oldAttr.getValueId();
+                            Long newValueId = newAttr.getValueId();
+                            if (!Numbers.isEqual(oldValueId, newValueId)) {
+                                needToUpdateAttribute = true;
+                            }
                         }
                     }
 
