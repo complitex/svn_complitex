@@ -109,4 +109,13 @@ public class EntityAttributeType implements Serializable {
     public boolean isObsolete() {
         return endDate != null;
     }
+
+    public EntityAttributeValueType getAttributeValueType(long attributeValueTypeId){
+        for(EntityAttributeValueType valueType : getEntityAttributeValueTypes()){
+            if(valueType.getId().equals(attributeValueTypeId)){
+                return valueType;
+            }
+        }
+        return null;
+    }
 }
