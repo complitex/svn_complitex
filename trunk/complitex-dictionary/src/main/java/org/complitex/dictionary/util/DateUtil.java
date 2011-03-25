@@ -81,10 +81,9 @@ public class DateUtil {
         return isTheSameDay(date, getCurrentDate());
     }
 
-    public static Date getFirstDayOf(Date monthOrYear) {
-        Calendar firstDay = Calendar.getInstance();
-        firstDay.setTime(monthOrYear);
-        firstDay.set(Calendar.DAY_OF_MONTH, 1);
-        return firstDay.getTime();
+    public static Date getFirstDayOfMonth(int year, int month) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year, month, 1);
+        return calendar.getTime();
     }
 }
