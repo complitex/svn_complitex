@@ -11,6 +11,7 @@ import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -102,6 +103,15 @@ public class DomainObject implements Serializable {
 
     public List<Attribute> getAttributes() {
         return attributes;
+    }
+
+    public void removeAttribute(long attributeTypeId) {
+        for (Iterator<Attribute> i = attributes.iterator(); i.hasNext();) {
+            Attribute attribute = i.next();
+            if (attribute.getAttributeTypeId().equals(attributeTypeId)) {
+                i.remove();
+            }
+        }
     }
 
     public void setAttributes(List<Attribute> attributes) {
