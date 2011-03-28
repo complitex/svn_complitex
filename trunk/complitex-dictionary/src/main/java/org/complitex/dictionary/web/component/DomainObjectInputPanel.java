@@ -46,7 +46,7 @@ import org.complitex.dictionary.strategy.IStrategy;
  */
 public class DomainObjectInputPanel extends Panel {
 
-    private static class SimpleTypeModel<T extends Serializable> extends Model<T> {
+    public static class SimpleTypeModel<T extends Serializable> extends Model<T> {
 
         private StringCulture systemLocaleStringCulture;
         private IConverter<T> converter;
