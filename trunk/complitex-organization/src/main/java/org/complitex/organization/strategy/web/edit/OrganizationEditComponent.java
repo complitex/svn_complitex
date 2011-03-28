@@ -27,23 +27,22 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import org.apache.wicket.Component;
 
 /**
  * 
  * @author Artem
  */
 public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
-    private static final Logger log = LoggerFactory.getLogger(OrganizationEditComponent.class);
 
+    private static final Logger log = LoggerFactory.getLogger(OrganizationEditComponent.class);
     @EJB
     private StrategyFactory strategyFactory;
-
     @EJB(name = "OrganizationStrategy")
     private IOrganizationStrategy organizationStrategy;
-
-
     private Attribute districtAttribute;
     private Attribute parentAttribute;
 
@@ -92,12 +91,18 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
                     protected void onUpdate(AjaxRequestTarget target) {
                         //update domain object
 
+                        Collection<Component> componentsToUpdate = onTypeChanged();
                         setDistrictVisibility(districtContainer, districtRequired, getInputPanel().getObject().getEntityTypeId());
                         setParentVisibility(parentContainer, getInputPanel().getObject().getEntityTypeId());
                         selectType.setEnabled(false);
                         target.addComponent(districtContainer);
                         target.addComponent(parentContainer);
                         target.addComponent(selectType);
+                        if (componentsToUpdate != null && !componentsToUpdate.isEmpty()) {
+                            for (Component component : componentsToUpdate) {
+                                target.addComponent(component);
+                            }
+                        }
                     }
                 });
             } else {
@@ -159,8 +164,12 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
         setParentVisibility(parentContainer, currentOrganization.getEntityTypeId());
     }
 
+    protected Collection<Component> onTypeChanged() {
+        return null;
+    }
+
     private void setDistrictVisibility(WebMarkupContainer districtContainer, WebMarkupContainer districtRequiredContainer,
-                                       Long entityTypeId) {
+            Long entityTypeId) {
         if (districtAttribute == null) {
             districtContainer.setVisible(false);
             return;
@@ -199,15 +208,15 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
         return districtId != null && districtId > 0;
     }
 
-    protected boolean isParentVisible(Long entityTypeId){
+    protected boolean isParentVisible(Long entityTypeId) {
         return entityTypeId.equals(IOrganizationStrategy.USER_ORGANIZATION);
     }
 
-    protected boolean isDistrictVisible(Long entityTypeId){
+    protected boolean isDistrictVisible(Long entityTypeId) {
         return entityTypeId.equals(IOrganizationStrategy.USER_ORGANIZATION);
     }
 
-    protected boolean isDistrictNotRequired(Long entityTypeId){
+    protected boolean isDistrictNotRequired(Long entityTypeId) {
         return entityTypeId.equals(IOrganizationStrategy.USER_ORGANIZATION);
     }
 }
