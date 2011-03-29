@@ -96,8 +96,10 @@ public final class SearchComponent extends Panel {
 
     private ShowMode showMode;
 
+    private Object changedObject = null;
+
     public SearchComponent(String id, SearchComponentState componentState, List<String> searchFilters, ISearchCallback callback, ShowMode showMode,
-            boolean enabled) {
+                           boolean enabled) {
         super(id);
         setOutputMarkupId(true);
         this.componentState = componentState;
@@ -116,7 +118,7 @@ public final class SearchComponent extends Panel {
      * @param callback
      */
     public SearchComponent(String id, SearchComponentState componentState, List<SearchFilterSettings> searchFilterSettings,
-            ISearchCallback callback) {
+                           ISearchCallback callback) {
         super(id);
         setOutputMarkupId(true);
         this.componentState = componentState;
@@ -209,8 +211,11 @@ public final class SearchComponent extends Panel {
             protected void populateItem(final ListItem<String> item) {
                 final String entity = item.getModelObject();
                 final int index = item.getIndex();
+
                 Renderer renderer = new Renderer(entity);
+
                 final IModel<DomainObject> model = filterModels.get(index);
+
                 AutoCompleteTextField filter = new AutoCompleteTextField("filter", new FilterModel(model, entity),
                         renderer, settings, strategyFactory.getStrategy(entity).getSearchTextFieldSize()) {
 
@@ -224,13 +229,13 @@ public final class SearchComponent extends Panel {
                         List<DomainObject> choiceList = Lists.newArrayList();
 
                         ShowMode currentShowMode = (filterSettings == null) ? SearchComponent.this.showMode :
-                            Iterables.find(filterSettings, new Predicate<SearchFilterSettings>() {
+                                Iterables.find(filterSettings, new Predicate<SearchFilterSettings>() {
 
-                            @Override
-                            public boolean apply(SearchFilterSettings input) {
-                                return entity.equals(input.getSearchFilter());
-                            }
-                        }).getShowMode();
+                                    @Override
+                                    public boolean apply(SearchFilterSettings input) {
+                                        return entity.equals(input.getSearchFilter());
+                                    }
+                                }).getShowMode();
 
                         List<? extends DomainObject> equalToExample = findByExample(entity, searchTextInput, previousInfo, ComparisonType.EQUALITY,
                                 currentShowMode, AUTO_COMPLETE_SIZE);
@@ -281,6 +286,16 @@ public final class SearchComponent extends Panel {
 
                         @Override
                         protected void onUpdate(AjaxRequestTarget target) {
+
+                            if (changedObject == null || !changedObject.equals(model.getObject())){
+                                target.appendJavascript("$('#"+ target.getLastFocusedElementId() +"')" +
+                                        ".parent().next('td').children('input').focus();");
+
+                                changedObject = model.getObject();
+
+
+                            }
+
                             //update model
                             //update other models
 //                            if (model.getObject() != null) {
@@ -316,6 +331,7 @@ public final class SearchComponent extends Panel {
                 item.add(filter);
             }
         };
+        filters.setReuseItems(true);
         searchPanel.add(filters);
         add(searchPanel);
     }
@@ -382,7 +398,7 @@ public final class SearchComponent extends Panel {
     }
 
     private List<? extends DomainObject> findByExample(String entity, String searchTextInput, Map<String, DomainObject> previousInfo,
-            ComparisonType comparisonType, ShowMode showMode, int size) {
+                                                       ComparisonType comparisonType, ShowMode showMode, int size) {
         IStrategy strategy = strategyFactory.getStrategy(entity);
 
         DomainObjectExample example = new DomainObjectExample();
