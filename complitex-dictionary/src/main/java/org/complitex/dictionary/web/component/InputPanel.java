@@ -57,7 +57,7 @@ public class InputPanel<T> extends Panel {
         textField.setLabel(labelModel);
         textField.setRequired(required);
         if (toUpdate != null) {
-            textField.add(new AjaxFormComponentUpdatingBehavior("onblur") {
+            textField.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
                 @Override
                 protected void onUpdate(AjaxRequestTarget target) {

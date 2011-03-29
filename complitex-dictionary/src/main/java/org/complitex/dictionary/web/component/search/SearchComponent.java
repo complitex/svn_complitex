@@ -268,7 +268,7 @@ public final class SearchComponent extends Panel {
                 setEnable(entity, filter);
                 filter.setOutputMarkupId(true);
                 if (index == searchFilters.size() - 1) {
-                    filter.add(new AjaxFormComponentUpdatingBehavior("onblur") {
+                    filter.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
                         @Override
                         protected void onUpdate(AjaxRequestTarget target) {
@@ -277,7 +277,7 @@ public final class SearchComponent extends Panel {
                         }
                     });
                 } else {
-                    filter.add(new AjaxFormComponentUpdatingBehavior("onblur") {
+                    filter.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
                         @Override
                         protected void onUpdate(AjaxRequestTarget target) {
