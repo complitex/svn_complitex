@@ -96,7 +96,7 @@ public final class SearchComponent extends Panel {
 
     private ShowMode showMode;
 
-    private Object changedObject = null;
+    private Object lastChangedObject = null;
 
     public SearchComponent(String id, SearchComponentState componentState, List<String> searchFilters, ISearchCallback callback, ShowMode showMode,
                            boolean enabled) {
@@ -279,6 +279,8 @@ public final class SearchComponent extends Panel {
                         protected void onUpdate(AjaxRequestTarget target) {
                             //update model
                             invokeCallbackIfNecessary(target);
+
+                            lastChangedObject = model.getObject();
                         }
                     });
                 } else {
@@ -286,46 +288,21 @@ public final class SearchComponent extends Panel {
 
                         @Override
                         protected void onUpdate(AjaxRequestTarget target) {
+                            if (lastChangedObject == null || !lastChangedObject.equals(model.getObject())){
+                                lastChangedObject = model.getObject();
 
-                            if (changedObject == null || !changedObject.equals(model.getObject())){
-                                target.appendJavascript("$('#"+ target.getLastFocusedElementId() +"')" +
-                                        ".parent().next('td').children('input').focus();");
+                                if (model.getObject() != null) {
+                                    for (int j = index + 1; j < filterModels.size(); j++) {
+                                        filterModels.get(j).setObject(null);
+                                    }
+                                }
 
-                                changedObject = model.getObject();
+                                target.addComponent(searchPanel);
 
-
+                                ListItem nextItem = (ListItem) ((ListView) item.getParent()).get(index + 1);
+                                target.focusComponent(nextItem.get("filter"));
                             }
-
-                            //update model
-                            //update other models
-//                            if (model.getObject() != null) {
-//                                for (int j = index + 1; j < filterModels.size(); j++) {
-//                                    filterModels.get(j).setObject(null);
-//                                }
-//                            }
-//                            componentState.clear();
-//
-//                            refreshFilters(target);
-//                            setFocusOnNextFilter(target);
                         }
-//                        private void refreshFilters(final AjaxRequestTarget target) {
-//                            ListView view = (ListView) item.getParent();
-//                            view.visitChildren(ListItem.class, new IVisitor<ListItem<String>>() {
-//
-//                                @Override
-//                                public Object component(ListItem<String> visitedItem) {
-//                                    if (visitedItem.getIndex() > index) {
-//                                        target.addComponent(visitedItem.get("filter"));
-//                                    }
-//                                    return CONTINUE_TRAVERSAL;
-//                                }
-//                            });
-//                        }
-//
-//                        private void setFocusOnNextFilter(AjaxRequestTarget target) {
-//                            ListItem<String> nextItem = (ListItem<String>) ((ListView) item.getParent()).get(index + 1);
-//                            target.focusComponent(nextItem.get("filter"));
-//                        }
                     });
                 }
                 item.add(filter);
