@@ -59,6 +59,7 @@ public class DomainObjectEditPanel extends Panel {
     private String parentEntity;
     private DomainObjectInputPanel objectInputPanel;
     private final String scrollListPageParameterName;
+    private FeedbackPanel messages;
 
     public DomainObjectEditPanel(String id, String entity, String strategyName, Long objectId, Long parentId,
             String parentEntity, String scrollListPageParameterName) {
@@ -95,6 +96,10 @@ public class DomainObjectEditPanel extends Panel {
         return oldObject == null;
     }
 
+    public void updateMessages(AjaxRequestTarget target){
+        target.addComponent(messages);
+    }
+
     private void init() {
         IModel<String> labelModel = new AbstractReadOnlyModel<String>() {
 
@@ -108,7 +113,7 @@ public class DomainObjectEditPanel extends Panel {
         Label label = new Label("label", labelModel);
         add(label);
 
-        final FeedbackPanel messages = new FeedbackPanel("messages");
+        messages = new FeedbackPanel("messages");
         messages.setOutputMarkupId(true);
         add(messages);
 
