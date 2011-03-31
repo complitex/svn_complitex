@@ -91,8 +91,8 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
 
     @Transactional
     @Override
-    public void insert(DomainObject object) {
-        super.insert(object);
+    public void insert(DomainObject object, Date insertDate) {
+        super.insert(object, insertDate);
         changeDistrictPermissions(object);
     }
 

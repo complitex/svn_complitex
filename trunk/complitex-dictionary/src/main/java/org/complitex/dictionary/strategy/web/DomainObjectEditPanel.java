@@ -234,7 +234,7 @@ public class DomainObjectEditPanel extends Panel {
         //permission related logic
         if (isNew()) {
             onInsert();
-            getStrategy().insert(newObject);
+            getStrategy().insert(newObject, DateUtil.getCurrentDate());
         } else {
             onUpdate();
             if (!propagate) {

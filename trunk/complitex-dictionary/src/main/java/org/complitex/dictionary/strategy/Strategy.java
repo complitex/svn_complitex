@@ -360,14 +360,13 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
     @Transactional
     @Override
-    public void insert(DomainObject object) {
-        Date startDate = DateUtil.getCurrentDate();
+    public void insert(DomainObject object, Date insertDate) {
         object.setId(sequenceBean.nextId(getEntityTable()));
         object.setPermissionId(getNewPermissionId(object.getSubjectIds()));
-        insertDomainObject(object, startDate);
+        insertDomainObject(object, insertDate);
         for (Attribute attribute : object.getAttributes()) {
             attribute.setObjectId(object.getId());
-            attribute.setStartDate(startDate);
+            attribute.setStartDate(insertDate);
             insertAttribute(attribute);
         }
     }
@@ -386,8 +385,8 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     }
 
     @Transactional
-    protected void insertDomainObject(DomainObject object, Date startDate) {
-        object.setStartDate(startDate);
+    protected void insertDomainObject(DomainObject object, Date insertDate) {
+        object.setStartDate(insertDate);
         sqlSession().insert(DOMAIN_OBJECT_NAMESPACE + "." + INSERT_OPERATION, new Parameter(getEntityTable(), object));
     }
 

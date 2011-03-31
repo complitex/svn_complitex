@@ -339,15 +339,15 @@ public class BuildingStrategy extends TemplateStrategy {
 
     @Transactional
     @Override
-    protected void insertDomainObject(DomainObject object, Date startDate) {
+    protected void insertDomainObject(DomainObject object, Date insertDate) {
         Building building = (Building) object;
         for (DomainObject buildingAddress : building.getAllAddresses()) {
-            buildingAddressStrategy.insert(buildingAddress);
+            buildingAddressStrategy.insert(buildingAddress, insertDate);
         }
         building.enhanceAlternativeAddressAttributes();
         building.setParentId(building.getPrimaryAddress().getId());
         building.setParentEntityId(PARENT_ENTITY_ID);
-        super.insertDomainObject(object, startDate);
+        super.insertDomainObject(object, insertDate);
     }
 
     @Transactional
@@ -420,7 +420,7 @@ public class BuildingStrategy extends TemplateStrategy {
         if (addedAddresses != null) {
             for (DomainObject newAddress : addedAddresses) {
                 newAddress.setSubjectIds(newBuilding.getSubjectIds());
-                buildingAddressStrategy.insert(newAddress);
+                buildingAddressStrategy.insert(newAddress, updateDate);
             }
         }
 

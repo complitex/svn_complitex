@@ -59,7 +59,7 @@ public class UserBean extends AbstractBean {
     public void save(User user){
         if (user.getId() == null){ //Сохранение нового пользователя
             //сохранение информации о пользователе
-            userInfoStrategy.insert(user.getUserInfo());
+            userInfoStrategy.insert(user.getUserInfo(), DateUtil.getCurrentDate());
             user.setUserInfoObjectId(user.getUserInfo().getId());
 
             user.setPassword(DigestUtils.md5Hex(user.getLogin())); //md5 password
@@ -166,7 +166,7 @@ public class UserBean extends AbstractBean {
                 DomainObject userInfo = user.getUserInfo();
                 userInfoStrategy.update(userInfoStrategy.findById(userInfo.getId(), false), userInfo, DateUtil.getCurrentDate());
             }else{
-                userInfoStrategy.insert(user.getUserInfo());
+                userInfoStrategy.insert(user.getUserInfo(), DateUtil.getCurrentDate());
                 user.setUserInfoObjectId(user.getUserInfo().getId());
                 sqlSession().update(STATEMENT_PREFIX + ".updateUser", user);
             }

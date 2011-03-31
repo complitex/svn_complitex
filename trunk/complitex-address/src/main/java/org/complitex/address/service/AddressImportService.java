@@ -233,7 +233,7 @@ public class AddressImportService extends AbstractImportService{
                 //Название страны
                 stringCultureBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[1].trim());
 
-                countryStrategy.insert(domainObject);
+                countryStrategy.insert(domainObject, DateUtil.getCurrentDate());
 
                 listener.recordProcessed(COUNTRY, recordIndex);
             }
@@ -289,7 +289,7 @@ public class AddressImportService extends AbstractImportService{
                 Attribute name = domainObject.getAttribute(RegionStrategy.NAME);
                 stringCultureBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[2].trim());
 
-                regionStrategy.insert(domainObject);
+                regionStrategy.insert(domainObject, DateUtil.getCurrentDate());
 
                 listener.recordProcessed(REGION, recordIndex);
             }
@@ -336,7 +336,7 @@ public class AddressImportService extends AbstractImportService{
                 Attribute name = domainObject.getAttribute(CityTypeStrategy.NAME);
                 stringCultureBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[2].trim());
 
-                cityTypeStrategy.insert(domainObject);
+                cityTypeStrategy.insert(domainObject, DateUtil.getCurrentDate());
 
                 listener.recordProcessed(CITY_TYPE, recordIndex);
             }
@@ -398,7 +398,7 @@ public class AddressImportService extends AbstractImportService{
                 Attribute name = domainObject.getAttribute(CityStrategy.NAME);
                 stringCultureBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[3].trim());
 
-                cityStrategy.insert(domainObject);
+                cityStrategy.insert(domainObject, DateUtil.getCurrentDate());
 
                 listener.recordProcessed(CITY, recordIndex);
             }
@@ -457,7 +457,7 @@ public class AddressImportService extends AbstractImportService{
                 Attribute name = domainObject.getAttribute(DistrictStrategy.NAME);
                 stringCultureBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[3].trim());
 
-                districtStrategy.insert(domainObject);
+                districtStrategy.insert(domainObject, DateUtil.getCurrentDate());
 
                 listener.recordProcessed(DISTRICT, recordIndex);
             }
@@ -504,7 +504,7 @@ public class AddressImportService extends AbstractImportService{
                 Attribute name = domainObject.getAttribute(StreetTypeStrategy.NAME);
                 stringCultureBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[2].trim());
 
-                streetTypeStrategy.insert(domainObject);
+                streetTypeStrategy.insert(domainObject, DateUtil.getCurrentDate());
 
                 listener.recordProcessed(STREET_TYPE, recordIndex);
             }
@@ -566,7 +566,7 @@ public class AddressImportService extends AbstractImportService{
                 Attribute name = domainObject.getAttribute(StreetStrategy.NAME);
                 stringCultureBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[3].trim());
 
-                streetStrategy.insert(domainObject);
+                streetStrategy.insert(domainObject, DateUtil.getCurrentDate());
 
                 listener.recordProcessed(STREET, recordIndex);
             }
@@ -653,7 +653,7 @@ public class AddressImportService extends AbstractImportService{
                 stringCultureBean.getSystemStringCulture(structure.getLocalizedValues()).setValue(line[5].trim());
 
                 if (buildingId == null){
-                    buildingStrategy.insert(building);
+                    buildingStrategy.insert(building, DateUtil.getCurrentDate());
                 } else{
                     DomainObject oldBuilding = buildingStrategy.findById(buildingId, true);
                     buildingStrategy.update(oldBuilding, building, DateUtil.getCurrentDate());
