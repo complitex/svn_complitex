@@ -86,4 +86,11 @@ public class DateUtil {
         calendar.set(year, month, 1);
         return calendar.getTime();
     }
+
+    public static Date justBefore(Date current) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(current);
+        c.add(Calendar.SECOND, -1);
+        return c.getTime();
+    }
 }

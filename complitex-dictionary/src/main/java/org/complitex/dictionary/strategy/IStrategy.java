@@ -154,7 +154,7 @@ public interface IStrategy {
     IValidator getValidator();
 
     @Transactional
-    void insert(DomainObject object);
+    void insert(DomainObject object, Date insertDate);
 
     boolean isSimpleAttribute(final Attribute attribute);
 
