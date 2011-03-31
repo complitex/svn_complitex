@@ -65,7 +65,7 @@ public class SearchComponentState implements Serializable {
 
         for (String entity : entityEqualCriteria) {
             DomainObject thisObject = thisState.get(entity);
-            DomainObject thatObject = thisState.get(entity);
+            DomainObject thatObject = thatState.get(entity);
             if ((thisObject == null || thisObject.getId() == null || thisObject.getId().equals(SearchComponent.NOT_SPECIFIED_ID))
                     && (thatObject == null || thatObject.getId() == null || thatObject.getId().equals(SearchComponent.NOT_SPECIFIED_ID))) {
                 //consider it as equal objects
