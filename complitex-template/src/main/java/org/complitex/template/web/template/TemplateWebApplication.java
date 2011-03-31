@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.wicketstuff.javaee.injection.JavaEEComponentInjector;
 
 import java.io.InputStream;
+import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -29,9 +30,7 @@ import org.complitex.dictionary.mybatis.inject.JavaEE6ModuleNamingStrategy;
 public abstract class TemplateWebApplication extends ServletAuthWebApplication {
 
     private static final Logger log = LoggerFactory.getLogger(TemplateWebApplication.class);
-
     private static final String TEMPLATE_CONFIG_FILE_NAME = "template-config.xml";
-
     private List<Class<ITemplateMenu>> menuClasses;
 
     @Override
@@ -93,26 +92,33 @@ public abstract class TemplateWebApplication extends ServletAuthWebApplication {
         return new TemplateSession(request, newSessionStorage());
     }
 
-    private ISessionStorage newSessionStorage(){
-        final SessionBean sessionBean = EjbBeanLocator.getBean(SessionBean.class);
-        final PreferenceBean preferenceBean = EjbBeanLocator.getBean(PreferenceBean.class);
+    private static class DefaultSessionStorage implements ISessionStorage, Serializable {
 
-        return new ISessionStorage(){
+        private PreferenceBean getPreferenceBean() {
+            return EjbBeanLocator.getBean(PreferenceBean.class);
+        }
 
-            @Override
-            public List<Preference> load() {
-                return preferenceBean.getPreferences(sessionBean.getCurrentUserId());
-            }
+        private SessionBean getSessionBean() {
+            return EjbBeanLocator.getBean(SessionBean.class);
+        }
 
-            @Override
-            public void save(Preference preference) {
-                preferenceBean.save(preference);
-            }
+        @Override
+        public List<Preference> load() {
+            return getPreferenceBean().getPreferences(getSessionBean().getCurrentUserId());
+        }
 
-            @Override
-            public Long getUserId() {
-                return sessionBean.getCurrentUserId();
-            }
-        };
+        @Override
+        public void save(Preference preference) {
+            getPreferenceBean().save(preference);
+        }
+
+        @Override
+        public Long getUserId() {
+            return getSessionBean().getCurrentUserId();
+        }
+    }
+
+    private ISessionStorage newSessionStorage() {
+        return new DefaultSessionStorage();
     }
 }
