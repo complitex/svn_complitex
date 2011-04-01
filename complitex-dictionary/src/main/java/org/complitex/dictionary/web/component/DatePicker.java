@@ -16,33 +16,55 @@ import org.apache.wicket.util.convert.IConverter;
 public class DatePicker<T> extends org.odlabs.wiquery.ui.datepicker.DatePicker<T> {
 
     private static final String IMAGE_SRC = "resources/" + Application.class.getName() + "/images/calendar.gif";
-
     private static IConverter CONVERTER = new PatternDateConverter("dd.MM.yyyy", true);
+
+    public DatePicker(String id, boolean enabled) {
+        super(id);
+        init(enabled);
+    }
 
     public DatePicker(String id) {
         super(id);
-        init();
+        init(true);
+    }
+
+    public DatePicker(String id, Class<T> type, boolean enabled) {
+        super(id, type);
+        init(enabled);
     }
 
     public DatePicker(String id, Class<T> type) {
         super(id, type);
-        init();
+        init(true);
+    }
+
+    public DatePicker(String id, IModel<T> model, boolean enabled) {
+        super(id, model);
+        init(enabled);
     }
 
     public DatePicker(String id, IModel<T> model) {
         super(id, model);
-        init();
+        init(true);
+    }
+
+    public DatePicker(String id, IModel<T> model, Class<T> type, boolean enabled) {
+        super(id, model, type);
+        init(enabled);
     }
 
     public DatePicker(String id, IModel<T> model, Class<T> type) {
         super(id, model, type);
-        init();
+        init(true);
     }
 
-    protected void init() {
-        setButtonImage(IMAGE_SRC);
-        setShowOn(ShowOnEnum.BOTH);
-        setButtonImageOnly(true);
+    protected void init(boolean enabled) {
+        if (enabled) {
+            setButtonImage(IMAGE_SRC);
+            setShowOn(ShowOnEnum.BOTH);
+            setButtonImageOnly(true);
+        }
+        setEnabled(enabled);
         setDateFormat("dd.mm.yy");
     }
 
