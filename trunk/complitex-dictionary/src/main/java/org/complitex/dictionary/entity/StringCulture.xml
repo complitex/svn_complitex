@@ -26,8 +26,8 @@
     <delete id="delete" parameterType="map">
         DELETE FROM `${table}_string_culture` WHERE `id` IN
            (SELECT a.`value_id` FROM `${table}_attribute` a WHERE a.`object_id` = #{objectId}
-                AND a.`attribute_type_id` IN
-                    <foreach open="(" separator="," close=")" collection="localizedAttributeTypeIds" item="id">
+                AND a.`value_type_id` IN
+                    <foreach open="(" separator="," close=")" collection="localizedValueTypeIds" item="id">
                         #{id}
                     </foreach>
             )

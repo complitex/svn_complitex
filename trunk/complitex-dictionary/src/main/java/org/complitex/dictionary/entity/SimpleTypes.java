@@ -27,6 +27,12 @@ public enum SimpleTypes {
         return type;
     }
 
+    /**
+     * Determines whether valueType is simple type. It is case-insensitive about valueType so that the one can be in any case.
+     *
+     * @param valueType string representation of value type. It can be in any case.
+     * @return
+     */
     public static boolean isSimpleType(String valueType) {
         for (SimpleTypes type : values()) {
             if (type.name().equalsIgnoreCase(valueType)) {
