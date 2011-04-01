@@ -175,11 +175,11 @@ public class StringCultureBean extends AbstractBean {
         return sqlSession().selectList(MAPPING_NAMESPACE + ".find", params);
     }
 
-    public void delete(String entityTable, long objectId, Set<Long> localizedAttributeTypeIds) {
+    public void delete(String entityTable, long objectId, Set<Long> localizedValueTypeIds) {
         Map<String, Object> params = Maps.newHashMap();
         params.put("table", entityTable);
         params.put("objectId", objectId);
-        params.put("localizedAttributeTypeIds", localizedAttributeTypeIds);
+        params.put("localizedValueTypeIds", localizedValueTypeIds);
         sqlSession().delete(MAPPING_NAMESPACE + ".delete", params);
     }
 }

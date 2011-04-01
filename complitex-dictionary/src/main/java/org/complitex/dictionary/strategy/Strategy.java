@@ -1160,9 +1160,9 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
     @Transactional
     protected void deleteStrings(long objectId) {
-        Set<Long> localizedAttributeTypeIds = getLocalizedAttributeTypeIds();
-        if (localizedAttributeTypeIds != null && !localizedAttributeTypeIds.isEmpty()) {
-            stringBean.delete(getEntityTable(), objectId, localizedAttributeTypeIds);
+        Set<Long> localizedValueTypeIds = getLocalizaedValueTypeIds();
+        if (localizedValueTypeIds != null && !localizedValueTypeIds.isEmpty()) {
+            stringBean.delete(getEntityTable(), objectId, localizedValueTypeIds);
         }
     }
 
@@ -1226,15 +1226,16 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     }
 
     @Transactional
-    protected Set<Long> getLocalizedAttributeTypeIds() {
-        Set<Long> localizedAttributeTypeIds = Sets.newHashSet();
+    protected Set<Long> getLocalizaedValueTypeIds() {
+        Set<Long> localizedValueTypeIds = Sets.newHashSet();
         for (EntityAttributeType attributeType : getEntity().getEntityAttributeTypes()) {
-            if (attributeType.getEntityAttributeValueTypes().size() == 1
-                    && SimpleTypes.isSimpleType(attributeType.getEntityAttributeValueTypes().get(0).getValueType())) {
-                localizedAttributeTypeIds.add(attributeType.getId());
+            for (EntityAttributeValueType valueType : attributeType.getEntityAttributeValueTypes()) {
+                if (SimpleTypes.isSimpleType(valueType.getValueType())) {
+                    localizedValueTypeIds.add(valueType.getId());
+                }
             }
         }
-        return localizedAttributeTypeIds;
+        return localizedValueTypeIds;
     }
 
     @Transactional
