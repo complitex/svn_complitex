@@ -47,17 +47,22 @@ public class AddressRendererBean {
         }
 
         StringBuilder addressLabel = new StringBuilder("");
+        boolean isFirst = true;
         for (int i = 0; i < addressUnits.length; i++) {
             String addressUnit = addressUnits[i];
             DomainObject currentAddressObject = addressComponentState.get(addressUnit);
             if (currentAddressObject != null) {
-                IStrategy currentStrategy = strategyFactory.getStrategy(addressUnit);
-                addressLabel.append(currentStrategy.displayDomainObject(currentAddressObject, locale));
-                if (i < addressUnits.length - 1) {
+                if (!isFirst) {
                     addressLabel.append(", ");
                 }
+                if (isFirst) {
+                    isFirst = false;
+                }
+                IStrategy currentStrategy = strategyFactory.getStrategy(addressUnit);
+                addressLabel.append(currentStrategy.displayDomainObject(currentAddressObject, locale));
             }
         }
+        addressLabel.append(".");
         return addressLabel.toString();
     }
 
