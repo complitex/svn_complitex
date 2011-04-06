@@ -291,7 +291,6 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
             example.setLocaleId(localeBean.convert(locale).getId());
             example.setAsc(true);
         }
-        example.setAdmin(true);
         configureExample(example, ImmutableMap.<String, Long>of(), null);
         List<? extends DomainObject> userOrganizations = find(example);
         if (excludeOrganizationsId == null) {
