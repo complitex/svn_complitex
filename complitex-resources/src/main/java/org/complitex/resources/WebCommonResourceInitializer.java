@@ -35,6 +35,10 @@ public final class WebCommonResourceInitializer implements IInitializer {
     public static final String SCROLL_RESOURCE_NAME = "js/jquery.scrollTo-1.4.2-min.js";
     public static final ResourceReference SCROLL_JS = newResourceReference(SCROLL_RESOURCE_NAME);
 
+    private static final String PLACEHOLDER_RELATIVE_PATH = "js/jquery.placeholder.js";
+    public static final String PLACEHOLDER_RESOURCE_NAME = "js/jquery.placeholder.js";
+    public static final ResourceReference PLACEHOLDER_JS = newResourceReference(PLACEHOLDER_RESOURCE_NAME);
+
     @Override
     public void init(Application application) {
         SharedResources sharedResources = application.getSharedResources();
@@ -43,6 +47,7 @@ public final class WebCommonResourceInitializer implements IInitializer {
         sharedResources.add(IE_SELECT_FIX_RESOURCE_NAME, JavascriptPackageResource.get(getClass(), IE_SELECT_FIX_RELATIVE_PATH));
         sharedResources.add(HIGHLIHT_RESOURCE_NAME, JavascriptPackageResource.get(getClass(), HIGHLIGHT_RELATIVE_PATH));
         sharedResources.add(SCROLL_RESOURCE_NAME, JavascriptPackageResource.get(getClass(), SCROLL_RELATIVE_PATH));
+        sharedResources.add(PLACEHOLDER_RESOURCE_NAME, JavascriptPackageResource.get(getClass(), PLACEHOLDER_RELATIVE_PATH));
     }
 
     private static ResourceReference newResourceReference(String resourceName) {

@@ -284,3 +284,8 @@ div.wicket-aa ul li.selected {
     background-color:#D8DEE3;
     margin:0;
 }
+
+/* PlaceholderTextFieldPanel settings */
+.placeholder {
+    color: #AAAAAA;
+}
