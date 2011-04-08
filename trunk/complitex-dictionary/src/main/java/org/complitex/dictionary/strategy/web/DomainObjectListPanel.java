@@ -1,5 +1,8 @@
 package org.complitex.dictionary.strategy.web;
 
+import org.complitex.dictionary.web.component.type.BooleanPanel;
+import org.complitex.dictionary.web.component.type.StringPanel;
+import org.complitex.dictionary.web.component.type.DatePanel;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -52,6 +55,7 @@ import java.util.*;
 import org.complitex.dictionary.service.LocaleBean;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.web.component.scroll.ScrollBookmarkablePageLink;
+import org.complitex.dictionary.web.component.type.Date2Panel;
 
 /**
  *
@@ -61,23 +65,15 @@ public class DomainObjectListPanel extends Panel {
 
     @EJB
     private StrategyFactory strategyFactory;
-
     @EJB
     private StringCultureBean stringBean;
-
     @EJB
     private LocaleBean localeBean;
-
     private String entity;
-
     private String strategyName;
-
     private DomainObjectExample example;
-
     private WebMarkupContainer content;
-
     private DataView<DomainObject> dataView;
-
     private final String page;
 
     public DomainObjectListPanel(String id, String entity, String strategyName) {
@@ -125,7 +121,7 @@ public class DomainObjectListPanel extends Panel {
         //Example
         example = (DomainObjectExample) getSession().getPreferenceObject(page, PreferenceKey.FILTER_OBJECT, null);
 
-        if (example == null){
+        if (example == null) {
             example = new DomainObjectExample();
             example.setTable(entity);
             getSession().putPreferenceObject(page, PreferenceKey.FILTER_OBJECT, example);
@@ -192,7 +188,7 @@ public class DomainObjectListPanel extends Panel {
 
                 example.setStatus(showModeModel.getObject().name());
                 example.setLocaleId(localeBean.convert(getLocale()).getId());
-                example.setAsc( getSort().isAscending());
+                example.setAsc(getSort().isAscending());
                 example.setStart(first);
                 example.setSize(count);
                 return getStrategy().find(example).iterator();
@@ -251,7 +247,7 @@ public class DomainObjectListPanel extends Panel {
                                     attributeValue = systemLocaleValue;
                                     break;
                                 case BIG_STRING:
-                                    if(!Strings.isEmpty(systemLocaleValue)){
+                                    if (!Strings.isEmpty(systemLocaleValue)) {
                                         attributeValue = systemLocaleValue.substring(0, SimpleTypes.BIG_STRING_VIEW_LENGTH);
                                     }
                                     break;
@@ -265,6 +261,7 @@ public class DomainObjectListPanel extends Panel {
                                     attributeValue = getString(new BooleanConverter().toObject(systemLocaleValue).toString());
                                     break;
                                 case DATE:
+                                case DATE2:
                                     DateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy", getLocale());
                                     attributeValue = dateFormatter.format(new DateConverter().toObject(systemLocaleValue));
                                     break;
@@ -281,7 +278,7 @@ public class DomainObjectListPanel extends Panel {
 
                     @Override
                     public String getObject() {
-                        if(DomainObjectAccessUtil.canAddNew(strategyName, entity)){
+                        if (DomainObjectAccessUtil.canAddNew(strategyName, entity)) {
                             return getString("edit");
                         } else {
                             return getString("view");
@@ -351,7 +348,8 @@ public class DomainObjectListPanel extends Panel {
                         filter = new StringPanel("filter", filterModel, false, null, true);
                     }
                     break;
-                    case DATE: {
+                    case DATE:
+                    case DATE2: {
                         IModel<Date> dateModel = new Model<Date>() {
 
                             DateConverter dateConverter = new DateConverter();

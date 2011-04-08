@@ -13,7 +13,7 @@ import java.util.Date;
 public enum SimpleTypes {
 
     STRING(String.class), STRING_CULTURE(String.class), INTEGER(Integer.class), DOUBLE(Double.class), DATE(Date.class), BOOLEAN(Boolean.class),
-    BIG_STRING(String.class);
+    BIG_STRING(String.class), DATE2(Date.class);
 
     public static final int BIG_STRING_VIEW_LENGTH = 20;
 

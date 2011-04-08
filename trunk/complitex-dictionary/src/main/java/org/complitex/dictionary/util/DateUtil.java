@@ -93,4 +93,39 @@ public class DateUtil {
         c.add(Calendar.SECOND, -1);
         return c.getTime();
     }
+
+    public static int getDay(Date date) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        return c.get(Calendar.DAY_OF_MONTH);
+    }
+
+    public static int getMonth(Date date) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        return c.get(Calendar.MONTH);
+    }
+
+    public static int getYear(Date date) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        return c.get(Calendar.YEAR);
+    }
+
+    /**
+     * Creates Date object based on day, month and year.
+     * Lenient mode turned off so that exception may be thrown in case of incorrect date information.
+     *
+     * @param day
+     * @param month
+     * @param year
+     * @return date
+     */
+    public static Date newDate(int day, int month, int year){
+        Calendar c = Calendar.getInstance();
+        c.clear();
+        c.setLenient(false);
+        c.set(year, month-1, day);
+        return c.getTime();
+    }
 }

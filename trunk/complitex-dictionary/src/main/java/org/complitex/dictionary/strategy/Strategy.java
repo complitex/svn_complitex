@@ -461,6 +461,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
                                 case BOOLEAN:
                                 case DATE:
+                                case DATE2:
                                 case DOUBLE:
                                 case INTEGER:
                                 case BIG_STRING:

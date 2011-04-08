@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.complitex.dictionary.web.component;
+package org.complitex.dictionary.web.component.type;
 
 import org.apache.wicket.model.IModel;
 
