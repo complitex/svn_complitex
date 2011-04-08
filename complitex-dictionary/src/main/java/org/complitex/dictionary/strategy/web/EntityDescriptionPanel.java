@@ -34,7 +34,7 @@ import org.complitex.dictionary.service.EntityBean;
 import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.util.CloneUtil;
-import org.complitex.dictionary.web.component.StringCulturePanel;
+import org.complitex.dictionary.web.component.type.StringCulturePanel;
 import org.complitex.dictionary.web.component.list.AjaxRemovableListView;
 
 import javax.ejb.EJB;

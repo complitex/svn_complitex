@@ -1,5 +1,12 @@
 package org.complitex.dictionary.web.component;
 
+import org.complitex.dictionary.web.component.type.StringCulturePanel;
+import org.complitex.dictionary.web.component.type.BooleanPanel;
+import org.complitex.dictionary.web.component.type.IntegerPanel;
+import org.complitex.dictionary.web.component.type.DoublePanel;
+import org.complitex.dictionary.web.component.type.BigStringPanel;
+import org.complitex.dictionary.web.component.type.StringPanel;
+import org.complitex.dictionary.web.component.type.DatePanel;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -39,6 +46,7 @@ import java.io.Serializable;
 import java.util.*;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.complitex.dictionary.strategy.IStrategy;
+import org.complitex.dictionary.web.component.type.Date2Panel;
 
 /**
  *
@@ -290,6 +298,12 @@ public class DomainObjectInputPanel extends Panel {
                     case DATE: {
                         IModel<Date> model = new SimpleTypeModel<Date>(systemLocaleStringCulture, new DateConverter());
                         input = new DatePanel("input", model, attrType.isMandatory(), labelModel, !isHistory()
+                                && DomainObjectAccessUtil.canEdit(strategyName, entity, object));
+                    }
+                    break;
+                    case DATE2: {
+                        IModel<Date> model = new SimpleTypeModel<Date>(systemLocaleStringCulture, new DateConverter());
+                        input = new Date2Panel("input", model, attrType.isMandatory(), labelModel, !isHistory()
                                 && DomainObjectAccessUtil.canEdit(strategyName, entity, object));
                     }
                     break;
