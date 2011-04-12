@@ -83,7 +83,7 @@ public class DateUtil {
 
     public static Date getFirstDayOfMonth(int year, int month) {
         Calendar calendar = Calendar.getInstance();
-        calendar.set(year, month, 1);
+        calendar.set(year, month - 1, 1);
         return calendar.getTime();
     }
 
@@ -121,11 +121,11 @@ public class DateUtil {
      * @param year
      * @return date
      */
-    public static Date newDate(int day, int month, int year){
+    public static Date newDate(int day, int month, int year) {
         Calendar c = Calendar.getInstance();
         c.clear();
         c.setLenient(false);
-        c.set(year, month-1, day);
+        c.set(year, month - 1, day);
         return c.getTime();
     }
 }
