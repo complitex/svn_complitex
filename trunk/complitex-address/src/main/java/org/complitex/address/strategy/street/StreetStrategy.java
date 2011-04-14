@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import org.complitex.dictionary.service.LocaleBean;
 
 /**
  *
@@ -45,6 +46,8 @@ public class StreetStrategy extends TemplateStrategy {
     private StringCultureBean stringBean;
     @EJB
     private StrategyFactory strategyFactory;
+    @EJB
+    private LocaleBean localeBean;
 
     /*
      * Attribute type ids
@@ -79,13 +82,7 @@ public class StreetStrategy extends TemplateStrategy {
 
     @Override
     public String displayDomainObject(DomainObject object, Locale locale) {
-        String streetName = stringBean.displayValue(Iterables.find(object.getAttributes(), new Predicate<Attribute>() {
-
-            @Override
-            public boolean apply(Attribute attr) {
-                return attr.getAttributeTypeId().equals(NAME);
-            }
-        }).getLocalizedValues(), locale);
+        String streetName = getName(object, locale);
         Long streetTypeId = getStreetType(object);
         if (streetTypeId != null) {
             IStrategy streetTypeStrategy = strategyFactory.getStrategy("street_type");
@@ -228,5 +225,23 @@ public class StreetStrategy extends TemplateStrategy {
     @Override
     public String[] getEditRoles() {
         return new String[]{SecurityRole.ADDRESS_MODULE_EDIT};
+    }
+
+    public String getName(Long streetId){
+        DomainObject streetObject = findById(streetId, true);
+        if(streetObject != null){
+            return getName(streetObject, localeBean.getSystemLocale());
+        }
+        return null;
+    }
+
+    private String getName(DomainObject street, Locale locale){
+        return stringBean.displayValue(Iterables.find(street.getAttributes(), new Predicate<Attribute>() {
+
+            @Override
+            public boolean apply(Attribute attr) {
+                return attr.getAttributeTypeId().equals(NAME);
+            }
+        }).getLocalizedValues(), locale);
     }
 }
