@@ -18,8 +18,6 @@ import org.complitex.dictionary.web.component.search.ISearchCallback;
 import org.complitex.dictionary.web.component.search.SearchComponent;
 import org.complitex.template.strategy.TemplateStrategy;
 import org.complitex.template.web.security.SecurityRole;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import java.io.Serializable;
@@ -38,12 +36,15 @@ import org.complitex.dictionary.mybatis.Transactional;
 @Stateless(name = "Building_addressStrategy")
 public class BuildingAddressStrategy extends TemplateStrategy {
 
-    private static final Logger log = LoggerFactory.getLogger(BuildingAddressStrategy.class);
     private static final String BUILDING_ADDRESS_NAMESPACE = BuildingAddressStrategy.class.getPackage().getName() + ".BuildingAddress";
     public static final long NUMBER = 1500;
     public static final long CORP = 1501;
     public static final long STRUCTURE = 1502;
     public static final long PARENT_STREET_ENTITY_ID = 300L;
+    /**
+     * It indicates sorting by combination of number, corp and structure
+     */
+    public static final long DEFAULT_ORDER_BY_ID = -1;
     @EJB
     private BuildingStrategy buildingStrategy;
 
@@ -81,6 +82,18 @@ public class BuildingAddressStrategy extends TemplateStrategy {
                 example.setParentEntity(null);
             }
         }
+    }
+
+    @Override
+    public List<? extends DomainObject> find(DomainObjectExample example) {
+        example.setTable(getEntityTable());
+        prepareExampleForPermissionCheck(example);
+
+        List<DomainObject> objects = sqlSession().selectList(BUILDING_ADDRESS_NAMESPACE + "." + FIND_OPERATION, example);
+        for (DomainObject object : objects) {
+            loadAttributes(object);
+        }
+        return objects;
     }
 
     @Override

@@ -77,4 +77,60 @@
                 </choose>
     </update>
 
+    <sql id="orderBy">
+        <if test="orderByAttributeTypeId != null">
+            <choose>
+                <when test="orderByAttributeTypeId > 0">
+                    <if test="orderByAttributeTypeId == 1500 or orderByAttributeTypeId == 1501 or orderByAttributeTypeId == 1502">
+                        ORDER BY (SELECT sc.`value` FROM `${table}_string_culture` sc WHERE sc.`locale_id` = #{localeId} AND sc.`id` =
+                            (SELECT orderByAttr.`value_id` FROM `${table}_attribute` orderByAttr WHERE orderByAttr.`object_id` = e.`object_id`
+                                AND orderByAttr.`status` = 'ACTIVE' AND orderByAttr.`attribute_type_id` = #{orderByAttributeTypeId}
+                            )
+                        )+0
+                        <choose>
+                            <when test="asc">
+                                ASC
+                            </when>
+                            <otherwise>
+                                DESC
+                            </otherwise>
+                        </choose>
+                    </if>
+                </when>
+                <when test="orderByAttributeTypeId == -1">
+                    <if test="localeId != null">
+                        ORDER BY
+                            (SELECT num_sc.`value` FROM `building_address_string_culture` num_sc
+                                WHERE num_sc.`locale_id` = #{localeId} AND EXISTS(
+                                  SELECT 1 FROM `building_address_attribute` num WHERE num.`status` = 'ACTIVE'
+                                    AND num.`object_id` = e.`object_id` AND num.`attribute_type_id` = 1500 AND num.`value_id` = num_sc.`id`)
+                            )+0,
+                            IFNULL((SELECT corp_sc.`value` FROM `building_address_string_culture` corp_sc
+                                    WHERE corp_sc.`locale_id` = #{localeId} AND EXISTS(
+                                        SELECT 1 FROM `building_address_attribute` corp WHERE corp.`status` = 'ACTIVE'
+                                            AND corp.`object_id` = e.`object_id` AND corp.`attribute_type_id` = 1501 AND corp.`value_id` = corp_sc.`id`)
+                                    ),'')+0,
+                            IFNULL((SELECT structure_sc.`value` FROM `building_address_string_culture` structure_sc
+                                    WHERE structure_sc.`locale_id` = #{localeId} AND EXISTS(
+                                        SELECT 1 FROM `building_address_attribute` structure WHERE structure.`status` = 'ACTIVE'
+                                            AND structure.`object_id` = e.`object_id` AND structure.`attribute_type_id` = 1502 AND structure.`value_id` = structure_sc.`id`)
+                                    ),'')+0
+                    </if>
+                </when>
+                <otherwise>
+                </otherwise>
+            </choose>
+        </if>
+    </sql>
+
+    <select id="find" resultMap="org.complitex.dictionary.entity.DomainObject.DomainObject" parameterType="DomainObjectExample">
+        SELECT e.*
+        FROM `${table}` e WHERE
+        <include refid="org.complitex.dictionary.entity.DomainObject.statusFilter"/>
+        <include refid="org.complitex.dictionary.entity.DomainObject.permissionFilter"/>
+        <include refid="org.complitex.dictionary.entity.DomainObject.filter"/>
+        <include refid="org.complitex.address.strategy.building_address.BuildingAddress.orderBy"/>
+        <include refid="org.complitex.dictionary.entity.DomainObject.limit"/>
+    </select>
+
 </mapper>

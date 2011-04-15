@@ -491,7 +491,7 @@ public class BuildingStrategy extends TemplateStrategy {
 
     @Override
     public long getDefaultOrderByAttributeId() {
-        return OrderBy.NUMBER.getOrderByAttributeId();
+        return BuildingAddressStrategy.DEFAULT_ORDER_BY_ID;
     }
 
     @Transactional

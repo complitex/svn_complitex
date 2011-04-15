@@ -22,8 +22,6 @@ import org.complitex.dictionary.entity.example.ComparisonType;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.strategy.StrategyFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import java.io.Serializable;
@@ -41,6 +39,8 @@ import org.complitex.dictionary.web.component.ShowMode;
 public final class SearchComponent extends Panel {
 
     public static final long NOT_SPECIFIED_ID = -1;
+
+    private static final String NOT_SPECIFIED_KEY = "not_specified";
 
     public static class SearchFilterSettings implements Serializable {
 
@@ -66,10 +66,6 @@ public final class SearchComponent extends Panel {
             return showMode;
         }
     }
-
-    private static final String NOT_SPECIFIED_KEY = "not_specified";
-
-    private static final Logger log = LoggerFactory.getLogger(SearchComponent.class);
 
     @EJB
     private StringCultureBean stringBean;
@@ -143,11 +139,7 @@ public final class SearchComponent extends Panel {
 
         @Override
         public String getTextValue(DomainObject object) {
-            if (object.getId().equals(-1L)) {
-                return getString(NOT_SPECIFIED_KEY);
-            } else {
-                return strategyFactory.getStrategy(getEntityTable()).displayDomainObject(object, getLocale());
-            }
+            return SearchComponent.this.toString(object, getEntityTable());
         }
     }
 
@@ -161,12 +153,16 @@ public final class SearchComponent extends Panel {
 
         @Override
         protected String getTextValue(DomainObject object) {
-            if (object.getId().equals(-1L)) {
+            return SearchComponent.this.toString(object, entityTable);
+        }
+    }
+
+    private String toString(DomainObject object, String entityTable){
+        if (object.getId().equals(NOT_SPECIFIED_ID)) {
                 return getString(NOT_SPECIFIED_KEY);
             } else {
                 return strategyFactory.getStrategy(entityTable).displayDomainObject(object, getLocale());
             }
-        }
     }
 
     private void init() {
@@ -237,12 +233,10 @@ public final class SearchComponent extends Panel {
                                     }
                                 }).getShowMode();
 
-                        List<? extends DomainObject> equalToExample = findByExample(entity, searchTextInput, previousInfo, ComparisonType.EQUALITY,
-                                currentShowMode, AUTO_COMPLETE_SIZE);
-                        if (equalToExample.size() == AUTO_COMPLETE_SIZE) {
-                            choiceList.addAll(equalToExample);
-                        } else {
-                            choiceList.addAll(equalToExample);
+                        List<? extends DomainObject> equalToExample = findByExample(entity, searchTextInput, previousInfo, 
+                                ComparisonType.EQUALITY, currentShowMode, AUTO_COMPLETE_SIZE);
+                        choiceList.addAll(equalToExample);
+                        if (equalToExample.size() < AUTO_COMPLETE_SIZE) {
                             List<? extends DomainObject> likeExample = findByExample(entity, searchTextInput, previousInfo, ComparisonType.LIKE,
                                     currentShowMode, AUTO_COMPLETE_SIZE);
                             if (equalToExample.isEmpty()) {
@@ -264,7 +258,7 @@ public final class SearchComponent extends Panel {
                         }
 
                         DomainObject notSpecified = new DomainObject();
-                        notSpecified.setId(-1L);
+                        notSpecified.setId(NOT_SPECIFIED_ID);
                         choiceList.add(notSpecified);
                         return choiceList;
                     }
@@ -380,10 +374,8 @@ public final class SearchComponent extends Panel {
 
         DomainObjectExample example = new DomainObjectExample();
         strategy.configureExample(example, SearchComponent.<Long>transformObjects(previousInfo), searchTextInput);
-        if (comparisonType == ComparisonType.LIKE) {
-            example.setOrderByAttributeTypeId(strategy.getDefaultOrderByAttributeId());
-            example.setAsc(true);
-        }
+        example.setOrderByAttributeTypeId(strategy.getDefaultOrderByAttributeId());
+        example.setAsc(true);
         example.setSize(size);
         example.setLocaleId(localeBean.convert(getLocale()).getId());
         example.setComparisonType(comparisonType.name());
