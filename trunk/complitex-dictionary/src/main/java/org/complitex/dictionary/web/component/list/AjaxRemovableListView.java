@@ -65,7 +65,7 @@ public abstract class AjaxRemovableListView<T extends Serializable> extends List
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
                 if (validate((ListItem<T>) this.getParent())) {
                     updateListViewOnRemoval(this, target, toFocus, toUpdate);
-                }else{
+                } else {
                     for (Component comp : toUpdate) {
                         target.addComponent(comp);
                     }
@@ -91,7 +91,7 @@ public abstract class AjaxRemovableListView<T extends Serializable> extends List
             public void onClick(AjaxRequestTarget target) {
                 if (validate((ListItem<T>) this.getParent())) {
                     updateListViewOnRemoval(this, target, toFocus, toUpdate);
-                }else{
+                } else {
                     for (Component comp : toUpdate) {
                         target.addComponent(comp);
                     }
@@ -100,7 +100,7 @@ public abstract class AjaxRemovableListView<T extends Serializable> extends List
         };
     }
 
-    protected boolean validate(ListItem<T> item){
+    protected boolean validate(ListItem<T> item) {
         return true;
     }
 
@@ -142,5 +142,19 @@ public abstract class AjaxRemovableListView<T extends Serializable> extends List
         for (Component comp : toUpdate) {
             target.addComponent(comp);
         }
+    }
+
+    protected ListItem<T> getCurrentItem(Component component) {
+        return (ListItem<T>) component.visitParents(ListItem.class, new IVisitor<Component>() {
+
+            @Override
+            public Object component(Component component) {
+                return component;
+            }
+        });
+    }
+
+    protected int getCurrentIndex(Component component) {
+        return getCurrentItem(component).getIndex();
     }
 }
