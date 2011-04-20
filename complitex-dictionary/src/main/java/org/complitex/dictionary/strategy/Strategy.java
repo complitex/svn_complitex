@@ -489,6 +489,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
                         oldAttr.setStatus(StatusType.ARCHIVE);
                         sqlSession().update(ATTRIBUTE_NAMESPACE + "." + UPDATE_OPERATION, new Parameter(getEntityTable(), oldAttr));
                         newAttr.setStartDate(updateDate);
+                        newAttr.setObjectId(newObject.getId());
                         insertAttribute(newAttr);
                     }
                 }
