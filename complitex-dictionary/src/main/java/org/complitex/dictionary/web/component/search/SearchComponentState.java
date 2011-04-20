@@ -17,11 +17,11 @@ import java.util.Set;
  *
  * @author Artem
  */
-public class SearchComponentState implements Serializable {
+public class SearchComponentState<T extends DomainObject> implements Serializable {
 
-    private Map<String, DomainObject> state = Maps.newHashMap();
+    private Map<String, T> state = Maps.newHashMap();
 
-    public void put(String entity, DomainObject object) {
+    public void put(String entity, T object) {
         state.put(entity, object);
     }
 
@@ -29,8 +29,8 @@ public class SearchComponentState implements Serializable {
         return state.get(entity);
     }
 
-    public void updateState(Map<String, DomainObject> state) {
-        for (Map.Entry<String, DomainObject> entry : state.entrySet()) {
+    public void updateState(Map<String, T> state) {
+        for (Map.Entry<String, T> entry : state.entrySet()) {
             this.put(entry.getKey(), entry.getValue());
         }
     }
@@ -43,7 +43,7 @@ public class SearchComponentState implements Serializable {
         updateState(anotherState.getState());
     }
 
-    public Map<String, DomainObject> getState() {
+    public Map<String, T> getState() {
         return state;
     }
 
@@ -52,8 +52,8 @@ public class SearchComponentState implements Serializable {
             throw new IllegalArgumentException("EntityEqualCriteria is null or empty.");
         }
 
-        Map<String, DomainObject> thisState = getState();
-        Map<String, DomainObject> thatState = searchComponentState.getState();
+        Map<String, T> thisState = getState();
+        Map<String, T> thatState = searchComponentState.getState();
 
         if ((thisState == null || thisState.isEmpty()) && (thatState == null || thatState.isEmpty())) {
             return true;
@@ -64,8 +64,8 @@ public class SearchComponentState implements Serializable {
         }
 
         for (String entity : entityEqualCriteria) {
-            DomainObject thisObject = thisState.get(entity);
-            DomainObject thatObject = thatState.get(entity);
+            T thisObject = thisState.get(entity);
+            T thatObject = thatState.get(entity);
             if ((thisObject == null || thisObject.getId() == null || thisObject.getId().equals(SearchComponent.NOT_SPECIFIED_ID))
                     && (thatObject == null || thatObject.getId() == null || thatObject.getId().equals(SearchComponent.NOT_SPECIFIED_ID))) {
                 //consider it as equal objects
