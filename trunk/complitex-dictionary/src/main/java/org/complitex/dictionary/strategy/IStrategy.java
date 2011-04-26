@@ -73,12 +73,12 @@ public interface IStrategy {
     @Transactional
     DomainObject findHistoryObject(long objectId, Date date);
 
-    public static class RestrictedObjectInfo {
+    public static class SimpleObjectInfo {
 
         private String entityTable;
         private Long id;
 
-        public RestrictedObjectInfo(String entityTable, Long id) {
+        public SimpleObjectInfo(String entityTable, Long id) {
             this.entityTable = entityTable;
             this.id = id;
         }
@@ -93,7 +93,7 @@ public interface IStrategy {
     }
 
     @Transactional
-    RestrictedObjectInfo findParentInSearchComponent(long id, Date date);
+    SimpleObjectInfo findParentInSearchComponent(long id, Date date);
 
     String getAttributeLabel(Attribute attribute, Locale locale);
 
