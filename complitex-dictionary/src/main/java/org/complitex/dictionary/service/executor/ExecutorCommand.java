@@ -1,19 +1,22 @@
 package org.complitex.dictionary.service.executor;
 
+import org.complitex.dictionary.entity.IExecutorObject;
 import org.complitex.dictionary.entity.ILoggable;
 
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.complitex.dictionary.service.executor.ExecutorStatus.STATUS.*;
+import static org.complitex.dictionary.service.executor.ExecutorCommand.STATUS.*;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *        Date: 24.01.11 15:18
  */
-public class ExecutorStatus {
+public class ExecutorCommand {
     public static enum STATUS {
         NEW, RUNNING, COMPLETED, CRITICAL_ERROR, CANCELED
     }
@@ -25,15 +28,22 @@ public class ExecutorStatus {
     protected int errorCount = 0;
     protected AtomicBoolean stop = new AtomicBoolean(false);
 
-    protected List<ILoggable> processed = new CopyOnWriteArrayList<ILoggable>();
+    protected List<IExecutorObject> processed = new CopyOnWriteArrayList<IExecutorObject>();
 
     private AtomicInteger runningThread = new AtomicInteger(0);
+
+    private Queue<IExecutorObject> queue = new ConcurrentLinkedQueue<IExecutorObject>();
+    private ITaskBean task;
+    private IExecutorListener listener;
+
+    private int maxErrors;
+    int maxThread;
 
     public STATUS getStatus() {
         return status;
     }
 
-    private void setStatus(STATUS status) {
+    public void setStatus(STATUS status) {
         this.status = status;
     }
 
@@ -61,7 +71,7 @@ public class ExecutorStatus {
         errorCount++;
     }
 
-    public List<ILoggable> getProcessed() {
+    public List<IExecutorObject> getProcessed() {
         return processed;
     }
 
@@ -75,12 +85,9 @@ public class ExecutorStatus {
         errorCount = 0;
 
         processed.clear();
-    }
+        queue.clear();
 
-    public void start(){
         stop.set(false);
-
-        status = RUNNING;
     }
 
     public boolean isRunning(){
@@ -103,17 +110,8 @@ public class ExecutorStatus {
         return CANCELED.equals(status);
     }
 
-    public void complete(){
-        status = COMPLETED;
-    }
-
     public void cancel(){
         stop.set(true);
-        status = CANCELED;
-    }
-
-    public void criticalError(){
-        status = CRITICAL_ERROR;
     }
 
     public void startTask(){
@@ -122,5 +120,55 @@ public class ExecutorStatus {
 
     public void stopTask(){
         runningThread.decrementAndGet();
+    }
+
+    public Queue<IExecutorObject> getQueue() {
+        return queue;
+    }
+
+    public void setQueue(Queue<IExecutorObject> queue) {
+        this.queue = queue;
+    }
+
+    public ITaskBean getTask() {
+        return task;
+    }
+
+    public void setTask(ITaskBean task) {
+        this.task = task;
+    }
+
+    public IExecutorListener getListener() {
+        return listener;
+    }
+
+    public void setListener(IExecutorListener listener) {
+        this.listener = listener;
+    }
+
+    public int getMaxErrors() {
+        return maxErrors;
+    }
+
+    public void setMaxErrors(int maxErrors) {
+        this.maxErrors = maxErrors;
+    }
+
+    public int getMaxThread() {
+        return maxThread;
+    }
+
+    public void setMaxThread(int maxThread) {
+        this.maxThread = maxThread;
+    }
+
+    public boolean isWaiting(IExecutorObject executorObject){
+        for (IExecutorObject o : queue){
+            if (executorObject.getId().equals(o.getId())){
+                return true;
+            }
+        }
+
+        return false;
     }
 }

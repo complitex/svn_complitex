@@ -42,9 +42,8 @@ import org.complitex.resources.WebCommonResourceInitializer;
  * @author Artem
  */
 public class PagingNavigator extends Panel {
-
     private static final Logger log = LoggerFactory.getLogger(PagingNavigator.class);
-    
+
     private static final int LEFT_OFFSET = 3;
     private static final int RIGHT_OFFSET = 3;
     private static final List<Integer> SUPPORTED_PAGE_SIZES = Arrays.asList(10, 20, 30, 50, 100);
@@ -55,6 +54,7 @@ public class PagingNavigator extends Panel {
     private PropertyModel<Integer> rowsPerPagePropertyModel;
     private Component[] toUpdate;
     private String page;
+    private List<IPagingNavigatorListener> listeners = new ArrayList<IPagingNavigatorListener>();
 
     public PagingNavigator(String id, final DataView dataView, final String page, Component... toUpdate) {
         super(id);
@@ -212,6 +212,11 @@ public class PagingNavigator extends Panel {
             protected void onUpdate(AjaxRequestTarget target) {
                 //update model - pageSizeModel
                 updatePageComponents(target);
+
+                //listeners
+                for (IPagingNavigatorListener listener : listeners){
+                    listener.onChangePage();
+                }
             }
         });
         pageNavigator.add(pageSize);
@@ -326,6 +331,14 @@ public class PagingNavigator extends Panel {
     protected void onAfterRender() {
         super.onAfterRender();
         getSession().putPreference(page, PreferenceKey.PAGE_INDEX, dataView.getCurrentPage(), true);
+    }
+
+    public void addListener(IPagingNavigatorListener listener){
+        listeners.add(listener);
+    }
+
+    public void removeListener(IPagingNavigatorListener listener){
+        listeners.remove(listener);
     }
 
     /**
