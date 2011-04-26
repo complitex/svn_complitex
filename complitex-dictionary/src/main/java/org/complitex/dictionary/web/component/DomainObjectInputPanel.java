@@ -29,7 +29,6 @@ import org.complitex.dictionary.entity.description.Entity;
 import org.complitex.dictionary.entity.description.EntityAttributeType;
 import org.complitex.dictionary.entity.description.EntityType;
 import org.complitex.dictionary.service.StringCultureBean;
-import org.complitex.dictionary.strategy.Strategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
@@ -46,6 +45,7 @@ import java.io.Serializable;
 import java.util.*;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.complitex.dictionary.strategy.IStrategy;
+import org.complitex.dictionary.strategy.IStrategy.SimpleObjectInfo;
 import org.complitex.dictionary.web.component.type.Date2Panel;
 
 /**
@@ -383,7 +383,7 @@ public class DomainObjectInputPanel extends Panel {
                 componentState = getStrategy().getSearchComponentStateForParent(parentId, parentEntity, null);
             }
         } else {
-            Strategy.SimpleObjectInfo info = getStrategy().findParentInSearchComponent(object.getId(), isHistory() ? date : null);
+            SimpleObjectInfo info = getStrategy().findParentInSearchComponent(object.getId(), isHistory() ? date : null);
             if (info != null) {
                 componentState = getStrategy().getSearchComponentStateForParent(info.getId(), info.getEntityTable(), date);
             }

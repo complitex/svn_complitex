@@ -12,7 +12,6 @@ import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.description.EntityType;
 import org.complitex.dictionary.strategy.IStrategy;
-import org.complitex.dictionary.strategy.Strategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
@@ -31,6 +30,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import org.apache.wicket.Component;
+import org.complitex.dictionary.strategy.IStrategy.SimpleObjectInfo;
 
 /**
  * 
@@ -119,7 +119,7 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
             if (districtId != null) {
                 IStrategy districtStrategy = strategyFactory.getStrategy("district");
                 DomainObject district = districtStrategy.findById(districtId, true);
-                Strategy.SimpleObjectInfo info = districtStrategy.findParentInSearchComponent(districtId, null);
+                SimpleObjectInfo info = districtStrategy.findParentInSearchComponent(districtId, null);
                 if (info != null) {
                     componentState = districtStrategy.getSearchComponentStateForParent(info.getId(), info.getEntityTable(), null);
                     componentState.put("district", district);
