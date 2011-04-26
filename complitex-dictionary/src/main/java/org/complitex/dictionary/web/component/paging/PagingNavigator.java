@@ -212,11 +212,6 @@ public class PagingNavigator extends Panel {
             protected void onUpdate(AjaxRequestTarget target) {
                 //update model - pageSizeModel
                 updatePageComponents(target);
-
-                //listeners
-                for (IPagingNavigatorListener listener : listeners){
-                    listener.onChangePage();
-                }
             }
         });
         pageNavigator.add(pageSize);
@@ -308,6 +303,11 @@ public class PagingNavigator extends Panel {
                 super.onClick(target);
                 appendScrollupJavascript(target);
                 updatePageComponents(target);
+
+                //listeners
+                for (IPagingNavigatorListener listener : listeners){
+                    listener.onChangePage();
+                }
             }
         };
     }
