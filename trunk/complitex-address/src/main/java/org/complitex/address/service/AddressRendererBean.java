@@ -12,7 +12,7 @@ import javax.ejb.Singleton;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.strategy.IStrategy;
-import org.complitex.dictionary.strategy.Strategy;
+import org.complitex.dictionary.strategy.IStrategy.SimpleObjectInfo;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
 
@@ -36,7 +36,7 @@ public class AddressRendererBean {
         }
 
         IStrategy strategy = strategyFactory.getStrategy(addressEntity);
-        Strategy.SimpleObjectInfo info = strategy.findParentInSearchComponent(addressId, null);
+        SimpleObjectInfo info = strategy.findParentInSearchComponent(addressId, null);
         SearchComponentState addressComponentState = new SearchComponentState();
         if (info != null) {
             addressComponentState = strategy.getSearchComponentStateForParent(info.getId(), info.getEntityTable(), null);
