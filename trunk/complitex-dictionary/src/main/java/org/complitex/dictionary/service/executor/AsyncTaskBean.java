@@ -1,5 +1,6 @@
 package org.complitex.dictionary.service.executor;
 
+import org.complitex.dictionary.entity.IExecutorObject;
 import org.complitex.dictionary.entity.ILoggable;
 import org.complitex.dictionary.service.LogBean;
 import org.slf4j.Logger;
@@ -20,7 +21,7 @@ public class AsyncTaskBean {
     protected LogBean logBean;
 
     @Asynchronous
-    public <T extends ILoggable> void execute(T object, ITaskBean<T> task, ITaskListener<T> listener){
+    public void execute(IExecutorObject object, ITaskBean task, ITaskListener listener){
         try {
             boolean noSkip = task.execute(object);
 
@@ -71,12 +72,12 @@ public class AsyncTaskBean {
         return t.getMessage();
     }
 
-    private <T extends ILoggable> void logError(T object, ITaskBean<T> task, String decs, Object... args){
+    private void logError(IExecutorObject object, ITaskBean task, String decs, Object... args){
         logBean.error(task.getModuleName(), task.getControllerClass(),  object.getClass(), null, object.getId(),
                 task.getEvent(), object.getLogChangeList(), decs, args);
     }
 
-     private <T extends ILoggable> void logInfo(T object, ITaskBean<T> task, String decs, Object... args){
+     private void logInfo(IExecutorObject object, ITaskBean task, String decs, Object... args){
         logBean.info(task.getModuleName(), task.getControllerClass(), object.getClass(), null, object.getId(),
                 task.getEvent(), object.getLogChangeList(), decs, args);
     }
