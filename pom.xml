@@ -39,7 +39,7 @@
 
     <properties>
         <!-- wicket version -->
-        <wicket.version>1.4.16</wicket.version>
+        <wicket.version>1.4.17</wicket.version>
 
         <!-- source encoding -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
