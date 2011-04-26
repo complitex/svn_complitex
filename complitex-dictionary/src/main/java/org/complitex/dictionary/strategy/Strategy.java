@@ -758,7 +758,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     @SuppressWarnings({"unchecked"})
     @Transactional
     @Override
-    public RestrictedObjectInfo findParentInSearchComponent(long id, Date date) {
+    public SimpleObjectInfo findParentInSearchComponent(long id, Date date) {
         DomainObjectExample example = new DomainObjectExample(id);
         example.setTable(getEntityTable());
         example.setStartDate(date);
@@ -768,7 +768,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
             Long parentId = (Long) result.get("parentId");
             String parentEntity = (String) result.get("parentEntity");
             if (parentId != null && !Strings.isEmpty(parentEntity)) {
-                return new RestrictedObjectInfo(parentEntity, parentId);
+                return new SimpleObjectInfo(parentEntity, parentId);
             }
         }
         return null;
@@ -784,7 +784,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
             SearchComponentState componentState = new SearchComponentState();
             Map<String, Long> ids = Maps.newHashMap();
 
-            RestrictedObjectInfo parentData = new RestrictedObjectInfo(parentEntity, parentId);
+            SimpleObjectInfo parentData = new SimpleObjectInfo(parentEntity, parentId);
             while (parentData != null) {
                 String currentParentEntity = parentData.getEntityTable();
                 Long currentParentId = parentData.getId();
@@ -1162,7 +1162,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
     @Transactional
     protected void deleteStrings(long objectId) {
-        Set<Long> localizedValueTypeIds = getLocalizaedValueTypeIds();
+        Set<Long> localizedValueTypeIds = getLocalizedValueTypeIds();
         if (localizedValueTypeIds != null && !localizedValueTypeIds.isEmpty()) {
             stringBean.delete(getEntityTable(), objectId, localizedValueTypeIds);
         }
@@ -1228,7 +1228,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     }
 
     @Transactional
-    protected Set<Long> getLocalizaedValueTypeIds() {
+    protected Set<Long> getLocalizedValueTypeIds() {
         Set<Long> localizedValueTypeIds = Sets.newHashSet();
         for (EntityAttributeType attributeType : getEntity().getEntityAttributeTypes()) {
             for (EntityAttributeValueType valueType : attributeType.getEntityAttributeValueTypes()) {

@@ -119,7 +119,7 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
             if (districtId != null) {
                 IStrategy districtStrategy = strategyFactory.getStrategy("district");
                 DomainObject district = districtStrategy.findById(districtId, true);
-                Strategy.RestrictedObjectInfo info = districtStrategy.findParentInSearchComponent(districtId, null);
+                Strategy.SimpleObjectInfo info = districtStrategy.findParentInSearchComponent(districtId, null);
                 if (info != null) {
                     componentState = districtStrategy.getSearchComponentStateForParent(info.getId(), info.getEntityTable(), null);
                     componentState.put("district", district);

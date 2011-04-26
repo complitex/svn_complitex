@@ -36,7 +36,7 @@ public class AddressRendererBean {
         }
 
         IStrategy strategy = strategyFactory.getStrategy(addressEntity);
-        Strategy.RestrictedObjectInfo info = strategy.findParentInSearchComponent(addressId, null);
+        Strategy.SimpleObjectInfo info = strategy.findParentInSearchComponent(addressId, null);
         SearchComponentState addressComponentState = new SearchComponentState();
         if (info != null) {
             addressComponentState = strategy.getSearchComponentStateForParent(info.getId(), info.getEntityTable(), null);
