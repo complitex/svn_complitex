@@ -90,7 +90,7 @@
                     AND attr.`value_id` IN (SELECT sc.`id` FROM `${table}_string_culture` sc WHERE sc.`value`
                         <choose>
                             <when test="comparisonType == 'LIKE'">
-                                LIKE '%${attrExample.value}%'
+                                LIKE CONCAT('%', #{attrExample.value}, '%')
                             </when>
                             <when test="comparisonType == 'EQUALITY'">
                                 = #{attrExample.value}
