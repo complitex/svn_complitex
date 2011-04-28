@@ -27,6 +27,7 @@ import javax.ejb.EJB;
 import java.util.*;
 import java.util.Locale;
 import org.complitex.dictionary.mysql.MySqlErrors;
+import org.complitex.dictionary.web.component.search.SearchComponent;
 
 /**
  *
@@ -793,27 +794,22 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
             }
             List<String> parentSearchFilters = getParentSearchFilters();
             if (parentSearchFilters != null && !parentSearchFilters.isEmpty()) {
-                for (String parentSearchFilter : parentSearchFilters) {
-                    Long idForFilter = ids.get(parentSearchFilter);
-                    if (idForFilter == null) {
-                        ids.put(parentSearchFilter, -1L);
-                    }
-                }
-
                 for (String searchFilter : parentSearchFilters) {
                     DomainObject object = new DomainObject();
-                    object.setId(-1L);
-                    if (date == null) {
-                        long id = ids.get(searchFilter);
-                        IStrategy searchFilterStrategy = strategyFactory.getStrategy(searchFilter);
-                        DomainObject objectFromDb = searchFilterStrategy.findById(id, true);
-                        if (objectFromDb != null) {
-                            object = objectFromDb;
-                        }
-                    } else {
-                        DomainObject historyObject = strategyFactory.getStrategy(searchFilter).findHistoryObject(ids.get(searchFilter), date);
-                        if (historyObject != null) {
-                            object = historyObject;
+                    object.setId(SearchComponent.NOT_SPECIFIED_ID);
+                    Long id = ids.get(searchFilter);
+                    IStrategy searchFilterStrategy = strategyFactory.getStrategy(searchFilter);
+                    if (id != null) {
+                        if (date == null) {
+                            DomainObject objectFromDb = searchFilterStrategy.findById(id, true);
+                            if (objectFromDb != null) {
+                                object = objectFromDb;
+                            }
+                        } else {
+                            DomainObject historyObject = searchFilterStrategy.findHistoryObject(ids.get(searchFilter), date);
+                            if (historyObject != null) {
+                                object = historyObject;
+                            }
                         }
                     }
                     componentState.put(searchFilter, object);
@@ -843,7 +839,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         for (Map.Entry<String, DomainObject> entry : state.entrySet()) {
             DomainObject sessionObject = entry.getValue();
             long objectId = sessionObject.getId();
-            if (objectId > -1) {
+            if (objectId > 0) {
                 String entity = entry.getKey();
                 IStrategy strategy = strategyFactory.getStrategy(entity);
                 DomainObject freshObject = strategy.findById(objectId, true);

@@ -107,6 +107,11 @@ public class BuildingValidator implements IValidator {
         }
         int streetCount = streetIds.size();
 
+        if(addressCount == 1 && streetCount == 0){
+            //дом привязан напрямую к городу.
+            return true;
+        }
+
         if (addressCount != streetCount) {
             error("repeating_street", editPanel);
             return false;
