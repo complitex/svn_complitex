@@ -32,11 +32,14 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.EJB;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
+import org.apache.wicket.markup.html.JavascriptPackageResource;
 import org.complitex.dictionary.strategy.DeleteException;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.util.DateUtil;
 import org.complitex.dictionary.web.component.permission.DomainObjectPermissionsPanel;
 import org.complitex.dictionary.web.component.permission.PermissionPropagationDialogPanel;
+import org.complitex.dictionary.web.component.scroll.ScrollToElementUtil;
+import org.complitex.resources.WebCommonResourceInitializer;
 
 /**
  *
@@ -64,6 +67,8 @@ public class DomainObjectEditPanel extends Panel {
     public DomainObjectEditPanel(String id, String entity, String strategyName, Long objectId, Long parentId,
             String parentEntity, String scrollListPageParameterName) {
         super(id);
+
+        add(JavascriptPackageResource.getHeaderContribution(WebCommonResourceInitializer.SCROLL_JS));
 
         this.entity = entity;
         this.strategyName = strategyName;
@@ -96,7 +101,7 @@ public class DomainObjectEditPanel extends Panel {
         return oldObject == null;
     }
 
-    public void updateMessages(AjaxRequestTarget target){
+    public void updateMessages(AjaxRequestTarget target) {
         target.addComponent(messages);
     }
 
@@ -110,7 +115,8 @@ public class DomainObjectEditPanel extends Panel {
         };
         Label title = new Label("title", labelModel);
         add(title);
-        Label label = new Label("label", labelModel);
+        final Label label = new Label("label", labelModel);
+        label.setOutputMarkupId(true);
         add(label);
 
         messages = new FeedbackPanel("messages");
@@ -185,17 +191,24 @@ public class DomainObjectEditPanel extends Panel {
                         }
                     } else {
                         target.addComponent(messages);
+                        scrollToMessages(target);
                     }
                 } catch (Exception e) {
                     log.error("", e);
                     error(getString("db_error"));
                     target.addComponent(messages);
+                    scrollToMessages(target);
                 }
             }
 
             @Override
             protected void onError(AjaxRequestTarget target, Form<?> form) {
                 target.addComponent(messages);
+                scrollToMessages(target);
+            }
+
+            private void scrollToMessages(AjaxRequestTarget target) {
+                target.appendJavascript(ScrollToElementUtil.scrollTo(label.getMarkupId()));
             }
         };
         submit.setVisible(DomainObjectAccessUtil.canEdit(strategyName, entity, newObject));
@@ -250,7 +263,7 @@ public class DomainObjectEditPanel extends Panel {
         back();
     }
 
-    protected void onInsert(){
+    protected void onInsert() {
         visitChildren(AbstractComplexAttributesPanel.class, new IVisitor<AbstractComplexAttributesPanel>() {
 
             @Override
@@ -261,7 +274,7 @@ public class DomainObjectEditPanel extends Panel {
         });
     }
 
-    protected void onUpdate(){
+    protected void onUpdate() {
         visitChildren(AbstractComplexAttributesPanel.class, new IVisitor<AbstractComplexAttributesPanel>() {
 
             @Override
