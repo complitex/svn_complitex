@@ -22,7 +22,6 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.entity.PreferenceKey;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
@@ -42,15 +41,15 @@ import org.complitex.template.web.component.toolbar.ToolbarButton;
 import org.complitex.template.web.security.SecurityRole;
 import org.complitex.address.strategy.building.BuildingStrategy;
 import org.complitex.address.strategy.building.entity.Building;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.apache.wicket.model.PropertyModel;
 import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
+import org.complitex.dictionary.strategy.web.model.DomainObjectIdModel;
 import org.complitex.dictionary.web.component.scroll.ScrollBookmarkablePageLink;
 import org.complitex.template.web.pages.ScrollListPage;
 
@@ -61,11 +60,8 @@ import org.complitex.template.web.pages.ScrollListPage;
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)
 public final class BuildingList extends ScrollListPage {
 
-    private static final Logger log = LoggerFactory.getLogger(BuildingList.class);
-
     @EJB
     private BuildingStrategy buildingStrategy;
-
     @EJB
     private LocaleBean localeBean;
 
@@ -85,13 +81,9 @@ public final class BuildingList extends ScrollListPage {
             target.addComponent(content);
         }
     }
-
     private DomainObjectExample example;
-
     private WebMarkupContainer content;
-
     private DataView<Building> dataView;
-
     private final String page = BuildingList.class.getName();
 
     public BuildingList() {
@@ -121,7 +113,7 @@ public final class BuildingList extends ScrollListPage {
         //Example
         example = (DomainObjectExample) getSession().getPreferenceObject(page, PreferenceKey.FILTER_OBJECT, null);
 
-        if (example == null){
+        if (example == null) {
             example = new DomainObjectExample();
             getSession().putPreferenceObject(page, PreferenceKey.FILTER_OBJECT, example);
         }
@@ -191,12 +183,12 @@ public final class BuildingList extends ScrollListPage {
                 getSession().getPreferenceBoolean(page, PreferenceKey.SORT_ORDER, true));
 
         //Filters
-        filterForm.add(new TextField<Long>("id", new PropertyModel<Long>(example, "id")));
+        filterForm.add(new TextField<String>("id", new DomainObjectIdModel(new PropertyModel<Long>(example, "id"))));
         filterForm.add(new TextField<String>("numberFilter", new Model<String>() {
 
             @Override
             public String getObject() {
-                return (String) example.getAdditionalParam(BuildingStrategy.NUMBER);
+                return example.getAdditionalParam(BuildingStrategy.NUMBER);
             }
 
             @Override
@@ -208,7 +200,7 @@ public final class BuildingList extends ScrollListPage {
 
             @Override
             public String getObject() {
-                return (String) example.getAdditionalParam(BuildingStrategy.CORP);
+                return example.getAdditionalParam(BuildingStrategy.CORP);
             }
 
             @Override
@@ -220,7 +212,7 @@ public final class BuildingList extends ScrollListPage {
 
             @Override
             public String getObject() {
-                return (String) example.getAdditionalParam(BuildingStrategy.STRUCTURE);
+                return example.getAdditionalParam(BuildingStrategy.STRUCTURE);
             }
 
             @Override
@@ -247,7 +239,7 @@ public final class BuildingList extends ScrollListPage {
 
                     @Override
                     public String getObject() {
-                        if(DomainObjectAccessUtil.canAddNew(null, "building")){
+                        if (DomainObjectAccessUtil.canAddNew(null, "building")) {
                             return getString("edit");
                         } else {
                             return getString("view");

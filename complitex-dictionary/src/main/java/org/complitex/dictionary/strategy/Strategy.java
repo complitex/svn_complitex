@@ -301,10 +301,13 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         }
     }
 
-    @SuppressWarnings({"unchecked"})
     @Transactional
     @Override
     public List<? extends DomainObject> find(DomainObjectExample example) {
+        if (example.getId() != null && example.getId() <= 0) {
+            return Collections.emptyList();
+        }
+        
         example.setTable(getEntityTable());
         prepareExampleForPermissionCheck(example);
 
@@ -318,6 +321,10 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     @Transactional
     @Override
     public int count(DomainObjectExample example) {
+        if (example.getId() != null && example.getId() <= 0) {
+            return 0;
+        }
+        
         example.setTable(getEntityTable());
         prepareExampleForPermissionCheck(example);
 

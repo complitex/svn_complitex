@@ -23,7 +23,6 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.converter.BooleanConverter;
 import org.complitex.dictionary.converter.DateConverter;
@@ -38,7 +37,6 @@ import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.strategy.StrategyFactory;
-import org.complitex.dictionary.util.EjbBeanLocator;
 import org.complitex.dictionary.util.StringUtil;
 import org.complitex.dictionary.web.DictionaryFwSession;
 import org.complitex.dictionary.web.component.*;
@@ -52,10 +50,11 @@ import javax.ejb.EJB;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import org.apache.wicket.model.PropertyModel;
 import org.complitex.dictionary.service.LocaleBean;
 import org.complitex.dictionary.strategy.IStrategy;
+import org.complitex.dictionary.strategy.web.model.DomainObjectIdModel;
 import org.complitex.dictionary.web.component.scroll.ScrollBookmarkablePageLink;
-import org.complitex.dictionary.web.component.type.Date2Panel;
 
 /**
  *
@@ -313,7 +312,7 @@ public class DomainObjectListPanel extends Panel {
         filterForm.add(columns);
 
         //Filters
-        filterForm.add(new TextField<Long>("id", new PropertyModel<Long>(example, "id")));
+        filterForm.add(new TextField<String>("id", new DomainObjectIdModel(new PropertyModel<Long>(example, "id"))));
 
         ListView<EntityAttributeType> filters = new ListView<EntityAttributeType>("filters", listAttributeTypes) {
 

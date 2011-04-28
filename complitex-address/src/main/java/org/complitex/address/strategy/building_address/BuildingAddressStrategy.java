@@ -21,6 +21,7 @@ import org.complitex.template.web.security.SecurityRole;
 
 import javax.ejb.Stateless;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -86,6 +87,10 @@ public class BuildingAddressStrategy extends TemplateStrategy {
 
     @Override
     public List<? extends DomainObject> find(DomainObjectExample example) {
+        if (example.getId() != null && example.getId() <= 0) {
+            return Collections.emptyList();
+        }
+        
         example.setTable(getEntityTable());
         prepareExampleForPermissionCheck(example);
 
