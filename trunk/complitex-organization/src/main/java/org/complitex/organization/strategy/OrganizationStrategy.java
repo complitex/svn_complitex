@@ -191,7 +191,6 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
         return OrganizationEditComponent.class;
     }
 
-    @SuppressWarnings({"unchecked"})
     @Transactional
     @Override
     public List<? extends DomainObject> find(DomainObjectExample example) {
@@ -209,6 +208,9 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
     @Transactional
     @Override
     public int count(DomainObjectExample example) {
+        if (example.getId() != null && example.getId() <= 0) {
+            return 0;
+        }
         example.setTable(getEntityTable());
         prepareExampleForPermissionCheck(example);
         return (Integer) sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + "." + COUNT_OPERATION, example);

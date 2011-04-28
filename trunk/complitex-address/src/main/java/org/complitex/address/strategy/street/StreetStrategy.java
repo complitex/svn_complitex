@@ -28,6 +28,7 @@ import org.complitex.template.web.security.SecurityRole;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -65,6 +66,10 @@ public class StreetStrategy extends TemplateStrategy {
     @Override
     @Transactional
     public List<DomainObject> find(DomainObjectExample example) {
+        if (example.getId() != null && example.getId() <= 0) {
+            return Collections.emptyList();
+        }
+        
         example.setTable(getEntityTable());
         prepareExampleForPermissionCheck(example);
 
@@ -73,6 +78,19 @@ public class StreetStrategy extends TemplateStrategy {
             loadAttributes(object);
         }
         return objects;
+    }
+
+    @Transactional
+    @Override
+    public int count(DomainObjectExample example) {
+        if (example.getId() != null && example.getId() <= 0) {
+            return 0;
+        }
+        
+        example.setTable(getEntityTable());
+        prepareExampleForPermissionCheck(example);
+
+        return (Integer) sqlSession().selectOne(STREET_NAMESPACE + "." + COUNT_OPERATION, example);
     }
 
     @Override
@@ -227,15 +245,15 @@ public class StreetStrategy extends TemplateStrategy {
         return new String[]{SecurityRole.ADDRESS_MODULE_EDIT};
     }
 
-    public String getName(Long streetId){
+    public String getName(Long streetId) {
         DomainObject streetObject = findById(streetId, true);
-        if(streetObject != null){
+        if (streetObject != null) {
             return getName(streetObject, localeBean.getSystemLocale());
         }
         return null;
     }
 
-    private String getName(DomainObject street, Locale locale){
+    private String getName(DomainObject street, Locale locale) {
         return stringBean.displayValue(Iterables.find(street.getAttributes(), new Predicate<Attribute>() {
 
             @Override

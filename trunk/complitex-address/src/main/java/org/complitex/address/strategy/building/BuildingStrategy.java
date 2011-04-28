@@ -95,21 +95,41 @@ public class BuildingStrategy extends TemplateStrategy {
     @Override
     @Transactional
     public List<Building> find(DomainObjectExample example) {
+        if (example.getId() != null && example.getId() <= 0) {
+            return Collections.emptyList();
+        }
+
         example.setTable(getEntityTable());
         prepareExampleForPermissionCheck(example);
-
         List<Building> buildings = Lists.newArrayList();
 
         if (example.getId() != null) {
+            boolean buildingFound = false;
             Building building = findById(example.getId(), false);
-            Long streetId = (Long) example.getAdditionalParam(STREET);
-            if (streetId != null && streetId > 0) {
-                DomainObject address = building.getAddress(streetId);
-                building.setAccompaniedAddress(address);
-            } else {
-                building.setAccompaniedAddress(building.getPrimaryAddress());
+            if (building != null) {
+                buildingFound = true;
+                Long streetId = example.getAdditionalParam(STREET);
+                if (streetId != null && streetId > 0) {
+                    DomainObject address = building.getAddress(streetId);
+                    if (address == null) {
+                        buildingFound = false;
+                    } else {
+                        building.setAccompaniedAddress(address);
+                    }
+                } else {
+                    DomainObject primaryAddress = building.getPrimaryAddress();
+                    Long cityId = example.getAdditionalParam(CITY);
+                    if (cityId == null || cityId <= 0 || !(cityId.equals(primaryAddress.getParentId())
+                            && Long.valueOf(400L).equals(primaryAddress.getParentEntityId()))) {
+                        buildingFound = false;
+                    } else {
+                        building.setAccompaniedAddress(primaryAddress);
+                    }
+                }
             }
-            buildings.add(building);
+            if (buildingFound) {
+                buildings.add(building);
+            }
         } else {
             DomainObjectExample addressExample = createAddressExample(example);
             List<? extends DomainObject> addresses = buildingAddressStrategy.find(addressExample);
@@ -125,7 +145,7 @@ public class BuildingStrategy extends TemplateStrategy {
                     if (result.isEmpty()) {
                         String message = "There are no building object linked to active building address object. Building address object id = " + address.getId()
                                 + ". Address base is in inconsistent state!";
-                        throw new RuntimeException(message);
+                        throw new IllegalStateException(message);
                     } else {
                         List<Long> buildingIds = Lists.newArrayList(Iterables.transform(result, new Function<Building, Long>() {
 
@@ -136,7 +156,7 @@ public class BuildingStrategy extends TemplateStrategy {
                         }));
                         String message = "There are more than one building objects linked to one building address object. Building address object id = "
                                 + address.getId() + ", building object's ids linked to specified building address object: " + buildingIds;
-                        throw new RuntimeException(message);
+                        throw new IllegalStateException(message);
                     }
                 }
             }
@@ -145,9 +165,9 @@ public class BuildingStrategy extends TemplateStrategy {
     }
 
     private DomainObjectExample createAddressExample(DomainObjectExample buildingExample) {
-        String number = (String) buildingExample.getAdditionalParam(NUMBER);
-        String corp = (String) buildingExample.getAdditionalParam(CORP);
-        String structure = (String) buildingExample.getAdditionalParam(STRUCTURE);
+        String number = buildingExample.getAdditionalParam(NUMBER);
+        String corp = buildingExample.getAdditionalParam(CORP);
+        String structure = buildingExample.getAdditionalParam(STRUCTURE);
 
         DomainObjectExample addressExample = new DomainObjectExample();
         addressExample.setAsc(buildingExample.isAsc());
@@ -170,9 +190,9 @@ public class BuildingStrategy extends TemplateStrategy {
         structureExample.setValue(structure);
         addressExample.addAttributeExample(structureExample);
         Map<String, Long> ids = Maps.newHashMap();
-        Long streetId = (Long) buildingExample.getAdditionalParam(STREET);
+        Long streetId = buildingExample.getAdditionalParam(STREET);
         ids.put("street", streetId);
-        Long cityId = (Long) buildingExample.getAdditionalParam(CITY);
+        Long cityId = buildingExample.getAdditionalParam(CITY);
         ids.put("city", cityId);
         buildingAddressStrategy.configureExample(addressExample, ids, null);
         return addressExample;
@@ -181,8 +201,11 @@ public class BuildingStrategy extends TemplateStrategy {
     @Override
     @Transactional
     public int count(DomainObjectExample example) {
-        prepareExampleForPermissionCheck(example);
+        if (example.getId() != null && example.getId() <= 0) {
+            return 0;
+        }
 
+        prepareExampleForPermissionCheck(example);
         if (example.getId() != null) {
             Building building = findById(example.getId(), false);
             return building == null ? 0 : 1;

@@ -100,7 +100,7 @@ public class Building extends DomainObject {
         for (DomainObject address : getAllAddresses()) {
             Long parentEntityId = address.getParentEntityId();
             Long addressStreetId = parentEntityId.equals(300L) ? address.getParentId() : null;
-            if (new Long(streetId).equals(addressStreetId)) {
+            if (Long.valueOf(streetId).equals(addressStreetId)) {
                 return address;
             }
         }

@@ -152,8 +152,8 @@ public class DomainObjectExample implements Serializable {
         additionalParams.put(key, value);
     }
 
-    public Object getAdditionalParam(String key) {
-        return additionalParams != null ? additionalParams.get(key) : null;
+    public <T> T getAdditionalParam(String key) {
+        return additionalParams != null ? (T)additionalParams.get(key) : null;
     }
 
     public String getStatus() {
