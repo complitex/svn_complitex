@@ -51,10 +51,12 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import org.apache.wicket.model.PropertyModel;
+import org.complitex.dictionary.converter.GenderConverter;
 import org.complitex.dictionary.service.LocaleBean;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.web.model.DomainObjectIdModel;
 import org.complitex.dictionary.web.component.scroll.ScrollBookmarkablePageLink;
+import org.complitex.dictionary.web.component.type.GenderPanel;
 
 /**
  *
@@ -257,12 +259,15 @@ public class DomainObjectListPanel extends Panel {
                                     attributeValue = new IntegerConverter().toObject(systemLocaleValue).toString();
                                     break;
                                 case BOOLEAN:
-                                    attributeValue = getString(new BooleanConverter().toObject(systemLocaleValue).toString());
+                                    attributeValue = BooleanPanel.display(new BooleanConverter().toObject(systemLocaleValue), getLocale());
                                     break;
                                 case DATE:
                                 case DATE2:
                                     DateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy", getLocale());
                                     attributeValue = dateFormatter.format(new DateConverter().toObject(systemLocaleValue));
+                                    break;
+                                case GENDER:
+                                    attributeValue = GenderPanel.display(new GenderConverter().toObject(systemLocaleValue), getLocale());
                                     break;
                             }
                         }

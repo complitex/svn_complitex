@@ -2,7 +2,11 @@ package org.complitex.dictionary.strategy;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableMap;
+import static com.google.common.collect.Iterables.*;
+import static com.google.common.collect.Lists.*;
+import static com.google.common.collect.Maps.*;
+import static com.google.common.collect.Sets.*;
 import java.sql.SQLException;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.entity.*;
@@ -242,7 +246,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     @Transactional
     protected Set<Long> loadSubjects(long permissionId) {
         if (permissionId == PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID) {
-            return Sets.newHashSet(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID);
+            return newHashSet(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID);
         } else {
             return permissionBean.findSubjectIds(permissionId);
         }
@@ -258,7 +262,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     }
 
     protected void fillAttributes(DomainObject object) {
-        List<Attribute> toAdd = Lists.newArrayList();
+        List<Attribute> toAdd = newArrayList();
 
         for (EntityAttributeType attributeType : getEntity().getEntityAttributeTypes()) {
             if (!attributeType.isObsolete()) {
@@ -307,7 +311,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         if (example.getId() != null && example.getId() <= 0) {
             return Collections.emptyList();
         }
-        
+
         example.setTable(getEntityTable());
         prepareExampleForPermissionCheck(example);
 
@@ -324,7 +328,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         if (example.getId() != null && example.getId() <= 0) {
             return 0;
         }
-        
+
         example.setTable(getEntityTable());
         prepareExampleForPermissionCheck(example);
 
@@ -346,7 +350,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         fillAttributes(object);
 
         //set up subject ids to visible-by-all subject
-        object.setSubjectIds(Sets.newHashSet(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID));
+        object.setSubjectIds(newHashSet(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID));
 
         return object;
     }
@@ -384,7 +388,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         if (newSubjectIds.size() == 1 && newSubjectIds.contains(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID)) {
             return PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID;
         } else {
-            List<Subject> subjects = Lists.newArrayList();
+            List<Subject> subjects = newArrayList();
             for (Long subjectId : newSubjectIds) {
                 subjects.add(new Subject("organization", subjectId));
             }
@@ -467,6 +471,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
                                 }
                                 break;
 
+                                case GENDER:
                                 case BOOLEAN:
                                 case DATE:
                                 case DATE2:
@@ -599,7 +604,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
     @Transactional
     protected List<DomainObjectPermissionInfo> findChildrenPermissionInfo(long parentId, String childEntity, int start, int size) {
-        Map<String, Object> params = Maps.newHashMap();
+        Map<String, Object> params = newHashMap();
         params.put("entity", childEntity);
         params.put("parentId", parentId);
         params.put("parentEntity", getEntityTable());
@@ -666,7 +671,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
     @Transactional
     protected void updatePermissionId(long objectId, long permissionId) {
-        Map<String, Object> params = Maps.newHashMap();
+        Map<String, Object> params = newHashMap();
         params.put("entity", getEntityTable());
         params.put("id", objectId);
         params.put("permissionId", permissionId);
@@ -711,7 +716,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     @Override
     public List<EntityAttributeType> getListColumns() {
         final List<Long> listAttributeTypes = getListAttributeTypes();
-        return Lists.newArrayList(Iterables.filter(getEntity().getEntityAttributeTypes(), new Predicate<EntityAttributeType>() {
+        return newArrayList(filter(getEntity().getEntityAttributeTypes(), new Predicate<EntityAttributeType>() {
 
             @Override
             public boolean apply(EntityAttributeType attributeType) {
@@ -725,7 +730,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
      * @return Сортированный список идентификаторов атрибутов, которые должны выводиться в качестве колонок на странице записей.
      */
     protected List<Long> getListAttributeTypes() {
-        return Lists.newArrayList(Iterables.transform(getEntity().getEntityAttributeTypes(), new Function<EntityAttributeType, Long>() {
+        return newArrayList(transform(getEntity().getEntityAttributeTypes(), new Function<EntityAttributeType, Long>() {
 
             @Override
             public Long apply(EntityAttributeType attributeType) {
@@ -790,7 +795,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     public SearchComponentState getSearchComponentStateForParent(Long parentId, String parentEntity, Date date) {
         if (parentId != null && parentEntity != null) {
             SearchComponentState componentState = new SearchComponentState();
-            Map<String, Long> ids = Maps.newHashMap();
+            Map<String, Long> ids = newHashMap();
 
             SimpleObjectInfo parentData = new SimpleObjectInfo(parentEntity, parentId);
             while (parentData != null) {
@@ -879,7 +884,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     @Transactional
     @Override
     public List<History> getHistory(long objectId) {
-        List<History> historyList = Lists.newArrayList();
+        List<History> historyList = newArrayList();
 
         TreeSet<Date> historyDates = getHistoryDates(objectId);
         for (final Date date : historyDates) {
@@ -896,7 +901,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         DomainObjectExample example = new DomainObjectExample(objectId);
         example.setTable(getEntityTable());
 
-        return Sets.newTreeSet(Iterables.filter(sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + ".historyDates", example),
+        return newTreeSet(filter(sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + ".historyDates", example),
                 new Predicate<Date>() {
 
                     @Override
@@ -997,7 +1002,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         }
         String text = stringBean.displayValue(attribute.getLocalizedValues(), locale);
 
-        Map<String, Object> params = Maps.newHashMap();
+        Map<String, Object> params = newHashMap();
         params.put("entity", getEntityTable());
         params.put("localeId", localeBean.convert(locale).getId());
         params.put("attributeTypeId", attributeTypeId);
@@ -1018,7 +1023,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     @Transactional
     protected void changeObjectPermissions(DomainObjectPermissionInfo objectPermissionInfo, Set<Long> addSubjectIds, Set<Long> removeSubjectIds) {
         Set<Long> currentSubjectIds = loadSubjects(objectPermissionInfo.getPermissionId());
-        Set<Long> newSubjectIds = Sets.newHashSet(currentSubjectIds);
+        Set<Long> newSubjectIds = newHashSet(currentSubjectIds);
 
         if (addSubjectIds != null) {
             if (addSubjectIds.contains(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID)) {
@@ -1118,18 +1123,18 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
     @Transactional
     protected Set<Long> findChildrenActivityInfo(long parentId, String childEntity, int start, int size) {
-        Map<String, Object> params = Maps.newHashMap();
+        Map<String, Object> params = newHashMap();
         params.put("entity", childEntity);
         params.put("parentId", parentId);
         params.put("parentEntity", getEntityTable());
         params.put("start", start);
         params.put("size", size);
-        return Sets.newHashSet(sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + "." + FIND_CHILDREN_ACTIVITY_INFO_OPERATION, params));
+        return newHashSet(sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + "." + FIND_CHILDREN_ACTIVITY_INFO_OPERATION, params));
     }
 
     @Transactional
     protected void updateChildrenActivity(long parentId, String childEntity, boolean enabled) {
-        Map<String, Object> params = Maps.newHashMap();
+        Map<String, Object> params = newHashMap();
         params.put("entity", childEntity);
         params.put("parentId", parentId);
         params.put("parentEntity", getEntityTable());
@@ -1173,7 +1178,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
     @Transactional
     protected void deleteAttribute(long objectId) {
-        Map<String, Object> params = Maps.newHashMap();
+        Map<String, Object> params = newHashMap();
         params.put("table", getEntityTable());
         params.put("objectId", objectId);
         sqlSession().delete(ATTRIBUTE_NAMESPACE + "." + DELETE_OPERATION, params);
@@ -1181,7 +1186,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
     @Transactional
     protected void deleteObject(long objectId) throws DeleteException {
-        Map<String, Object> params = Maps.newHashMap();
+        Map<String, Object> params = newHashMap();
         params.put("table", getEntityTable());
         params.put("objectId", objectId);
         try {
@@ -1222,7 +1227,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
     @Transactional
     protected boolean childrenExistCheck(String childEntity, long objectId) {
-        Map<String, Object> params = Maps.newHashMap();
+        Map<String, Object> params = newHashMap();
         params.put("childEntity", childEntity);
         params.put("objectId", objectId);
         params.put("entityId", getEntity().getId());
@@ -1232,7 +1237,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
     @Transactional
     protected Set<Long> getLocalizedValueTypeIds() {
-        Set<Long> localizedValueTypeIds = Sets.newHashSet();
+        Set<Long> localizedValueTypeIds = newHashSet();
         for (EntityAttributeType attributeType : getEntity().getEntityAttributeTypes()) {
             for (EntityAttributeValueType valueType : attributeType.getEntityAttributeValueTypes()) {
                 if (SimpleTypes.isSimpleType(valueType.getValueType())) {
@@ -1253,7 +1258,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
                         String referenceEntity = entity.getEntityTable();
                         long attributeTypeId = attributeType.getId();
 
-                        Map<String, Object> params = Maps.newHashMap();
+                        Map<String, Object> params = newHashMap();
                         params.put("referenceEntity", referenceEntity);
                         params.put("objectId", objectId);
                         params.put("attributeTypeId", attributeTypeId);
