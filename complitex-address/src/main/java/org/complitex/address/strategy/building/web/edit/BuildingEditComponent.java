@@ -5,9 +5,7 @@
 package org.complitex.address.strategy.building.web.edit;
 
 import com.google.common.collect.ImmutableList;
-import java.io.Serializable;
-import java.util.Map;
-import javax.ejb.EJB;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -17,24 +15,28 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.AbstractReadOnlyModel;
+import org.complitex.address.strategy.building.BuildingStrategy;
+import org.complitex.address.strategy.building.entity.Building;
+import org.complitex.address.strategy.district.DistrictStrategy;
 import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.service.StringCultureBean;
+import org.complitex.dictionary.strategy.IStrategy;
+import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
+import org.complitex.dictionary.web.component.ShowMode;
 import org.complitex.dictionary.web.component.list.AjaxRemovableListView;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
 import org.complitex.dictionary.web.component.search.SearchComponent;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
-import org.complitex.address.strategy.building.BuildingStrategy;
-import org.complitex.address.strategy.building.entity.Building;
-import org.complitex.address.strategy.district.DistrictStrategy;
-import org.complitex.dictionary.strategy.IStrategy;
-import org.complitex.dictionary.strategy.StrategyFactory;
-import org.complitex.dictionary.web.component.ShowMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.ejb.EJB;
+import java.io.Serializable;
+import java.util.Map;
 
 /**
  *
@@ -55,7 +57,7 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
     private class DistrictSearchCallback implements ISearchCallback, Serializable {
 
         @Override
-        public void found(SearchComponent component, final Map<String, Long> ids, final AjaxRequestTarget target) {
+        public void found(Component component, final Map<String, Long> ids, final AjaxRequestTarget target) {
             DomainObject district = districtComponentState.get("district");
             if (district != null && district.getId() > 0) {
                 districtAttribute.setValueId(district.getId());

@@ -1,8 +1,5 @@
 package org.complitex.dictionary.strategy.web;
 
-import org.complitex.dictionary.web.component.type.BooleanPanel;
-import org.complitex.dictionary.web.component.type.StringPanel;
-import org.complitex.dictionary.web.component.type.DatePanel;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -23,11 +20,9 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.util.string.Strings;
-import org.complitex.dictionary.converter.BooleanConverter;
-import org.complitex.dictionary.converter.DateConverter;
-import org.complitex.dictionary.converter.DoubleConverter;
-import org.complitex.dictionary.converter.IntegerConverter;
+import org.complitex.dictionary.converter.*;
 import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.PreferenceKey;
@@ -35,28 +30,30 @@ import org.complitex.dictionary.entity.SimpleTypes;
 import org.complitex.dictionary.entity.description.EntityAttributeType;
 import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
+import org.complitex.dictionary.service.LocaleBean;
 import org.complitex.dictionary.service.StringCultureBean;
+import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
+import org.complitex.dictionary.strategy.web.model.DomainObjectIdModel;
 import org.complitex.dictionary.util.StringUtil;
 import org.complitex.dictionary.web.DictionaryFwSession;
-import org.complitex.dictionary.web.component.*;
+import org.complitex.dictionary.web.component.ShowMode;
+import org.complitex.dictionary.web.component.ShowModePanel;
 import org.complitex.dictionary.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionary.web.component.paging.PagingNavigator;
-import org.complitex.dictionary.web.component.search.SearchComponent;
+import org.complitex.dictionary.web.component.scroll.ScrollBookmarkablePageLink;
 import org.complitex.dictionary.web.component.search.SearchComponentSessionState;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
+import org.complitex.dictionary.web.component.search.WiQuerySearchComponent;
+import org.complitex.dictionary.web.component.type.BooleanPanel;
+import org.complitex.dictionary.web.component.type.DatePanel;
+import org.complitex.dictionary.web.component.type.GenderPanel;
+import org.complitex.dictionary.web.component.type.StringPanel;
 
 import javax.ejb.EJB;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import org.apache.wicket.model.PropertyModel;
-import org.complitex.dictionary.converter.GenderConverter;
-import org.complitex.dictionary.service.LocaleBean;
-import org.complitex.dictionary.strategy.IStrategy;
-import org.complitex.dictionary.strategy.web.model.DomainObjectIdModel;
-import org.complitex.dictionary.web.component.scroll.ScrollBookmarkablePageLink;
-import org.complitex.dictionary.web.component.type.GenderPanel;
 
 /**
  *
@@ -137,7 +134,7 @@ public class DomainObjectListPanel extends Panel {
             add(new EmptyPanel("searchComponent"));
         } else {
             SearchComponentState componentState = getSearchComponentStateFromSession();
-            SearchComponent searchComponent = new SearchComponent("searchComponent", componentState, searchFilters,
+            WiQuerySearchComponent searchComponent = new WiQuerySearchComponent("searchComponent", componentState, searchFilters,
                     getStrategy().getSearchCallback(), ShowMode.ALL, true);
             add(searchComponent);
             searchComponent.invokeCallback();

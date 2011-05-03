@@ -2,8 +2,10 @@ package org.complitex.address.strategy.apartment;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.util.string.Strings;
+import org.complitex.address.resource.CommonResources;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
@@ -12,8 +14,8 @@ import org.complitex.dictionary.strategy.web.DomainObjectListPanel;
 import org.complitex.dictionary.util.ResourceUtil;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
-import org.complitex.dictionary.web.component.search.SearchComponent;
-import org.complitex.address.resource.CommonResources;
+import org.complitex.template.strategy.TemplateStrategy;
+import org.complitex.template.web.security.SecurityRole;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -21,8 +23,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import org.complitex.template.strategy.TemplateStrategy;
-import org.complitex.template.web.security.SecurityRole;
 
 /**
  *
@@ -91,7 +91,7 @@ public class ApartmentStrategy extends TemplateStrategy {
     private static class SearchCallback implements ISearchCallback, Serializable {
 
         @Override
-        public void found(SearchComponent component, Map<String, Long> ids, AjaxRequestTarget target) {
+        public void found(Component component, Map<String, Long> ids, AjaxRequestTarget target) {
             DomainObjectListPanel list = component.findParent(DomainObjectListPanel.class);
             configureExampleImpl(list.getExample(), ids, null);
             list.refreshContent(target);
@@ -106,7 +106,7 @@ public class ApartmentStrategy extends TemplateStrategy {
     private static class ParentSearchCallback implements ISearchCallback, Serializable {
 
         @Override
-        public void found(SearchComponent component, Map<String, Long> ids, AjaxRequestTarget target) {
+        public void found(Component component, Map<String, Long> ids, AjaxRequestTarget target) {
             DomainObjectInputPanel inputPanel = component.findParent(DomainObjectInputPanel.class);
             DomainObject object = inputPanel.getObject();
             Long buildingId = ids.get("building");

@@ -3,32 +3,28 @@ package org.complitex.address.strategy.building_address;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import java.util.Set;
+import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.address.resource.CommonResources;
+import org.complitex.address.strategy.building.BuildingStrategy;
 import org.complitex.dictionary.entity.DomainObject;
+import org.complitex.dictionary.entity.StatusType;
 import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
+import org.complitex.dictionary.mybatis.Transactional;
 import org.complitex.dictionary.util.ResourceUtil;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
-import org.complitex.dictionary.web.component.search.SearchComponent;
 import org.complitex.template.strategy.TemplateStrategy;
 import org.complitex.template.web.security.SecurityRole;
 
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import javax.ejb.EJB;
-import org.complitex.address.strategy.building.BuildingStrategy;
-import org.complitex.dictionary.entity.StatusType;
-import org.complitex.dictionary.mybatis.Transactional;
+import java.util.*;
 
 /**
  *
@@ -114,7 +110,7 @@ public class BuildingAddressStrategy extends TemplateStrategy {
     private static class ParentSearchCallback implements ISearchCallback, Serializable {
 
         @Override
-        public void found(SearchComponent component, final Map<String, Long> ids, final AjaxRequestTarget target) {
+        public void found(Component component, final Map<String, Long> ids, final AjaxRequestTarget target) {
             DomainObjectInputPanel inputPanel = component.findParent(DomainObjectInputPanel.class);
             Long streetId = ids.get("street");
             if (streetId != null && streetId > 0) {

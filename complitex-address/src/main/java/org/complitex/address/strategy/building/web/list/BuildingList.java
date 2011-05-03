@@ -5,6 +5,7 @@
 package org.complitex.address.strategy.building.web.list;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -22,36 +23,36 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.util.string.Strings;
+import org.complitex.address.strategy.building.BuildingStrategy;
+import org.complitex.address.strategy.building.entity.Building;
 import org.complitex.dictionary.entity.PreferenceKey;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.service.LocaleBean;
+import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
+import org.complitex.dictionary.strategy.web.model.DomainObjectIdModel;
 import org.complitex.dictionary.util.StringUtil;
 import org.complitex.dictionary.web.DictionaryFwSession;
 import org.complitex.dictionary.web.component.ShowMode;
 import org.complitex.dictionary.web.component.ShowModePanel;
 import org.complitex.dictionary.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionary.web.component.paging.PagingNavigator;
+import org.complitex.dictionary.web.component.scroll.ScrollBookmarkablePageLink;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
-import org.complitex.dictionary.web.component.search.SearchComponent;
 import org.complitex.dictionary.web.component.search.SearchComponentSessionState;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
+import org.complitex.dictionary.web.component.search.WiQuerySearchComponent;
 import org.complitex.template.web.component.toolbar.AddItemButton;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
+import org.complitex.template.web.pages.ScrollListPage;
 import org.complitex.template.web.security.SecurityRole;
-import org.complitex.address.strategy.building.BuildingStrategy;
-import org.complitex.address.strategy.building.entity.Building;
 
 import javax.ejb.EJB;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.apache.wicket.model.PropertyModel;
-import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
-import org.complitex.dictionary.strategy.web.model.DomainObjectIdModel;
-import org.complitex.dictionary.web.component.scroll.ScrollBookmarkablePageLink;
-import org.complitex.template.web.pages.ScrollListPage;
 
 /**
  *
@@ -68,7 +69,7 @@ public final class BuildingList extends ScrollListPage {
     private class BuildingSearchCallback implements ISearchCallback, Serializable {
 
         @Override
-        public void found(SearchComponent component, Map<String, Long> ids, AjaxRequestTarget target) {
+        public void found(Component component, Map<String, Long> ids, AjaxRequestTarget target) {
             buildingStrategy.configureExample(example, ids, null);
             refreshContent(target);
         }
@@ -127,7 +128,7 @@ public final class BuildingList extends ScrollListPage {
             add(new EmptyPanel("searchComponent"));
         } else {
             SearchComponentState componentState = getSearchComponentStateFromSession();
-            SearchComponent searchComponent = new SearchComponent("searchComponent", componentState, searchFilters, new BuildingSearchCallback(),
+            WiQuerySearchComponent searchComponent = new WiQuerySearchComponent("searchComponent", componentState, searchFilters, new BuildingSearchCallback(),
                     ShowMode.ALL, true);
             add(searchComponent);
             searchComponent.invokeCallback();
