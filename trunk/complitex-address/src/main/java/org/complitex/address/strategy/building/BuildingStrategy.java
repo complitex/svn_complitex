@@ -437,7 +437,7 @@ public class BuildingStrategy extends TemplateStrategy {
 
         if (removedAddresses != null) {
             for (DomainObject removedAddress : removedAddresses) {
-                buildingAddressStrategy.archive(removedAddress);
+                buildingAddressStrategy.archive(removedAddress, updateDate);
             }
         }
         if (addedAddresses != null) {

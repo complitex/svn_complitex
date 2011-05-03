@@ -8,7 +8,8 @@ import java.text.MessageFormat;
 import org.apache.wicket.util.string.Strings;
 
 /**
- *
+ * Page must import scroll js as following:
+ *  add(JavascriptPackageResource.getHeaderContribution(WebCommonResourceInitializer.SCROLL_JS));
  * @author Artem
  */
 public class ScrollToElementUtil {

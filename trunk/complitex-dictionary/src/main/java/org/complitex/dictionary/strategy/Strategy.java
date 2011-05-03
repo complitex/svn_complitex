@@ -685,8 +685,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
     @Transactional
     @Override
-    public void archive(DomainObject object) {
-        Date endDate = DateUtil.getCurrentDate();
+    public void archive(DomainObject object, Date endDate) {
         object.setStatus(StatusType.ARCHIVE);
         object.setEndDate(endDate);
         sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new Parameter(getEntityTable(), object));
