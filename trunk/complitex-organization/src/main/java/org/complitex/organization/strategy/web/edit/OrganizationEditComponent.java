@@ -2,6 +2,7 @@ package org.complitex.organization.strategy.web.edit;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -12,7 +13,9 @@ import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.description.EntityType;
 import org.complitex.dictionary.strategy.IStrategy;
+import org.complitex.dictionary.strategy.IStrategy.SimpleObjectInfo;
 import org.complitex.dictionary.strategy.StrategyFactory;
+import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
 import org.complitex.dictionary.web.component.ShowMode;
@@ -20,7 +23,6 @@ import org.complitex.dictionary.web.component.UserOrganizationPicker;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
 import org.complitex.dictionary.web.component.search.SearchComponent;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
-import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,8 +31,6 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import org.apache.wicket.Component;
-import org.complitex.dictionary.strategy.IStrategy.SimpleObjectInfo;
 
 /**
  * 
@@ -49,7 +49,7 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
     private class DistrictSearchCallback implements ISearchCallback, Serializable {
 
         @Override
-        public void found(SearchComponent component, Map<String, Long> ids, AjaxRequestTarget target) {
+        public void found(Component component, Map<String, Long> ids, AjaxRequestTarget target) {
             Long districtId = ids.get("district");
             if (districtId != null && districtId > 0) {
                 districtAttribute.setValueId(districtId);

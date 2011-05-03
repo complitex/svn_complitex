@@ -2,6 +2,7 @@ package org.complitex.address.strategy.region;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.address.resource.CommonResources;
@@ -87,7 +88,7 @@ public class RegionStrategy extends TemplateStrategy {
     private static class SearchCallback implements ISearchCallback, Serializable {
 
         @Override
-        public void found(SearchComponent component, Map<String, Long> ids, AjaxRequestTarget target) {
+        public void found(Component component, Map<String, Long> ids, AjaxRequestTarget target) {
             DomainObjectListPanel list = component.findParent(DomainObjectListPanel.class);
             configureExampleImpl(list.getExample(), ids, null);
             list.refreshContent(target);
@@ -102,7 +103,7 @@ public class RegionStrategy extends TemplateStrategy {
     private static class ParentSearchCallback implements ISearchCallback, Serializable {
 
         @Override
-        public void found(SearchComponent component, Map<String, Long> ids, AjaxRequestTarget target) {
+        public void found(Component component, Map<String, Long> ids, AjaxRequestTarget target) {
             DomainObjectInputPanel inputPanel = component.findParent(DomainObjectInputPanel.class);
             Long countryId = ids.get("country");
             if (countryId != null && countryId > 0) {
