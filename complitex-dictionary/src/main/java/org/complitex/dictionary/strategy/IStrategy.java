@@ -44,7 +44,7 @@ public interface IStrategy {
     String DELETE_OPERATION = "delete";
 
     @Transactional
-    void archive(DomainObject object);
+    void archive(DomainObject object, Date endDate);
 
     @Transactional
     void archiveAttributes(Collection<Long> attributeTypeIds, Date endDate);
