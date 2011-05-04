@@ -19,7 +19,6 @@ import org.complitex.dictionary.mybatis.Transactional;
 import org.complitex.dictionary.service.*;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionary.strategy.web.validate.IValidator;
-import org.complitex.dictionary.util.DateUtil;
 import org.complitex.dictionary.util.Numbers;
 import org.complitex.dictionary.util.ResourceUtil;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
