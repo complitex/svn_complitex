@@ -21,6 +21,8 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import org.apache.wicket.Component;
+import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.strategy.IStrategy;
 
 /**
@@ -29,16 +31,13 @@ import org.complitex.dictionary.strategy.IStrategy;
  */
 public class HistoryPanel extends Panel {
 
-    private static final String DATE_FORMAT = "HH:mm:ss dd.MM.yyyy";
-
-    @EJB(name = "StrategyFactory")
+    protected static final String DATE_FORMAT = "HH:mm:ss dd.MM.yyyy";
+    @EJB
     private StrategyFactory strategyFactory;
-
-    @EJB(name = "StringCultureBean")
+    @EJB
     private StringCultureBean stringBean;
-
     private String entity;
-
+    private String strategyName;
     private long objectId;
 
     public HistoryPanel(String id, String entity, long objectId) {
@@ -48,17 +47,44 @@ public class HistoryPanel extends Panel {
         init();
     }
 
-    private IStrategy getStrategy() {
-        return strategyFactory.getStrategy(entity);
+    /**
+     * For not standard strategies
+     * @param id
+     * @param entity
+     * @param strategyName
+     * @param objectId
+     */
+    public HistoryPanel(String id, String strategyName, String entity, long objectId) {
+        super(id);
+        this.strategyName = strategyName;
+        this.entity = entity;
+        this.objectId = objectId;
+        init();
     }
 
-    private void init() {
+    protected String getEntity() {
+        return entity;
+    }
+
+    protected String getStrategyName() {
+        return strategyName;
+    }
+
+    protected long getObjectId() {
+        return objectId;
+    }
+
+    protected IStrategy getStrategy() {
+        return strategyFactory.getStrategy(getStrategyName(), getEntity());
+    }
+
+    protected void init() {
         IModel<String> labelModel = new AbstractReadOnlyModel<String>() {
 
             @Override
             public String getObject() {
-                return MessageFormat.format(getString("label"), stringBean.displayValue(getStrategy().getEntity().getEntityNames(), getLocale()),
-                        objectId);
+                return MessageFormat.format(getString("label"), stringBean.displayValue(getStrategy().getEntity().
+                        getEntityNames(), getLocale()), getObjectId());
             }
         };
         Label title = new Label("title", labelModel);
@@ -66,7 +92,7 @@ public class HistoryPanel extends Panel {
         Label label = new Label("label", labelModel);
         add(label);
 
-        final List<History> historyList = getStrategy().getHistory(objectId);
+        final List<History> historyList = getStrategy().getHistory(getObjectId());
 
         ListView<History> history = new ListView<History>("history", historyList) {
 
@@ -92,9 +118,13 @@ public class HistoryPanel extends Panel {
                     }
                 };
                 item.add(new Label("date", dateModel));
-                item.add(new DomainObjectInputPanel("domainObjectInputPanel", currentHistory.getObject(), entity, null, null, currentHistory.getDate()));
+                item.add(newInputPanel("domainObjectInputPanel", currentHistory.getObject(), currentHistory.getDate()));
             }
         };
         add(history);
+    }
+
+    protected Component newInputPanel(String id, DomainObject historyObject, Date historyDate) {
+        return new DomainObjectInputPanel(id, historyObject, getEntity(), getStrategyName(), null, null, historyDate);
     }
 }

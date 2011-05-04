@@ -51,7 +51,6 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
     private StringCultureBean stringBean;
     @EJB
     private StrategyFactory strategyFactory;
-    
     private SearchComponentState districtComponentState;
 
     private class DistrictSearchCallback implements ISearchCallback, Serializable {
@@ -141,8 +140,8 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
 
         //primary building address
         final DomainObject primaryBuildingAddress = building.getPrimaryAddress();
-        DomainObjectInputPanel primaryAddressPanel = new DomainObjectInputPanel("primaryAddress", primaryBuildingAddress, "building_address",
-                null, null, getInputPanel().getDate()) {
+        DomainObjectInputPanel primaryAddressPanel = new DomainObjectInputPanel("primaryAddress", primaryBuildingAddress,
+                "building_address", null, null, null, getInputPanel().getDate()) {
 
             @Override
             public SearchComponentState initParentSearchComponentState() {
@@ -164,8 +163,8 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
             protected void populateItem(ListItem<DomainObject> item) {
                 final DomainObject address = item.getModelObject();
 
-                DomainObjectInputPanel alternativeAddess = new DomainObjectInputPanel("alternativeAddess", address, "building_address", null, null,
-                        getInputPanel().getDate()) {
+                DomainObjectInputPanel alternativeAddess = new DomainObjectInputPanel("alternativeAddess", address,
+                        "building_address", null, null, null, getInputPanel().getDate()) {
 
                     @Override
                     public SearchComponentState initParentSearchComponentState() {
