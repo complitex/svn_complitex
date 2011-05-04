@@ -23,17 +23,18 @@
         `attribute_id` = #{object.attributeId} AND `object_id` = #{object.objectId} AND `attribute_type_id` = #{object.attributeTypeId} AND `start_date` = #{object.startDate}
     </update>
 
-    <update id="archiveAttributes" parameterType="hashmap">
+    <update id="archiveAttributes" parameterType="map">
         UPDATE `${table}_attribute` SET `end_date` = #{endDate}, `status` = 'ARCHIVE' WHERE
+        `status` IN ('ACTIVE', 'INACTIVE') AND
         `attribute_type_id` IN
         <foreach item="id" collection="attributeTypeIds" open="(" separator="," close=")">
             #{id}
         </foreach>
     </update>
 
-    <update id="archiveObjectAttributes" parameterType="hashmap">
+    <update id="archiveObjectAttributes" parameterType="map">
         UPDATE `${table}_attribute` SET `end_date` = #{endDate}, `status` = 'ARCHIVE' WHERE
-        `object_id` = #{objectId}
+        `object_id` = #{objectId} AND `status` IN ('ACTIVE', 'INACTIVE')
     </update>
 
     <select id="find" parameterType="hashmap" resultMap="org.complitex.dictionary.entity.Attribute.Attribute">
