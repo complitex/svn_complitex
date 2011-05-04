@@ -701,7 +701,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
      */
     @Override
     public int getSearchTextFieldSize() {
-        return 20;
+        return 30;
     }
 
     /*
