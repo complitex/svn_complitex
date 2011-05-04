@@ -104,10 +104,12 @@ public class DomainObjectInputPanel extends Panel {
      * @param parentEntity
      * @param date
      */
-    public DomainObjectInputPanel(String id, DomainObject object, String entity, Long parentId, String parentEntity, Date date) {
+    public DomainObjectInputPanel(String id, DomainObject object, String entity, String strategyName, Long parentId,
+            String parentEntity, Date date) {
         super(id);
         this.object = object;
         this.entity = entity;
+        this.strategyName = strategyName;
         this.parentId = parentId;
         this.parentEntity = parentEntity;
         this.date = date;
