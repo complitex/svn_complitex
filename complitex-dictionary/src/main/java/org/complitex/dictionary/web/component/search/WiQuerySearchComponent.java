@@ -8,6 +8,7 @@ import com.google.common.collect.Maps;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AbstractAutoCompleteTextRenderer;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -282,6 +283,13 @@ public final class WiQuerySearchComponent extends Panel {
                 filter.setAutoUpdate(true);
 
                 setEnable(entity, filter.getAutocompleteField());
+
+                //size
+                int size = strategyFactory.getStrategy(entity).getSearchTextFieldSize();
+
+                if (size > 0){
+                    filter.getAutocompleteField().add(new SimpleAttributeModifier("size", String.valueOf(size)));
+                }
 
                 item.add(filter);
             }
