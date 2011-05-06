@@ -602,4 +602,9 @@ public class BuildingStrategy extends TemplateStrategy {
             buildingAddressStrategy.delete(addressId);
         }
     }
+
+    public Long getDistrictId(DomainObject building) {
+        Attribute districtAttribute = building.getAttribute(DISTRICT);
+        return districtAttribute != null ? districtAttribute.getValueId() : null;
+    }
 }

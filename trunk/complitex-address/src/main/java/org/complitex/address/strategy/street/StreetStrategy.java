@@ -249,7 +249,7 @@ public class StreetStrategy extends TemplateStrategy {
         return null;
     }
 
-    private String getName(DomainObject street, Locale locale) {
+    public String getName(DomainObject street, Locale locale) {
         return stringBean.displayValue(Iterables.find(street.getAttributes(), new Predicate<Attribute>() {
 
             @Override
