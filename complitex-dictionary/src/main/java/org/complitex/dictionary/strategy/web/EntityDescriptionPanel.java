@@ -49,24 +49,17 @@ import org.complitex.dictionary.strategy.IStrategy;
  */
 public class EntityDescriptionPanel extends Panel {
 
-    @EJB(name = "StrategyFactory")
-    private StrategyFactory strategyFactory;
-
-    @EJB(name = "StringCultureBean")
-    private StringCultureBean stringBean;
-
-    @EJB(name = "EntityBean")
-    private EntityBean entityBean;
-
     private static final String DATE_FORMAT = "HH:mm dd.MM.yyyy";
+    @EJB
+    private StrategyFactory strategyFactory;
+    @EJB
+    private StringCultureBean stringBean;
+    @EJB
+    private EntityBean entityBean;
 
     public EntityDescriptionPanel(String id, String entity, PageParameters pageParameters) {
         super(id);
         init(entity, pageParameters);
-    }
-
-    private IStrategy getStrategy(String entity) {
-        return strategyFactory.getStrategy(entity);
     }
 
     private void init(final String entity, final PageParameters params) {
@@ -302,7 +295,7 @@ public class EntityDescriptionPanel extends Panel {
         };
         form.add(submit);
 
-        final String[] parents = getStrategy(entity).getParents();
+        final String[] parents = strategyFactory.getStrategy(entity).getParents();
         WebMarkupContainer parentsContainer = new WebMarkupContainer("parentsContainer");
         Label parentsInfo = new Label("parentsInfo", new AbstractReadOnlyModel<String>() {
 
@@ -327,9 +320,11 @@ public class EntityDescriptionPanel extends Panel {
 
     private String displayParents(String[] parents) {
         StringBuilder parentsLabel = new StringBuilder();
+
         for (int i = 0; i < parents.length; i++) {
+            IStrategy parentStrategy = strategyFactory.getStrategy(parents[i]);
             parentsLabel.append("'").
-                    append(stringBean.displayValue(getStrategy(parents[i]).getEntity().getEntityNames(), getLocale())).
+                    append(stringBean.displayValue(parentStrategy.getEntity().getEntityNames(), getLocale())).
                     append("'");
             if (i < parents.length - 1) {
                 parentsLabel.append(", ");
@@ -342,9 +337,14 @@ public class EntityDescriptionPanel extends Panel {
         if (SimpleTypes.isSimpleType(valueType)) {
             return valueType;
         } else {
-            return new StringResourceModel("reference", this, null, new Object[]{
-                        stringBean.displayValue(getStrategy(valueType).getEntity().getEntityNames(), getLocale())
-                    }).getObject();
+            IStrategy referenceEntityStrategy = strategyFactory.getStrategy(valueType, true);
+            if (referenceEntityStrategy == null) {
+                return new StringResourceModel("reference_table", this, null, new Object[]{valueType.toUpperCase()}).getObject();
+            } else {
+                return new StringResourceModel("reference", this, null, new Object[]{
+                            stringBean.displayValue(referenceEntityStrategy.getEntity().getEntityNames(), getLocale())
+                        }).getObject();
+            }
         }
     }
 }

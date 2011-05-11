@@ -16,8 +16,12 @@ import org.complitex.dictionary.util.EjbBeanLocator;
 public class StrategyFactory {
 
     public IStrategy getStrategy(String entityTable) {
+        return getStrategy(entityTable, false);
+    }
+
+    public IStrategy getStrategy(String entityTable, boolean suppressException) {
         String strategyName = Strings.capitalize(entityTable) + "Strategy";
-        return EjbBeanLocator.getBean(strategyName);
+        return EjbBeanLocator.getBean(strategyName, suppressException);
     }
 
      public IStrategy getStrategy(String strategyName, String entityTable) {
