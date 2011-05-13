@@ -4,8 +4,8 @@
  */
 package org.complitex.address.strategy.street_type;
 
-import com.google.common.collect.Lists;
-import org.apache.wicket.util.string.Strings;
+import static com.google.common.collect.Lists.*;
+import static org.apache.wicket.util.string.Strings.*;
 import org.complitex.address.resource.CommonResources;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.AttributeExample;
@@ -30,12 +30,11 @@ public class StreetTypeStrategy extends TemplateStrategy {
 
     @EJB
     private StringCultureBean stringBean;
-
-
     /*
      * Attribute type ids
      */
-    public static final long NAME = 1400L;
+    public static final long SHORT_NAME = 1400;
+    public static final long NAME = 1401;
 
     @Override
     public String getEntityTable() {
@@ -44,17 +43,22 @@ public class StreetTypeStrategy extends TemplateStrategy {
 
     @Override
     protected List<Long> getListAttributeTypes() {
-        return Lists.newArrayList(NAME);
+        return newArrayList(NAME);
     }
 
     @Override
     public String displayDomainObject(DomainObject object, Locale locale) {
-        return stringBean.displayValue(object.getAttribute(NAME).getLocalizedValues(), locale);
+        String streetType = stringBean.displayValue(object.getAttribute(SHORT_NAME).getLocalizedValues(), locale);
+        return streetType.toLowerCase(locale) + ".";
+    }
+
+    public String displayFullName(DomainObject streetTypeObject, Locale locale) {
+        return stringBean.displayValue(streetTypeObject.getAttribute(NAME).getLocalizedValues(), locale);
     }
 
     @Override
     public void configureExample(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
-        if (!Strings.isEmpty(searchTextInput)) {
+        if (!isEmpty(searchTextInput)) {
             AttributeExample attrExample = example.getAttributeExample(NAME);
             if (attrExample == null) {
                 attrExample = new AttributeExample(NAME);
@@ -72,5 +76,10 @@ public class StreetTypeStrategy extends TemplateStrategy {
     @Override
     public String[] getEditRoles() {
         return new String[]{SecurityRole.ADDRESS_MODULE_EDIT};
+    }
+
+    @Override
+    public long getDefaultOrderByAttributeId() {
+        return NAME;
     }
 }
