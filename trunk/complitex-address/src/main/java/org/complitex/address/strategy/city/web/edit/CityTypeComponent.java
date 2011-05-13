@@ -4,6 +4,8 @@
  */
 package org.complitex.address.strategy.city.web.edit;
 
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionary.web.component.EntityTypePanel;
@@ -25,8 +27,20 @@ public class CityTypeComponent extends AbstractComplexAttributesPanel {
     @Override
     protected void init() {
         final DomainObject city = getDomainObject();
-        EntityTypePanel cityType = new EntityTypePanel("cityType", "city_type", CityTypeStrategy.NAME, city, CityStrategy.CITY_TYPE,
-                new ResourceModel("city_type"), !isDisabled() && DomainObjectAccessUtil.canEdit(null, "city", city));
+        IModel<Long> cityTypeModel = new Model<Long>() {
+
+            @Override
+            public Long getObject() {
+                return city.getAttribute(CityStrategy.CITY_TYPE).getValueId();
+            }
+
+            @Override
+            public void setObject(Long object) {
+                city.getAttribute(CityStrategy.CITY_TYPE).setValueId(object);
+            }
+        };
+        EntityTypePanel cityType = new EntityTypePanel("cityType", "city_type", CityTypeStrategy.NAME, cityTypeModel,
+                new ResourceModel("city_type"), true, !isDisabled() && DomainObjectAccessUtil.canEdit(null, "city", city));
         add(cityType);
     }
 }

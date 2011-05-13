@@ -4,6 +4,8 @@
  */
 package org.complitex.address.strategy.street.web.edit;
 
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionary.web.component.EntityTypePanel;
@@ -24,9 +26,21 @@ public class StreetTypeComponent extends AbstractComplexAttributesPanel {
 
     @Override
     protected void init() {
-        DomainObject street = getDomainObject();
-        EntityTypePanel streetType = new EntityTypePanel("streetType", "street_type", StreetTypeStrategy.NAME, street, StreetStrategy.STREET_TYPE,
-                new ResourceModel("street_type"), !isDisabled() && DomainObjectAccessUtil.canEdit(null, "street", street));
+        final DomainObject street = getDomainObject();
+        IModel<Long> streetTypeModel = new Model<Long>() {
+
+            @Override
+            public Long getObject() {
+                return street.getAttribute(StreetStrategy.STREET_TYPE).getValueId();
+            }
+
+            @Override
+            public void setObject(Long object) {
+                street.getAttribute(StreetStrategy.STREET_TYPE).setValueId(object);
+            }
+        };
+        EntityTypePanel streetType = new EntityTypePanel("streetType", "street_type", StreetTypeStrategy.NAME, streetTypeModel,
+                new ResourceModel("street_type"), true, !isDisabled() && DomainObjectAccessUtil.canEdit(null, "street", street));
         add(streetType);
     }
 }
