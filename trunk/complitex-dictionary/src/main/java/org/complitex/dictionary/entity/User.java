@@ -19,16 +19,16 @@ public class User implements Serializable{
 
     private List<UserGroup> userGroups;
 
-    public void setMainUserOrganization(UserOrganization userOrganization){
+    public void setMainUserOrganization(Long userOrganizationId){
         for (UserOrganization uo : userOrganizations){
-            uo.setMain(uo.getOrganizationObjectId().equals(userOrganization.getOrganizationObjectId()));
+            uo.setMain(uo.getOrganizationObjectId().equals(userOrganizationId));
         }
     }
 
-    public UserOrganization getMainUserOrganization(){
+    public Long getMainUserOrganization(){
         for (UserOrganization userOrganization : userOrganizations){
             if (userOrganization.isMain()){
-                return userOrganization;
+                return userOrganization.getOrganizationObjectId();
             }
         }
 
