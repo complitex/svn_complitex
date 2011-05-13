@@ -12,10 +12,7 @@ import org.apache.wicket.markup.html.form.*;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
-import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.*;
 import org.complitex.admin.Module;
 import org.complitex.admin.service.UserBean;
 import org.complitex.admin.strategy.UserInfoStrategy;
@@ -154,8 +151,8 @@ public class UserEdit extends FormTemplatePage {
         organizationContainer.setOutputMarkupId(true);
         form.add(organizationContainer);
 
-        RadioGroup<UserOrganization> organizationGroup = new RadioGroup<UserOrganization>("organizationGroup",
-                new PropertyModel<UserOrganization>(userModel, "mainUserOrganization"));
+        final RadioGroup<Long> organizationGroup = new RadioGroup<Long>("organizationGroup",
+                new PropertyModel<Long>(userModel, "mainUserOrganization"));
         organizationContainer.add(organizationGroup);
 
         organizationGroup.add(new ListView<UserOrganization>("userOrganizations",
@@ -169,7 +166,7 @@ public class UserEdit extends FormTemplatePage {
                 final UserOrganization userOrganization = item.getModelObject();
                 final ListView listView = this;
 
-                item.add(new Radio<UserOrganization>("radio", item.getModel()));
+                item.add(new Radio<Long>("radio", new Model<Long>(userOrganization.getOrganizationObjectId())));
 
                 item.add(new Label("name", organizationStrategy.displayDomainObject(
                         organizationStrategy.findById(userOrganization.getOrganizationObjectId(), true), getLocale())));
@@ -216,7 +213,15 @@ public class UserEdit extends FormTemplatePage {
                     }
                 }
 
-                list.add(new UserOrganization(addOrganization.getObject()));
+                UserOrganization userOrganization = new UserOrganization(addOrganization.getObject());
+
+                if (list.isEmpty()){
+                    userOrganization.setMain(true);
+                    organizationGroup.setModelObject(userOrganization.getOrganizationObjectId());
+                }
+
+                list.add(userOrganization);
+
                 target.addComponent(organizationContainer);
             }
         });
