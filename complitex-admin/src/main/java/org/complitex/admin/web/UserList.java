@@ -2,7 +2,6 @@ package org.complitex.admin.web;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
-import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
@@ -25,7 +24,6 @@ import org.complitex.dictionary.entity.User;
 import org.complitex.dictionary.entity.UserGroup;
 import org.complitex.dictionary.entity.UserOrganization;
 import org.complitex.dictionary.entity.example.AttributeExample;
-import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.web.component.*;
 import org.complitex.dictionary.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionary.web.component.paging.PagingNavigator;
@@ -40,6 +38,7 @@ import javax.ejb.EJB;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import org.complitex.dictionary.web.component.datatable.DataProvider;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -47,12 +46,11 @@ import java.util.List;
  */
 @AuthorizeInstantiation(SecurityRole.ADMIN_MODULE_EDIT)
 public class UserList extends ScrollListPage {
+
     @EJB(name = "OrganizationStrategy")
     private IOrganizationStrategy organizationStrategy;
-
     @EJB
     private UserInfoStrategy userInfoStrategy;
-
     @EJB
     private UserBean userBean;
 
@@ -66,7 +64,7 @@ public class UserList extends ScrollListPage {
         init();
     }
 
-    private void init(){
+    private void init() {
         add(new Label("title", new ResourceModel("title")));
         add(new FeedbackPanel("messages"));
 
@@ -78,7 +76,8 @@ public class UserList extends ScrollListPage {
         filterForm.setOutputMarkupId(true);
         add(filterForm);
 
-        Link filterReset = new Link("reset"){
+        Link filterReset = new Link("reset") {
+
             @Override
             public void onClick() {
                 filterForm.clearInput();
@@ -87,9 +86,9 @@ public class UserList extends ScrollListPage {
                 filterObject.setLogin(null);
                 filterObject.setGroupName(null);
                 filterObject.setOrganizationObjectId(null);
-                for (AttributeExample attributeExample : filterObject.getAttributeExamples()){
+                for (AttributeExample attributeExample : filterObject.getAttributeExamples()) {
                     attributeExample.setValue(null);
-                }                                                   
+                }
             }
         };
         filterForm.add(filterReset);
@@ -101,7 +100,7 @@ public class UserList extends ScrollListPage {
         filterForm.add(new DropDownChoice<UserGroup.GROUP_NAME>("usergroups",
                 new PropertyModel<UserGroup.GROUP_NAME>(filterModel, "groupName"),
                 new ListModel<UserGroup.GROUP_NAME>(Arrays.asList(UserGroup.GROUP_NAME.values())),
-                new IChoiceRenderer<UserGroup.GROUP_NAME>(){
+                new IChoiceRenderer<UserGroup.GROUP_NAME>() {
 
                     @Override
                     public Object getDisplayValue(UserGroup.GROUP_NAME object) {
@@ -118,11 +117,11 @@ public class UserList extends ScrollListPage {
                 new PropertyModel<Long>(filterModel, "organizationObjectId")));
 
         //Модель
-        final SortableDataProvider<User> dataProvider = new SortableDataProvider<User>(){
-            @Override
-            public Iterator<? extends User> iterator(int first, int count) {
-                UserFilter filter = filterModel.getObject();
+        final DataProvider<User> dataProvider = new DataProvider<User>() {
 
+            @Override
+            protected Iterable<? extends User> getData(int first, int count) {
+                UserFilter filter = filterModel.getObject();
                 filter.setFirst(first);
                 filter.setCount(count);
                 try {
@@ -131,26 +130,21 @@ public class UserList extends ScrollListPage {
                 } catch (NumberFormatException e) {
                     filter.setSortProperty(getSort().getProperty());
                     filter.setSortAttributeTypeId(null);
-                }                
+                }
                 filter.setAscending(getSort().isAscending());
-
-                return userBean.getUsers(filterModel.getObject()).iterator();
+                return userBean.getUsers(filterModel.getObject());
             }
 
             @Override
-            public int size() {
+            protected int getSize() {
                 return userBean.getUsersCount(filterModel.getObject());
-            }
-
-            @Override
-            public IModel<User> model(User object) {
-                return new Model<User>(object);
             }
         };
         dataProvider.setSort("login", true);
 
         //Таблица
-        DataView<User> dataView = new DataView<User>("users", dataProvider, 10){
+        DataView<User> dataView = new DataView<User>("users", dataProvider, 10) {
+
             @Override
             protected void populateItem(Item<User> item) {
                 User user = item.getModelObject();
@@ -162,7 +156,7 @@ public class UserList extends ScrollListPage {
 
                 String organizations = "";
                 String separator = "";
-                for (UserOrganization userOrganization : user.getUserOrganizations()){
+                for (UserOrganization userOrganization : user.getUserOrganizations()) {
                     organizations += separator + (organizationStrategy.displayDomainObject(
                             organizationStrategy.findById(userOrganization.getOrganizationObjectId(), true), getLocale()));
 
@@ -172,7 +166,7 @@ public class UserList extends ScrollListPage {
 
                 item.add(new Label("usergroup", getDisplayGroupNames(user)));
 
-                item.add(new BookmarkablePageLinkPanel<User>("action_edit", getString("action_edit"), 
+                item.add(new BookmarkablePageLinkPanel<User>("action_edit", getString("action_edit"),
                         ScrollListBehavior.SCROLL_PREFIX + String.valueOf(user.getId()),
                         UserEdit.class, new PageParameters("user_id=" + user.getId())));
             }
@@ -199,7 +193,7 @@ public class UserList extends ScrollListPage {
             return getString("blocked");
         }
 
-         StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
         for (Iterator<UserGroup> it = user.getUserGroups().iterator();;) {
             sb.append(getString(it.next().getGroupName().name()));

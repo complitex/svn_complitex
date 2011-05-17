@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
@@ -54,6 +53,7 @@ import javax.ejb.EJB;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import org.complitex.dictionary.web.component.datatable.DataProvider;
 
 /**
  *
@@ -169,10 +169,10 @@ public class DomainObjectListPanel extends Panel {
         filterForm.add(showModePanel);
 
         //Data Provider
-        final SortableDataProvider<DomainObject> dataProvider = new SortableDataProvider<DomainObject>() {
+        final DataProvider<DomainObject> dataProvider = new DataProvider<DomainObject>() {
 
             @Override
-            public Iterator<? extends DomainObject> iterator(int first, int count) {
+            protected Iterable<? extends DomainObject> getData(int first, int count) {
                 //store preference
                 DictionaryFwSession session = getSession();
                 session.putPreference(page, PreferenceKey.SORT_PROPERTY, getSort().getProperty(), true);
@@ -189,19 +189,14 @@ public class DomainObjectListPanel extends Panel {
                 example.setAsc(getSort().isAscending());
                 example.setStart(first);
                 example.setSize(count);
-                return getStrategy().find(example).iterator();
+                return getStrategy().find(example);
             }
 
             @Override
-            public int size() {
+            public int getSize() {
                 example.setStatus(showModeModel.getObject().name());
                 example.setLocaleId(localeBean.convert(getLocale()).getId());
                 return getStrategy().count(example);
-            }
-
-            @Override
-            public IModel<DomainObject> model(DomainObject object) {
-                return new Model<DomainObject>(object);
             }
         };
         dataProvider.setSort(getSession().getPreferenceString(page, PreferenceKey.SORT_PROPERTY, ""),

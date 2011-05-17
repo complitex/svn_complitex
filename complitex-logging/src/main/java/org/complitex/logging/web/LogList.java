@@ -5,7 +5,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.datetime.markup.html.basic.DateLabel;
-import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.JavascriptPackageResource;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -34,6 +33,7 @@ import org.complitex.resources.WebCommonResourceInitializer;
 
 import javax.ejb.EJB;
 import java.util.*;
+import org.complitex.dictionary.web.component.datatable.DataProvider;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -42,10 +42,10 @@ import java.util.*;
  * todo добавить механизм регистрации внешних файлов свойств
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)
-public class LogList extends TemplatePage{
+public class LogList extends TemplatePage {
+
     private final static String IMAGE_ARROW_TOP = "images/arrow2top.gif";
     private final static String IMAGE_ARROW_BOTTOM = "images/arrow2bot.gif";
-
     @EJB(name = "LogListBean")
     private LogListBean logListBean;
 
@@ -54,7 +54,7 @@ public class LogList extends TemplatePage{
         init();
     }
 
-    private void init(){
+    private void init() {
 
         add(JavascriptPackageResource.getHeaderContribution(WebCommonResourceInitializer.IE_SELECT_FIX_JS));
 
@@ -173,28 +173,21 @@ public class LogList extends TemplatePage{
         filterForm.add(new TextField<String>("description"));
 
         //Модель данных списка элементов журнала событий
-        final SortableDataProvider<Log> dataProvider = new SortableDataProvider<Log>() {
+        final DataProvider<Log> dataProvider = new DataProvider<Log>() {
 
             @Override
-            public Iterator<? extends Log> iterator(int first, int count) {
+            protected Iterable<? extends Log> getData(int first, int count) {
                 LogFilter filter = filterModel.getObject();
-
                 filter.setFirst(first);
                 filter.setCount(count);
                 filter.setSortProperty(getSort().getProperty());
                 filter.setAscending(getSort().isAscending());
-
-                return logListBean.getLogs(filterModel.getObject()).iterator();
+                return logListBean.getLogs(filterModel.getObject());
             }
 
             @Override
-            public int size() {
+            protected int getSize() {
                 return logListBean.getLogsCount(filterModel.getObject());
-            }
-
-            @Override
-            public IModel<Log> model(Log object) {
-                return new Model<Log>(object);
             }
         };
         dataProvider.setSort("date", false);
@@ -223,12 +216,13 @@ public class LogList extends TemplatePage{
                 Image expandImage = new Image("expand_image", new ResourceReference(
                         expandModel.contains(log.getId()) ? IMAGE_ARROW_TOP : IMAGE_ARROW_BOTTOM));
 
-                AjaxSubmitLink expandLink = new AjaxSubmitLink("expand_link"){
+                AjaxSubmitLink expandLink = new AjaxSubmitLink("expand_link") {
+
                     @Override
                     protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-                        if (expandModel.contains(log.getId())){
+                        if (expandModel.contains(log.getId())) {
                             expandModel.remove(log.getId());
-                        }else{
+                        } else {
                             expandModel.add(log.getId());
                         }
                         target.addComponent(filterForm);
@@ -237,7 +231,7 @@ public class LogList extends TemplatePage{
                 expandLink.setDefaultFormProcessing(false);
                 expandLink.setVisible(!log.getLogChanges().isEmpty());
                 expandLink.add(expandImage);
-                item.add(expandLink);                                 
+                item.add(expandLink);
             }
         };
         filterForm.add(dataView);
@@ -256,6 +250,4 @@ public class LogList extends TemplatePage{
         //Постраничная навигация
         filterForm.add(new PagingNavigator("paging", dataView, getClass().getName(), filterForm));
     }
-
-
 }

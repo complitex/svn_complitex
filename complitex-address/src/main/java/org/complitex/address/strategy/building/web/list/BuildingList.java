@@ -11,7 +11,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
-import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
@@ -50,9 +49,9 @@ import org.complitex.template.web.security.SecurityRole;
 
 import javax.ejb.EJB;
 import java.io.Serializable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.complitex.dictionary.web.component.datatable.DataProvider;
 
 /**
  *
@@ -144,10 +143,10 @@ public final class BuildingList extends ScrollListPage {
         filterForm.add(showModePanel);
 
         //Data Provider
-        final SortableDataProvider<Building> dataProvider = new SortableDataProvider<Building>() {
+        final DataProvider<Building> dataProvider = new DataProvider<Building>() {
 
             @Override
-            public Iterator<Building> iterator(int first, int count) {
+            protected Iterable<? extends Building> getData(int first, int count) {
                 boolean asc = getSort().isAscending();
                 String sortProperty = getSort().getProperty();
 
@@ -165,19 +164,14 @@ public final class BuildingList extends ScrollListPage {
                 example.setAsc(asc);
                 example.setStart(first);
                 example.setSize(count);
-                return buildingStrategy.find(example).iterator();
+                return buildingStrategy.find(example);
             }
 
             @Override
-            public int size() {
+            protected int getSize() {
                 example.setStatus(showModeModel.getObject().name());
                 example.setLocaleId(localeBean.convert(getLocale()).getId());
                 return buildingStrategy.count(example);
-            }
-
-            @Override
-            public IModel<Building> model(Building object) {
-                return new Model<Building>(object);
             }
         };
         dataProvider.setSort(getSession().getPreferenceString(page, PreferenceKey.SORT_PROPERTY, ""),
