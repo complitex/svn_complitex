@@ -12,7 +12,7 @@
     <artifactId>complitex-dictionary</artifactId>
     <packaging>jar</packaging>
 
-    <name>Dictionary</name>
+    <name>Complitex - Dictionary</name>
 
     <properties>
         <!-- do not skip test-->

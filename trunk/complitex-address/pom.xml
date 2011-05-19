@@ -11,7 +11,7 @@
     <artifactId>complitex-address</artifactId>
     <packaging>jar</packaging>
 
-    <name>Address</name>
+    <name>Complitex - Address</name>
 
     <dependencies>
         <dependency>
