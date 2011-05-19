@@ -11,7 +11,7 @@
 
     <groupId>org.complitex</groupId>
     <artifactId>complitex-organization</artifactId>
-    <name>Complitex Organization</name>
+    <name>Complitex - Organization</name>
 
     <dependencies>
         <dependency>

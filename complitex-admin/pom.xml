@@ -11,7 +11,7 @@
     <artifactId>complitex-admin</artifactId>
     <packaging>jar</packaging>
 
-    <name>Admin</name>
+    <name>Complitex - Admin</name>
 
     <dependencies>
         <dependency>

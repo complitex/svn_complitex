@@ -11,7 +11,7 @@
     <artifactId>complitex-template</artifactId>
     <packaging>jar</packaging>
 
-    <name>Template</name>
+    <name>Complitex - Template</name>
 
     <dependencies>
         <dependency>
