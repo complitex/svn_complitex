@@ -45,7 +45,8 @@ public abstract class AjaxRemovableListView<T extends Serializable> extends List
         return new Model<T>(listViewModel.getObject().get(index));
     }
 
-    protected AjaxSubmitLink addRemoveSubmitLink(String linkId, Form<?> form, ListItem<T> item, Component toFocus, Component... toUpdate) {
+    protected AjaxSubmitLink addRemoveSubmitLink(String linkId, Form<?> form, ListItem<T> item, Component toFocus,
+            Component... toUpdate) {
         AjaxSubmitLink removeSubmitLink = getRemoveSubmitLink(linkId, form, item, toFocus, toUpdate);
         item.add(removeSubmitLink);
         return removeSubmitLink;
@@ -57,10 +58,10 @@ public abstract class AjaxRemovableListView<T extends Serializable> extends List
         return removeLink;
     }
 
-    protected AjaxSubmitLink getRemoveSubmitLink(String linkId, Form<?> form, final ListItem<T> item, final Component toFocus, final Component... toUpdate) {
+    protected AjaxSubmitLink getRemoveSubmitLink(String linkId, Form<?> form, final ListItem<T> item,
+            final Component toFocus, final Component... toUpdate) {
         AjaxSubmitLink link = new AjaxSubmitLink(linkId, form) {
 
-            @SuppressWarnings({"unchecked"})
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
                 if (validate((ListItem<T>) this.getParent())) {
@@ -104,7 +105,7 @@ public abstract class AjaxRemovableListView<T extends Serializable> extends List
         return true;
     }
 
-    private static void updateListViewOnRemoval(AbstractLink link, AjaxRequestTarget target, Component toFocus, Component... toUpdate) {
+    protected final void updateListViewOnRemoval(AbstractLink link, AjaxRequestTarget target, Component toFocus, Component... toUpdate) {
         ListItem item = (ListItem) link.getParent();
         ListView list = (ListView) item.getParent();
 
@@ -144,7 +145,7 @@ public abstract class AjaxRemovableListView<T extends Serializable> extends List
         }
     }
 
-    protected ListItem<T> getCurrentItem(Component component) {
+    protected final ListItem<T> getCurrentItem(Component component) {
         return (ListItem<T>) component.visitParents(ListItem.class, new IVisitor<Component>() {
 
             @Override
@@ -154,7 +155,7 @@ public abstract class AjaxRemovableListView<T extends Serializable> extends List
         });
     }
 
-    protected int getCurrentIndex(Component component) {
+    protected final int getCurrentIndex(Component component) {
         return getCurrentItem(component).getIndex();
     }
 }
