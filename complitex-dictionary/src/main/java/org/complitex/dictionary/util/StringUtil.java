@@ -99,4 +99,16 @@ public class StringUtil {
         }
         return result.toString();
     }
+
+    public static boolean isNumeric(String value) {
+        char[] chars = value.toCharArray();
+        for (char c : chars) {
+            try {
+                Integer.parseInt(String.valueOf(c));
+            } catch (Exception e) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
