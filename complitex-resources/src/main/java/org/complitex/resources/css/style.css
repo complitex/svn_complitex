@@ -243,7 +243,7 @@ table.bookContentHeader{
 
 /* Dialog styles */
 
-.ui-dialog{
+/*.ui-dialog{
     padding: 0px 0px 0px 0px !important;
 }
 
@@ -258,7 +258,7 @@ table.bookContentHeader{
 
 .ui-widget input[type="button"] {
     font-size: 12px;
-}
+}*/
 
 /* AutoCompleteTextField styles */
 div.wicket-aa-container {
