@@ -1,6 +1,7 @@
 package org.complitex.template.web.template;
 
 import org.apache.wicket.Request;
+import org.apache.wicket.ResourceReference;
 import org.apache.wicket.Response;
 import org.apache.wicket.Session;
 import org.complitex.dictionary.entity.Preference;
@@ -8,9 +9,11 @@ import org.complitex.dictionary.service.PreferenceBean;
 import org.complitex.dictionary.service.SessionBean;
 import org.complitex.dictionary.util.EjbBeanLocator;
 import org.complitex.dictionary.web.ISessionStorage;
+import org.complitex.resources.theme.ThemeResourceReference;
 import org.complitex.template.web.pages.expired.SessionExpiredPage;
 import org.complitex.template.web.security.ServletAuthWebApplication;
 import org.odlabs.wiquery.core.commons.WiQueryInstantiationListener;
+import org.odlabs.wiquery.ui.themes.IThemableApplication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wicketstuff.javaee.injection.JavaEEComponentInjector;
@@ -27,11 +30,13 @@ import org.complitex.dictionary.mybatis.inject.JavaEE6ModuleNamingStrategy;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 22.07.2010 18:36:29
  */
-public abstract class TemplateWebApplication extends ServletAuthWebApplication {
+public abstract class TemplateWebApplication extends ServletAuthWebApplication implements IThemableApplication {
 
     private static final Logger log = LoggerFactory.getLogger(TemplateWebApplication.class);
     private static final String TEMPLATE_CONFIG_FILE_NAME = "template-config.xml";
     private List<Class<ITemplateMenu>> menuClasses;
+
+    private final static ThemeResourceReference theme = new ThemeResourceReference();
 
     @Override
     protected void init() {
@@ -42,6 +47,11 @@ public abstract class TemplateWebApplication extends ServletAuthWebApplication {
         initializeTemplateConfig();
 
         getApplicationSettings().setPageExpiredErrorPage(SessionExpiredPage.class);
+    }
+
+    @Override
+    public ResourceReference getTheme(Session session) {
+        return theme;
     }
 
     @SuppressWarnings({"unchecked", "ConstantConditions"})
