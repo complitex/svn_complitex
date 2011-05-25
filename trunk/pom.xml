@@ -46,6 +46,7 @@
 
         <!--skip test-->
         <maven.test.skip>true</maven.test.skip>
+        <compiler.showDeprecation>true</compiler.showDeprecation>
     </properties>
 
     <repositories>
@@ -311,6 +312,7 @@
                     <source>1.6</source>
                     <target>1.6</target>
                     <encoding>UTF-8</encoding>
+                    <showDeprecation>${compiler.showDeprecation}</showDeprecation>
                 </configuration>
             </plugin>
 

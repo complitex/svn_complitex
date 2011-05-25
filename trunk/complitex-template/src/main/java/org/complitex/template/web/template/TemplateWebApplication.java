@@ -12,7 +12,6 @@ import org.complitex.dictionary.web.ISessionStorage;
 import org.complitex.resources.theme.ThemeResourceReference;
 import org.complitex.template.web.pages.expired.SessionExpiredPage;
 import org.complitex.template.web.security.ServletAuthWebApplication;
-import org.odlabs.wiquery.core.commons.WiQueryInstantiationListener;
 import org.odlabs.wiquery.ui.themes.IThemableApplication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,14 +34,12 @@ public abstract class TemplateWebApplication extends ServletAuthWebApplication i
     private static final Logger log = LoggerFactory.getLogger(TemplateWebApplication.class);
     private static final String TEMPLATE_CONFIG_FILE_NAME = "template-config.xml";
     private List<Class<ITemplateMenu>> menuClasses;
-
     private final static ThemeResourceReference theme = new ThemeResourceReference();
 
     @Override
     protected void init() {
         super.init();
 
-        initializeWiQuery();
         initializeJEEInjector();
         initializeTemplateConfig();
 
@@ -87,10 +84,6 @@ public abstract class TemplateWebApplication extends ServletAuthWebApplication i
 
     private void initializeJEEInjector() {
         addComponentInstantiationListener(new JavaEEComponentInjector(this, new JavaEE6ModuleNamingStrategy()));
-    }
-
-    private void initializeWiQuery() {
-        addComponentInstantiationListener(new WiQueryInstantiationListener());
     }
 
     public List<Class<ITemplateMenu>> getMenuClasses() {
