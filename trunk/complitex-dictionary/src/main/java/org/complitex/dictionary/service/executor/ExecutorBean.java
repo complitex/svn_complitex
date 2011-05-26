@@ -72,6 +72,7 @@ public class ExecutorBean {
         }
 
         //Выполняем задачу
+        executorCommand.setObject(object);
         executorCommand.startTask();
         asyncTaskBean.execute(object, task, new ITaskListener(){
 

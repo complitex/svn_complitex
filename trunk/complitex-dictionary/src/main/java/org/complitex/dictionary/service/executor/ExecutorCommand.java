@@ -39,6 +39,8 @@ public class ExecutorCommand {
     private int maxErrors;
     int maxThread;
 
+    private IExecutorObject object;
+
     public STATUS getStatus() {
         return status;
     }
@@ -112,6 +114,7 @@ public class ExecutorCommand {
 
     public void cancel(){
         stop.set(true);
+        object.cancel();
     }
 
     public void startTask(){
@@ -170,5 +173,13 @@ public class ExecutorCommand {
         }
 
         return false;
+    }
+
+    public IExecutorObject getObject() {
+        return object;
+    }
+
+    public void setObject(IExecutorObject object) {
+        this.object = object;
     }
 }
