@@ -5,4 +5,6 @@ package org.complitex.dictionary.entity;
  *         Date: 14.04.11 17:26
  */
 public interface IExecutorObject extends ILoggable{
+    void cancel();
+    boolean isCanceled();
 }
