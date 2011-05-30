@@ -15,6 +15,8 @@ import java.util.regex.Pattern;
  *         Date: 11.05.11 17:45
  */
 public class RtfTemplate {
+    public enum VARIABLE_TYPE{SIMPLE, FORM}
+
     private final static Logger log = LoggerFactory.getLogger(RtfTemplate.class);
 
     public final static Charset CHARSET1251 = Charset.forName("Windows-1251");
@@ -25,7 +27,12 @@ public class RtfTemplate {
         }
     }
 
-    private final static Pattern VARIABLE_PATTERN = Pattern.compile("%%(\\S+)%%", Pattern.DOTALL | Pattern.MULTILINE);
+    private final static Pattern SIMPLE_VARIABLE_PATTERN = Pattern.compile("%%(\\S+)%%", Pattern.DOTALL | Pattern.MULTILINE);
+
+    private final static Pattern FORM_VARIABLE_PATTERN = Pattern.compile(
+            "\\{\\\\field\\{\\\\\\*\\\\fldinst FORMTEXT \\{\\\\\\*\\\\datafield \\S+}}\\{\\\\fldrslt (\\S+)}\\{\\\\\\*\\\\formfield\\" +
+                    "{\\\\ffownhelp\\{\\\\\\*\\\\ffhelptext }}}}", Pattern.DOTALL | Pattern.MULTILINE);
+
 
     private StringBuilder template = new StringBuilder(8192);
 
@@ -65,13 +72,23 @@ public class RtfTemplate {
         return this;
     }
 
-    public String fill() {
+    public String fill(VARIABLE_TYPE variableType) {
         if (map.isEmpty()) {
             return template.toString();
         }
 
         StringBuffer result = new StringBuffer(template.length());
-        Matcher matcher = VARIABLE_PATTERN.matcher(template);
+
+        Matcher matcher;
+
+        switch (variableType){
+            case FORM:
+                matcher = FORM_VARIABLE_PATTERN.matcher(template);
+                break;
+            default:
+                matcher = SIMPLE_VARIABLE_PATTERN.matcher(template);
+                break;
+        }
 
         while (matcher.find()) {
             String value = map.get(matcher.group(1));
@@ -86,9 +103,9 @@ public class RtfTemplate {
         return result.toString();
     }
 
-    public void fill(OutputStream outputStream){
+    public void fill(OutputStream outputStream, VARIABLE_TYPE variableType){
         try {
-            outputStream.write(fill().getBytes(CHARSET1251));
+            outputStream.write(fill(variableType).getBytes(CHARSET1251));
         } catch (IOException e) {
             throw new RtfTemplateException("Ошибка записи в поток", e);
         } finally {
