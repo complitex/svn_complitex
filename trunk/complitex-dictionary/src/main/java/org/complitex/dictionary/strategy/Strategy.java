@@ -30,6 +30,7 @@ import javax.ejb.EJB;
 import java.util.*;
 import java.util.Locale;
 import org.complitex.dictionary.mysql.MySqlErrors;
+import org.complitex.dictionary.util.StringUtil;
 import org.complitex.dictionary.web.component.search.SearchComponent;
 
 /**
@@ -226,7 +227,6 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
             //load subject ids
             object.setSubjectIds(loadSubjects(object.getPermissionId()));
         }
-
         return object;
     }
 
@@ -475,7 +475,15 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
                                 case DATE:
                                 case DATE2:
                                 case DOUBLE:
-                                case INTEGER:
+                                case INTEGER: {
+                                    String oldString = stringBean.getSystemStringCulture(oldAttr.getLocalizedValues()).getValue();
+                                    String newString = stringBean.getSystemStringCulture(newAttr.getLocalizedValues()).getValue();
+                                    if (!StringUtil.isEqualIgnoreCase(oldString, newString)) {
+                                        needToUpdateAttribute = true;
+                                    }
+                                }
+                                break;
+
                                 case BIG_STRING:
                                 case STRING: {
                                     String oldString = stringBean.getSystemStringCulture(oldAttr.getLocalizedValues()).getValue();
