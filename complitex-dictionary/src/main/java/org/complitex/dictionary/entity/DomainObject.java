@@ -33,6 +33,23 @@ public class DomainObject implements Serializable {
     private List<Attribute> attributes = new ArrayList<Attribute>();
     private Set<Long> subjectIds;
 
+    public DomainObject() {
+    }
+
+    protected DomainObject(DomainObject copy) {
+        id = copy.id;
+        status = copy.status;
+        startDate = copy.startDate;
+        endDate = copy.endDate;
+        parentId = copy.parentId;
+        parentEntityId = copy.parentEntityId;
+        entityTypeId = copy.entityTypeId;
+        permissionId = copy.permissionId;
+        externalId = copy.externalId;
+        attributes = copy.attributes;
+        subjectIds = copy.subjectIds;
+    }
+
     public Attribute getAttribute(Long attributeTypeId) {
         for (Attribute a : attributes) {
             if (a.getAttributeTypeId().equals(attributeTypeId)) {

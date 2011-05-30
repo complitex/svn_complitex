@@ -20,7 +20,6 @@ public class BooleanPanel extends Panel {
 
     public BooleanPanel(String id, IModel<Boolean> model, IModel<String> labelModel, boolean enabled) {
         super(id);
-
         CheckBox checkBox = new CheckBox("checkbox", model);
         checkBox.setEnabled(enabled);
         checkBox.setLabel(labelModel);

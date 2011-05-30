@@ -13,6 +13,10 @@ public class StringUtil {
         return s1 == null && s2 == null || !(s1 == null || s2 == null) && s1.equals(s2);
     }
 
+    public static boolean isEqualIgnoreCase(String s1, String s2) {
+        return s1 == null && s2 == null || !(s1 == null || s2 == null) && s1.equalsIgnoreCase(s2);
+    }
+
     /**
      * @param object Object
      * @return <code>String.valueOf(object)</code> or empty string if null
