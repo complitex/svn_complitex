@@ -20,13 +20,17 @@ import java.util.ResourceBundle;
  */
 public final class ResourceUtil {
 
+    private static final Logger log = LoggerFactory.getLogger(ResourceUtil.class);
+
     private ResourceUtil() {
     }
 
-    private static final Logger log = LoggerFactory.getLogger(ResourceUtil.class);
-
     public static String getString(Component component, String key) {
         return Application.get().getResourceSettings().getLocalizer().getString(key, component);
+    }
+
+    public static String getFormatString(Component component, String key, Object... arguments) {
+        return MessageFormat.format(Application.get().getResourceSettings().getLocalizer().getString(key, component), arguments);
     }
 
     public static String getString(String bundle, String key, Locale locale) {
