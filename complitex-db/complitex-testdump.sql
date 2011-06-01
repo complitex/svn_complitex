@@ -34,10 +34,10 @@ insert into room_attribute(attribute_id, object_id, attribute_type_id, value_id,
 (1,1,200,1,200), (1,2,200,2,200), (1,3,200,3,200), (1,4,200,4,200);
 
 -- Apartments
-insert into apartment(object_id, parent_id, parent_entity_id) values (1,1,500), (2,1,500);
-insert into apartment_string_culture(id, locale_id, value) values (1,1, UPPER('10')), (2,1, UPPER('20'));
+insert into apartment(object_id, parent_id, parent_entity_id) values (1,1,500), (2,1,500), (3,3,500), (4,2,500);
+insert into apartment_string_culture(id, locale_id, value) values (1,1, UPPER('10')), (2,1, UPPER('20')), (3,1,UPPER('18')), (4,1,UPPER('28'));
 insert into apartment_attribute(attribute_id, object_id, attribute_type_id, value_id, value_type_id) values
-(1,1,100,1,100), (1,2,100,2,100);
+(1,1,100,1,100), (1,2,100,2,100), (1,3,100,3,100),(1,4,100,4,100);
 
 -- Building Addresses
 insert into building_address(object_id, parent_id, parent_entity_id) values (1,1,300), (2,3,300), (3,1,300), (4,1,300), (5,2,300), (6,2,300),
