@@ -36,9 +36,11 @@ public class RtfTemplate {
 
     private StringBuilder template = new StringBuilder(8192);
 
-    private Map<String, String> map = new HashMap<String, String>();
+    private Map<String, String> values = new HashMap<String, String>();
 
-    public RtfTemplate(InputStream inputStream) {
+    public RtfTemplate(InputStream inputStream, Map<String, String> values) {
+        this.values.putAll(values);
+
         if (!(inputStream instanceof BufferedInputStream)) {
             inputStream = new BufferedInputStream(inputStream);
         }
@@ -61,19 +63,19 @@ public class RtfTemplate {
     }
 
     public RtfTemplate addValue(String key, String value) {
-        map.put(key, value);
+        values.put(key, value);
 
         return this;
     }
 
     public RtfTemplate addValues(Map<String, String> values) {
-        map.putAll(values);
+        this.values.putAll(values);
 
         return this;
     }
 
     public String fill(VARIABLE_TYPE variableType) {
-        if (map.isEmpty()) {
+        if (values.isEmpty()) {
             return template.toString();
         }
 
@@ -85,13 +87,14 @@ public class RtfTemplate {
             case FORM:
                 matcher = FORM_VARIABLE_PATTERN.matcher(template);
                 break;
+            case SIMPLE:
             default:
                 matcher = SIMPLE_VARIABLE_PATTERN.matcher(template);
                 break;
         }
 
         while (matcher.find()) {
-            String value = map.get(matcher.group(1));
+            String value = values.get(matcher.group(1));
 
             if (value != null) {
                 matcher.appendReplacement(result, getHexEscape(Matcher.quoteReplacement(value).getBytes(CHARSET1251)));
