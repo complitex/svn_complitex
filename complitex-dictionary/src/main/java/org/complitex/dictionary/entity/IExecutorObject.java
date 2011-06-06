@@ -7,4 +7,6 @@ package org.complitex.dictionary.entity;
 public interface IExecutorObject extends ILoggable{
     void cancel();
     boolean isCanceled();
+    String getErrorMessage();
+    void setErrorMessage(String message);
 }
