@@ -35,6 +35,8 @@ public class AsyncTaskBean {
 
             listener.done(object, noSkip ? ITaskListener.STATUS.SUCCESS : ITaskListener.STATUS.SKIPPED);
         } catch (ExecuteException e) {
+            object.setErrorMessage(e.getMessage());
+
             try {
                 task.onError(object);
             } catch (Exception e1) {
@@ -50,6 +52,8 @@ public class AsyncTaskBean {
 
             listener.done(object, ITaskListener.STATUS.ERROR);
         } catch (Exception e){
+            object.setErrorMessage(e.getMessage());
+
             try {
                 task.onError(object);
             } catch (Exception e1) {
