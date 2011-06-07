@@ -26,7 +26,7 @@ public class ExecutorBean {
     private LogBean logBean;
 
     @SuppressWarnings({"unchecked"})
-    private void executeNext(final ExecutorCommand executorCommand){
+    public void executeNext(final ExecutorCommand executorCommand){
         IExecutorObject object = executorCommand.getQueue().poll();
         IExecutorListener listener = executorCommand.getListener();
         ITaskBean task = executorCommand.getTask();
