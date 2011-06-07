@@ -182,4 +182,8 @@ public class ExecutorCommand {
     public void setObject(IExecutorObject object) {
         this.object = object;
     }
+
+    public int getRunningThreadCount(){
+        return runningThread.get();
+    }
 }
