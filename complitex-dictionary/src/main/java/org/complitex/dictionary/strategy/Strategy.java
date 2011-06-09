@@ -39,6 +39,7 @@ import org.complitex.dictionary.web.component.search.SearchComponent;
  */
 public abstract class Strategy extends AbstractBean implements IStrategy {
 
+    private static final String RESOURCE_BUNDLE = Strategy.class.getName();
     private static final Logger log = LoggerFactory.getLogger(Strategy.class);
     private static final int PERMISSIONS_CHILDREN_BATCH = 500;
     private static final int ACTIVITY_CHILDREN_BATCH = 5000;
@@ -79,19 +80,19 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     }
 
     protected String getDisableSuccess() {
-        return ResourceUtil.getString(Strategy.class.getName(), "disable_success", localeBean.getSystemLocale());
+        return ResourceUtil.getString(RESOURCE_BUNDLE, "disable_success", localeBean.getSystemLocale());
     }
 
     protected String getDisableError() {
-        return ResourceUtil.getString(Strategy.class.getName(), "disable_error", localeBean.getSystemLocale());
+        return ResourceUtil.getString(RESOURCE_BUNDLE, "disable_error", localeBean.getSystemLocale());
     }
 
     protected String getEnableSuccess() {
-        return ResourceUtil.getString(Strategy.class.getName(), "enable_success", localeBean.getSystemLocale());
+        return ResourceUtil.getString(RESOURCE_BUNDLE, "enable_success", localeBean.getSystemLocale());
     }
 
     protected String getEnableError() {
-        return ResourceUtil.getString(Strategy.class.getName(), "enable_error", localeBean.getSystemLocale());
+        return ResourceUtil.getString(RESOURCE_BUNDLE, "enable_error", localeBean.getSystemLocale());
     }
 
     @Override
@@ -1161,17 +1162,17 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
     @Transactional
     @Override
-    public void delete(long objectId) throws DeleteException {
-        deleteChecks(objectId);
+    public void delete(long objectId, Locale locale) throws DeleteException {
+        deleteChecks(objectId, locale);
         deleteStrings(objectId);
         deleteAttribute(objectId);
-        deleteObject(objectId);
+        deleteObject(objectId, locale);
     }
 
     @Transactional
-    protected void deleteChecks(long objectId) throws DeleteException {
-        childrenExistCheck(objectId);
-        referenceExistCheck(objectId);
+    protected void deleteChecks(long objectId, Locale locale) throws DeleteException {
+        childrenExistCheck(objectId, locale);
+        referenceExistCheck(objectId, locale);
     }
 
     @Transactional
@@ -1191,7 +1192,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     }
 
     @Transactional
-    protected void deleteObject(long objectId) throws DeleteException {
+    protected void deleteObject(long objectId, Locale locale) throws DeleteException {
         Map<String, Object> params = newHashMap();
         params.put("table", getEntityTable());
         params.put("objectId", objectId);
@@ -1212,7 +1213,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
             }
 
             if (sqlException != null && MySqlErrors.isIntegrityConstraintViolationError(sqlException)) {
-                throw new DeleteException();
+                throw new DeleteException(ResourceUtil.getString(RESOURCE_BUNDLE, "delete_error", locale));
             } else {
                 throw new RuntimeException(e);
             }
@@ -1220,12 +1221,12 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     }
 
     @Transactional
-    protected void childrenExistCheck(long objectId) throws DeleteException {
+    protected void childrenExistCheck(long objectId, Locale locale) throws DeleteException {
         String[] realChildren = getRealChildren();
         if (realChildren != null && realChildren.length > 0) {
             for (String childEntity : realChildren) {
                 if (childrenExistCheck(childEntity, objectId)) {
-                    throw new DeleteException();
+                    throw new DeleteException(ResourceUtil.getString(RESOURCE_BUNDLE, "delete_error", locale));
                 }
             }
         }
@@ -1255,7 +1256,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     }
 
     @Transactional
-    protected void referenceExistCheck(long objectId) throws DeleteException {
+    protected void referenceExistCheck(long objectId, Locale locale) throws DeleteException {
         for (String entityTable : entityBean.getAllEntities()) {
             Entity entity = entityBean.getEntity(entityTable);
             for (EntityAttributeType attributeType : entity.getEntityAttributeTypes()) {
@@ -1270,7 +1271,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
                         params.put("attributeTypeId", attributeTypeId);
                         Object result = sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + ".referenceExistCheck", params);
                         if (result != null) {
-                            throw new DeleteException();
+                            throw new DeleteException(ResourceUtil.getString(RESOURCE_BUNDLE, "delete_error", locale));
                         }
                     }
                 }
