@@ -588,18 +588,18 @@ public class BuildingStrategy extends TemplateStrategy {
 
     @Transactional
     @Override
-    public void delete(long objectId) throws DeleteException {
-        deleteChecks(objectId);
+    public void delete(long objectId, Locale locale) throws DeleteException {
+        deleteChecks(objectId, locale);
 
         Set<Long> addressIds = findBuildingAddresses(objectId);
 
         deleteStrings(objectId);
         deleteAttribute(objectId);
-        deleteObject(objectId);
+        deleteObject(objectId, locale);
 
         //delete building address:
         for (Long addressId : addressIds) {
-            buildingAddressStrategy.delete(addressId);
+            buildingAddressStrategy.delete(addressId, locale);
         }
     }
 

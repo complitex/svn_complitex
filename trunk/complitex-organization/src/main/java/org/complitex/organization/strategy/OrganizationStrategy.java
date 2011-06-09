@@ -349,10 +349,10 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
 
     @Transactional
     @Override
-    protected void deleteChecks(long objectId) throws DeleteException {
+    protected void deleteChecks(long objectId, Locale locale) throws DeleteException {
         if (permissionBean.isOrganizationPermissionExists(getEntityTable(), objectId)) {
             throw new DeleteException();
         }
-        super.deleteChecks(objectId);
+        super.deleteChecks(objectId, locale);
     }
 }
