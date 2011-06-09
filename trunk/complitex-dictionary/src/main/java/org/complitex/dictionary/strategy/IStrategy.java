@@ -211,5 +211,5 @@ public interface IStrategy {
     boolean canPropagatePermissions(DomainObject object);
 
     @Transactional
-    void delete(long objectId) throws DeleteException;
+    void delete(long objectId, Locale locale) throws DeleteException;
 }

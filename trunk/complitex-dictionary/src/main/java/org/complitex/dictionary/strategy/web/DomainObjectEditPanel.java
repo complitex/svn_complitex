@@ -320,10 +320,14 @@ public class DomainObjectEditPanel extends Panel {
 
     public void delete() {
         try {
-            getStrategy().delete(newObject.getId());
+            getStrategy().delete(newObject.getId(), getLocale());
             back();
         } catch (DeleteException e) {
-            error(getString("delete_error"));
+            if (!Strings.isEmpty(e.getMessage())) {
+                error(e.getMessage());
+            } else {
+                error(getString("delete_error"));
+            }
         } catch (Exception e) {
             log.error("", e);
             error(getString("db_error"));
