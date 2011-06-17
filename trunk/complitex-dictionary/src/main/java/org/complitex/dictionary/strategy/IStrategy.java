@@ -212,4 +212,6 @@ public interface IStrategy {
 
     @Transactional
     void delete(long objectId, Locale locale) throws DeleteException;
+
+    String[] getDescriptionRoles();
 }
