@@ -1278,4 +1278,9 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
             }
         }
     }
+
+    @Override
+    public String[] getDescriptionRoles() {
+        return getEditRoles();
+    }
 }
