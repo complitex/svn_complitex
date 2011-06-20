@@ -23,12 +23,16 @@ import org.complitex.address.strategy.building_address.BuildingAddressStrategy;
 public class Building extends DomainObject {
 
     private DomainObject primaryAddress;
-
     private List<DomainObject> alternativeAddresses = Lists.newArrayList();
-
     private DomainObject district;
-
     private DomainObject accompaniedAddress;
+
+    public Building(DomainObject copy) {
+        super(copy);
+    }
+
+    public Building() {
+    }
 
     public DomainObject getAccompaniedAddress() {
         return accompaniedAddress;

@@ -20,7 +20,6 @@ import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.mybatis.Transactional;
 import org.complitex.dictionary.service.LocaleBean;
-import org.complitex.dictionary.service.PermissionBean;
 import org.complitex.dictionary.service.SessionBean;
 import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
@@ -267,22 +266,16 @@ public class BuildingStrategy extends TemplateStrategy {
 
     @Override
     public DomainObject newInstance() {
-        Building building = new Building();
-        fillAttributes(building);
+        Building building = new Building(super.newInstance());
         building.setPrimaryAddress(buildingAddressStrategy.newInstance());
-
-        //set up subject ids to visible-by-all subject
-        Set<Long> defaultSubjectIds = Sets.newHashSet(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID);
-        building.setSubjectIds(defaultSubjectIds);
-        building.getPrimaryAddress().setSubjectIds(defaultSubjectIds);
-
         return building;
     }
 
     @Override
     public String displayDomainObject(DomainObject object, Locale locale) {
         Building building = (Building) object;
-        return displayBuilding(building.getAccompaniedNumber(locale), building.getAccompaniedCorp(locale), building.getAccompaniedStructure(locale), locale);
+        return displayBuilding(building.getAccompaniedNumber(locale), building.getAccompaniedCorp(locale),
+                building.getAccompaniedStructure(locale), locale);
     }
 
     private String displayBuilding(String number, String corp, String structure, Locale locale) {
@@ -365,6 +358,7 @@ public class BuildingStrategy extends TemplateStrategy {
     protected void insertDomainObject(DomainObject object, Date insertDate) {
         Building building = (Building) object;
         for (DomainObject buildingAddress : building.getAllAddresses()) {
+            buildingAddress.setSubjectIds(building.getSubjectIds());
             buildingAddressStrategy.insert(buildingAddress, insertDate);
         }
         building.enhanceAlternativeAddressAttributes();
