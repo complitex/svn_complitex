@@ -18,11 +18,11 @@ public interface IOrganizationStrategy extends IStrategy {
     /**
      * Attribute type ids
      */
-    public long NAME = 900;
-    public long CODE = 901;
-    public long DISTRICT = 902;
-    public long USER_ORGANIZATION_PARENT = 903;
-    public long ORGANIZATION_TYPE = 905;
+    long NAME = 900;
+    long CODE = 901;
+    long DISTRICT = 902;
+    long USER_ORGANIZATION_PARENT = 903;
+    long ORGANIZATION_TYPE = 905;
 
     @Transactional
     List<? extends DomainObject> getUserOrganizations(Locale locale, Long... excludeOrganizationsId);
