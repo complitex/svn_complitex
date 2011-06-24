@@ -32,6 +32,7 @@ INSERT INTO `sequence` (`sequence_name`, `sequence_value`) VALUES
 ('street',1), ('street_string_culture',1),
 ('street_type',1), ('street_type_string_culture',1),
 ('organization',1), ('organization_string_culture',1),
+('organization_type',1), ('organization_type_string_culture',1),
 ('user_info', 1), ('user_info_string_culture', 1);
 
 -- Permission
@@ -190,6 +191,18 @@ INSERT INTO `string_culture`(`id`, `locale_id`, `value`) VALUES (1003, 1, UPPER(
 INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (1002, 1000, 1, 1003, 1);
 INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (1002, 1002, 'middle_name');
 
+-- --------------------------------
+-- Organization type
+-- --------------------------------
+
+INSERT INTO `string_culture`(`id`, `locale_id`, `value`) VALUES (2300, 1, 'Тип организации'), (2300, 2, 'Тип организации');
+INSERT INTO `entity`(`id`, `entity_table`, `entity_name_id`, `strategy_factory`) VALUES (2300, 'organization_type', 2300, '');
+INSERT INTO `string_culture`(`id`, `locale_id`, `value`) VALUES (2301, 1, UPPER('Тип организации')), (2301, 2, UPPER('Тип организации'));
+INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (2300, 2300, 1, 2301, 1);
+INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (2300, 2300, UPPER('string_culture'));
+INSERT INTO `organization_type`(`object_id`) VALUES (1);
+INSERT INTO `organization_type_string_culture`(`id`, `locale_id`, `value`) VALUES (1, 1, UPPER('Организации пользователей')), (1, 2,UPPER('Организации пользователей'));
+INSERT INTO `organization_type_attribute`(`attribute_id`, `object_id`, `attribute_type_id`, `value_id`, `value_type_id`) VALUES (1,1,2300,1,2300);
 
 -- --------------------------------
 -- Organization
@@ -203,11 +216,12 @@ INSERT INTO `string_culture`(`id`, `locale_id`, `value`) VALUES (902, 1, UPPER('
 INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (901, 900, 1, 902, 1);
 INSERT INTO `string_culture`(`id`, `locale_id`, `value`) VALUES (903, 1, UPPER('Район')), (903, 2, UPPER('Район'));
 INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (902, 900, 0, 903, 1);
-INSERT INTO `string_culture`(`id`, `locale_id`, `value`) VALUES (907, 1, UPPER('Принадлежит')), (907, 2, UPPER('Принадлежит'));
-INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (903, 900, 0, 907, 1);
+INSERT INTO `string_culture`(`id`, `locale_id`, `value`) VALUES (904, 1, UPPER('Принадлежит')), (904, 2, UPPER('Принадлежит'));
+INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (903, 900, 0, 904, 1);
+INSERT INTO `string_culture`(`id`, `locale_id`, `value`) VALUES (905, 1, UPPER('Тип организации')), (905, 2, UPPER('Тип организации'));
+INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (905, 900, 0, 905, 1);
 INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (900, 900, UPPER('string_culture'));
 INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (901, 901, UPPER('string'));
 INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (902, 902, 'district');
 INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (903, 903, 'organization');
-INSERT INTO `string_culture`(`id`, `locale_id`, `value`) VALUES (906, 1, UPPER('Организации пользователей')), (906, 2, UPPER('Организации пользователей'));
-INSERT INTO `entity_type`(`id`, `entity_id`, `entity_type_name_id`) VALUES (902, 900, 906);
+INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (905, 905, 'organization_type');
