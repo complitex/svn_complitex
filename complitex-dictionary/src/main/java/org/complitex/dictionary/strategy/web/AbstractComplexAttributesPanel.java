@@ -31,7 +31,7 @@ public abstract class AbstractComplexAttributesPanel extends Panel {
         this.disabled = disabled;
     }
 
-    public boolean isDisabled() {
+    protected boolean isDisabled() {
         return disabled;
     }
 
