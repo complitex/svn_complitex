@@ -16,6 +16,7 @@ import java.util.Locale;
  * @author Artem
  */
 public class OrganizationValidator implements IValidator {
+
     private Locale systemLocale;
 
     public OrganizationValidator(Locale systemLocale) {

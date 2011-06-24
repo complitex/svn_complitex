@@ -1,5 +1,6 @@
 package org.complitex.organization.strategy;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -31,6 +32,8 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.util.*;
 import org.complitex.dictionary.service.PermissionBean;
+import org.complitex.dictionary.util.AttributeUtil;
+import org.complitex.organization_type.strategy.OrganizationTypeStrategy;
 
 /**
  *
@@ -63,7 +66,7 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
 
     @Override
     public String displayDomainObject(DomainObject object, Locale locale) {
-        return stringBean.displayValue(object.getAttribute(NAME).getLocalizedValues(), locale);
+        return AttributeUtil.getStringCultureValue(object, NAME, locale);
     }
 
     @Override
@@ -84,9 +87,27 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
     }
 
     @Override
-    public boolean canPropagatePermissions(DomainObject object) {
-        Long entityTypeId = object.getEntityTypeId();
-        return entityTypeId != null && entityTypeId.equals(USER_ORGANIZATION);
+    public boolean canPropagatePermissions(DomainObject organization) {
+        return isUserOrganization(organization);
+    }
+
+    @Override
+    public boolean isUserOrganization(DomainObject organization) {
+        List<Long> organizationTypeIds = getOrganizationTypeIds(organization);
+        return organizationTypeIds != null && organizationTypeIds.contains(OrganizationTypeStrategy.USER_ORGANIZATION_TYPE);
+    }
+
+    protected final List<Long> getOrganizationTypeIds(DomainObject organization) {
+        List<Long> organizationTypeIds = Lists.newArrayList();
+        List<Attribute> organizationTypeAttributes = organization.getAttributes(ORGANIZATION_TYPE);
+        if (organizationTypeAttributes != null && !organizationTypeAttributes.isEmpty()) {
+            for (Attribute attribute : organizationTypeAttributes) {
+                if (attribute.getValueId() != null) {
+                    organizationTypeIds.add(attribute.getValueId());
+                }
+            }
+        }
+        return organizationTypeIds;
     }
 
     @Transactional
@@ -98,8 +119,7 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
 
     @Transactional
     protected void changeDistrictPermissions(DomainObject newOrganization) {
-        Long entityTypeId = newOrganization.getEntityTypeId();
-        if (entityTypeId != null && entityTypeId.equals(USER_ORGANIZATION)) {
+        if (isUserOrganization(newOrganization)) {
             Attribute districtAttribute = getDistrictAttribute(newOrganization);
             Long districtId = districtAttribute.getValueId();
             if (districtId != null) {
@@ -121,8 +141,7 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
 
     @Transactional
     protected void changeDistrictPermissions(DomainObject oldOrganization, DomainObject newOrganization) {
-        Long entityTypeId = newOrganization.getEntityTypeId();
-        if (entityTypeId != null && entityTypeId.equals(USER_ORGANIZATION)) {
+        if (isUserOrganization(newOrganization)) {
             long organizationId = newOrganization.getId();
             Set<Long> subjectIds = Sets.newHashSet(organizationId);
             Attribute oldDistrictAttribute = getDistrictAttribute(oldOrganization);
@@ -194,15 +213,18 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
     @Transactional
     @Override
     public List<? extends DomainObject> find(DomainObjectExample example) {
+        if (example.getId() != null && example.getId() <= 0) {
+            return Collections.emptyList();
+        }
+
         example.setTable(getEntityTable());
         prepareExampleForPermissionCheck(example);
 
-        List<DomainObject> objects = sqlSession().selectList(ORGANIZATION_NAMESPACE + "." + FIND_OPERATION, example);
-
-        for (DomainObject object : objects) {
+        List<DomainObject> organizations = sqlSession().selectList(ORGANIZATION_NAMESPACE + "." + FIND_OPERATION, example);
+        for (DomainObject object : organizations) {
             loadAttributes(object);
         }
-        return objects;
+        return organizations;
     }
 
     @Transactional
@@ -213,7 +235,7 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
         }
         example.setTable(getEntityTable());
         prepareExampleForPermissionCheck(example);
-        return (Integer) sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + "." + COUNT_OPERATION, example);
+        return (Integer) sqlSession().selectOne(ORGANIZATION_NAMESPACE + "." + COUNT_OPERATION, example);
     }
 
     @Override
@@ -236,14 +258,6 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
         return districtCode;
     }
 
-    @Transactional
-    @Override
-    public DomainObject getItselfOrganization() {
-        DomainObjectExample example = new DomainObjectExample(ITSELF_ORGANIZATION_OBJECT_ID);
-        configureExample(example, ImmutableMap.<String, Long>of(), null);
-        return find(example).get(0);
-    }
-
     @Override
     public String getCode(DomainObject organization) {
         return stringBean.getSystemStringCulture(organization.getAttribute(CODE).getLocalizedValues()).getValue();
@@ -251,7 +265,7 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
 
     @Override
     public String getName(DomainObject organization, Locale locale) {
-        return stringBean.displayValue(organization.getAttribute(NAME).getLocalizedValues(), locale);
+        return AttributeUtil.getStringCultureValue(organization, NAME, locale);
     }
 
     @SuppressWarnings({"unchecked"})
@@ -287,7 +301,7 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
     @Override
     public List<? extends DomainObject> getUserOrganizations(Locale locale, Long... excludeOrganizationsId) {
         DomainObjectExample example = new DomainObjectExample();
-        example.setEntityTypeId(USER_ORGANIZATION);
+        example.addAdditionalParam("organizationTypeIds", ImmutableList.of(OrganizationTypeStrategy.USER_ORGANIZATION_TYPE));
         if (locale != null) {
             example.setOrderByAttributeTypeId(NAME);
             example.setLocaleId(localeBean.convert(locale).getId());
