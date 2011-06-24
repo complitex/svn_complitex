@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.mybatis.Transactional;
 import org.complitex.dictionary.strategy.IStrategy;
@@ -30,21 +29,13 @@ public interface IOrganizationStrategy extends IStrategy {
     @Transactional
     Set<Long> getTreeChildrenOrganizationIds(long parentOrganizationId);
 
-    Attribute getDistrictAttribute(DomainObject organization);
-
-    Attribute getParentAttribute(DomainObject organization);
-
     String getDistrictCode(DomainObject organization);
-
-    String getCode(DomainObject organization);
-
-    String getName(DomainObject organization, Locale locale);
 
     boolean isUserOrganization(DomainObject organization);
 
     @Transactional
-    Long validateCode(Long id, String code, Long parentId, Long parentEntityId);
+    Long validateCode(Long id, String code);
 
     @Transactional
-    Long validateName(Long id, String name, Long parentId, Long parentEntityId, Locale locale);
+    Long validateName(Long id, String name, Locale locale);
 }

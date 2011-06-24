@@ -21,8 +21,6 @@ import org.complitex.dictionary.web.component.ShowMode;
 import org.complitex.dictionary.web.component.UserOrganizationPicker;
 import org.complitex.dictionary.web.component.search.SearchComponent;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import java.util.List;
@@ -38,15 +36,12 @@ import org.complitex.organization_type.strategy.OrganizationTypeStrategy;
  */
 public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
 
-    private static final Logger log = LoggerFactory.getLogger(OrganizationEditComponent.class);
     @EJB
     private StrategyFactory strategyFactory;
     @EJB(name = "OrganizationStrategy")
     private IOrganizationStrategy organizationStrategy;
     @EJB(name = "Organization_typeStrategy")
     private OrganizationTypeStrategy organizationTypeStrategy;
-    private Attribute districtAttribute;
-    private Attribute parentAttribute;
     private SearchComponentState districtSearchComponentState;
     private IModel<List<DomainObject>> organizationTypesModel;
     private WebMarkupContainer districtContainer;
@@ -133,7 +128,7 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
 
         //district
         districtSearchComponentState = new SearchComponentState();
-        districtAttribute = organizationStrategy.getDistrictAttribute(organization);
+        Attribute districtAttribute = organization.getAttribute(IOrganizationStrategy.DISTRICT);
         if (districtAttribute != null) {
             Long districtId = districtAttribute.getValueId();
             if (districtId != null) {
@@ -153,7 +148,7 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
         districtRequiredContainer.setVisible(isDistrictRequired());
 
         //parent
-        parentAttribute = organizationStrategy.getParentAttribute(organization);
+        final Attribute parentAttribute = organization.getAttribute(IOrganizationStrategy.USER_ORGANIZATION_PARENT);
         IModel<Long> parentModel = new Model<Long>();
         if (parentAttribute != null) {
             parentModel = new Model<Long>() {
@@ -262,6 +257,7 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
 
     protected void onPersist() {
         //district
+        Attribute districtAttribute = getDomainObject().getAttribute(IOrganizationStrategy.DISTRICT);
         if (isDistrictVisible()) {
             districtAttribute.setValueId(isDistrictEntered() ? districtSearchComponentState.get("district").getId() : null);
         } else {

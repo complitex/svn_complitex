@@ -10,6 +10,7 @@ import org.complitex.organization.strategy.OrganizationStrategy;
 
 import java.text.MessageFormat;
 import java.util.Locale;
+import org.complitex.dictionary.util.AttributeUtil;
 
 /**
  *
@@ -59,15 +60,15 @@ public class OrganizationValidator implements IValidator {
 
         boolean valid = true;
 
-        Long byName = organizationStrategy.validateName(object.getId(), organizationStrategy.getName(object, systemLocale),
-                object.getParentId(), object.getParentEntityId(), systemLocale);
+        Long byName = organizationStrategy.validateName(object.getId(), AttributeUtil.getStringCultureValue(object,
+                IOrganizationStrategy.NAME, systemLocale), systemLocale);
         if (byName != null) {
             valid = false;
             editComponent.error(MessageFormat.format(editComponent.getString("unique_name"), byName));
         }
 
-        Long byCode = organizationStrategy.validateCode(object.getId(), organizationStrategy.getCode(object),
-                object.getParentId(), object.getParentEntityId());
+        Long byCode = organizationStrategy.validateCode(object.getId(), AttributeUtil.getStringCultureValue(object,
+                IOrganizationStrategy.CODE, systemLocale));
         if (byCode != null) {
             valid = false;
             editComponent.error(MessageFormat.format(editComponent.getString("unique_code"), byCode));
