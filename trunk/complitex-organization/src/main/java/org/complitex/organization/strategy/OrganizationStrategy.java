@@ -14,7 +14,6 @@ import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.mybatis.Transactional;
 import org.complitex.dictionary.service.LocaleBean;
-import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.strategy.DeleteException;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
@@ -25,8 +24,6 @@ import org.complitex.organization.strategy.web.edit.OrganizationEditComponent;
 import org.complitex.organization.strategy.web.edit.OrganizationValidator;
 import org.complitex.template.strategy.TemplateStrategy;
 import org.complitex.template.web.security.SecurityRole;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -42,11 +39,8 @@ import org.complitex.organization_type.strategy.OrganizationTypeStrategy;
 @Stateless
 public class OrganizationStrategy extends TemplateStrategy implements IOrganizationStrategy {
 
-    private static final Logger log = LoggerFactory.getLogger(OrganizationStrategy.class);
     private static final String ORGANIZATION_NAMESPACE = OrganizationStrategy.class.getPackage().getName() + ".Organization";
     private static final String RESOURCE_BUNDLE = OrganizationStrategy.class.getName();
-    @EJB
-    private StringCultureBean stringBean;
     @EJB
     private DistrictStrategy districtStrategy;
     @EJB
@@ -120,7 +114,7 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
     @Transactional
     protected void changeDistrictPermissions(DomainObject newOrganization) {
         if (isUserOrganization(newOrganization)) {
-            Attribute districtAttribute = getDistrictAttribute(newOrganization);
+            Attribute districtAttribute = newOrganization.getAttribute(DISTRICT);
             Long districtId = districtAttribute.getValueId();
             if (districtId != null) {
                 DomainObject districtObject = districtStrategy.findById(districtId, false);
@@ -144,8 +138,8 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
         if (isUserOrganization(newOrganization)) {
             long organizationId = newOrganization.getId();
             Set<Long> subjectIds = Sets.newHashSet(organizationId);
-            Attribute oldDistrictAttribute = getDistrictAttribute(oldOrganization);
-            Attribute newDistrictAttribute = getDistrictAttribute(newOrganization);
+            Attribute oldDistrictAttribute = oldOrganization.getAttribute(DISTRICT);
+            Attribute newDistrictAttribute = newOrganization.getAttribute(DISTRICT);
             Long oldDistrictId = oldDistrictAttribute.getValueId();
             Long newDistrictId = newDistrictAttribute.getValueId();
             if (!Numbers.isEqual(oldDistrictId, newDistrictId)) {
@@ -239,39 +233,18 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
     }
 
     @Override
-    public Attribute getDistrictAttribute(DomainObject organization) {
-        return organization.getAttribute(DISTRICT);
-    }
-
-    @Override
-    public Attribute getParentAttribute(DomainObject organization) {
-        return organization.getAttribute(USER_ORGANIZATION_PARENT);
-    }
-
-    @Override
     public String getDistrictCode(DomainObject organization) {
         String districtCode = null;
-        Attribute districtAttribute = getDistrictAttribute(organization);
+        Attribute districtAttribute = organization.getAttribute(DISTRICT);
         if (districtAttribute != null) {
             districtCode = districtStrategy.getDistrictCode(districtAttribute.getValueId());
         }
         return districtCode;
     }
 
-    @Override
-    public String getCode(DomainObject organization) {
-        return stringBean.getSystemStringCulture(organization.getAttribute(CODE).getLocalizedValues()).getValue();
-    }
-
-    @Override
-    public String getName(DomainObject organization, Locale locale) {
-        return AttributeUtil.getStringCultureValue(organization, NAME, locale);
-    }
-
-    @SuppressWarnings({"unchecked"})
     @Transactional
     @Override
-    public Long validateCode(Long id, String code, Long parentId, Long parentEntityId) {
+    public Long validateCode(Long id, String code) {
         List<Long> results = sqlSession().selectList(ORGANIZATION_NAMESPACE + ".validateCode", code);
         for (Long result : results) {
             if (!result.equals(id)) {
@@ -281,10 +254,9 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
         return null;
     }
 
-    @SuppressWarnings({"unchecked"})
     @Transactional
     @Override
-    public Long validateName(Long id, String name, Long parentId, Long parentEntityId, Locale locale) {
+    public Long validateName(Long id, String name, Locale locale) {
         Map<String, Object> params = Maps.newHashMap();
         params.put("name", name);
         params.put("localeId", localeBean.convert(locale).getId());
@@ -323,7 +295,6 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
         return finalUserOrganizations;
     }
 
-    @SuppressWarnings({"unchecked"})
     @Transactional
     @Override
     public Set<Long> getTreeChildrenOrganizationIds(long parentOrganizationId) {
