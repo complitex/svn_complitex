@@ -40,7 +40,7 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
     private StrategyFactory strategyFactory;
     @EJB(name = "OrganizationStrategy")
     private IOrganizationStrategy organizationStrategy;
-    @EJB(name = "Organization_typeStrategy")
+    @EJB
     private OrganizationTypeStrategy organizationTypeStrategy;
     private SearchComponentState districtSearchComponentState;
     private IModel<List<DomainObject>> organizationTypesModel;

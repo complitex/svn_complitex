@@ -25,7 +25,7 @@ import java.util.Map;
  *
  * @author Artem
  */
-@Stateless(name = "City_typeStrategy")
+@Stateless
 public class CityTypeStrategy extends TemplateStrategy {
 
     public static final long SHORT_NAME = 1300;

@@ -30,7 +30,7 @@ import java.util.*;
  *
  * @author Artem
  */
-@Stateless(name = "Building_addressStrategy")
+@Stateless
 public class BuildingAddressStrategy extends TemplateStrategy {
 
     private static final String BUILDING_ADDRESS_NAMESPACE = BuildingAddressStrategy.class.getPackage().getName() + ".BuildingAddress";
