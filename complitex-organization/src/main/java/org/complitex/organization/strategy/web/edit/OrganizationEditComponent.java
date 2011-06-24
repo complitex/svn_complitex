@@ -1,36 +1,36 @@
 package org.complitex.organization.strategy.web.edit;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.apache.wicket.Component;
+import java.util.Collections;
+import java.util.Comparator;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.DomainObject;
-import org.complitex.dictionary.entity.description.EntityType;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.IStrategy.SimpleObjectInfo;
 import org.complitex.dictionary.strategy.StrategyFactory;
-import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
 import org.complitex.dictionary.web.component.ShowMode;
 import org.complitex.dictionary.web.component.UserOrganizationPicker;
-import org.complitex.dictionary.web.component.search.ISearchCallback;
 import org.complitex.dictionary.web.component.search.SearchComponent;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
+import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
+import org.complitex.dictionary.web.component.DisableAwareListMultipleChoice;
+import org.complitex.dictionary.web.component.DomainObjectDisableAwareRenderer;
+import org.complitex.organization_type.strategy.OrganizationTypeStrategy;
 
 /**
  * 
@@ -43,22 +43,15 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
     private StrategyFactory strategyFactory;
     @EJB(name = "OrganizationStrategy")
     private IOrganizationStrategy organizationStrategy;
+    @EJB(name = "Organization_typeStrategy")
+    private OrganizationTypeStrategy organizationTypeStrategy;
     private Attribute districtAttribute;
     private Attribute parentAttribute;
-
-    private class DistrictSearchCallback implements ISearchCallback, Serializable {
-
-        @Override
-        public void found(Component component, Map<String, Long> ids, AjaxRequestTarget target) {
-            Long districtId = ids.get("district");
-            if (districtId != null && districtId > 0) {
-                districtAttribute.setValueId(districtId);
-            } else {
-                districtAttribute.setValueId(null);
-            }
-        }
-    }
-    private SearchComponentState componentState;
+    private SearchComponentState districtSearchComponentState;
+    private IModel<List<DomainObject>> organizationTypesModel;
+    private WebMarkupContainer districtContainer;
+    private WebMarkupContainer districtRequiredContainer;
+    private WebMarkupContainer parentContainer;
 
     public OrganizationEditComponent(String id, boolean disabled) {
         super(id, disabled);
@@ -66,73 +59,101 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
 
     @Override
     protected void init() {
+        final DomainObject organization = getDomainObject();
+
+        // organization type container
+        final List<DomainObject> allOrganizationTypes = organizationTypeStrategy.getAll();
+        DomainObjectDisableAwareRenderer renderer = new DomainObjectDisableAwareRenderer() {
+
+            @Override
+            public Object getDisplayValue(DomainObject object) {
+                return organizationTypeStrategy.displayDomainObject(object, getLocale());
+            }
+        };
+
+        organizationTypesModel = new IModel<List<DomainObject>>() {
+
+            private List<DomainObject> organizationTypes = Lists.newArrayList();
+
+            {
+                for (Attribute attribute : organization.getAttributes(IOrganizationStrategy.ORGANIZATION_TYPE)) {
+                    if (attribute.getValueId() != null) {
+                        for (DomainObject organizationType : allOrganizationTypes) {
+                            if (organizationType.getId().equals(attribute.getValueId())) {
+                                organizationTypes.add(organizationType);
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public List<DomainObject> getObject() {
+                return organizationTypes;
+            }
+
+            @Override
+            public void setObject(List<DomainObject> organizationTypes) {
+                this.organizationTypes = organizationTypes;
+            }
+
+            @Override
+            public void detach() {
+            }
+        };
+        DisableAwareListMultipleChoice<DomainObject> organizationType = new DisableAwareListMultipleChoice<DomainObject>("organizationType",
+                organizationTypesModel, allOrganizationTypes, renderer);
+        if (isOrganizationTypeEnabled()) {
+            organizationType.add(new AjaxFormComponentUpdatingBehavior("onclick") {
+
+                @Override
+                protected void onUpdate(AjaxRequestTarget target) {
+                    onOrganizationTypeChanged(target);
+                }
+            });
+        } else {
+            organizationType.setEnabled(false);
+        }
+        add(organizationType);
+
         //district container
-        final WebMarkupContainer districtContainer = new WebMarkupContainer("districtContainer");
+        districtContainer = new WebMarkupContainer("districtContainer");
         districtContainer.setOutputMarkupPlaceholderTag(true);
         add(districtContainer);
 
         //district required container
-        final WebMarkupContainer districtRequired = new WebMarkupContainer("districtRequired");
-        districtContainer.add(districtRequired);
+        districtRequiredContainer = new WebMarkupContainer("districtRequiredContainer");
+        districtContainer.add(districtRequiredContainer);
 
         //parent container
-        final WebMarkupContainer parentContainer = new WebMarkupContainer("parentContainer");
+        parentContainer = new WebMarkupContainer("parentContainer");
         parentContainer.setOutputMarkupPlaceholderTag(true);
         add(parentContainer);
 
-        final DomainObject currentOrganization = getInputPanel().getObject();
-        final DropDownChoice<EntityType> selectType = getInputPanel().getSelectType();
-        if (selectType != null) {
-            if (currentOrganization.getId() == null) {
-                //new organization
-                selectType.add(new AjaxFormComponentUpdatingBehavior("onchange") {
-
-                    @Override
-                    protected void onUpdate(AjaxRequestTarget target) {
-                        //update domain object
-
-                        Collection<Component> componentsToUpdate = onTypeChanged();
-                        setDistrictVisibility(districtContainer, districtRequired, getInputPanel().getObject().getEntityTypeId());
-                        setParentVisibility(parentContainer, getInputPanel().getObject().getEntityTypeId());
-                        selectType.setEnabled(false);
-                        target.addComponent(districtContainer);
-                        target.addComponent(parentContainer);
-                        target.addComponent(selectType);
-                        if (componentsToUpdate != null && !componentsToUpdate.isEmpty()) {
-                            for (Component component : componentsToUpdate) {
-                                target.addComponent(component);
-                            }
-                        }
-                    }
-                });
-            } else {
-                selectType.setEnabled(false);
-            }
-        }
 
         //district
-        componentState = new SearchComponentState();
-        districtAttribute = organizationStrategy.getDistrictAttribute(currentOrganization);
+        districtSearchComponentState = new SearchComponentState();
+        districtAttribute = organizationStrategy.getDistrictAttribute(organization);
         if (districtAttribute != null) {
             Long districtId = districtAttribute.getValueId();
-
             if (districtId != null) {
                 IStrategy districtStrategy = strategyFactory.getStrategy("district");
                 DomainObject district = districtStrategy.findById(districtId, true);
                 SimpleObjectInfo info = districtStrategy.findParentInSearchComponent(districtId, null);
                 if (info != null) {
-                    componentState = districtStrategy.getSearchComponentStateForParent(info.getId(), info.getEntityTable(), null);
-                    componentState.put("district", district);
+                    districtSearchComponentState = districtStrategy.getSearchComponentStateForParent(info.getId(), info.getEntityTable(), null);
+                    districtSearchComponentState.put("district", district);
                 }
             }
         }
 
-        districtContainer.add(new SearchComponent("district", componentState, ImmutableList.of("city", "district"), new DistrictSearchCallback(),
-                ShowMode.ACTIVE, !isDisabled() && DomainObjectAccessUtil.canEdit(null, "organization", currentOrganization)));
-        setDistrictVisibility(districtContainer, districtRequired, currentOrganization.getEntityTypeId());
+        districtContainer.add(new SearchComponent("district", districtSearchComponentState, ImmutableList.of("city", "district"),
+                null, ShowMode.ACTIVE, enabled()));
+        districtContainer.setVisible(isDistrictVisible());
+        districtRequiredContainer.setVisible(isDistrictRequired());
 
         //parent
-        parentAttribute = organizationStrategy.getParentAttribute(currentOrganization);
+        parentAttribute = organizationStrategy.getParentAttribute(organization);
         IModel<Long> parentModel = new Model<Long>();
         if (parentAttribute != null) {
             parentModel = new Model<Long>() {
@@ -149,74 +170,124 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
             };
         }
 
-        if (currentOrganization.getId() == null) {
+        if (organization.getId() == null) {
             //new organization
             parentContainer.add(new UserOrganizationPicker("parent", parentModel));
         } else {
-            Set<Long> excludeOrganizationIds = Sets.newHashSet(currentOrganization.getId());
-            excludeOrganizationIds.addAll(organizationStrategy.getTreeChildrenOrganizationIds(currentOrganization.getId()));
+            Set<Long> excludeOrganizationIds = Sets.newHashSet(organization.getId());
+            excludeOrganizationIds.addAll(organizationStrategy.getTreeChildrenOrganizationIds(organization.getId()));
             Long[] excludeAsArray = new Long[excludeOrganizationIds.size()];
             UserOrganizationPicker parent = new UserOrganizationPicker("parent", parentModel, excludeOrganizationIds.toArray(excludeAsArray));
-            parent.setEnabled(!isDisabled() && DomainObjectAccessUtil.canEdit(null, "organization", currentOrganization));
+            parent.setEnabled(enabled());
             parentContainer.add(parent);
         }
-
-        setParentVisibility(parentContainer, currentOrganization.getEntityTypeId());
+        parentContainer.setVisible(isParentVisible());
     }
 
-    protected Collection<Component> onTypeChanged() {
+    protected boolean isOrganizationTypeEnabled() {
+        return enabled();
+    }
+
+    protected boolean enabled() {
+        return !isDisabled() && DomainObjectAccessUtil.canEdit(getStrategyName(), "organization", getDomainObject());
+    }
+
+    protected String getStrategyName() {
         return null;
     }
 
-    private void setDistrictVisibility(WebMarkupContainer districtContainer, WebMarkupContainer districtRequiredContainer,
-            Long entityTypeId) {
-        if (districtAttribute == null) {
-            districtContainer.setVisible(false);
-            return;
+    protected void onOrganizationTypeChanged(AjaxRequestTarget target) {
+        //parent container
+        boolean parentContainerWasVisible = parentContainer.isVisible();
+        parentContainer.setVisible(isParentVisible());
+        boolean parentContainerVisibleNow = parentContainer.isVisible();
+        if (parentContainerWasVisible ^ parentContainerVisibleNow) {
+            target.addComponent(parentContainer);
         }
 
-        if (entityTypeId != null && isDistrictVisible(entityTypeId)) {
-            districtContainer.setVisible(true);
-
-            if (isDistrictNotRequired(entityTypeId)) {
-                districtRequiredContainer.setVisible(false);
-            }
-        } else {
-            districtContainer.setVisible(false);
-            districtAttribute.setValueId(null);
-            componentState.clear();
-        }
-    }
-
-    private void setParentVisibility(WebMarkupContainer parentContainer, Long entityTypeId) {
-        if (parentAttribute == null) {
-            parentContainer.setVisible(false);
-            return;
-        }
-
-        if (entityTypeId != null && isParentVisible(entityTypeId)) {
-            parentContainer.setVisible(true);
-        } else {
-            parentContainer.setVisible(false);
-            parentAttribute.setValueId(null);
+        // district container
+        boolean districtContainerWasVisible = districtContainer.isVisible();
+        boolean districtRequiredContainerWasVisible = districtRequiredContainer.isVisible();
+        districtContainer.setVisible(isDistrictVisible());
+        districtRequiredContainer.setVisible(isDistrictRequired());
+        boolean districtContainerVisibleNow = districtContainer.isVisible();
+        boolean districtRequiredContainerVisibleNow = districtRequiredContainer.isVisible();
+        if ((districtContainerWasVisible ^ districtContainerVisibleNow)
+                || (districtRequiredContainerWasVisible ^ districtRequiredContainerVisibleNow)) {
+            target.addComponent(districtContainer);
         }
     }
 
     public boolean isDistrictEntered() {
-        DomainObject district = componentState.get("district");
+        DomainObject district = districtSearchComponentState.get("district");
         Long districtId = district != null ? district.getId() : null;
         return districtId != null && districtId > 0;
     }
 
-    protected boolean isParentVisible(Long entityTypeId) {
-        return entityTypeId.equals(IOrganizationStrategy.USER_ORGANIZATION);
+    protected boolean isParentVisible() {
+        for (DomainObject organizationType : getOrganizationTypesModel().getObject()) {
+            if (organizationType.getId().equals(OrganizationTypeStrategy.USER_ORGANIZATION_TYPE)) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    protected boolean isDistrictVisible(Long entityTypeId) {
-        return entityTypeId.equals(IOrganizationStrategy.USER_ORGANIZATION);
+    protected boolean isDistrictVisible() {
+        for (DomainObject organizationType : getOrganizationTypesModel().getObject()) {
+            if (organizationType.getId().equals(OrganizationTypeStrategy.USER_ORGANIZATION_TYPE)) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    protected boolean isDistrictNotRequired(Long entityTypeId) {
-        return entityTypeId.equals(IOrganizationStrategy.USER_ORGANIZATION);
+    protected boolean isDistrictRequired() {
+        return false;
+    }
+
+    protected IModel<List<DomainObject>> getOrganizationTypesModel() {
+        return organizationTypesModel;
+    }
+
+    @Override
+    public void onUpdate() {
+        onPersist();
+    }
+
+    @Override
+    public void onInsert() {
+        onPersist();
+    }
+
+    protected void onPersist() {
+        //district
+        if (isDistrictVisible()) {
+            districtAttribute.setValueId(isDistrictEntered() ? districtSearchComponentState.get("district").getId() : null);
+        } else {
+            districtAttribute.setValueId(null);
+        }
+
+        //organization types
+        getDomainObject().removeAttribute(IOrganizationStrategy.ORGANIZATION_TYPE);
+        List<DomainObject> organizationTypes = getOrganizationTypesModel().getObject();
+        if (organizationTypes != null && !organizationTypes.isEmpty()) {
+            Collections.sort(organizationTypes, new Comparator<DomainObject>() {
+
+                @Override
+                public int compare(DomainObject o1, DomainObject o2) {
+                    return o1.getId().compareTo(o2.getId());
+                }
+            });
+            long attributeId = 1;
+            for (DomainObject organizationType : getOrganizationTypesModel().getObject()) {
+                Attribute attribute = new Attribute();
+                attribute.setAttributeId(attributeId++);
+                attribute.setAttributeTypeId(IOrganizationStrategy.ORGANIZATION_TYPE);
+                attribute.setValueTypeId(IOrganizationStrategy.ORGANIZATION_TYPE);
+                attribute.setValueId(organizationType.getId());
+                getDomainObject().addAttribute(attribute);
+            }
+        }
     }
 }

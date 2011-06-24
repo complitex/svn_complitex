@@ -7,10 +7,22 @@
     <body>
         <wicket:panel>
             <table class="tbForm" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                    <th>
+                        <wicket:message key="organization_type"/>:
+                    </th>
+                    <td>
+                        <select wicket:id="organizationType" multiple="multiple">
+                            <option></option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+            <table class="tbForm" cellpadding="0" cellspacing="0" border="0">
                 <tr wicket:id="districtContainer">
                     <th>
                         <wicket:message key="district"/> 
-                        <span wicket:id="districtRequired"><b class="blue">*</b></span>:
+                        <span wicket:id="districtRequiredContainer"><b class="blue">*</b></span>:
                     </th>
                     <td>
                         <span wicket:id="district"></span>

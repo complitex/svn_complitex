@@ -30,7 +30,7 @@
                             AND attr.`value_id` IN (SELECT sc.`id` FROM `${table}_string_culture` sc WHERE sc.`value`
                                 <choose>
                                     <when test="comparisonType == 'LIKE'">
-                                        LIKE '%${attrExample.value}%'
+                                        LIKE CONCAT('%', #{attrExample.value}, '%')
                                     </when>
                                     <when test="comparisonType == 'EQUALITY'">
                                         = #{attrExample.value}
@@ -42,22 +42,15 @@
                 </otherwise>
             </choose>
         </foreach>
-        <if test="parentId != null and parentEntity != null">
-            AND e.`parent_entity_id` = (SELECT ent.`id` FROM `entity` ent WHERE ent.`entity_table` = #{parentEntity}) AND e.`parent_id` = #{parentId}
+        <if test="additionalParams != null and additionalParams['organizationTypeIds'] != null">
+            AND EXISTS(SELECT 1 FROM `organization_attribute` attr WHERE attr.`object_id` = e.`object_id`
+                        AND attr.`status` = 'ACTIVE' AND attr.`attribute_type_id` = 905
+                        AND attr.`value_id` IN
+                            <foreach open="(" close=")" separator="," item="id" collection="additionalParams['organizationTypeIds']">
+                                #{id}
+                            </foreach>
+                      )
         </if>
-        <choose>
-            <when test="entityTypeId != null">
-                AND e.`entity_type_id` = #{entityTypeId}
-            </when>
-            <otherwise>
-                <if test="additionalParams != null and additionalParams['entityTypeIds'] != null">
-                    AND e.`entity_type_id` IN
-                    <foreach open="(" close=")" separator="," item="id" collection="additionalParams['entityTypeIds']">
-                        #{id}
-                    </foreach>
-                </if>
-            </otherwise>
-        </choose>
     </sql>
 
     <select id="count" resultType="integer" parameterType="DomainObjectExample">
