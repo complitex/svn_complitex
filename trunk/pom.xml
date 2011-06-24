@@ -35,7 +35,8 @@
         <module>complitex-organization</module>
         <module>complitex-resources</module>
         <module>complitex-template</module>
-    </modules>
+        <module>complitex-organization-type</module>
+  </modules>
 
     <properties>
         <!-- wicket version -->
@@ -98,6 +99,11 @@
             <dependency>
                 <groupId>org.complitex</groupId>
                 <artifactId>complitex-organization</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.complitex</groupId>
+                <artifactId>complitex-organization-type</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
