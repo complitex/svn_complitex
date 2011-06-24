@@ -25,7 +25,7 @@ import java.util.Map;
  *
  * @author Artem
  */
-@Stateless(name = "Street_typeStrategy")
+@Stateless
 public class StreetTypeStrategy extends TemplateStrategy {
 
     @EJB

@@ -27,7 +27,7 @@ import org.complitex.template.web.security.SecurityRole;
  *
  * @author Artem
  */
-@Stateless(name = "Organization_typeStrategy")
+@Stateless
 public class OrganizationTypeStrategy extends TemplateStrategy {
 
     private static final String RESOURCE_BUNDLE = OrganizationTypeStrategy.class.getName();
