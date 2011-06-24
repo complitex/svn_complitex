@@ -27,8 +27,15 @@
     </select>
 
     <select id="selectUserOrganizationTreePermissionIds" parameterType="map" resultType="long">
-        select p.`permission_id` from `permission` p where p.`entity` = 'organization'
-            and p.`object_id` in ${organizations} and p.`table` = #{table, javaType=string}
+        <choose>
+            <when test="organizations != null">
+                select p.`permission_id` from `permission` p where p.`entity` = 'organization'
+                    and p.`object_id` in ${organizations} and p.`table` = #{table, javaType=string}
+            </when>
+            <otherwise>
+                select null
+            </otherwise>
+        </choose>
     </select>
 
     <select id="selectOrganizationChildrenObjectIds" parameterType="long" resultType="long">
