@@ -909,16 +909,16 @@ CREATE TABLE `country_string_culture` (
 DROP TABLE IF EXISTS `organization_type`;
 
 CREATE TABLE `organization_type` (
-  `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
-  `object_id` BIGINT(20) NOT NULL,
-  `parent_id` BIGINT(20),
-  `parent_entity_id` BIGINT(20),
-  `entity_type_id` BIGINT(20),
-  `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `end_date` TIMESTAMP NULL DEFAULT NULL,
-  `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
-  `permission_id` BIGINT(20) NOT NULL DEFAULT 0,
-  `external_id` BIGINT(20),
+  `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT  COMMENT 'Суррогатный ключ',
+  `object_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор объекта',
+  `parent_id` BIGINT(20) COMMENT 'Идентификатор родительского объекта: не используется',
+  `parent_entity_id` BIGINT(20) COMMENT 'Идентификатор сущности родительского объекта: не используется',
+  `entity_type_id` BIGINT(20) COMMENT 'Идентификатор типа сущности: не используется',
+  `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Дата начала периода действия объекта',
+  `end_date` TIMESTAMP NULL DEFAULT NULL COMMENT 'Дата окончания периода действия объекта',
+  `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' COMMENT 'Статус: ACTIVE, INACTIVE, ARCHIVE',
+  `permission_id` BIGINT(20) NOT NULL DEFAULT 0 COMMENT 'Ключ прав доступа к объекту',
+  `external_id` BIGINT(20) COMMENT 'Внешний идентификатор импорта записи',
   PRIMARY KEY  (`pk_id`),
   UNIQUE KEY `unique_object_id__start_date` (`object_id`,`start_date`),
   UNIQUE KEY `unique_external_id` (`external_id`),
@@ -933,20 +933,20 @@ CREATE TABLE `organization_type` (
   CONSTRAINT `fk_organization_type__entity_type` FOREIGN KEY (`entity_type_id`) REFERENCES `entity_type` (`id`),
   CONSTRAINT `fk_organization_type__entity` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`),
   CONSTRAINT `fk_organization_type__permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`permission_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Тип организации';
 
 DROP TABLE IF EXISTS `organization_type_attribute`;
 
 CREATE TABLE `organization_type_attribute` (
-  `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
-  `attribute_id` BIGINT(20) NOT NULL,
-  `object_id` BIGINT(20) NOT NULL,
-  `attribute_type_id` BIGINT(20) NOT NULL,
-  `value_id` BIGINT(20),
-  `value_type_id` BIGINT(20) NOT NULL,
-  `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `end_date` TIMESTAMP NULL DEFAULT NULL,
-  `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+  `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT  COMMENT 'Суррогатный ключ',
+  `attribute_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор атрибута',
+  `object_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор объекта',
+  `attribute_type_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор типа атрибута: 2300 - НАИМЕНОВАНИЕ ТИПА ОРГАНИЗАЦИИ',
+  `value_id` BIGINT(20) COMMENT 'Идентификатор значения',
+  `value_type_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор типа значения атрибута: 2300 - STRING_CULTURE',
+  `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Дата начала периода действия атрибута',
+  `end_date` TIMESTAMP NULL DEFAULT NULL COMMENT 'Дата окончания периода действия атрибута',
+  `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' COMMENT 'Статус: ACTIVE, INACTIVE, ARCHIVE',
   PRIMARY KEY  (`pk_id`),
   UNIQUE KEY `unique_id` (`attribute_id`,`object_id`,`attribute_type_id`, `start_date`),
   KEY `key_object_id` (`object_id`),
@@ -961,21 +961,21 @@ CREATE TABLE `organization_type_attribute` (
     REFERENCES `entity_attribute_type` (`id`),
   CONSTRAINT `fk_organization_type_attribute__entity_attribute_value_type` FOREIGN KEY (`value_type_id`)
     REFERENCES `entity_attribute_value_type` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Атрибуты типа организации';
 
 DROP TABLE IF EXISTS `organization_type_string_culture`;
 
 CREATE TABLE `organization_type_string_culture` (
-  `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
-  `id` BIGINT(20) NOT NULL,
-  `locale_id` BIGINT(20) NOT NULL,
-  `value` VARCHAR(1000),
+  `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT  COMMENT 'Суррогатный ключ',
+  `id` BIGINT(20) NOT NULL COMMENT 'Идентификатор локализации',
+  `locale_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор локали',
+  `value` VARCHAR(1000) COMMENT 'Текстовое значение',
   PRIMARY KEY (`pk_id`),
   UNIQUE KEY `unique_id__locale` (`id`,`locale_id`),
   KEY `key_locale` (`locale_id`),
   KEY `key_value` (`value`),
   CONSTRAINT `fk_organization_type_string_culture__locales` FOREIGN KEY (`locale_id`) REFERENCES `locales` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Локализация атрибутов типа организации';
 
 -- ------------------------------
 -- Organization
@@ -987,7 +987,7 @@ CREATE TABLE `organization` (
   `object_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор объекта',
   `parent_id` BIGINT(20) COMMENT 'Идентификатор родительского объекта: не используется',
   `parent_entity_id` BIGINT(20) COMMENT 'Идентификатор сущности родительского объекта: не используется',
-  `entity_type_id` BIGINT(20) COMMENT 'Идентификатор типа сущности: 900 - ОСЗН, 901 - МОДУЛЬ НАЧИСЛЕНИЙ, 902 - ОРГАНИЗАЦИЯ ПОЛЬЗОВАТЕЛЕЙ',
+  `entity_type_id` BIGINT(20) COMMENT 'Идентификатор типа сущности: не используется',
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Дата начала периода действия объекта',
   `end_date` TIMESTAMP NULL DEFAULT NULL COMMENT 'Дата окончания периода действия объекта',
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' COMMENT 'Статус: ACTIVE, INACTIVE, ARCHIVE',
@@ -1015,9 +1015,9 @@ CREATE TABLE `organization_attribute` (
   `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT  COMMENT 'Суррогатный ключ',
   `attribute_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор атрибута',
   `object_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор объекта',
-  `attribute_type_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор типа атрибута: 900 - НАЗВАНИЕ, 901 - УНИКАЛЬНЫЙ КОД, 902 - РАЙОН, 903 - ПРИНАДЛЕЖИТ, 904 - ЯВЛЯЕТСЯ ТЕКУЩИМ МОДУЛЕМ',
+  `attribute_type_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор типа атрибута: 900 - НАЗВАНИЕ, 901 - УНИКАЛЬНЫЙ КОД, 902 - РАЙОН, 903 - ПРИНАДЛЕЖИТ, 904 - ЯВЛЯЕТСЯ ТЕКУЩИМ МОДУЛЕМ НАЧИСЛЕНИЙ, 905 - ТИП ОРГАНИЗАЦИИ',
   `value_id` BIGINT(20) COMMENT 'Идентификатор значения',
-  `value_type_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор типа значения атрибута: 900 - STRING_CULTURE, 901 - STRING, 902 - district, 903 - organization, 904 - BOOLEAN',
+  `value_type_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор типа значения атрибута: 900 - STRING_CULTURE, 901 - STRING, 902 - district, 903 - organization, 904 - BOOLEAN, 905 - organization_type',
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Дата начала периода действия атрибута',
   `end_date` TIMESTAMP NULL DEFAULT NULL COMMENT 'Дата окончания периода действия атрибута',
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' COMMENT 'Статус: ACTIVE, INACTIVE, ARCHIVE',
