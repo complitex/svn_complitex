@@ -264,6 +264,12 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
             districtAttribute.setValueId(null);
         }
 
+        //parent
+        Attribute parentAttribute = getDomainObject().getAttribute(IOrganizationStrategy.USER_ORGANIZATION_PARENT);
+        if (!isParentVisible()) {
+            parentAttribute.setValueId(null);
+        }
+
         //organization types
         getDomainObject().removeAttribute(IOrganizationStrategy.ORGANIZATION_TYPE);
         List<DomainObject> organizationTypes = getOrganizationTypesModel().getObject();
