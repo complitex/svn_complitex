@@ -62,21 +62,15 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
     @Override
     public boolean isSimpleAttributeType(EntityAttributeType entityAttributeType) {
-        if (entityAttributeType.getEntityAttributeValueTypes().size() != 1) {
-            return false;
-        } else {
-            return SimpleTypes.isSimpleType(entityAttributeType.getEntityAttributeValueTypes().get(0).getValueType());
-        }
+        return entityAttributeType.getEntityAttributeValueTypes().size() == 1
+                && SimpleTypes.isSimpleType(entityAttributeType.getEntityAttributeValueTypes().get(0).getValueType());
     }
 
     @Override
     public boolean isSimpleAttribute(final Attribute attribute) {
         EntityAttributeType entityAttributeType = getEntity().getAttributeType(attribute.getAttributeTypeId());
-        if (entityAttributeType != null) {
-            return isSimpleAttributeType(entityAttributeType);
-        } else {
-            return false;
-        }
+
+        return entityAttributeType != null && isSimpleAttributeType(entityAttributeType);
     }
 
     protected String getDisableSuccess() {
@@ -212,7 +206,9 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     @Override
     public DomainObject findById(long id, boolean runAsAdmin) {
         DomainObjectExample example = new DomainObjectExample(id);
+
         example.setTable(getEntityTable());
+
         if (!runAsAdmin) {
             prepareExampleForPermissionCheck(example);
         } else {
@@ -220,6 +216,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         }
 
         DomainObject object = (DomainObject) sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + "." + FIND_BY_ID_OPERATION, example);
+
         if (object != null) {
             loadAttributes(object);
             fillAttributes(object);
@@ -228,6 +225,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
             //load subject ids
             object.setSubjectIds(loadSubjects(object.getPermissionId()));
         }
+
         return object;
     }
 
@@ -613,11 +611,13 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     @Transactional
     protected List<DomainObjectPermissionInfo> findChildrenPermissionInfo(long parentId, String childEntity, int start, int size) {
         Map<String, Object> params = newHashMap();
+
         params.put("entity", childEntity);
         params.put("parentId", parentId);
         params.put("parentEntity", getEntityTable());
         params.put("start", start);
         params.put("size", size);
+
         return sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + "." + FIND_CHILDREN_PERMISSION_INFO_OPERATION, params);
     }
 
@@ -680,9 +680,11 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     @Transactional
     protected void updatePermissionId(long objectId, long permissionId) {
         Map<String, Object> params = newHashMap();
+
         params.put("entity", getEntityTable());
         params.put("id", objectId);
         params.put("permissionId", permissionId);
+
         sqlSession().update(DOMAIN_OBJECT_NAMESPACE + ".updatePermissionId", params);
     }
 
@@ -815,7 +817,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
             if (parentSearchFilters != null && !parentSearchFilters.isEmpty()) {
                 for (String searchFilter : parentSearchFilters) {
                     DomainObject object = new DomainObject();
-                    object.setId(SearchComponent.NOT_SPECIFIED_ID);
+                    object.setId(SearchComponentState.NOT_SPECIFIED_ID);
                     Long id = ids.get(searchFilter);
                     IStrategy searchFilterStrategy = strategyFactory.getStrategy(searchFilter);
                     if (id != null) {
@@ -846,25 +848,23 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     @Transactional
     @Override
     public boolean checkEnable(SearchComponentState componentState) {
-        if (componentState == null) {
+        if (componentState == null || componentState.isEmpty()) {
             return true;
         }
 
-        Map<String, DomainObject> state = componentState.getState();
-        if (state == null || state.isEmpty()) {
-            return true;
-        }
-
-        for (Map.Entry<String, DomainObject> entry : state.entrySet()) {
+        for (Map.Entry<String, DomainObject> entry : componentState.entrySet()) {
             DomainObject sessionObject = entry.getValue();
             long objectId = sessionObject.getId();
+
             if (objectId > 0) {
                 String entity = entry.getKey();
                 IStrategy strategy = strategyFactory.getStrategy(entity);
                 DomainObject freshObject = strategy.findById(objectId, true);
+
                 if (freshObject == null) {
                     return false;
                 }
+
                 if (freshObject.getStatus() == StatusType.INACTIVE) {
                     return false;
                 }
@@ -1010,6 +1010,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         String text = stringBean.displayValue(attribute.getLocalizedValues(), locale);
 
         Map<String, Object> params = newHashMap();
+
         params.put("entity", getEntityTable());
         params.put("localeId", localeBean.convert(locale).getId());
         params.put("attributeTypeId", attributeTypeId);
@@ -1017,6 +1018,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         params.put("parentId", object.getParentId());
         params.put("parentEntityId", object.getParentEntityId());
         params.put("entityTypeId", object.getEntityTypeId());
+
         return params;
     }
 

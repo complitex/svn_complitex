@@ -112,30 +112,35 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
         districtContainer.add(districtLabel);
         districtComponentState = new SearchComponentState() {
 
+            //todo whether there is a need to override?
             @Override
-            public void put(String entity, DomainObject object) {
+            public DomainObject put(String entity, DomainObject object) {
                 super.put(entity, object);
+
                 if ("district".equals(entity)) {
                     building.setDistrict(object);
                 }
+
+                return object;
             }
         };
         districtComponentState.updateState(parentSearchComponentState);
 
-        Long districtId = null;
+
         districtAttribute = building.getAttribute(BuildingStrategy.DISTRICT);
+
         if (districtAttribute != null) {
-            districtId = districtAttribute.getValueId();
-            DomainObject district = null;
+            Long districtId = districtAttribute.getValueId();
+
             if (districtId != null) {
-                district = districtStrategy.findById(districtId, true);
+                DomainObject district = districtStrategy.findById(districtId, true);
                 districtComponentState.put("district", district);
             }
         }
+
         districtContainer.add(new SearchComponent("district", districtComponentState,
                 ImmutableList.of("country", "region", "city", "district"), new DistrictSearchCallback(), ShowMode.ACTIVE,
                 !isDisabled() && DomainObjectAccessUtil.canEdit(null, "building", building)));
-
         districtContainer.setVisible(districtAttribute != null);
 
         //primary building address

@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.dictionary.entity;
 
 import com.google.common.base.Predicate;
@@ -34,6 +30,10 @@ public class DomainObject implements Serializable {
     private Set<Long> subjectIds;
 
     public DomainObject() {
+    }
+
+    public DomainObject(Long id) {
+        this.id = id;
     }
 
     protected DomainObject(DomainObject copy) {

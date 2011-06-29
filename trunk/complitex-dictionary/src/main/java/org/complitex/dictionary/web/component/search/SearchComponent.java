@@ -37,8 +37,7 @@ import org.complitex.dictionary.web.component.ShowMode;
  * @author Artem
  */
 public final class SearchComponent extends Panel {
-
-    public static final long NOT_SPECIFIED_ID = -1;
+    private static final long NOT_SPECIFIED_ID = SearchComponentState.NOT_SPECIFIED_ID;
 
     private static final String NOT_SPECIFIED_KEY = "not_specified";
 
@@ -94,8 +93,8 @@ public final class SearchComponent extends Panel {
 
     private Object lastChangedObject = null;
 
-    public SearchComponent(String id, SearchComponentState componentState, List<String> searchFilters, ISearchCallback callback, ShowMode showMode,
-                           boolean enabled) {
+    public SearchComponent(String id, SearchComponentState componentState, List<String> searchFilters, ISearchCallback callback,
+                           ShowMode showMode, boolean enabled) {
         super(id);
         setOutputMarkupId(true);
         this.componentState = componentState;
@@ -116,10 +115,11 @@ public final class SearchComponent extends Panel {
     public SearchComponent(String id, SearchComponentState componentState, List<SearchFilterSettings> searchFilterSettings,
                            ISearchCallback callback) {
         super(id);
+
         setOutputMarkupId(true);
         this.componentState = componentState;
-
         this.filterSettings = searchFilterSettings;
+
         this.searchFilters = Lists.newArrayList(Iterables.transform(filterSettings, new Function<SearchFilterSettings, String>() {
 
             @Override
@@ -127,7 +127,9 @@ public final class SearchComponent extends Panel {
                 return settings.getSearchFilter();
             }
         }));
+
         this.callback = callback;
+
         init();
     }
 
@@ -168,6 +170,7 @@ public final class SearchComponent extends Panel {
     private void init() {
         final WebMarkupContainer searchPanel = new WebMarkupContainer("searchPanel");
         searchPanel.setOutputMarkupId(true);
+
         final AutoCompleteSettings settings = new AutoCompleteSettings();
 
         ListView<String> columns = new ListView<String>("columns", searchFilters) {
@@ -175,6 +178,7 @@ public final class SearchComponent extends Panel {
             @Override
             protected void populateItem(ListItem<String> item) {
                 final String entityTable = item.getModelObject();
+
                 IModel<String> entityLabelModel = new AbstractReadOnlyModel<String>() {
 
                     @Override
@@ -182,6 +186,7 @@ public final class SearchComponent extends Panel {
                         return stringBean.displayValue(strategyFactory.getStrategy(entityTable).getEntity().getEntityNames(), getLocale());
                     }
                 };
+
                 item.add(new Label("column", entityLabelModel));
             }
         };
@@ -193,10 +198,13 @@ public final class SearchComponent extends Panel {
                     @Override
                     public IModel<DomainObject> apply(final String entity) {
                         IModel<DomainObject> model = new Model<DomainObject>();
+
                         DomainObject fromComponentState = componentState.get(entity);
+
                         if (fromComponentState != null) {
                             model.setObject(fromComponentState);
                         }
+
                         return model;
                     }
                 }));
@@ -235,7 +243,9 @@ public final class SearchComponent extends Panel {
 
                         List<? extends DomainObject> equalToExample = findByExample(entity, searchTextInput, previousInfo, 
                                 ComparisonType.EQUALITY, currentShowMode, AUTO_COMPLETE_SIZE);
+
                         choiceList.addAll(equalToExample);
+
                         if (equalToExample.size() < AUTO_COMPLETE_SIZE) {
                             List<? extends DomainObject> likeExample = findByExample(entity, searchTextInput, previousInfo, ComparisonType.LIKE,
                                     currentShowMode, AUTO_COMPLETE_SIZE);
@@ -293,7 +303,7 @@ public final class SearchComponent extends Panel {
 
                                 target.addComponent(searchPanel);
 
-                                ListItem nextItem = (ListItem) ((ListView) item.getParent()).get(index + 1);
+                                ListItem nextItem = (ListItem) item.getParent().get(index + 1);
                                 target.focusComponent(nextItem.get("filter"));
                             }
                         }
@@ -302,6 +312,7 @@ public final class SearchComponent extends Panel {
                 item.add(filter);
             }
         };
+
         filters.setReuseItems(true);
         searchPanel.add(filters);
         add(searchPanel);
@@ -309,6 +320,7 @@ public final class SearchComponent extends Panel {
 
     private Map<String, DomainObject> getState(int idx) {
         Map<String, DomainObject> objects = Maps.newHashMap();
+
         int index = idx;
         while (index > -1) {
             DomainObject object = filterModels.get(index).getObject();
@@ -334,9 +346,12 @@ public final class SearchComponent extends Panel {
 
     private void invokeCallbackIfNecessary(AjaxRequestTarget target) {
         Map<String, DomainObject> finalState = getState(searchFilters.size() - 1);
+
         if (isComplete(finalState)) {
             Map<String, Long> ids = transformObjects(finalState);
+
             componentState.updateState(finalState);
+
             if (callback != null) {
                 callback.found(this, ids, target);
             }
@@ -374,12 +389,14 @@ public final class SearchComponent extends Panel {
 
         DomainObjectExample example = new DomainObjectExample();
         strategy.configureExample(example, SearchComponent.<Long>transformObjects(previousInfo), searchTextInput);
+
         example.setOrderByAttributeTypeId(strategy.getDefaultOrderByAttributeId());
         example.setAsc(true);
         example.setSize(size);
         example.setLocaleId(localeBean.convert(getLocale()).getId());
         example.setComparisonType(comparisonType.name());
         example.setStatus(showMode.name());
+
         return strategy.find(example);
     }
 
@@ -389,6 +406,7 @@ public final class SearchComponent extends Panel {
             DomainObject object = componentState.get(filterEntity);
             filterModels.get(i).setObject(object);
         }
+
         invokeCallbackIfNecessary(target);
     }
 }
