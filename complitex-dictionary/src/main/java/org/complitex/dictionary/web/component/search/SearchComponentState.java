@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.dictionary.web.component.search;
 
 import com.google.common.collect.ImmutableSet;
@@ -10,6 +6,7 @@ import org.complitex.dictionary.entity.DomainObject;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,34 +14,29 @@ import java.util.Set;
  *
  * @author Artem
  */
-public class SearchComponentState<T extends DomainObject> implements Serializable {
+public class SearchComponentState extends HashMap<String, DomainObject> implements Serializable {
+    public static final Long NOT_SPECIFIED_ID = -1L;
 
-    private Map<String, T> state = Maps.newHashMap();
+    public void updateState(Map<String, ? extends DomainObject> state) {
+        boolean clean = false;
 
-    public void put(String entity, T object) {
-        state.put(entity, object);
-    }
+        for (String key : state.keySet()){
+            DomainObject domainObject = state.get(key);
+            DomainObject currentDomainObject = get(key);
 
-    public DomainObject get(String entity) {
-        return state.get(entity);
-    }
-
-    public void updateState(Map<String, T> state) {
-        for (Map.Entry<String, T> entry : state.entrySet()) {
-            this.put(entry.getKey(), entry.getValue());
+            //clear if object changed
+            if (domainObject != null && currentDomainObject != null && !domainObject.getId().equals(currentDomainObject.getId())){
+                clean = true;
+            }
         }
-    }
 
-    public void clear() {
-        state.clear();
-    }
+        if (clean){
+            for (String k : this.keySet()){
+                put(k, new DomainObject(NOT_SPECIFIED_ID));
+            }
+        }
 
-    public void updateState(SearchComponentState anotherState) {
-        updateState(anotherState.getState());
-    }
-
-    public Map<String, T> getState() {
-        return state;
+        putAll(state);
     }
 
     public boolean isEqual(SearchComponentState searchComponentState, Collection<String> entityEqualCriteria) {
@@ -52,27 +44,24 @@ public class SearchComponentState<T extends DomainObject> implements Serializabl
             throw new IllegalArgumentException("EntityEqualCriteria is null or empty.");
         }
 
-        Map<String, T> thisState = getState();
-        Map<String, T> thatState = searchComponentState.getState();
-
-        if ((thisState == null || thisState.isEmpty()) && (thatState == null || thatState.isEmpty())) {
+        if (this.isEmpty() && (searchComponentState == null || searchComponentState.isEmpty())) {
             return true;
         }
 
-        if (thisState == null || thisState.isEmpty() || thatState == null || thatState.isEmpty()) {
+        if (this.isEmpty() || searchComponentState == null || searchComponentState.isEmpty()) {
             return false;
         }
 
         for (String entity : entityEqualCriteria) {
-            T thisObject = thisState.get(entity);
-            T thatObject = thatState.get(entity);
-            if ((thisObject == null || thisObject.getId() == null || thisObject.getId().equals(SearchComponent.NOT_SPECIFIED_ID))
-                    && (thatObject == null || thatObject.getId() == null || thatObject.getId().equals(SearchComponent.NOT_SPECIFIED_ID))) {
+            DomainObject thisObject = this.get(entity);
+            DomainObject thatObject = searchComponentState.get(entity);
+            if ((thisObject == null || thisObject.getId() == null || thisObject.getId().equals(NOT_SPECIFIED_ID))
+                    && (thatObject == null || thatObject.getId() == null || thatObject.getId().equals(NOT_SPECIFIED_ID))) {
                 //consider it as equal objects
                 continue;
             }
-            if (thisObject == null || thisObject.getId() == null || thisObject.getId().equals(SearchComponent.NOT_SPECIFIED_ID)
-                    || thatObject == null || thatObject.getId() == null || thatObject.getId().equals(SearchComponent.NOT_SPECIFIED_ID)) {
+            if (thisObject == null || thisObject.getId() == null || thisObject.getId().equals(NOT_SPECIFIED_ID)
+                    || thatObject == null || thatObject.getId() == null || thatObject.getId().equals(NOT_SPECIFIED_ID)) {
                 return false;
             }
 
@@ -81,26 +70,5 @@ public class SearchComponentState<T extends DomainObject> implements Serializabl
             }
         }
         return true;
-    }
-
-    public boolean isEqual(SearchComponentState searchComponentState) {
-        Set<String> thisEntitySet = getEntitySet();
-        Set<String> thatEntitySet = searchComponentState.getEntitySet();
-        if ((thisEntitySet == null || thisEntitySet.isEmpty()) && (thatEntitySet == null || thatEntitySet.isEmpty())) {
-            return true;
-        }
-        if (thisEntitySet == null || thisEntitySet.isEmpty() || thatEntitySet == null || thatEntitySet.isEmpty()) {
-            return false;
-        }
-
-        if (!thisEntitySet.equals(thatEntitySet)) {
-            throw new IllegalArgumentException("Entity set of searchComponentState parameter does not equal to current entity set.");
-        }
-
-        return isEqual(searchComponentState, thisEntitySet);
-    }
-
-    private Set<String> getEntitySet() {
-        return ImmutableSet.copyOf(getState().keySet());
     }
 }

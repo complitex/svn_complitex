@@ -26,10 +26,12 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.address.strategy.building.BuildingStrategy;
 import org.complitex.address.strategy.building.entity.Building;
+import org.complitex.dictionary.entity.Preference;
 import org.complitex.dictionary.entity.PreferenceKey;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.service.LocaleBean;
 import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
+import org.complitex.dictionary.strategy.web.DomainObjectListPanel;
 import org.complitex.dictionary.strategy.web.model.DomainObjectIdModel;
 import org.complitex.dictionary.util.StringUtil;
 import org.complitex.dictionary.web.DictionaryFwSession;
@@ -126,10 +128,12 @@ public final class BuildingList extends ScrollListPage {
         if (searchFilters == null || searchFilters.isEmpty()) {
             add(new EmptyPanel("searchComponent"));
         } else {
-            SearchComponentState componentState = getSearchComponentStateFromSession();
+            SearchComponentState componentState = getSession().getGlobalSearchComponentState();
+
             WiQuerySearchComponent searchComponent = new WiQuerySearchComponent("searchComponent", componentState, searchFilters, new BuildingSearchCallback(),
                     ShowMode.ALL, true);
             add(searchComponent);
+
             searchComponent.invokeCallback();
         }
 
@@ -155,6 +159,9 @@ public final class BuildingList extends ScrollListPage {
                 session.putPreference(page, PreferenceKey.SORT_PROPERTY, getSort().getProperty(), true);
                 session.putPreference(page, PreferenceKey.SORT_ORDER, getSort().isAscending(), true);
                 session.putPreferenceObject(page, PreferenceKey.FILTER_OBJECT, example);
+
+                //store state
+                session.storeGlobalSearchComponentState();
 
                 if (!Strings.isEmpty(sortProperty)) {
                     example.setOrderByAttributeTypeId(Long.valueOf(sortProperty));
@@ -305,16 +312,6 @@ public final class BuildingList extends ScrollListPage {
     @Override
     public DictionaryFwSession getSession() {
         return (DictionaryFwSession) super.getSession();
-    }
-
-    protected SearchComponentState getSearchComponentStateFromSession() {
-        SearchComponentSessionState searchComponentSessionState = getSession().getSearchComponentSessionState();
-        SearchComponentState componentState = searchComponentSessionState.get("building");
-        if (componentState == null) {
-            componentState = new SearchComponentState();
-            searchComponentSessionState.put("building", componentState);
-        }
-        return componentState;
     }
 }
 

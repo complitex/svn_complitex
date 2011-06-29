@@ -22,10 +22,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.converter.*;
-import org.complitex.dictionary.entity.Attribute;
-import org.complitex.dictionary.entity.DomainObject;
-import org.complitex.dictionary.entity.PreferenceKey;
-import org.complitex.dictionary.entity.SimpleTypes;
+import org.complitex.dictionary.entity.*;
 import org.complitex.dictionary.entity.description.EntityAttributeType;
 import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
@@ -41,7 +38,6 @@ import org.complitex.dictionary.web.component.ShowModePanel;
 import org.complitex.dictionary.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionary.web.component.paging.PagingNavigator;
 import org.complitex.dictionary.web.component.scroll.ScrollBookmarkablePageLink;
-import org.complitex.dictionary.web.component.search.SearchComponentSessionState;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
 import org.complitex.dictionary.web.component.search.WiQuerySearchComponent;
 import org.complitex.dictionary.web.component.type.BooleanPanel;
@@ -133,7 +129,7 @@ public class DomainObjectListPanel extends Panel {
         if (searchFilters == null || searchFilters.isEmpty()) {
             add(new EmptyPanel("searchComponent"));
         } else {
-            SearchComponentState componentState = getSearchComponentStateFromSession();
+            SearchComponentState componentState = getSession().getGlobalSearchComponentState();
             WiQuerySearchComponent searchComponent = new WiQuerySearchComponent("searchComponent", componentState, searchFilters,
                     getStrategy().getSearchCallback(), ShowMode.ALL, true);
             add(searchComponent);
@@ -151,7 +147,7 @@ public class DomainObjectListPanel extends Panel {
             Map<String, Long> ids = new HashMap<String, Long>();
 
             for (String filterEntity : searchFilters) {
-                DomainObject domainObject = getSearchComponentStateFromSession().get(filterEntity);
+                DomainObject domainObject = getSession().getGlobalSearchComponentState().get(filterEntity);
                 if (domainObject != null) {
                     ids.put(filterEntity, domainObject.getId());
                 }
@@ -178,6 +174,9 @@ public class DomainObjectListPanel extends Panel {
                 session.putPreference(page, PreferenceKey.SORT_PROPERTY, getSort().getProperty(), true);
                 session.putPreference(page, PreferenceKey.SORT_ORDER, getSort().isAscending(), true);
                 session.putPreferenceObject(page, PreferenceKey.FILTER_OBJECT, example);
+
+                //store state
+                getSession().storeGlobalSearchComponentState();
 
                 if (!Strings.isEmpty(getSort().getProperty())) {
                     Long sortProperty = Long.valueOf(getSort().getProperty());
@@ -432,15 +431,5 @@ public class DomainObjectListPanel extends Panel {
     @Override
     public DictionaryFwSession getSession() {
         return (DictionaryFwSession) super.getSession();
-    }
-
-    protected SearchComponentState getSearchComponentStateFromSession() {
-        SearchComponentSessionState searchComponentSessionState = getSession().getSearchComponentSessionState();
-        SearchComponentState componentState = searchComponentSessionState.get(entity);
-        if (componentState == null) {
-            componentState = new SearchComponentState();
-            searchComponentSessionState.put(entity, componentState);
-        }
-        return componentState;
     }
 }
