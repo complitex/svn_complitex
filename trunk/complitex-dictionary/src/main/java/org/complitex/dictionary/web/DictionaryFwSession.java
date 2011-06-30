@@ -5,7 +5,6 @@ import org.apache.wicket.protocol.http.WebSession;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.Preference;
 import org.complitex.dictionary.strategy.StrategyFactory;
-import org.complitex.dictionary.web.component.search.SearchComponentSessionState;
 
 import java.util.*;
 
@@ -18,13 +17,13 @@ import org.complitex.dictionary.web.component.search.SearchComponentState;
  * @author Artem
  */
 public class DictionaryFwSession extends WebSession {
-    private final static String LOCALE_PAGE = "org.complitex.dictionary.web.DictionaryFwSession";
-    private final static String LOCALE_KEY = "LOCALE";
+    public final static String LOCALE_PAGE = "global#locale";
+    public final static String LOCALE_KEY = "locale";
 
-    public final static String GLOBAL_STATE_KEY = "search_component_state";
     public final static String GLOBAL_STATE_PAGE = "global#search_component_state";
+    public final static String GLOBAL_STATE_KEY = "SEARCH_COMPONENT_STATE";
 
-    private SearchComponentSessionState searchComponentSessionState = new SearchComponentSessionState();
+    private Map<String, SearchComponentState> searchComponentSessionState = new HashMap<String, SearchComponentState>();
 
     private Map<String, Map<String, Preference>> preferences = new HashMap<String, Map<String, Preference>>();
 
@@ -33,10 +32,6 @@ public class DictionaryFwSession extends WebSession {
     private LocaleBean localeBean = EjbBeanLocator.getBean(LocaleBean.class);
 
     private StrategyFactory strategyFactory = EjbBeanLocator.getBean(StrategyFactory.class);
-
-    public SearchComponentSessionState getSearchComponentSessionState() {
-        return searchComponentSessionState;
-    }
 
     public DictionaryFwSession(Request request, ISessionStorage sessionStorage) {
         super(request);
@@ -48,6 +43,9 @@ public class DictionaryFwSession extends WebSession {
         for (Preference p : list){
             putPreference(p.getPage(), p.getKey(), p);
         }
+
+        //locale
+        super.setLocale(new Locale(getPreferenceString(LOCALE_PAGE, LOCALE_KEY)));
     }
 
     public Map<String, Preference>  getPreferenceMap(String page){
@@ -59,6 +57,10 @@ public class DictionaryFwSession extends WebSession {
         }
 
         return map;
+    }
+
+    public Map<String, SearchComponentState> getSearchComponentSessionState() {
+        return searchComponentSessionState;
     }
 
     public void putPreference(String page, String key, Preference value){
@@ -218,15 +220,8 @@ public class DictionaryFwSession extends WebSession {
 
     @Override
     public Locale getLocale() {
-        Long localeId = getPreferenceLong(LOCALE_PAGE, LOCALE_KEY);
-        if(localeId != null){
-            Locale superLocale = super.getLocale();
-            Locale preferenceLocale = localeBean.convert(localeBean.getLocale(localeId));
-            if(!superLocale.equals(preferenceLocale)){
-                super.setLocale(preferenceLocale);
-            }
-        } else {
-            super.setLocale(localeBean.getSystemLocale());
+        if (getPreferenceString(LOCALE_PAGE, LOCALE_KEY) == null){
+            setLocale(localeBean.getSystemLocale());
         }
 
         return super.getLocale();
@@ -234,7 +229,8 @@ public class DictionaryFwSession extends WebSession {
 
     @Override
     public void setLocale(Locale locale) {
-        putPreference(LOCALE_PAGE, LOCALE_KEY, String.valueOf(localeBean.convert(locale).getId()), true);
+        putPreference(LOCALE_PAGE, LOCALE_KEY, locale.getLanguage(), true);
+
         super.setLocale(locale);
     }
 }

@@ -170,7 +170,7 @@ public class LogBean extends AbstractBean {
                         for (StringCulture ns : na.getLocalizedValues()) {
                             if (ns.getValue() != null) {
                                 logChanges.add(new LogChange(na.getAttributeId(), null, strategy.getAttributeLabel(na, locale),
-                                        null, ns.getValue(), localeBean.getLocale(ns.getLocaleId()).getLanguage()));
+                                        null, ns.getValue(), localeBean.getLocaleObject(ns.getLocaleId()).getLanguage()));
                             }
                         }
                     }
@@ -197,7 +197,7 @@ public class LogBean extends AbstractBean {
                                                         strategy.getAttributeLabel(na, locale),
                                                         os.getValue(),
                                                         ns.getValue(),
-                                                        localeBean.getLocale(ns.getLocaleId()).getLanguage()));
+                                                        localeBean.getLocaleObject(ns.getLocaleId()).getLanguage()));
                                             }
                                         }
                                     }

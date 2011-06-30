@@ -63,11 +63,11 @@ public class StringCulturePanel extends Panel {
             protected void populateItem(ListItem<StringCulture> item) {
                 StringCulture string = item.getModelObject();
 
-                Label language = new Label("language", localeBean.convert(localeBean.getLocale(string.getLocaleId())).getDisplayLanguage(getLocale()));
+                Label language = new Label("language", localeBean.convert(localeBean.getLocaleObject(string.getLocaleId())).getDisplayLanguage(getLocale()));
                 item.add(language);
 
                 boolean isSystemLocale = false;
-                if (localeBean.getLocale(string.getLocaleId()).isSystem()) {
+                if (localeBean.getLocaleObject(string.getLocaleId()).isSystem()) {
                     isSystemLocale = true;
                 }
 
