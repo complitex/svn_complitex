@@ -137,6 +137,8 @@ public interface IStrategy {
 
     String[] getParents();
 
+    String getParent();
+
     String getPluralEntityLabel(Locale locale);
 
     ISearchCallback getSearchCallback();

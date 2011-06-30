@@ -1,19 +1,10 @@
 package org.complitex.dictionary.web.component;
 
-import org.complitex.dictionary.web.component.type.StringCulturePanel;
-import org.complitex.dictionary.web.component.type.BooleanPanel;
-import org.complitex.dictionary.web.component.type.IntegerPanel;
-import org.complitex.dictionary.web.component.type.DoublePanel;
-import org.complitex.dictionary.web.component.type.BigStringPanel;
-import org.complitex.dictionary.web.component.type.StringPanel;
-import org.complitex.dictionary.web.component.type.DatePanel;
 import com.google.common.base.Predicate;
-import static com.google.common.collect.Iterables.*;
-import static com.google.common.collect.Lists.*;
-import static com.google.common.collect.Maps.*;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
@@ -21,34 +12,35 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.*;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.converter.*;
-import org.complitex.dictionary.entity.Attribute;
-import org.complitex.dictionary.entity.DomainObject;
-import org.complitex.dictionary.entity.SimpleTypes;
-import org.complitex.dictionary.entity.StringCulture;
+import org.complitex.dictionary.entity.*;
 import org.complitex.dictionary.entity.description.Entity;
 import org.complitex.dictionary.entity.description.EntityAttributeType;
 import org.complitex.dictionary.entity.description.EntityType;
 import org.complitex.dictionary.service.StringCultureBean;
+import org.complitex.dictionary.strategy.IStrategy;
+import org.complitex.dictionary.strategy.IStrategy.SimpleObjectInfo;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
-import static org.complitex.dictionary.strategy.web.DomainObjectAccessUtil.*;
 import org.complitex.dictionary.web.DictionaryFwSession;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
 import org.complitex.dictionary.web.component.search.SearchComponent;
-import org.complitex.dictionary.web.component.search.SearchComponentSessionState;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
+import org.complitex.dictionary.web.component.type.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import java.io.Serializable;
-import java.util.*;
-import org.apache.wicket.markup.html.form.DropDownChoice;
-import org.complitex.dictionary.entity.Gender;
-import org.complitex.dictionary.strategy.IStrategy;
-import org.complitex.dictionary.strategy.IStrategy.SimpleObjectInfo;
-import org.complitex.dictionary.web.component.type.Date2Panel;
-import org.complitex.dictionary.web.component.type.GenderPanel;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import static com.google.common.collect.Iterables.filter;
+import static com.google.common.collect.Iterables.find;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newLinkedHashMap;
+import static org.complitex.dictionary.strategy.web.DomainObjectAccessUtil.canEdit;
 
 /**
  *

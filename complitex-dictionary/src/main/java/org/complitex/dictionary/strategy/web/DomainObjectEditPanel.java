@@ -4,9 +4,11 @@
  */
 package org.complitex.dictionary.strategy.web;
 
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.complitex.dictionary.strategy.web.validate.IValidator;
 import org.apache.wicket.Component;
+import org.apache.wicket.PageParameters;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
+import org.apache.wicket.markup.html.JavascriptPackageResource;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -22,24 +24,22 @@ import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.Log;
 import org.complitex.dictionary.service.LogBean;
 import org.complitex.dictionary.service.StringCultureBean;
-import org.complitex.dictionary.strategy.StrategyFactory;
-import org.complitex.dictionary.util.CloneUtil;
-import org.complitex.dictionary.web.component.ChildrenContainer;
-import org.complitex.dictionary.web.component.DomainObjectInputPanel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.ejb.EJB;
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
-import org.apache.wicket.markup.html.JavascriptPackageResource;
 import org.complitex.dictionary.strategy.DeleteException;
 import org.complitex.dictionary.strategy.IStrategy;
+import org.complitex.dictionary.strategy.StrategyFactory;
+import org.complitex.dictionary.strategy.web.validate.IValidator;
+import org.complitex.dictionary.util.CloneUtil;
 import org.complitex.dictionary.util.DateUtil;
+import org.complitex.dictionary.web.component.ChildrenContainer;
+import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.permission.DomainObjectPermissionsPanel;
 import org.complitex.dictionary.web.component.permission.PermissionPropagationDialogPanel;
 import org.complitex.dictionary.web.component.scroll.ScrollToElementUtil;
 import org.complitex.resources.WebCommonResourceInitializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.ejb.EJB;
 
 /**
  *
@@ -335,6 +335,6 @@ public class DomainObjectEditPanel extends Panel {
     }
 
     private boolean fromParent() {
-        return parentId != null && !Strings.isEmpty(parentEntity);
+        return oldObject != null && parentId != null && !Strings.isEmpty(parentEntity);
     }
 }

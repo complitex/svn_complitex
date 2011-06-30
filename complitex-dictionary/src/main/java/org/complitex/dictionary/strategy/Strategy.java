@@ -3,11 +3,6 @@ package org.complitex.dictionary.strategy;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
-import static com.google.common.collect.Iterables.*;
-import static com.google.common.collect.Lists.*;
-import static com.google.common.collect.Maps.*;
-import static com.google.common.collect.Sets.*;
-import java.sql.SQLException;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.entity.*;
 import org.complitex.dictionary.entity.Log.STATUS;
@@ -16,22 +11,29 @@ import org.complitex.dictionary.entity.description.EntityAttributeType;
 import org.complitex.dictionary.entity.description.EntityAttributeValueType;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.mybatis.Transactional;
+import org.complitex.dictionary.mysql.MySqlErrors;
 import org.complitex.dictionary.service.*;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionary.strategy.web.validate.IValidator;
 import org.complitex.dictionary.util.Numbers;
 import org.complitex.dictionary.util.ResourceUtil;
+import org.complitex.dictionary.util.StringUtil;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.Locale;
-import org.complitex.dictionary.mysql.MySqlErrors;
-import org.complitex.dictionary.util.StringUtil;
-import org.complitex.dictionary.web.component.search.SearchComponent;
+
+import static com.google.common.collect.Iterables.filter;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Lists.transform;
+import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Sets.newHashSet;
+import static com.google.common.collect.Sets.newTreeSet;
 
 /**
  *
@@ -960,6 +962,17 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
     @Override
     public String[] getParents() {
+        return null;
+    }
+
+    @Override
+    public String getParent() {
+        String[] parents = getParents();
+
+        if (parents != null && parents.length > 0){
+            return parents[0];
+        }
+
         return null;
     }
 

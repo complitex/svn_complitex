@@ -26,22 +26,21 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.address.strategy.building.BuildingStrategy;
 import org.complitex.address.strategy.building.entity.Building;
-import org.complitex.dictionary.entity.Preference;
+import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.PreferenceKey;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.service.LocaleBean;
 import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
-import org.complitex.dictionary.strategy.web.DomainObjectListPanel;
 import org.complitex.dictionary.strategy.web.model.DomainObjectIdModel;
 import org.complitex.dictionary.util.StringUtil;
 import org.complitex.dictionary.web.DictionaryFwSession;
 import org.complitex.dictionary.web.component.ShowMode;
 import org.complitex.dictionary.web.component.ShowModePanel;
 import org.complitex.dictionary.web.component.datatable.ArrowOrderByBorder;
+import org.complitex.dictionary.web.component.datatable.DataProvider;
 import org.complitex.dictionary.web.component.paging.PagingNavigator;
 import org.complitex.dictionary.web.component.scroll.ScrollBookmarkablePageLink;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
-import org.complitex.dictionary.web.component.search.SearchComponentSessionState;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
 import org.complitex.dictionary.web.component.search.WiQuerySearchComponent;
 import org.complitex.template.web.component.toolbar.AddItemButton;
@@ -53,7 +52,6 @@ import javax.ejb.EJB;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-import org.complitex.dictionary.web.component.datatable.DataProvider;
 
 /**
  *
@@ -296,7 +294,10 @@ public final class BuildingList extends ScrollListPage {
 
             @Override
             protected void onClick() {
-                setResponsePage(buildingStrategy.getEditPage(), buildingStrategy.getEditPageParams(null, null, null));
+                DomainObject parentDomainObject = ((DictionaryFwSession)getSession()).getGlobalSearchComponentState().get("street");
+                Long parentId = parentDomainObject != null ? parentDomainObject.getId() : SearchComponentState.NOT_SPECIFIED_ID;
+
+                setResponsePage(buildingStrategy.getEditPage(), buildingStrategy.getEditPageParams(null, parentId, "street"));
             }
 
             @Override

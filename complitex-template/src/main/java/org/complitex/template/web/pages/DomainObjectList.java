@@ -7,13 +7,16 @@ package org.complitex.template.web.pages;
 import com.google.common.collect.ImmutableList;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.complitex.dictionary.entity.DomainObject;
+import org.complitex.dictionary.strategy.IStrategy;
+import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
 import org.complitex.dictionary.strategy.web.DomainObjectListPanel;
+import org.complitex.dictionary.web.component.search.SearchComponentState;
 import org.complitex.template.web.component.toolbar.AddItemButton;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
 import org.complitex.template.web.security.SecurityRole;
 
 import java.util.List;
-import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
 
 /**
  * @author Artem
@@ -44,7 +47,12 @@ public class DomainObjectList extends ScrollListPage {
 
             @Override
             protected void onClick() {
-                setResponsePage(listPanel.getStrategy().getEditPage(), listPanel.getStrategy().getEditPageParams(null, null, null));
+                IStrategy strategy = listPanel.getStrategy();
+
+                DomainObject parentDomainObject = listPanel.getSession().getGlobalSearchComponentState().get(strategy.getParent());
+                Long parentId = parentDomainObject != null ? parentDomainObject.getId() : SearchComponentState.NOT_SPECIFIED_ID;
+
+                setResponsePage(strategy.getEditPage(), strategy.getEditPageParams(null, parentId, strategy.getParent()));
             }
 
             @Override
