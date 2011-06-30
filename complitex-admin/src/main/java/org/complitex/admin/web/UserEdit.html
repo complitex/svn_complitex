@@ -13,74 +13,87 @@
     <div id="messages" wicket:id="messages"></div>
 
     <form action="" wicket:id="form">
-        <table  border="0" cellspacing="0" cellpadding="0" class="tbForm">
-            <tbody>
-            <tr>
-                <th><label for="login"><wicket:message key="login"/><b class="blue">*</b>:</label></th>
-                <td><input id="login" wicket:id="login" type="text"/></td>
-            </tr>
-            <tr>
-                <th><label for="password"><wicket:message key="password"/>:</label></th>
-                <td><input id="password" wicket:id="password" type="password"/></td>
-            </tr>
-            </tbody>
-        </table>
 
-        <div wicket:id="user_info"></div>
+        <div>
+            <table  border="0" cellspacing="0" cellpadding="0" class="tbForm">
+                <tbody>
+                <tr>
+                    <th><label for="login"><wicket:message key="login"/><b class="blue">*</b>:</label></th>
+                    <td><input id="login" wicket:id="login" type="text"/></td>
+                </tr>
+                <tr>
+                    <th><label for="password"><wicket:message key="password"/>:</label></th>
+                    <td><input id="password" wicket:id="password" type="password"/></td>
+                </tr>
+                <tr>
+                    <th><wicket:message key="locale"/>:</th>
+                    <td><div wicket:id="locale"></div></td>
+                </tr>
+                </tbody>
+            </table>
 
-        <table  border="0" cellspacing="0" cellpadding="0" class="tbForm">
-            <tbody>
-            <tr>
-                <th><wicket:message key="usergroup"/>:</th>
-                <td>
-                    <div wicket:id="usergroups">
-                        <ul>
-                            <li>
-                                <input type="checkbox" wicket:id="ADMINISTRATORS"/>
-                                <wicket:message key="ADMINISTRATORS"/>
-                            </li>
-                            <li>
-                                <input type="checkbox" wicket:id="EMPLOYEES"/>
-                                <wicket:message key="EMPLOYEES"/>
-                            </li>
-                            <li>
-                                <input type="checkbox" wicket:id="EMPLOYEES_CHILD_VIEW"/>
-                                <wicket:message key="EMPLOYEES_CHILD_VIEW"/>
-                            </li>
-                        </ul>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <th><wicket:message key="organizations"/>:</th>
-                <td>
-                    <div wicket:id="organizationContainer">
-                        <div wicket:id="organizationGroup">
+            <div wicket:id="user_info"></div>
+        </div>
+
+        <div>
+            <table  border="0" cellspacing="0" cellpadding="0" class="tbForm">
+                <tbody>
+                <tr>
+                    <th><wicket:message key="usergroup"/>:</th>
+                    <td>
+                        <div wicket:id="usergroups">
                             <ul>
-                                <li wicket:id="userOrganizations">
-                                    <input type="radio" wicket:id="radio"/>
-                                    <span wicket:id="name"></span>
-                                    [<a href="#" wicket:id="delete">&times;</a>]
+                                <li>
+                                    <input type="checkbox" wicket:id="ADMINISTRATORS"/>
+                                    <wicket:message key="ADMINISTRATORS"/>
+                                </li>
+                                <li>
+                                    <input type="checkbox" wicket:id="EMPLOYEES"/>
+                                    <wicket:message key="EMPLOYEES"/>
+                                </li>
+                                <li>
+                                    <input type="checkbox" wicket:id="EMPLOYEES_CHILD_VIEW"/>
+                                    <wicket:message key="EMPLOYEES_CHILD_VIEW"/>
                                 </li>
                             </ul>
                         </div>
-                    </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th><wicket:message key="organizations"/>:</th>
+                    <td>
+                        <div wicket:id="organizationContainer">
+                            <div wicket:id="organizationGroup">
+                                <ul>
+                                    <li wicket:id="userOrganizations">
+                                        <input type="radio" wicket:id="radio"/>
+                                        <span wicket:id="name"></span>
+                                        [<a href="#" wicket:id="delete">&times;</a>]
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
 
-                    <form wicket:id="addOrganizationForm" action="#">
-                        <table>
-                            <tr>
-                                <td><div wicket:id="organization"></div></td>
-                                <td><a href="#" wicket:id="addOrganization"><wicket:message key="add"/></a></td>
-                            </tr>
-                        </table>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+                        <form wicket:id="addOrganizationForm" action="#">
+                            <table>
+                                <tr>
+                                    <td><div wicket:id="organization"></div></td>
+                                    <td><a href="#" wicket:id="addOrganization"><wicket:message key="add"/></a></td>
+                                </tr>
+                            </table>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
 
-        <input type="submit" class="btnBig" wicket:message="value:save" wicket:id="save"/>
-        <input type="submit" class="btnMiddle" wicket:message="value:cancel" wicket:id="cancel"/>
+        <div style="padding-top: 20px">
+            <input type="submit" class="btnBig" wicket:message="value:save" wicket:id="save"/>
+            <input type="submit" class="btnMiddle" wicket:message="value:cancel" wicket:id="cancel"/>
+        </div>
+
+
 
     </form>
 </wicket:extend>

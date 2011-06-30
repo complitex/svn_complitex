@@ -17,22 +17,27 @@ import org.complitex.admin.Module;
 import org.complitex.admin.service.UserBean;
 import org.complitex.admin.strategy.UserInfoStrategy;
 import org.complitex.dictionary.entity.*;
+import org.complitex.dictionary.service.LocaleBean;
 import org.complitex.dictionary.service.LogBean;
+import org.complitex.dictionary.service.PreferenceBean;
 import org.complitex.dictionary.util.CloneUtil;
+import org.complitex.dictionary.web.DictionaryFwSession;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.UserOrganizationPicker;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
+import org.complitex.template.web.component.LocalePicker;
 import org.complitex.template.web.security.SecurityRole;
 import org.complitex.template.web.template.FormTemplatePage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.Locale;
 
 import static org.complitex.dictionary.entity.UserGroup.GROUP_NAME.*;
+import static org.complitex.dictionary.web.DictionaryFwSession.LOCALE_KEY;
+import static org.complitex.dictionary.web.DictionaryFwSession.LOCALE_PAGE;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -47,14 +52,20 @@ public class UserEdit extends FormTemplatePage {
     @EJB(name = "OrganizationStrategy")
     private IOrganizationStrategy organizationStrategy;
 
-    @EJB(name = "UserBean")
+    @EJB
     private UserBean userBean;
 
     @EJB
     private UserInfoStrategy userInfoStrategy;
-    
-    @EJB(name = "LogBean")
+
+    @EJB
     private LogBean logBean;
+
+    @EJB
+    private PreferenceBean preferenceBean;
+
+    @EJB
+    private LocaleBean localeBean;
 
     public UserEdit() {
         super();
@@ -66,68 +77,28 @@ public class UserEdit extends FormTemplatePage {
         init(parameters.getAsLong("user_id"));
     }
 
-    private void init(final Long id) {
+    private void init(final Long userId) {
         add(new Label("title", new ResourceModel("title")));
         add(new FeedbackPanel("messages"));
 
         //Модель данных
         //todo catch exception
-        final IModel<User> userModel = new Model<User>(id != null ? userBean.getUser(id) : userBean.newUser());
+        final IModel<User> userModel = new Model<User>(userId != null ? userBean.getUser(userId) : userBean.newUser());
 
-        final User oldUser = (id != null) ? CloneUtil.cloneObject(userModel.getObject()) : null;
+        final User oldUser = (userId != null) ? CloneUtil.cloneObject(userModel.getObject()) : null;
 
         //Форма
         Form form = new Form<User>("form");
         add(form);
 
-        //Сохранить
-        Button save = new Button("save") {
-
-            @Override
-            public void onSubmit() {
-                User user = userModel.getObject();
-
-                try {
-                    if (id == null && !userBean.isUniqueLogin(user.getLogin())) {
-                        error(getString("error.login_not_unique"));
-                        return;
-                    }
-
-                    userBean.save(user);
-
-                    logBean.info(Module.NAME, UserEdit.class, User.class, null, user.getId(),
-                            (id == null) ? Log.EVENT.CREATE : Log.EVENT.EDIT, getLogChanges(oldUser, user), null);
-
-                    log.info("Пользователь сохранен: {}", user);
-                    getSession().info(getString("info.saved"));
-                    back(id);
-                } catch (Exception e) {
-                    log.error("Ошибка сохранения пользователя", e);
-                    getSession().error(getString("error.saved"));
-                }
-            }
-        };
-        form.add(save);
-
-        //Отмена
-        Button cancel = new Button("cancel") {
-
-            @Override
-            public void onSubmit() {
-                back(id);
-            }
-        };
-        cancel.setDefaultFormProcessing(false);
-        form.add(cancel);
-
         //Логин
         RequiredTextField login = new RequiredTextField<String>("login", new PropertyModel<String>(userModel, "login"));
-        login.setEnabled(id == null);
+        login.setEnabled(userId == null);
         form.add(login);
 
         //Пароль
         PasswordTextField password = new PasswordTextField("password", new PropertyModel<String>(userModel, "newPassword"));
-        password.setEnabled(id != null);
+        password.setEnabled(userId != null);
         password.setRequired(false);
         form.add(password);
 
@@ -135,6 +106,18 @@ public class UserEdit extends FormTemplatePage {
         DomainObjectInputPanel userInfo = new DomainObjectInputPanel("user_info", userModel.getObject().getUserInfo(),
                 "user_info", "UserInfoStrategy", null, null);
         form.add(userInfo);
+
+        //Локаль
+        String language = null;
+        for (Preference p : preferenceBean.getPreferences(userId)){
+            if (LOCALE_PAGE.equals(p.getPage()) && LOCALE_KEY.equals(p.getKey())){
+                language = p.getValue();
+                break;
+            }
+        }
+
+        final IModel<java.util.Locale> localeModel = new Model<Locale>(language != null ? new Locale(language) : localeBean.getSystemLocale());
+        form.add(new LocalePicker("locale", localeModel, false));
 
         //Группы привилегий
         CheckGroup<UserGroup> usergroups = new CheckGroup<UserGroup>("usergroups",
@@ -225,6 +208,54 @@ public class UserEdit extends FormTemplatePage {
                 target.addComponent(organizationContainer);
             }
         });
+
+        //Сохранить
+        Button save = new Button("save") {
+
+            @Override
+            public void onSubmit() {
+                User user = userModel.getObject();
+
+                try {
+                    if (userId == null && !userBean.isUniqueLogin(user.getLogin())) {
+                        error(getString("error.login_not_unique"));
+                        return;
+                    }
+
+                    userBean.save(user);
+
+                    for (Preference p : preferenceBean.getPreferences(userId)){
+                        if (LOCALE_PAGE.equals(p.getPage()) && LOCALE_KEY.equals(p.getKey())){
+                            p.setValue(localeModel.getObject().getLanguage());
+                            preferenceBean.save(p);
+                            break;
+                        }
+                    }
+
+                    logBean.info(Module.NAME, UserEdit.class, User.class, null, user.getId(),
+                            (userId == null) ? Log.EVENT.CREATE : Log.EVENT.EDIT, getLogChanges(oldUser, user), null);
+
+                    log.info("Пользователь сохранен: {}", user);
+                    getSession().info(getString("info.saved"));
+                    back(userId);
+                } catch (Exception e) {
+                    log.error("Ошибка сохранения пользователя", e);
+                    getSession().error(getString("error.saved"));
+                }
+            }
+        };
+        form.add(save);
+
+        //Отмена
+        Button cancel = new Button("cancel") {
+
+            @Override
+            public void onSubmit() {
+                back(userId);
+            }
+        };
+        cancel.setDefaultFormProcessing(false);
+        form.add(cancel);
     }
 
     private IModel<UserGroup> getUserGroup(User user, UserGroup.GROUP_NAME group_name) {

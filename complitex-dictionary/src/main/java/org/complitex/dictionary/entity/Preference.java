@@ -18,6 +18,13 @@ public class Preference implements Serializable {
         //Default constructor
     }
 
+    public Preference(Long userId, String page, String key, String value) {
+        this.userId = userId;
+        this.page = page;
+        this.key = key;
+        this.value = value;
+    }
+
     public Preference(Long userId, String page, String key, String value, Object object) {
         this.userId = userId;
         this.page = page;

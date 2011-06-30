@@ -63,9 +63,6 @@ public abstract class TemplatePage extends WebPage {
             }
         });
 
-        //locale picker
-        add(new LocalePicker("localePicker"));
-
         //toolbar
         WebMarkupContainer toolbar = new WebMarkupContainer("toolbar");
         add(toolbar);

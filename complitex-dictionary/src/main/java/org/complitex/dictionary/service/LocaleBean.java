@@ -34,8 +34,11 @@ public class LocaleBean extends AbstractBean {
     private void init() {
         for (Locale locale : loadAllLocales()) {
             idTolocaleMap.put(locale.getId(), locale);
+
             java.util.Locale l = new java.util.Locale(locale.getLanguage());
+
             localesMap.put(l, locale);
+
             if(locale.isSystem()){
                 systemLocaleObject = locale;
                 systemLocale = l;
@@ -56,16 +59,29 @@ public class LocaleBean extends AbstractBean {
     }
 
     public java.util.Locale convert(Locale locale) {
+        if (locale == null){
+            return systemLocale;
+        }
+
         for(Entry<java.util.Locale, Locale> entry : localesMap.entrySet()){
             if(entry.getValue().getId().equals(locale.getId())){
                 return entry.getKey();
             }
         }
-        return null;
+
+        return systemLocale;
     }
 
-    public Locale getLocale(Long localeId) {
+    public Locale getLocaleObject(Long localeId) {
         return idTolocaleMap.get(localeId);
+    }
+
+    public java.util.Locale getLocale(Long localeId) {
+        if (localeId == null){
+            return systemLocale;
+        }
+
+        return convert(getLocaleObject(localeId));
     }
 
     @Transactional

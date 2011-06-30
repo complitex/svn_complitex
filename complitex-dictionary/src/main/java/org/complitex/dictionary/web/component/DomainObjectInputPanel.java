@@ -422,7 +422,8 @@ public class DomainObjectInputPanel extends Panel {
     }
 
     protected SearchComponentState getSearchComponentStateFromSession() {
-        SearchComponentSessionState searchComponentSessionState = getDictionaryFwSession().getSearchComponentSessionState();
+        Map<String, SearchComponentState> searchComponentSessionState = getDictionaryFwSession().getSearchComponentSessionState();
+
         SearchComponentState componentState = searchComponentSessionState.get(entity);
         if (componentState == null) {
             componentState = new SearchComponentState();
@@ -432,7 +433,8 @@ public class DomainObjectInputPanel extends Panel {
     }
 
     protected void updateSearchComponentSessionState(SearchComponentState componentState) {
-        SearchComponentSessionState searchComponentSessionState = getDictionaryFwSession().getSearchComponentSessionState();
+        Map<String, SearchComponentState> searchComponentSessionState = getDictionaryFwSession().getSearchComponentSessionState();
+
         searchComponentSessionState.put(entity, componentState);
     }
 }

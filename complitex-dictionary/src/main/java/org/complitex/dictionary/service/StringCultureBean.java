@@ -133,7 +133,7 @@ public class StringCultureBean extends AbstractBean {
 
             @Override
             public boolean apply(StringCulture string) {
-                return localeBean.getLocale(string.getLocaleId()).isSystem();
+                return localeBean.getLocaleObject(string.getLocaleId()).isSystem();
             }
         });
     }
@@ -158,7 +158,7 @@ public class StringCultureBean extends AbstractBean {
 
                     @Override
                     public boolean apply(StringCulture string) {
-                        return localeBean.getLocale(string.getLocaleId()).isSystem();
+                        return localeBean.getLocaleObject(string.getLocaleId()).isSystem();
                     }
                 }).getValue();
             } catch (NoSuchElementException e) {
