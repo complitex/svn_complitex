@@ -45,7 +45,8 @@ public class DictionaryFwSession extends WebSession {
         }
 
         //locale
-        super.setLocale(new Locale(getPreferenceString(LOCALE_PAGE, LOCALE_KEY)));
+        String language = getPreferenceString(LOCALE_PAGE, LOCALE_KEY);
+        super.setLocale(language != null ? new Locale(language) : localeBean.getSystemLocale());
     }
 
     public Map<String, Preference>  getPreferenceMap(String page){
