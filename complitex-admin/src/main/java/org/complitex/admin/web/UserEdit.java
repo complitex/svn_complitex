@@ -12,7 +12,10 @@ import org.apache.wicket.markup.html.form.*;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
-import org.apache.wicket.model.*;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.complitex.admin.Module;
 import org.complitex.admin.service.UserBean;
 import org.complitex.admin.strategy.UserInfoStrategy;
@@ -20,11 +23,10 @@ import org.complitex.dictionary.entity.*;
 import org.complitex.dictionary.service.LocaleBean;
 import org.complitex.dictionary.service.LogBean;
 import org.complitex.dictionary.service.PreferenceBean;
+import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.util.CloneUtil;
-import org.complitex.dictionary.web.DictionaryFwSession;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.UserOrganizationPicker;
-import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.template.web.component.LocalePicker;
 import org.complitex.template.web.security.SecurityRole;
 import org.complitex.template.web.template.FormTemplatePage;
@@ -32,7 +34,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 
 import static org.complitex.dictionary.entity.UserGroup.GROUP_NAME.*;
@@ -145,26 +149,19 @@ public class UserEdit extends FormTemplatePage {
             }
 
             @Override
-            protected void populateItem(ListItem<UserOrganization> item) {
+            protected void populateItem(final ListItem<UserOrganization> item) {
                 final UserOrganization userOrganization = item.getModelObject();
                 final ListView listView = this;
 
                 item.add(new Radio<Long>("radio", new Model<Long>(userOrganization.getOrganizationObjectId())));
 
-                item.add(new Label("name", organizationStrategy.displayDomainObject(
-                        organizationStrategy.findById(userOrganization.getOrganizationObjectId(), true), getLocale())));
+                item.add(new UserOrganizationPicker("picker", new PropertyModel<Long>(userOrganization, "organizationObjectId"), true));
 
                 item.add(new AjaxLink("delete"){
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
-                        List<UserOrganization> list = userModel.getObject().getUserOrganizations();
-                        for (int i = 0; i < list.size(); ++i){
-                            if (list.get(i).getOrganizationObjectId().equals(userOrganization.getOrganizationObjectId())){
-                                list.remove(i);
-                                break;
-                            }
-                        }
+                        userModel.getObject().getUserOrganizations().remove(item.getIndex());
 
                         listView.removeAll();
 
@@ -178,32 +175,10 @@ public class UserEdit extends FormTemplatePage {
         Form addOrganizationForm = new Form("addOrganizationForm");
         form.add(addOrganizationForm);
 
-        final IModel<Long> addOrganization = new Model<Long>();
-
-        addOrganizationForm.add(new UserOrganizationPicker("organization", addOrganization));
         addOrganizationForm.add(new AjaxSubmitLink("addOrganization", addOrganizationForm){
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-                if (addOrganization.getObject() == null){
-                    return;
-                }
-
-                List<UserOrganization> list = userModel.getObject().getUserOrganizations();
-                for (UserOrganization uo : list){
-                    if (uo.getOrganizationObjectId().equals(addOrganization.getObject())){
-                        error(getString("error.organization_already_added"));
-                        return;
-                    }
-                }
-
-                UserOrganization userOrganization = new UserOrganization(addOrganization.getObject());
-
-                if (list.isEmpty()){
-                    userOrganization.setMain(true);
-                    organizationGroup.setModelObject(userOrganization.getOrganizationObjectId());
-                }
-
-                list.add(userOrganization);
+                userModel.getObject().getUserOrganizations().add(new UserOrganization());
 
                 target.addComponent(organizationContainer);
             }

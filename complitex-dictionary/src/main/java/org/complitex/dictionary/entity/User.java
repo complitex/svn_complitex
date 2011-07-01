@@ -21,7 +21,7 @@ public class User implements Serializable{
 
     public void setMainUserOrganization(Long userOrganizationId){
         for (UserOrganization uo : userOrganizations){
-            uo.setMain(uo.getOrganizationObjectId().equals(userOrganizationId));
+            uo.setMain(userOrganizationId != null && userOrganizationId.equals(uo.getOrganizationObjectId()));
         }
     }
 
