@@ -8,7 +8,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
-import org.apache.wicket.markup.html.JavascriptPackageResource;
+import static org.apache.wicket.markup.html.JavascriptPackageResource.*;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -28,14 +28,14 @@ import org.complitex.dictionary.strategy.DeleteException;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.strategy.web.validate.IValidator;
-import org.complitex.dictionary.util.CloneUtil;
-import org.complitex.dictionary.util.DateUtil;
+import static org.complitex.dictionary.util.CloneUtil.*;
+import static org.complitex.dictionary.util.DateUtil.*;
 import org.complitex.dictionary.web.component.ChildrenContainer;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.permission.DomainObjectPermissionsPanel;
 import org.complitex.dictionary.web.component.permission.PermissionPropagationDialogPanel;
-import org.complitex.dictionary.web.component.scroll.ScrollToElementUtil;
-import org.complitex.resources.WebCommonResourceInitializer;
+import static org.complitex.dictionary.web.component.scroll.ScrollToElementUtil.*;
+import static org.complitex.resources.WebCommonResourceInitializer.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +68,7 @@ public class DomainObjectEditPanel extends Panel {
             String parentEntity, String scrollListPageParameterName) {
         super(id);
 
-        add(JavascriptPackageResource.getHeaderContribution(WebCommonResourceInitializer.SCROLL_JS));
+        add(getHeaderContribution(SCROLL_JS));
 
         this.entity = entity;
         this.strategyName = strategyName;
@@ -84,7 +84,7 @@ public class DomainObjectEditPanel extends Panel {
         } else {
             //edit existing entity
             newObject = getStrategy().findById(objectId, false);
-            oldObject = CloneUtil.cloneObject(newObject);
+            oldObject = cloneObject(newObject);
         }
         init();
     }
@@ -99,10 +99,6 @@ public class DomainObjectEditPanel extends Panel {
 
     private boolean isNew() {
         return oldObject == null;
-    }
-
-    public void updateMessages(AjaxRequestTarget target) {
-        target.addComponent(messages);
     }
 
     private void init() {
@@ -151,24 +147,26 @@ public class DomainObjectEditPanel extends Panel {
         form.add(historyContainer);
 
         //permissions panel
-        DomainObjectPermissionsPanel permissionsPanel = new DomainObjectPermissionsPanel("permissionsPanel", newObject.getSubjectIds());
+        DomainObjectPermissionsPanel permissionsPanel = new DomainObjectPermissionsPanel("permissionsPanel",
+                newObject.getSubjectIds());
         permissionsPanel.setEnabled(DomainObjectAccessUtil.canEdit(strategyName, entity, newObject));
         form.add(permissionsPanel);
 
         //permissionPropagationDialogPanel
-        final PermissionPropagationDialogPanel permissionPropagationDialogPanel = new PermissionPropagationDialogPanel("permissionPropagationDialogPanel") {
+        final PermissionPropagationDialogPanel permissionPropagationDialogPanel =
+                new PermissionPropagationDialogPanel("permissionPropagationDialogPanel") {
 
-            @Override
-            protected void applyPropagation(boolean propagate) {
-                try {
-                    save(propagate);
-                } catch (Exception e) {
-                    log.error("", e);
-                    error(getString("db_error"));
-                }
+                    @Override
+                    protected void applyPropagation(boolean propagate) {
+                        try {
+                            save(propagate);
+                        } catch (Exception e) {
+                            log.error("", e);
+                            error(getString("db_error"));
+                        }
 
-            }
-        };
+                    }
+                };
         add(permissionPropagationDialogPanel);
 
         //save-cancel functional
@@ -208,7 +206,7 @@ public class DomainObjectEditPanel extends Panel {
             }
 
             private void scrollToMessages(AjaxRequestTarget target) {
-                target.appendJavascript(ScrollToElementUtil.scrollTo(label.getMarkupId()));
+                target.appendJavascript(scrollTo(label.getMarkupId()));
             }
         };
         submit.setVisible(DomainObjectAccessUtil.canEdit(strategyName, entity, newObject));
@@ -247,13 +245,13 @@ public class DomainObjectEditPanel extends Panel {
         //permission related logic
         if (isNew()) {
             onInsert();
-            getStrategy().insert(newObject, DateUtil.getCurrentDate());
+            getStrategy().insert(newObject, getCurrentDate());
         } else {
             onUpdate();
             if (!propagate) {
-                getStrategy().update(oldObject, newObject, DateUtil.getCurrentDate());
+                getStrategy().update(oldObject, newObject, getCurrentDate());
             } else {
-                getStrategy().updateAndPropagate(oldObject, newObject, DateUtil.getCurrentDate());
+                getStrategy().updateAndPropagate(oldObject, newObject, getCurrentDate());
             }
         }
 
