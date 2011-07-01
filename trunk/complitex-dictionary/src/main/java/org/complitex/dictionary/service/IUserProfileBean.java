@@ -1,6 +1,7 @@
 package org.complitex.dictionary.service;
 
-import javax.ejb.Local;
+import org.complitex.dictionary.service.exception.WrongCurrentPasswordException;
+
 import java.util.Locale;
 
 /**
@@ -9,4 +10,6 @@ import java.util.Locale;
  */
 public interface IUserProfileBean {
     String getFullName(Long userId, Locale locale);
+
+    public void updatePassword(String currentPassword, final String password) throws WrongCurrentPasswordException;
 }

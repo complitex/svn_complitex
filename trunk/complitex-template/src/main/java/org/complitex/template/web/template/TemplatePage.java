@@ -15,13 +15,14 @@ import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.entity.PreferenceKey;
 import org.complitex.dictionary.service.SessionBean;
 import org.complitex.dictionary.util.ResourceUtil;
+import org.complitex.dictionary.web.component.BookmarkablePageLinkPanel;
 import org.complitex.resources.WebCommonResourceInitializer;
-import org.complitex.template.web.component.LocalePicker;
 import org.complitex.template.web.component.toolbar.HelpButton;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
 import org.odlabs.wiquery.core.commons.CoreJavaScriptResourceReference;
@@ -102,6 +103,14 @@ public abstract class TemplatePage extends WebPage {
 
         add(new Label("current_user_fullname", fullName != null ? fullName : ""));
         add(new Label("current_user_department", depName != null ? depName : ""));
+
+        try {
+            //noinspection unchecked
+            add(new BookmarkablePageLinkPanel("profile", getString("profile"),
+                    getClass().getClassLoader().loadClass("org.complitex.admin.web.ProfilePage"), null));
+        } catch (ClassNotFoundException e) {
+            add(new EmptyPanel("profile"));
+        }
 
         add(new Form("exit") {
 

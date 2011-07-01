@@ -1,13 +1,16 @@
 package org.complitex.dictionary.service;
 
+import org.apache.wicket.util.string.Strings;
+import org.complitex.dictionary.service.exception.WrongCurrentPasswordException;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
 
 import javax.annotation.Resource;
 import javax.annotation.security.DeclareRoles;
-import javax.ejb.*;
+import javax.ejb.EJB;
+import javax.ejb.SessionContext;
+import javax.ejb.Stateless;
 import java.util.*;
-import org.apache.wicket.util.string.Strings;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -129,4 +132,8 @@ public class SessionBean extends AbstractBean {
             return "[NA]";
         }
     }
+
+     public void updatePassword(String currentPassword, final String password) throws WrongCurrentPasswordException{
+         userProfileBean.updatePassword(currentPassword, password);
+     }
 }
