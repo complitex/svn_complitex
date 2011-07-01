@@ -7,15 +7,14 @@ import org.complitex.dictionary.entity.description.EntityAttributeType;
 import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.mybatis.Transactional;
 import org.complitex.dictionary.service.AbstractBean;
-import org.complitex.dictionary.strategy.StrategyFactory;
+import org.complitex.dictionary.util.DateUtil;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
-import org.complitex.dictionary.strategy.IStrategy;
-import org.complitex.dictionary.util.DateUtil;
+import java.util.Map;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -57,6 +56,24 @@ public class UserBean extends AbstractBean {
 
     @Transactional
     public void save(User user){
+        //удаление дубликатов организаций
+        Map<Long, UserOrganization> userOrganizationMap = new HashMap<Long, UserOrganization>();
+        for (UserOrganization userOrganization : user.getUserOrganizations()){
+            userOrganizationMap.put(userOrganization.getOrganizationObjectId(), userOrganization);
+        }
+
+        //установка главной организации, если не установлено пользователем
+        boolean hasMain = false;
+        for (UserOrganization userOrganization : userOrganizationMap.values()){
+            if (userOrganization.isMain()){
+                hasMain = true;
+                break;
+            }
+        }
+        if (!hasMain && !userOrganizationMap.isEmpty()){
+            userOrganizationMap.values().iterator().next().setMain(true);
+        }
+
         if (user.getId() == null){ //Сохранение нового пользователя
             //сохранение информации о пользователе
             userInfoStrategy.insert(user.getUserInfo(), DateUtil.getCurrentDate());
@@ -73,9 +90,11 @@ public class UserBean extends AbstractBean {
             }
 
             //сохранение организаций
-            for (UserOrganization userOrganization : user.getUserOrganizations()){
-                userOrganization.setUserId(user.getId());
-                sqlSession().insert(STATEMENT_PREFIX + ".insertUserOrganization", userOrganization);
+            for (UserOrganization userOrganization : userOrganizationMap.values()){
+                if (userOrganization.getOrganizationObjectId() != null){
+                    userOrganization.setUserId(user.getId());
+                    sqlSession().insert(STATEMENT_PREFIX + ".insertUserOrganization", userOrganization);
+                }
             }
 
         }else{ //Редактирование пользователя
@@ -118,7 +137,11 @@ public class UserBean extends AbstractBean {
             for (UserOrganization dbUserOrganization : dbUser.getUserOrganizations()){
                 boolean contain = false;
 
-                for (UserOrganization userOrganization : user.getUserOrganizations()){
+                for (UserOrganization userOrganization : userOrganizationMap.values()){
+                    if (userOrganization.getOrganizationObjectId() == null){
+                        continue;
+                    }
+
                     if (userOrganization.getOrganizationObjectId().equals(dbUserOrganization.getOrganizationObjectId())){
                         contain = true;
 
@@ -137,7 +160,11 @@ public class UserBean extends AbstractBean {
             }
 
             //добавление организаций
-            for (UserOrganization userOrganization : user.getUserOrganizations()){
+            for (UserOrganization userOrganization : userOrganizationMap.values()){
+                if (userOrganization.getOrganizationObjectId() == null){
+                    continue;
+                }
+
                 boolean contain = false;
 
                 for (UserOrganization dbUserOrganization : dbUser.getUserOrganizations()){

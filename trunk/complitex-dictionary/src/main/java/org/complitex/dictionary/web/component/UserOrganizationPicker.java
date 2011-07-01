@@ -6,6 +6,8 @@ package org.complitex.dictionary.web.component;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -20,17 +22,22 @@ import java.util.List;
  *
  * @author Artem
  */
-public final class UserOrganizationPicker extends Panel {
+public class UserOrganizationPicker extends Panel {
 
     @EJB(name = "OrganizationStrategy")
     private IOrganizationStrategy organizationStrategy;
 
     public UserOrganizationPicker(String id, IModel<Long> organizationIdModel, Long... excludeOrganizationsId) {
-        super(id);
-        init(organizationIdModel, excludeOrganizationsId);
+        this(id, organizationIdModel, false, excludeOrganizationsId);
     }
 
-    private void init(final IModel<Long> organizationIdModel, final Long... excludeOrganizationsId) {
+    public UserOrganizationPicker(String id, IModel<Long> organizationIdModel,  boolean updating, Long... excludeOrganizationsId) {
+        super(id);
+
+        init(organizationIdModel, updating, excludeOrganizationsId);
+    }
+
+    private void init(final IModel<Long> organizationIdModel, boolean updating, final Long... excludeOrganizationsId) {
         final IModel<List<? extends DomainObject>> userOrganizationsModel = new LoadableDetachableModel<List<? extends DomainObject>>() {
 
             @Override
@@ -71,6 +78,21 @@ public final class UserOrganizationPicker extends Panel {
         };
         DisableAwareDropDownChoice<DomainObject> select = new DisableAwareDropDownChoice<DomainObject>("select", model, userOrganizationsModel, renderer);
         select.setNullValid(true);
+        select.setOutputMarkupId(true);
+
+        if (updating) {
+            select.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+                @Override
+                protected void onUpdate(AjaxRequestTarget target) {
+                    UserOrganizationPicker.this.onUpdate(target);
+                }
+            });
+        }
+
         add(select);
+    }
+
+    protected void onUpdate(AjaxRequestTarget target){
+
     }
 }
