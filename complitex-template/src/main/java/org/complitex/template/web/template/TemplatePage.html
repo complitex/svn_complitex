@@ -11,7 +11,7 @@
                 <td id="Header">
                     <div>
                         <a href="#" wicket:id="home">
-                            <div style="position:absolute; height: 107px; width:244px; cursor: auto;"></div>
+                            <span style="position:absolute; height: 107px; width:244px; cursor: auto;"></span>
                         </a>
                     </div>
 
@@ -19,8 +19,11 @@
                         <table border="0" cellspacing="0" cellpadding="0" >
                             <tr>
                                 <td>
-                                    <span wicket:id="current_user_fullname"></span><br/>
-                                    <b wicket:id="current_user_department"></b>
+                                    <table>
+                                        <tr><td><span wicket:id="current_user_fullname"></span></td></tr>
+                                        <tr><td><b wicket:id="current_user_department"></b></td></tr>
+                                        <tr><td><span wicket:id="profile"></span></td></tr>
+                                    </table>
                                 </td>
                                 <td>
                                     <form wicket:id="exit" action="">
