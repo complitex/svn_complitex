@@ -4,24 +4,31 @@ import org.apache.wicket.Request;
 import org.apache.wicket.protocol.http.WebSession;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.Preference;
-import org.complitex.dictionary.strategy.StrategyFactory;
-
-import java.util.*;
-
 import org.complitex.dictionary.service.LocaleBean;
+import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.util.EjbBeanLocator;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  *
  * @author Artem
  */
 public class DictionaryFwSession extends WebSession {
-    public final static String LOCALE_PAGE = "global#locale";
+    public final static String GLOBAL_PAGE = "global";
+
     public final static String LOCALE_KEY = "locale";
 
     public final static String GLOBAL_STATE_PAGE = "global#search_component_state";
     public final static String GLOBAL_STATE_KEY = "SEARCH_COMPONENT_STATE";
+
+    public final static String DEFAULT_STATE_PAGE = "default#search_component_state";
+
+    public final static String IS_USE_DEFAULT_STATE_KEY = "is_use_default_search_component_state";
 
     private Map<String, SearchComponentState> searchComponentSessionState = new HashMap<String, SearchComponentState>();
 
@@ -45,7 +52,7 @@ public class DictionaryFwSession extends WebSession {
         }
 
         //locale
-        String language = getPreferenceString(LOCALE_PAGE, LOCALE_KEY);
+        String language = getPreferenceString(GLOBAL_PAGE, LOCALE_KEY);
         super.setLocale(language != null ? new Locale(language) : localeBean.getSystemLocale());
     }
 
@@ -197,20 +204,14 @@ public class DictionaryFwSession extends WebSession {
     public SearchComponentState getGlobalSearchComponentState() {
         SearchComponentState componentState = searchComponentSessionState.get(GLOBAL_STATE_KEY);
 
+        //load state
         if (componentState == null) {
             componentState = new SearchComponentState();
 
-            //load state
-            for (Preference p :getPreferenceMap(GLOBAL_STATE_PAGE).values()){
-                if (!SearchComponentState.NOT_SPECIFIED_ID.toString().equals(p.getValue())){
-                    try {
-                        componentState.put(p.getKey(), strategyFactory.getStrategy(p.getKey()).findById(Long.valueOf(p.getValue()), true));
-                    } catch (Exception e) {
-                        //wtf
-                    }
-                }else {
-                    componentState.put(p.getKey(), new DomainObject(SearchComponentState.NOT_SPECIFIED_ID));
-                }
+            boolean useDefault = getPreferenceBoolean(GLOBAL_PAGE, IS_USE_DEFAULT_STATE_KEY);
+
+            for (Preference p :getPreferenceMap(useDefault ? DEFAULT_STATE_PAGE : GLOBAL_STATE_PAGE).values()){
+                componentState.put(p.getKey(), getPreferenceDomainObject(p.getPage(), p.getKey()));
             }
 
             searchComponentSessionState.put(GLOBAL_STATE_KEY, componentState);
@@ -219,9 +220,37 @@ public class DictionaryFwSession extends WebSession {
         return componentState;
     }
 
+     public DomainObject getPreferenceDomainObject(String page, String key){
+        Preference p = getPreference(page, key);
+
+        if (p != null){
+            try {
+                Long domainObjectId = Long.valueOf(p.getValue());
+
+                if (!domainObjectId.equals(SearchComponentState.NOT_SPECIFIED_ID)) {
+                    return strategyFactory.getStrategy(p.getKey()).findById(domainObjectId, true);
+                }
+            } catch (Exception e) {
+                //wtf
+            }
+        }
+
+        return new DomainObject(SearchComponentState.NOT_SPECIFIED_ID);
+    }
+
+    public Preference getOrCreatePreference(String page, String key){
+        Preference preference = getPreference(page, key);
+
+        if (preference == null){
+            preference = new Preference(sessionStorage.getUserId(), page, key);
+        }
+
+        return preference;
+    }
+
     @Override
     public Locale getLocale() {
-        if (getPreferenceString(LOCALE_PAGE, LOCALE_KEY) == null){
+        if (getPreferenceString(GLOBAL_PAGE, LOCALE_KEY) == null){
             setLocale(localeBean.getSystemLocale());
         }
 
@@ -230,7 +259,7 @@ public class DictionaryFwSession extends WebSession {
 
     @Override
     public void setLocale(Locale locale) {
-        putPreference(LOCALE_PAGE, LOCALE_KEY, locale.getLanguage(), true);
+        putPreference(GLOBAL_PAGE, LOCALE_KEY, locale.getLanguage(), true);
 
         super.setLocale(locale);
     }

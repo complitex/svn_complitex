@@ -10,6 +10,10 @@
         <result column="value" property="value"/>
     </resultMap>
 
+     <select id="selectPreference" resultMap="preferenceResultMap" parameterType="map">
+        select * from `preference` where `user_id` = #{userId} and `page` = #{page} and `key` = #{key}
+    </select>
+
     <select id="selectPreferences" resultMap="preferenceResultMap" parameterType="long">
         select * from `preference` where `user_id` = #{id}
     </select>
