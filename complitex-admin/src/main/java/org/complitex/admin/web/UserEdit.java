@@ -26,7 +26,10 @@ import org.complitex.dictionary.service.PreferenceBean;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.util.CloneUtil;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
+import org.complitex.dictionary.web.component.ShowMode;
 import org.complitex.dictionary.web.component.UserOrganizationPicker;
+import org.complitex.dictionary.web.component.search.SearchComponentState;
+import org.complitex.dictionary.web.component.search.WiQuerySearchComponent;
 import org.complitex.template.web.component.LocalePicker;
 import org.complitex.template.web.security.SecurityRole;
 import org.complitex.template.web.template.FormTemplatePage;
@@ -34,14 +37,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.Locale;
 
 import static org.complitex.dictionary.entity.UserGroup.GROUP_NAME.*;
-import static org.complitex.dictionary.web.DictionaryFwSession.LOCALE_KEY;
-import static org.complitex.dictionary.web.DictionaryFwSession.LOCALE_PAGE;
+import static org.complitex.dictionary.web.DictionaryFwSession.*;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -112,15 +112,11 @@ public class UserEdit extends FormTemplatePage {
         form.add(userInfo);
 
         //Локаль
-        String language = null;
-        for (Preference p : preferenceBean.getPreferences(userId)){
-            if (LOCALE_PAGE.equals(p.getPage()) && LOCALE_KEY.equals(p.getKey())){
-                language = p.getValue();
-                break;
-            }
-        }
+        Preference localePreference = preferenceBean.getPreference(userId, GLOBAL_PAGE, LOCALE_KEY);
 
-        final IModel<java.util.Locale> localeModel = new Model<Locale>(language != null ? new Locale(language) : localeBean.getSystemLocale());
+        final IModel<java.util.Locale> localeModel = new Model<Locale>(localePreference != null
+                ? new Locale(localePreference.getValue())
+                : localeBean.getSystemLocale());
         form.add(new LocalePicker("locale", localeModel, false));
 
         //Группы привилегий
@@ -184,6 +180,21 @@ public class UserEdit extends FormTemplatePage {
             }
         });
 
+        //Адрес по умолчанию
+        final List<String> searchFilters = Arrays.asList("country", "region", "city", "street");
+
+        final Preference useDefaultPreference = preferenceBean.getOrCreatePreference(userId, GLOBAL_PAGE, IS_USE_DEFAULT_STATE_KEY);
+        final Model<Boolean> useDefaultModel = new Model<Boolean>(Boolean.valueOf(useDefaultPreference.getValue()));
+        form.add(new CheckBox("use_default_address", useDefaultModel));
+
+        final SearchComponentState searchComponentState = new SearchComponentState();
+
+        for (String s : searchFilters){
+            searchComponentState.put(s, preferenceBean.getPreferenceDomainObject(userId, DEFAULT_STATE_PAGE, s));
+        }
+
+        form.add(new WiQuerySearchComponent("searchComponent", searchComponentState, searchFilters, null, ShowMode.ALL, true));
+
         //Сохранить
         Button save = new Button("save") {
 
@@ -199,13 +210,21 @@ public class UserEdit extends FormTemplatePage {
 
                     userBean.save(user);
 
-                    for (Preference p : preferenceBean.getPreferences(userId)){
-                        if (LOCALE_PAGE.equals(p.getPage()) && LOCALE_KEY.equals(p.getKey())){
-                            p.setValue(localeModel.getObject().getLanguage());
-                            preferenceBean.save(p);
-                            break;
+                    //Локаль
+                    preferenceBean.save(userId, GLOBAL_PAGE, LOCALE_KEY, localeModel.getObject().getLanguage());
+
+                    //Адрес по умолчанию
+                    for (String s : searchFilters){
+                        DomainObject domainObject =  searchComponentState.get(s);
+
+                        if (domainObject != null) {
+                            preferenceBean.save(userId, DEFAULT_STATE_PAGE, s, domainObject.getId() + "");
                         }
                     }
+
+                    //Использовать ли адрес по умолчанию при входе в систему
+                    useDefaultPreference.setValue(useDefaultModel.getObject().toString());
+                    preferenceBean.save(useDefaultPreference);
 
                     logBean.info(Module.NAME, UserEdit.class, User.class, null, user.getId(),
                             (userId == null) ? Log.EVENT.CREATE : Log.EVENT.EDIT, getLogChanges(oldUser, user), null);
