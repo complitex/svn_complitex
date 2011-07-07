@@ -24,11 +24,12 @@ import org.complitex.dictionary.entity.User;
 import org.complitex.dictionary.entity.UserGroup;
 import org.complitex.dictionary.entity.UserOrganization;
 import org.complitex.dictionary.entity.example.AttributeExample;
+import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.web.component.*;
 import org.complitex.dictionary.web.component.datatable.ArrowOrderByBorder;
+import org.complitex.dictionary.web.component.datatable.DataProvider;
 import org.complitex.dictionary.web.component.paging.PagingNavigator;
 import org.complitex.dictionary.web.component.scroll.ScrollListBehavior;
-import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.template.web.component.toolbar.AddUserButton;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
 import org.complitex.template.web.pages.ScrollListPage;
@@ -38,7 +39,6 @@ import javax.ejb.EJB;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import org.complitex.dictionary.web.component.datatable.DataProvider;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -169,6 +169,10 @@ public class UserList extends ScrollListPage {
                 item.add(new BookmarkablePageLinkPanel<User>("action_edit", getString("action_edit"),
                         ScrollListBehavior.SCROLL_PREFIX + String.valueOf(user.getId()),
                         UserEdit.class, new PageParameters("user_id=" + user.getId())));
+
+                item.add(new BookmarkablePageLinkPanel<User>("action_copy", getString("action_copy"),
+                        ScrollListBehavior.SCROLL_PREFIX + String.valueOf(user.getId()),
+                        UserEdit.class, new PageParameters("user_id=" + user.getId() + ",action=copy")));
             }
         };
         filterForm.add(dataView);
@@ -180,7 +184,7 @@ public class UserList extends ScrollListPage {
                 dataProvider, dataView, filterForm));
 
         //Постраничная навигация
-        filterForm.add(new PagingNavigator("paging", dataView, getClass().getName(), filterForm));
+        filterForm.add(new PagingNavigator("paging", dataView, UserList.class.getName(), filterForm));
     }
 
     /**

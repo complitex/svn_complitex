@@ -53,6 +53,8 @@ import static org.complitex.dictionary.web.DictionaryFwSession.*;
 public class UserEdit extends FormTemplatePage {
     private static final Logger log = LoggerFactory.getLogger(UserEdit.class);
 
+    private static final List<String> SEARCH_FILTERS = Arrays.asList("country", "region", "city", "street");
+
     @EJB(name = "OrganizationStrategy")
     private IOrganizationStrategy organizationStrategy;
 
@@ -73,21 +75,51 @@ public class UserEdit extends FormTemplatePage {
 
     public UserEdit() {
         super();
-        init(null);
+        init(null, false);
     }
 
     public UserEdit(final PageParameters parameters) {
         super();
-        init(parameters.getAsLong("user_id"));
+        init(parameters.getAsLong("user_id"), "copy".equals(parameters.getString("action")));
     }
 
-    private void init(final Long userId) {
+    private void init(Long userId, boolean copyUser) {
         add(new Label("title", new ResourceModel("title")));
         add(new FeedbackPanel("messages"));
 
         //Модель данных
-        //todo catch exception
-        final IModel<User> userModel = new Model<User>(userId != null ? userBean.getUser(userId) : userBean.newUser());
+        User user = userId != null ? userBean.getUser(userId) : userBean.newUser();
+        final IModel<User> userModel = new Model<User>(user);
+
+        final Preference useDefaultPreference = preferenceBean.getOrCreatePreference(userId, GLOBAL_PAGE, IS_USE_DEFAULT_STATE_KEY);
+
+        final SearchComponentState searchComponentState = new SearchComponentState();
+
+        if (userId != null) {
+            for (String s : SEARCH_FILTERS){
+                searchComponentState.put(s, preferenceBean.getPreferenceDomainObject(userId, DEFAULT_STATE_PAGE, s));
+            }
+        }
+
+        //Копирование
+        if (copyUser){
+            userId = null;
+            user.setId(null);
+            user.setUserInfoObjectId(null);
+
+            for (UserOrganization userOrganization : user.getUserOrganizations()){
+                userOrganization.setId(null);
+                userOrganization.setUserId(null);
+            }
+
+            for (UserGroup userGroup : user.getUserGroups()){
+                userGroup.setId(null);
+                userGroup.setLogin(null);
+            }
+
+            useDefaultPreference.setId(null);
+            useDefaultPreference.setUserId(null);
+        }
 
         final User oldUser = (userId != null) ? CloneUtil.cloneObject(userModel.getObject()) : null;
 
@@ -181,19 +213,11 @@ public class UserEdit extends FormTemplatePage {
         });
 
         //Адрес по умолчанию
-        final List<String> searchFilters = Arrays.asList("country", "region", "city", "street");
-
-        final Preference useDefaultPreference = preferenceBean.getOrCreatePreference(userId, GLOBAL_PAGE, IS_USE_DEFAULT_STATE_KEY);
         final Model<Boolean> useDefaultModel = new Model<Boolean>(Boolean.valueOf(useDefaultPreference.getValue()));
         form.add(new CheckBox("use_default_address", useDefaultModel));
 
-        final SearchComponentState searchComponentState = new SearchComponentState();
 
-        for (String s : searchFilters){
-            searchComponentState.put(s, preferenceBean.getPreferenceDomainObject(userId, DEFAULT_STATE_PAGE, s));
-        }
-
-        form.add(new WiQuerySearchComponent("searchComponent", searchComponentState, searchFilters, null, ShowMode.ALL, true));
+        form.add(new WiQuerySearchComponent("searchComponent", searchComponentState, SEARCH_FILTERS, null, ShowMode.ALL, true));
 
         //Сохранить
         Button save = new Button("save") {
@@ -203,7 +227,7 @@ public class UserEdit extends FormTemplatePage {
                 User user = userModel.getObject();
 
                 try {
-                    if (userId == null && !userBean.isUniqueLogin(user.getLogin())) {
+                    if (user.getId() == null && !userBean.isUniqueLogin(user.getLogin())) {
                         error(getString("error.login_not_unique"));
                         return;
                     }
@@ -211,27 +235,28 @@ public class UserEdit extends FormTemplatePage {
                     userBean.save(user);
 
                     //Локаль
-                    preferenceBean.save(userId, GLOBAL_PAGE, LOCALE_KEY, localeModel.getObject().getLanguage());
+                    preferenceBean.save(user.getId(), GLOBAL_PAGE, LOCALE_KEY, localeModel.getObject().getLanguage());
 
                     //Адрес по умолчанию
-                    for (String s : searchFilters){
+                    for (String s : SEARCH_FILTERS){
                         DomainObject domainObject =  searchComponentState.get(s);
 
                         if (domainObject != null) {
-                            preferenceBean.save(userId, DEFAULT_STATE_PAGE, s, domainObject.getId() + "");
+                            preferenceBean.save(user.getId(), DEFAULT_STATE_PAGE, s, domainObject.getId() + "");
                         }
                     }
 
                     //Использовать ли адрес по умолчанию при входе в систему
+                    useDefaultPreference.setUserId(user.getId());
                     useDefaultPreference.setValue(useDefaultModel.getObject().toString());
                     preferenceBean.save(useDefaultPreference);
 
                     logBean.info(Module.NAME, UserEdit.class, User.class, null, user.getId(),
-                            (userId == null) ? Log.EVENT.CREATE : Log.EVENT.EDIT, getLogChanges(oldUser, user), null);
+                            (user.getId() == null) ? Log.EVENT.CREATE : Log.EVENT.EDIT, getLogChanges(oldUser, user), null);
 
                     log.info("Пользователь сохранен: {}", user);
                     getSession().info(getString("info.saved"));
-                    back(userId);
+                    back(user.getId());
                 } catch (Exception e) {
                     log.error("Ошибка сохранения пользователя", e);
                     getSession().error(getString("error.saved"));
@@ -245,7 +270,7 @@ public class UserEdit extends FormTemplatePage {
 
             @Override
             public void onSubmit() {
-                back(userId);
+                back(userModel.getObject().getId());
             }
         };
         cancel.setDefaultFormProcessing(false);
