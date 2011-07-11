@@ -42,21 +42,6 @@ CREATE TABLE `entity` (
   CONSTRAINT `fk_entity__string_culture` FOREIGN KEY (`entity_name_id`) REFERENCES `string_culture` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Сущность';
 
-DROP TABLE IF EXISTS `entity_type`;
-
-CREATE TABLE `entity_type` (
-  `id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'Идентификатор типа сущности',
-  `entity_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор сущности',
-  `entity_type_name_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор локализации названия типа сущности',
-  `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Дата начала периода действия типа сущности',
-  `end_date` TIMESTAMP NULL DEFAULT NULL COMMENT 'Дата окончания периода действия типа сущности',
-  PRIMARY KEY (`id`),
-  KEY `key_entity_id` (`entity_id`),
-  KEY `key_entity_type_name_id` (`entity_type_name_id`),
-  CONSTRAINT `fk_entity_type__entity` FOREIGN KEY (`entity_id`) REFERENCES `entity` (`id`),
-  CONSTRAINT `fk_entity_type__string_culture` FOREIGN KEY (`entity_type_name_id`) REFERENCES `string_culture` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Тип сущности';
-
 DROP TABLE IF EXISTS `entity_attribute_type`;
 
 CREATE TABLE `entity_attribute_type` (
@@ -97,7 +82,6 @@ CREATE TABLE `apartment` (
   `object_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор объекта',
   `parent_id` BIGINT(20) COMMENT 'Идентификатор родительского объекта',
   `parent_entity_id` BIGINT(20) COMMENT 'Идентификатор сущности родительского объекта: 500 - building',
-  `entity_type_id` BIGINT(20) COMMENT 'Идентификатор типа сущности: не используется',
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Дата начала периода действия объекта',
   `end_date` TIMESTAMP NULL DEFAULT NULL COMMENT 'Дата окончания периода действия объекта',
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' COMMENT 'Статус объекта. См. класс StatusType',
@@ -108,13 +92,11 @@ CREATE TABLE `apartment` (
   UNIQUE KEY `unique_external_id` (`external_id`),
   KEY `key_object_id` (object_id),
   KEY `key_parent_id` (`parent_id`),
-  KEY `key_entity_type_id` (`entity_type_id`),
   KEY `key_parent_entity_id` (`parent_entity_id`),
   KEY `key_start_date` (`start_date`),
   KEY `key_end_date` (`end_date`),
   KEY `key_status` (`status`),
   KEY `key_permission_id` (`permission_id`),
-  CONSTRAINT `fk_apartment__entity_type` FOREIGN KEY (`entity_type_id`) REFERENCES `entity_type` (`id`),
   CONSTRAINT `fk_apartment__entity` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`),
   CONSTRAINT `fk_apartment__permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`permission_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Квартира';
@@ -171,7 +153,6 @@ CREATE TABLE `room` (
   `object_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор объекта',
   `parent_id` BIGINT(20) COMMENT 'Идентификатор родительского объекта',
   `parent_entity_id` BIGINT(20) COMMENT 'Идентификатор сущности родительского объекта: 100 - building',
-  `entity_type_id` BIGINT(20) COMMENT 'Идентификатор типа сущности: не используется',
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Начало действия значений параметров объекта',
   `end_date` TIMESTAMP NULL DEFAULT NULL COMMENT 'Дата окончания периода действия объекта',
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' COMMENT 'Статус: ACTIVE, INACTIVE, ARCHIVE',
@@ -183,12 +164,10 @@ CREATE TABLE `room` (
   KEY `key_object_id` (`object_id`),
   KEY `key_parent_id` (`parent_id`),
   KEY `key_parent_entity_id` (`parent_entity_id`),
-  KEY `key_entity_type_id` (`entity_type_id`),
   KEY `key_start_date` (`start_date`),
   KEY `key_end_date` (`end_date`),
   KEY `key_status` (`status`),
   KEY `key_permission_id` (`permission_id`),
-  CONSTRAINT `fk_room__entity_type` FOREIGN KEY (`entity_type_id`) REFERENCES `entity_type` (`id`),
   CONSTRAINT `fk_room__entity` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`),
   CONSTRAINT `fk_room__permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`permission_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Комната';
@@ -245,7 +224,6 @@ CREATE TABLE `street` (
   `object_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор объекта',
   `parent_id` BIGINT(20) COMMENT 'Идентификатор родительского объекта',
   `parent_entity_id` BIGINT(20) COMMENT 'Идентификатор сущности родительского объекта: 400 - city',
-  `entity_type_id` BIGINT(20) COMMENT 'Идентификатор типа сущности: не используется',
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Дата начала периода действия объекта',
   `end_date` TIMESTAMP NULL DEFAULT NULL COMMENT 'Дата окончания периода действия объекта',
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' COMMENT 'Статус: ACTIVE, INACTIVE, ARCHIVE',
@@ -257,12 +235,10 @@ CREATE TABLE `street` (
   KEY `key_object_id` (`object_id`),
   KEY `key_parent_id` (`parent_id`),
   KEY `key_parent_entity_id` (`parent_entity_id`),
-  KEY `key_entity_type_id` (`entity_type_id`),
   KEY `key_start_date` (`start_date`),
   KEY `key_end_date` (`end_date`),
   KEY `key_status` (`status`),
   KEY `key_permission_id` (`permission_id`),
-  CONSTRAINT `fk_street__entity_type` FOREIGN KEY (`entity_type_id`) REFERENCES `entity_type` (`id`),
   CONSTRAINT `fk_street__entity` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`),
   CONSTRAINT `fk_street__permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`permission_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Улица';
@@ -320,7 +296,6 @@ CREATE TABLE `street_type` (
   `object_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор объекта',
   `parent_id` BIGINT(20) COMMENT 'Идентификатор родительского объекта: не используется',
   `parent_entity_id` BIGINT(20) COMMENT 'Идентификатор сущности родительского объекта: не используется',
-  `entity_type_id` BIGINT(20) COMMENT 'Идентификатор типа сущности: не используется',
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Дата начала периода действия объекта',
   `end_date` TIMESTAMP NULL DEFAULT NULL COMMENT 'Дата окончания периода действия объекта',
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' COMMENT 'Статус: ACTIVE, INACTIVE, ARCHIVE',
@@ -331,13 +306,11 @@ CREATE TABLE `street_type` (
   UNIQUE KEY `unique_external_id` (`external_id`),
   KEY `key_object_id` (object_id),
   KEY `key_parent_id` (`parent_id`),
-  KEY `key_entity_type_id` (`entity_type_id`),
   KEY `key_parent_entity_id` (`parent_entity_id`),
   KEY `key_start_date` (`start_date`),
   KEY `key_end_date` (`end_date`),
   KEY `key_status` (`status`),
   KEY `key_permission_id` (`permission_id`),
-  CONSTRAINT `fk_street_type__entity_type` FOREIGN KEY (`entity_type_id`) REFERENCES `entity_type` (`id`),
   CONSTRAINT `fk_street_type__entity` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`),
   CONSTRAINT `fk_street_type__permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`permission_id`)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8 COMMENT 'Тип улицы';
@@ -394,7 +367,6 @@ CREATE TABLE `city` (
   `object_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор объекта',
   `parent_id` BIGINT(20) COMMENT 'Идентификатор родительского объекта',
   `parent_entity_id` BIGINT(20) COMMENT 'Идентификатор сущности родительского объекта: 700 - region',
-  `entity_type_id` BIGINT(20) COMMENT 'Идентификатор типа сущности: не используется',
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Дата начала периода действия объекта',
   `end_date` TIMESTAMP NULL DEFAULT NULL COMMENT 'Дата окончания периода действия объекта',
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' COMMENT 'Статус: ACTIVE, INACTIVE, ARCHIVE',
@@ -406,12 +378,10 @@ CREATE TABLE `city` (
   KEY `key_object_id` (`object_id`),
   KEY `key_parent_id` (`parent_id`),
   KEY `key_parent_entity_id` (`parent_entity_id`),
-  KEY `key_entity_type_id` (`entity_type_id`),
   KEY `key_start_date` (`start_date`),
   KEY `key_end_date` (`end_date`),
   KEY `key_status` (`status`),
   KEY `key_permission_id` (`permission_id`),
-  CONSTRAINT `fk_city__entity_type` FOREIGN KEY (`entity_type_id`) REFERENCES `entity_type` (`id`),
   CONSTRAINT `ft_city__entity` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`),
   CONSTRAINT `fk_city__permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`permission_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Населенный пункт';
@@ -469,7 +439,6 @@ CREATE TABLE `city_type` (
   `object_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор объекта',
   `parent_id` BIGINT(20) COMMENT 'Идентификатор родительского объекта: не используется',
   `parent_entity_id` BIGINT(20) COMMENT 'Идентификатор сущности родительского объекта: не используется',
-  `entity_type_id` BIGINT(20) COMMENT 'Идентификатор типа сущности: не используется',
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Дата начала периода действия объекта',
   `end_date` TIMESTAMP NULL DEFAULT NULL COMMENT 'Дата окончания периода действия объекта',
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' COMMENT 'Статус: ACTIVE, INACTIVE, ARCHIVE',
@@ -480,13 +449,11 @@ CREATE TABLE `city_type` (
   UNIQUE KEY `unique_external_id` (`external_id`),
   KEY `key_object_id` (object_id),
   KEY `key_parent_id` (`parent_id`),
-  KEY `key_entity_type_id` (`entity_type_id`),
   KEY `key_parent_entity_id` (`parent_entity_id`),
   KEY `key_start_date` (`start_date`),
   KEY `key_end_date` (`end_date`),
   KEY `key_status` (`status`),
   KEY `key_permission_id` (`permission_id`),
-  CONSTRAINT `fk_city_type__entity_type` FOREIGN KEY (`entity_type_id`) REFERENCES `entity_type` (`id`),
   CONSTRAINT `fk_city_type__entity` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`),
   CONSTRAINT `fk_city_type__permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`permission_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Тип населенного пункта';
@@ -543,7 +510,6 @@ CREATE TABLE `building_address` (
   `object_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор объекта',
   `parent_id` BIGINT(20) COMMENT 'Идентификатор родительского объекта',
   `parent_entity_id` BIGINT(20) COMMENT 'Идентификатор сущности родительского объекта: 300 - street',
-  `entity_type_id` BIGINT(20) COMMENT 'Идентификатор типа сущности: не используется',
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Дата начала периода действия объекта',
   `end_date` TIMESTAMP NULL DEFAULT NULL COMMENT 'Дата окончания периода действия объекта',
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' COMMENT 'Статус: ACTIVE, INACTIVE, ARCHIVE',
@@ -555,12 +521,10 @@ CREATE TABLE `building_address` (
   KEY `key_object_id` (`object_id`),
   KEY `key_parent_id` (`parent_id`),
   KEY `key_parent_entity_id` (`parent_entity_id`),
-  KEY `key_entity_type_id` (`entity_type_id`),
   KEY `key_start_date` (`start_date`),
   KEY `key_end_date` (`end_date`),
   KEY `key_status` (`status`),
   KEY `key_permission_id` (`permission_id`),
-  CONSTRAINT `fk_building_address__entity_type` FOREIGN KEY (`entity_type_id`) REFERENCES `entity_type` (`id`),
   CONSTRAINT `fk_building_address__entity` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`),
   CONSTRAINT `fk_building_address__permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`permission_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Адрес дома';
@@ -617,7 +581,6 @@ CREATE TABLE `building` (
   `object_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор объекта',
   `parent_id` BIGINT(20) COMMENT 'Идентификатор родительского объекта',
   `parent_entity_id` BIGINT(20) COMMENT 'Идентификатор сущности родительского объекта: 1500 - building_address',
-  `entity_type_id` BIGINT(20) COMMENT 'Идентификатор типа сущности: не используется',
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Дата начала периода действия объекта',
   `end_date` TIMESTAMP NULL DEFAULT NULL COMMENT 'Дата окончания периода действия объекта',
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' COMMENT 'Статус: ACTIVE, INACTIVE, ARCHIVE',
@@ -629,12 +592,10 @@ CREATE TABLE `building` (
   KEY `key_object_id` (`object_id`),
   KEY `key_parent_id` (`parent_id`),
   KEY `key_parent_entity_id` (`parent_entity_id`),
-  KEY `key_entity_type_id` (`entity_type_id`),
   KEY `key_start_date` (`start_date`),
   KEY `key_end_date` (`end_date`),
   KEY `key_status` (`status`),
   KEY `key_permission_id` (`permission_id`),
-  CONSTRAINT `fk_building__entity_type` FOREIGN KEY (`entity_type_id`) REFERENCES `entity_type` (`id`),
   CONSTRAINT `fk_building__entity` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`),
   CONSTRAINT `fk_building__permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`permission_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Дом';
@@ -691,7 +652,6 @@ CREATE TABLE `district` (
   `object_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор объекта',
   `parent_id` BIGINT(20) COMMENT 'Идентификатор родительского объекта',
   `parent_entity_id` BIGINT(20) COMMENT 'Идентификатор сущности родительского объекта: 400 - city',
-  `entity_type_id` BIGINT(20) COMMENT 'Идентификатор типа сущности: не используется',
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Дата начала периода действия объекта',
   `end_date` TIMESTAMP NULL DEFAULT NULL COMMENT 'Дата окончания периода действия объекта',
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' COMMENT 'Статус: ACTIVE, INACTIVE, ARCHIVE',
@@ -703,12 +663,10 @@ CREATE TABLE `district` (
   KEY `key_object_id` (`object_id`),
   KEY `key_parent_id` (`parent_id`),
   KEY `key_parent_entity_id` (`parent_entity_id`),
-  KEY `key_entity_type_id` (`entity_type_id`),
   KEY `key_start_date` (`start_date`),
   KEY `key_end_date` (`end_date`),
   KEY `key_status` (`status`),
   KEY `key_permission_id` (`permission_id`),
-  CONSTRAINT `fk_district__entity_type` FOREIGN KEY (`entity_type_id`) REFERENCES `entity_type` (`id`),
   CONSTRAINT `fk_district__entity` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`),
   CONSTRAINT `fk_district__permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`permission_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Район';
@@ -765,7 +723,6 @@ CREATE TABLE `region` (
   `object_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор объекта',
   `parent_id` BIGINT(20) COMMENT 'Идентификатор родительского объекта',
   `parent_entity_id` BIGINT(20) COMMENT 'Идентификатор сущности родительского объекта: 800 - country',
-  `entity_type_id` BIGINT(20) COMMENT 'Идентификатор типа сущности: не используется',
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Дата начала периода действия объекта',
   `end_date` TIMESTAMP NULL DEFAULT NULL COMMENT 'Дата окончания периода действия объекта',
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' COMMENT 'Статус: ACTIVE, INACTIVE, ARCHIVE',
@@ -777,12 +734,10 @@ CREATE TABLE `region` (
   KEY `key_object_id` (`object_id`),
   KEY `key_parent_id` (`parent_id`),
   KEY `key_parent_entity_id` (`parent_entity_id`),
-  KEY `key_entity_type_id` (`entity_type_id`),
   KEY `key_start_date` (`start_date`),
   KEY `key_end_date` (`end_date`),
   KEY `key_status` (`status`),
   KEY `key_permission_id` (`permission_id`),
-  CONSTRAINT `fk_region__entity_type` FOREIGN KEY (`entity_type_id`) REFERENCES `entity_type` (`id`),
   CONSTRAINT `fk_region__entity` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`),
   CONSTRAINT `fk_region__permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`permission_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Регион';
@@ -839,7 +794,6 @@ CREATE TABLE `country` (
   `object_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор объекта',
   `parent_id` BIGINT(20) COMMENT 'Идентификатор родительского объекта: не используется',
   `parent_entity_id` BIGINT(20) COMMENT 'Идентификатор сущности родительского объекта: не используется',
-  `entity_type_id` BIGINT(20) COMMENT 'Идентификатор типа сущности: не используется',
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Дата начала периода действия объекта',
   `end_date` TIMESTAMP NULL DEFAULT NULL COMMENT 'Дата окончания периода действия объекта',
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' COMMENT 'Статус: ACTIVE, INACTIVE, ARCHIVE',
@@ -851,12 +805,10 @@ CREATE TABLE `country` (
   KEY `key_object_id` (`object_id`),
   KEY `key_parent_id` (`parent_id`),
   KEY `key_parent_entity_id` (`parent_entity_id`),
-  KEY `key_entity_type_id` (`entity_type_id`),
   KEY `key_start_date` (`start_date`),
   KEY `key_end_date` (`end_date`),
   KEY `key_status` (`status`),
   KEY `key_permission_id` (`permission_id`),
-  CONSTRAINT `fk_country__entity_type` FOREIGN KEY (`entity_type_id`) REFERENCES `entity_type` (`id`),
   CONSTRAINT `fk_country__entity` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`),
   CONSTRAINT `fk_country__permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`permission_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Страна';
@@ -913,7 +865,6 @@ CREATE TABLE `organization_type` (
   `object_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор объекта',
   `parent_id` BIGINT(20) COMMENT 'Идентификатор родительского объекта: не используется',
   `parent_entity_id` BIGINT(20) COMMENT 'Идентификатор сущности родительского объекта: не используется',
-  `entity_type_id` BIGINT(20) COMMENT 'Идентификатор типа сущности: не используется',
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Дата начала периода действия объекта',
   `end_date` TIMESTAMP NULL DEFAULT NULL COMMENT 'Дата окончания периода действия объекта',
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' COMMENT 'Статус: ACTIVE, INACTIVE, ARCHIVE',
@@ -925,12 +876,10 @@ CREATE TABLE `organization_type` (
   KEY `key_object_id` (`object_id`),
   KEY `key_parent_id` (`parent_id`),
   KEY `key_parent_entity_id` (`parent_entity_id`),
-  KEY `key_entity_type_id` (`entity_type_id`),
   KEY `key_start_date` (`start_date`),
   KEY `key_end_date` (`end_date`),
   KEY `key_status` (`status`),
   KEY `key_permission_id` (`permission_id`),
-  CONSTRAINT `fk_organization_type__entity_type` FOREIGN KEY (`entity_type_id`) REFERENCES `entity_type` (`id`),
   CONSTRAINT `fk_organization_type__entity` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`),
   CONSTRAINT `fk_organization_type__permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`permission_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Тип организации';
@@ -987,7 +936,6 @@ CREATE TABLE `organization` (
   `object_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор объекта',
   `parent_id` BIGINT(20) COMMENT 'Идентификатор родительского объекта: не используется',
   `parent_entity_id` BIGINT(20) COMMENT 'Идентификатор сущности родительского объекта: не используется',
-  `entity_type_id` BIGINT(20) COMMENT 'Идентификатор типа сущности: не используется',
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Дата начала периода действия объекта',
   `end_date` TIMESTAMP NULL DEFAULT NULL COMMENT 'Дата окончания периода действия объекта',
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' COMMENT 'Статус: ACTIVE, INACTIVE, ARCHIVE',
@@ -999,12 +947,10 @@ CREATE TABLE `organization` (
   KEY `key_object_id` (`object_id`),
   KEY `key_parent_id` (`parent_id`),
   KEY `key_parent_entity_id` (`parent_entity_id`),
-  KEY `key_entity_type_id` (`entity_type_id`),
   KEY `key_start_date` (`start_date`),
   KEY `key_end_date` (`end_date`),
   KEY `key_status` (`status`),
   KEY `key_permission_id` (`permission_id`),
-  CONSTRAINT `fk_organization__entity_type` FOREIGN KEY (`entity_type_id`) REFERENCES `entity_type` (`id`),
   CONSTRAINT `fk_organization__entity` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`),
   CONSTRAINT `fk_organization__permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`permission_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Организация';
@@ -1062,7 +1008,6 @@ CREATE TABLE `user_info` (
   `object_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор объекта',
   `parent_id` BIGINT(20) COMMENT 'Идентификатор родительского объекта: не используется',
   `parent_entity_id` BIGINT(20) COMMENT 'Идентификатор сущности родительского объекта: не используется',
-  `entity_type_id` BIGINT(20) COMMENT 'Идентификатор типа сущности: не используется',
   `start_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Дата начала периода действия объекта',
   `end_date` TIMESTAMP NULL DEFAULT NULL COMMENT 'Дата окончания периода действия объекта',
   `status` VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' COMMENT 'Статус: ACTIVE, INACTIVE, ARCHIVE',
@@ -1074,12 +1019,10 @@ CREATE TABLE `user_info` (
   KEY `key_object_id` (`object_id`),
   KEY `key_parent_id` (`parent_id`),
   KEY `key_parent_entity_id` (`parent_entity_id`),
-  KEY `key_entity_type_id` (`entity_type_id`),
   KEY `key_start_date` (`start_date`),
   KEY `key_end_date` (`end_date`),
   KEY `key_status` (`status`),
   KEY `key_permission_id` (`permission_id`),
-  CONSTRAINT `fk_user_info__entity_type` FOREIGN KEY (`entity_type_id`) REFERENCES `entity_type` (`id`),
   CONSTRAINT `fk_user_info__entity` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`),
   CONSTRAINT `fk_user_info__permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`permission_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Информация о пользователе';

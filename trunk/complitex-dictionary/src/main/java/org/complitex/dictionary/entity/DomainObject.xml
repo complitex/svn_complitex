@@ -9,7 +9,6 @@
         <result column="status" property="status"/>
         <result column="parent_id" property="parentId"/>
         <result column="parent_entity_id" property="parentEntityId"/>
-        <result column="entity_type_id" property="entityTypeId"/>
         <result column="permission_id" property="permissionId"/>
         <result column="external_id" property="externalId"/>
     </resultMap>
@@ -17,10 +16,10 @@
     <insert id="insert" parameterType="Parameter">
         INSERT INTO
             `${table}` (`object_id`, `status`, `start_date`, `end_date`, `parent_id`, `parent_entity_id`,
-                `entity_type_id`, `permission_id`, `external_id`)
+                 `permission_id`, `external_id`)
         VALUES
            (#{object.id}, #{object.status}, #{object.startDate}, #{object.endDate}, #{object.parentId},
-            #{object.parentEntityId}, #{object.entityTypeId}, #{object.permissionId}, #{object.externalId})
+            #{object.parentEntityId}, #{object.permissionId}, #{object.externalId})
     </insert>
 
     <select id="findById" resultMap="org.complitex.dictionary.entity.DomainObject.DomainObject" parameterType="DomainObjectExample">
@@ -103,9 +102,6 @@
         <if test="parentId != null and parentEntity != null">
             AND e.`parent_entity_id` = (SELECT ent.`id` FROM `entity` ent WHERE ent.`entity_table` = #{parentEntity}) AND e.`parent_id` = #{parentId}
         </if>
-        <if test="entityTypeId != null">
-            AND e.`entity_type_id` = #{entityTypeId}
-        </if>
     </sql>
 
     <select id="count" resultType="integer" parameterType="DomainObjectExample">
@@ -141,14 +137,6 @@
                 </when>
                 <otherwise>
                     AND e.`parent_entity_id` IS NULL AND e.`parent_id` IS NULL
-                </otherwise>
-            </choose>
-            <choose>
-                <when test="entityTypeId != null">
-                    AND e.`entity_type_id` = #{entityTypeId}
-                </when>
-                <otherwise>
-                     AND e.`entity_type_id` IS NULL
                 </otherwise>
             </choose>
     </select>

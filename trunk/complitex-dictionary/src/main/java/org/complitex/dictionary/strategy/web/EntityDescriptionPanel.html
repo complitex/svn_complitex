@@ -75,48 +75,6 @@
                     <input type="button" class="btnSmall" wicket:id="addAttribute" wicket:message="value:add_attribute"/>
                 </div>
 
-
-                <h4 style="margin-bottom: 10px;">
-                    <wicket:message key="entity_types_label"/>
-                </h4>
-                <table class="tbColor" cellpadding="0" cellspacing="0" border="0">
-                    <thead>
-                        <tr>
-                            <th>
-                                <wicket:message key="entity_type_name"/>
-                            </th>
-                            <th>
-                                <wicket:message key="entity_type_start_date"/>
-                            </th>
-                            <th>
-                                <wicket:message key="entity_type_end_date"/>
-                            </th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody wicket:id="entityTypesContainer">
-                        <tr wicket:id="entityTypes">
-                            <td>
-                                <span wicket:id="name"></span>
-                            </td>
-                            <td>
-                                <span wicket:id="startDate"></span>
-                            </td>
-                            <td>
-                                <span wicket:id="endDate"></span>
-                            </td>
-                            <td>
-                                <a wicket:id="remove">
-                                    <wicket:message key="remove_entity_type"/>
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div>
-                    <input type="button" class="btnSmall" wicket:id="addEntityType" wicket:message="value:add_entity_type"/>
-                </div>
-
                 <div style="margin-top: 30px">
                     <input type="submit" wicket:message="value:save" wicket:id="submit" class="btnMiddle"/>
                 </div>

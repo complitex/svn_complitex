@@ -1,6 +1,5 @@
 package org.complitex.dictionary.web.component;
 
-import com.google.common.base.Predicate;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -9,11 +8,10 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.*;
-import org.apache.wicket.util.string.Strings;
+import static org.apache.wicket.util.string.Strings.*;
 import org.complitex.dictionary.converter.*;
 import org.complitex.dictionary.entity.description.Entity;
 import org.complitex.dictionary.entity.description.EntityAttributeType;
-import org.complitex.dictionary.entity.description.EntityType;
 import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.IStrategy.SimpleObjectInfo;
@@ -29,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -41,11 +38,9 @@ import org.complitex.dictionary.entity.SimpleTypes;
 import org.complitex.dictionary.entity.StringCulture;
 import static org.complitex.dictionary.util.EjbBeanLocator.*;
 
-import static com.google.common.collect.Iterables.filter;
-import static com.google.common.collect.Iterables.find;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newLinkedHashMap;
-import static org.complitex.dictionary.strategy.web.DomainObjectAccessUtil.canEdit;
+import static com.google.common.collect.Lists.*;
+import static com.google.common.collect.Maps.*;
+import static org.complitex.dictionary.strategy.web.DomainObjectAccessUtil.*;
 
 /**
  *
@@ -65,7 +60,7 @@ public class DomainObjectInputPanel extends Panel {
 
         @Override
         public T getObject() {
-            if (!Strings.isEmpty(systemLocaleStringCulture.getValue())) {
+            if (!isEmpty(systemLocaleStringCulture.getValue())) {
                 return converter.toObject(systemLocaleStringCulture.getValue());
             }
             return null;
@@ -88,7 +83,6 @@ public class DomainObjectInputPanel extends Panel {
     private Long parentId;
     private String parentEntity;
     private Date date;
-    private DisableAwareDropDownChoice<EntityType> types;
 
     /**
      * For use in history components
@@ -139,7 +133,7 @@ public class DomainObjectInputPanel extends Panel {
     }
 
     private boolean fromParent() {
-        return parentId != null && !Strings.isEmpty(parentEntity);
+        return parentId != null && !isEmpty(parentEntity);
     }
 
     private IStrategy getStrategy() {
@@ -152,85 +146,6 @@ public class DomainObjectInputPanel extends Panel {
 
     private void init() {
         final Entity description = getStrategy().getEntity();
-
-        //entity type
-        WebMarkupContainer typeContainer = new WebMarkupContainer("typeContainer");
-        add(typeContainer);
-        List<EntityType> allEntityTypes = description.getEntityTypes() != null ? description.getEntityTypes() : new ArrayList<EntityType>();
-
-        final List<EntityType> entityTypes;
-        List<EntityType> liveEntityTypes = newArrayList(filter(allEntityTypes, new Predicate<EntityType>() {
-
-            @Override
-            public boolean apply(EntityType entityType) {
-                return entityType.getEndDate() == null;
-            }
-        }));
-        if (object.getEntityTypeId() != null) {
-            EntityType entityType = find(allEntityTypes, new Predicate<EntityType>() {
-
-                @Override
-                public boolean apply(EntityType type) {
-                    return object.getEntityTypeId().equals(type.getId());
-                }
-            });
-            if (entityType.getEndDate() == null) {
-                entityTypes = liveEntityTypes;
-            } else {
-                entityTypes = allEntityTypes;
-            }
-        } else {
-            entityTypes = liveEntityTypes;
-        }
-
-        if (entityTypes.isEmpty()) {
-            typeContainer.setVisible(false);
-        }
-        IModel<EntityType> typeModel = new Model<EntityType>() {
-
-            @Override
-            public void setObject(EntityType entityType) {
-                object.setEntityTypeId(entityType.getId());
-            }
-
-            @Override
-            public EntityType getObject() {
-                if (object.getEntityTypeId() != null) {
-                    return find(entityTypes, new Predicate<EntityType>() {
-
-                        @Override
-                        public boolean apply(EntityType entityType) {
-                            return entityType.getId().equals(object.getEntityTypeId());
-                        }
-                    });
-                } else {
-                    return null;
-                }
-            }
-        };
-        IDisableAwareChoiceRenderer<EntityType> renderer = new IDisableAwareChoiceRenderer<EntityType>() {
-
-            @Override
-            public boolean isDisabled(EntityType object) {
-                return object.getEndDate() != null;
-            }
-
-            @Override
-            public Object getDisplayValue(EntityType object) {
-                return stringBean().displayValue(object.getEntityTypeNames(), getLocale());
-            }
-
-            @Override
-            public String getIdValue(EntityType object, int index) {
-                return String.valueOf(object.getId());
-            }
-        };
-        types = new DisableAwareDropDownChoice<EntityType>("types", typeModel, entityTypes, renderer);
-        types.setLabel(new ResourceModel("entity_type"));
-        types.setRequired(true);
-        types.setEnabled(!isHistory() && canEdit(strategyName, entity, object));
-        typeContainer.add(types);
-
 
         //simple attributes
         final Map<Attribute, EntityAttributeType> attrToTypeMap = newLinkedHashMap();

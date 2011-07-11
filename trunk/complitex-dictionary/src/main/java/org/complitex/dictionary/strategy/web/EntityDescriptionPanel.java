@@ -29,7 +29,6 @@ import org.complitex.dictionary.entity.StringCulture;
 import org.complitex.dictionary.entity.description.Entity;
 import org.complitex.dictionary.entity.description.EntityAttributeType;
 import org.complitex.dictionary.entity.description.EntityAttributeValueType;
-import org.complitex.dictionary.entity.description.EntityType;
 import org.complitex.dictionary.service.EntityBean;
 import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.strategy.StrategyFactory;
@@ -218,72 +217,6 @@ public class EntityDescriptionPanel extends Panel {
             }
         };
         form.add(addAttribute);
-
-
-        //entity types
-        final WebMarkupContainer entityTypesContainer = new WebMarkupContainer("entityTypesContainer");
-        entityTypesContainer.setOutputMarkupId(true);
-        form.add(entityTypesContainer);
-
-        ListView<EntityType> entityTypes = new AjaxRemovableListView<EntityType>("entityTypes", description.getEntityTypes()) {
-
-            @Override
-            protected void populateItem(ListItem<EntityType> item) {
-                final EntityType entityType = item.getModelObject();
-
-
-                item.add(new Label("startDate", new AbstractReadOnlyModel<String>() {
-
-                    @Override
-                    public String getObject() {
-                        if (entityType.getId() != null) {
-                            return new SimpleDateFormat(DATE_FORMAT, getLocale()).format(entityType.getStartDate());
-                        } else {
-                            return null;
-                        }
-                    }
-                }));
-                item.add(new Label("endDate", new AbstractReadOnlyModel<String>() {
-
-                    @Override
-                    public String getObject() {
-                        if (entityType.getEndDate() == null) {
-                            return null;
-                        } else {
-                            return new SimpleDateFormat(DATE_FORMAT, getLocale()).format(entityType.getEndDate());
-                        }
-                    }
-                }));
-
-                if (entityType.getId() != null) { // old entity type
-                    item.add(new Label("name", new AbstractReadOnlyModel<String>() {
-
-                        @Override
-                        public String getObject() {
-                            return stringBean.displayValue(entityType.getEntityTypeNames(), getLocale());
-                        }
-                    }));
-                } else {
-                    //new entity type
-                    item.add(new StringCulturePanel("name", new PropertyModel<List<StringCulture>>(entityType, "entityTypeNames"), true,
-                            new ResourceModel("entity_type_name"), true, new MarkupContainer[0]));
-                }
-
-                addRemoveLink("remove", item, null, entityTypesContainer).setVisible(entityType.getEndDate() == null);
-            }
-        };
-        entityTypes.setReuseItems(true);
-        entityTypesContainer.add(entityTypes);
-
-        AjaxLink addEntityType = new AjaxLink("addEntityType") {
-
-            @Override
-            public void onClick(AjaxRequestTarget target) {
-                description.addEntityType(entityBean.newEntityType());
-                target.addComponent(entityTypesContainer);
-            }
-        };
-        form.add(addEntityType);
 
         Button submit = new Button("submit") {
 
