@@ -23,7 +23,6 @@ public class DomainObject implements Serializable {
     private Date endDate;
     private Long parentId;
     private Long parentEntityId;
-    private Long entityTypeId;
     private Long permissionId;
     private Long externalId;
     private List<Attribute> attributes = new ArrayList<Attribute>();
@@ -43,7 +42,6 @@ public class DomainObject implements Serializable {
         endDate = copy.endDate;
         parentId = copy.parentId;
         parentEntityId = copy.parentEntityId;
-        entityTypeId = copy.entityTypeId;
         permissionId = copy.permissionId;
         externalId = copy.externalId;
         attributes = copy.attributes;
@@ -76,14 +74,6 @@ public class DomainObject implements Serializable {
 
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
-    }
-
-    public Long getEntityTypeId() {
-        return entityTypeId;
-    }
-
-    public void setEntityTypeId(Long entityTypeId) {
-        this.entityTypeId = entityTypeId;
     }
 
     public Long getId() {

@@ -5,7 +5,6 @@ import com.google.common.collect.Sets;
 import org.complitex.dictionary.entity.description.Entity;
 import org.complitex.dictionary.entity.description.EntityAttributeType;
 import org.complitex.dictionary.entity.description.EntityAttributeValueType;
-import org.complitex.dictionary.entity.description.EntityType;
 import org.complitex.dictionary.mybatis.Transactional;
 import org.complitex.dictionary.strategy.StrategyFactory;
 
@@ -20,18 +19,15 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author Artem
  */
-@Singleton(name = "EntityBean")
+@Singleton
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 public class EntityBean extends AbstractBean {
 
     private static final String MAPPING_NAMESPACE = "org.complitex.dictionary.entity.description.Entity";
-
     @EJB
     private StringCultureBean stringBean;
-
     @EJB
     private StrategyFactory strategyFactory;
-
     /**
      * Cache for Entity objects.
      */
@@ -69,12 +65,7 @@ public class EntityBean extends AbstractBean {
         return attributeType;
     }
 
-    public EntityType newEntityType() {
-        EntityType entityType = new EntityType();
-        entityType.setEntityTypeNames(stringBean.newStringCultures());
-        return entityType;
-    }
-
+    @Transactional
     public void save(Entity oldEntity, Entity newEntity) {
         Date updateDate = new Date();
 
@@ -105,30 +96,6 @@ public class EntityBean extends AbstractBean {
             }
         }
 
-        //entity types
-        Set<Long> toDeleteEntityTypeIds = Sets.newHashSet();
-
-        for (EntityType oldEntityType : oldEntity.getEntityTypes()) {
-            boolean removed = true;
-            for (EntityType newEntityType : newEntity.getEntityTypes()) {
-                if (oldEntityType.getId().equals(newEntityType.getId())) {
-                    removed = false;
-                    break;
-                }
-            }
-            if (removed) {
-                changed = true;
-                toDeleteEntityTypeIds.add(oldEntityType.getId());
-            }
-        }
-        removeEntityTypes(toDeleteEntityTypeIds, updateDate);
-
-        for (EntityType entityType : newEntity.getEntityTypes()) {
-            if (entityType.getId() == null) {
-                changed = true;
-                insertEntityType(entityType, newEntity.getId(), updateDate);
-            }
-        }
         if (changed) {
             invalidateCache(oldEntity.getEntityTable());
         }
@@ -147,15 +114,6 @@ public class EntityBean extends AbstractBean {
     }
 
     @Transactional
-    protected void insertEntityType(EntityType entityType, long entityId, Date startDate) {
-        entityType.setStartDate(startDate);
-        entityType.setEntityId(entityId);
-        Long stringId = stringBean.insertStrings(entityType.getEntityTypeNames(), null);
-        entityType.setEntityTypeNameId(stringId);
-        sqlSession().insert(MAPPING_NAMESPACE + ".insertEntityType", entityType);
-    }
-
-    @Transactional
     protected void removeAttributeTypes(String entityTable, Collection<Long> attributeTypeIds, Date endDate) {
         if (attributeTypeIds != null && !attributeTypeIds.isEmpty()) {
             Map<String, Object> params = ImmutableMap.<String, Object>builder().
@@ -168,23 +126,7 @@ public class EntityBean extends AbstractBean {
     }
 
     @Transactional
-    protected void removeEntityTypes(Collection<Long> entityTypeIds, Date endDate) {
-        if (entityTypeIds != null && !entityTypeIds.isEmpty()) {
-            Map<String, Object> params = ImmutableMap.<String, Object>builder().
-                    put("endDate", endDate).
-                    put("entityTypeIds", entityTypeIds).
-                    build();
-            sqlSession().update(MAPPING_NAMESPACE + ".removeEntityTypes", params);
-        }
-    }
-
-    @Transactional
     public Collection<String> getAllEntities() {
         return sqlSession().selectList(MAPPING_NAMESPACE + ".allEntities");
-    }
-
-    @Transactional
-    public List<EntityType> getAllEntityTypes() {
-        return sqlSession().selectList(MAPPING_NAMESPACE + ".allEntityTypes");
     }
 }

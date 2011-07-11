@@ -541,13 +541,6 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
         boolean needToUpdateObject = false;
 
-        //entity type comparison
-        Long oldEntityTypeId = oldObject.getEntityTypeId();
-        Long newEntityTypeId = newObject.getEntityTypeId();
-        if (!Numbers.isEqual(oldEntityTypeId, newEntityTypeId)) {
-            needToUpdateObject = true;
-        }
-
         //parent comparison
         Long oldParentId = oldObject.getParentId();
         Long oldParentEntityId = oldObject.getParentEntityId();
@@ -969,7 +962,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     public String getParent() {
         String[] parents = getParents();
 
-        if (parents != null && parents.length > 0){
+        if (parents != null && parents.length > 0) {
             return parents[0];
         }
 
@@ -1030,7 +1023,6 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         params.put("text", text);
         params.put("parentId", object.getParentId());
         params.put("parentEntityId", object.getParentEntityId());
-        params.put("entityTypeId", object.getEntityTypeId());
 
         return params;
     }

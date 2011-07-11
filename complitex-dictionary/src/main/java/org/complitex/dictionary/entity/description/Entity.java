@@ -4,7 +4,6 @@
  */
 package org.complitex.dictionary.entity.description;
 
-import com.google.common.collect.Lists;
 import org.complitex.dictionary.entity.StringCulture;
 
 import java.io.Serializable;
@@ -17,14 +16,9 @@ import java.util.List;
 public class Entity implements Serializable {
 
     private Long id;
-
     private String entityTable;
-
     private List<StringCulture> entityNames;
-
     private List<EntityAttributeType> entityAttributeTypes;
-
-    private List<EntityType> entityTypes;
 
     public String getEntityTable() {
         return entityTable;
@@ -56,21 +50,6 @@ public class Entity implements Serializable {
 
     public void setEntityNames(List<StringCulture> entityNames) {
         this.entityNames = entityNames;
-    }
-
-    public List<EntityType> getEntityTypes() {
-        return entityTypes;
-    }
-
-    public void setEntityTypes(List<EntityType> entityTypes) {
-        this.entityTypes = entityTypes;
-    }
-
-    public void addEntityType(EntityType entityType) {
-        if (entityTypes == null) {
-            entityTypes = Lists.newArrayList();
-        }
-        entityTypes.add(entityType);
     }
 
     public EntityAttributeType getAttributeType(Long attributeTypeId) {

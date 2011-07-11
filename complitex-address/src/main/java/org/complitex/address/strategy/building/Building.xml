@@ -8,8 +8,7 @@
     </resultMap>
 
     <select id="find" resultMap="org.complitex.address.strategy.building.Building.Building" parameterType="DomainObjectExample">
-        SELECT DISTINCT e.`object_id`, e.`start_date`, e.`end_date`, e.`status`, e.`parent_id`, e.`parent_entity_id`, e.`entity_type_id`,
-                        e.`permission_id`
+        SELECT DISTINCT e.`object_id`, e.`start_date`, e.`end_date`, e.`status`, e.`parent_id`, e.`parent_entity_id`, e.`permission_id`
         FROM `building` e WHERE
         <include refid="org.complitex.dictionary.entity.DomainObject.statusFilter"/>
         <include refid="org.complitex.dictionary.entity.DomainObject.permissionFilter"/>
