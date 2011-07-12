@@ -1,13 +1,13 @@
 package org.complitex.dictionary.web.component.name;
 
-import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteTextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.complitex.dictionary.service.NameBean;
+import org.odlabs.wiquery.ui.autocomplete.AutocompleteAjaxComponent;
 
 import javax.ejb.EJB;
-import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -24,56 +24,71 @@ public class FullNamePanel extends Panel {
         super(id);
 
         //First Name
-        add(new AutoCompleteTextField<String>("first_name",
+        add(new AutocompleteAjaxComponent<String>("first_name",
                 new Model<String>(nameBean.getFirstName(firstNameId.getObject()))) {
             {
                 setRequired(true);
             }
 
             @Override
-            protected Iterator<String> getChoices(String input) {
-                return nameBean.getFirstNames(input, AUTOCOMPLETE_SIZE).iterator();
+            protected void onValid() {
+                firstNameId.setObject(nameBean.getFirstNameId(getConvertedInput(), true));
             }
 
             @Override
-            protected void onValid() {
-                firstNameId.setObject(nameBean.getFirstNameId(getConvertedInput(), true));
+            public List<String> getValues(String term) {
+                return nameBean.getFirstNames(term, AUTOCOMPLETE_SIZE);
+            }
+
+            @Override
+            public String getValueOnSearchFail(String input) {
+                return null;
             }
         });
 
         //Middle Name
-        add(new AutoCompleteTextField<String>("middle_name",
+        add(new AutocompleteAjaxComponent<String>("middle_name",
                 new Model<String>(nameBean.getMiddleName(middleNameId.getObject()))) {
             {
                 setRequired(true);
             }
 
             @Override
-            protected Iterator<String> getChoices(String input) {
-                return nameBean.getMiddleNames(input, AUTOCOMPLETE_SIZE).iterator();
+            protected void onValid() {
+                middleNameId.setObject(nameBean.getMiddleNameId(getConvertedInput(), true));
             }
 
             @Override
-            protected void onValid() {
-                middleNameId.setObject(nameBean.getMiddleNameId(getConvertedInput(), true));
+            public List<String> getValues(String term) {
+                return nameBean.getMiddleNames(term, AUTOCOMPLETE_SIZE);
+            }
+
+            @Override
+            public String getValueOnSearchFail(String input) {
+                return null;
             }
         });
 
         //Last Name
-        add(new AutoCompleteTextField<String>("last_name",
+        add(new AutocompleteAjaxComponent<String>("last_name",
                 new Model<String>(nameBean.getLastName(lastNameId.getObject()))) {
             {
                 setRequired(true);
             }
 
             @Override
-            protected Iterator<String> getChoices(String input) {
-                return nameBean.getLastNames(input, AUTOCOMPLETE_SIZE).iterator();
+            protected void onValid() {
+                lastNameId.setObject(nameBean.getLastNameId(getConvertedInput(), true));
             }
 
             @Override
-            protected void onValid() {
-                lastNameId.setObject(nameBean.getLastNameId(getConvertedInput(), true));
+            public List<String> getValues(String term) {
+                return nameBean.getLastNames(term, AUTOCOMPLETE_SIZE);
+            }
+
+            @Override
+            public String getValueOnSearchFail(String input) {
+                return null;
             }
         });
     }

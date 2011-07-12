@@ -7,9 +7,12 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.*;
-import static org.apache.wicket.util.string.Strings.*;
+import org.apache.wicket.model.AbstractReadOnlyModel;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.complitex.dictionary.converter.*;
+import org.complitex.dictionary.entity.*;
 import org.complitex.dictionary.entity.description.Entity;
 import org.complitex.dictionary.entity.description.EntityAttributeType;
 import org.complitex.dictionary.service.StringCultureBean;
@@ -19,8 +22,8 @@ import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionary.web.DictionaryFwSession;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
-import org.complitex.dictionary.web.component.search.SearchComponent;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
+import org.complitex.dictionary.web.component.search.WiQuerySearchComponent;
 import org.complitex.dictionary.web.component.type.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,16 +34,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import org.complitex.dictionary.entity.Attribute;
-import org.complitex.dictionary.entity.DomainObject;
-import org.complitex.dictionary.entity.Gender;
-import org.complitex.dictionary.entity.SimpleTypes;
-import org.complitex.dictionary.entity.StringCulture;
-import static org.complitex.dictionary.util.EjbBeanLocator.*;
 
-import static com.google.common.collect.Lists.*;
-import static com.google.common.collect.Maps.*;
-import static org.complitex.dictionary.strategy.web.DomainObjectAccessUtil.*;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newLinkedHashMap;
+import static org.apache.wicket.util.string.Strings.isEmpty;
+import static org.complitex.dictionary.strategy.web.DomainObjectAccessUtil.canEdit;
+import static org.complitex.dictionary.util.EjbBeanLocator.getBean;
 
 /**
  *
@@ -183,7 +182,7 @@ public class DomainObjectInputPanel extends Panel {
             parentContainer.setVisible(false);
             parentContainer.add(new EmptyPanel("parentSearch"));
         } else {
-            SearchComponent parentSearchComponent = new SearchComponent("parentSearch", getParentSearchComponentState(),
+            WiQuerySearchComponent parentSearchComponent = new WiQuerySearchComponent("parentSearch", getParentSearchComponentState(),
                     parentFilters, parentSearchCallback, ShowMode.ACTIVE, !isHistory() && canEdit(strategyName, entity, object));
             parentContainer.add(parentSearchComponent);
             parentSearchComponent.invokeCallback();
@@ -201,7 +200,7 @@ public class DomainObjectInputPanel extends Panel {
         return getBean(StringCultureBean.class);
     }
 
-    public static final IModel<String> labelModel(final List<StringCulture> attributeNames, final Locale locale) {
+    public static IModel<String> labelModel(final List<StringCulture> attributeNames, final Locale locale) {
         return new AbstractReadOnlyModel<String>() {
 
             @Override
@@ -211,7 +210,7 @@ public class DomainObjectInputPanel extends Panel {
         };
     }
 
-    public static final Component newInputComponent(String entityTable, String strategyName, DomainObject object,
+    public static Component newInputComponent(String entityTable, String strategyName, DomainObject object,
             Attribute attribute, final Locale locale, boolean isHistory) {
         StrategyFactory strategyFactory = getBean(StrategyFactory.class);
         IStrategy strategy = strategyFactory.getStrategy(strategyName, entityTable);

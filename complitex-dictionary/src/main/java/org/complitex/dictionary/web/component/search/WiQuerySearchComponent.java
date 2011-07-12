@@ -7,10 +7,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
-import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AbstractAutoCompleteTextRenderer;
-import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
@@ -28,7 +25,6 @@ import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.web.component.ShowMode;
-import org.odlabs.wiquery.ui.autocomplete.Autocomplete;
 import org.odlabs.wiquery.ui.autocomplete.AutocompleteAjaxComponent;
 
 import javax.ejb.EJB;

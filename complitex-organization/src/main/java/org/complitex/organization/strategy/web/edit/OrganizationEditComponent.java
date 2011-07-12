@@ -3,8 +3,6 @@ package org.complitex.organization.strategy.web.edit;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import java.util.Collections;
-import java.util.Comparator;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -15,20 +13,22 @@ import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.IStrategy.SimpleObjectInfo;
 import org.complitex.dictionary.strategy.StrategyFactory;
+import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
-import org.complitex.dictionary.web.component.ShowMode;
-import org.complitex.dictionary.web.component.UserOrganizationPicker;
-import org.complitex.dictionary.web.component.search.SearchComponent;
-import org.complitex.dictionary.web.component.search.SearchComponentState;
-
-import javax.ejb.EJB;
-import java.util.List;
-import java.util.Set;
-import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.web.component.DisableAwareListMultipleChoice;
 import org.complitex.dictionary.web.component.DomainObjectDisableAwareRenderer;
+import org.complitex.dictionary.web.component.ShowMode;
+import org.complitex.dictionary.web.component.UserOrganizationPicker;
+import org.complitex.dictionary.web.component.search.SearchComponentState;
+import org.complitex.dictionary.web.component.search.WiQuerySearchComponent;
 import org.complitex.organization_type.strategy.OrganizationTypeStrategy;
+
+import javax.ejb.EJB;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * 
@@ -142,7 +142,7 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
             }
         }
 
-        districtContainer.add(new SearchComponent("district", districtSearchComponentState, ImmutableList.of("city", "district"),
+        districtContainer.add(new WiQuerySearchComponent("district", districtSearchComponentState, ImmutableList.of("city", "district"),
                 null, ShowMode.ACTIVE, enabled()));
         districtContainer.setVisible(isDistrictVisible());
         districtRequiredContainer.setVisible(isDistrictRequired());
