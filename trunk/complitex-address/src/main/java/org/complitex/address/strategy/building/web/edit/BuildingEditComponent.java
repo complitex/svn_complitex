@@ -29,8 +29,8 @@ import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.ShowMode;
 import org.complitex.dictionary.web.component.list.AjaxRemovableListView;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
-import org.complitex.dictionary.web.component.search.SearchComponent;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
+import org.complitex.dictionary.web.component.search.WiQuerySearchComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -138,7 +138,7 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
             }
         }
 
-        districtContainer.add(new SearchComponent("district", districtComponentState,
+        districtContainer.add(new WiQuerySearchComponent("district", districtComponentState,
                 ImmutableList.of("country", "region", "city", "district"), new DistrictSearchCallback(), ShowMode.ACTIVE,
                 !isDisabled() && DomainObjectAccessUtil.canEdit(null, "building", building)));
         districtContainer.setVisible(districtAttribute != null);
