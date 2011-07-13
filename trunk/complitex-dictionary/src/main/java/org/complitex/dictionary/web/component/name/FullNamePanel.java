@@ -42,7 +42,7 @@ public class FullNamePanel extends Panel {
 
             @Override
             public String getValueOnSearchFail(String input) {
-                return null;
+                return input;
             }
         });
 
@@ -65,7 +65,7 @@ public class FullNamePanel extends Panel {
 
             @Override
             public String getValueOnSearchFail(String input) {
-                return null;
+                return input;
             }
         });
 
@@ -88,7 +88,7 @@ public class FullNamePanel extends Panel {
 
             @Override
             public String getValueOnSearchFail(String input) {
-                return null;
+                return input;
             }
         });
     }
