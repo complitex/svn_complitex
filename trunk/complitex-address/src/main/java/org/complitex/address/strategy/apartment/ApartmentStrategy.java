@@ -31,7 +31,7 @@ import java.util.Map;
 @Stateless(name = "ApartmentStrategy")
 public class ApartmentStrategy extends TemplateStrategy {
 
-    @EJB(beanName = "StringCultureBean")
+    @EJB
     private StringCultureBean stringBean;
 
     /*
@@ -69,8 +69,13 @@ public class ApartmentStrategy extends TemplateStrategy {
             attrExample.setValue(searchTextInput);
         }
         Long buildingId = ids.get("building");
-        example.setParentId(buildingId);
-        example.setParentEntity("building");
+        if (buildingId != null) {
+            example.setParentId(buildingId);
+            example.setParentEntity("building");
+        } else {
+            example.setParentId(-1L);
+            example.setParentEntity("");
+        }
     }
 
     @Override

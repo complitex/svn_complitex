@@ -1,14 +1,11 @@
 package org.complitex.dictionary.web.component.search;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
 import org.complitex.dictionary.entity.DomainObject;
 
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  *

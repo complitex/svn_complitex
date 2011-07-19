@@ -41,7 +41,6 @@ import java.util.Map;
 public final class WiQuerySearchComponent extends Panel {
 
     public static final long NOT_SPECIFIED_ID = -1;
-
     private static final String NOT_SPECIFIED_KEY = "not_specified";
 
     public static class SearchFilterSettings implements Serializable {
@@ -49,11 +48,17 @@ public final class WiQuerySearchComponent extends Panel {
         private String searchFilter;
         private boolean enabled;
         private ShowMode showMode;
+        private boolean invokeCallback;
 
-        public SearchFilterSettings(String searchFilter, ShowMode showMode, boolean enabled) {
+        public SearchFilterSettings(String searchFilter, boolean enabled, ShowMode showMode, boolean invokeCallback) {
             this.searchFilter = searchFilter;
-            this.showMode = showMode;
             this.enabled = enabled;
+            this.showMode = showMode;
+            this.invokeCallback = invokeCallback;
+        }
+
+        public boolean isInvokeCallback() {
+            return invokeCallback;
         }
 
         public boolean isEnabled() {
@@ -68,36 +73,25 @@ public final class WiQuerySearchComponent extends Panel {
             return showMode;
         }
     }
-
     @EJB
     private StringCultureBean stringBean;
-
     @EJB
     private StrategyFactory strategyFactory;
-
     @EJB
     private LocaleBean localeBean;
-
     private static final int AUTO_COMPLETE_SIZE = 10;
-
     private List<String> searchFilters;
-
     private List<SearchFilterSettings> filterSettings;
-
     private ISearchCallback callback;
-
     private SearchComponentState componentState;
-
     private boolean enabled;
-
     private List<IModel<DomainObject>> filterModels;
-
     private ShowMode showMode;
+    private Object lastChangedObject;
 
-    private Object lastChangedObject = null;
-
-    public WiQuerySearchComponent(String id, SearchComponentState componentState, List<String> searchFilters, ISearchCallback callback, ShowMode showMode,
-                                  boolean enabled) {
+    public WiQuerySearchComponent(String id, SearchComponentState componentState, List<String> searchFilters,
+            ISearchCallback callback, ShowMode showMode,
+            boolean enabled) {
         super(id);
         setOutputMarkupId(true);
         this.componentState = componentState;
@@ -115,8 +109,8 @@ public final class WiQuerySearchComponent extends Panel {
      * @param searchFilterSettings
      * @param callback
      */
-    public WiQuerySearchComponent(String id, SearchComponentState componentState, List<SearchFilterSettings> searchFilterSettings,
-                                  ISearchCallback callback) {
+    public WiQuerySearchComponent(String id, SearchComponentState componentState,
+            List<SearchFilterSettings> searchFilterSettings, ISearchCallback callback) {
         super(id);
         setOutputMarkupId(true);
         this.componentState = componentState;
@@ -181,6 +175,7 @@ public final class WiQuerySearchComponent extends Panel {
 
                 AutocompleteAjaxComponent<DomainObject> filter = new AutocompleteAjaxComponent<DomainObject>("filter", model,
                         new IChoiceRenderer<DomainObject>() {
+
                             @Override
                             public Object getDisplayValue(DomainObject object) {
                                 if (object.getId().equals(NOT_SPECIFIED_ID)) {
@@ -194,7 +189,7 @@ public final class WiQuerySearchComponent extends Panel {
                             public String getIdValue(DomainObject object, int index) {
                                 return entity + object.getId();
                             }
-                        }){
+                        }) {
 
                     @Override
                     public List<DomainObject> getValues(String term) {
@@ -205,14 +200,14 @@ public final class WiQuerySearchComponent extends Panel {
 
                         List<DomainObject> choiceList = Lists.newArrayList();
 
-                        ShowMode currentShowMode = (filterSettings == null) ? WiQuerySearchComponent.this.showMode :
-                                Iterables.find(filterSettings, new Predicate<SearchFilterSettings>() {
+                        ShowMode currentShowMode = (filterSettings == null) ? WiQuerySearchComponent.this.showMode
+                                : Iterables.find(filterSettings, new Predicate<SearchFilterSettings>() {
 
-                                    @Override
-                                    public boolean apply(SearchFilterSettings input) {
-                                        return entity.equals(input.getSearchFilter());
-                                    }
-                                }).getShowMode();
+                            @Override
+                            public boolean apply(SearchFilterSettings input) {
+                                return entity.equals(input.getSearchFilter());
+                            }
+                        }).getShowMode();
 
                         List<? extends DomainObject> equalToExample = findByExample(entity, term, previousInfo,
                                 ComparisonType.EQUALITY, currentShowMode, AUTO_COMPLETE_SIZE);
@@ -254,11 +249,23 @@ public final class WiQuerySearchComponent extends Panel {
 
                     @Override
                     protected void onUpdate(AjaxRequestTarget target) {
-                        if (index == searchFilters.size() - 1) {
-                            invokeCallbackIfNecessary(target);
+                        boolean isInvokeCallback = (index == searchFilters.size() - 1)
+                                || ((filterSettings != null)
+                                && Iterables.find(filterSettings, new Predicate<SearchFilterSettings>() {
 
+                            @Override
+                            public boolean apply(SearchFilterSettings input) {
+                                return entity.equals(input.getSearchFilter());
+                            }
+                        }).isInvokeCallback());
+
+                        if (isInvokeCallback) {
+                            invokeCallbackIfNecessary(index, target);
+                        }
+
+                        if (index == searchFilters.size() - 1) {
                             lastChangedObject = model.getObject();
-                        }else if (lastChangedObject == null || !lastChangedObject.equals(model.getObject())) {
+                        } else if (lastChangedObject == null || !lastChangedObject.equals(model.getObject())) {
                             lastChangedObject = model.getObject();
 
                             if (model.getObject() != null) {
@@ -268,7 +275,6 @@ public final class WiQuerySearchComponent extends Panel {
                             }
 
                             target.addComponent(searchPanel);
-
                             target.focusComponent(filterFieldMap.get(index + 1));
                         }
                     }
@@ -283,7 +289,7 @@ public final class WiQuerySearchComponent extends Panel {
                 //size
                 int size = strategyFactory.getStrategy(entity).getSearchTextFieldSize();
 
-                if (size > 0){
+                if (size > 0) {
                     filter.getAutocompleteField().add(new SimpleAttributeModifier("size", String.valueOf(size)));
                 }
 
@@ -318,11 +324,11 @@ public final class WiQuerySearchComponent extends Panel {
     }
 
     public void invokeCallback() {
-        invokeCallbackIfNecessary(null);
+        invokeCallbackIfNecessary(searchFilters.size() - 1, null);
     }
 
-    private void invokeCallbackIfNecessary(AjaxRequestTarget target) {
-        Map<String, DomainObject> finalState = getState(searchFilters.size() - 1);
+    private void invokeCallbackIfNecessary(int index, AjaxRequestTarget target) {
+        Map<String, DomainObject> finalState = getState(index);
         if (isComplete(finalState)) {
             Map<String, Long> ids = transformObjects(finalState);
             componentState.updateState(finalState);
@@ -358,7 +364,7 @@ public final class WiQuerySearchComponent extends Panel {
     }
 
     private List<? extends DomainObject> findByExample(String entity, String searchTextInput, Map<String, DomainObject> previousInfo,
-                                                       ComparisonType comparisonType, ShowMode showMode, int size) {
+            ComparisonType comparisonType, ShowMode showMode, int size) {
         IStrategy strategy = strategyFactory.getStrategy(entity);
 
         DomainObjectExample example = new DomainObjectExample();
@@ -378,6 +384,6 @@ public final class WiQuerySearchComponent extends Panel {
             DomainObject object = componentState.get(filterEntity);
             filterModels.get(i).setObject(object);
         }
-        invokeCallbackIfNecessary(target);
+        invokeCallbackIfNecessary(searchFilters.size() - 1, target);
     }
 }

@@ -311,7 +311,6 @@ public class DomainObjectInputPanel extends Panel {
                     componentState = new SearchComponentState();
                     updateSearchComponentSessionState(componentState);
                 }
-
             } else {
                 componentState = getStrategy().getSearchComponentStateForParent(parentId, parentEntity, null);
             }
