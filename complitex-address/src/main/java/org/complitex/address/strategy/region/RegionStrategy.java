@@ -14,7 +14,6 @@ import org.complitex.dictionary.strategy.web.DomainObjectListPanel;
 import org.complitex.dictionary.util.ResourceUtil;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
-import org.complitex.dictionary.web.component.search.SearchComponent;
 import org.complitex.template.strategy.TemplateStrategy;
 import org.complitex.template.web.security.SecurityRole;
 

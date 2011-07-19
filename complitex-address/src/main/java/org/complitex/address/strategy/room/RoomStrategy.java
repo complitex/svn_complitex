@@ -35,7 +35,7 @@ import java.util.Map;
 @Stateless
 public class RoomStrategy extends TemplateStrategy {
 
-    @EJB(beanName = "StringCultureBean")
+    @EJB
     private StringCultureBean stringBean;
 
     /*
@@ -88,8 +88,13 @@ public class RoomStrategy extends TemplateStrategy {
             example.setParentEntity("apartment");
         } else {
             Long buildingId = ids.get("building");
-            example.setParentId(buildingId);
-            example.setParentEntity("building");
+            if (buildingId != null) {
+                example.setParentId(buildingId);
+                example.setParentEntity("building");
+            } else {
+                example.setParentId(-1L);
+                example.setParentEntity("");
+            }
         }
     }
 

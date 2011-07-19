@@ -75,8 +75,8 @@ public class BuildingAddressStrategy extends TemplateStrategy {
                 example.setParentId(cityId);
                 example.setParentEntity("city");
             } else {
-                example.setParentId(null);
-                example.setParentEntity(null);
+                example.setParentId(-1L);
+                example.setParentEntity("");
             }
         }
     }
