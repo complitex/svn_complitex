@@ -20,9 +20,9 @@ img {
     text-decoration:none;
 }
 
-#Header { height:107px; vertical-align:top; background:url('../../../logo.jpg') no-repeat; border-bottom: 1px solid #C9D1D9; }
+#Header { height:85px; vertical-align:top; background:url('../../../logo.jpg') no-repeat; border-bottom: 1px solid #C9D1D9; }
 
-#LoginForm { float: right; margin-top: 57px;}
+#LoginForm { float: right; margin-top: 22px;}
 #LoginForm td{ text-align: right; font-size: 12px; padding-left:10px; }
 #LoginForm input.buttonLogin{
     background:url('../images/btn-small.gif') no-repeat #007AAE;
