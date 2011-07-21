@@ -5,7 +5,6 @@
 package org.complitex.address.strategy.building.web.list;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -39,7 +38,6 @@ import org.complitex.dictionary.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionary.web.component.datatable.DataProvider;
 import org.complitex.dictionary.web.component.paging.PagingNavigator;
 import org.complitex.dictionary.web.component.scroll.ScrollBookmarkablePageLink;
-import org.complitex.dictionary.web.component.search.ISearchCallback;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
 import org.complitex.dictionary.web.component.search.WiQuerySearchComponent;
 import org.complitex.template.web.component.toolbar.AddItemButton;
@@ -48,9 +46,7 @@ import org.complitex.template.web.pages.ScrollListPage;
 import org.complitex.template.web.security.SecurityRole;
 
 import javax.ejb.EJB;
-import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 import org.complitex.template.web.pages.DomainObjectList;
 
 /**
@@ -64,23 +60,6 @@ public final class BuildingList extends ScrollListPage {
     private BuildingStrategy buildingStrategy;
     @EJB
     private LocaleBean localeBean;
-
-    private class BuildingSearchCallback implements ISearchCallback, Serializable {
-
-        @Override
-        public void found(Component component, Map<String, Long> ids, AjaxRequestTarget target) {
-            buildingStrategy.configureExample(example, ids, null);
-            refreshContent(target);
-        }
-    }
-
-    private void refreshContent(AjaxRequestTarget target) {
-        content.setVisible(true);
-        if (target != null) {
-            dataView.setCurrentPage(0);
-            target.addComponent(content);
-        }
-    }
     private DomainObjectExample example;
     private WebMarkupContainer content;
     private DataView<Building> dataView;
@@ -93,6 +72,18 @@ public final class BuildingList extends ScrollListPage {
     public BuildingList(PageParameters params) {
         super(params);
         init();
+    }
+
+    public DomainObjectExample getExample() {
+        return example;
+    }
+
+    public void refreshContent(AjaxRequestTarget target) {
+        content.setVisible(true);
+        if (target != null) {
+            dataView.setCurrentPage(0);
+            target.addComponent(content);
+        }
     }
 
     private void init() {
@@ -127,11 +118,9 @@ public final class BuildingList extends ScrollListPage {
             add(new EmptyPanel("searchComponent"));
         } else {
             SearchComponentState componentState = getSession().getGlobalSearchComponentState();
-
-            WiQuerySearchComponent searchComponent = new WiQuerySearchComponent("searchComponent", componentState, searchFilters, new BuildingSearchCallback(),
-                    ShowMode.ALL, true);
+            WiQuerySearchComponent searchComponent = new WiQuerySearchComponent("searchComponent", componentState,
+                    searchFilters, buildingStrategy.getSearchCallback(), ShowMode.ALL, true);
             add(searchComponent);
-
             searchComponent.invokeCallback();
         }
 

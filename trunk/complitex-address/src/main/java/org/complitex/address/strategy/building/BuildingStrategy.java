@@ -2,7 +2,10 @@ package org.complitex.address.strategy.building;
 
 import com.google.common.base.Function;
 import com.google.common.collect.*;
+import java.io.Serializable;
+import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.address.resource.CommonResources;
@@ -25,6 +28,7 @@ import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionary.strategy.web.validate.IValidator;
 import org.complitex.dictionary.util.ResourceUtil;
+import org.complitex.dictionary.web.component.search.ISearchCallback;
 import org.complitex.template.strategy.TemplateStrategy;
 import org.complitex.template.web.security.SecurityRole;
 
@@ -291,8 +295,7 @@ public class BuildingStrategy extends TemplateStrategy {
         }
     }
 
-    @Override
-    public void configureExample(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
+    private static void configureExampleImpl(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
         if (!Strings.isEmpty(searchTextInput)) {
             example.addAdditionalParam("number", searchTextInput);
         }
@@ -308,6 +311,26 @@ public class BuildingStrategy extends TemplateStrategy {
                 example.addAdditionalParam(CITY, null);
             }
         }
+    }
+
+    @Override
+    public void configureExample(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
+        configureExampleImpl(example, ids, searchTextInput);
+    }
+
+    private static class SearchCallback implements ISearchCallback, Serializable {
+
+        @Override
+        public void found(Component component, Map<String, Long> ids, AjaxRequestTarget target) {
+            BuildingList list = component.findParent(BuildingList.class);
+            configureExampleImpl(list.getExample(), ids, null);
+            list.refreshContent(target);
+        }
+    }
+
+    @Override
+    public ISearchCallback getSearchCallback() {
+        return new SearchCallback();
     }
 
     @Override
@@ -337,7 +360,7 @@ public class BuildingStrategy extends TemplateStrategy {
 
     @Override
     public PageParameters getListPageParams() {
-        return PageParameters.NULL;
+        return new PageParameters();
     }
 
     @Override

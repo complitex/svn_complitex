@@ -8,8 +8,6 @@ import org.complitex.template.web.component.toolbar.DisableItemButton;
 import org.complitex.template.web.component.toolbar.EnableItemButton;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
 import org.complitex.template.web.template.FormTemplatePage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
@@ -24,14 +22,12 @@ import static org.complitex.template.strategy.TemplateStrategy.*;
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)
 public final class DomainObjectEdit extends FormTemplatePage {
 
-    private static final Logger log = LoggerFactory.getLogger(DomainObjectEdit.class);
     private DomainObjectEditPanel editPanel;
     private String entity;
     private String strategy;
 
     public DomainObjectEdit(PageParameters parameters) {
-        init(parameters.getString(ENTITY), parameters.getString(STRATEGY),
-                parameters.getAsLong(OBJECT_ID),
+        init(parameters.getString(ENTITY), parameters.getString(STRATEGY), parameters.getAsLong(OBJECT_ID),
                 parameters.getAsLong(PARENT_ID), parameters.getString(PARENT_ENTITY));
     }
 

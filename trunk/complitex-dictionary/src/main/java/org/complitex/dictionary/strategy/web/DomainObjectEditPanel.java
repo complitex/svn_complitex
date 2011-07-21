@@ -284,7 +284,7 @@ public class DomainObjectEditPanel extends Panel {
     }
 
     private void back() {
-        if (!fromParent()) {
+        if (isNew() || (parentId == null && Strings.isEmpty(parentEntity))) {
             //return to list page for current entity.
             PageParameters listPageParams = getStrategy().getListPageParams();
             listPageParams.put(scrollListPageParameterName, newObject.getId());
@@ -330,9 +330,5 @@ public class DomainObjectEditPanel extends Panel {
             log.error("", e);
             error(getString("db_error"));
         }
-    }
-
-    private boolean fromParent() {
-        return oldObject != null && parentId != null && !Strings.isEmpty(parentEntity);
     }
 }
