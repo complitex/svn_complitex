@@ -34,6 +34,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import org.apache.wicket.util.string.Strings;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newLinkedHashMap;
@@ -308,10 +309,12 @@ public class DomainObjectInputPanel extends Panel {
         //parent search
         SearchComponentState componentState = null;
         if (object.getId() == null) {
-            if (parentId > 0) {
-                componentState = getStrategy().getSearchComponentStateForParent(parentId, parentEntity, null);
-            } else {
-                componentState = new SearchComponentState();
+            if (parentId != null && !Strings.isEmpty(parentEntity)) {
+                if (parentId > 0) {
+                    componentState = getStrategy().getSearchComponentStateForParent(parentId, parentEntity, null);
+                } else {
+                    componentState = new SearchComponentState();
+                }
             }
         } else {
             SimpleObjectInfo info = getStrategy().findParentInSearchComponent(object.getId(), isHistory() ? date : null);
