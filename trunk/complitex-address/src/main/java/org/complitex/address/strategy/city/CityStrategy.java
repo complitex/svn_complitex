@@ -32,7 +32,7 @@ import java.util.Map;
  *
  * @author Artem
  */
-@Stateless(name = "CityStrategy")
+@Stateless
 public class CityStrategy extends TemplateStrategy {
 
     private static final String CITY_NAMESPACE = CityStrategy.class.getPackage().getName() + ".City";
@@ -81,7 +81,6 @@ public class CityStrategy extends TemplateStrategy {
         configureExampleImpl(example, ids, searchTextInput);
     }
 
-    @SuppressWarnings({"EjbClassBasicInspection"})
     private static void configureExampleImpl(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
         if (!Strings.isEmpty(searchTextInput)) {
             AttributeExample attrExample = example.getAttributeExample(NAME);
@@ -91,9 +90,17 @@ public class CityStrategy extends TemplateStrategy {
             }
             attrExample.setValue(searchTextInput);
         }
-        Long regionId = ids.get("region");
-        example.setParentId(regionId);
-        example.setParentEntity("region");
+
+        if (ids.containsKey("region")) {
+            Long regionId = ids.get("region");
+            if (regionId != null && regionId > 0) {
+                example.setParentId(regionId);
+                example.setParentEntity("region");
+            } else {
+                example.setParentId(-1L);
+                example.setParentEntity("");
+            }
+        }
     }
 
     @Override

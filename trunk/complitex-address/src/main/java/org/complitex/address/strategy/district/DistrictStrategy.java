@@ -35,7 +35,7 @@ import java.util.Set;
  *
  * @author Artem
  */
-@Stateless(name = "DistrictStrategy")
+@Stateless
 public class DistrictStrategy extends TemplateStrategy {
 
     private static final String DISTRICT_NAMESPACE = DistrictStrategy.class.getPackage().getName() + ".District";
@@ -76,7 +76,6 @@ public class DistrictStrategy extends TemplateStrategy {
         configureExampleImpl(example, ids, searchTextInput);
     }
 
-    @SuppressWarnings({"EjbClassBasicInspection"})
     private static void configureExampleImpl(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
         if (!Strings.isEmpty(searchTextInput)) {
             AttributeExample attrExample = example.getAttributeExample(NAME);
@@ -87,8 +86,13 @@ public class DistrictStrategy extends TemplateStrategy {
             attrExample.setValue(searchTextInput);
         }
         Long cityId = ids.get("city");
-        example.setParentId(cityId);
-        example.setParentEntity("city");
+        if (cityId != null && cityId > 0) {
+            example.setParentId(cityId);
+            example.setParentEntity("city");
+        } else {
+            example.setParentId(-1L);
+            example.setParentEntity("");
+        }
     }
 
     @Override

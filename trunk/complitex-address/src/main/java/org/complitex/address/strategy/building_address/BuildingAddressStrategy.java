@@ -66,12 +66,12 @@ public class BuildingAddressStrategy extends TemplateStrategy {
             number.setValue(searchTextInput);
         }
         Long streetId = ids.get("street");
-        if (streetId != null) {
+        if (streetId != null && streetId > 0) {
             example.setParentId(streetId);
             example.setParentEntity("street");
         } else {
             Long cityId = ids.get("city");
-            if (cityId != null) {
+            if (cityId != null && cityId > 0) {
                 example.setParentId(cityId);
                 example.setParentEntity("city");
             } else {

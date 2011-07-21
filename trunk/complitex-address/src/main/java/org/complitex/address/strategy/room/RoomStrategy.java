@@ -88,7 +88,7 @@ public class RoomStrategy extends TemplateStrategy {
             example.setParentEntity("apartment");
         } else {
             Long buildingId = ids.get("building");
-            if (buildingId != null) {
+            if (buildingId != null && buildingId > 0) {
                 example.setParentId(buildingId);
                 example.setParentEntity("building");
             } else {

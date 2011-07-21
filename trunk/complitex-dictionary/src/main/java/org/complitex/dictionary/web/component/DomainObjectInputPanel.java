@@ -308,7 +308,11 @@ public class DomainObjectInputPanel extends Panel {
         //parent search
         SearchComponentState componentState = null;
         if (object.getId() == null) {
-            componentState = getStrategy().getSearchComponentStateForParent(parentId, parentEntity, null);
+            if (parentId > 0) {
+                componentState = getStrategy().getSearchComponentStateForParent(parentId, parentEntity, null);
+            } else {
+                componentState = new SearchComponentState();
+            }
         } else {
             SimpleObjectInfo info = getStrategy().findParentInSearchComponent(object.getId(), isHistory() ? date : null);
             if (info != null) {

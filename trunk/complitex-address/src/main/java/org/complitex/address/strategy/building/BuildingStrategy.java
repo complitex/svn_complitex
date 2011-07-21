@@ -27,8 +27,6 @@ import org.complitex.dictionary.strategy.web.validate.IValidator;
 import org.complitex.dictionary.util.ResourceUtil;
 import org.complitex.template.strategy.TemplateStrategy;
 import org.complitex.template.web.security.SecurityRole;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -43,7 +41,6 @@ import org.complitex.dictionary.strategy.DeleteException;
 @Stateless
 public class BuildingStrategy extends TemplateStrategy {
 
-    private static final Logger log = LoggerFactory.getLogger(BuildingStrategy.class);
     private static final String RESOURCE_BUNDLE = BuildingStrategy.class.getPackage().getName() + ".Building";
     /**
      * Attribute ids
