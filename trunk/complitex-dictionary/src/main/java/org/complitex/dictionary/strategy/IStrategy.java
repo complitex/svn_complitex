@@ -137,17 +137,12 @@ public interface IStrategy {
 
     String[] getParents();
 
-    String getParent();
-
     String getPluralEntityLabel(Locale locale);
 
     ISearchCallback getSearchCallback();
 
     @Transactional
     SearchComponentState getSearchComponentStateForParent(Long parentId, String parentEntity, Date date);
-
-    @Transactional
-    boolean checkEnable(SearchComponentState componentState);
 
     List<String> getSearchFilters();
 

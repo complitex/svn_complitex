@@ -131,8 +131,12 @@ public class DomainObjectInputPanel extends Panel {
         return date != null;
     }
 
-    private boolean fromParent() {
-        return parentId != null && !isEmpty(parentEntity);
+    public String getParentEntity() {
+        return parentEntity;
+    }
+
+    public Long getParentId() {
+        return parentId;
     }
 
     private IStrategy getStrategy() {
@@ -304,16 +308,7 @@ public class DomainObjectInputPanel extends Panel {
         //parent search
         SearchComponentState componentState = null;
         if (object.getId() == null) {
-            if (!fromParent()) {
-                componentState = getSearchComponentStateFromSession();
-                boolean checkEnable = getStrategy().checkEnable(componentState);
-                if (!checkEnable) {
-                    componentState = new SearchComponentState();
-                    updateSearchComponentSessionState(componentState);
-                }
-            } else {
-                componentState = getStrategy().getSearchComponentStateForParent(parentId, parentEntity, null);
-            }
+            componentState = getStrategy().getSearchComponentStateForParent(parentId, parentEntity, null);
         } else {
             SimpleObjectInfo info = getStrategy().findParentInSearchComponent(object.getId(), isHistory() ? date : null);
             if (info != null) {
@@ -339,24 +334,12 @@ public class DomainObjectInputPanel extends Panel {
         return searchComponentState;
     }
 
-    protected DictionaryFwSession getDictionaryFwSession() {
-        return (DictionaryFwSession) getSession();
+    @Override
+    public DictionaryFwSession getSession() {
+        return (DictionaryFwSession) super.getSession();
     }
 
     protected SearchComponentState getSearchComponentStateFromSession() {
-        Map<String, SearchComponentState> searchComponentSessionState = getDictionaryFwSession().getSearchComponentSessionState();
-
-        SearchComponentState componentState = searchComponentSessionState.get(entity);
-        if (componentState == null) {
-            componentState = new SearchComponentState();
-            searchComponentSessionState.put(entity, componentState);
-        }
-        return componentState;
-    }
-
-    protected void updateSearchComponentSessionState(SearchComponentState componentState) {
-        Map<String, SearchComponentState> searchComponentSessionState = getDictionaryFwSession().getSearchComponentSessionState();
-
-        searchComponentSessionState.put(entity, componentState);
+        return getSession().getGlobalSearchComponentState();
     }
 }

@@ -26,7 +26,6 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.address.strategy.building.BuildingStrategy;
 import org.complitex.address.strategy.building.entity.Building;
-import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.PreferenceKey;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.service.LocaleBean;
@@ -52,6 +51,7 @@ import javax.ejb.EJB;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import org.complitex.template.web.pages.DomainObjectList;
 
 /**
  *
@@ -294,10 +294,7 @@ public final class BuildingList extends ScrollListPage {
 
             @Override
             protected void onClick() {
-                DomainObject parentDomainObject = ((DictionaryFwSession)getSession()).getGlobalSearchComponentState().get("street");
-                Long parentId = parentDomainObject != null ? parentDomainObject.getId() : SearchComponentState.NOT_SPECIFIED_ID;
-
-                setResponsePage(buildingStrategy.getEditPage(), buildingStrategy.getEditPageParams(null, parentId, "street"));
+                DomainObjectList.onAddObject(this.getPage(), buildingStrategy, BuildingList.this.getSession());
             }
 
             @Override
