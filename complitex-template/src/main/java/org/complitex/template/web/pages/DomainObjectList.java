@@ -63,14 +63,14 @@ public class DomainObjectList extends ScrollListPage {
     }
 
     public static void onAddObject(Page page, IStrategy strategy, DictionaryFwSession session) {
-        SearchComponentState globalSearchComponentState = session.getGlobalSearchComponentState();
-        List<String> reverseSearchFilters = Lists.newArrayList(strategy.getSearchFilters());
-        Collections.reverse(reverseSearchFilters);
-        if (reverseSearchFilters != null && !reverseSearchFilters.isEmpty()) {
+        if (strategy.getSearchFilters() != null && !strategy.getSearchFilters().isEmpty()) {
+            SearchComponentState globalSearchComponentState = session.getGlobalSearchComponentState();
+            List<String> reverseSearchFilters = Lists.newArrayList(strategy.getSearchFilters());
+            Collections.reverse(reverseSearchFilters);
             for (String searchFilter : reverseSearchFilters) {
                 DomainObject parentObject = globalSearchComponentState.get(searchFilter);
-                long parentId = parentObject == null ? SearchComponentState.NOT_SPECIFIED_ID :
-                    (parentObject.getId() != null ? parentObject.getId() : SearchComponentState.NOT_SPECIFIED_ID);
+                long parentId = parentObject == null ? SearchComponentState.NOT_SPECIFIED_ID
+                        : (parentObject.getId() != null ? parentObject.getId() : SearchComponentState.NOT_SPECIFIED_ID);
                 if (parentId > 0) {
                     page.setResponsePage(strategy.getEditPage(), strategy.getEditPageParams(null, parentId, searchFilter));
                     return;
