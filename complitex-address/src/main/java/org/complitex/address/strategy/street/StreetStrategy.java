@@ -65,7 +65,7 @@ public class StreetStrategy extends TemplateStrategy {
         if (example.getId() != null && example.getId() <= 0) {
             return Collections.emptyList();
         }
-        
+
         example.setTable(getEntityTable());
         prepareExampleForPermissionCheck(example);
 
@@ -82,7 +82,7 @@ public class StreetStrategy extends TemplateStrategy {
         if (example.getId() != null && example.getId() <= 0) {
             return 0;
         }
-        
+
         example.setTable(getEntityTable());
         prepareExampleForPermissionCheck(example);
 
@@ -112,7 +112,6 @@ public class StreetStrategy extends TemplateStrategy {
         return ImmutableList.of("country", "region", "city");
     }
 
-    @SuppressWarnings({"EjbClassBasicInspection"})
     private static void configureExampleImpl(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
         if (!Strings.isEmpty(searchTextInput)) {
             AttributeExample attrExample = example.getAttributeExample(NAME);
@@ -127,8 +126,13 @@ public class StreetStrategy extends TemplateStrategy {
             example.addAdditionalParam("district", districtId);
         }
         Long cityId = ids.get("city");
-        example.setParentId(cityId);
-        example.setParentEntity("city");
+        if (cityId != null && cityId > 0) {
+            example.setParentId(cityId);
+            example.setParentEntity("city");
+        } else {
+            example.setParentId(-1L);
+            example.setParentEntity("");
+        }
     }
 
     @Override

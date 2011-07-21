@@ -28,7 +28,7 @@ import java.util.Map;
  *
  * @author Artem
  */
-@Stateless(name = "ApartmentStrategy")
+@Stateless
 public class ApartmentStrategy extends TemplateStrategy {
 
     @EJB
@@ -69,7 +69,7 @@ public class ApartmentStrategy extends TemplateStrategy {
             attrExample.setValue(searchTextInput);
         }
         Long buildingId = ids.get("building");
-        if (buildingId != null) {
+        if (buildingId != null && buildingId > 0) {
             example.setParentId(buildingId);
             example.setParentEntity("building");
         } else {

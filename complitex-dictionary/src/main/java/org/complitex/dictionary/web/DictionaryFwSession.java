@@ -113,9 +113,10 @@ public class DictionaryFwSession extends WebSession {
 
         if (state != null) {
             for (String key : state.keySet()) {
-                if (state.get(key) != null && state.get(key).getId() != null) {
-                    putPreference(GLOBAL_STATE_PAGE, key, state.get(key).getId() + "", true);
-                }
+                DomainObject object = state.get(key);
+                long objectId = object == null ? SearchComponentState.NOT_SPECIFIED_ID
+                        : (object.getId() != null ? object.getId() : SearchComponentState.NOT_SPECIFIED_ID);
+                putPreference(GLOBAL_STATE_PAGE, key, String.valueOf(objectId), true);
             }
         }
     }

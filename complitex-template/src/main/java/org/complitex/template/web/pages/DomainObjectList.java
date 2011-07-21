@@ -69,8 +69,8 @@ public class DomainObjectList extends ScrollListPage {
         if (reverseSearchFilters != null && !reverseSearchFilters.isEmpty()) {
             for (String searchFilter : reverseSearchFilters) {
                 DomainObject parentObject = globalSearchComponentState.get(searchFilter);
-                Long parentId = parentObject != null ? parentObject.getId()
-                        : SearchComponentState.NOT_SPECIFIED_ID;
+                long parentId = parentObject == null ? SearchComponentState.NOT_SPECIFIED_ID :
+                    (parentObject.getId() != null ? parentObject.getId() : SearchComponentState.NOT_SPECIFIED_ID);
                 if (parentId > 0) {
                     page.setResponsePage(strategy.getEditPage(), strategy.getEditPageParams(null, parentId, searchFilter));
                     return;

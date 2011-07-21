@@ -31,7 +31,7 @@ import java.util.Map;
 @Stateless
 public class RegionStrategy extends TemplateStrategy {
 
-    @EJB(beanName = "StringCultureBean")
+    @EJB
     private StringCultureBean stringBean;
 
     /*
@@ -75,8 +75,13 @@ public class RegionStrategy extends TemplateStrategy {
             attrExample.setValue(searchTextInput);
         }
         Long countryId = ids.get("country");
-        example.setParentId(countryId);
-        example.setParentEntity("country");
+        if (countryId != null && countryId > 0) {
+            example.setParentId(countryId);
+            example.setParentEntity("country");
+        } else {
+            example.setParentId(-1L);
+            example.setParentEntity("");
+        }
     }
 
     @Override

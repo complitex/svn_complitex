@@ -6,29 +6,42 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import org.complitex.dictionary.util.Numbers;
 
 /**
  *
  * @author Artem
  */
 public class SearchComponentState extends HashMap<String, DomainObject> implements Serializable {
+
     public static final Long NOT_SPECIFIED_ID = -1L;
 
     public void updateState(Map<String, ? extends DomainObject> state) {
         boolean clean = false;
 
-        for (String key : state.keySet()){
-            DomainObject domainObject = state.get(key);
-            DomainObject currentDomainObject = get(key);
+        for (String key : state.keySet()) {
+            DomainObject that = state.get(key);
+            DomainObject current = get(key);
 
             //clear if object changed
-            if (domainObject != null && currentDomainObject != null && !domainObject.getId().equals(currentDomainObject.getId())){
-                clean = true;
+            if (that == null && current == null) {
+                //not changed
+            } else {
+                if (that == null || current == null) {
+                    //changed
+                    clean = true;
+                    break;
+                } else {
+                    if (!Numbers.isEqual(that.getId(), current.getId())) {
+                        clean = true;
+                        break;
+                    }
+                }
             }
         }
 
-        if (clean){
-            for (String k : this.keySet()){
+        if (clean) {
+            for (String k : this.keySet()) {
                 put(k, new DomainObject(NOT_SPECIFIED_ID));
             }
         }
