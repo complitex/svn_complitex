@@ -30,12 +30,6 @@ public abstract class TemplateStrategy extends Strategy {
     public PageParameters getListPageParams() {
         PageParameters params = new PageParameters();
         params.put(ENTITY, getEntityTable());
-
-        //parent
-        if (getParent() != null) {
-            params.put(PARENT_ENTITY, getParent());
-        }
-
         return params;
     }
 

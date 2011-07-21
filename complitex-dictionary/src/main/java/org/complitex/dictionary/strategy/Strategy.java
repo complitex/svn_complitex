@@ -836,38 +836,6 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         return null;
     }
 
-    /**
-     * Helper method
-     * @return
-     */
-    @Transactional
-    @Override
-    public boolean checkEnable(SearchComponentState componentState) {
-        if (componentState == null || componentState.isEmpty()) {
-            return true;
-        }
-
-        for (Map.Entry<String, DomainObject> entry : componentState.entrySet()) {
-            DomainObject sessionObject = entry.getValue();
-            long objectId = sessionObject.getId();
-
-            if (objectId > 0) {
-                String entity = entry.getKey();
-                IStrategy strategy = strategyFactory.getStrategy(entity);
-                DomainObject freshObject = strategy.findById(objectId, true);
-
-                if (freshObject == null) {
-                    return false;
-                }
-
-                if (freshObject.getStatus() == StatusType.INACTIVE) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
     @Override
     public Class<? extends AbstractComplexAttributesPanel> getComplexAttributesPanelBeforeClass() {
         return null;
@@ -955,17 +923,6 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
     @Override
     public String[] getParents() {
-        return null;
-    }
-
-    @Override
-    public String getParent() {
-        String[] parents = getParents();
-
-        if (parents != null && parents.length > 0) {
-            return parents[0];
-        }
-
         return null;
     }
 

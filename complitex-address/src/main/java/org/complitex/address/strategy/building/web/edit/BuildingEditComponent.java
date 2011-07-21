@@ -31,8 +31,6 @@ import org.complitex.dictionary.web.component.list.AjaxRemovableListView;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
 import org.complitex.dictionary.web.component.search.WiQuerySearchComponent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import java.io.Serializable;
@@ -44,7 +42,6 @@ import java.util.Map;
  */
 public final class BuildingEditComponent extends AbstractComplexAttributesPanel {
 
-    private static final Logger log = LoggerFactory.getLogger(BuildingEditComponent.class);
     @EJB
     private DistrictStrategy districtStrategy;
     @EJB
@@ -146,7 +143,7 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
         //primary building address
         final DomainObject primaryBuildingAddress = building.getPrimaryAddress();
         DomainObjectInputPanel primaryAddressPanel = new DomainObjectInputPanel("primaryAddress", primaryBuildingAddress,
-                "building_address", null, null, null, getInputPanel().getDate()) {
+                "building_address", null, getInputPanel().getParentId(), getInputPanel().getParentEntity(), getInputPanel().getDate()) {
 
             @Override
             public SearchComponentState initParentSearchComponentState() {
@@ -169,7 +166,8 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
                 final DomainObject address = item.getModelObject();
 
                 DomainObjectInputPanel alternativeAddess = new DomainObjectInputPanel("alternativeAddess", address,
-                        "building_address", null, null, null, getInputPanel().getDate()) {
+                        "building_address", null, getInputPanel().getParentId(), getInputPanel().getParentEntity(),
+                        getInputPanel().getDate()) {
 
                     @Override
                     public SearchComponentState initParentSearchComponentState() {

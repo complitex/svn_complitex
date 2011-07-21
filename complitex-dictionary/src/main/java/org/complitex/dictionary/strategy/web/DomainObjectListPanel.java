@@ -42,7 +42,6 @@ import org.complitex.dictionary.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionary.web.component.datatable.DataProvider;
 import org.complitex.dictionary.web.component.paging.PagingNavigator;
 import org.complitex.dictionary.web.component.scroll.ScrollBookmarkablePageLink;
-import org.complitex.dictionary.web.component.search.SearchComponentState;
 import org.complitex.dictionary.web.component.search.WiQuerySearchComponent;
 import org.complitex.dictionary.web.component.type.BooleanPanel;
 import org.complitex.dictionary.web.component.type.DatePanel;
@@ -135,9 +134,8 @@ public class DomainObjectListPanel extends Panel {
         if (searchFilters == null || searchFilters.isEmpty()) {
             add(new EmptyPanel("searchComponent"));
         } else {
-            SearchComponentState componentState = getSession().getGlobalSearchComponentState();
-            WiQuerySearchComponent searchComponent = new WiQuerySearchComponent("searchComponent", componentState, searchFilters,
-                    getStrategy().getSearchCallback(), ShowMode.ALL, true);
+            WiQuerySearchComponent searchComponent = new WiQuerySearchComponent("searchComponent", getSession().getGlobalSearchComponentState(),
+                    searchFilters, getStrategy().getSearchCallback(), ShowMode.ALL, true);
             add(searchComponent);
             searchComponent.invokeCallback();
         }
@@ -182,7 +180,7 @@ public class DomainObjectListPanel extends Panel {
                 session.putPreferenceObject(page, PreferenceKey.FILTER_OBJECT, example);
 
                 //store state
-                getSession().storeGlobalSearchComponentState();
+                session.storeGlobalSearchComponentState();
 
                 if (!Strings.isEmpty(getSort().getProperty())) {
                     Long sortProperty = Long.valueOf(getSort().getProperty());

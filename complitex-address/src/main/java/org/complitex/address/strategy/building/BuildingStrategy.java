@@ -40,7 +40,7 @@ import org.complitex.dictionary.strategy.DeleteException;
  *
  * @author Artem
  */
-@Stateless(name = "BuildingStrategy")
+@Stateless
 public class BuildingStrategy extends TemplateStrategy {
 
     private static final Logger log = LoggerFactory.getLogger(BuildingStrategy.class);
