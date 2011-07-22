@@ -1,20 +1,21 @@
-setFocusOnFirstFormElement = function(){
-    var INPUT_TAGS = ["INPUT", "SELECT", "TEXTAREA"];
-    var id = $(".formFrame form").attr("id");
-    var form = document.getElementById(id);
-
-    if(form != null){
-        for(i=0; i<form.elements.length; i++){
-            var element = form.elements[i];
-
+var setFocusOnFirstFormElement = function(){
+    var form = $(".formFrame form");
+    if(form.length > 0){
+        var elements = $(form).find('input','select','textarea');
+        $.each(elements, function(index, field){
             //for debug only.
-            //alert("Element = {id : "+element.id+", tagName : "+element.tagName+", type : "+element.type+", disabled : "+element.disabled+"}");
+            /*
+            if(console){
+                console.log("Element = {name : "+field.name+", tagName : "+field.tagName+", type : "+field.type+
+                    ", disabled : "+field.disabled+", hasClass: "+ $(field).hasClass('form-template-page-unfocusable')+
+                    ", class: "+$(field).attr("class")+"}");
+            } */
 
-            if(element.type != "hidden" && !element.disabled && ($.inArray(element.tagName.toUpperCase(), INPUT_TAGS) > -1)){
-                element.focus();
-                return;
+            if(field.type !== "hidden" && !field.disabled && !$(field).hasClass('form-template-page-unfocusable')){
+                field.focus();
+                return false;
             }
-        }
+        });
     }
 }
 

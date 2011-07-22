@@ -48,13 +48,13 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
     private StringCultureBean stringBean;
     @EJB
     private StrategyFactory strategyFactory;
-    private SearchComponentState districtComponentState;
+    private SearchComponentState districtSearchComponentState;
 
     private class DistrictSearchCallback implements ISearchCallback, Serializable {
 
         @Override
         public void found(Component component, final Map<String, Long> ids, final AjaxRequestTarget target) {
-            DomainObject district = districtComponentState.get("district");
+            DomainObject district = districtSearchComponentState.get("district");
             if (district != null && district.getId() > 0) {
                 districtAttribute.setValueId(district.getId());
             } else {
@@ -90,7 +90,7 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
         attributesContainer.setOutputMarkupId(true);
         add(attributesContainer);
 
-        final Building building = (Building) getInputPanel().getObject();
+        final Building building = (Building) getDomainObject();
 
         final SearchComponentState parentSearchComponentState = getInputPanel().getParentSearchComponentState();
 
@@ -107,9 +107,8 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
             }
         });
         districtContainer.add(districtLabel);
-        districtComponentState = new SearchComponentState() {
+        districtSearchComponentState = new SearchComponentState() {
 
-            //todo whether there is a need to override?
             @Override
             public DomainObject put(String entity, DomainObject object) {
                 super.put(entity, object);
@@ -121,8 +120,7 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
                 return object;
             }
         };
-        districtComponentState.updateState(parentSearchComponentState);
-
+        districtSearchComponentState.updateState(parentSearchComponentState);
 
         districtAttribute = building.getAttribute(BuildingStrategy.DISTRICT);
 
@@ -131,11 +129,11 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
 
             if (districtId != null) {
                 DomainObject district = districtStrategy.findById(districtId, true);
-                districtComponentState.put("district", district);
+                districtSearchComponentState.put("district", district);
             }
         }
 
-        districtContainer.add(new WiQuerySearchComponent("district", districtComponentState,
+        districtContainer.add(new WiQuerySearchComponent("district", districtSearchComponentState,
                 ImmutableList.of("country", "region", "city", "district"), new DistrictSearchCallback(), ShowMode.ACTIVE,
                 !isDisabled() && DomainObjectAccessUtil.canEdit(null, "building", building)));
         districtContainer.setVisible(districtAttribute != null);
