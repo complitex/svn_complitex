@@ -23,7 +23,7 @@ public class FormTemplatePage extends TemplatePage {
     protected void onBeforeRender() {
         super.onBeforeRender();
 
-        //All Autocomplete component are unfocusable
+        //All Autocomplete components that are children of WiQuerySearchComponent to be unfocusable
         visitChildren(WiQuerySearchComponent.class, new IVisitor<WiQuerySearchComponent>() {
 
             @Override
