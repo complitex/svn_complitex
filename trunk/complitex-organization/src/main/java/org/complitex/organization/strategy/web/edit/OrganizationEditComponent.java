@@ -29,6 +29,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import org.apache.wicket.behavior.SimpleAttributeModifier;
+import org.complitex.dictionary.entity.StatusType;
 
 /**
  * 
@@ -50,6 +52,10 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
 
     public OrganizationEditComponent(String id, boolean disabled) {
         super(id, disabled);
+    }
+
+    protected boolean isNew() {
+        return getDomainObject().getId() == null;
     }
 
     @Override
@@ -96,8 +102,34 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
             public void detach() {
             }
         };
-        DisableAwareListMultipleChoice<DomainObject> organizationType = new DisableAwareListMultipleChoice<DomainObject>("organizationType",
-                organizationTypesModel, allOrganizationTypes, renderer);
+
+        if (isNew()) {
+            DomainObject defaultOrganizationType = null;
+            for (DomainObject organizationType : allOrganizationTypes) {
+                if (organizationType.getId().equals(OrganizationTypeStrategy.USER_ORGANIZATION_TYPE)
+                        && (organizationType.getStatus() == StatusType.ACTIVE)) {
+                    defaultOrganizationType = organizationType;
+                    break;
+                }
+            }
+            if (defaultOrganizationType == null) {
+                for (DomainObject organizationType : allOrganizationTypes) {
+                    if (organizationType.getStatus() == StatusType.ACTIVE) {
+                        defaultOrganizationType = organizationType;
+                        break;
+                    }
+                }
+            }
+            if (defaultOrganizationType != null) {
+                organizationTypesModel.setObject(Lists.newArrayList(defaultOrganizationType));
+            }
+        }
+
+        DisableAwareListMultipleChoice<DomainObject> organizationType =
+                new DisableAwareListMultipleChoice<DomainObject>("organizationType", organizationTypesModel,
+                allOrganizationTypes, renderer);
+        organizationType.add(new SimpleAttributeModifier("size", allOrganizationTypes.size() > 8 ? "8"
+                : String.valueOf(allOrganizationTypes.size())));
         if (isOrganizationTypeEnabled()) {
             organizationType.add(new AjaxFormComponentUpdatingBehavior("onclick") {
 
@@ -124,7 +156,6 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
         parentContainer = new WebMarkupContainer("parentContainer");
         parentContainer.setOutputMarkupPlaceholderTag(true);
         add(parentContainer);
-
 
         //district
         districtSearchComponentState = new SearchComponentState();
