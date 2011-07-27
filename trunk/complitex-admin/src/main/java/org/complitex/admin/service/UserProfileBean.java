@@ -2,6 +2,7 @@ package org.complitex.admin.service;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.complitex.admin.strategy.UserInfoStrategy;
+import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.service.AbstractBean;
 import org.complitex.dictionary.service.IUserProfileBean;
 import org.complitex.dictionary.service.exception.WrongCurrentPasswordException;
@@ -32,7 +33,13 @@ public class UserProfileBean extends AbstractBean implements IUserProfileBean{
 
     @Override
     public String getFullName(Long userId, Locale locale) {
-        return userInfoStrategy.displayDomainObject(userBean.getUser(userId).getUserInfo(), locale);
+        DomainObject userInfo = userBean.getUser(userId, false).getUserInfo();
+
+        if (userInfo != null) {
+            return userInfoStrategy.displayDomainObject(userInfo, locale);
+        }
+
+        return "";
     }
 
     public void updatePassword(String currentPassword, final String password) throws WrongCurrentPasswordException{
