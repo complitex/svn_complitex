@@ -43,11 +43,16 @@ public class UserBean extends AbstractBean {
 
     @Transactional
     public User getUser(Long id){
+        return getUser(id, true);
+    }
+
+    @Transactional
+    public User getUser(Long id, boolean createUserInfo){
         User user = (User) sqlSession().selectOne(STATEMENT_PREFIX + ".selectUser", id);
 
         if (user.getUserInfoObjectId() != null){
             user.setUserInfo(userInfoStrategy.findById(user.getUserInfoObjectId(), false));
-        }else{
+        }else if (createUserInfo){
             user.setUserInfo(userInfoStrategy.newInstance());
         }
 

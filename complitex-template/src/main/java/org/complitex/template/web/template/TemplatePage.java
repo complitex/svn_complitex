@@ -25,6 +25,7 @@ import org.complitex.dictionary.web.component.BookmarkablePageLinkPanel;
 import org.complitex.resources.WebCommonResourceInitializer;
 import org.complitex.template.web.component.toolbar.HelpButton;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
+import org.complitex.template.web.security.SecurityRole;
 import org.odlabs.wiquery.core.commons.CoreJavaScriptResourceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,17 +99,23 @@ public abstract class TemplatePage extends WebPage {
             }
         });
 
-        String fullName = sessionBean.getCurrentUserFullName(getLocale());
-        String depName = sessionBean.getMainUserOrganizationName(getLocale());
+        if (isUserAuthorized()) {
+            String fullName = sessionBean.getCurrentUserFullName(getLocale());
+            String depName = sessionBean.getMainUserOrganizationName(getLocale());
 
-        add(new Label("current_user_fullname", fullName != null ? fullName : ""));
-        add(new Label("current_user_department", depName != null ? depName : ""));
+            add(new Label("current_user_fullname", fullName != null ? fullName : ""));
+            add(new Label("current_user_department", depName != null ? depName : ""));
 
-        try {
-            //noinspection unchecked
-            add(new BookmarkablePageLinkPanel("profile", getString("profile"),
-                    getClass().getClassLoader().loadClass("org.complitex.admin.web.ProfilePage"), null));
-        } catch (ClassNotFoundException e) {
+            try {
+                //noinspection unchecked
+                add(new BookmarkablePageLinkPanel("profile", getString("profile"),
+                        getClass().getClassLoader().loadClass("org.complitex.admin.web.ProfilePage"), null));
+            } catch (ClassNotFoundException e) {
+                add(new EmptyPanel("profile"));
+            }
+        }else{
+            add(new EmptyPanel("current_user_fullname"));
+            add(new EmptyPanel("current_user_department"));
             add(new EmptyPanel("profile"));
         }
 
@@ -118,7 +125,7 @@ public abstract class TemplatePage extends WebPage {
             public void onSubmit() {
                 getTemplateWebApplication().logout();
             }
-        });
+        }.setVisible(isUserAuthorized()));
     }
 
     /**
@@ -292,5 +299,9 @@ public abstract class TemplatePage extends WebPage {
 
     public Object getFilterObject(Object _default){
         return getTemplateSession().getPreferenceObject(page, PreferenceKey.FILTER_OBJECT, _default);
+    }
+
+    public boolean isUserAuthorized(){
+        return getTemplateWebApplication().hasAnyRole(SecurityRole.AUTHORIZED);
     }
 }
