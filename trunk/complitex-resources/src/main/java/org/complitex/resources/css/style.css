@@ -241,25 +241,6 @@ table.bookContentHeader{
     width:100%;    
 }
 
-/* Dialog styles */
-
-/*.ui-dialog{
-    padding: 0px 0px 0px 0px !important;
-}
-
-.ui-corner-all {
-    -moz-border-radius: 0px !important;
-    -webkit-border-radius: 0px !important;
-}
-
-.ui-widget-content{
-    background:#C4CDD4 url('../images/formFrame-t.gif') repeat-x scroll 0 0 !important;
-}
-
-.ui-widget input[type="button"] {
-    font-size: 12px;
-}*/
-
 /* AutoCompleteTextField styles */
 div.wicket-aa-container {
     border-width: 1px;
@@ -288,4 +269,33 @@ div.wicket-aa ul li.selected {
 /* PlaceholderTextFieldPanel settings */
 .placeholder {
     color: #AAAAAA;
+}
+
+/* Collapsible fieldsets */
+fieldset.collapsible_fs > legend {
+    cursor: pointer;
+    margin: 15px 0;
+}
+
+fieldset.collapsible_fs > legend .fs_title {
+    font-weight: bold;
+    font-size: 15px;
+}
+
+fieldset.collapsible_fs > legend .plus {
+    background:url('../images/plus-icon.gif') no-repeat scroll center center transparent;
+}
+
+fieldset.collapsible_fs > legend .minus {
+    background:url('../images/minus-icon.gif') no-repeat scroll center center transparent;
+}
+
+fieldset.collapsible_fs > legend .image {
+    margin-left:2px;
+    margin-right: 5px;
+    padding-left: 10px;
+}
+
+fieldset.collapsible_fs .fs_content.plus {
+    display: none;
 }
