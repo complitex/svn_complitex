@@ -271,7 +271,7 @@ div.wicket-aa ul li.selected {
     color: #AAAAAA;
 }
 
-/* Collapsible fieldsets */
+/* CollapsibleFieldset component styles */
 fieldset.collapsible_fs > legend {
     cursor: pointer;
     margin: 15px 0;
