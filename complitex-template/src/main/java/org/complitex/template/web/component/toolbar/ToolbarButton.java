@@ -8,6 +8,7 @@ import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.AbstractLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.IComponentAssignedModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
@@ -22,34 +23,37 @@ public abstract class ToolbarButton extends Panel {
     private boolean useAjax;
 
     public ToolbarButton(String id, ResourceReference imageSrc, String titleKey) {
-       this(id, imageSrc, titleKey, false);
+        this(id, imageSrc, titleKey, false);
     }
 
     public ToolbarButton(String id, ResourceReference imageSrc, String titleKey, boolean useAjax) {
-        super(id);
-
-        this.useAjax = useAjax;
-
-        AbstractLink link = addLink();
-        Image image = addImage(imageSrc, new ResourceModel(titleKey).wrapOnAssignment(this));
-        link.add(image);
-        add(link);
+        this(id, imageSrc, new ResourceModel(titleKey), useAjax, null);
     }
 
     public ToolbarButton(String id, ResourceReference imageSrc, String titleKey, String tagId) {
-        super(id);
-        this.tagId = tagId;
-        AbstractLink link = addLink();
-        Image image = addImage(imageSrc, new ResourceModel(titleKey).wrapOnAssignment(this));
-        link.add(image);
+        this(id, imageSrc, new ResourceModel(titleKey), false, tagId);
+    }
 
+    protected ToolbarButton(String id, ResourceReference imageSrc, IModel<String> titleModel, boolean useAjax, String tagId) {
+        super(id);
+
+        this.useAjax = useAjax;
+        this.tagId = tagId;
+
+        if (titleModel instanceof IComponentAssignedModel) {
+            titleModel = ((IComponentAssignedModel) titleModel).wrapOnAssignment(this);
+        }
+
+        AbstractLink link = addLink();
+        Image image = newImage(imageSrc, titleModel);
+        link.add(image);
         add(link);
     }
 
-    protected void onClick(){
+    protected void onClick() {
     }
 
-    protected void onClick(AjaxRequestTarget target){
+    protected void onClick(AjaxRequestTarget target) {
     }
 
     protected class ToolbarButtonLink extends Link<Void> {
@@ -66,25 +70,25 @@ public abstract class ToolbarButton extends Panel {
 
     protected AbstractLink addLink() {
         if (useAjax) {
-            return new AjaxLink(LINK_MARKUP_ID){
+            return new AjaxLink(LINK_MARKUP_ID) {
 
                 @Override
                 public void onClick(AjaxRequestTarget target) {
                     ToolbarButton.this.onClick(target);
                 }
             };
-        }else{
+        } else {
             return new ToolbarButtonLink();
         }
     }
 
-    protected Image addImage(ResourceReference imageSrc, final IModel<String> title) {
+    protected Image newImage(ResourceReference imageSrc, final IModel<String> titleModel) {
         return new Image("image", imageSrc) {
 
             @Override
             protected void onComponentTag(ComponentTag tag) {
                 super.onComponentTag(tag);
-                tag.put("title", title.getObject());
+                tag.put("title", titleModel.getObject());
 
                 if (tagId != null) {
                     tag.put("id", tagId);
