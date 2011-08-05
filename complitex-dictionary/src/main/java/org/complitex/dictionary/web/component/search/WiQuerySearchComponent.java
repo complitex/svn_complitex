@@ -44,12 +44,25 @@ public final class WiQuerySearchComponent extends Panel {
 
         private String searchFilter;
         private boolean enabled;
+        private boolean visible;
         private ShowMode showMode;
 
         public SearchFilterSettings(String searchFilter, boolean enabled, ShowMode showMode) {
             this.searchFilter = searchFilter;
             this.enabled = enabled;
             this.showMode = showMode;
+            this.visible = true;
+        }
+
+        public SearchFilterSettings(String searchFilter, boolean enabled, boolean visible, ShowMode showMode) {
+            this.searchFilter = searchFilter;
+            this.enabled = enabled;
+            this.visible = visible;
+            this.showMode = showMode;
+        }
+
+        public boolean isVisible() {
+            return visible;
         }
 
         public boolean isEnabled() {
@@ -131,7 +144,9 @@ public final class WiQuerySearchComponent extends Panel {
                         return stringBean.displayValue(strategyFactory.getStrategy(entityTable).getEntity().getEntityNames(), getLocale());
                     }
                 };
-                item.add(new Label("column", entityLabelModel));
+                Label column = new Label("column", entityLabelModel);
+                setVisibility(entityTable, column);
+                item.add(column);
             }
         };
         searchPanel.add(columns);
@@ -244,7 +259,12 @@ public final class WiQuerySearchComponent extends Panel {
 
                 filterFieldMap.put(index, filter.getAutocompleteField());
                 filter.setAutoUpdate(true);
-                setEnable(entity, filter.getAutocompleteField());
+
+                //visible/enabled
+                boolean isVisible = setVisibility(entity, filter.getAutocompleteField());
+                if(isVisible){
+                    setEnable(entity, filter.getAutocompleteField());
+                }
 
                 //size
                 int size = strategyFactory.getStrategy(entity).getSearchTextFieldSize();
@@ -309,6 +329,21 @@ public final class WiQuerySearchComponent extends Panel {
         } else {
             textField.setEnabled(enabled);
         }
+    }
+
+    private boolean setVisibility(final String entityFilter, Component component) {
+        if (searchFilterSettings != null) {
+            boolean isVisible = find(searchFilterSettings, new Predicate<SearchFilterSettings>() {
+
+                @Override
+                public boolean apply(SearchFilterSettings settings) {
+                    return settings.getSearchFilter().equals(entityFilter);
+                }
+            }).isVisible();
+            component.setVisible(isVisible);
+            return isVisible;
+        }
+        return true;
     }
 
     private List<? extends DomainObject> findByExample(String entity, String searchTextInput, Map<String, DomainObject> previousInfo,

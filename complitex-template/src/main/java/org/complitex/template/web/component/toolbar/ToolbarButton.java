@@ -34,6 +34,14 @@ public abstract class ToolbarButton extends Panel {
         this(id, imageSrc, new ResourceModel(titleKey), false, tagId);
     }
 
+    public ToolbarButton(String id, ResourceReference imageSrc, IModel<String> titleModel, boolean useAjax) {
+        this(id, imageSrc, titleModel, useAjax, null);
+    }
+
+    public ToolbarButton(String id, ResourceReference imageSrc, IModel<String> titleModel) {
+        this(id, imageSrc, titleModel, false);
+    }
+
     protected ToolbarButton(String id, ResourceReference imageSrc, IModel<String> titleModel, boolean useAjax, String tagId) {
         super(id);
 
