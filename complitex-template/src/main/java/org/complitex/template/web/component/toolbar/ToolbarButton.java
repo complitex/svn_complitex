@@ -42,18 +42,38 @@ public abstract class ToolbarButton extends Panel {
         this(id, imageSrc, titleModel, false);
     }
 
-    protected ToolbarButton(String id, ResourceReference imageSrc, IModel<String> titleModel, boolean useAjax, String tagId) {
+    /**
+     * This constructor is not initializing component tree (init() method). Sometimes component tree initializing requires some
+     * data that is not available at constructor call time. In such cases it would be better to do initialization
+     * just before rendering when required data is already available rather at constructor time.
+     * That should be done in extending class' onBeforeRenderer() method.
+     * @param id
+     * @param useAjax
+     * @param tagId
+     */
+    protected ToolbarButton(String id, boolean useAjax, String tagId) {
         super(id);
-
         this.useAjax = useAjax;
         this.tagId = tagId;
+    }
 
+    protected ToolbarButton(String id, ResourceReference imageSrc, IModel<String> titleModel, boolean useAjax, String tagId) {
+        this(id, useAjax, tagId);
+        init(imageSrc, titleModel);
+    }
+
+    /**
+     * Initializing method.
+     * @param imageSrc
+     * @param titleModel
+     */
+    protected void init(ResourceReference imageSrc, IModel<String> titleModel) {
         if (titleModel instanceof IComponentAssignedModel) {
             titleModel = ((IComponentAssignedModel) titleModel).wrapOnAssignment(this);
         }
 
-        AbstractLink link = addLink();
-        Image image = newImage(imageSrc, titleModel);
+        AbstractLink link = newLink(LINK_MARKUP_ID);
+        Image image = newImage("image", imageSrc, titleModel);
         link.add(image);
         add(link);
     }
@@ -64,21 +84,9 @@ public abstract class ToolbarButton extends Panel {
     protected void onClick(AjaxRequestTarget target) {
     }
 
-    protected class ToolbarButtonLink extends Link<Void> {
-
-        public ToolbarButtonLink() {
-            super(LINK_MARKUP_ID);
-        }
-
-        @Override
-        public void onClick() {
-            ToolbarButton.this.onClick();
-        }
-    }
-
-    protected AbstractLink addLink() {
+    protected AbstractLink newLink(String linkId) {
         if (useAjax) {
-            return new AjaxLink(LINK_MARKUP_ID) {
+            return new AjaxLink(linkId) {
 
                 @Override
                 public void onClick(AjaxRequestTarget target) {
@@ -86,12 +94,22 @@ public abstract class ToolbarButton extends Panel {
                 }
             };
         } else {
-            return new ToolbarButtonLink();
+            return new Link<Void>(linkId) {
+
+                @Override
+                public void onClick() {
+                    ToolbarButton.this.onClick();
+                }
+            };
         }
     }
 
-    protected Image newImage(ResourceReference imageSrc, final IModel<String> titleModel) {
-        return new Image("image", imageSrc) {
+    protected AbstractLink getLink() {
+        return (AbstractLink) get("link");
+    }
+
+    protected Image newImage(String imageId, ResourceReference imageSrc, final IModel<String> titleModel) {
+        return new Image(imageId, imageSrc) {
 
             @Override
             protected void onComponentTag(ComponentTag tag) {
