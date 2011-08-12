@@ -258,6 +258,7 @@ public class DomainObjectListPanel extends Panel {
                                     break;
                                 case DATE:
                                 case DATE2:
+                                case MASKED_DATE:
                                     DateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy", getLocale());
                                     attributeValue = dateFormatter.format(new DateConverter().toObject(systemLocaleValue));
                                     break;
@@ -348,7 +349,8 @@ public class DomainObjectListPanel extends Panel {
                     }
                     break;
                     case DATE:
-                    case DATE2: {
+                    case DATE2:
+                    case MASKED_DATE: {
                         IModel<Date> dateModel = new Model<Date>() {
 
                             DateConverter dateConverter = new DateConverter();
