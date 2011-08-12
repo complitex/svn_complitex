@@ -475,6 +475,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
                                 case BOOLEAN:
                                 case DATE:
                                 case DATE2:
+                                case MASKED_DATE:
                                 case DOUBLE:
                                 case INTEGER: {
                                     String oldString = stringBean.getSystemStringCulture(oldAttr.getLocalizedValues()).getValue();

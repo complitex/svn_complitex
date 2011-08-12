@@ -263,6 +263,12 @@ public class DomainObjectInputPanel extends Panel {
                         !isHistory && canEdit(strategyName, entityTable, object));
             }
             break;
+            case MASKED_DATE: {
+                IModel<Date> model = new SimpleTypeModel<Date>(systemLocaleStringCulture, new DateConverter());
+                input = new MaskedDateInputPanel("input", model, attributeType.isMandatory(), labelModel,
+                        !isHistory && canEdit(strategyName, entityTable, object));
+            }
+            break;
             case BOOLEAN: {
                 IModel<Boolean> model = new SimpleTypeModel<Boolean>(systemLocaleStringCulture, new BooleanConverter());
                 input = new BooleanPanel("input", model, labelModel,
