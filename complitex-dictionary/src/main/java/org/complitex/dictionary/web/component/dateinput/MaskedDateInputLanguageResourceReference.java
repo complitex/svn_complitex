@@ -16,7 +16,8 @@ class MaskedDateInputLanguageResourceReference extends WiQueryJavaScriptResource
 
     enum MaskedDateInputLanguages {
 
-        RUSSIAN("ru");
+        RUSSIAN("ru"),
+        UKRAINIAN("uk");
         private final Locale locale;
 
         /**
