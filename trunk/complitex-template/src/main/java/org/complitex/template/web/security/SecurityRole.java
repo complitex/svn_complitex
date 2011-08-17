@@ -15,4 +15,5 @@ public class SecurityRole {
     public static final String PERSON_MODULE_DESCRIPTION_EDIT = "PERSON_MODULE_DESCRIPTION_EDIT";
     public static final String OWNER_RELATIONSHIP_MODULE_EDIT = "OWNER_RELATIONSHIP_MODULE_EDIT";
     public static final String REGISTRATION_TYPE_MODULE_EDIT = "REGISTRATION_TYPE_MODULE_EDIT";
+    public static final String DOCUMENT_TYPE_MODULE_EDIT = "DOCUMENT_TYPE_MODULE_EDIT";
 }
