@@ -94,6 +94,13 @@ public class DateUtil {
         return c.getTime();
     }
 
+    public static Date justAfter(Date current) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(current);
+        c.add(Calendar.SECOND, 1);
+        return c.getTime();
+    }
+
     public static int getDay(Date date) {
         Calendar c = Calendar.getInstance();
         c.setTime(date);
