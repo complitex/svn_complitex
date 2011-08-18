@@ -12,7 +12,7 @@ var setFocusOnFirstFormElement = function(){
             } */
 
             if(field.type !== "hidden" && !field.disabled && !$(field).hasClass('form-template-page-unfocusable')){
-                field.focus();
+                $(field).focus();
                 return false;
             }
         });

@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.Locale;
 import org.apache.wicket.model.IModel;
 import org.complitex.dictionary.web.component.DatePicker;
-import org.complitex.resources.WebCommonResourceInitializer;
 import org.odlabs.wiquery.core.commons.WiQueryResourceManager;
 import org.odlabs.wiquery.core.javascript.JsStatement;
 
@@ -44,7 +43,7 @@ public class MaskedDateInput extends DatePicker<Date> {
 
     @Override
     public JsStatement statement() {
-        return super.statement().chain("mask_dateinput").chain("placeholder");
+        return super.statement().chain("mask_dateinput");
     }
 
     @Override
@@ -52,7 +51,6 @@ public class MaskedDateInput extends DatePicker<Date> {
         super.contribute(wiQueryResourceManager);
 
         wiQueryResourceManager.addJavaScriptResource(MaskedDateInput.class, "jquery.masked_dateinput.js");
-        wiQueryResourceManager.addJavaScriptResource(WebCommonResourceInitializer.PLACEHOLDER_JS);
 
         // If locale is null or current locale is US: no translation is needed.
         Locale locale = getLocale();
