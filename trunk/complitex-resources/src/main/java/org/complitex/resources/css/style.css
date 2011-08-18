@@ -271,7 +271,7 @@ div.wicket-aa ul li.selected {
     color: #AAAAAA;
 }
 
-input:-webkit-input-placeholder {
+input::-webkit-input-placeholder {
     color: #AAAAAA;
 }
 input:-moz-placeholder {
