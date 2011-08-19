@@ -297,12 +297,8 @@ fieldset.collapsible_fs > legend .minus {
     background:url('../images/minus-icon.gif') no-repeat scroll center center transparent;
 }
 
-fieldset.collapsible_fs > legend .image {
+fieldset.collapsible_fs > legend .fs_image {
     margin-left:2px;
     margin-right: 5px;
     padding-left: 10px;
-}
-
-fieldset.collapsible_fs .fs_content.plus {
-    display: none;
 }

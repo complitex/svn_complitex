@@ -5,19 +5,23 @@
 package org.complitex.dictionary.web.component.fieldset;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.markup.html.JavascriptPackageResource;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.border.Border;
 import org.apache.wicket.model.IModel;
 import org.complitex.dictionary.web.component.css.CssAttributeBehavior;
-import org.complitex.resources.WebCommonResourceInitializer;
+import org.odlabs.wiquery.core.commons.IWiQueryPlugin;
+import org.odlabs.wiquery.core.commons.WiQueryResourceManager;
+import org.odlabs.wiquery.core.javascript.JsQuery;
+import org.odlabs.wiquery.core.javascript.JsStatement;
+import org.odlabs.wiquery.ui.commons.WiQueryUIPlugin;
 
 /**
  *
  * @author Artem
  */
-public final class CollapsibleFieldset extends Border {
+@WiQueryUIPlugin
+public final class CollapsibleFieldset extends Border implements IWiQueryPlugin {
 
     public CollapsibleFieldset(String id, IModel<String> titleModel, boolean collapsed) {
         this(id, new Label("title", titleModel), collapsed);
@@ -38,8 +42,6 @@ public final class CollapsibleFieldset extends Border {
     }
 
     private void init(Component titleComponent, boolean collapsed) {
-        add(JavascriptPackageResource.getHeaderContribution(WebCommonResourceInitializer.COLLAPSIBLE_FS_JS));
-        
         add(titleComponent);
         WebMarkupContainer image = new WebMarkupContainer("image");
         if (collapsed) {
@@ -49,10 +51,17 @@ public final class CollapsibleFieldset extends Border {
         }
         add(image);
         WebMarkupContainer content = new WebMarkupContainer("content");
-        if (collapsed) {
-            content.add(new CssAttributeBehavior("plus"));
-        }
         add(content);
         content.add(getBodyContainer());
+    }
+
+    @Override
+    public void contribute(WiQueryResourceManager wiQueryResourceManager) {
+        wiQueryResourceManager.addJavaScriptResource(CollapsibleFieldset.class, CollapsibleFieldset.class.getSimpleName() + ".js");
+    }
+
+    @Override
+    public JsStatement statement() {
+        return new JsQuery(this).$().chain("collapsible_fieldset");
     }
 }
