@@ -91,8 +91,6 @@ public class UserEdit extends FormTemplatePage {
         User user = userId != null ? userBean.getUser(userId) : userBean.newUser();
         final IModel<User> userModel = new Model<User>(user);
 
-        final Preference useDefaultPreference = preferenceBean.getOrCreatePreference(userId, GLOBAL_PAGE, IS_USE_DEFAULT_STATE_KEY);
-
         final SearchComponentState searchComponentState = new SearchComponentState();
 
         if (userId != null) {
@@ -116,9 +114,6 @@ public class UserEdit extends FormTemplatePage {
                 userGroup.setId(null);
                 userGroup.setLogin(null);
             }
-
-            useDefaultPreference.setId(null);
-            useDefaultPreference.setUserId(null);
         }
 
         final User oldUser = (userId != null) ? CloneUtil.cloneObject(userModel.getObject()) : null;
@@ -213,6 +208,7 @@ public class UserEdit extends FormTemplatePage {
         });
 
         //Адрес по умолчанию
+        Preference useDefaultPreference = preferenceBean.getOrCreatePreference(userId, GLOBAL_PAGE, IS_USE_DEFAULT_STATE_KEY);
         final Model<Boolean> useDefaultModel = new Model<Boolean>(Boolean.valueOf(useDefaultPreference.getValue()));
         form.add(new CheckBox("use_default_address", useDefaultModel));
 
@@ -247,9 +243,7 @@ public class UserEdit extends FormTemplatePage {
                     }
 
                     //Использовать ли адрес по умолчанию при входе в систему
-                    useDefaultPreference.setUserId(user.getId());
-                    useDefaultPreference.setValue(useDefaultModel.getObject().toString());
-                    preferenceBean.save(useDefaultPreference);
+                    preferenceBean.save(user.getId(), GLOBAL_PAGE, IS_USE_DEFAULT_STATE_KEY, useDefaultModel.getObject().toString());
 
                     logBean.info(Module.NAME, UserEdit.class, User.class, null, user.getId(),
                             (user.getId() == null) ? Log.EVENT.CREATE : Log.EVENT.EDIT, getLogChanges(oldUser, user), null);
