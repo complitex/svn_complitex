@@ -27,6 +27,6 @@ public class DateConverter implements IConverter<Date> {
 
     @Override
     public String toString(Date date) {
-        return DATE_FORMATTER.format(date);
+        return date != null ? DATE_FORMATTER.format(date) : null;
     }
 }
