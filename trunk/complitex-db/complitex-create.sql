@@ -126,6 +126,7 @@ CREATE TABLE `preference` (
     `value` VARCHAR(255) NOT NULL COMMENT 'Значение',
     PRIMARY KEY (`id`),
     KEY `key_user_id` (`user_id`),
+    UNIQUE KEY `unique_key` (`user_id`, `page`, `key`),
     CONSTRAINT `fk_preference__user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Предпочтения пользователя';
 
