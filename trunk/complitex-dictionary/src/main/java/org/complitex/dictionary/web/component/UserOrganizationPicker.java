@@ -31,18 +31,18 @@ public class UserOrganizationPicker extends Panel {
         this(id, organizationIdModel, false, excludeOrganizationsId);
     }
 
-    public UserOrganizationPicker(String id, IModel<Long> organizationIdModel,  boolean updating, Long... excludeOrganizationsId) {
+    public UserOrganizationPicker(String id, IModel<Long> organizationIdModel, boolean updating, Long... excludeOrganizationsId) {
         super(id);
 
         init(organizationIdModel, updating, excludeOrganizationsId);
     }
 
     private void init(final IModel<Long> organizationIdModel, boolean updating, final Long... excludeOrganizationsId) {
-        final IModel<List<? extends DomainObject>> userOrganizationsModel = new LoadableDetachableModel<List<? extends DomainObject>>() {
+        final IModel<List<? extends DomainObject>> allOrganizationsModel = new LoadableDetachableModel<List<? extends DomainObject>>() {
 
             @Override
             protected List<? extends DomainObject> load() {
-                return organizationStrategy.getUserOrganizations(getLocale(), excludeOrganizationsId);
+                return organizationStrategy.getAllOrganizations(getLocale(), excludeOrganizationsId);
             }
         };
         DomainObjectDisableAwareRenderer renderer = new DomainObjectDisableAwareRenderer() {
@@ -58,7 +58,7 @@ public class UserOrganizationPicker extends Panel {
             public DomainObject getObject() {
                 final Long id = organizationIdModel.getObject();
                 if (id != null) {
-                    return Iterables.find(userOrganizationsModel.getObject(), new Predicate<DomainObject>() {
+                    return Iterables.find(allOrganizationsModel.getObject(), new Predicate<DomainObject>() {
 
                         @Override
                         public boolean apply(DomainObject input) {
@@ -76,12 +76,14 @@ public class UserOrganizationPicker extends Panel {
                 }
             }
         };
-        DisableAwareDropDownChoice<DomainObject> select = new DisableAwareDropDownChoice<DomainObject>("select", model, userOrganizationsModel, renderer);
+        DisableAwareDropDownChoice<DomainObject> select = new DisableAwareDropDownChoice<DomainObject>("select", model,
+                allOrganizationsModel, renderer);
         select.setNullValid(true);
         select.setOutputMarkupId(true);
 
         if (updating) {
             select.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
                 @Override
                 protected void onUpdate(AjaxRequestTarget target) {
                     UserOrganizationPicker.this.onUpdate(target);
@@ -92,7 +94,6 @@ public class UserOrganizationPicker extends Panel {
         add(select);
     }
 
-    protected void onUpdate(AjaxRequestTarget target){
-
+    protected void onUpdate(AjaxRequestTarget target) {
     }
 }

@@ -5,6 +5,7 @@
 package org.complitex.organization.strategy.web.edit;
 
 import org.apache.wicket.PageParameters;
+import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
 import org.complitex.dictionary.strategy.web.DomainObjectEditPanel;
 import org.complitex.template.web.pages.DomainObjectEdit;
 
@@ -19,7 +20,7 @@ public final class OrganizationEdit extends DomainObjectEdit {
     }
 
     @Override
-    protected DomainObjectEditPanel newEditPanel(String id, String entity, String strategy, Long object_id, Long parentId,
+    protected DomainObjectEditPanel newEditPanel(String id, final String entity, final String strategy, Long object_id, Long parentId,
             String parentEntity, String scrollListPageParameterName) {
         return new DomainObjectEditPanel(id, entity, strategy, object_id, parentId, parentEntity, scrollListPageParameterName) {
 
@@ -27,7 +28,8 @@ public final class OrganizationEdit extends DomainObjectEdit {
             protected void init() {
                 super.init();
                 get("form:permissionsPanel").replaceWith(new OrganizationPermissionsPanel("permissionsPanel",
-                        getObject().getSubjectIds(), getObject().getId()));
+                        getObject().getSubjectIds(), DomainObjectAccessUtil.canEdit(strategy, entity, getObject()),
+                        getObject().getId()));
             }
         };
     }

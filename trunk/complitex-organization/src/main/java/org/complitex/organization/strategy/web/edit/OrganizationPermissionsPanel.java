@@ -21,8 +21,8 @@ class OrganizationPermissionsPanel extends DomainObjectPermissionsPanel {
 
     private Long organizationId;
 
-    OrganizationPermissionsPanel(String id, Set<Long> subjectIds, Long organizationId) {
-        super(id, subjectIds);
+    OrganizationPermissionsPanel(String id, Set<Long> subjectIds, boolean enabled, Long organizationId) {
+        super(id, subjectIds, enabled);
         this.organizationId = organizationId;
     }
 
