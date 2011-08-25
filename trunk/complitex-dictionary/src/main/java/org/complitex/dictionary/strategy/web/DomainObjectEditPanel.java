@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
+import org.apache.wicket.RestartResponseException;
 
 /**
  *
@@ -80,16 +81,18 @@ public class DomainObjectEditPanel extends Panel {
             //create new entity
             oldObject = null;
             newObject = getStrategy().newInstance();
-
         } else {
             //edit existing entity
             newObject = getStrategy().findById(objectId, false);
+            if (newObject == null) {
+                throw new RestartResponseException(getStrategy().getObjectNotFoundPage());
+            }
             oldObject = cloneObject(newObject);
         }
         init();
     }
 
-    private IStrategy getStrategy() {
+    protected IStrategy getStrategy() {
         return strategyFactory.getStrategy(strategyName, entity);
     }
 
@@ -97,11 +100,11 @@ public class DomainObjectEditPanel extends Panel {
         return newObject;
     }
 
-    private boolean isNew() {
+    protected boolean isNew() {
         return oldObject == null;
     }
 
-    private void init() {
+    protected void init() {
         IModel<String> labelModel = new AbstractReadOnlyModel<String>() {
 
             @Override
@@ -283,7 +286,7 @@ public class DomainObjectEditPanel extends Panel {
         });
     }
 
-    private void back() {
+    protected void back() {
         if (isNew() || (parentId == null && Strings.isEmpty(parentEntity))) {
             //return to list page for current entity.
             PageParameters listPageParams = getStrategy().getListPageParams();

@@ -20,7 +20,7 @@ import static org.complitex.template.strategy.TemplateStrategy.*;
  * @author Artem
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)
-public final class DomainObjectEdit extends FormTemplatePage {
+public class DomainObjectEdit extends FormTemplatePage {
 
     private DomainObjectEditPanel editPanel;
     private String entity;
@@ -31,12 +31,17 @@ public final class DomainObjectEdit extends FormTemplatePage {
                 parameters.getAsLong(PARENT_ID), parameters.getString(PARENT_ENTITY));
     }
 
-    private void init(String entity, String strategy, Long object_id, Long parentId, String parentEntity) {
+    protected void init(String entity, String strategy, Long object_id, Long parentId, String parentEntity) {
         this.entity = entity;
         this.strategy = strategy;
 
-        add(editPanel = new DomainObjectEditPanel("editPanel", entity, strategy, object_id, parentId, parentEntity,
-                DomainObjectList.SCROLL_PARAMETER));
+        add(editPanel = newEditPanel("editPanel", entity, strategy, object_id, parentId, parentEntity, DomainObjectList.SCROLL_PARAMETER));
+    }
+
+    protected DomainObjectEditPanel newEditPanel(String id, String entity, String strategy, Long object_id, Long parentId,
+            String parentEntity, String scrollListPageParameterName){
+        return new DomainObjectEditPanel(id, entity, strategy, object_id, parentId, parentEntity,
+                scrollListPageParameterName);
     }
 
     @Override
