@@ -1,5 +1,6 @@
 package org.complitex.template.strategy;
 
+import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
 import org.complitex.dictionary.strategy.Strategy;
@@ -8,18 +9,23 @@ import org.complitex.dictionary.strategy.web.validate.IValidator;
 import org.complitex.template.web.pages.DomainObjectEdit;
 import org.complitex.template.web.pages.DomainObjectList;
 import org.complitex.template.web.pages.HistoryPage;
+import org.complitex.template.web.pages.ObjectNotFoundPage;
+import org.complitex.template.web.pages.welcome.WelcomePage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author Artem
  */
 public abstract class TemplateStrategy extends Strategy {
+
     public static final String ENTITY = "entity";
     public static final String STRATEGY = "strategy";
     public static final String OBJECT_ID = "object_id";
     public static final String PARENT_ID = "parent_id";
     public static final String PARENT_ENTITY = "parent_entity";
-
+    private static final Logger log = LoggerFactory.getLogger(TemplateStrategy.class);
 
     @Override
     public Class<? extends WebPage> getListPage() {
@@ -64,5 +70,15 @@ public abstract class TemplateStrategy extends Strategy {
     @Override
     public IValidator getValidator() {
         return new DefaultValidator(getEntityTable());
+    }
+
+    @Override
+    public Page getObjectNotFoundPage() {
+        try {
+            return new ObjectNotFoundPage(getListPage(), getListPageParams());
+        } catch (Exception e) {
+            log.error("Couldn't instantiate list page for entity " + getEntityTable(), e);
+            return new ObjectNotFoundPage(WelcomePage.class);
+        }
     }
 }

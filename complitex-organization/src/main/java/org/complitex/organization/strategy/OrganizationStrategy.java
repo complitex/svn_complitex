@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.address.strategy.district.DistrictStrategy;
 import org.complitex.dictionary.entity.Attribute;
@@ -29,7 +30,9 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.util.*;
 import org.complitex.dictionary.service.PermissionBean;
+import org.complitex.dictionary.service.SequenceBean;
 import org.complitex.dictionary.util.AttributeUtil;
+import org.complitex.organization.strategy.web.edit.OrganizationEdit;
 import org.complitex.organization_type.strategy.OrganizationTypeStrategy;
 
 /**
@@ -47,6 +50,8 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
     private LocaleBean localeBean;
     @EJB
     private PermissionBean permissionBean;
+    @EJB
+    private SequenceBean sequenceBean;
 
     @Override
     public String getEntityTable() {
@@ -82,7 +87,8 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
 
     @Override
     public boolean canPropagatePermissions(DomainObject organization) {
-        return isUserOrganization(organization);
+        return isUserOrganization(organization) && organization.getId() != null
+                && !getTreeChildrenOrganizationIds(organization.getId()).isEmpty();
     }
 
     @Override
@@ -107,7 +113,20 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
     @Transactional
     @Override
     public void insert(DomainObject object, Date insertDate) {
-        super.insert(object, insertDate);
+        object.setId(sequenceBean.nextId(getEntityTable()));
+
+        if (!object.getSubjectIds().contains(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID)) {
+            object.getSubjectIds().add(object.getId());
+        }
+
+        object.setPermissionId(getNewPermissionId(object.getSubjectIds()));
+        insertDomainObject(object, insertDate);
+        for (Attribute attribute : object.getAttributes()) {
+            attribute.setObjectId(object.getId());
+            attribute.setStartDate(insertDate);
+            insertAttribute(attribute);
+        }
+
         changeDistrictPermissions(object);
     }
 
@@ -168,7 +187,13 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
     @Override
     public void replaceChildrenPermissions(long parentId, Set<Long> subjectIds) {
         for (DomainObjectPermissionInfo childPermissionInfo : getTreeChildrenPermissionInfo(parentId)) {
-            replaceObjectPermissions(childPermissionInfo, subjectIds);
+
+            Set<Long> childSubjectIds = Sets.newHashSet(subjectIds);
+            if (!childSubjectIds.contains(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID)) {
+                childSubjectIds.add(childPermissionInfo.getId());
+            }
+
+            replaceObjectPermissions(childPermissionInfo, childSubjectIds);
         }
     }
 
@@ -339,5 +364,10 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
             throw new DeleteException();
         }
         super.deleteChecks(objectId, locale);
+    }
+
+    @Override
+    public Class<? extends WebPage> getEditPage() {
+        return OrganizationEdit.class;
     }
 }

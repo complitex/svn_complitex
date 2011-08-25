@@ -19,6 +19,7 @@ import org.complitex.dictionary.web.component.search.ISearchCallback;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
 
 import java.util.*;
+import org.apache.wicket.Page;
 
 /**
  *
@@ -211,4 +212,6 @@ public interface IStrategy {
     void delete(long objectId, Locale locale) throws DeleteException;
 
     String[] getDescriptionRoles();
+
+    Page getObjectNotFoundPage();
 }
