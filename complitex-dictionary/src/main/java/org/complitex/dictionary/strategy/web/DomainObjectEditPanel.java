@@ -151,8 +151,7 @@ public class DomainObjectEditPanel extends Panel {
 
         //permissions panel
         DomainObjectPermissionsPanel permissionsPanel = new DomainObjectPermissionsPanel("permissionsPanel",
-                newObject.getSubjectIds());
-        permissionsPanel.setEnabled(DomainObjectAccessUtil.canEdit(strategyName, entity, newObject));
+                newObject.getSubjectIds(), DomainObjectAccessUtil.canEdit(strategyName, entity, newObject));
         form.add(permissionsPanel);
 
         //permissionPropagationDialogPanel

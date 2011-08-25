@@ -44,13 +44,14 @@ public class DomainObjectPermissionsPanel extends Panel implements IWiQueryPlugi
         VISIBLE_BY_ALL.setId(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID);
     }
 
-    public DomainObjectPermissionsPanel(String id, Set<Long> subjectIds) {
+    public DomainObjectPermissionsPanel(String id, Set<Long> subjectIds, boolean enabled) {
         super(id);
         init(subjectIds);
+        setEnabled(enabled);
     }
 
     private void init(final Set<Long> subjectIds) {
-        final IModel<List<DomainObject>> allSubjectsModel = new LoadableDetachableModel<List<DomainObject>>() {
+        final IModel<List<DomainObject>> userSubjectsModel = new LoadableDetachableModel<List<DomainObject>>() {
 
             @Override
             protected List<DomainObject> load() {
@@ -74,19 +75,19 @@ public class DomainObjectPermissionsPanel extends Panel implements IWiQueryPlugi
 
         IModel<List<DomainObject>> subjectsModel = new IModel<List<DomainObject>>() {
 
-            List<DomainObject> selectedSubjects = Lists.newArrayList(Iterables.transform(subjectIds, new Function<Long, DomainObject>() {
-
-                @Override
-                public DomainObject apply(final Long id) {
-                    return Iterables.find(allSubjectsModel.getObject(), new Predicate<DomainObject>() {
+            private List<DomainObject> selectedSubjects = Lists.newArrayList(Iterables.filter(userSubjectsModel.getObject(),
+                    new Predicate<DomainObject>() {
 
                         @Override
-                        public boolean apply(DomainObject input) {
-                            return id.equals(input.getId());
+                        public boolean apply(DomainObject userSubject) {
+                            for (long organizationId : subjectIds) {
+                                if (userSubject.getId().equals(organizationId)) {
+                                    return true;
+                                }
+                            }
+                            return false;
                         }
-                    });
-                }
-            }));
+                    }));
 
             @Override
             public List<DomainObject> getObject() {
@@ -113,7 +114,7 @@ public class DomainObjectPermissionsPanel extends Panel implements IWiQueryPlugi
             }
         };
 
-        add(newSubjectsSelectComponent("subjects", subjectsModel, allSubjectsModel, renderer));
+        add(newSubjectsSelectComponent("subjects", subjectsModel, userSubjectsModel, renderer));
     }
 
     protected DisableAwareListMultipleChoice<DomainObject> newSubjectsSelectComponent(String id,
