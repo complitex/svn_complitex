@@ -15,10 +15,12 @@ import org.complitex.dictionary.web.component.dateinput.MaskedDateInput;
  */
 public final class MaskedDateInputPanel extends Panel {
 
+    public static final String DATE_INPUT_ID = "input";
+
     public MaskedDateInputPanel(String id, IModel<Date> model, boolean required, IModel<String> labelModel, boolean enabled) {
         super(id);
 
-        MaskedDateInput input = new MaskedDateInput("input", model, enabled);
+        MaskedDateInput input = new MaskedDateInput(DATE_INPUT_ID, model, enabled);
         input.setLabel(labelModel);
         input.setRequired(required);
         add(input);

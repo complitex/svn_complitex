@@ -74,6 +74,7 @@ public class DomainObjectInputPanel extends Panel {
         }
     }
     private static final Logger log = LoggerFactory.getLogger(DomainObjectInputPanel.class);
+    public static final String INPUT_COMPONENT_ID = "input";
     @EJB
     private StrategyFactory strategyFactory;
     private SearchComponentState searchComponentState;
@@ -229,61 +230,61 @@ public class DomainObjectInputPanel extends Panel {
         switch (type) {
             case STRING: {
                 IModel<String> model = new SimpleTypeModel<String>(systemLocaleStringCulture, new StringConverter());
-                input = new StringPanel("input", model, attributeType.isMandatory(), labelModel,
+                input = new StringPanel(INPUT_COMPONENT_ID, model, attributeType.isMandatory(), labelModel,
                         !isHistory && canEdit(strategyName, entityTable, object));
             }
             break;
             case BIG_STRING: {
                 IModel<String> model = new SimpleTypeModel<String>(systemLocaleStringCulture, new StringConverter());
-                input = new BigStringPanel("input", model, attributeType.isMandatory(), labelModel,
+                input = new BigStringPanel(INPUT_COMPONENT_ID, model, attributeType.isMandatory(), labelModel,
                         !isHistory && canEdit(strategyName, entityTable, object));
             }
             break;
             case STRING_CULTURE: {
                 IModel<List<StringCulture>> model = new PropertyModel<List<StringCulture>>(attribute, "localizedValues");
-                input = new StringCulturePanel("input", model, attributeType.isMandatory(), labelModel,
+                input = new StringCulturePanel(INPUT_COMPONENT_ID, model, attributeType.isMandatory(), labelModel,
                         !isHistory && canEdit(strategyName, entityTable, object));
             }
             break;
             case INTEGER: {
                 IModel<Integer> model = new SimpleTypeModel<Integer>(systemLocaleStringCulture, new IntegerConverter());
-                input = new IntegerPanel("input", model, attributeType.isMandatory(), labelModel,
+                input = new IntegerPanel(INPUT_COMPONENT_ID, model, attributeType.isMandatory(), labelModel,
                         !isHistory && canEdit(strategyName, entityTable, object));
             }
             break;
             case DATE: {
                 IModel<Date> model = new SimpleTypeModel<Date>(systemLocaleStringCulture, new DateConverter());
-                input = new DatePanel("input", model, attributeType.isMandatory(), labelModel,
+                input = new DatePanel(INPUT_COMPONENT_ID, model, attributeType.isMandatory(), labelModel,
                         !isHistory && canEdit(strategyName, entityTable, object));
             }
             break;
             case DATE2: {
                 IModel<Date> model = new SimpleTypeModel<Date>(systemLocaleStringCulture, new DateConverter());
-                input = new Date2Panel("input", model, attributeType.isMandatory(), labelModel,
+                input = new Date2Panel(INPUT_COMPONENT_ID, model, attributeType.isMandatory(), labelModel,
                         !isHistory && canEdit(strategyName, entityTable, object));
             }
             break;
             case MASKED_DATE: {
                 IModel<Date> model = new SimpleTypeModel<Date>(systemLocaleStringCulture, new DateConverter());
-                input = new MaskedDateInputPanel("input", model, attributeType.isMandatory(), labelModel,
+                input = new MaskedDateInputPanel(INPUT_COMPONENT_ID, model, attributeType.isMandatory(), labelModel,
                         !isHistory && canEdit(strategyName, entityTable, object));
             }
             break;
             case BOOLEAN: {
                 IModel<Boolean> model = new SimpleTypeModel<Boolean>(systemLocaleStringCulture, new BooleanConverter());
-                input = new BooleanPanel("input", model, labelModel,
+                input = new BooleanPanel(INPUT_COMPONENT_ID, model, labelModel,
                         !isHistory && canEdit(strategyName, entityTable, object));
             }
             break;
             case DOUBLE: {
                 IModel<Double> model = new SimpleTypeModel<Double>(systemLocaleStringCulture, new DoubleConverter());
-                input = new DoublePanel("input", model, attributeType.isMandatory(), labelModel,
+                input = new DoublePanel(INPUT_COMPONENT_ID, model, attributeType.isMandatory(), labelModel,
                         !isHistory && canEdit(strategyName, entityTable, object));
             }
             break;
             case GENDER: {
                 IModel<Gender> model = new SimpleTypeModel<Gender>(systemLocaleStringCulture, new GenderConverter());
-                input = new GenderPanel("input", model, attributeType.isMandatory(), labelModel,
+                input = new GenderPanel(INPUT_COMPONENT_ID, model, attributeType.isMandatory(), labelModel,
                         !isHistory && canEdit(strategyName, entityTable, object));
             }
             break;
