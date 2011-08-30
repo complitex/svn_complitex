@@ -5,10 +5,13 @@
 package org.complitex.dictionary.web.component.fieldset;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxEventBehavior;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.border.Border;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.complitex.dictionary.web.component.css.CssAttributeBehavior;
 import org.odlabs.wiquery.core.commons.IWiQueryPlugin;
 import org.odlabs.wiquery.core.commons.WiQueryResourceManager;
@@ -21,10 +24,12 @@ import org.odlabs.wiquery.ui.commons.WiQueryUIPlugin;
  * @author Artem
  */
 @WiQueryUIPlugin
-public final class CollapsibleFieldset extends Border implements IWiQueryPlugin {
+public class CollapsibleFieldset extends Border implements IWiQueryPlugin {
+
+    public static final String TITLE_COMPONENT_ID = "collapsibleFieldsetTitle";
 
     public CollapsibleFieldset(String id, IModel<String> titleModel, boolean collapsed) {
-        this(id, new Label("title", titleModel), collapsed);
+        this(id, newTitleComponent(titleModel), collapsed);
     }
 
     /**
@@ -38,19 +43,55 @@ public final class CollapsibleFieldset extends Border implements IWiQueryPlugin 
 
     public CollapsibleFieldset(String id, Component titleComponent, boolean collapsed) {
         super(id);
-        init(titleComponent, collapsed);
+        init(titleComponent, collapsed, null);
     }
 
-    private void init(Component titleComponent, boolean collapsed) {
-        add(titleComponent);
-        WebMarkupContainer image = new WebMarkupContainer("image");
+    public CollapsibleFieldset(String id, Component titleComponent, ICollapsibleFieldsetListener listener) {
+        super(id);
+        init(titleComponent, true, listener);
+    }
+
+    /**
+     * Collapsed by default.
+     * @param id
+     * @param titleComponent
+     */
+    public CollapsibleFieldset(String id, IModel<String> titleModel, ICollapsibleFieldsetListener listener) {
+        this(id, newTitleComponent(titleModel), listener);
+    }
+
+    protected static Component newTitleComponent(IModel<String> titleModel) {
+        return new Label(TITLE_COMPONENT_ID, titleModel);
+    }
+
+    protected void init(Component titleComponent, boolean collapsed, final ICollapsibleFieldsetListener listener) {
+        WebMarkupContainer legend = new WebMarkupContainer("collapsibleFieldsetLegend");
+        add(legend);
+
+        if (listener != null) {
+            final IModel<Boolean> stateModel = new Model<Boolean>(!collapsed);
+            legend.add(new AjaxEventBehavior("onclick") {
+
+                @Override
+                protected void onEvent(AjaxRequestTarget target) {
+                    stateModel.setObject(!stateModel.getObject());
+                    if (stateModel.getObject()) {
+                        listener.onExpand(target);
+                    }
+                }
+            });
+        }
+
+        WebMarkupContainer image = new WebMarkupContainer("collapsibleFieldsetImage");
         if (collapsed) {
             image.add(new CssAttributeBehavior("plus"));
         } else {
             image.add(new CssAttributeBehavior("minus"));
         }
-        add(image);
-        WebMarkupContainer content = new WebMarkupContainer("content");
+        legend.add(image);
+        legend.add(titleComponent);
+        
+        WebMarkupContainer content = new WebMarkupContainer("collapsibleFieldsetContent");
         add(content);
         content.add(getBodyContainer());
     }
