@@ -135,4 +135,18 @@ public class DateUtil {
         c.set(year, month - 1, day);
         return c.getTime();
     }
+
+    public static boolean isValidDateInterval(Date d1, Date d2, int years) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(d2);
+        c.add(Calendar.YEAR, years);
+        return d1.after(c.getTime());
+    }
+
+    public static Date add(Date date, int years) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        c.add(Calendar.YEAR, years);
+        return c.getTime();
+    }
 }

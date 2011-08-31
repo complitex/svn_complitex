@@ -6,9 +6,9 @@
 (function($) {
 
     /**
-     * Default masked dateinput settings
+     * Default masked dateinput global settings
      */
-    $.masked_dateinput_settings = {
+    $.masked_dateinput_global_settings = {
         day_placeholder: 'd',
         month_placeholder: 'm',
         year_placeholder: 'y',
@@ -53,14 +53,20 @@
             return this.trigger("unmask_dateinput");
         },
 
-        mask_dateinput: function() {
+        mask_dateinput: function(options) {
             return this.each(function() {
                 var input = $(this);
-                var placeholder = $.masked_dateinput_settings.day_placeholder+$.masked_dateinput_settings.day_placeholder+
-                $.masked_dateinput_settings.separator+$.masked_dateinput_settings.month_placeholder+
-                $.masked_dateinput_settings.month_placeholder+$.masked_dateinput_settings.separator+
-                $.masked_dateinput_settings.year_placeholder+$.masked_dateinput_settings.year_placeholder+
-                $.masked_dateinput_settings.year_placeholder+$.masked_dateinput_settings.year_placeholder;
+
+                var local_settings = $.extend({
+                    min_date : null,
+                    max_date : null
+                }, options || {});
+
+                var placeholder = $.masked_dateinput_global_settings.day_placeholder+$.masked_dateinput_global_settings.day_placeholder+
+                $.masked_dateinput_global_settings.separator+$.masked_dateinput_global_settings.month_placeholder+
+                $.masked_dateinput_global_settings.month_placeholder+$.masked_dateinput_global_settings.separator+
+                $.masked_dateinput_global_settings.year_placeholder+$.masked_dateinput_global_settings.year_placeholder+
+                $.masked_dateinput_global_settings.year_placeholder+$.masked_dateinput_global_settings.year_placeholder;
 
                 input.attr("placeholder", placeholder);
                 var buffer = placeholder.split("");
@@ -85,6 +91,12 @@
                                 log("Date object: "+date);
                                 if(date.getMonth() == month-1 && date.getDate() == day && date.getFullYear() == year){
                                     isValidDate = true;
+                                    if(local_settings.min_date && date < local_settings.min_date){
+                                        isValidDate = false;
+                                    }
+                                    if(local_settings.max_date && date > local_settings.max_date){
+                                        isValidDate = false;
+                                    }
                                 }
                             }
                         }
@@ -109,7 +121,7 @@
                 }
 
                 function log(){
-                    if($.masked_dateinput_settings.debug && console.log){
+                    if($.masked_dateinput_global_settings.debug && console.log){
                         console.log.apply('', arguments);
                     }
                 }
@@ -132,18 +144,18 @@
                         case 7:
                         case 6:
                             for(var i = pos; i < 10; i++){
-                                buffer[i] = $.masked_dateinput_settings.year_placeholder;
+                                buffer[i] = $.masked_dateinput_global_settings.year_placeholder;
                             }
                             break;
                         case 3:
-                            buffer[3] = $.masked_dateinput_settings.month_placeholder;
+                            buffer[3] = $.masked_dateinput_global_settings.month_placeholder;
                         case 4:
-                            buffer[4] = $.masked_dateinput_settings.month_placeholder;
+                            buffer[4] = $.masked_dateinput_global_settings.month_placeholder;
                             break;
                         case 0:
-                            buffer[0] = $.masked_dateinput_settings.day_placeholder;
+                            buffer[0] = $.masked_dateinput_global_settings.day_placeholder;
                         case 1:
-                            buffer[1] = $.masked_dateinput_settings.day_placeholder;
+                            buffer[1] = $.masked_dateinput_global_settings.day_placeholder;
                             break;
                     }
                     writeBuffer();
@@ -153,14 +165,14 @@
                 function shiftR(pos) {
                     switch(pos){
                         case 0:
-                            buffer[1] = $.masked_dateinput_settings.day_placeholder;
+                            buffer[1] = $.masked_dateinput_global_settings.day_placeholder;
                             break;
                         case 3:
-                            buffer[4] = $.masked_dateinput_settings.month_placeholder;
+                            buffer[4] = $.masked_dateinput_global_settings.month_placeholder;
                             break;
                         case 6:
                             for(var i = 7; i<10; i++){
-                                buffer[i] = $.masked_dateinput_settings.year_placeholder;
+                                buffer[i] = $.masked_dateinput_global_settings.year_placeholder;
                             }
                             break;
                     }
@@ -168,17 +180,17 @@
 
                 function determineNextCaretPosition(){
                     var caretPos = 0;
-                    if(buffer[0] == $.masked_dateinput_settings.day_placeholder){
+                    if(buffer[0] == $.masked_dateinput_global_settings.day_placeholder){
                         caretPos = 0;
-                    }else if(buffer[1] == $.masked_dateinput_settings.day_placeholder){
+                    }else if(buffer[1] == $.masked_dateinput_global_settings.day_placeholder){
                         caretPos = 1;
-                    } else if(buffer[3] == $.masked_dateinput_settings.month_placeholder){
+                    } else if(buffer[3] == $.masked_dateinput_global_settings.month_placeholder){
                         caretPos = 3;
-                    } else if(buffer[4] == $.masked_dateinput_settings.month_placeholder){
+                    } else if(buffer[4] == $.masked_dateinput_global_settings.month_placeholder){
                         caretPos = 4;
                     } else {
                         for(var i = 6; i<10; i++){
-                            if(buffer[i] == $.masked_dateinput_settings.year_placeholder){
+                            if(buffer[i] == $.masked_dateinput_global_settings.year_placeholder){
                                 caretPos = i;
                                 break;
                             }
@@ -255,7 +267,7 @@
                             }
                             break;
                         case 2:
-                            isValid = $.masked_dateinput_settings.separator == c;
+                            isValid = $.masked_dateinput_global_settings.separator == c;
                             break;
                         case 3:
                             isValid = (c == 0 || c == 1);
@@ -269,7 +281,7 @@
                             }
                             break;
                         case 5:
-                            isValid = $.masked_dateinput_settings.separator == c;
+                            isValid = $.masked_dateinput_global_settings.separator == c;
                             break;
                         case 6:
                             isValid = (c == 1 || c == 2);
