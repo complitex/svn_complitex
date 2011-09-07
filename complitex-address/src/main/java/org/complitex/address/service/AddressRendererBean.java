@@ -27,7 +27,7 @@ public class AddressRendererBean {
 
     @Transactional
     public String displayAddress(String addressEntity, long addressId, Locale locale, String[] addressUnits) {
-        if (addressEntity == null || addressEntity.length() == 0) {
+        if (addressUnits == null || addressUnits.length == 0) {
             throw new IllegalArgumentException("Address units list is null or empty.");
         }
         if (Strings.isEmpty(addressEntity)) {
