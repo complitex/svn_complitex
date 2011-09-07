@@ -41,7 +41,7 @@ public class RoomStrategy extends TemplateStrategy {
     /*
      * Attribute type ids
      */
-    private static final Long NAME = 200L;
+    public static final Long NAME = 200L;
 
     @Override
     public String getEntityTable() {

@@ -37,7 +37,8 @@ public class ApartmentStrategy extends TemplateStrategy {
     /*
      * Attribute type ids
      */
-    private static final long NAME = 100L;
+    public static final long NAME = 100L;
+    public static final long PARENT_ENTITY_ID = 500L;
 
     @Override
     protected List<Long> getListAttributeTypes() {

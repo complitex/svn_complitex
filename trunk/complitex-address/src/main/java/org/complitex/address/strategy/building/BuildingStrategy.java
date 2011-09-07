@@ -266,7 +266,7 @@ public class BuildingStrategy extends TemplateStrategy {
     }
 
     @Override
-    public DomainObject newInstance() {
+    public Building newInstance() {
         Building building = new Building(super.newInstance());
         building.setPrimaryAddress(buildingAddressStrategy.newInstance());
         return building;

@@ -31,14 +31,16 @@ import javax.ejb.EJB;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import org.apache.wicket.markup.html.form.FormComponent;
+import org.odlabs.wiquery.ui.autocomplete.AbstractAutocompleteComponent;
 
 /**
  *
  * @author Artem
  */
-public final class WiQuerySearchComponent extends Panel {
+public class WiQuerySearchComponent extends Panel {
 
-    private static final String NOT_SPECIFIED_KEY = "not_specified";
+    protected static final String NOT_SPECIFIED_KEY = "not_specified";
 
     public static class SearchFilterSettings implements Serializable {
 
@@ -83,15 +85,19 @@ public final class WiQuerySearchComponent extends Panel {
     private StrategyFactory strategyFactory;
     @EJB
     private LocaleBean localeBean;
-    private static final int AUTO_COMPLETE_SIZE = 10;
-    private List<String> searchFilters;
-    private List<SearchFilterSettings> searchFilterSettings;
-    private ISearchCallback callback;
-    private SearchComponentState searchComponentState;
-    private boolean enabled;
+    protected static final int AUTO_COMPLETE_SIZE = 10;
+    private final List<String> searchFilters;
+    private final List<SearchFilterSettings> searchFilterSettings;
+    private final ISearchCallback callback;
+    private final SearchComponentState searchComponentState;
+    private final boolean enabled;
     private List<IModel<DomainObject>> filterModels;
-    private ShowMode showMode;
+    private final ShowMode showMode;
     private Object lastChangedObject;
+    private final WebMarkupContainer searchPanel = new WebMarkupContainer("searchPanel");
+
+    ;
+    private final Map<Integer, Component> filterFieldMap = newHashMap();
 
     public WiQuerySearchComponent(String id, SearchComponentState searchComponentState, List<String> searchFilters,
             ISearchCallback callback, ShowMode showMode, boolean enabled) {
@@ -102,6 +108,7 @@ public final class WiQuerySearchComponent extends Panel {
         this.callback = callback;
         this.showMode = showMode;
         this.enabled = enabled;
+        this.searchFilterSettings = null;
         init();
     }
 
@@ -125,14 +132,15 @@ public final class WiQuerySearchComponent extends Panel {
         }
 
         this.callback = callback;
+        this.enabled = false;
+        this.showMode = null;
         init();
     }
 
-    private void init() {
-        final WebMarkupContainer searchPanel = new WebMarkupContainer("searchPanel");
+    protected void init() {
         searchPanel.setOutputMarkupId(true);
 
-        ListView<String> columns = new ListView<String>("columns", searchFilters) {
+        ListView<String> columns = new ListView<String>("columns", getSearchFilters()) {
 
             @Override
             protected void populateItem(ListItem<String> item) {
@@ -152,141 +160,225 @@ public final class WiQuerySearchComponent extends Panel {
         searchPanel.add(columns);
 
         filterModels = newArrayList();
-        for (String searchFilter : searchFilters) {
+        for (String searchFilter : getSearchFilters()) {
             IModel<DomainObject> model = new Model<DomainObject>();
-            DomainObject object = searchComponentState.get(searchFilter);
+            DomainObject object = getSearchComponentState().get(searchFilter);
             if (object != null) {
                 model.setObject(object);
             }
             filterModels.add(model);
         }
 
-        final Map<Integer, Component> filterFieldMap = newHashMap();
+        ListView<String> filters = newFiltersListView("filters");
+        searchPanel.add(filters);
+        add(searchPanel);
+    }
 
-        ListView<String> filters = new ListView<String>("filters", searchFilters) {
+    protected void handleVisibility(String entity, final Component autocompleteField) {
+        boolean isVisible = setVisibility(entity, autocompleteField);
+        if (isVisible) {
+            setEnable(entity, autocompleteField);
+        }
+    }
+
+    protected int getSize(String entity) {
+        return strategyFactory.getStrategy(entity).getSearchTextFieldSize();
+    }
+
+    protected ListView<String> newFiltersListView(String id) {
+        ListView<String> filters = new ListView<String>(id, getSearchFilters()) {
 
             @Override
             protected void populateItem(final ListItem<String> item) {
                 final String entity = item.getModelObject();
                 final int index = item.getIndex();
 
-                final IModel<DomainObject> model = filterModels.get(index);
-
-                AutocompleteAjaxComponent<DomainObject> filter = new AutocompleteAjaxComponent<DomainObject>("filter", model,
-                        new IChoiceRenderer<DomainObject>() {
-
-                            @Override
-                            public Object getDisplayValue(DomainObject object) {
-                                if (object.getId().equals(SearchComponentState.NOT_SPECIFIED_ID)) {
-                                    return getString(NOT_SPECIFIED_KEY);
-                                } else {
-                                    return strategyFactory.getStrategy(entity).displayDomainObject(object, getLocale());
-                                }
-                            }
-
-                            @Override
-                            public String getIdValue(DomainObject object, int index) {
-                                return entity + object.getId();
-                            }
-                        }) {
-
-                    @Override
-                    public List<DomainObject> getValues(String term) {
-                        Map<String, DomainObject> previousInfo = getState(index - 1);
-
-                        List<DomainObject> choiceList = newArrayList();
-                        ShowMode currentShowMode = (searchFilterSettings == null) ? WiQuerySearchComponent.this.showMode
-                                : find(searchFilterSettings, new Predicate<SearchFilterSettings>() {
-
-                            @Override
-                            public boolean apply(SearchFilterSettings input) {
-                                return entity.equals(input.getSearchFilter());
-                            }
-                        }).getShowMode();
-
-                        List<? extends DomainObject> equalToExample = findByExample(entity, term, previousInfo,
-                                ComparisonType.EQUALITY, currentShowMode, AUTO_COMPLETE_SIZE);
-                        choiceList.addAll(equalToExample);
-                        if (equalToExample.size() < AUTO_COMPLETE_SIZE) {
-                            List<? extends DomainObject> likeExample = findByExample(entity, term, previousInfo, ComparisonType.LIKE,
-                                    currentShowMode, AUTO_COMPLETE_SIZE);
-                            if (equalToExample.isEmpty()) {
-                                choiceList.addAll(likeExample);
-                            } else {
-                                for (DomainObject likeObject : likeExample) {
-                                    boolean isAddedAlready = false;
-                                    for (DomainObject equalObject : equalToExample) {
-                                        if (equalObject.getId().equals(likeObject.getId())) {
-                                            isAddedAlready = true;
-                                            break;
-                                        }
-                                    }
-                                    if (!isAddedAlready) {
-                                        choiceList.add(likeObject);
-                                    }
-                                }
-                            }
-                        }
-
-                        choiceList.add(new DomainObject(SearchComponentState.NOT_SPECIFIED_ID));
-                        return choiceList;
-                    }
-
-                    @Override
-                    public DomainObject getValueOnSearchFail(String input) {
-                        return new DomainObject(SearchComponentState.NOT_SPECIFIED_ID);
-                    }
-
-                    @Override
-                    protected void onUpdate(AjaxRequestTarget target) {
-                        if (index == searchFilters.size() - 1) {
-                            lastChangedObject = model.getObject();
-                        } else if (lastChangedObject == null || !lastChangedObject.equals(model.getObject())) {
-                            lastChangedObject = model.getObject();
-
-                            if (model.getObject() != null) {
-                                for (int j = index + 1; j < filterModels.size(); j++) {
-                                    filterModels.get(j).setObject(null);
-                                }
-                            }
-
-                            target.addComponent(searchPanel);
-                            target.focusComponent(filterFieldMap.get(index + 1));
-                        }
-                        invokeCallback(index, target);
-                    }
-                };
-
-                filterFieldMap.put(index, filter.getAutocompleteField());
-                filter.setAutoUpdate(true);
-
+                FormComponent<DomainObject> filterComponent = newAutocompleteComponent("filter", entity);
+                Component autocompleteField = getAutocompleteField(filterComponent);
+                filterFieldMap.put(index, getAutocompleteField(filterComponent));
                 //visible/enabled
-                boolean isVisible = setVisibility(entity, filter.getAutocompleteField());
-                if(isVisible){
-                    setEnable(entity, filter.getAutocompleteField());
-                }
+                handleVisibility(entity, filterComponent);
 
                 //size
-                int size = strategyFactory.getStrategy(entity).getSearchTextFieldSize();
+                int size = getSize(entity);
                 if (size > 0) {
-                    filter.getAutocompleteField().add(new SimpleAttributeModifier("size", String.valueOf(size)));
+                    autocompleteField.add(new SimpleAttributeModifier("size", String.valueOf(size)));
                 }
-
-                item.add(filter);
+                item.add(filterComponent);
             }
         };
-
         filters.setReuseItems(true);
-        searchPanel.add(filters);
-        add(searchPanel);
+        return filters;
     }
 
-    private Map<String, DomainObject> getState(int index) {
+    protected Component getAutocompleteField(FormComponent<DomainObject> autocompleteComponent) {
+        return ((AbstractAutocompleteComponent) autocompleteComponent).getAutocompleteField();
+    }
+
+    protected FormComponent<DomainObject> newAutocompleteComponent(String id, final String entity) {
+        AutocompleteAjaxComponent<DomainObject> filterComponent = new AutocompleteAjaxComponent<DomainObject>(id,
+                getModel(getIndex(entity)), newAutocompleteItemRenderer(entity)) {
+
+            @Override
+            public List<DomainObject> getValues(String term) {
+                return WiQuerySearchComponent.this.getValues(term, entity);
+            }
+
+            @Override
+            public DomainObject getValueOnSearchFail(String input) {
+                return WiQuerySearchComponent.this.getValueOnSearchFail(input);
+            }
+
+            @Override
+            protected void onUpdate(AjaxRequestTarget target) {
+                WiQuerySearchComponent.this.onUpdate(target, entity);
+            }
+        };
+        filterComponent.setAutoUpdate(true);
+        return filterComponent;
+    }
+
+    protected List<DomainObject> getValues(String term, final String entity) {
+        Map<String, DomainObject> previousInfo = getState(getIndex(entity) - 1);
+
+        List<DomainObject> choiceList = newArrayList();
+        ShowMode currentShowMode = (getSearchFilterSettings() == null) ? getShowModeSetting()
+                : find(getSearchFilterSettings(), new Predicate<SearchFilterSettings>() {
+
+            @Override
+            public boolean apply(SearchFilterSettings input) {
+                return entity.equals(input.getSearchFilter());
+            }
+        }).getShowMode();
+
+        List<? extends DomainObject> equalToExample = findByExample(entity, term, previousInfo,
+                ComparisonType.EQUALITY, currentShowMode, AUTO_COMPLETE_SIZE);
+        choiceList.addAll(equalToExample);
+        if (equalToExample.size() < AUTO_COMPLETE_SIZE) {
+            List<? extends DomainObject> likeExample = findByExample(entity, term, previousInfo, ComparisonType.LIKE,
+                    currentShowMode, AUTO_COMPLETE_SIZE);
+            if (equalToExample.isEmpty()) {
+                choiceList.addAll(likeExample);
+            } else {
+                for (DomainObject likeObject : likeExample) {
+                    boolean isAddedAlready = false;
+                    for (DomainObject equalObject : equalToExample) {
+                        if (equalObject.getId().equals(likeObject.getId())) {
+                            isAddedAlready = true;
+                            break;
+                        }
+                    }
+                    if (!isAddedAlready) {
+                        choiceList.add(likeObject);
+                    }
+                }
+            }
+        }
+
+        choiceList.add(new DomainObject(SearchComponentState.NOT_SPECIFIED_ID));
+        return choiceList;
+    }
+
+    protected DomainObject getValueOnSearchFail(String input) {
+        return new DomainObject(SearchComponentState.NOT_SPECIFIED_ID);
+    }
+
+    protected void onUpdate(AjaxRequestTarget target, String entity) {
+        int index = getIndex(entity);
+        DomainObject modelObject = getModelObject(entity);
+        if (index == getSearchFilters().size() - 1) {
+            lastChangedObject = modelObject;
+        } else if (lastChangedObject == null || !lastChangedObject.equals(modelObject)) {
+            lastChangedObject = modelObject;
+
+            if (modelObject != null) {
+                int size = getSearchFilters().size();
+                for (int j = index + 1; j < size; j++) {
+                    setModelObject(j, null);
+                }
+            }
+
+            updateSearchPanel(target);
+            setFocus(target, index + 1);
+        }
+        invokeCallback(index, target);
+    }
+
+    protected final void updateSearchPanel(AjaxRequestTarget target) {
+        target.addComponent(searchPanel);
+    }
+
+    protected final void setFocus(AjaxRequestTarget target, int index) {
+        if (index > 0 && index <= searchFilters.size() - 1) {
+            target.focusComponent(filterFieldMap.get(index));
+        }
+    }
+
+    protected IChoiceRenderer<DomainObject> newAutocompleteItemRenderer(final String entity) {
+        return new IChoiceRenderer<DomainObject>() {
+
+            @Override
+            public Object getDisplayValue(DomainObject object) {
+                if (object.getId().equals(SearchComponentState.NOT_SPECIFIED_ID)) {
+                    return getString(NOT_SPECIFIED_KEY);
+                } else {
+                    return strategyFactory.getStrategy(entity).displayDomainObject(object, getLocale());
+                }
+            }
+
+            @Override
+            public String getIdValue(DomainObject object, int index) {
+                return String.valueOf(object.getId());
+            }
+        };
+    }
+
+    protected final DomainObject getModelObject(final int index) {
+        return getModel(index).getObject();
+    }
+
+    protected final DomainObject getModelObject(final String entity) {
+        return getModel(getIndex(entity)).getObject();
+    }
+
+    protected final IModel<DomainObject> getModel(final int index) {
+        return filterModels.get(index);
+    }
+
+    protected final void setModelObject(final int index, DomainObject object) {
+        getModel(index).setObject(object);
+    }
+
+    protected final ISearchCallback getCallback() {
+        return callback;
+    }
+
+    protected final SearchComponentState getSearchComponentState() {
+        return searchComponentState;
+    }
+
+    protected final List<SearchFilterSettings> getSearchFilterSettings() {
+        return searchFilterSettings;
+    }
+
+    protected final ShowMode getShowModeSetting() {
+        return showMode;
+    }
+
+    protected final List<String> getSearchFilters() {
+        return searchFilters;
+    }
+
+    protected final boolean getEnabledSetting() {
+        return enabled;
+    }
+
+    protected final Map<String, DomainObject> getState(int index) {
         Map<String, DomainObject> objects = newHashMap();
         int idx = index;
         while (idx > -1) {
-            DomainObject object = filterModels.get(idx).getObject();
-            objects.put(searchFilters.get(idx), object);
+            DomainObject object = getModelObject(idx);
+            objects.put(getSearchFilters().get(idx), object);
             idx--;
 
         }
@@ -294,19 +386,19 @@ public final class WiQuerySearchComponent extends Panel {
     }
 
     public void invokeCallback() {
-        invokeCallback(searchFilters.size() - 1, null);
+        invokeCallback(getSearchFilters().size() - 1, null);
     }
 
-    private void invokeCallback(int index, AjaxRequestTarget target) {
+    protected final void invokeCallback(int index, AjaxRequestTarget target) {
         Map<String, DomainObject> finalState = getState(index);
         Map<String, Long> ids = transformToIds(finalState);
-        searchComponentState.updateState(finalState);
-        if (callback != null) {
-            callback.found(this, ids, target);
+        getSearchComponentState().updateState(finalState);
+        if (getCallback() != null) {
+            getCallback().found(this, ids, target);
         }
     }
 
-    private static <T> Map<String, T> transformToIds(Map<String, DomainObject> objects) {
+    protected final static <T> Map<String, T> transformToIds(Map<String, DomainObject> objects) {
         return transformValues(objects, new Function<DomainObject, T>() {
 
             @Override
@@ -316,9 +408,9 @@ public final class WiQuerySearchComponent extends Panel {
         });
     }
 
-    private void setEnable(final String entityFilter, Component textField) {
-        if (searchFilterSettings != null) {
-            boolean isEnabled = find(searchFilterSettings, new Predicate<SearchFilterSettings>() {
+    protected final void setEnable(final String entityFilter, Component textField) {
+        if (getSearchFilterSettings() != null) {
+            boolean isEnabled = find(getSearchFilterSettings(), new Predicate<SearchFilterSettings>() {
 
                 @Override
                 public boolean apply(SearchFilterSettings settings) {
@@ -327,13 +419,13 @@ public final class WiQuerySearchComponent extends Panel {
             }).isEnabled();
             textField.setEnabled(isEnabled);
         } else {
-            textField.setEnabled(enabled);
+            textField.setEnabled(getEnabledSetting());
         }
     }
 
-    private boolean setVisibility(final String entityFilter, Component component) {
-        if (searchFilterSettings != null) {
-            boolean isVisible = find(searchFilterSettings, new Predicate<SearchFilterSettings>() {
+    protected final boolean setVisibility(final String entityFilter, Component component) {
+        if (getSearchFilterSettings() != null) {
+            boolean isVisible = find(getSearchFilterSettings(), new Predicate<SearchFilterSettings>() {
 
                 @Override
                 public boolean apply(SearchFilterSettings settings) {
@@ -346,8 +438,19 @@ public final class WiQuerySearchComponent extends Panel {
         return true;
     }
 
-    private List<? extends DomainObject> findByExample(String entity, String searchTextInput, Map<String, DomainObject> previousInfo,
-            ComparisonType comparisonType, ShowMode showMode, int size) {
+    protected final int getIndex(String entity) {
+        for (int i = 0; i < getSearchFilters().size(); i++) {
+            String searchFilter = getSearchFilters().get(i);
+            if (searchFilter.equals(entity)) {
+                return i;
+            }
+        }
+        throw new IllegalArgumentException("Entity " + entity + " is not found.");
+
+    }
+
+    protected List<? extends DomainObject> findByExample(String entity, String searchTextInput,
+            Map<String, DomainObject> previousInfo, ComparisonType comparisonType, ShowMode showMode, int size) {
         IStrategy strategy = strategyFactory.getStrategy(entity);
 
         DomainObjectExample example = new DomainObjectExample();
@@ -362,11 +465,11 @@ public final class WiQuerySearchComponent extends Panel {
     }
 
     public void reinitialize(AjaxRequestTarget target) {
-        for (int i = 0; i < searchFilters.size(); i++) {
-            String filterEntity = searchFilters.get(i);
-            DomainObject object = searchComponentState.get(filterEntity);
-            filterModels.get(i).setObject(object);
+        for (int i = 0; i < getSearchFilters().size(); i++) {
+            String filterEntity = getSearchFilters().get(i);
+            DomainObject object = getSearchComponentState().get(filterEntity);
+            setModelObject(i, object);
         }
-        invokeCallback(searchFilters.size() - 1, target);
+        invokeCallback(getSearchFilters().size() - 1, target);
     }
 }
