@@ -302,3 +302,6 @@ fieldset.collapsible_fs > legend .fs_image {
     margin-right: 5px;
     padding-left: 10px;
 }
+
+/* jQuery UI Autocomplete component */
+.ui-autocomplete-loading { background: white url('../images/ui-anim_basic_16x16.gif') right center no-repeat; }

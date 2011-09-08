@@ -43,7 +43,7 @@ public class SessionBean extends AbstractBean {
         return sessionContext.getCallerPrincipal().getName();
     }
 
-    private List<Long> getUserOrganizationObjectIds() {
+    public List<Long> getUserOrganizationObjectIds() {
         return sqlSession().selectList(MAPPING_NAMESPACE + ".selectOrganizationObjectIds", getCurrentUserLogin());
     }
 
