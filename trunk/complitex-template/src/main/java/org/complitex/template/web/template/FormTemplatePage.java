@@ -3,9 +3,9 @@ package org.complitex.template.web.template;
 import java.util.List;
 import org.apache.wicket.behavior.IBehavior;
 import org.apache.wicket.markup.html.JavascriptPackageResource;
+import org.apache.wicket.markup.html.form.TextField;
 import org.complitex.dictionary.web.component.css.CssAttributeBehavior;
 import org.complitex.dictionary.web.component.search.WiQuerySearchComponent;
-import org.odlabs.wiquery.ui.autocomplete.Autocomplete;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -28,10 +28,10 @@ public class FormTemplatePage extends TemplatePage {
 
             @Override
             public Object component(WiQuerySearchComponent searchComponent) {
-                searchComponent.visitChildren(Autocomplete.class, new IVisitor<Autocomplete>() {
+                searchComponent.visitChildren(TextField.class, new IVisitor<TextField>() {
 
                     @Override
-                    public Object component(Autocomplete autocomplete) {
+                    public Object component(TextField autocomplete) {
                         List<IBehavior> behaviors = autocomplete.getBehaviors();
                         boolean containsCssBehaviour = false;
                         if (behaviors != null && !behaviors.isEmpty()) {
