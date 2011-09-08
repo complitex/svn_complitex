@@ -1,7 +1,7 @@
-var setFocusOnFirstFormElement = function(){
+$(function(){
     var form = $(".formFrame form");
     if(form.length > 0){
-        var elements = $(form).find('input','select','textarea');
+        var elements = $(form).find('input, select, textarea');
         $.each(elements, function(index, field){
             //for debug only.
             /*
@@ -11,12 +11,11 @@ var setFocusOnFirstFormElement = function(){
                     ", class: "+$(field).attr("class")+"}");
             } */
 
-            if(field.type !== "hidden" && !field.disabled && !$(field).hasClass('form-template-page-unfocusable')){
+            var $field = $(field);
+            if($field.is(":visible:enabled:not(:hidden):not(.form-template-page-unfocusable)")){
                 $(field).focus();
                 return false;
             }
         });
     }
-}
-
-$(document).ready(setFocusOnFirstFormElement);
+});
