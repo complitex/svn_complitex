@@ -318,6 +318,8 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         List<DomainObject> objects = sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + "." + FIND_OPERATION, example);
         for (DomainObject object : objects) {
             loadAttributes(object);
+            //load subject ids
+            object.setSubjectIds(loadSubjects(object.getPermissionId()));
         }
         return objects;
     }

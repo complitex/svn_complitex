@@ -140,6 +140,8 @@ public class BuildingStrategy extends TemplateStrategy {
                     Building building = result.get(0);
                     building.setAccompaniedAddress(address);
                     loadAttributes(building);
+                    //load subject ids
+                    building.setSubjectIds(loadSubjects(building.getPermissionId()));
                     buildings.add(building);
                 } else {
                     if (result.isEmpty()) {
