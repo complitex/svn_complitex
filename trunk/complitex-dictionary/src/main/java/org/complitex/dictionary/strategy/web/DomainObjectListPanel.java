@@ -60,7 +60,7 @@ import java.util.Map;
  *
  * @author Artem
  */
-public class DomainObjectListPanel extends Panel {
+public final class DomainObjectListPanel extends Panel {
 
     @EJB
     private StrategyFactory strategyFactory;
@@ -80,13 +80,12 @@ public class DomainObjectListPanel extends Panel {
 
         this.entity = entity;
         this.strategyName = strategyName;
-
-        page = getClass().getName() + "#" + entity;
+        this.page = getClass().getName() + "#" + entity;
 
         init();
     }
 
-    public IStrategy getStrategy() {
+    private IStrategy getStrategy() {
         return strategyFactory.getStrategy(strategyName, entity);
     }
 

@@ -8,39 +8,44 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.util.Collections;
 import org.apache.wicket.PageParameters;
-import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
 import org.complitex.dictionary.strategy.web.DomainObjectListPanel;
 import org.complitex.template.web.component.toolbar.AddItemButton;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
-import org.complitex.template.web.security.SecurityRole;
 
 import java.util.List;
+import javax.ejb.EJB;
 import org.apache.wicket.Page;
+import org.apache.wicket.authorization.UnauthorizedInstantiationException;
 import org.complitex.dictionary.entity.DomainObject;
+import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.web.DictionaryFwSession;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
 
 /**
  * @author Artem
  */
-@AuthorizeInstantiation(SecurityRole.AUTHORIZED)
-public class DomainObjectList extends ScrollListPage {
+public final class DomainObjectList extends ScrollListPage {
 
     public static final String ENTITY = "entity";
     public static final String STRATEGY = "strategy";
+    @EJB
+    private StrategyFactory strategyFactory;
     private DomainObjectListPanel listPanel;
     private String entity;
-    private String strategy;
+    private String strategyName;
 
     public DomainObjectList(PageParameters params) {
         super(params);
 
         entity = params.getString(ENTITY);
-        strategy = params.getString(STRATEGY);
+        strategyName = params.getString(STRATEGY);
 
-        add(listPanel = new DomainObjectListPanel("listPanel", entity, strategy));
+        if (!hasAnyRole(strategyFactory.getStrategy(strategyName, entity).getListRoles())) {
+            throw new UnauthorizedInstantiationException(getClass());
+        }
+        add(listPanel = new DomainObjectListPanel("listPanel", entity, strategyName));
     }
 
     @Override
@@ -49,12 +54,12 @@ public class DomainObjectList extends ScrollListPage {
 
             @Override
             protected void onClick() {
-                onAddObject(this.getPage(), listPanel.getStrategy(), listPanel.getSession());
+                onAddObject(this.getPage(), strategyFactory.getStrategy(strategyName, entity), listPanel.getSession());
             }
 
             @Override
             protected void onBeforeRender() {
-                if (!DomainObjectAccessUtil.canAddNew(strategy, entity)) {
+                if (!DomainObjectAccessUtil.canAddNew(strategyName, entity)) {
                     setVisible(false);
                 }
                 super.onBeforeRender();

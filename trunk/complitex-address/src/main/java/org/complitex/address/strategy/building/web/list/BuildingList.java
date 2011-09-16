@@ -53,7 +53,7 @@ import org.complitex.template.web.pages.DomainObjectList;
  *
  * @author Artem
  */
-@AuthorizeInstantiation(SecurityRole.AUTHORIZED)
+@AuthorizeInstantiation(SecurityRole.ADDRESS_MODULE_VIEW)
 public final class BuildingList extends ScrollListPage {
 
     @EJB

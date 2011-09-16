@@ -11,6 +11,7 @@ import org.complitex.template.web.pages.DomainObjectList;
 import org.complitex.template.web.pages.HistoryPage;
 import org.complitex.template.web.pages.ObjectNotFoundPage;
 import org.complitex.template.web.pages.welcome.WelcomePage;
+import org.complitex.template.web.security.SecurityRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,5 +81,10 @@ public abstract class TemplateStrategy extends Strategy {
             log.error("Couldn't instantiate list page for entity " + getEntityTable(), e);
             return new ObjectNotFoundPage(WelcomePage.class);
         }
+    }
+
+    @Override
+    public String[] getListRoles() {
+        return new String[]{SecurityRole.AUTHORIZED};
     }
 }

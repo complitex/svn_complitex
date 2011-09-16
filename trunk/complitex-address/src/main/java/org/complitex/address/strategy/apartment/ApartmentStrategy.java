@@ -145,4 +145,9 @@ public class ApartmentStrategy extends TemplateStrategy {
     public int getSearchTextFieldSize() {
         return 3;
     }
+
+    @Override
+    public String[] getListRoles() {
+        return new String[]{SecurityRole.ADDRESS_MODULE_VIEW};
+    }
 }
