@@ -95,8 +95,6 @@ public class WiQuerySearchComponent extends Panel {
     private final ShowMode showMode;
     private Object lastChangedObject;
     private final WebMarkupContainer searchPanel = new WebMarkupContainer("searchPanel");
-
-    ;
     private final Map<Integer, Component> filterFieldMap = newHashMap();
 
     public WiQuerySearchComponent(String id, SearchComponentState searchComponentState, List<String> searchFilters,

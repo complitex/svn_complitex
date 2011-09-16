@@ -86,13 +86,15 @@ public class BuildingAddressStrategy extends TemplateStrategy {
         if (example.getId() != null && example.getId() <= 0) {
             return Collections.emptyList();
         }
-        
+
         example.setTable(getEntityTable());
         prepareExampleForPermissionCheck(example);
 
         List<DomainObject> objects = sqlSession().selectList(BUILDING_ADDRESS_NAMESPACE + "." + FIND_OPERATION, example);
         for (DomainObject object : objects) {
             loadAttributes(object);
+            //load subject ids
+            object.setSubjectIds(loadSubjects(object.getPermissionId()));
         }
         return objects;
     }

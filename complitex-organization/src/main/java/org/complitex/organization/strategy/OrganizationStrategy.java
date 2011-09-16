@@ -244,6 +244,8 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
         List<DomainObject> organizations = sqlSession().selectList(ORGANIZATION_NAMESPACE + "." + FIND_OPERATION, example);
         for (DomainObject object : organizations) {
             loadAttributes(object);
+            //load subject ids
+            object.setSubjectIds(loadSubjects(object.getPermissionId()));
         }
         return organizations;
     }

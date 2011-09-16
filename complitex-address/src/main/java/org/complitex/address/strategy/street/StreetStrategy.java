@@ -72,6 +72,8 @@ public class StreetStrategy extends TemplateStrategy {
         List<DomainObject> objects = sqlSession().selectList(STREET_NAMESPACE + "." + FIND_OPERATION, example);
         for (DomainObject object : objects) {
             loadAttributes(object);
+            //load subject ids
+            object.setSubjectIds(loadSubjects(object.getPermissionId()));
         }
         return objects;
     }
