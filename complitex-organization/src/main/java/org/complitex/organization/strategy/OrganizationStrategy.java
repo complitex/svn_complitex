@@ -369,6 +369,11 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
         return new String[]{SecurityRole.ORGANIZATION_MODULE_EDIT};
     }
 
+    @Override
+    public String[] getListRoles() {
+        return new String[]{SecurityRole.ORGANIZATION_MODULE_VIEW};
+    }
+
     @Transactional
     @Override
     public void changeChildrenActivity(long parentId, boolean enable) {

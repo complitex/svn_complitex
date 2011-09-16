@@ -84,6 +84,11 @@ public class OrganizationTypeStrategy extends TemplateStrategy {
         return new String[]{SecurityRole.ORGANIZATION_MODULE_EDIT};
     }
 
+    @Override
+    public String[] getListRoles() {
+        return new String[]{SecurityRole.ORGANIZATION_MODULE_EDIT};
+    }
+
     protected Collection<Long> getReservedInstanceIds() {
         return ImmutableList.of(USER_ORGANIZATION_TYPE);
     }

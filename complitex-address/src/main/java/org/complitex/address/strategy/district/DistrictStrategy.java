@@ -199,4 +199,9 @@ public class DistrictStrategy extends TemplateStrategy {
             updateChildrenActivity(streetIds, !enable);
         }
     }
+
+    @Override
+    public String[] getListRoles() {
+        return new String[]{SecurityRole.ADDRESS_MODULE_VIEW};
+    }
 }

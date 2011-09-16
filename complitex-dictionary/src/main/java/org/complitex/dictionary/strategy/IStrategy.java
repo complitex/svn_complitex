@@ -196,6 +196,8 @@ public interface IStrategy {
         }
     }
 
+    String[] getListRoles();
+
     String[] getEditRoles();
 
     @Transactional

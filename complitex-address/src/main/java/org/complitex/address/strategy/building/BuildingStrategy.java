@@ -623,4 +623,9 @@ public class BuildingStrategy extends TemplateStrategy {
         Attribute districtAttribute = building.getAttribute(DISTRICT);
         return districtAttribute != null ? districtAttribute.getValueId() : null;
     }
+
+    @Override
+    public String[] getListRoles() {
+        return new String[]{SecurityRole.ADDRESS_MODULE_VIEW};
+    }
 }

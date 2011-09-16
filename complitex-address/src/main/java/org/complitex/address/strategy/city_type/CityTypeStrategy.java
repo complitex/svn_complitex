@@ -72,6 +72,11 @@ public class CityTypeStrategy extends TemplateStrategy {
     }
 
     @Override
+    public String[] getListRoles() {
+        return new String[]{SecurityRole.ADDRESS_MODULE_VIEW};
+    }
+
+    @Override
     public long getDefaultOrderByAttributeId() {
         return NAME;
     }
