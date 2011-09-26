@@ -1,6 +1,7 @@
 package org.complitex.dictionary.web.component;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -35,6 +36,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import org.apache.wicket.util.string.Strings;
+import org.complitex.dictionary.strategy.web.DomainObjectEditPanel;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newLinkedHashMap;
@@ -189,7 +191,27 @@ public class DomainObjectInputPanel extends Panel {
             parentContainer.add(new EmptyPanel("parentSearch"));
         } else {
             WiQuerySearchComponent parentSearchComponent = new WiQuerySearchComponent("parentSearch", getParentSearchComponentState(),
-                    parentFilters, parentSearchCallback, ShowMode.ACTIVE, !isHistory() && canEdit(strategyName, entity, object));
+                    parentFilters, parentSearchCallback, ShowMode.ACTIVE, !isHistory() && canEdit(strategyName, entity, object)) {
+
+                @Override
+                protected void onUpdate(AjaxRequestTarget target, String entity) {
+                    if (object.getId() == null) {
+                        DomainObject parent = getModelObject(entity);
+                        if (parent != null && parent.getId() != null && parent.getId() > 0) {
+                            DomainObjectEditPanel editPanel =
+                                    (DomainObjectEditPanel) visitParents(DomainObjectEditPanel.class, new IVisitor<Component>() {
+
+                                @Override
+                                public Object component(Component component) {
+                                    return component;
+                                }
+                            });
+                            editPanel.updateParentPermissions(target, parent.getSubjectIds());
+                        }
+                    }
+                    super.onUpdate(target, entity);
+                }
+            };
             parentContainer.add(parentSearchComponent);
             parentSearchComponent.invokeCallback();
         }

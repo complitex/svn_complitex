@@ -33,7 +33,6 @@ public class UserOrganizationPicker extends Panel {
 
     public UserOrganizationPicker(String id, IModel<Long> organizationIdModel, boolean updating, Long... excludeOrganizationsId) {
         super(id);
-
         init(organizationIdModel, updating, excludeOrganizationsId);
     }
 
@@ -52,7 +51,7 @@ public class UserOrganizationPicker extends Panel {
                 return organizationStrategy.displayDomainObject(object, getLocale());
             }
         };
-        IModel<DomainObject> model = new Model<DomainObject>() {
+        final IModel<DomainObject> model = new Model<DomainObject>() {
 
             @Override
             public DomainObject getObject() {
@@ -86,7 +85,7 @@ public class UserOrganizationPicker extends Panel {
 
                 @Override
                 protected void onUpdate(AjaxRequestTarget target) {
-                    UserOrganizationPicker.this.onUpdate(target);
+                    UserOrganizationPicker.this.onUpdate(target, model.getObject());
                 }
             });
         }
@@ -94,6 +93,6 @@ public class UserOrganizationPicker extends Panel {
         add(select);
     }
 
-    protected void onUpdate(AjaxRequestTarget target) {
+    protected void onUpdate(AjaxRequestTarget target, DomainObject newOrganization) {
     }
 }

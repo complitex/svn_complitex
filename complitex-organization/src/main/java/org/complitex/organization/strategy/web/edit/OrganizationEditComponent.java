@@ -29,8 +29,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import org.apache.wicket.Component;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.complitex.dictionary.entity.StatusType;
+import org.complitex.dictionary.strategy.web.DomainObjectEditPanel;
 
 /**
  * 
@@ -196,14 +198,30 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
             };
         }
 
-        if (organization.getId() == null) {
-            //new organization
-            parentContainer.add(new UserOrganizationPicker("parent", parentModel));
+        if (isNew()) {
+            parentContainer.add(new UserOrganizationPicker("parent", parentModel, true) {
+
+                @Override
+                protected void onUpdate(AjaxRequestTarget target, DomainObject newOrganization) {
+                    if (newOrganization != null && newOrganization.getId() != null && newOrganization.getId() > 0) {
+                        DomainObjectEditPanel editPanel =
+                                (DomainObjectEditPanel) visitParents(DomainObjectEditPanel.class, new IVisitor<Component>() {
+
+                            @Override
+                            public Object component(Component component) {
+                                return component;
+                            }
+                        });
+                        editPanel.updateParentPermissions(target, newOrganization.getSubjectIds());
+                    }
+                }
+            });
         } else {
             Set<Long> excludeOrganizationIds = Sets.newHashSet(organization.getId());
             excludeOrganizationIds.addAll(organizationStrategy.getTreeChildrenOrganizationIds(organization.getId()));
             Long[] excludeAsArray = new Long[excludeOrganizationIds.size()];
-            UserOrganizationPicker parent = new UserOrganizationPicker("parent", parentModel, excludeOrganizationIds.toArray(excludeAsArray));
+            UserOrganizationPicker parent = new UserOrganizationPicker("parent", parentModel, true,
+                    excludeOrganizationIds.toArray(excludeAsArray));
             parent.setEnabled(enabled());
             parentContainer.add(parent);
         }

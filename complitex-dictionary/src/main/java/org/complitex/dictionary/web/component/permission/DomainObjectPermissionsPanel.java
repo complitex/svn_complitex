@@ -4,11 +4,8 @@
  */
 package org.complitex.dictionary.web.component.permission;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
+import static com.google.common.collect.ImmutableMap.*;
+import static com.google.common.collect.Lists.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,6 +17,7 @@ import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.service.PermissionBean;
+import org.complitex.dictionary.service.SessionBean;
 import org.complitex.dictionary.web.component.DisableAwareListMultipleChoice;
 import org.complitex.dictionary.web.component.DomainObjectDisableAwareRenderer;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
@@ -43,19 +41,40 @@ public class DomainObjectPermissionsPanel extends Panel implements IWiQueryPlugi
     static {
         VISIBLE_BY_ALL.setId(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID);
     }
+    private boolean isPostBack;
+    private Set<Long> subjectIds;
+    private Set<Long> parentSubjectIds;
 
-    public DomainObjectPermissionsPanel(String id, Set<Long> subjectIds, boolean enabled) {
+    public DomainObjectPermissionsPanel(String id, Set<Long> subjectIds, Set<Long> parentSubjectIds, boolean enabled) {
         super(id);
-        init(subjectIds);
         setEnabled(enabled);
+        this.subjectIds = subjectIds;
+        this.parentSubjectIds = parentSubjectIds;
     }
 
-    private void init(final Set<Long> subjectIds) {
+    @Override
+    protected void onBeforeRender() {
+        if (!isPostBack) {
+            isPostBack = true;
+            init();
+        }
+        super.onBeforeRender();
+    }
+
+    protected Set<Long> getParentSubjectIds() {
+        return parentSubjectIds;
+    }
+
+    protected Set<Long> getSubjectIds() {
+        return subjectIds;
+    }
+
+    private void init() {
         final IModel<List<DomainObject>> userSubjectsModel = new LoadableDetachableModel<List<DomainObject>>() {
 
             @Override
             protected List<DomainObject> load() {
-                List<DomainObject> list = Lists.newArrayList();
+                List<DomainObject> list = newArrayList();
                 list.addAll(organizationStrategy.getUserOrganizations(getLocale()));
                 list.add(0, VISIBLE_BY_ALL);
                 return list;
@@ -75,19 +94,19 @@ public class DomainObjectPermissionsPanel extends Panel implements IWiQueryPlugi
 
         IModel<List<DomainObject>> subjectsModel = new IModel<List<DomainObject>>() {
 
-            private List<DomainObject> selectedSubjects = Lists.newArrayList(Iterables.filter(userSubjectsModel.getObject(),
-                    new Predicate<DomainObject>() {
+            private List<DomainObject> selectedSubjects = newArrayList();
 
-                        @Override
-                        public boolean apply(DomainObject userSubject) {
-                            for (long organizationId : subjectIds) {
-                                if (userSubject.getId().equals(organizationId)) {
-                                    return true;
-                                }
-                            }
-                            return false;
+            {
+                Set<Long> selectedSubjectIds = parentSubjectIds != null && !parentSubjectIds.isEmpty() ? parentSubjectIds
+                        : subjectIds;
+                for (DomainObject userSubject : userSubjectsModel.getObject()) {
+                    for (long organizationId : selectedSubjectIds) {
+                        if (userSubject.getId().equals(organizationId)) {
+                            selectedSubjects.add(userSubject);
                         }
-                    }));
+                    }
+                }
+            }
 
             @Override
             public List<DomainObject> getObject() {
@@ -96,17 +115,21 @@ public class DomainObjectPermissionsPanel extends Panel implements IWiQueryPlugi
 
             @Override
             public void setObject(List<DomainObject> subjects) {
-                if (subjects != null && !subjects.isEmpty()) {
-                    subjectIds.clear();
-                    subjectIds.addAll(Lists.newArrayList(Iterables.transform(subjects, new Function<DomainObject, Long>() {
-
-                        @Override
-                        public Long apply(DomainObject subject) {
-                            return subject.getId();
+                for (DomainObject userSubject : userSubjectsModel.getObject()) {
+                    boolean selected = false;
+                    for (DomainObject selectedSubject : subjects) {
+                        if (selectedSubject.getId().equals(userSubject.getId())) {
+                            selected = true;
+                            break;
                         }
-                    })));
-                    normalizeSubjectIds(subjectIds);
+                    }
+                    if (selected) {
+                        subjectIds.add(userSubject.getId());
+                    } else {
+                        subjectIds.remove(userSubject.getId());
+                    }
                 }
+                normalizeSubjectIds(subjectIds);
             }
 
             @Override
@@ -114,7 +137,9 @@ public class DomainObjectPermissionsPanel extends Panel implements IWiQueryPlugi
             }
         };
 
-        add(newSubjectsSelectComponent("subjects", subjectsModel, userSubjectsModel, renderer));
+        DisableAwareListMultipleChoice<DomainObject> subjects =
+                newSubjectsSelectComponent("subjects", subjectsModel, userSubjectsModel, renderer);
+        add(subjects);
     }
 
     protected DisableAwareListMultipleChoice<DomainObject> newSubjectsSelectComponent(String id,
@@ -164,7 +189,7 @@ public class DomainObjectPermissionsPanel extends Panel implements IWiQueryPlugi
 
     protected Map<String, String> enhanceOptionWithAttributes(DomainObject choice, int index, String selected) {
         if (choice.getId().equals(VISIBLE_BY_ALL.getId())) {
-            return ImmutableMap.of("data-all", "data-all");
+            return of("data-all", "data-all");
         }
         return null;
     }
