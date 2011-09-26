@@ -4,6 +4,10 @@
  */
 package org.complitex.dictionary.strategy.web;
 
+import com.google.common.collect.Lists;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -41,6 +45,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import org.apache.wicket.RestartResponseException;
+import org.complitex.dictionary.web.component.search.SearchComponentState;
 
 /**
  *
@@ -64,6 +69,8 @@ public class DomainObjectEditPanel extends Panel {
     private DomainObjectInputPanel objectInputPanel;
     private final String scrollListPageParameterName;
     private FeedbackPanel messages;
+    private WebMarkupContainer permissionsPanelContainer;
+    private Set<Long> parentSubjectIds;
 
     public DomainObjectEditPanel(String id, String entity, String strategyName, Long objectId, Long parentId,
             String parentEntity, String scrollListPageParameterName) {
@@ -150,9 +157,11 @@ public class DomainObjectEditPanel extends Panel {
         form.add(historyContainer);
 
         //permissions panel
-        DomainObjectPermissionsPanel permissionsPanel = new DomainObjectPermissionsPanel("permissionsPanel",
-                newObject.getSubjectIds(), DomainObjectAccessUtil.canEdit(strategyName, entity, newObject));
-        form.add(permissionsPanel);
+        permissionsPanelContainer = new WebMarkupContainer("permissionsPanelContainer");
+        permissionsPanelContainer.setOutputMarkupId(true);
+        form.add(permissionsPanelContainer);
+        this.parentSubjectIds = initParentPermissions();
+        permissionsPanelContainer.add(newPermissionsPanel("permissionsPanel", parentSubjectIds));
 
         //permissionPropagationDialogPanel
         final PermissionPropagationDialogPanel permissionPropagationDialogPanel =
@@ -234,13 +243,27 @@ public class DomainObjectEditPanel extends Panel {
         add(form);
     }
 
+    protected DomainObjectPermissionsPanel newPermissionsPanel(String id, Set<Long> parentSubjectIds) {
+        return new DomainObjectPermissionsPanel(id, newObject.getSubjectIds(), parentSubjectIds,
+                DomainObjectAccessUtil.canEdit(strategyName, entity, newObject));
+    }
+
     protected boolean validate() {
         boolean valid = objectInputPanel.validateParent();
+        valid &= validatePermissions();
         IValidator validator = getStrategy().getValidator();
         if (validator != null) {
             valid &= validator.validate(newObject, this);
         }
         return valid;
+    }
+
+    protected boolean validatePermissions() {
+        if (newObject.getSubjectIds().isEmpty()) {
+            error(getString("permissions_required"));
+            return false;
+        }
+        return true;
     }
 
     protected void save(boolean propagate) {
@@ -261,6 +284,39 @@ public class DomainObjectEditPanel extends Panel {
                 isNew() ? Log.EVENT.CREATE : Log.EVENT.EDIT, getStrategy(),
                 oldObject, newObject, getLocale(), null);
         back();
+    }
+
+    protected Set<Long> initParentPermissions() {
+        Set<Long> parentPermissions = null;
+        if (isNew()) {
+            if (getStrategy().getParentSearchFilters() != null && !getStrategy().getParentSearchFilters().isEmpty()) {
+                List<String> inverseParentSearchFilters = Lists.newArrayList(getStrategy().getParentSearchFilters());
+                Collections.reverse(inverseParentSearchFilters);
+                SearchComponentState parentSearchComponentState = objectInputPanel.getParentSearchComponentState();
+                for (String searchFilterEntity : inverseParentSearchFilters) {
+                    DomainObject object = parentSearchComponentState.get(searchFilterEntity);
+                    if (object != null && object.getId() != null && object.getId() > 0) {
+                        parentPermissions = object.getSubjectIds();
+                        break;
+                    }
+                }
+            }
+        }
+        return parentPermissions;
+    }
+
+    public void updateParentPermissions(AjaxRequestTarget target, Set<Long> parentSubjectIds) {
+        if (isNew()) {
+            if (parentSubjectIds == null) {
+                return;
+            }
+            if (parentSubjectIds.equals(this.parentSubjectIds)) {
+                return;
+            }
+            this.parentSubjectIds = parentSubjectIds;
+            permissionsPanelContainer.replace(newPermissionsPanel("permissionsPanel", this.parentSubjectIds));
+            target.addComponent(permissionsPanelContainer);
+        }
     }
 
     protected void onInsert() {
