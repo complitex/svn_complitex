@@ -31,16 +31,16 @@ public class DomainObjectEdit extends FormTemplatePage {
                 parameters.getAsLong(PARENT_ID), parameters.getString(PARENT_ENTITY));
     }
 
-    protected void init(String entity, String strategy, Long object_id, Long parentId, String parentEntity) {
+    protected void init(String entity, String strategy, Long objectId, Long parentId, String parentEntity) {
         this.entity = entity;
         this.strategy = strategy;
 
-        add(editPanel = newEditPanel("editPanel", entity, strategy, object_id, parentId, parentEntity, DomainObjectList.SCROLL_PARAMETER));
+        add(editPanel = newEditPanel("editPanel", entity, strategy, objectId, parentId, parentEntity, DomainObjectList.SCROLL_PARAMETER));
     }
 
-    protected DomainObjectEditPanel newEditPanel(String id, String entity, String strategy, Long object_id, Long parentId,
-            String parentEntity, String scrollListPageParameterName){
-        return new DomainObjectEditPanel(id, entity, strategy, object_id, parentId, parentEntity,
+    protected DomainObjectEditPanel newEditPanel(String id, String entity, String strategy, Long objectId, Long parentId,
+            String parentEntity, String scrollListPageParameterName) {
+        return new DomainObjectEditPanel(id, entity, strategy, objectId, parentId, parentEntity,
                 scrollListPageParameterName);
     }
 
@@ -55,7 +55,7 @@ public class DomainObjectEdit extends FormTemplatePage {
 
             @Override
             protected void onBeforeRender() {
-                if (!DomainObjectAccessUtil.canDisable(strategy, entity, editPanel.getObject())) {
+                if (!DomainObjectAccessUtil.canDisable(strategy, entity, editPanel.getNewObject())) {
                     setVisible(false);
                 }
                 super.onBeforeRender();
@@ -69,7 +69,7 @@ public class DomainObjectEdit extends FormTemplatePage {
 
             @Override
             protected void onBeforeRender() {
-                if (!DomainObjectAccessUtil.canEnable(strategy, entity, editPanel.getObject())) {
+                if (!DomainObjectAccessUtil.canEnable(strategy, entity, editPanel.getNewObject())) {
                     setVisible(false);
                 }
                 super.onBeforeRender();
@@ -83,7 +83,7 @@ public class DomainObjectEdit extends FormTemplatePage {
 
             @Override
             protected void onBeforeRender() {
-                if (!DomainObjectAccessUtil.canDelete(strategy, entity, editPanel.getObject())) {
+                if (!DomainObjectAccessUtil.canDelete(strategy, entity, editPanel.getNewObject())) {
                     setVisible(false);
                 }
                 super.onBeforeRender();

@@ -22,14 +22,14 @@ public final class OrganizationEdit extends DomainObjectEdit {
     }
 
     @Override
-    protected DomainObjectEditPanel newEditPanel(String id, final String entity, final String strategy, Long object_id, Long parentId,
+    protected DomainObjectEditPanel newEditPanel(String id, final String entity, final String strategy, Long objectId, Long parentId,
             String parentEntity, String scrollListPageParameterName) {
-        return new DomainObjectEditPanel(id, entity, strategy, object_id, parentId, parentEntity, scrollListPageParameterName) {
+        return new DomainObjectEditPanel(id, entity, strategy, objectId, parentId, parentEntity, scrollListPageParameterName) {
 
             @Override
             protected DomainObjectPermissionsPanel newPermissionsPanel(String id, Set<Long> parentSubjectIds) {
-                return new OrganizationPermissionsPanel(id, getObject().getSubjectIds(), parentSubjectIds,
-                        DomainObjectAccessUtil.canEdit(strategy, entity, getObject()), getObject().getId());
+                return new OrganizationPermissionsPanel(id, getNewObject().getSubjectIds(), parentSubjectIds,
+                        DomainObjectAccessUtil.canEdit(strategy, entity, getNewObject()), getNewObject().getId());
             }
 
             @Override

@@ -103,8 +103,12 @@ public class DomainObjectEditPanel extends Panel {
         return strategyFactory.getStrategy(strategyName, entity);
     }
 
-    public DomainObject getObject() {
+    public DomainObject getNewObject() {
         return newObject;
+    }
+
+    protected DomainObject getOldObject() {
+        return oldObject;
     }
 
     protected boolean isNew() {
@@ -138,7 +142,7 @@ public class DomainObjectEditPanel extends Panel {
 
         //children
         Component childrenContainer = new EmptyPanel("childrenContainer");
-        if (oldObject != null) {
+        if (!isNew()) {
             childrenContainer = new ChildrenContainer("childrenContainer", strategyName, entity, newObject);
         }
         form.add(childrenContainer);
@@ -212,6 +216,7 @@ public class DomainObjectEditPanel extends Panel {
 
             @Override
             protected void onError(AjaxRequestTarget target, Form<?> form) {
+                super.onError(target, form);
                 target.addComponent(messages);
                 scrollToMessages(target);
             }
@@ -267,7 +272,6 @@ public class DomainObjectEditPanel extends Panel {
     }
 
     protected void save(boolean propagate) {
-        //permission related logic
         if (isNew()) {
             onInsert();
             getStrategy().insert(newObject, getCurrentDate());
