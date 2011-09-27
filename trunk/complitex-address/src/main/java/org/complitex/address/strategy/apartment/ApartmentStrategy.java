@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.address.resource.CommonResources;
 import org.complitex.dictionary.entity.DomainObject;
@@ -23,6 +24,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import org.complitex.address.strategy.apartment.web.edit.ApartmentEdit;
 
 /**
  *
@@ -149,5 +151,10 @@ public class ApartmentStrategy extends TemplateStrategy {
     @Override
     public String[] getListRoles() {
         return new String[]{SecurityRole.ADDRESS_MODULE_VIEW};
+    }
+
+    @Override
+    public Class<? extends WebPage> getEditPage() {
+        return ApartmentEdit.class;
     }
 }

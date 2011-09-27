@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="DictionarySuite" verbose="1" >
+<suite name="DictionarySuite" verbose="1">
     <test name="StringUtilTest">
         <groups>
             <run>
@@ -11,6 +11,11 @@
         </groups>
         <classes>
             <class name="org.complitex.dictionary.util.StringUtilTest"/>
+        </classes>
+    </test>
+    <test name="AddressNumberParserTest">
+        <classes>
+            <class name="org.complitex.dictionary.util.AddressNumberParserTest"/>
         </classes>
     </test>
 </suite>
