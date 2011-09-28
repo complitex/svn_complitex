@@ -10,7 +10,6 @@ import org.complitex.template.web.pages.DomainObjectEdit;
 import org.complitex.template.web.pages.DomainObjectList;
 import org.complitex.template.web.pages.HistoryPage;
 import org.complitex.template.web.pages.ObjectNotFoundPage;
-import org.complitex.template.web.pages.welcome.WelcomePage;
 import org.complitex.template.web.security.SecurityRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,12 +74,7 @@ public abstract class TemplateStrategy extends Strategy {
 
     @Override
     public Page getObjectNotFoundPage() {
-        try {
-            return new ObjectNotFoundPage(getListPage(), getListPageParams());
-        } catch (Exception e) {
-            log.error("Couldn't instantiate list page for entity " + getEntityTable(), e);
-            return new ObjectNotFoundPage(WelcomePage.class);
-        }
+        return new ObjectNotFoundPage(getListPage(), getListPageParams());
     }
 
     @Override
