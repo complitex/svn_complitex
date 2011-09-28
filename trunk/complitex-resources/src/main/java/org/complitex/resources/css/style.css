@@ -279,9 +279,16 @@ input:-moz-placeholder {
 }
 
 /* CollapsibleFieldset component styles */
+fieldset.collapsible_fs {
+    margin-top: 15px;
+}
+
+fieldset.collapsible_fs .fs_content {
+    margin-top: 15px;
+}
+
 fieldset.collapsible_fs > legend {
     cursor: pointer;
-    margin: 15px 0;
 }
 
 fieldset.collapsible_fs > legend .fs_title {
