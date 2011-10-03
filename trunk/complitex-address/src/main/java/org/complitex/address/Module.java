@@ -8,6 +8,7 @@ import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
+import org.complitex.template.strategy.TemplateStrategy;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -17,15 +18,16 @@ import javax.ejb.Startup;
 @Startup
 public class Module {
 
+    public static final String NAME = "org.complitex.address";
+
     @EJB
     private AddressInfoProvider addressInfoProvider;
-
-    public static final String NAME = "org.complitex.address";
 
     @PostConstruct
     public void init() {
         for (String e : addressInfoProvider.getAddressInfo().getAddresses()) {
-            LogManager.get().registerLink(DomainObject.class.getName(), e, DomainObjectEdit.class, "entity=" + e, "object_id");
+            LogManager.get().registerLink(DomainObject.class.getName(), e, DomainObjectEdit.class, "entity=" + e,
+                    TemplateStrategy.OBJECT_ID);
         }
     }
 }

@@ -3,7 +3,6 @@ package org.complitex.dictionary.service;
 import org.apache.ibatis.session.SqlSession;
 import org.complitex.dictionary.entity.*;
 import org.complitex.dictionary.util.DateUtil;
-import org.complitex.dictionary.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +16,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import javax.ejb.EJB;
+import org.apache.wicket.util.string.Strings;
+import org.complitex.dictionary.entity.description.EntityAttributeType;
 import org.complitex.dictionary.strategy.IStrategy;
+import org.complitex.dictionary.util.Numbers;
+import org.complitex.dictionary.util.StringUtil;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -38,6 +41,9 @@ public class LogBean extends AbstractBean {
 
     @Resource
     private SessionContext sessionContext;
+
+    @EJB
+    private StringCultureBean stringBean;
 
     public void info(String module, Class controllerClass, Class modelClass, Long objectId, Log.EVENT event,
             String descriptionPattern, Object... descriptionArguments) {
@@ -167,50 +173,139 @@ public class LogBean extends AbstractBean {
         }
     }
 
-    public List<LogChange> getLogChanges(IStrategy strategy, DomainObject oldDomainObject, DomainObject newDomainObject, Locale locale) {
+    public List<LogChange> getLogChanges(IStrategy strategy, DomainObject oldDomainObject, DomainObject newDomainObject,
+            Locale locale) {
         List<LogChange> logChanges = new ArrayList<LogChange>();
 
         if (oldDomainObject == null) {
-            if (newDomainObject.getAttributes() != null) {
-                for (Attribute na : newDomainObject.getAttributes()) {
-                    if (na.getLocalizedValues() != null) {
-                        for (StringCulture ns : na.getLocalizedValues()) {
-                            if (ns.getValue() != null) {
-                                logChanges.add(new LogChange(na.getAttributeId(), null, strategy.getAttributeLabel(na, locale),
-                                        null, ns.getValue(), localeBean.getLocaleObject(ns.getLocaleId()).getLanguage()));
+            for (Attribute na : newDomainObject.getAttributes()) {
+                EntityAttributeType attributeType = strategy.getEntity().getAttributeType(na.getAttributeTypeId());
+                String attributeValueType = attributeType.getAttributeValueType(na.getValueTypeId()).getValueType();
+
+                if (SimpleTypes.isSimpleType(attributeValueType)) {
+                    if (SimpleTypes.STRING_CULTURE.name().equals(attributeValueType.toUpperCase())) {
+                        for (StringCulture newString : na.getLocalizedValues()) {
+                            if (!Strings.isEqual(newString.getValue(), null)) {
+                                logChanges.add(new LogChange(na.getAttributeId(), null,
+                                        strategy.getAttributeLabel(na, locale), null, newString.getValue(),
+                                        localeBean.getLocaleObject(newString.getLocaleId()).getLanguage()));
                             }
                         }
+                    } else {
+                        logChanges.add(new LogChange(na.getAttributeId(), null,
+                                strategy.getAttributeLabel(na, locale), null,
+                                stringBean.getSystemStringCulture(na.getLocalizedValues()).getValue(), null));
                     }
+                } else {
+                    logChanges.add(new LogChange(na.getAttributeId(), null, strategy.getAttributeLabel(na, locale),
+                            null, StringUtil.valueOf(na.getValueId()), null));
                 }
             }
         } else {
             for (Attribute oa : oldDomainObject.getAttributes()) {
-                for (Attribute na : newDomainObject.getAttributes()) {
-                    if (oa.getAttributeTypeId().equals(na.getAttributeTypeId())) {
-                        if (oa.getLocalizedValues() == null) {
-                            logChanges.add(new LogChange(na.getAttributeId(), null,
-                                    strategy.getAttributeLabel(na, locale),
-                                    StringUtil.valueOf(oa.getValueId()),
-                                    StringUtil.valueOf(na.getValueId()),
-                                    null));
+                EntityAttributeType oldAttributeType = strategy.getEntity().getAttributeType(oa.getAttributeTypeId());
+                String oldAttributeValueType = oldAttributeType.getAttributeValueType(oa.getValueTypeId()).getValueType();
 
-                        } else {
-                            for (StringCulture os : oa.getLocalizedValues()) {
-                                if (na.getLocalizedValues() != null) {
-                                    for (StringCulture ns : na.getLocalizedValues()) {
-                                        if (os.getLocaleId().equals(ns.getLocaleId())) {
-                                            if (!StringUtil.equal(os.getValue(), ns.getValue())) {
+                boolean removed = true;
+                for (Attribute na : newDomainObject.getAttributes()) {
+                    if (oa.getAttributeTypeId().equals(na.getAttributeTypeId()) && oa.getAttributeId().equals(na.getAttributeId())) {
+                        //the same attribute_type and the same attribute_id
+
+                        EntityAttributeType newAttributeType = strategy.getEntity().getAttributeType(na.getAttributeTypeId());
+                        String newAttributeValueType = newAttributeType.getAttributeValueType(na.getValueTypeId()).getValueType();
+
+                        if (SimpleTypes.isSimpleType(newAttributeValueType) && SimpleTypes.isSimpleType(oldAttributeValueType)) {
+                            if (SimpleTypes.STRING_CULTURE.name().equals(newAttributeValueType.toUpperCase())
+                                    || SimpleTypes.STRING_CULTURE.name().equals(oldAttributeValueType.toUpperCase())) {
+                                for (StringCulture oldString : oa.getLocalizedValues()) {
+                                    for (StringCulture newString : na.getLocalizedValues()) {
+                                        if (oldString.getLocaleId().equals(newString.getLocaleId())) {
+                                            //compare strings
+                                            if (!Strings.isEqual(oldString.getValue(), newString.getValue())) {
                                                 logChanges.add(new LogChange(na.getAttributeId(), null,
-                                                        strategy.getAttributeLabel(na, locale),
-                                                        os.getValue(),
-                                                        ns.getValue(),
-                                                        localeBean.getLocaleObject(ns.getLocaleId()).getLanguage()));
+                                                        strategy.getAttributeLabel(oa, locale),
+                                                        oldString.getValue(), newString.getValue(),
+                                                        localeBean.getLocaleObject(oldString.getLocaleId()).getLanguage()));
                                             }
                                         }
                                     }
                                 }
+                            } else {
+                                String oldValue = stringBean.getSystemStringCulture(oa.getLocalizedValues()).getValue();
+                                String newValue = stringBean.getSystemStringCulture(na.getLocalizedValues()).getValue();
+                                if (!Strings.isEqual(oldValue, newValue)) {
+                                    logChanges.add(new LogChange(oa.getAttributeId(), null,
+                                            strategy.getAttributeLabel(oa, locale), oldValue, newValue, null));
+                                }
+                            }
+                        } else {
+                            if (!Numbers.isEqual(oa.getValueId(), na.getValueId())) {
+                                logChanges.add(new LogChange(oa.getAttributeId(), null, strategy.getAttributeLabel(oa, locale),
+                                        StringUtil.valueOf(oa.getValueId()), StringUtil.valueOf(na.getValueId()), null));
                             }
                         }
+
+                        removed = false;
+                        break;
+                    }
+                }
+
+                if (removed) {
+                    if (SimpleTypes.isSimpleType(oldAttributeValueType)) {
+                        if (SimpleTypes.STRING_CULTURE.name().equals(oldAttributeValueType.toUpperCase())) {
+                            for (StringCulture oldString : oa.getLocalizedValues()) {
+                                if (!Strings.isEqual(oldString.getValue(), null)) {
+                                    logChanges.add(new LogChange(oa.getAttributeId(), null,
+                                            strategy.getAttributeLabel(oa, locale),
+                                            oldString.getValue(), null,
+                                            localeBean.getLocaleObject(oldString.getLocaleId()).getLanguage()));
+                                }
+                            }
+                        } else {
+                            logChanges.add(new LogChange(oa.getAttributeId(), null,
+                                    strategy.getAttributeLabel(oa, locale),
+                                    stringBean.getSystemStringCulture(oa.getLocalizedValues()).getValue(),
+                                    null, null));
+                        }
+                    } else {
+                        logChanges.add(new LogChange(oa.getAttributeId(), null, strategy.getAttributeLabel(oa, locale),
+                                StringUtil.valueOf(oa.getValueId()), null, null));
+                    }
+                }
+            }
+
+            for (Attribute na : newDomainObject.getAttributes()) {
+                EntityAttributeType newAttributeType = strategy.getEntity().getAttributeType(na.getAttributeTypeId());
+                String newAttributeValueType = newAttributeType.getAttributeValueType(na.getValueTypeId()).getValueType();
+
+                boolean added = true;
+                for (Attribute oa : oldDomainObject.getAttributes()) {
+                    if (oa.getAttributeTypeId().equals(na.getAttributeTypeId()) && oa.getAttributeId().equals(na.getAttributeId())) {
+                        //the same attribute_type and the same attribute_id
+                        added = false;
+                        break;
+                    }
+                }
+
+                if (added) {
+                    if (SimpleTypes.isSimpleType(newAttributeValueType)) {
+                        if (SimpleTypes.STRING_CULTURE.name().equals(newAttributeValueType.toUpperCase())) {
+                            for (StringCulture newString : na.getLocalizedValues()) {
+                                if (!Strings.isEqual(newString.getValue(), null)) {
+                                    logChanges.add(new LogChange(na.getAttributeId(), null,
+                                            strategy.getAttributeLabel(na, locale),
+                                            null, newString.getValue(),
+                                            localeBean.getLocaleObject(newString.getLocaleId()).getLanguage()));
+                                }
+                            }
+                        } else {
+                            logChanges.add(new LogChange(na.getAttributeId(), null,
+                                    strategy.getAttributeLabel(na, locale), null,
+                                    stringBean.getSystemStringCulture(na.getLocalizedValues()).getValue(), null));
+                        }
+                    } else {
+                        logChanges.add(new LogChange(na.getAttributeId(), null, strategy.getAttributeLabel(na, locale),
+                                null, String.valueOf(na.getValueId()), null));
                     }
                 }
             }
