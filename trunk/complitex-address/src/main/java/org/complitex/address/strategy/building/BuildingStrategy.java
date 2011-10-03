@@ -36,7 +36,11 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.text.MessageFormat;
 import java.util.*;
+import org.complitex.dictionary.Module;
+import org.complitex.dictionary.entity.Log;
+import org.complitex.dictionary.service.LogBean;
 import org.complitex.dictionary.strategy.DeleteException;
+import org.complitex.dictionary.strategy.web.DomainObjectEditPanel;
 
 /**
  *
@@ -86,6 +90,8 @@ public class BuildingStrategy extends TemplateStrategy {
     private BuildingAddressStrategy buildingAddressStrategy;
     @EJB
     private SessionBean sessionBean;
+    @EJB
+    private LogBean logBean;
 
     @Override
     public String getEntityTable() {
@@ -387,6 +393,11 @@ public class BuildingStrategy extends TemplateStrategy {
         building.setParentId(building.getPrimaryAddress().getId());
         building.setParentEntityId(PARENT_ENTITY_ID);
         super.insertDomainObject(object, insertDate);
+
+        for (DomainObject buildingAddress : building.getAllAddresses()) {
+            logBean.log(Log.STATUS.OK, Module.NAME, DomainObjectEditPanel.class,
+                    Log.EVENT.CREATE, buildingAddressStrategy, null, buildingAddress, null);
+        }
     }
 
     @Transactional
@@ -475,6 +486,22 @@ public class BuildingStrategy extends TemplateStrategy {
         newBuilding.enhanceAlternativeAddressAttributes();
 
         super.update(oldBuilding, newBuilding, updateDate);
+
+        if (addedAddresses != null) {
+            for (DomainObject newAddress : addedAddresses) {
+                logBean.log(Log.STATUS.OK, Module.NAME, DomainObjectEditPanel.class,
+                        Log.EVENT.CREATE, buildingAddressStrategy, null, newAddress, null);
+            }
+        }
+
+        if (updatedAddressesMap != null) {
+            for (Map.Entry<DomainObject, DomainObject> updatedAddress : updatedAddressesMap.entrySet()) {
+                DomainObject oldAddress = updatedAddress.getKey();
+                DomainObject newAddress = updatedAddress.getValue();
+                logBean.log(Log.STATUS.OK, Module.NAME, DomainObjectEditPanel.class,
+                        Log.EVENT.EDIT, buildingAddressStrategy, oldAddress, newAddress, null);
+            }
+        }
     }
 
     private List<DomainObject> determineRemovedAddresses(Building oldBuilding, Building newBuilding) {
