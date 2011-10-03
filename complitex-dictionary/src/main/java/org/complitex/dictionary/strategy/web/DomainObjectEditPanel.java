@@ -286,7 +286,7 @@ public class DomainObjectEditPanel extends Panel {
 
         logBean.log(Log.STATUS.OK, Module.NAME, DomainObjectEditPanel.class,
                 isNew() ? Log.EVENT.CREATE : Log.EVENT.EDIT, getStrategy(),
-                oldObject, newObject, getLocale(), null);
+                oldObject, newObject, null);
         back();
     }
 

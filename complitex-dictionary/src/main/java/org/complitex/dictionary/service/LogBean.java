@@ -83,13 +83,13 @@ public class LogBean extends AbstractBean {
 
     public void log(Log.STATUS status, String module, Class controllerClass, Log.EVENT event,
             IStrategy strategy, DomainObject oldDomainObject, DomainObject newDomainObject,
-            Locale locale, String descriptionPattern, Object... descriptionArguments) {
+            String descriptionPattern, Object... descriptionArguments) {
 
         String controller = controllerClass != null ? controllerClass.getName() : null;
         String model = DomainObject.class.getName() + "#" + strategy.getEntityTable();
 
         log(module, controller, model, newDomainObject.getId(), event, status,
-                getLogChanges(strategy, oldDomainObject, newDomainObject, locale),
+                getLogChanges(strategy, oldDomainObject, newDomainObject),
                 descriptionPattern, descriptionArguments);
     }
 
@@ -173,8 +173,8 @@ public class LogBean extends AbstractBean {
         }
     }
 
-    public List<LogChange> getLogChanges(IStrategy strategy, DomainObject oldDomainObject, DomainObject newDomainObject,
-            Locale locale) {
+    public List<LogChange> getLogChanges(IStrategy strategy, DomainObject oldDomainObject, DomainObject newDomainObject) {
+        final Locale systemLocale = localeBean.getSystemLocale();
         List<LogChange> logChanges = new ArrayList<LogChange>();
 
         if (oldDomainObject == null) {
@@ -187,17 +187,17 @@ public class LogBean extends AbstractBean {
                         for (StringCulture newString : na.getLocalizedValues()) {
                             if (!Strings.isEqual(newString.getValue(), null)) {
                                 logChanges.add(new LogChange(na.getAttributeId(), null,
-                                        strategy.getAttributeLabel(na, locale), null, newString.getValue(),
+                                        strategy.getAttributeLabel(na, systemLocale), null, newString.getValue(),
                                         localeBean.getLocaleObject(newString.getLocaleId()).getLanguage()));
                             }
                         }
                     } else {
                         logChanges.add(new LogChange(na.getAttributeId(), null,
-                                strategy.getAttributeLabel(na, locale), null,
+                                strategy.getAttributeLabel(na, systemLocale), null,
                                 stringBean.getSystemStringCulture(na.getLocalizedValues()).getValue(), null));
                     }
                 } else {
-                    logChanges.add(new LogChange(na.getAttributeId(), null, strategy.getAttributeLabel(na, locale),
+                    logChanges.add(new LogChange(na.getAttributeId(), null, strategy.getAttributeLabel(na, systemLocale),
                             null, StringUtil.valueOf(na.getValueId()), null));
                 }
             }
@@ -223,7 +223,7 @@ public class LogBean extends AbstractBean {
                                             //compare strings
                                             if (!Strings.isEqual(oldString.getValue(), newString.getValue())) {
                                                 logChanges.add(new LogChange(na.getAttributeId(), null,
-                                                        strategy.getAttributeLabel(oa, locale),
+                                                        strategy.getAttributeLabel(oa, systemLocale),
                                                         oldString.getValue(), newString.getValue(),
                                                         localeBean.getLocaleObject(oldString.getLocaleId()).getLanguage()));
                                             }
@@ -235,12 +235,12 @@ public class LogBean extends AbstractBean {
                                 String newValue = stringBean.getSystemStringCulture(na.getLocalizedValues()).getValue();
                                 if (!Strings.isEqual(oldValue, newValue)) {
                                     logChanges.add(new LogChange(oa.getAttributeId(), null,
-                                            strategy.getAttributeLabel(oa, locale), oldValue, newValue, null));
+                                            strategy.getAttributeLabel(oa, systemLocale), oldValue, newValue, null));
                                 }
                             }
                         } else {
                             if (!Numbers.isEqual(oa.getValueId(), na.getValueId())) {
-                                logChanges.add(new LogChange(oa.getAttributeId(), null, strategy.getAttributeLabel(oa, locale),
+                                logChanges.add(new LogChange(oa.getAttributeId(), null, strategy.getAttributeLabel(oa, systemLocale),
                                         StringUtil.valueOf(oa.getValueId()), StringUtil.valueOf(na.getValueId()), null));
                             }
                         }
@@ -256,19 +256,19 @@ public class LogBean extends AbstractBean {
                             for (StringCulture oldString : oa.getLocalizedValues()) {
                                 if (!Strings.isEqual(oldString.getValue(), null)) {
                                     logChanges.add(new LogChange(oa.getAttributeId(), null,
-                                            strategy.getAttributeLabel(oa, locale),
+                                            strategy.getAttributeLabel(oa, systemLocale),
                                             oldString.getValue(), null,
                                             localeBean.getLocaleObject(oldString.getLocaleId()).getLanguage()));
                                 }
                             }
                         } else {
                             logChanges.add(new LogChange(oa.getAttributeId(), null,
-                                    strategy.getAttributeLabel(oa, locale),
+                                    strategy.getAttributeLabel(oa, systemLocale),
                                     stringBean.getSystemStringCulture(oa.getLocalizedValues()).getValue(),
                                     null, null));
                         }
                     } else {
-                        logChanges.add(new LogChange(oa.getAttributeId(), null, strategy.getAttributeLabel(oa, locale),
+                        logChanges.add(new LogChange(oa.getAttributeId(), null, strategy.getAttributeLabel(oa, systemLocale),
                                 StringUtil.valueOf(oa.getValueId()), null, null));
                     }
                 }
@@ -293,18 +293,18 @@ public class LogBean extends AbstractBean {
                             for (StringCulture newString : na.getLocalizedValues()) {
                                 if (!Strings.isEqual(newString.getValue(), null)) {
                                     logChanges.add(new LogChange(na.getAttributeId(), null,
-                                            strategy.getAttributeLabel(na, locale),
+                                            strategy.getAttributeLabel(na, systemLocale),
                                             null, newString.getValue(),
                                             localeBean.getLocaleObject(newString.getLocaleId()).getLanguage()));
                                 }
                             }
                         } else {
                             logChanges.add(new LogChange(na.getAttributeId(), null,
-                                    strategy.getAttributeLabel(na, locale), null,
+                                    strategy.getAttributeLabel(na, systemLocale), null,
                                     stringBean.getSystemStringCulture(na.getLocalizedValues()).getValue(), null));
                         }
                     } else {
-                        logChanges.add(new LogChange(na.getAttributeId(), null, strategy.getAttributeLabel(na, locale),
+                        logChanges.add(new LogChange(na.getAttributeId(), null, strategy.getAttributeLabel(na, systemLocale),
                                 null, String.valueOf(na.getValueId()), null));
                     }
                 }

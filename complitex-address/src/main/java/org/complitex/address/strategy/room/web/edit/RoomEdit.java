@@ -115,7 +115,7 @@ public class RoomEdit extends DomainObjectEdit {
                 if (!bulkSaveFlag) {
                     getLogBean().log(Log.STATUS.OK, Module.NAME, DomainObjectEditPanel.class,
                             isNew() ? Log.EVENT.CREATE : Log.EVENT.EDIT, getStrategy(),
-                            getOldObject(), getNewObject(), getLocale(), null);
+                            getOldObject(), getNewObject(), null);
                 }
                 back();
             }
@@ -159,14 +159,14 @@ public class RoomEdit extends DomainObjectEdit {
     public static void onFailBulkSave(String moduleName, Class controllerClass, DomainObject failObject,
             String numbers, String failNumber, Locale locale) {
         getLogBean().log(Log.STATUS.ERROR, moduleName, controllerClass, Log.EVENT.CREATE,
-                EjbBeanLocator.getBean(RoomStrategy.class), null, failObject, locale,
+                EjbBeanLocator.getBean(RoomStrategy.class), null, failObject,
                 ResourceUtil.getString(RESOURCE_BUNDLE, "room_bulk_save_fail", locale), numbers, failNumber);
     }
 
     public static void onInvalidateBulkSave(String moduleName, Class controllerClass,
             DomainObject invalidObject, String numbers, String invalidNumber, Locale locale) {
         getLogBean().log(Log.STATUS.WARN, moduleName, controllerClass, Log.EVENT.CREATE,
-                EjbBeanLocator.getBean(RoomStrategy.class), null, invalidObject, locale,
+                EjbBeanLocator.getBean(RoomStrategy.class), null, invalidObject,
                 ResourceUtil.getString(RESOURCE_BUNDLE, "room_bulk_save_invalid", locale), numbers, invalidNumber);
     }
 }

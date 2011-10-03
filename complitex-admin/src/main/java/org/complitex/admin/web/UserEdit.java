@@ -301,7 +301,7 @@ public class UserEdit extends FormTemplatePage {
 
         //информация о пользователе
         List<LogChange> userInfoLogChanges = logBean.getLogChanges(userInfoStrategy,
-                oldUser != null ? oldUser.getUserInfo() : null, newUser.getUserInfo(), getLocale());
+                oldUser != null ? oldUser.getUserInfo() : null, newUser.getUserInfo());
 
         logChanges.addAll(userInfoLogChanges);
 
