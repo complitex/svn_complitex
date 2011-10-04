@@ -133,8 +133,9 @@ public final class DomainObjectListPanel extends Panel {
         if (searchFilters == null || searchFilters.isEmpty()) {
             add(new EmptyPanel("searchComponent"));
         } else {
-            WiQuerySearchComponent searchComponent = new WiQuerySearchComponent("searchComponent", getSession().getGlobalSearchComponentState(),
-                    searchFilters, getStrategy().getSearchCallback(), ShowMode.ALL, true);
+            WiQuerySearchComponent searchComponent = new WiQuerySearchComponent("searchComponent", 
+                    getSession().getGlobalSearchComponentState(), searchFilters, getStrategy().getSearchCallback(),
+                    ShowMode.ALL, true);
             add(searchComponent);
             searchComponent.invokeCallback();
         }

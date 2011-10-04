@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  *
@@ -192,7 +191,7 @@ public class DictionaryFwSession extends WebSession {
         SearchComponentState componentState = searchComponentSessionState.get(GLOBAL_STATE_KEY);
 
         //load state
-        if (componentState == null || searchComponentStateIsEmpty(componentState)) {
+        if (componentState == null) {
             componentState = new SearchComponentState();
 
             boolean useDefault = getPreferenceBoolean(GLOBAL_PAGE, IS_USE_DEFAULT_STATE_KEY);
@@ -206,18 +205,6 @@ public class DictionaryFwSession extends WebSession {
 
         return componentState;
     }
-    
-    private boolean searchComponentStateIsEmpty(SearchComponentState searchComponentState){
-        boolean empty = true;
-        for(Entry<String, DomainObject> entry : searchComponentState.entrySet()){
-            DomainObject object = entry.getValue();
-            if(object != null && object.getId() != null && object.getId() > 0){
-                empty = false;
-                break;
-            }
-        }
-        return empty;
-    }
 
     public DomainObject getPreferenceDomainObject(String page, String key) {
         Preference p = getPreference(page, key);
@@ -225,8 +212,7 @@ public class DictionaryFwSession extends WebSession {
         if (p != null) {
             try {
                 Long domainObjectId = Long.valueOf(p.getValue());
-
-                if (!domainObjectId.equals(SearchComponentState.NOT_SPECIFIED_ID)) {
+                if (domainObjectId != null && domainObjectId > 0) {
                     return strategyFactory.getStrategy(p.getKey()).findById(domainObjectId, true);
                 }
             } catch (Exception e) {
@@ -234,7 +220,7 @@ public class DictionaryFwSession extends WebSession {
             }
         }
 
-        return new DomainObject(SearchComponentState.NOT_SPECIFIED_ID);
+        return null;
     }
 
     public Preference getOrCreatePreference(String page, String key) {
