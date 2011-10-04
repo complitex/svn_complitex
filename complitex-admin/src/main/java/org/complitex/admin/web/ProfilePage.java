@@ -34,10 +34,10 @@ import static org.complitex.dictionary.web.DictionaryFwSession.*;
  *         Date: 01.07.11 16:40
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)
-public class ProfilePage extends FormTemplatePage{
+public class ProfilePage extends FormTemplatePage {
+
     @EJB
     private LocaleBean localeBean;
-
     @EJB
     private SessionBean sessionBean;
 
@@ -72,21 +72,21 @@ public class ProfilePage extends FormTemplatePage{
         final Model<Boolean> useDefaultModel = new Model<Boolean>(Boolean.valueOf(useDefaultPreference.getValue()));
         form.add(new CheckBox("use_default_address", useDefaultModel));
 
-        final SearchComponentState searchComponentState = new SearchComponentState();
-
-        for (String s : searchFilters){
-            searchComponentState.put(s, getTemplateSession().getPreferenceDomainObject(DEFAULT_STATE_PAGE, s));
+        final SearchComponentState defaultSearchComponentState = new SearchComponentState();
+        for (String s : searchFilters) {
+            defaultSearchComponentState.put(s, getTemplateSession().getPreferenceDomainObject(DEFAULT_STATE_PAGE, s));
         }
 
-        form.add(new WiQuerySearchComponent("searchComponent", searchComponentState, searchFilters, null, ShowMode.ALL, true));
+        form.add(new WiQuerySearchComponent("searchComponent", defaultSearchComponentState, searchFilters, null, ShowMode.ALL, true));
 
         //Сохранение
-        form.add(new Button("save"){
+        form.add(new Button("save") {
+
             @Override
             public void onSubmit() {
                 if (password.getModelObject() != null && !password.getModelObject().isEmpty()) {
                     //Пароль
-                    if (!password.getModelObject().equals(password2.getModelObject())){
+                    if (!password.getModelObject().equals(password2.getModelObject())) {
                         error(getString("error_passwords_not_match"));
 
                         return;
@@ -107,11 +107,18 @@ public class ProfilePage extends FormTemplatePage{
                 getSession().setLocale(localeModel.getObject());
 
                 //Адрес по умолчанию
-                for (String s : searchFilters){
-                    DomainObject domainObject = searchComponentState.get(s);
+                for (String s : searchFilters) {
+                    DomainObject domainObject = defaultSearchComponentState.get(s);
 
                     if (domainObject != null) {
-                        getTemplateSession().putPreference(DEFAULT_STATE_PAGE, s, domainObject.getId() + "", true);
+                        getTemplateSession().putPreference(DEFAULT_STATE_PAGE, s, String.valueOf(domainObject.getId()), true);
+                    }
+
+                    //update session search component state to the default state:
+                    if (!defaultSearchComponentState.isEmptyState() && useDefaultModel.getObject()) {
+                        SearchComponentState sessionSearchComponentState = getTemplateSession().getGlobalSearchComponentState();
+                        sessionSearchComponentState.updateState(defaultSearchComponentState);
+                        getTemplateSession().storeGlobalSearchComponentState();
                     }
                 }
 
@@ -122,7 +129,8 @@ public class ProfilePage extends FormTemplatePage{
             }
         });
 
-        form.add(new Button("cancel"){
+        form.add(new Button("cancel") {
+
             @Override
             public void onSubmit() {
                 setResponsePage(WelcomePage.class);

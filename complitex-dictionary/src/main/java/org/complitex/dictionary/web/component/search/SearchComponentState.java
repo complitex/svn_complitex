@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import org.complitex.dictionary.util.Numbers;
 
 /**
@@ -15,6 +16,18 @@ import org.complitex.dictionary.util.Numbers;
 public class SearchComponentState extends HashMap<String, DomainObject> implements Serializable {
 
     public static final Long NOT_SPECIFIED_ID = -1L;
+
+    public boolean isEmptyState() {
+        boolean empty = true;
+        for (Entry<String, DomainObject> entry : entrySet()) {
+            DomainObject object = entry.getValue();
+            if (object != null && object.getId() != null && object.getId() > 0) {
+                empty = false;
+                break;
+            }
+        }
+        return empty;
+    }
 
     public void updateState(Map<String, ? extends DomainObject> state) {
         boolean clean = false;
