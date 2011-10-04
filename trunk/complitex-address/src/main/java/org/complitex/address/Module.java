@@ -10,11 +10,7 @@ import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import org.complitex.template.strategy.TemplateStrategy;
 
-/**
- * @author Anatoly A. Ivanov java@inheaven.ru
- *         Date: 17.08.2010 18:41:01
- */
-@Singleton(name = "InformationModule")
+@Singleton(name = "AddressModule")
 @Startup
 public class Module {
 
