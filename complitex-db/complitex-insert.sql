@@ -45,7 +45,7 @@ INSERT INTO `sequence` (`sequence_name`, `sequence_value`) VALUES ('permission',
 
 INSERT INTO `string_culture`(`id`, `locale_id`, `value`) VALUES (100, 1, 'Квартира'), (100, 2, 'Квартира');
 INSERT INTO `entity`(`id`, `entity_table`, `entity_name_id`, `strategy_factory`) VALUES (100, 'apartment', 100, '');
-INSERT INTO `string_culture`(`id`, `locale_id`, `value`) VALUES (101, 1, UPPER('Наименование квартиры')), (101, 2, UPPER('Найменування квартири'));
+INSERT INTO `string_culture`(`id`, `locale_id`, `value`) VALUES (101, 1, UPPER('Номер квартиры')), (101, 2, UPPER('Номер квартири'));
 INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (100, 100, 1, 101, 1);
 INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (100, 100, UPPER('string_culture'));
 
@@ -55,7 +55,7 @@ INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_
 
 INSERT INTO `string_culture`(`id`, `locale_id`, `value`) VALUES (200, 1, 'Комната'), (200, 2, 'Кімната');
 INSERT INTO `entity`(`id`, `entity_table`, `entity_name_id`, `strategy_factory`) VALUES (200, 'room', 200, '');
-INSERT INTO `string_culture`(`id`, `locale_id`, `value`) VALUES (201, 1, UPPER('Наименование комнаты')), (201, 2, UPPER('Найменування кімнати'));
+INSERT INTO `string_culture`(`id`, `locale_id`, `value`) VALUES (201, 1, UPPER('Номер комнаты')), (201, 2, UPPER('Номер кімнати'));
 INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (200, 200, 1, 201, 1);
 INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (200, 200, UPPER('string_culture'));
 
