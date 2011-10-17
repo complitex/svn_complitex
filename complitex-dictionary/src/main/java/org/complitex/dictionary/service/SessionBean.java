@@ -11,6 +11,7 @@ import javax.ejb.EJB;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import java.util.*;
+import org.complitex.dictionary.entity.DomainObject;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -131,6 +132,12 @@ public class SessionBean extends AbstractBean {
         } catch (Exception e) {
             return "[NA]";
         }
+    }
+
+    public DomainObject getMainUserOrganization() {
+        IStrategy strategy = strategyFactory.getStrategy(ORGANIZATION_ENTITY);
+        Long oId = getMainUserOrganizationObjectId();
+        return oId != null ? strategy.findById(oId, true) : null;
     }
 
      public void updatePassword(String currentPassword, final String password) throws WrongCurrentPasswordException{
