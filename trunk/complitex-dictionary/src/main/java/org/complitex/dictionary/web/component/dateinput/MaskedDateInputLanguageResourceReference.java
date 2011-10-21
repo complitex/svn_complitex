@@ -5,14 +5,14 @@
 package org.complitex.dictionary.web.component.dateinput;
 
 import java.util.Locale;
+import org.apache.wicket.ResourceReference;
 import org.apache.wicket.WicketRuntimeException;
-import org.odlabs.wiquery.core.commons.WiQueryJavaScriptResourceReference;
 
 /**
  *
  * @author Artem
  */
-class MaskedDateInputLanguageResourceReference extends WiQueryJavaScriptResourceReference {
+class MaskedDateInputLanguageResourceReference extends ResourceReference {
 
     enum MaskedDateInputLanguages {
 
