@@ -36,7 +36,7 @@
         <module>complitex-resources</module>
         <module>complitex-template</module>
         <module>complitex-organization-type</module>
-  </modules>
+    </modules>
 
     <properties>
         <!-- wicket version -->
@@ -240,10 +240,18 @@
                 <version>3.0.2</version>
             </dependency>
 
+            <!-- google collections -->
             <dependency>
                 <groupId>com.google.collections</groupId>
                 <artifactId>google-collections</artifactId>
                 <version>1.0</version>
+            </dependency>
+
+            <!-- opencsv -->
+            <dependency>
+                <groupId>net.sf.opencsv</groupId>
+                <artifactId>opencsv</artifactId>
+                <version>2.1</version>
             </dependency>
 
             <dependency>
