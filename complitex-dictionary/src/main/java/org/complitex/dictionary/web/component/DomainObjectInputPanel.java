@@ -233,7 +233,7 @@ public class DomainObjectInputPanel extends Panel {
 
             @Override
             public String getObject() {
-                return stringBean().displayValue(attributeNames, locale);
+                return Strings.capitalize(stringBean().displayValue(attributeNames, locale).toLowerCase(locale));
             }
         };
     }
