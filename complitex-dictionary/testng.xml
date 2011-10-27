@@ -18,4 +18,9 @@
             <class name="org.complitex.dictionary.util.AddressNumberParserTest"/>
         </classes>
     </test>
+    <test name="DateUtilTest">
+        <classes>
+            <class name="org.complitex.dictionary.util.DateUtilTest"/>
+        </classes>
+    </test>
 </suite>
