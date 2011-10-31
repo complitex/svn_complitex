@@ -10,7 +10,10 @@ import org.complitex.template.web.component.toolbar.ToolbarButton;
 import org.complitex.template.web.template.FormTemplatePage;
 
 import java.util.List;
+import javax.ejb.EJB;
+import org.apache.wicket.authorization.UnauthorizedInstantiationException;
 import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.template.web.component.toolbar.DeleteItemButton;
 import org.complitex.template.web.security.SecurityRole;
 
@@ -22,6 +25,8 @@ import static org.complitex.template.strategy.TemplateStrategy.*;
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)
 public class DomainObjectEdit extends FormTemplatePage {
 
+    @EJB
+    private StrategyFactory strategyFactory;
     private DomainObjectEditPanel editPanel;
     private String entity;
     private String strategy;
@@ -34,6 +39,10 @@ public class DomainObjectEdit extends FormTemplatePage {
     protected void init(String entity, String strategy, Long objectId, Long parentId, String parentEntity) {
         this.entity = entity;
         this.strategy = strategy;
+
+        if (!hasAnyRole(strategyFactory.getStrategy(strategy, entity).getListRoles())) {
+            throw new UnauthorizedInstantiationException(getClass());
+        }
 
         add(editPanel = newEditPanel("editPanel", entity, strategy, objectId, parentId, parentEntity, DomainObjectList.SCROLL_PARAMETER));
     }
