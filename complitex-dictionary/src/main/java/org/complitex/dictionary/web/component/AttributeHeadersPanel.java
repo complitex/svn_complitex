@@ -13,21 +13,23 @@ import org.complitex.dictionary.web.component.datatable.ArrowOrderByBorder;
 
 import javax.ejb.EJB;
 import java.util.List;
+import org.apache.wicket.util.string.Strings;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 14.08.2010 21:59:20
  */
 public class AttributeHeadersPanel extends Panel {
+
     @EJB(name = "StringCultureBean")
     private StringCultureBean stringBean;
 
     public AttributeHeadersPanel(String id, List<EntityAttributeType> entityAttributeTypes,
-                                 final ISortStateLocator stateLocator, final DataView dataView,
-                                 final Component refreshComponent) {
+            final ISortStateLocator stateLocator, final DataView dataView,
+            final Component refreshComponent) {
         super(id);
 
-        ListView<EntityAttributeType> headers = new ListView<EntityAttributeType>("headers", entityAttributeTypes){
+        ListView<EntityAttributeType> headers = new ListView<EntityAttributeType>("headers", entityAttributeTypes) {
 
             @Override
             protected void populateItem(ListItem<EntityAttributeType> item) {
@@ -36,10 +38,12 @@ public class AttributeHeadersPanel extends Panel {
                 ArrowOrderByBorder header = new ArrowOrderByBorder("header", String.valueOf(entityAttributeType.getId()),
                         stateLocator, dataView, refreshComponent);
                 item.add(header);
-                
-                header.add(new Label("header_name", stringBean.displayValue(entityAttributeType.getAttributeNames(), getLocale())));
+
+                header.add(new Label("header_name",
+                        Strings.capitalize(stringBean.displayValue(entityAttributeType.getAttributeNames(),
+                        getLocale()).toLowerCase(getLocale()))));
             }
-        };       
+        };
 
         add(headers);
     }

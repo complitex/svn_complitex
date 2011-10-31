@@ -8,32 +8,16 @@ import java.util.List;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 21.07.2010 15:26:12
  */
-public class User implements Serializable{
+public class User implements Serializable {
+
     private Long id;
     private String login;
     private String password;
     private String newPassword;
     private Long userInfoObjectId;
     private List<UserOrganization> userOrganizations = new ArrayList<UserOrganization>();
-    private DomainObject userInfo;    
-
+    private DomainObject userInfo;
     private List<UserGroup> userGroups;
-
-    public void setMainUserOrganization(Long userOrganizationId){
-        for (UserOrganization uo : userOrganizations){
-            uo.setMain(userOrganizationId != null && userOrganizationId.equals(uo.getOrganizationObjectId()));
-        }
-    }
-
-    public Long getMainUserOrganization(){
-        for (UserOrganization userOrganization : userOrganizations){
-            if (userOrganization.isMain()){
-                return userOrganization.getOrganizationObjectId();
-            }
-        }
-
-        return null;
-    }
 
     public Long getId() {
         return id;
@@ -101,13 +85,13 @@ public class User implements Serializable{
 
     @Override
     public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", login='" + login + '\'' +
-                ", password='" + password + '\'' +
-                ", newPassword='" + newPassword + '\'' +
-                ", userInfo=" + userInfo +
-                ", userGroups=" + userGroups +
-                '}';
+        return "User{"
+                + "id=" + id
+                + ", login='" + login + '\''
+                + ", password='" + password + '\''
+                + ", newPassword='" + newPassword + '\''
+                + ", userInfo=" + userInfo
+                + ", userGroups=" + userGroups
+                + '}';
     }
 }

@@ -4,7 +4,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -23,7 +22,6 @@ import org.complitex.dictionary.entity.*;
 import org.complitex.dictionary.service.LocaleBean;
 import org.complitex.dictionary.service.LogBean;
 import org.complitex.dictionary.service.PreferenceBean;
-import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.util.CloneUtil;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.ShowMode;
@@ -39,6 +37,8 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.EJB;
 import java.util.*;
 import java.util.Locale;
+import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 
 import static org.complitex.dictionary.entity.UserGroup.GROUP_NAME.*;
 import static org.complitex.dictionary.web.DictionaryFwSession.*;
@@ -51,25 +51,17 @@ import static org.complitex.dictionary.web.DictionaryFwSession.*;
  */
 @AuthorizeInstantiation(SecurityRole.ADMIN_MODULE_EDIT)
 public class UserEdit extends FormTemplatePage {
+
     private static final Logger log = LoggerFactory.getLogger(UserEdit.class);
-
     private static final List<String> SEARCH_FILTERS = Arrays.asList("country", "region", "city", "street");
-
-    @EJB(name = "OrganizationStrategy")
-    private IOrganizationStrategy organizationStrategy;
-
     @EJB
     private UserBean userBean;
-
     @EJB
     private UserInfoStrategy userInfoStrategy;
-
     @EJB
     private LogBean logBean;
-
     @EJB
     private PreferenceBean preferenceBean;
-
     @EJB
     private LocaleBean localeBean;
 
@@ -85,7 +77,9 @@ public class UserEdit extends FormTemplatePage {
 
     private void init(Long userId, boolean copyUser) {
         add(new Label("title", new ResourceModel("title")));
-        add(new FeedbackPanel("messages"));
+        final FeedbackPanel messages = new FeedbackPanel("messages");
+        messages.setOutputMarkupId(true);
+        add(messages);
 
         //Модель данных
         User user = userId != null ? userBean.getUser(userId) : userBean.newUser();
@@ -94,23 +88,23 @@ public class UserEdit extends FormTemplatePage {
         final SearchComponentState searchComponentState = new SearchComponentState();
 
         if (userId != null) {
-            for (String s : SEARCH_FILTERS){
+            for (String s : SEARCH_FILTERS) {
                 searchComponentState.put(s, preferenceBean.getPreferenceDomainObject(userId, DEFAULT_STATE_PAGE, s));
             }
         }
 
         //Копирование
-        if (copyUser){
+        if (copyUser) {
             userId = null;
             user.setId(null);
             user.setUserInfoObjectId(null);
 
-            for (UserOrganization userOrganization : user.getUserOrganizations()){
+            for (UserOrganization userOrganization : user.getUserOrganizations()) {
                 userOrganization.setId(null);
                 userOrganization.setUserId(null);
             }
 
-            for (UserGroup userGroup : user.getUserGroups()){
+            for (UserGroup userGroup : user.getUserGroups()) {
                 userGroup.setId(null);
                 userGroup.setLogin(null);
             }
@@ -161,12 +155,39 @@ public class UserEdit extends FormTemplatePage {
         organizationContainer.setOutputMarkupId(true);
         form.add(organizationContainer);
 
-        final RadioGroup<Long> organizationGroup = new RadioGroup<Long>("organizationGroup",
-                new PropertyModel<Long>(userModel, "mainUserOrganization"));
+        final RadioGroup<Integer> organizationGroup = new RadioGroup<Integer>("organizationGroup", new Model<Integer>() {
+
+            @Override
+            public void setObject(Integer index) {
+                if (index != null && index >= 0 && index < userModel.getObject().getUserOrganizations().size()) {
+                    for (UserOrganization uo : userModel.getObject().getUserOrganizations()) {
+                        uo.setMain(false);
+                    }
+                    userModel.getObject().getUserOrganizations().get(index).setMain(true);
+                }
+            }
+
+            @Override
+            public Integer getObject() {
+                for (int i = 0; i < userModel.getObject().getUserOrganizations().size(); i++) {
+                    if (userModel.getObject().getUserOrganizations().get(i).isMain()) {
+                        return i;
+                    }
+                }
+                return 0;
+            }
+        });
+        organizationGroup.add(new AjaxFormChoiceComponentUpdatingBehavior() {
+
+            @Override
+            protected void onUpdate(AjaxRequestTarget target) {
+            }
+        });
         organizationContainer.add(organizationGroup);
 
         organizationGroup.add(new ListView<UserOrganization>("userOrganizations",
-                new PropertyModel<List<? extends UserOrganization>>(userModel, "userOrganizations")){
+                new PropertyModel<List<? extends UserOrganization>>(userModel, "userOrganizations")) {
+
             {
                 setReuseItems(true);
             }
@@ -176,34 +197,29 @@ public class UserEdit extends FormTemplatePage {
                 final UserOrganization userOrganization = item.getModelObject();
                 final ListView listView = this;
 
-                item.add(new Radio<Long>("radio", new Model<Long>(userOrganization.getOrganizationObjectId())));
-
+                item.add(new Radio<Integer>("radio", new Model<Integer>(item.getIndex())));
                 item.add(new UserOrganizationPicker("picker", new PropertyModel<Long>(userOrganization, "organizationObjectId"), true));
-
-                item.add(new AjaxLink("delete"){
+                item.add(new AjaxLink<Void>("delete") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
                         userModel.getObject().getUserOrganizations().remove(item.getIndex());
-
                         listView.removeAll();
-
                         target.addComponent(organizationContainer);
+                        target.addComponent(messages);
                     }
                 });
             }
         });
 
         //Добавить организацию
-        Form addOrganizationForm = new Form("addOrganizationForm");
-        form.add(addOrganizationForm);
+        form.add(new AjaxLink<Void>("addOrganization") {
 
-        addOrganizationForm.add(new AjaxSubmitLink("addOrganization", addOrganizationForm){
             @Override
-            protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+            public void onClick(AjaxRequestTarget target) {
                 userModel.getObject().getUserOrganizations().add(new UserOrganization());
-
                 target.addComponent(organizationContainer);
+                target.addComponent(messages);
             }
         });
 
@@ -212,31 +228,44 @@ public class UserEdit extends FormTemplatePage {
         final Model<Boolean> useDefaultModel = new Model<Boolean>(Boolean.valueOf(useDefaultPreference.getValue()));
         form.add(new CheckBox("use_default_address", useDefaultModel));
 
-
-        form.add(new WiQuerySearchComponent("searchComponent", searchComponentState, SEARCH_FILTERS, null, ShowMode.ALL, true));
+        form.add(new WiQuerySearchComponent("searchComponent", searchComponentState, SEARCH_FILTERS, null, ShowMode.ACTIVE, true));
 
         //Сохранить
-        Button save = new Button("save") {
+        IndicatingAjaxButton save = new IndicatingAjaxButton("save") {
 
             @Override
-            public void onSubmit() {
+            protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
                 User user = userModel.getObject();
 
                 try {
+                    //Валидация
+                    //Уникальность логина
                     if (user.getId() == null && !userBean.isUniqueLogin(user.getLogin())) {
                         error(getString("error.login_not_unique"));
+                        target.addComponent(messages);
                         return;
                     }
 
+                    //Невыбранные организации
+                    if (!user.getUserOrganizations().isEmpty()) {
+                        for (UserOrganization userOrganization : user.getUserOrganizations()) {
+                            if (userOrganization.getOrganizationObjectId() == null) {
+                                error(getString("error.unselected_organization"));
+                                target.addComponent(messages);
+                                return;
+                            }
+                        }
+                    }
+
+                    //Сохранение пользователя
                     userBean.save(user);
 
                     //Локаль
                     preferenceBean.save(user.getId(), GLOBAL_PAGE, LOCALE_KEY, localeModel.getObject().getLanguage());
 
                     //Адрес по умолчанию
-                    for (String s : SEARCH_FILTERS){
-                        DomainObject domainObject =  searchComponentState.get(s);
-
+                    for (String s : SEARCH_FILTERS) {
+                        DomainObject domainObject = searchComponentState.get(s);
                         if (domainObject != null) {
                             preferenceBean.save(user.getId(), DEFAULT_STATE_PAGE, s, domainObject.getId() + "");
                         }
@@ -253,21 +282,21 @@ public class UserEdit extends FormTemplatePage {
                     back(user.getId());
                 } catch (Exception e) {
                     log.error("Ошибка сохранения пользователя", e);
-                    getSession().error(getString("error.saved"));
+                    error(getString("error.saved"));
+                    target.addComponent(messages);
                 }
             }
         };
         form.add(save);
 
         //Отмена
-        Button cancel = new Button("cancel") {
+        AjaxLink<Void> cancel = new AjaxLink<Void>("cancel") {
 
             @Override
-            public void onSubmit() {
+            public void onClick(AjaxRequestTarget target) {
                 back(userModel.getObject().getId());
             }
         };
-        cancel.setDefaultFormProcessing(false);
         form.add(cancel);
     }
 
