@@ -133,7 +133,7 @@ public final class DomainObjectListPanel extends Panel {
         if (searchFilters == null || searchFilters.isEmpty()) {
             add(new EmptyPanel("searchComponent"));
         } else {
-            WiQuerySearchComponent searchComponent = new WiQuerySearchComponent("searchComponent", 
+            WiQuerySearchComponent searchComponent = new WiQuerySearchComponent("searchComponent",
                     getSession().getGlobalSearchComponentState(), searchFilters, getStrategy().getSearchCallback(),
                     ShowMode.ALL, true);
             add(searchComponent);
@@ -298,14 +298,14 @@ public final class DomainObjectListPanel extends Panel {
                 final EntityAttributeType attributeType = item.getModelObject();
                 ArrowOrderByBorder column = new ArrowOrderByBorder("column", String.valueOf(attributeType.getId()),
                         dataProvider, dataView, content);
-                IModel<String> columnNameModel = new AbstractReadOnlyModel<String>() {
+                column.add(new Label("columnName", new AbstractReadOnlyModel<String>() {
 
                     @Override
                     public String getObject() {
-                        return stringBean.displayValue(attributeType.getAttributeNames(), getLocale());
+                        return Strings.capitalize(stringBean.displayValue(attributeType.getAttributeNames(), getLocale()).
+                                toLowerCase(getLocale()));
                     }
-                };
-                column.add(new Label("columnName", columnNameModel));
+                }));
                 item.add(column);
             }
         };

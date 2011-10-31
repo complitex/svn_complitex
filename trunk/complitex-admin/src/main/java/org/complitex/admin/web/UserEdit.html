@@ -12,7 +12,7 @@
 
     <div id="messages" wicket:id="messages"></div>
 
-    <form action="" wicket:id="form">
+    <form wicket:id="form">
 
         <div>
             <table  border="0" cellspacing="0" cellpadding="0" class="tbForm">
@@ -68,15 +68,16 @@
                                     <tr wicket:id="userOrganizations">
                                         <td><input type="radio" wicket:id="radio"/></td>
                                         <td><span wicket:id="picker"></span></td>
-                                        <td>[<a href="#" wicket:id="delete">&times;</a>]</td>
+                                        <td>
+                                            <a wicket:id="delete">
+                                                <wicket:message key="delete"/>
+                                            </a>
+                                        </td>
                                     </tr>
                                 </table>
                             </div>
                         </div>
-
-                        <form wicket:id="addOrganizationForm" action="#">
-                            <a href="#" wicket:id="addOrganization"><wicket:message key="add"/></a>
-                        </form>
+                        <a wicket:id="addOrganization"><wicket:message key="add"/></a>
                     </td>
                 </tr>
                 <tr>
@@ -86,7 +87,6 @@
                             <input type="checkbox" wicket:id="use_default_address"/>
                             <wicket:message key="use_default_address"/>
                         </span>
-
                     </td>
                 </tr>
                 </tbody>
@@ -94,8 +94,8 @@
         </div>
 
         <div style="padding-top: 20px">
-            <input type="submit" class="btnBig" wicket:message="value:save" wicket:id="save"/>
-            <input type="submit" class="btnMiddle" wicket:message="value:cancel" wicket:id="cancel"/>
+            <input type="submit" class="btnMiddle" wicket:message="value:save" wicket:id="save"/>
+            <input type="button" class="btnMiddle" wicket:message="value:cancel" wicket:id="cancel"/>
         </div>
 
 

@@ -50,7 +50,7 @@ public class AddressRendererBean {
         for (int i = 0; i < addressUnits.length; i++) {
             String addressUnit = addressUnits[i];
             DomainObject currentAddressObject = addressComponentState.get(addressUnit);
-            if (currentAddressObject != null) {
+            if (currentAddressObject != null && currentAddressObject.getId() != null && currentAddressObject.getId() > 0) {
                 if (!isFirst) {
                     addressLabel.append(", ");
                 }

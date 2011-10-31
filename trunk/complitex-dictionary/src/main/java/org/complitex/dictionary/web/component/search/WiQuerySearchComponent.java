@@ -93,7 +93,6 @@ public class WiQuerySearchComponent extends Panel {
     private final boolean enabled;
     private List<IModel<DomainObject>> filterModels;
     private final ShowMode showMode;
-    private Object lastChangedObject;
     private final WebMarkupContainer searchPanel = new WebMarkupContainer("searchPanel");
     private final Map<Integer, Component> filterFieldMap = newHashMap();
 
@@ -161,9 +160,7 @@ public class WiQuerySearchComponent extends Panel {
         for (String searchFilter : getSearchFilters()) {
             IModel<DomainObject> model = new Model<DomainObject>();
             DomainObject object = getSearchComponentState().get(searchFilter);
-            if (object != null) {
-                model.setObject(object);
-            }
+            model.setObject(object);
             filterModels.add(model);
         }
 
@@ -284,18 +281,12 @@ public class WiQuerySearchComponent extends Panel {
     protected void onUpdate(AjaxRequestTarget target, String entity) {
         int index = getIndex(entity);
         DomainObject modelObject = getModelObject(entity);
-        if (index == getSearchFilters().size() - 1) {
-            lastChangedObject = modelObject;
-        } else if (lastChangedObject == null || !lastChangedObject.equals(modelObject)) {
-            lastChangedObject = modelObject;
 
-            if (modelObject != null) {
-                int size = getSearchFilters().size();
-                for (int j = index + 1; j < size; j++) {
-                    setModelObject(j, null);
-                }
+        if (index < getSearchFilters().size() && modelObject != null) {
+            int size = getSearchFilters().size();
+            for (int j = index + 1; j < size; j++) {
+                setModelObject(j, null);
             }
-
             updateSearchPanel(target);
             setFocus(target, index + 1);
         }
