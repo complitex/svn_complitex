@@ -8,6 +8,8 @@ public class SecurityRole {
     public final static String AUTHORIZED = "AUTHORIZED";
     public static final String ADDRESS_MODULE_EDIT = "ADDRESS_MODULE_EDIT";
     public static final String ADDRESS_MODULE_VIEW = "ADDRESS_MODULE_VIEW";
+    public static final String APARTMENT_EDIT = "APARTMENT_EDIT";
+    public static final String ROOM_EDIT = "ROOM_EDIT";
     public static final String ORGANIZATION_MODULE_EDIT = "ORGANIZATION_MODULE_EDIT";
     public static final String ORGANIZATION_MODULE_VIEW = "ORGANIZATION_MODULE_VIEW";
     public static final String OWNERSHIP_MODULE_EDIT = "OWNERSHIP_MODULE_EDIT";

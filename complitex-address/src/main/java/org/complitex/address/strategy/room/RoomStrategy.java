@@ -155,7 +155,7 @@ public class RoomStrategy extends TemplateStrategy {
 
     @Override
     public String[] getEditRoles() {
-        return new String[]{SecurityRole.ADDRESS_MODULE_EDIT};
+        return new String[]{SecurityRole.ADDRESS_MODULE_EDIT, SecurityRole.ROOM_EDIT};
     }
 
     @Override

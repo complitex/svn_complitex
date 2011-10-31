@@ -93,7 +93,7 @@ public class ApartmentStrategy extends TemplateStrategy {
 
     @Override
     public String[] getEditRoles() {
-        return new String[]{SecurityRole.ADDRESS_MODULE_EDIT};
+        return new String[]{SecurityRole.ADDRESS_MODULE_EDIT, SecurityRole.APARTMENT_EDIT};
     }
 
     private static class SearchCallback implements ISearchCallback, Serializable {
