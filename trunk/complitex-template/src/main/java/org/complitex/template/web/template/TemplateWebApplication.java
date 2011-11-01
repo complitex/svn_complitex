@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import org.complitex.dictionary.mybatis.inject.JavaEE6ModuleNamingStrategy;
+import org.complitex.template.web.pages.access.AccessDeniedPage;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -44,6 +45,7 @@ public abstract class TemplateWebApplication extends ServletAuthWebApplication i
         initializeTemplateConfig();
 
         getApplicationSettings().setPageExpiredErrorPage(SessionExpiredPage.class);
+        getApplicationSettings().setAccessDeniedPage(AccessDeniedPage.class);
     }
 
     @Override
