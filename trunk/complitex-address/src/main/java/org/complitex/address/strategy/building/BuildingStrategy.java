@@ -231,10 +231,6 @@ public class BuildingStrategy extends TemplateStrategy {
         }
     }
 
-    private void setPrimaryAddress(Building building, Date date) {
-        building.setPrimaryAddress(findBuildingAddress(building.getParentId(), date));
-    }
-
     private void setAlternativeAddresses(Building building, Date date) {
         for (Attribute attr : building.getAttributes()) {
             if (attr.getAttributeTypeId().equals(BUILDING_ADDRESS)) {
@@ -593,8 +589,11 @@ public class BuildingStrategy extends TemplateStrategy {
         List<Attribute> historyAttributes = loadHistoryAttributes(objectId, date);
         loadStringCultures(historyAttributes);
         building.setAttributes(historyAttributes);
-        setPrimaryAddress(building, date);
+        DomainObject primaryAddress = findBuildingAddress(building.getParentId(), date);
+        building.setPrimaryAddress(primaryAddress);
+        building.setAccompaniedAddress(primaryAddress);
         setAlternativeAddresses(building, date);
+
         updateStringsForNewLocales(building);
         return building;
     }

@@ -814,8 +814,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
             List<String> parentSearchFilters = getParentSearchFilters();
             if (parentSearchFilters != null && !parentSearchFilters.isEmpty()) {
                 for (String searchFilter : parentSearchFilters) {
-                    DomainObject object = new DomainObject();
-                    object.setId(SearchComponentState.NOT_SPECIFIED_ID);
+                    DomainObject object = new DomainObject(SearchComponentState.NOT_SPECIFIED_ID);
                     Long id = ids.get(searchFilter);
                     IStrategy searchFilterStrategy = strategyFactory.getStrategy(searchFilter);
                     if (id != null) {
