@@ -286,6 +286,12 @@ public class UserEdit extends FormTemplatePage {
                     target.addComponent(messages);
                 }
             }
+
+            @Override
+            protected void onError(AjaxRequestTarget target, Form<?> form) {
+                super.onError(target, form);
+                target.addComponent(messages);
+            }
         };
         form.add(save);
 
