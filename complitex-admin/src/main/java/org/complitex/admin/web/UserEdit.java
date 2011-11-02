@@ -135,9 +135,8 @@ public class UserEdit extends FormTemplatePage {
         //Локаль
         Preference localePreference = preferenceBean.getPreference(userId, GLOBAL_PAGE, LOCALE_KEY);
 
-        final IModel<java.util.Locale> localeModel = new Model<Locale>(localePreference != null
-                ? new Locale(localePreference.getValue())
-                : localeBean.getSystemLocale());
+        final IModel<Locale> localeModel = new Model<Locale>(localePreference != null
+                ? new Locale(localePreference.getValue()) : localeBean.getSystemLocale());
         form.add(new LocalePicker("locale", localeModel, false));
 
         //Группы привилегий
@@ -239,47 +238,34 @@ public class UserEdit extends FormTemplatePage {
 
                 try {
                     //Валидация
-                    //Уникальность логина
-                    if (user.getId() == null && !userBean.isUniqueLogin(user.getLogin())) {
-                        error(getString("error.login_not_unique"));
-                        target.addComponent(messages);
-                        return;
-                    }
+                    if (UserEdit.this.validate(user)) {
 
-                    //Невыбранные организации
-                    if (!user.getUserOrganizations().isEmpty()) {
-                        for (UserOrganization userOrganization : user.getUserOrganizations()) {
-                            if (userOrganization.getOrganizationObjectId() == null) {
-                                error(getString("error.unselected_organization"));
-                                target.addComponent(messages);
-                                return;
+                        //Сохранение пользователя
+                        userBean.save(user);
+
+                        //Локаль
+                        preferenceBean.save(user.getId(), GLOBAL_PAGE, LOCALE_KEY, localeModel.getObject().getLanguage());
+
+                        //Адрес по умолчанию
+                        for (String s : SEARCH_FILTERS) {
+                            DomainObject domainObject = searchComponentState.get(s);
+                            if (domainObject != null) {
+                                preferenceBean.save(user.getId(), DEFAULT_STATE_PAGE, s, domainObject.getId() + "");
                             }
                         }
+
+                        //Использовать ли адрес по умолчанию при входе в систему
+                        preferenceBean.save(user.getId(), GLOBAL_PAGE, IS_USE_DEFAULT_STATE_KEY, useDefaultModel.getObject().toString());
+
+                        logBean.info(Module.NAME, UserEdit.class, User.class, null, user.getId(),
+                                (user.getId() == null) ? Log.EVENT.CREATE : Log.EVENT.EDIT, getLogChanges(oldUser, user), null);
+
+                        log.info("Пользователь сохранен: {}", user);
+                        getSession().info(getString("info.saved"));
+                        back(user.getId());
+                    } else {
+                        target.addComponent(messages);
                     }
-
-                    //Сохранение пользователя
-                    userBean.save(user);
-
-                    //Локаль
-                    preferenceBean.save(user.getId(), GLOBAL_PAGE, LOCALE_KEY, localeModel.getObject().getLanguage());
-
-                    //Адрес по умолчанию
-                    for (String s : SEARCH_FILTERS) {
-                        DomainObject domainObject = searchComponentState.get(s);
-                        if (domainObject != null) {
-                            preferenceBean.save(user.getId(), DEFAULT_STATE_PAGE, s, domainObject.getId() + "");
-                        }
-                    }
-
-                    //Использовать ли адрес по умолчанию при входе в систему
-                    preferenceBean.save(user.getId(), GLOBAL_PAGE, IS_USE_DEFAULT_STATE_KEY, useDefaultModel.getObject().toString());
-
-                    logBean.info(Module.NAME, UserEdit.class, User.class, null, user.getId(),
-                            (user.getId() == null) ? Log.EVENT.CREATE : Log.EVENT.EDIT, getLogChanges(oldUser, user), null);
-
-                    log.info("Пользователь сохранен: {}", user);
-                    getSession().info(getString("info.saved"));
-                    back(user.getId());
                 } catch (Exception e) {
                     log.error("Ошибка сохранения пользователя", e);
                     error(getString("error.saved"));
@@ -304,6 +290,42 @@ public class UserEdit extends FormTemplatePage {
             }
         };
         form.add(cancel);
+    }
+
+    private boolean validate(User user) {
+        boolean valid = true;
+
+        //Уникальность логина
+        if (user.getId() == null && !userBean.isUniqueLogin(user.getLogin())) {
+            error(getString("error.login_not_unique"));
+            valid = false;
+        }
+
+        //Невыбранные организации
+        if (!user.getUserOrganizations().isEmpty()) {
+            for (UserOrganization userOrganization : user.getUserOrganizations()) {
+                if (userOrganization.getOrganizationObjectId() == null) {
+                    error(getString("error.unselected_organization"));
+                    valid = false;
+                }
+            }
+        }
+
+        //Пользователю, не являющемуся администратором, не назначено ни одной организации
+        if (user.getUserOrganizations().isEmpty() && user.getUserGroups() != null) {
+            boolean isAdmin = false;
+            for (UserGroup ug : user.getUserGroups()) {
+                if (ug.getGroupName() == UserGroup.GROUP_NAME.ADMINISTRATORS) {
+                    isAdmin = true;
+                    break;
+                }
+            }
+            if (!isAdmin) {
+                error(getString("error.organization_required"));
+                valid = false;
+            }
+        }
+        return valid;
     }
 
     private IModel<UserGroup> getUserGroup(User user, UserGroup.GROUP_NAME group_name) {
