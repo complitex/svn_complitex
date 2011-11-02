@@ -1,10 +1,8 @@
 
 //TODO: remove it
-var SERVLET_SESSION_COOKIE_NAME = "JSESSIONID";
 
-$(document).ready(function(){
+$(function(){
     $("#homePageLink").click(function(){
-        deleteCookie(SERVLET_SESSION_COOKIE_NAME);
-//        return true;
+        Complitex.Common.deleteCookie("JSESSIONID");
     });
 });
