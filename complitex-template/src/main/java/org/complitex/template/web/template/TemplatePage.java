@@ -48,7 +48,7 @@ public abstract class TemplatePage extends WebPage {
 
     private Set<String> resourceBundle = new HashSet<String>();
 
-    @EJB(name = "SessionBean")
+    @EJB
     private SessionBean sessionBean;
 
     protected TemplatePage() {

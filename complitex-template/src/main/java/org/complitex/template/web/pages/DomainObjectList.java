@@ -18,14 +18,17 @@ import java.util.List;
 import javax.ejb.EJB;
 import org.apache.wicket.Page;
 import org.apache.wicket.authorization.UnauthorizedInstantiationException;
+import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.web.DictionaryFwSession;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
+import org.complitex.template.web.security.SecurityRole;
 
 /**
  * @author Artem
  */
+@AuthorizeInstantiation(SecurityRole.AUTHORIZED)
 public final class DomainObjectList extends ScrollListPage {
 
     public static final String ENTITY = "entity";
@@ -41,6 +44,7 @@ public final class DomainObjectList extends ScrollListPage {
 
         entity = params.getString(ENTITY);
         strategyName = params.getString(STRATEGY);
+
 
         if (!hasAnyRole(strategyFactory.getStrategy(strategyName, entity).getListRoles())) {
             throw new UnauthorizedInstantiationException(getClass());
