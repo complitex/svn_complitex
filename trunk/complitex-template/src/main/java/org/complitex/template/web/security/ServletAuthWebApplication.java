@@ -9,13 +9,9 @@ import org.apache.wicket.authorization.UnauthorizedInstantiationException;
 import org.apache.wicket.authorization.strategies.role.IRoleCheckingStrategy;
 import org.apache.wicket.authorization.strategies.role.RoleAuthorizationStrategy;
 import org.apache.wicket.authorization.strategies.role.Roles;
-import org.apache.wicket.markup.html.form.persistence.CookieValuePersister;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.protocol.http.WebRequestCycle;
-import org.apache.wicket.util.string.Strings;
 import org.complitex.template.web.pages.login.Login;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -27,8 +23,6 @@ import javax.servlet.http.HttpServletRequest;
  */
 public abstract class ServletAuthWebApplication extends WebApplication implements IRoleCheckingStrategy,
         IUnauthorizedComponentInstantiationListener {
-    private static final String MANUAL_LOGOUT_COOKIE = "MANUAL_LOGOUT";
-    private static final Logger log = LoggerFactory.getLogger(ServletAuthWebApplication.class);
 
     @Override
     protected void init() {
@@ -58,56 +52,22 @@ public abstract class ServletAuthWebApplication extends WebApplication implement
     public void onUnauthorizedInstantiation(Component component) {
         WebRequestCycle webRequestCycle = (WebRequestCycle) RequestCycle.get();
         HttpServletRequest servletRequest = webRequestCycle.getWebRequest().getHttpServletRequest();
-        String sessionIDFromClient = servletRequest.getRequestedSessionId();
-        boolean sessionIsExist = servletRequest.getSession(false) != null;
-
-        if (log.isDebugEnabled()) {
-            log.debug("Session id from client : " + sessionIDFromClient + ", current session is exist : " + sessionIsExist);
-        }
-
-        if (!Strings.isEmpty(sessionIDFromClient) && !sessionIsExist) {
-            boolean isManualLogout = false;
-
-            CookieValuePersister cookieValuePersister = new CookieValuePersister();
-            String cookie = cookieValuePersister.load(MANUAL_LOGOUT_COOKIE);
-            if (cookie != null) {
-
-                if (log.isDebugEnabled()) {
-                    log.debug("That request is redirect to home page after manual logout.");
-                }
-
-                isManualLogout = true;
-                cookieValuePersister.clear(MANUAL_LOGOUT_COOKIE);
-            }
-
-            if (!isManualLogout) {
-
-                if (log.isDebugEnabled()) {
-                    log.debug("That request is attempt to access application page after session has been expired.");
-                }
-
-                throw new RestartResponseException(getApplicationSettings().getPageExpiredErrorPage());
-            }
-        }
-
-        if (servletRequest.getUserPrincipal() == null) {
+        boolean sessionNotExist = servletRequest.getSession(false) == null;
+        if (sessionNotExist) {
+            Session.get().invalidateNow();
             RequestCycle.get().setRedirect(true);
-            Session.get().invalidate();
-            throw new RestartResponseException(Login.class);
+            throw new RestartResponseException(getApplicationSettings().getPageExpiredErrorPage());
         } else {
             throw new UnauthorizedInstantiationException(component.getClass());
         }
-
     }
 
     /**
      * Helper method in order for logout. Must be used in pages where logout action is required.
      */
     public void logout() {
-        CookieValuePersister cookieValuePersister = new CookieValuePersister();
-        cookieValuePersister.save(MANUAL_LOGOUT_COOKIE, MANUAL_LOGOUT_COOKIE);
         Session.get().invalidateNow();
-        RequestCycle.get().setResponsePage(getHomePage());
+        RequestCycle.get().setRedirect(true);
+        RequestCycle.get().setResponsePage(Login.class);
     }
-
 }

@@ -4,13 +4,13 @@ import org.apache.wicket.markup.html.CSSPackageResource;
 import org.apache.wicket.markup.html.JavascriptPackageResource;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.ResourceModel;
 import org.complitex.resources.WebCommonResourceInitializer;
-import org.complitex.template.web.template.TemplateWebApplication;
 import org.odlabs.wiquery.core.commons.CoreJavaScriptResourceReference;
 
 import javax.servlet.http.HttpServletResponse;
+import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.complitex.template.web.pages.login.Login;
 
 /**
  *
@@ -27,14 +27,8 @@ public final class SessionExpiredPage extends WebPage {
         add(JavascriptPackageResource.getHeaderContribution(WebCommonResourceInitializer.COMMON_JS));
         add(CSSPackageResource.getHeaderContribution(WebCommonResourceInitializer.STYLE_CSS));
 
-        add(new Label("title", new ResourceModel("session_expired.title")));
-        add(new Link("homePageLink") {
-
-            @Override
-            public void onClick() {
-                ((TemplateWebApplication) getApplication()).logout();
-            }
-        });
+        add(new Label("title", new ResourceModel("label")));
+        add(new BookmarkablePageLink("loginLink", Login.class));
     }
 
     /**
