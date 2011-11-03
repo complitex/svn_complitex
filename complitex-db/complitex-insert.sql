@@ -1,13 +1,4 @@
 -- --------------------------------
--- Users
--- --------------------------------
-INSERT INTO user (`id`, `login`, `password`) VALUE (1, 'admin', '21232f297a57a5a743894a0e4a801fc3');
-INSERT INTO usergroup (`id`, `login`, `group_name`) VALUE (1, 'admin', 'ADMINISTRATORS');
-INSERT INTO usergroup (`id`, `login`, `group_name`) VALUE (2, 'admin', 'EMPLOYEES');
-INSERT INTO usergroup (`id`, `login`, `group_name`) VALUE (3, 'admin', 'EMPLOYEES_CHILD_VIEW');
-INSERT INTO user (`id`, `login`, `password`)  VALUE (2, 'ANONYMOUS', 'ANONYMOUS');
-
--- --------------------------------
 -- Locale
 -- --------------------------------
 
@@ -33,10 +24,10 @@ INSERT INTO `sequence` (`sequence_name`, `sequence_value`) VALUES
 ('street_type',1), ('street_type_string_culture',1),
 ('organization',1), ('organization_string_culture',1),
 ('organization_type',1), ('organization_type_string_culture',1),
-('user_info', 1), ('user_info_string_culture', 1);
+('user_info', 3), ('user_info_string_culture', 1);
 
 -- Permission
-INSERT INTO `permission` (`permission_id`, `table`, `entity`, `object_id`) VALUE (0, 'ALL', 'ALL', 0);
+INSERT INTO `permission` (`permission_id`, `table`, `entity`, `object_id`) VALUES (0, 'ALL', 'ALL', 0);
 INSERT INTO `sequence` (`sequence_name`, `sequence_value`) VALUES ('permission', 1);
 
 -- --------------------------------
@@ -190,6 +181,27 @@ INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_
 INSERT INTO `string_culture`(`id`, `locale_id`, `value`) VALUES (1003, 1, UPPER('Отчество')), (1003, 2, UPPER('По батькові'));
 INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (1002, 1000, 1, 1003, 1);
 INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (1002, 1002, 'middle_name');
+
+-- admin user --
+INSERT INTO `user_info` (`object_id`) VALUES (1);
+INSERT INTO `first_name`(`id`, `name`) VALUES (1,'admin');
+INSERT INTO `middle_name`(`id`, `name`) VALUES (1,'admin');
+INSERT INTO `last_name`(`id`, `name`) VALUES (1,'admin');
+INSERT INTO `user_info_attribute` (`attribute_id`, `object_id`, `attribute_type_id`, `value_id`, `value_type_id`)
+    VALUES (1,1,1000,1,1000), (1,1,1001,1,1001), (1,1,1002,1,1002);
+INSERT INTO `user` (`id`, `login`, `password`, `user_info_object_id`) VALUES (1, 'admin', '21232f297a57a5a743894a0e4a801fc3', 1);
+INSERT INTO `usergroup` (`id`, `login`, `group_name`) VALUES (1, 'admin', 'ADMINISTRATORS');
+INSERT INTO `usergroup` (`id`, `login`, `group_name`) VALUES (2, 'admin', 'EMPLOYEES');
+INSERT INTO `usergroup` (`id`, `login`, `group_name`) VALUES (3, 'admin', 'EMPLOYEES_CHILD_VIEW');
+
+-- anonymous user --
+INSERT INTO `user_info` (`object_id`) VALUES (2);
+INSERT INTO `first_name`(`id`, `name`) VALUES (2,'ANONYMOUS');
+INSERT INTO `middle_name`(`id`, `name`) VALUES (2,'ANONYMOUS');
+INSERT INTO `last_name`(`id`, `name`) VALUES (2,'ANONYMOUS');
+INSERT INTO `user_info_attribute` (`attribute_id`, `object_id`, `attribute_type_id`, `value_id`, `value_type_id`)
+    VALUES (1,2,1000,2,1000), (1,2,1001,2,1001), (1,2,1002,2,1002);
+INSERT INTO `user` (`id`, `login`, `password`, `user_info_object_id`)  VALUES (2, 'ANONYMOUS', 'ANONYMOUS', 2);
 
 -- --------------------------------
 -- Organization type
