@@ -32,10 +32,10 @@ import java.util.concurrent.ConcurrentHashMap;
 @WebListener
 public class SecurityWebListener implements HttpSessionListener, ServletRequestListener, ServletContextListener {
     private static final Logger log = LoggerFactory.getLogger(SecurityWebListener.class);
-    private final static String PRINCIPAL = "org.complitex.pspoffice.commons.web.security.PRINCIPAL";
+    private final static String PRINCIPAL = SecurityWebListener.class.getName()+".PRINCIPAL";
     private final static ConcurrentHashMap<String, HttpSession> activeSession = new ConcurrentHashMap<String, HttpSession>();
 
-    @EJB(beanName = "LogBean")
+    @EJB
     private LogBean logBean;
 
     @Override
