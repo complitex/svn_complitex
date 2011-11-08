@@ -1,5 +1,6 @@
 package org.complitex.template.web.security;
 
+import javax.servlet.ServletException;
 import org.apache.wicket.Component;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.RestartResponseException;
@@ -14,6 +15,8 @@ import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.complitex.template.web.pages.login.Login;
 
 import javax.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -23,6 +26,8 @@ import javax.servlet.http.HttpServletRequest;
  */
 public abstract class ServletAuthWebApplication extends WebApplication implements IRoleCheckingStrategy,
         IUnauthorizedComponentInstantiationListener {
+
+    private static final Logger log = LoggerFactory.getLogger(ServletAuthWebApplication.class);
 
     @Override
     protected void init() {
@@ -50,9 +55,8 @@ public abstract class ServletAuthWebApplication extends WebApplication implement
 
     @Override
     public void onUnauthorizedInstantiation(Component component) {
-        WebRequestCycle webRequestCycle = (WebRequestCycle) RequestCycle.get();
-        HttpServletRequest servletRequest = webRequestCycle.getWebRequest().getHttpServletRequest();
-        boolean sessionNotExist = servletRequest.getSession(false) == null;
+        HttpServletRequest request = ((WebRequestCycle) RequestCycle.get()).getWebRequest().getHttpServletRequest();
+        boolean sessionNotExist = request.getSession(false) == null;
         if (sessionNotExist) {
             Session.get().invalidateNow();
             RequestCycle.get().setRedirect(true);
@@ -66,8 +70,14 @@ public abstract class ServletAuthWebApplication extends WebApplication implement
      * Helper method in order for logout. Must be used in pages where logout action is required.
      */
     public void logout() {
+        HttpServletRequest request = ((WebRequestCycle) RequestCycle.get()).getWebRequest().getHttpServletRequest();
+        try {
+            request.logout();
+        } catch (ServletException e) {
+            log.error("Couldn't to log out user.", e);
+        }
         Session.get().invalidateNow();
         RequestCycle.get().setRedirect(true);
-        RequestCycle.get().setResponsePage(Login.class);
+        throw new RestartResponseException(Login.class);
     }
 }

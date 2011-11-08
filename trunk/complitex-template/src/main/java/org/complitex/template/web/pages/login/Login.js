@@ -7,6 +7,6 @@ $(function(){
         Complitex.Common.deleteCookie(menuCookieNames[i]);
     }
 
-    //set focus on username textfield.
-    $("[name='j_username']").focus();
+    //set focus on login textfield.
+    $(".login_field").focus();
 });

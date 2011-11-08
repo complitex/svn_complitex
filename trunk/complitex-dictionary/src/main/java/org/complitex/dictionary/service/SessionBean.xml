@@ -48,4 +48,8 @@
         select count(*) > 0 from `permission` p where p.`permission_id` = #{permissionId} and p.`entity` = 'organization'
             and  p.`object_id` in ${organizations}
     </select>
+
+    <select id="getUserGroupCount" parameterType="string" resultType="int">
+        SELECT COUNT(*) FROM `usergroup` WHERE `login` = #{login}
+    </select>
 </mapper>

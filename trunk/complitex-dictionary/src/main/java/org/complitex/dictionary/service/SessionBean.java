@@ -143,4 +143,9 @@ public class SessionBean extends AbstractBean {
      public void updatePassword(String currentPassword, final String password) throws WrongCurrentPasswordException{
          userProfileBean.updatePassword(currentPassword, password);
      }
+
+    public boolean isBlockedUser(String login) {
+        int userGroupCount = (Integer) sqlSession().selectOne(MAPPING_NAMESPACE + ".getUserGroupCount", login);
+        return userGroupCount == 0;
+    }
 }

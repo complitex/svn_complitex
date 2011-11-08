@@ -26,22 +26,16 @@
                                     <h2 style="text-align:center;">
                                         <span wicket:id="login.header"></span>
                                     </h2>
-                                    <div wicket:id="errorPanel">
-                                        <ul>
-                                            <li>
-                                                <span style="color:orangered;"><wicket:message key="login.errorMessage"/></span>
-                                            </li>
-                                        </ul>
-                                    </div>
+                                    <div wicket:id="messages"></div>
                                     <div align="center">
-                                        <form id="formId"  method="POST" action="j_security_check">
+                                        <form wicket:id="form">
                                             <table style="margin-bottom:20px">
                                                 <tr>
                                                     <th align="left">
                                                         <wicket:message key="login.loginLabel"/>:
                                                     </th>
                                                     <td>
-                                                        <input name="j_username" type="text" size="30"/>
+                                                        <input wicket:id="login" type="text" size="30" class="login_field"/>
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -49,11 +43,11 @@
                                                         <wicket:message key="login.passwordLabel"/>:
                                                     </th>
                                                     <td>
-                                                        <input name="j_password" type="password" size="30"/>
+                                                        <input wicket:id="password" type="password" size="30"/>
                                                     </td>
                                                 </tr>
                                             </table>
-                                            <input type="submit" name="submit" wicket:message="value:login.submit" class="btnBig"/>
+                                            <input type="submit" wicket:id="submit" wicket:message="value:login.submit" class="btnBig"/>
                                         </form>
                                     </div>
                                 </td>
