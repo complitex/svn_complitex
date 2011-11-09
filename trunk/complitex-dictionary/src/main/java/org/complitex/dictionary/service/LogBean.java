@@ -44,6 +44,38 @@ public class LogBean extends AbstractBean {
 
     @EJB
     private StringCultureBean stringBean;
+    
+    /**
+     * Records user log in action. Should be invoked from within user log in code. 
+     * Due to glassfish bug: {@link SessionContext#getCallerPrincipal() } always returns null from within web listeners, 
+     * logIn() method takes user login as argument.
+     * @param userLogin user login
+     * @param module
+     * @param controllerClass
+     * @param descriptionPattern
+     * @param descriptionArguments 
+     */
+    public void logIn(String userLogin, String module, Class controllerClass, String descriptionPattern, 
+            Object... descriptionArguments){
+        log(userLogin, module, controllerClass != null ? controllerClass.getName() : null, null, null, Log.EVENT.USER_LOGIN, 
+                Log.STATUS.OK, null, descriptionPattern, descriptionArguments);
+    }
+    
+    /**
+     * Records user log out action. Should be invoked from within user log out code. 
+     * Due to glassfish bug: {@link SessionContext#getCallerPrincipal() } always returns null from within web listeners, 
+     * logOut() method takes user login as argument.
+     * @param userLogin user login
+     * @param module
+     * @param controllerClass
+     * @param descriptionPattern
+     * @param descriptionArguments 
+     */
+    public void logOut(String userLogin, String module, Class controllerClass, String descriptionPattern, 
+            Object... descriptionArguments){
+        log(userLogin, module, controllerClass != null ? controllerClass.getName() : null, null, null, Log.EVENT.USER_LOGOFF, 
+                Log.STATUS.OK, null, descriptionPattern, descriptionArguments);
+    }
 
     public void info(String module, Class controllerClass, Class modelClass, Long objectId, Log.EVENT event,
             String descriptionPattern, Object... descriptionArguments) {
@@ -129,14 +161,19 @@ public class LogBean extends AbstractBean {
 
         log(module, controller, model, objectId, event, Log.STATUS.ERROR, changes, descriptionPattern, descriptionArguments);
     }
+    
+    private void log(String module, String controller, String model, Long objectId, Log.EVENT event, Log.STATUS status, 
+            List<LogChange> logChanges, String descriptionPattern, Object... descriptionArguments){
+        log(sessionContext.getCallerPrincipal().getName(), module, controller, model, objectId, event, status, 
+                logChanges, descriptionPattern, descriptionArguments);
+    }
 
-    private void log(String module, String controller, String model, Long objectId,
-            Log.EVENT event, Log.STATUS status, List<LogChange> logChanges,
-            String descriptionPattern, Object... descriptionArguments) {
+    private void log(String login, String module, String controller, String model, Long objectId, Log.EVENT event, Log.STATUS status, 
+            List<LogChange> logChanges, String descriptionPattern, Object... descriptionArguments) {
         Log log = new Log();
 
         log.setDate(DateUtil.getCurrentDate());
-        log.setLogin(sessionContext.getCallerPrincipal().getName());
+        log.setLogin(login);
         log.setModule(module);
         log.setController(controller);
         log.setModel(model);

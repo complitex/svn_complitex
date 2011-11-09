@@ -1,7 +1,6 @@
 package org.complitex.template.web.security;
 
 import org.complitex.dictionary.entity.Log;
-import org.complitex.dictionary.entity.User;
 import org.complitex.dictionary.service.LogBean;
 import org.complitex.dictionary.util.DateUtil;
 import org.complitex.template.Module;
@@ -31,31 +30,36 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @WebListener
 public class SecurityWebListener implements HttpSessionListener, ServletRequestListener, ServletContextListener {
-    private static final Logger log = LoggerFactory.getLogger(SecurityWebListener.class);
-    private final static String PRINCIPAL = SecurityWebListener.class.getName()+".PRINCIPAL";
-    private final static ConcurrentHashMap<String, HttpSession> activeSession = new ConcurrentHashMap<String, HttpSession>();
 
+    private static final Logger log = LoggerFactory.getLogger(SecurityWebListener.class);
+    private final static String USER_LOGIN = SecurityWebListener.class.getName() + ".USER_LOGIN";
+    public static final String LOGGED_IN = SecurityWebListener.class.getName() + ".LOGGED_IN";
+    private final static ConcurrentHashMap<String, HttpSession> activeSessions = new ConcurrentHashMap<String, HttpSession>();
     @EJB
     private LogBean logBean;
 
     @Override
     public void sessionCreated(HttpSessionEvent event) {
-        activeSession.put(event.getSession().getId(), event.getSession());
+        activeSessions.put(event.getSession().getId(), event.getSession());
     }
 
     @Override
     public void sessionDestroyed(HttpSessionEvent event) {
-        activeSession.remove(event.getSession().getId());
+        if (activeSessions.remove(event.getSession().getId()) != null) {
 
-        //logout
-        long start = event.getSession().getCreationTime();
-        long end = event.getSession().getLastAccessedTime();
+            //check that it was not anonymous session
+            String login = (String) event.getSession().getAttribute(USER_LOGIN);
+            if (login != null) {
+                //logout
+                long start = event.getSession().getCreationTime();
+                long end = event.getSession().getLastAccessedTime();
 
-        String time = DateUtil.getTimeDiff(start, end);
+                String time = DateUtil.getTimeDiff(start, end);
 
-        logBean.info(Module.NAME, SecurityWebListener.class, User.class, null, Log.EVENT.USER_LOGOFF,
-                "Длительность сессии: {0}", time);
-        log.info("Сессия пользователя деактивированна [{}]", time);
+                logBean.logOut(login, Module.NAME, SecurityWebListener.class, "Длительность сессии: {0}", time);
+                log.info("Сессия пользователя деактивированна [login: {}, time: {}]", login, time);
+            }
+        }
     }
 
     @Override
@@ -67,31 +71,32 @@ public class SecurityWebListener implements HttpSessionListener, ServletRequestL
         HttpServletRequest request = (HttpServletRequest) event.getServletRequest();
 
         //login
-        if (request.getUserPrincipal() != null && request.getSession().getAttribute(PRINCIPAL) == null){
-            request.getSession().setAttribute(PRINCIPAL, request.getUserPrincipal().getName());
+        HttpSession session = request.getSession(false);
+        if (session != null && session.getAttribute(LOGGED_IN) != null) {
+            String login = (String) session.getAttribute(LOGGED_IN);
+            session.setAttribute(USER_LOGIN, login);
 
-            logBean.info(Module.NAME, SecurityWebListener.class, User.class, null, Log.EVENT.USER_LOGIN,
-                    "ip: {0}", request.getRemoteAddr());
-            log.info("Пользователь авторизирован [login: {}, ip: {}]", request.getUserPrincipal().getName(),
-                    request.getRemoteAddr());
+            logBean.logIn(login, Module.NAME, SecurityWebListener.class, "ip: {0}", request.getRemoteAddr());
+            log.info("Пользователь авторизован [login: {}, ip: {}]", login, request.getRemoteAddr());
+
+            session.removeAttribute(LOGGED_IN);
         }
     }
 
     //todo add secure role
-    public static synchronized List<HttpSession> getSessions(String principal){
+    public static synchronized List<HttpSession> getSessions(String principal) {
         List<HttpSession> sessions = new ArrayList<HttpSession>();
 
-        for (HttpSession session : activeSession.values()){
-            if(principal.equals(session.getAttribute(PRINCIPAL))){
+        for (HttpSession session : activeSessions.values()) {
+            if (principal.equals(session.getAttribute(USER_LOGIN))) {
                 sessions.add(session);
             }
         }
-
         return sessions;
     }
 
-    public static synchronized Collection<HttpSession> getSessions(){
-        return activeSession.values();
+    public static synchronized Collection<HttpSession> getSessions() {
+        return activeSessions.values();
     }
 
     @Override
@@ -102,6 +107,5 @@ public class SecurityWebListener implements HttpSessionListener, ServletRequestL
     @Override
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
         //javax.ejb.EJBException: Attempt to invoke when container is in Undeployed
-
     }
 }
