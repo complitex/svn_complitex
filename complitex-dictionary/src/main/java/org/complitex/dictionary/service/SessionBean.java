@@ -23,8 +23,8 @@ public class SessionBean extends AbstractBean {
 
     private static final String MAPPING_NAMESPACE = SessionBean.class.getName();
     private static final String ORGANIZATION_ENTITY = "organization";
-    public static final String CHILD_ORGANIZATION_VIEW_ROLE = "CHILD_ORGANIZATION_VIEW";
-    public static final String ADMIN_LOGIN = "admin";
+    static final String CHILD_ORGANIZATION_VIEW_ROLE = "CHILD_ORGANIZATION_VIEW";
+    private static final String ADMIN_LOGIN = "admin";
     @Resource
     private SessionContext sessionContext;
     @EJB
@@ -140,9 +140,9 @@ public class SessionBean extends AbstractBean {
         return oId != null ? strategy.findById(oId, true) : null;
     }
 
-     public void updatePassword(String currentPassword, final String password) throws WrongCurrentPasswordException{
-         userProfileBean.updatePassword(currentPassword, password);
-     }
+    public void updatePassword(String currentPassword, final String password) throws WrongCurrentPasswordException {
+        userProfileBean.updatePassword(currentPassword, password);
+    }
 
     public boolean isBlockedUser(String login) {
         int userGroupCount = (Integer) sqlSession().selectOne(MAPPING_NAMESPACE + ".getUserGroupCount", login);
