@@ -3,6 +3,7 @@ package org.complitex.template.web.pages.login;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.feedback.IFeedbackMessageFilter;
 import org.apache.wicket.markup.html.CSSPackageResource;
@@ -135,7 +136,8 @@ public final class Login extends WebPage {
                     getSession().invalidateNow();
 
                     //3. Redirect
-                    String url = LoginSuccessServlet.PATH + "?login=" + login + "&password=" + password;
+                    String url = LoginSuccessServlet.PATH + "?login=" + Hex.encodeHexString(login.getBytes()) + 
+                            "&password=" + Hex.encodeHexString(password.getBytes());
                     getRequestCycle().setRequestTarget(new RedirectRequestTarget(url));
                 }
             }
