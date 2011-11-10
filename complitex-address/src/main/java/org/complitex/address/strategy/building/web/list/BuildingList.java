@@ -25,13 +25,11 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.address.strategy.building.BuildingStrategy;
 import org.complitex.address.strategy.building.entity.Building;
-import org.complitex.dictionary.entity.PreferenceKey;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.service.LocaleBean;
 import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
 import org.complitex.dictionary.strategy.web.model.DomainObjectIdModel;
 import org.complitex.dictionary.util.StringUtil;
-import org.complitex.dictionary.web.DictionaryFwSession;
 import org.complitex.dictionary.web.component.ShowMode;
 import org.complitex.dictionary.web.component.ShowModePanel;
 import org.complitex.dictionary.web.component.datatable.ArrowOrderByBorder;
@@ -63,7 +61,6 @@ public final class BuildingList extends ScrollListPage {
     private DomainObjectExample example;
     private WebMarkupContainer content;
     private DataView<Building> dataView;
-    private final String page = BuildingList.class.getName();
 
     public BuildingList() {
         init();
@@ -102,11 +99,11 @@ public final class BuildingList extends ScrollListPage {
         content.setOutputMarkupPlaceholderTag(true);
 
         //Example
-        example = (DomainObjectExample) getSession().getPreferenceObject(page, PreferenceKey.FILTER_OBJECT, null);
+        example = (DomainObjectExample) getFilterObject(null);
 
         if (example == null) {
             example = new DomainObjectExample();
-            getSession().putPreferenceObject(page, PreferenceKey.FILTER_OBJECT, example);
+            setFilterObject(example);
         }
 
         //Search
@@ -117,7 +114,7 @@ public final class BuildingList extends ScrollListPage {
         if (searchFilters == null || searchFilters.isEmpty()) {
             add(new EmptyPanel("searchComponent"));
         } else {
-            SearchComponentState componentState = getSession().getGlobalSearchComponentState();
+            SearchComponentState componentState = getTemplateSession().getGlobalSearchComponentState();
             WiQuerySearchComponent searchComponent = new WiQuerySearchComponent("searchComponent", componentState,
                     searchFilters, buildingStrategy.getSearchCallback(), ShowMode.ALL, true);
             add(searchComponent);
@@ -125,7 +122,7 @@ public final class BuildingList extends ScrollListPage {
         }
 
         //Form
-        final Form filterForm = new Form("filterForm");
+        final Form<Void> filterForm = new Form<Void>("filterForm");
         content.add(filterForm);
 
         //Show Mode
@@ -142,13 +139,12 @@ public final class BuildingList extends ScrollListPage {
                 String sortProperty = getSort().getProperty();
 
                 //store preference
-                DictionaryFwSession session = getSession();
-                session.putPreference(page, PreferenceKey.SORT_PROPERTY, getSort().getProperty(), true);
-                session.putPreference(page, PreferenceKey.SORT_ORDER, getSort().isAscending(), true);
-                session.putPreferenceObject(page, PreferenceKey.FILTER_OBJECT, example);
+                setSortProperty(sortProperty);
+                setSortOrder(asc);
+                setFilterObject(example);
 
                 //store state
-                session.storeGlobalSearchComponentState();
+                getTemplateSession().storeGlobalSearchComponentState();
 
                 if (!Strings.isEmpty(sortProperty)) {
                     example.setOrderByAttributeTypeId(Long.valueOf(sortProperty));
@@ -168,8 +164,7 @@ public final class BuildingList extends ScrollListPage {
                 return buildingStrategy.count(example);
             }
         };
-        dataProvider.setSort(getSession().getPreferenceString(page, PreferenceKey.SORT_PROPERTY, ""),
-                getSession().getPreferenceBoolean(page, PreferenceKey.SORT_ORDER, true));
+        dataProvider.setSort(getSortProperty(""), getSortOrder(true));
 
         //Filters
         filterForm.add(new TextField<String>("id", new DomainObjectIdModel(new PropertyModel<Long>(example, "id"))));
@@ -248,7 +243,7 @@ public final class BuildingList extends ScrollListPage {
                 dataProvider, dataView, content));
 
         //Reset Action
-        AjaxLink reset = new AjaxLink("reset") {
+        AjaxLink<Void> reset = new AjaxLink<Void>("reset") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -283,7 +278,7 @@ public final class BuildingList extends ScrollListPage {
 
             @Override
             protected void onClick() {
-                DomainObjectList.onAddObject(this.getPage(), buildingStrategy, BuildingList.this.getSession());
+                DomainObjectList.onAddObject(this.getPage(), buildingStrategy, getTemplateSession());
             }
 
             @Override
@@ -295,10 +290,4 @@ public final class BuildingList extends ScrollListPage {
             }
         });
     }
-
-    @Override
-    public DictionaryFwSession getSession() {
-        return (DictionaryFwSession) super.getSession();
-    }
 }
-

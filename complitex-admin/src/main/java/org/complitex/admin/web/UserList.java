@@ -1,18 +1,15 @@
 package org.complitex.admin.web;
 
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
@@ -39,6 +36,12 @@ import javax.ejb.EJB;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
+import org.complitex.dictionary.util.StringUtil;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -66,37 +69,47 @@ public class UserList extends ScrollListPage {
 
     private void init() {
         add(new Label("title", new ResourceModel("title")));
-        add(new FeedbackPanel("messages"));
 
-        //Фильтр
-        UserFilter filterObject = userBean.newUserFilter();
-        final IModel<UserFilter> filterModel = new Model<UserFilter>(filterObject);
+        UserFilter filter = (UserFilter) getFilterObject(null);
+        if (filter == null) {
+            filter = userBean.newUserFilter();
+            setFilterObject(filter);
+        }
 
-        final Form filterForm = new Form("filter_form");
-        filterForm.setOutputMarkupId(true);
-        add(filterForm);
+        final IModel<UserFilter> filterModel = new Model<UserFilter>(filter);
 
-        Link filterReset = new Link("reset") {
+        final WebMarkupContainer content = new WebMarkupContainer("content");
+        content.setOutputMarkupPlaceholderTag(true);
+        add(content);
+
+        final Form<Void> filterForm = new Form<Void>("filter_form");
+        content.add(filterForm);
+
+        filterForm.add(new AjaxLink<Void>("reset") {
 
             @Override
-            public void onClick() {
+            public void onClick(AjaxRequestTarget target) {
                 filterForm.clearInput();
-
-                UserFilter filterObject = filterModel.getObject();
-                filterObject.setLogin(null);
-                filterObject.setGroupName(null);
-                filterObject.setOrganizationObjectId(null);
-                for (AttributeExample attributeExample : filterObject.getAttributeExamples()) {
+                UserFilter userFilter = filterModel.getObject();
+                userFilter.setLogin(null);
+                userFilter.setGroupName(null);
+                userFilter.setOrganizationObjectId(null);
+                for (AttributeExample attributeExample : userFilter.getAttributeExamples()) {
                     attributeExample.setValue(null);
                 }
+                target.addComponent(content);
             }
-        };
-        filterForm.add(filterReset);
+        });
+        filterForm.add(new AjaxButton("submit", filterForm) {
+
+            @Override
+            protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+                target.addComponent(content);
+            }
+        });
 
         filterForm.add(new TextField<String>("login", new PropertyModel<String>(filterModel, "login")));
-
-        filterForm.add(new AttributeFiltersPanel("user_info", filterObject.getAttributeExamples()));
-
+        filterForm.add(new AttributeFiltersPanel("user_info", filter.getAttributeExamples()));
         filterForm.add(new DropDownChoice<UserGroup.GROUP_NAME>("usergroups",
                 new PropertyModel<UserGroup.GROUP_NAME>(filterModel, "groupName"),
                 new ListModel<UserGroup.GROUP_NAME>(Arrays.asList(UserGroup.GROUP_NAME.values())),
@@ -112,27 +125,34 @@ public class UserList extends ScrollListPage {
                         return object.name();
                     }
                 }));
-
         filterForm.add(new UserOrganizationPicker("organization",
                 new PropertyModel<Long>(filterModel, "organizationObjectId")));
 
-        //Модель
         final DataProvider<User> dataProvider = new DataProvider<User>() {
 
             @Override
             protected Iterable<? extends User> getData(int first, int count) {
+                boolean asc = getSort().isAscending();
+                String sortProperty = getSort().getProperty();
+
                 UserFilter filter = filterModel.getObject();
+                
+                setSortProperty(sortProperty);
+                setSortOrder(asc);
+                setFilterObject(filter);
+                
                 filter.setFirst(first);
                 filter.setCount(count);
-                try {
+
+                if (StringUtil.isNumeric(sortProperty)) {
                     filter.setSortProperty(null);
-                    filter.setSortAttributeTypeId(Long.valueOf(getSort().getProperty()));
-                } catch (NumberFormatException e) {
-                    filter.setSortProperty(getSort().getProperty());
+                    filter.setSortAttributeTypeId(Long.valueOf(sortProperty));
+                } else {
+                    filter.setSortProperty(sortProperty);
                     filter.setSortAttributeTypeId(null);
                 }
-                filter.setAscending(getSort().isAscending());
-                return userBean.getUsers(filterModel.getObject());
+                filter.setAscending(asc);
+                return userBean.getUsers(filter);
             }
 
             @Override
@@ -140,10 +160,9 @@ public class UserList extends ScrollListPage {
                 return userBean.getUsersCount(filterModel.getObject());
             }
         };
-        dataProvider.setSort("login", true);
+        dataProvider.setSort(getSortProperty("login"), getSortOrder(true));
 
-        //Таблица
-        DataView<User> dataView = new DataView<User>("users", dataProvider, 10) {
+        DataView<User> dataView = new DataView<User>("users", dataProvider, 1) {
 
             @Override
             protected void populateItem(Item<User> item) {
@@ -177,14 +196,12 @@ public class UserList extends ScrollListPage {
         };
         filterForm.add(dataView);
 
-        //Названия колонок и сортировка
         filterForm.add(new ArrowOrderByBorder("header.login", "login", dataProvider, dataView, filterForm));
         filterForm.add(new ArrowOrderByBorder("header.organization", "organization", dataProvider, dataView, filterForm));
         filterForm.add(new AttributeHeadersPanel("header.user_info", userInfoStrategy.getListColumns(),
                 dataProvider, dataView, filterForm));
 
-        //Постраничная навигация
-        filterForm.add(new PagingNavigator("paging", dataView, UserList.class.getName(), filterForm));
+        content.add(new PagingNavigator("navigator", dataView, getPreferencesPage(), content));
     }
 
     /**
