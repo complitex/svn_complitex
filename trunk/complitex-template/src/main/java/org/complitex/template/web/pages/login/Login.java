@@ -21,8 +21,12 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.apache.wicket.request.target.basic.RedirectRequestTarget;
+import org.complitex.dictionary.entity.Log.EVENT;
+import org.complitex.dictionary.service.LogBean;
 import org.complitex.dictionary.service.SessionBean;
 import org.complitex.resources.WebCommonResourceInitializer;
+import org.complitex.template.Module;
+import org.complitex.template.web.security.SecurityWebListener;
 import org.odlabs.wiquery.core.commons.CoreJavaScriptResourceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +40,8 @@ public final class Login extends WebPage {
     private static final Logger log = LoggerFactory.getLogger(Login.class);
     @EJB
     private SessionBean sessionBean;
+    @EJB
+    private LogBean logBean;
 
     public Login() {
         init();
@@ -67,7 +73,7 @@ public final class Login extends WebPage {
         header.setOutputMarkupId(true);
         add(header);
 
-        Form form = new Form("form");
+        Form<Void> form = new Form<Void>("form");
         final IModel<String> loginModel = new Model<String>();
         form.add(new TextField<String>("login", loginModel).setRequired(true));
         final IModel<String> passwordModel = new Model<String>();
@@ -95,10 +101,13 @@ public final class Login extends WebPage {
                 if (!isError) {
                     //additional check for blocked users
                     try {
-                        if (sessionBean.isBlockedUser(login)) {
-                            log.warn("Blocked user attempts to log in. Login: {}", login);
+                        if (sessionBean.isBlockedUser(login)) { // blocked user attempts to log in.
+                            log.warn("Blocked user attempts to log in. User login: {}", login);
                             error(getString("login.error.blocked"));
                             isError = true;
+                            logBean.warn(Module.NAME, SecurityWebListener.class, null, null, EVENT.USER_LOGIN,
+                                    "Заблокированный пользователь пытается попасть в систему. Логин пользователя: {0}, IP: {1}",
+                                    login, request.getRemoteAddr());
                         }
                     } catch (Exception e) {
                         log.error("", e);
@@ -122,7 +131,8 @@ public final class Login extends WebPage {
                      * Custom algorithm to achieve correct loading of user preferences into session.
                      * 1. Log out
                      * 2. Session invalidate.
-                     * 3. Redirect to LoginSuccessServlet in order to start fresh session, log in and load correct prefererences into session.
+                     * 3. Redirect to LoginSuccessServlet in order to start fresh session, log in and load correct 
+                     *  prefererences into session.
                      */
                     //1. Log out
                     try {
@@ -136,8 +146,8 @@ public final class Login extends WebPage {
                     getSession().invalidateNow();
 
                     //3. Redirect
-                    String url = LoginSuccessServlet.PATH + "?login=" + Hex.encodeHexString(login.getBytes()) + 
-                            "&password=" + Hex.encodeHexString(password.getBytes());
+                    String url = LoginSuccessServlet.PATH + "?login=" + Hex.encodeHexString(login.getBytes())
+                            + "&password=" + Hex.encodeHexString(password.getBytes());
                     getRequestCycle().setRequestTarget(new RedirectRequestTarget(url));
                 }
             }

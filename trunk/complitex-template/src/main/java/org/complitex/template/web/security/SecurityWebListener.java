@@ -76,7 +76,7 @@ public class SecurityWebListener implements HttpSessionListener, ServletRequestL
             String login = (String) session.getAttribute(LOGGED_IN);
             session.setAttribute(USER_LOGIN, login);
 
-            logBean.logIn(login, Module.NAME, SecurityWebListener.class, "ip: {0}", request.getRemoteAddr());
+            logBean.logIn(login, Module.NAME, SecurityWebListener.class, "IP: {0}", request.getRemoteAddr());
             log.info("Пользователь авторизован [login: {}, ip: {}]", login, request.getRemoteAddr());
 
             session.removeAttribute(LOGGED_IN);
