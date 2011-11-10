@@ -41,7 +41,7 @@ import org.complitex.dictionary.web.component.datatable.DataProvider;
  *
  * todo добавить механизм регистрации внешних файлов свойств
  */
-@AuthorizeInstantiation(SecurityRole.AUTHORIZED)
+@AuthorizeInstantiation(SecurityRole.ADMIN_MODULE_EDIT)
 public class LogList extends TemplatePage {
 
     private final static String IMAGE_ARROW_TOP = "images/arrow2top.gif";
