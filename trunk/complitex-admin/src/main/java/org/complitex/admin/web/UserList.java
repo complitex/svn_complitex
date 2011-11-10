@@ -124,7 +124,7 @@ public class UserList extends ScrollListPage {
                     public String getIdValue(UserGroup.GROUP_NAME object, int index) {
                         return object.name();
                     }
-                }));
+                }).setNullValid(true));
         filterForm.add(new UserOrganizationPicker("organization",
                 new PropertyModel<Long>(filterModel, "organizationObjectId")));
 
@@ -136,11 +136,11 @@ public class UserList extends ScrollListPage {
                 String sortProperty = getSort().getProperty();
 
                 UserFilter filter = filterModel.getObject();
-                
+
                 setSortProperty(sortProperty);
                 setSortOrder(asc);
                 setFilterObject(filter);
-                
+
                 filter.setFirst(first);
                 filter.setCount(count);
 
@@ -196,10 +196,9 @@ public class UserList extends ScrollListPage {
         };
         filterForm.add(dataView);
 
-        filterForm.add(new ArrowOrderByBorder("header.login", "login", dataProvider, dataView, filterForm));
-        filterForm.add(new ArrowOrderByBorder("header.organization", "organization", dataProvider, dataView, filterForm));
+        filterForm.add(new ArrowOrderByBorder("header.login", "login", dataProvider, dataView, content));
         filterForm.add(new AttributeHeadersPanel("header.user_info", userInfoStrategy.getListColumns(),
-                dataProvider, dataView, filterForm));
+                dataProvider, dataView, content));
 
         content.add(new PagingNavigator("navigator", dataView, getPreferencesPage(), content));
     }

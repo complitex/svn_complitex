@@ -64,6 +64,7 @@
         <where>
             <if test="login != null">u.login like concat('%', #{login}, '%')</if>
             <if test="groupName != null">and g.`group_name` = #{groupName}</if>
+            <if test="organizationObjectId != null">and o.`organization_object_id` = #{organizationObjectId}</if>
             <foreach collection="attributeExamples" item="item" index="index">
                 <if test="item.value != null">
                     <choose>
