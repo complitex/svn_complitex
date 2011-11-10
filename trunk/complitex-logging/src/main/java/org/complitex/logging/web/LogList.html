@@ -13,8 +13,8 @@
     <div>
         <h1><wicket:message key="title"/></h1>
         <div id="messages" wicket:id="messages"></div>
-        <form id="filter_form" action="#" wicket:id="filter_form">
-            <table  border="0" cellspacing="0" cellpadding="0" class="tbColor table_input">
+        <form action="#" wicket:id="filter_form">
+            <table  border="0" cellspacing="0" cellpadding="0" class="tbColor">
                 <thead>
                 <tr>
                     <th></th>
@@ -32,24 +32,24 @@
                     </th>
                 </tr>
                 <tr>
-                    <th></th>
-                    <th class="center">
+                    <td></td>
+                    <td class="center filter-td">
                         <div style="width:102px">
                             <input type="text" wicket:id="date" style="width: 80px"/>
                         </div>
-                    </th>
-                    <th class="center"><input type="text" wicket:id="login"/></th>
-                    <th class="center"><select wicket:id="module"></select></th>
-                    <th class="center"><select wicket:id="controller"></select></th>
-                    <th class="center"><select wicket:id="model"></select></th>
-                    <th class="center"><input type="text" wicket:id="objectId"/></th>
-                    <th class="center"><select wicket:id="event"></select></th>
-                    <th class="center"><select wicket:id="status"></select></th>
-                    <th class="center"><input type="text" wicket:id="description"/></th>
+                    </td>
+                    <td class="center filter-td"><input type="text" wicket:id="login"/></td>
+                    <td class="center filter-td"><select wicket:id="module"></select></td>
+                    <td class="center filter-td"><select wicket:id="controller"></select></td>
+                    <td class="center filter-td"><select wicket:id="model"></select></td>
+                    <td class="center filter-td"><input type="text" wicket:id="objectId"/></td>
+                    <td class="center filter-td"><select wicket:id="event"></select></td>
+                    <td class="center filter-td"><select wicket:id="status"></select></td>
+                    <td class="center filter-td"><input type="text" wicket:id="description"/></td>
 
-                    <th class="center">
-                        <input class="btnSmall default" type="submit" wicket:message="value:filter" tabindex="0" />
-                    </th>
+                    <td class="center filter-td">
+                        <input class="btnSmall" type="submit" wicket:message="value:filter"/>
+                    </td>
                 </tr>
                 </thead>
                 <tbody>

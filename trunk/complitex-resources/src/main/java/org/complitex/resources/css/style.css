@@ -218,7 +218,7 @@ table.bookContentHeader{
     text-align: center !important;
 }
 
-.filter-td input[type="text"]{
+.filter-td input[type="text"], .filter-td select{
     width:100%;
 }
 .tbColor .filter-td{
@@ -230,15 +230,6 @@ table.bookContentHeader{
 
 .feedbackPanelWARNING{
     color: orange;
-}
-
-/* редактирование пользователей*/
-#user_list_filter{
-    margin-bottom:20px;
-}
-
-.table_input input[type="text"], .table_input select{
-    width:100%;    
 }
 
 /* AutoCompleteTextField styles */
