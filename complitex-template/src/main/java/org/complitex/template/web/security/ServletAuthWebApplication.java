@@ -15,6 +15,10 @@ import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.complitex.template.web.pages.login.Login;
 
 import javax.servlet.http.HttpServletRequest;
+import org.complitex.dictionary.entity.Log.EVENT;
+import org.complitex.dictionary.service.LogBean;
+import org.complitex.dictionary.util.EjbBeanLocator;
+import org.complitex.template.Module;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +66,13 @@ public abstract class ServletAuthWebApplication extends WebApplication implement
             RequestCycle.get().setRedirect(true);
             throw new RestartResponseException(getApplicationSettings().getPageExpiredErrorPage());
         } else {
+            try {
+                LogBean logBean = EjbBeanLocator.getBean(LogBean.class);
+                logBean.error(Module.NAME, SecurityWebListener.class, null, null, EVENT.ACCESS_DENIED, "Ресурс: {0}",
+                        component.getClass().getName());
+            } catch (Exception e) {
+                log.error("Couldn't to log unauthorized access.", e);
+            }
             throw new UnauthorizedInstantiationException(component.getClass());
         }
     }
