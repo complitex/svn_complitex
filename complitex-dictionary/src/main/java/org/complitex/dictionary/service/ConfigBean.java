@@ -97,7 +97,7 @@ public class ConfigBean extends AbstractBean{
             return null;
         }
     }
-
+    
     @Transactional
     public void update(final IConfig config, final String value){
         sqlSession().update(MAPPING_NAMESPACE + ".updateConfig", new HashMap<String, String>() {{

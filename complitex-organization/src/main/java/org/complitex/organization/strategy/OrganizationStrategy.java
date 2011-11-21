@@ -405,4 +405,9 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
     public Class<? extends WebPage> getEditPage() {
         return OrganizationEdit.class;
     }
+
+    @Override
+    public String getUniqueCode(DomainObject organization) {
+        return AttributeUtil.getStringValue(organization, CODE);
+    }
 }

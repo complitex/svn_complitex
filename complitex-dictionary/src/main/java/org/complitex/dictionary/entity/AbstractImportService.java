@@ -13,18 +13,27 @@ import javax.ejb.EJB;
  *         Date: 02.03.11 16:40
  */
 public abstract class AbstractImportService {
-     @EJB
+
+    @EJB
     private ConfigBean configBean;
 
     protected int getRecordCount(IImportFile file) throws ImportFileNotFoundException, ImportFileReadException {
         String dir = configBean.getString(DictionaryConfig.IMPORT_FILE_STORAGE_DIR, false);
-
         return ImportStorageUtil.getRecordCount(dir, file);
     }
 
+    /**
+     * Uses comma as default separator char and 'cp1251' as default charset.
+     * @param file
+     * @return
+     * @throws ImportFileNotFoundException 
+     */
     protected CSVReader getCsvReader(IImportFile file) throws ImportFileNotFoundException {
-        String dir = configBean.getString(DictionaryConfig.IMPORT_FILE_STORAGE_DIR, false);
+        return getCsvReader(file, "cp1251", ',');
+    }
 
-        return ImportStorageUtil.getCsvReader(dir, file);
+    protected CSVReader getCsvReader(IImportFile file, String charsetName, char separator) throws ImportFileNotFoundException {
+        String dir = configBean.getString(DictionaryConfig.IMPORT_FILE_STORAGE_DIR, false);
+        return ImportStorageUtil.getCsvReader(dir, file, charsetName, separator);
     }
 }
