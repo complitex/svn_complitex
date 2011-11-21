@@ -70,9 +70,7 @@ public class UserOrganizationPicker extends Panel {
 
             @Override
             public void setObject(DomainObject object) {
-                if (object != null) {
-                    organizationIdModel.setObject(object.getId());
-                }
+                organizationIdModel.setObject(object != null ? object.getId() : null);
             }
         };
         DisableAwareDropDownChoice<DomainObject> select = new DisableAwareDropDownChoice<DomainObject>("select", model,

@@ -41,4 +41,6 @@ public interface IOrganizationStrategy extends IStrategy {
 
     @Transactional
     Long validateName(Long id, String name, Locale locale);
+    
+    String getUniqueCode(DomainObject organization);
 }

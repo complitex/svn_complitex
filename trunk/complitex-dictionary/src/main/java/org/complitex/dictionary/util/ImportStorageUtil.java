@@ -11,11 +11,15 @@ import java.io.*;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 01.03.11 19:01
  */
-public class ImportStorageUtil {
-    public static CSVReader getCsvReader(String dir, IImportFile file) throws ImportFileNotFoundException {
+public final class ImportStorageUtil {
+
+    private ImportStorageUtil() {
+    }
+
+    public static CSVReader getCsvReader(String dir, IImportFile file, String charsetName, char separator) throws ImportFileNotFoundException {
         try {
             return new CSVReader(new InputStreamReader(new FileInputStream(
-                    new File(dir, file.getFileName())), "cp1251"), ',', '"', 1);
+                    new File(dir, file.getFileName())), charsetName), separator, '"', 1);
         } catch (Exception e) {
             throw new ImportFileNotFoundException(e, file.getFileName());
         }
@@ -28,8 +32,10 @@ public class ImportStorageUtil {
             String line;
             int index = -1;
 
-            while ((line = reader.readLine()) != null){
-                if (line.trim().length() > 0) index++;
+            while ((line = reader.readLine()) != null) {
+                if (line.trim().length() > 0) {
+                    index++;
+                }
             }
 
             return index;
