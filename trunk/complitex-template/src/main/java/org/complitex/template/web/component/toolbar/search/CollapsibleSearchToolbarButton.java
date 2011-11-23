@@ -28,11 +28,10 @@ public class CollapsibleSearchToolbarButton extends ToolbarButton {
                 CollapsibleSearchToolbarButton.class.getSimpleName() + ".js"));
 
         this.collapsibleSearchPanel = collapsibleSearchPanel;
-        setVisible(collapsibleSearchPanel != null);
     }
 
     @Override
     protected void onClick(AjaxRequestTarget target) {
-        collapsibleSearchPanel.getSearchComponent().toggle(target);
+        collapsibleSearchPanel.toggle(target);
     }
 }

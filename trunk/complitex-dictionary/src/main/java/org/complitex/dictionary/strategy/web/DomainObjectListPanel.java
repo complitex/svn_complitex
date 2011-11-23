@@ -37,7 +37,6 @@ import org.complitex.dictionary.strategy.web.model.DomainObjectIdModel;
 import org.complitex.dictionary.util.StringUtil;
 import org.complitex.dictionary.web.DictionaryFwSession;
 import org.complitex.dictionary.web.component.ShowMode;
-import org.complitex.dictionary.web.component.ShowModePanel;
 import org.complitex.dictionary.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionary.web.component.datatable.DataProvider;
 import org.complitex.dictionary.web.component.paging.PagingNavigator;
@@ -128,18 +127,15 @@ public final class DomainObjectListPanel extends Panel {
         }
 
         //Search
-        List<String> searchFilters = getStrategy().getSearchFilters();
+        final List<String> searchFilters = getStrategy().getSearchFilters();
         content.setVisible(searchFilters == null || searchFilters.isEmpty());
         add(content);
 
-        if (searchFilters == null || searchFilters.isEmpty()) {
-            add(new EmptyPanel(SEARCH_PANEL_WICKET_ID));
-        } else {
-            searchPanel = new CollapsibleSearchPanel(SEARCH_PANEL_WICKET_ID, getSession().getGlobalSearchComponentState(),
-                    searchFilters, getStrategy().getSearchCallback(), ShowMode.ALL, true);
-            add(searchPanel);
-            searchPanel.getSearchComponent().invokeCallback();
-        }
+        final IModel<ShowMode> showModeModel = new Model<ShowMode>(ShowMode.ACTIVE);
+        searchPanel = new CollapsibleSearchPanel("searchPanel", getSession().getGlobalSearchComponentState(),
+                searchFilters, getStrategy().getSearchCallback(), ShowMode.ALL, true, showModeModel);
+        add(searchPanel);
+        searchPanel.initialize();
 
         //Column List
         final List<EntityAttributeType> listAttributeTypes = getStrategy().getListColumns();
@@ -163,11 +159,6 @@ public final class DomainObjectListPanel extends Panel {
         //Form
         final Form<Void> filterForm = new Form<Void>("filterForm");
         content.add(filterForm);
-
-        //Show Mode
-        final IModel<ShowMode> showModeModel = new Model<ShowMode>(ShowMode.ACTIVE);
-        ShowModePanel showModePanel = new ShowModePanel("showModePanel", showModeModel);
-        filterForm.add(showModePanel);
 
         //Data Provider
         final DataProvider<DomainObject> dataProvider = new DataProvider<DomainObject>() {
