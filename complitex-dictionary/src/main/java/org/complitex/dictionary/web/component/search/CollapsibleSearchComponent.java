@@ -22,10 +22,9 @@ import org.complitex.dictionary.web.component.ShowMode;
 public class CollapsibleSearchComponent extends WiQuerySearchComponent {
 
     private static final Set<String> TOP_FILTERS = ImmutableSet.of("country", "region", "city");
-    
     private WebMarkupContainer top;
     private List<String> topSearchFilters;
-    
+
     public CollapsibleSearchComponent(String id, SearchComponentState searchComponentState, List<String> searchFilters,
             ISearchCallback callback, ShowMode showMode, boolean enabled) {
         super(id, searchComponentState, searchFilters, callback, showMode, enabled);
@@ -67,27 +66,29 @@ public class CollapsibleSearchComponent extends WiQuerySearchComponent {
 
         add(searchContainer);
     }
-    
-    protected final boolean isTopPartInitiallyVisible(){
+
+    protected final boolean isTopPartInitiallyVisible() {
         SearchComponentState globalComponentState = getSession().getGlobalSearchComponentState();
-        for(String searchFilter : topSearchFilters){
+        for (String searchFilter : topSearchFilters) {
             final DomainObject object = globalComponentState.get(searchFilter);
-            if(object == null || object.getId() == null || object.getId() <= 0){
+            if (object == null || object.getId() == null || object.getId() <= 0) {
                 return true;
             }
         }
         return false;
     }
-    
-    public final void toggle(AjaxRequestTarget target){
+
+    public final boolean isTopPartVisible() {
+        return top.isVisible();
+    }
+
+    public final void toggle(AjaxRequestTarget target) {
         top.setVisible(!top.isVisible());
         updateSearchContainer(target);
     }
-    
+
     @Override
     public DictionaryFwSession getSession() {
-        return (DictionaryFwSession)super.getSession();
+        return (DictionaryFwSession) super.getSession();
     }
-    
-    
 }

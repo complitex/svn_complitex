@@ -15,7 +15,6 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.AbstractReadOnlyModel;
@@ -31,12 +30,10 @@ import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
 import org.complitex.dictionary.strategy.web.model.DomainObjectIdModel;
 import org.complitex.dictionary.util.StringUtil;
 import org.complitex.dictionary.web.component.ShowMode;
-import org.complitex.dictionary.web.component.ShowModePanel;
 import org.complitex.dictionary.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionary.web.component.datatable.DataProvider;
 import org.complitex.dictionary.web.component.paging.PagingNavigator;
 import org.complitex.dictionary.web.component.scroll.ScrollBookmarkablePageLink;
-import org.complitex.dictionary.web.component.search.SearchComponentState;
 import org.complitex.template.web.component.toolbar.AddItemButton;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
 import org.complitex.template.web.pages.ScrollListPage;
@@ -109,28 +106,19 @@ public final class BuildingList extends ScrollListPage {
         }
 
         //Search
-        List<String> searchFilters = buildingStrategy.getSearchFilters();
+        final List<String> searchFilters = buildingStrategy.getSearchFilters();
         content.setVisible(searchFilters == null || searchFilters.isEmpty());
         add(content);
 
-        if (searchFilters == null || searchFilters.isEmpty()) {
-            add(new EmptyPanel("searchComponent"));
-        } else {
-            SearchComponentState componentState = getTemplateSession().getGlobalSearchComponentState();
-            searchPanel = new CollapsibleSearchPanel("searchPanel", componentState,
-                    searchFilters, buildingStrategy.getSearchCallback(), ShowMode.ALL, true);
-            add(searchPanel);
-            searchPanel.getSearchComponent().invokeCallback();
-        }
+        final IModel<ShowMode> showModeModel = new Model<ShowMode>(ShowMode.ACTIVE);
+        searchPanel = new CollapsibleSearchPanel("searchPanel", getTemplateSession().getGlobalSearchComponentState(),
+                searchFilters, buildingStrategy.getSearchCallback(), ShowMode.ALL, true, showModeModel);
+        add(searchPanel);
+        searchPanel.initialize();
 
         //Form
         final Form<Void> filterForm = new Form<Void>("filterForm");
         content.add(filterForm);
-
-        //Show Mode
-        final IModel<ShowMode> showModeModel = new Model<ShowMode>(ShowMode.ACTIVE);
-        ShowModePanel showModePanel = new ShowModePanel("showModePanel", showModeModel);
-        filterForm.add(showModePanel);
 
         //Data Provider
         final DataProvider<Building> dataProvider = new DataProvider<Building>() {
