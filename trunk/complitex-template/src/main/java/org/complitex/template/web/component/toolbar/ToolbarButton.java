@@ -19,7 +19,7 @@ import org.apache.wicket.model.ResourceModel;
 public abstract class ToolbarButton extends Panel {
 
     private String tagId;
-    private static final String LINK_MARKUP_ID = "link";
+    private static final String LINK_WICKET_ID = "link";
     private boolean useAjax;
 
     public ToolbarButton(String id, ResourceReference imageSrc, String titleKey) {
@@ -42,23 +42,10 @@ public abstract class ToolbarButton extends Panel {
         this(id, imageSrc, titleModel, false);
     }
 
-    /**
-     * This constructor is not initializing component tree (init() method). Sometimes component tree initializing requires some
-     * data that is not available at constructor call time. In such cases it would be better to do initialization
-     * just before rendering when required data is already available rather at constructor time.
-     * That should be done in extending class' onBeforeRenderer() method.
-     * @param id
-     * @param useAjax
-     * @param tagId
-     */
-    protected ToolbarButton(String id, boolean useAjax, String tagId) {
+    protected ToolbarButton(String id, ResourceReference imageSrc, IModel<String> titleModel, boolean useAjax, String tagId) {
         super(id);
         this.useAjax = useAjax;
         this.tagId = tagId;
-    }
-
-    protected ToolbarButton(String id, ResourceReference imageSrc, IModel<String> titleModel, boolean useAjax, String tagId) {
-        this(id, useAjax, tagId);
         init(imageSrc, titleModel);
     }
 
@@ -67,12 +54,12 @@ public abstract class ToolbarButton extends Panel {
      * @param imageSrc
      * @param titleModel
      */
-    protected void init(ResourceReference imageSrc, IModel<String> titleModel) {
+    protected final void init(ResourceReference imageSrc, IModel<String> titleModel) {
         if (titleModel instanceof IComponentAssignedModel) {
-            titleModel = ((IComponentAssignedModel) titleModel).wrapOnAssignment(this);
+            titleModel = ((IComponentAssignedModel<String>) titleModel).wrapOnAssignment(this);
         }
 
-        AbstractLink link = newLink(LINK_MARKUP_ID);
+        AbstractLink link = newLink(LINK_WICKET_ID);
         Image image = newImage("image", imageSrc, titleModel);
         link.add(image);
         add(link);
@@ -86,7 +73,7 @@ public abstract class ToolbarButton extends Panel {
 
     protected AbstractLink newLink(String linkId) {
         if (useAjax) {
-            return new AjaxLink(linkId) {
+            return new AjaxLink<Void>(linkId) {
 
                 @Override
                 public void onClick(AjaxRequestTarget target) {

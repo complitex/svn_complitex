@@ -37,7 +37,6 @@ import org.complitex.dictionary.web.component.datatable.DataProvider;
 import org.complitex.dictionary.web.component.paging.PagingNavigator;
 import org.complitex.dictionary.web.component.scroll.ScrollBookmarkablePageLink;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
-import org.complitex.dictionary.web.component.search.WiQuerySearchComponent;
 import org.complitex.template.web.component.toolbar.AddItemButton;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
 import org.complitex.template.web.pages.ScrollListPage;
@@ -45,6 +44,8 @@ import org.complitex.template.web.security.SecurityRole;
 
 import javax.ejb.EJB;
 import java.util.List;
+import org.complitex.dictionary.web.component.search.CollapsibleSearchPanel;
+import org.complitex.template.web.component.toolbar.search.CollapsibleSearchToolbarButton;
 import org.complitex.template.web.pages.DomainObjectList;
 
 /**
@@ -61,6 +62,7 @@ public final class BuildingList extends ScrollListPage {
     private DomainObjectExample example;
     private WebMarkupContainer content;
     private DataView<Building> dataView;
+    private CollapsibleSearchPanel searchPanel;
 
     public BuildingList() {
         init();
@@ -115,10 +117,10 @@ public final class BuildingList extends ScrollListPage {
             add(new EmptyPanel("searchComponent"));
         } else {
             SearchComponentState componentState = getTemplateSession().getGlobalSearchComponentState();
-            WiQuerySearchComponent searchComponent = new WiQuerySearchComponent("searchComponent", componentState,
+            searchPanel = new CollapsibleSearchPanel("searchPanel", componentState,
                     searchFilters, buildingStrategy.getSearchCallback(), ShowMode.ALL, true);
-            add(searchComponent);
-            searchComponent.invokeCallback();
+            add(searchPanel);
+            searchPanel.getSearchComponent().invokeCallback();
         }
 
         //Form
@@ -288,6 +290,6 @@ public final class BuildingList extends ScrollListPage {
                 }
                 super.onBeforeRender();
             }
-        });
+        }, new CollapsibleSearchToolbarButton(id, searchPanel));
     }
 }

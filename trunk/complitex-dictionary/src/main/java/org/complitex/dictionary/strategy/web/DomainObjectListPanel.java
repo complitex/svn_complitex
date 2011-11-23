@@ -42,7 +42,6 @@ import org.complitex.dictionary.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionary.web.component.datatable.DataProvider;
 import org.complitex.dictionary.web.component.paging.PagingNavigator;
 import org.complitex.dictionary.web.component.scroll.ScrollBookmarkablePageLink;
-import org.complitex.dictionary.web.component.search.WiQuerySearchComponent;
 import org.complitex.dictionary.web.component.type.BooleanPanel;
 import org.complitex.dictionary.web.component.type.DatePanel;
 import org.complitex.dictionary.web.component.type.GenderPanel;
@@ -55,6 +54,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.complitex.dictionary.web.component.search.CollapsibleSearchPanel;
 
 /**
  *
@@ -62,6 +62,7 @@ import java.util.Map;
  */
 public final class DomainObjectListPanel extends Panel {
 
+    private static final String SEARCH_PANEL_WICKET_ID = "searchPanel";
     @EJB
     private StrategyFactory strategyFactory;
     @EJB
@@ -73,6 +74,7 @@ public final class DomainObjectListPanel extends Panel {
     private DomainObjectExample example;
     private WebMarkupContainer content;
     private DataView<DomainObject> dataView;
+    private CollapsibleSearchPanel searchPanel;
     private final String page;
 
     public DomainObjectListPanel(String id, String entity, String strategyName) {
@@ -131,13 +133,12 @@ public final class DomainObjectListPanel extends Panel {
         add(content);
 
         if (searchFilters == null || searchFilters.isEmpty()) {
-            add(new EmptyPanel("searchComponent"));
+            add(new EmptyPanel(SEARCH_PANEL_WICKET_ID));
         } else {
-            WiQuerySearchComponent searchComponent = new WiQuerySearchComponent("searchComponent",
-                    getSession().getGlobalSearchComponentState(), searchFilters, getStrategy().getSearchCallback(),
-                    ShowMode.ALL, true);
-            add(searchComponent);
-            searchComponent.invokeCallback();
+            searchPanel = new CollapsibleSearchPanel(SEARCH_PANEL_WICKET_ID, getSession().getGlobalSearchComponentState(),
+                    searchFilters, getStrategy().getSearchCallback(), ShowMode.ALL, true);
+            add(searchPanel);
+            searchPanel.getSearchComponent().invokeCallback();
         }
 
         //Column List
@@ -160,7 +161,7 @@ public final class DomainObjectListPanel extends Panel {
         }
 
         //Form
-        final Form filterForm = new Form("filterForm");
+        final Form<Void> filterForm = new Form<Void>("filterForm");
         content.add(filterForm);
 
         //Show Mode
@@ -404,7 +405,7 @@ public final class DomainObjectListPanel extends Panel {
         filterForm.add(filters);
 
         //Reset Action
-        AjaxLink reset = new AjaxLink("reset") {
+        AjaxLink<Void> reset = new AjaxLink<Void>("reset") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -432,6 +433,10 @@ public final class DomainObjectListPanel extends Panel {
 
         //Navigator
         content.add(new PagingNavigator("navigator", dataView, getClass().getName() + "#" + entity, content));
+    }
+
+    public final CollapsibleSearchPanel getSearchPanel() {
+        return searchPanel;
     }
 
     @Override

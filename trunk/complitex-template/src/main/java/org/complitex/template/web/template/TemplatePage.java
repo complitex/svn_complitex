@@ -42,14 +42,16 @@ import java.util.*;
  * Для инициализации шаблона наследники должны вызывать метод super().
  */
 public abstract class TemplatePage extends WebPage {
+
     private static final Logger log = LoggerFactory.getLogger(TemplatePage.class);
-
-    private String page = getClass().getName();
-
-    private Set<String> resourceBundle = new HashSet<String>();
-
+    
     @EJB
     private SessionBean sessionBean;
+    
+    private String page = getClass().getName();
+    private Set<String> resourceBundle = new HashSet<String>();
+    private boolean isPostBack;
+    private final WebMarkupContainer toolbar;
 
     protected TemplatePage() {
         add(JavascriptPackageResource.getHeaderContribution(CoreJavaScriptResourceReference.get()));
@@ -57,7 +59,7 @@ public abstract class TemplatePage extends WebPage {
         add(JavascriptPackageResource.getHeaderContribution(TemplatePage.class, TemplatePage.class.getSimpleName() + ".js"));
         add(CSSPackageResource.getHeaderContribution(WebCommonResourceInitializer.STYLE_CSS));
 
-        add(new Link("home") {
+        add(new Link<Void>("home") {
 
             @Override
             public void onClick() {
@@ -66,7 +68,7 @@ public abstract class TemplatePage extends WebPage {
         });
 
         //toolbar
-        WebMarkupContainer toolbar = new WebMarkupContainer("toolbar");
+        toolbar = new WebMarkupContainer("toolbar");
         add(toolbar);
         WebMarkupContainer commonPart = new WebMarkupContainer("commonPart");
         toolbar.add(commonPart);
@@ -74,21 +76,6 @@ public abstract class TemplatePage extends WebPage {
         //add common buttons.
         HelpButton help = new HelpButton("help");
         commonPart.add(help);
-
-        //add page custom buttons.
-        List<? extends ToolbarButton> pageToolbarButtonsList = getToolbarButtons("pageToolbarButton");
-        if (pageToolbarButtonsList == null) {
-            pageToolbarButtonsList = Collections.emptyList();
-        }
-        Component pagePart = new ListView<ToolbarButton>("pagePart", pageToolbarButtonsList) {
-
-            @Override
-            protected void populateItem(ListItem<ToolbarButton> item) {
-                item.add(item.getModelObject());
-            }
-        };
-        toolbar.add(pagePart);
-
 
         //menu
         add(new ListView<ITemplateMenu>("sidebar", newTemplateMenus()) {
@@ -113,19 +100,43 @@ public abstract class TemplatePage extends WebPage {
             } catch (ClassNotFoundException e) {
                 add(new EmptyPanel("profile"));
             }
-        }else{
+        } else {
             add(new EmptyPanel("current_user_fullname"));
             add(new EmptyPanel("current_user_department"));
             add(new EmptyPanel("profile"));
         }
 
-        add(new Form("exit") {
+        add(new Form<Void>("exit") {
 
             @Override
             public void onSubmit() {
                 getTemplateWebApplication().logout();
             }
         }.setVisible(isUserAuthorized()));
+    }
+
+    @Override
+    protected void onBeforeRender() {
+        super.onBeforeRender();
+
+        if (!isPostBack) {
+            isPostBack = true;
+
+            //add page custom buttons.
+            List<? extends ToolbarButton> buttons = getToolbarButtons("pageToolbarButton");
+            if (buttons == null) {
+                buttons = Collections.emptyList();
+            }
+
+            Component pagePart = new ListView<ToolbarButton>("pagePart", buttons) {
+
+                @Override
+                protected void populateItem(ListItem<ToolbarButton> item) {
+                    item.add(item.getModelObject());
+                }
+            };
+            toolbar.add(pagePart);
+        }
     }
 
     /**
@@ -135,7 +146,7 @@ public abstract class TemplatePage extends WebPage {
 
         private String tagId;
 
-        public TemplateMenu(String id, String markupId, MarkupContainer markupProvider, ITemplateMenu menu) {
+        private TemplateMenu(String id, String markupId, MarkupContainer markupProvider, ITemplateMenu menu) {
             super(id, markupId, markupProvider);
             this.tagId = menu.getTagId();
 
@@ -225,7 +236,7 @@ public abstract class TemplatePage extends WebPage {
     }
 
     protected String getStringOrKey(String key) {
-        if (key == null){
+        if (key == null) {
             return "";
         }
 
@@ -235,7 +246,7 @@ public abstract class TemplatePage extends WebPage {
             //resource is not found
         }
 
-        for (String bundle : resourceBundle){
+        for (String bundle : resourceBundle) {
             try {
                 return ResourceUtil.getString(bundle, key, getLocale());
             } catch (MissingResourceException e) {
@@ -246,11 +257,11 @@ public abstract class TemplatePage extends WebPage {
         return key;
     }
 
-    protected String getStringOrKey(Enum key) {
+    protected String getStringOrKey(Enum<?> key) {
         return key != null ? getStringOrKey(key.name()) : "";
     }
 
-    protected String getStringFormat(String key, Object... args){
+    protected String getStringFormat(String key, Object... args) {
         try {
             return MessageFormat.format(getString(key), args);
         } catch (Exception e) {
@@ -259,16 +270,15 @@ public abstract class TemplatePage extends WebPage {
         }
     }
 
-    protected void addResourceBundle(String bundle){
+    protected void addResourceBundle(String bundle) {
         resourceBundle.add(bundle);
     }
 
-    protected void addAllResourceBundle(Collection<String> bundle){
+    protected void addAllResourceBundle(Collection<String> bundle) {
         resourceBundle.addAll(bundle);
     }
 
     /* Template Session Preferences*/
-
     public String getPreferencesPage() {
         return page;
     }
@@ -277,31 +287,31 @@ public abstract class TemplatePage extends WebPage {
         this.page = page;
     }
 
-    public void setSortProperty(String sortProperty){
+    public void setSortProperty(String sortProperty) {
         getTemplateSession().putPreference(page, PreferenceKey.SORT_PROPERTY, sortProperty, true);
     }
 
-    public String getSortProperty(String _default){
+    public String getSortProperty(String _default) {
         return getTemplateSession().getPreferenceString(page, PreferenceKey.SORT_PROPERTY, _default);
     }
 
-    public void setSortOrder(Boolean sortOrder){
+    public void setSortOrder(Boolean sortOrder) {
         getTemplateSession().putPreference(page, PreferenceKey.SORT_ORDER, sortOrder, true);
     }
 
-    public Boolean getSortOrder(Boolean _default){
+    public Boolean getSortOrder(Boolean _default) {
         return getTemplateSession().getPreferenceBoolean(page, PreferenceKey.SORT_ORDER, _default);
     }
 
-    public void setFilterObject(Object filterObject){
+    public void setFilterObject(Object filterObject) {
         getTemplateSession().putPreferenceObject(page, PreferenceKey.FILTER_OBJECT, filterObject);
     }
 
-    public Object getFilterObject(Object _default){
+    public Object getFilterObject(Object _default) {
         return getTemplateSession().getPreferenceObject(page, PreferenceKey.FILTER_OBJECT, _default);
     }
 
-    public boolean isUserAuthorized(){
+    public final boolean isUserAuthorized() {
         return getTemplateWebApplication().hasAnyRole(SecurityRole.AUTHORIZED);
     }
 }

@@ -32,6 +32,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import org.apache.wicket.markup.html.form.FormComponent;
+import org.apache.wicket.util.string.Strings;
 import org.odlabs.wiquery.ui.autocomplete.AbstractAutocompleteComponent;
 
 /**
@@ -93,8 +94,8 @@ public class WiQuerySearchComponent extends Panel {
     private final boolean enabled;
     private List<IModel<DomainObject>> filterModels;
     private final ShowMode showMode;
-    private final WebMarkupContainer searchPanel = new WebMarkupContainer("searchPanel");
-    private final Map<Integer, Component> filterFieldMap = newHashMap();
+    private final WebMarkupContainer searchContainer = new WebMarkupContainer("searchContainer");
+    private final Map<String, Component> filterInputFieldMap = newHashMap();
 
     public WiQuerySearchComponent(String id, SearchComponentState searchComponentState, List<String> searchFilters,
             ISearchCallback callback, ShowMode showMode, boolean enabled) {
@@ -135,27 +136,19 @@ public class WiQuerySearchComponent extends Panel {
     }
 
     protected void init() {
-        searchPanel.setOutputMarkupId(true);
+        searchContainer.setOutputMarkupId(true);
 
-        ListView<String> columns = new ListView<String>("columns", getSearchFilters()) {
+        ListView<String> columns = newColumnsListView("columns", getSearchFilters());
+        searchContainer.add(columns);
 
-            @Override
-            protected void populateItem(ListItem<String> item) {
-                final String entityTable = item.getModelObject();
-                IModel<String> entityLabelModel = new AbstractReadOnlyModel<String>() {
+        initFilterModel();
 
-                    @Override
-                    public String getObject() {
-                        return stringBean.displayValue(strategyFactory.getStrategy(entityTable).getEntity().getEntityNames(), getLocale());
-                    }
-                };
-                Label column = new Label("column", entityLabelModel);
-                setVisibility(entityTable, column);
-                item.add(column);
-            }
-        };
-        searchPanel.add(columns);
+        ListView<String> filters = newFiltersListView("filters", getSearchFilters());
+        searchContainer.add(filters);
+        add(searchContainer);
+    }
 
+    protected void initFilterModel() {
         filterModels = newArrayList();
         for (String searchFilter : getSearchFilters()) {
             IModel<DomainObject> model = new Model<DomainObject>();
@@ -163,10 +156,6 @@ public class WiQuerySearchComponent extends Panel {
             model.setObject(object);
             filterModels.add(model);
         }
-
-        ListView<String> filters = newFiltersListView("filters");
-        searchPanel.add(filters);
-        add(searchPanel);
     }
 
     protected void handleVisibility(String entity, final Component autocompleteField) {
@@ -180,17 +169,37 @@ public class WiQuerySearchComponent extends Panel {
         return strategyFactory.getStrategy(entity).getSearchTextFieldSize();
     }
 
-    protected ListView<String> newFiltersListView(String id) {
-        ListView<String> filters = new ListView<String>(id, getSearchFilters()) {
+    protected ListView<String> newColumnsListView(String id, List<String> searchFilters) {
+        return new ListView<String>("columns", searchFilters) {
+
+            @Override
+            protected void populateItem(ListItem<String> item) {
+                final String entityTable = item.getModelObject();
+                IModel<String> entityLabelModel = new AbstractReadOnlyModel<String>() {
+
+                    @Override
+                    public String getObject() {
+                        return stringBean.displayValue(strategyFactory.getStrategy(entityTable).getEntity().
+                                getEntityNames(), getLocale());
+                    }
+                };
+                Label column = new Label("column", entityLabelModel);
+                setVisibility(entityTable, column);
+                item.add(column);
+            }
+        };
+    }
+
+    protected ListView<String> newFiltersListView(String id, List<String> searchFilters) {
+        ListView<String> filters = new ListView<String>(id, searchFilters) {
 
             @Override
             protected void populateItem(final ListItem<String> item) {
                 final String entity = item.getModelObject();
-                final int index = item.getIndex();
 
                 FormComponent<DomainObject> filterComponent = newAutocompleteComponent("filter", entity);
                 Component autocompleteField = getAutocompleteField(filterComponent);
-                filterFieldMap.put(index, getAutocompleteField(filterComponent));
+                filterInputFieldMap.put(entity, getAutocompleteField(filterComponent));
                 //visible/enabled
                 handleVisibility(entity, filterComponent);
 
@@ -287,19 +296,19 @@ public class WiQuerySearchComponent extends Panel {
             for (int j = index + 1; j < size; j++) {
                 setModelObject(j, null);
             }
-            updateSearchPanel(target);
-            setFocus(target, index + 1);
+            updateSearchContainer(target);
+            setFocus(target, index + 1 < getSearchFilters().size() ? getSearchFilters().get(index + 1) : null);
         }
         invokeCallback(index, target);
     }
 
-    protected final void updateSearchPanel(AjaxRequestTarget target) {
-        target.addComponent(searchPanel);
+    protected final void updateSearchContainer(AjaxRequestTarget target) {
+        target.addComponent(searchContainer);
     }
 
-    protected final void setFocus(AjaxRequestTarget target, int index) {
-        if (index > 0 && index <= searchFilters.size() - 1) {
-            target.focusComponent(filterFieldMap.get(index));
+    protected final void setFocus(AjaxRequestTarget target, String searchFilter) {
+        if (!Strings.isEmpty(searchFilter)) {
+            target.focusComponent(filterInputFieldMap.get(searchFilter));
         }
     }
 
@@ -387,10 +396,11 @@ public class WiQuerySearchComponent extends Panel {
         }
     }
 
-    protected final static <T> Map<String, T> transformToIds(Map<String, DomainObject> objects) {
+    protected static <T> Map<String, T> transformToIds(Map<String, DomainObject> objects) {
         return transformValues(objects, new Function<DomainObject, T>() {
 
             @Override
+            @SuppressWarnings("unchecked")
             public T apply(DomainObject from) {
                 return from != null ? (T) from.getId() : null;
             }
@@ -435,7 +445,10 @@ public class WiQuerySearchComponent extends Panel {
             }
         }
         throw new IllegalArgumentException("Entity " + entity + " is not found.");
+    }
 
+    protected final WebMarkupContainer getSearchContainer() {
+        return searchContainer;
     }
 
     protected List<? extends DomainObject> findByExample(String entity, String searchTextInput,
