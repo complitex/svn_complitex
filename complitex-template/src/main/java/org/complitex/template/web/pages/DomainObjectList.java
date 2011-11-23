@@ -23,6 +23,7 @@ import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.web.DictionaryFwSession;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
+import org.complitex.template.web.component.toolbar.search.CollapsibleSearchToolbarButton;
 import org.complitex.template.web.security.SecurityRole;
 
 /**
@@ -30,7 +31,7 @@ import org.complitex.template.web.security.SecurityRole;
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)
 public final class DomainObjectList extends ScrollListPage {
-
+    
     public static final String ENTITY = "entity";
     public static final String STRATEGY = "strategy";
     @EJB
@@ -38,29 +39,28 @@ public final class DomainObjectList extends ScrollListPage {
     private DomainObjectListPanel listPanel;
     private String entity;
     private String strategyName;
-
+    
     public DomainObjectList(PageParameters params) {
         super(params);
-
+        
         entity = params.getString(ENTITY);
         strategyName = params.getString(STRATEGY);
-
-
+        
         if (!hasAnyRole(strategyFactory.getStrategy(strategyName, entity).getListRoles())) {
             throw new UnauthorizedInstantiationException(getClass());
         }
         add(listPanel = new DomainObjectListPanel("listPanel", entity, strategyName));
     }
-
+    
     @Override
     protected List<? extends ToolbarButton> getToolbarButtons(String id) {
         return ImmutableList.of(new AddItemButton(id) {
-
+            
             @Override
             protected void onClick() {
-                onAddObject(this.getPage(), strategyFactory.getStrategy(strategyName, entity), listPanel.getSession());
+                onAddObject(this.getPage(), strategyFactory.getStrategy(strategyName, entity), getTemplateSession());
             }
-
+            
             @Override
             protected void onBeforeRender() {
                 if (!DomainObjectAccessUtil.canAddNew(strategyName, entity)) {
@@ -68,9 +68,9 @@ public final class DomainObjectList extends ScrollListPage {
                 }
                 super.onBeforeRender();
             }
-        });
+        }, new CollapsibleSearchToolbarButton(id, listPanel.getSearchPanel()));
     }
-
+    
     public static void onAddObject(Page page, IStrategy strategy, DictionaryFwSession session) {
         if (strategy.getSearchFilters() != null && !strategy.getSearchFilters().isEmpty()) {
             SearchComponentState globalSearchComponentState = session.getGlobalSearchComponentState();
@@ -92,4 +92,3 @@ public final class DomainObjectList extends ScrollListPage {
         page.setResponsePage(strategy.getEditPage(), strategy.getEditPageParams(null, null, null));
     }
 }
-
