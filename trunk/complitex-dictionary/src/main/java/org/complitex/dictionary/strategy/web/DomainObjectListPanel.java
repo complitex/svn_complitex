@@ -61,7 +61,6 @@ import org.complitex.dictionary.web.component.search.CollapsibleSearchPanel;
  */
 public final class DomainObjectListPanel extends Panel {
 
-    private static final String SEARCH_PANEL_WICKET_ID = "searchPanel";
     @EJB
     private StrategyFactory strategyFactory;
     @EJB

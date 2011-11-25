@@ -4,7 +4,8 @@ package org.complitex.template.web.security;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 22.07.2010 16:23:40
  */
-public class SecurityRole {
+public final class SecurityRole {
+
     public final static String AUTHORIZED = "AUTHORIZED";
     public static final String ADDRESS_MODULE_EDIT = "ADDRESS_MODULE_EDIT";
     public static final String ADDRESS_MODULE_VIEW = "ADDRESS_MODULE_VIEW";
@@ -25,4 +26,7 @@ public class SecurityRole {
     public static final String REGISTRATION_TYPE_MODULE_VIEW = "REGISTRATION_TYPE_MODULE_VIEW";
     public static final String DOCUMENT_TYPE_MODULE_EDIT = "DOCUMENT_TYPE_MODULE_EDIT";
     public static final String DOCUMENT_TYPE_MODULE_VIEW = "DOCUMENT_TYPE_MODULE_VIEW";
+
+    private SecurityRole() {
+    }
 }
