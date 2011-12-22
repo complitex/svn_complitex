@@ -509,9 +509,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
                     }
 
                     if (needToUpdateAttribute) {
-                        oldAttr.setEndDate(updateDate);
-                        oldAttr.setStatus(StatusType.ARCHIVE);
-                        sqlSession().update(ATTRIBUTE_NAMESPACE + "." + UPDATE_OPERATION, new Parameter(getEntityTable(), oldAttr));
+                        archiveAttribute(oldAttr, updateDate);
                         newAttr.setStartDate(updateDate);
                         newAttr.setObjectId(newObject.getId());
                         insertAttribute(newAttr);
@@ -519,9 +517,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
                 }
             }
             if (removed) {
-                oldAttr.setEndDate(updateDate);
-                oldAttr.setStatus(StatusType.ARCHIVE);
-                sqlSession().update(ATTRIBUTE_NAMESPACE + "." + UPDATE_OPERATION, new Parameter(getEntityTable(), oldAttr));
+                archiveAttribute(oldAttr, updateDate);
             }
         }
 
@@ -560,6 +556,13 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
             sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new Parameter(getEntityTable(), oldObject));
             insertUpdatedDomainObject(newObject, updateDate);
         }
+    }
+    
+    @Transactional
+    protected void archiveAttribute(Attribute attribute, Date archiveDate){
+        attribute.setEndDate(archiveDate);
+        attribute.setStatus(StatusType.ARCHIVE);
+        sqlSession().update(ATTRIBUTE_NAMESPACE + "." + UPDATE_OPERATION, new Parameter(getEntityTable(), attribute));
     }
 
     @Override
