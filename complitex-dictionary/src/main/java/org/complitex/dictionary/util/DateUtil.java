@@ -1,5 +1,8 @@
 package org.complitex.dictionary.util;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -148,5 +151,14 @@ public class DateUtil {
         c.setTime(date);
         c.add(Calendar.YEAR, years);
         return c.getTime();
+    }
+
+    public static Date asDate(String value, String pattern) {
+        DateFormat sdf = new SimpleDateFormat(pattern);
+        try {
+            return sdf.parse(value);
+        } catch (ParseException e) {
+        }
+        return null;
     }
 }
