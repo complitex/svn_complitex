@@ -13,6 +13,9 @@ import java.util.Locale;
  */
 public class DateUtil {
 
+    private DateUtil() {
+    }
+
     public static Date getCurrentDate() {
         return Calendar.getInstance().getTime();
     }
@@ -154,6 +157,9 @@ public class DateUtil {
     }
 
     public static Date asDate(String value, String pattern) {
+        if (value == null) {
+            return null;
+        }
         DateFormat sdf = new SimpleDateFormat(pattern);
         try {
             return sdf.parse(value);
