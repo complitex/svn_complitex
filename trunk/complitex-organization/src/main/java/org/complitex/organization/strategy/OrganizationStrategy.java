@@ -52,6 +52,7 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
     private PermissionBean permissionBean;
     @EJB
     private SequenceBean sequenceBean;
+    protected static final String ORGANIZATION_TYPE_PARAMETER = "organizationTypeIds";
 
     @Override
     public String getEntityTable() {
@@ -328,7 +329,7 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
     @Override
     public List<? extends DomainObject> getUserOrganizations(Locale locale, Long... excludeOrganizationsId) {
         DomainObjectExample example = new DomainObjectExample();
-        example.addAdditionalParam("organizationTypeIds", ImmutableList.of(OrganizationTypeStrategy.USER_ORGANIZATION_TYPE));
+        example.addAdditionalParam(ORGANIZATION_TYPE_PARAMETER, ImmutableList.of(OrganizationTypeStrategy.USER_ORGANIZATION_TYPE));
         if (locale != null) {
             example.setOrderByAttributeTypeId(NAME);
             example.setLocaleId(localeBean.convert(locale).getId());

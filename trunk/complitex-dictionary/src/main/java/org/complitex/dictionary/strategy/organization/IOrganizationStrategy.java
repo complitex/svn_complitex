@@ -23,6 +23,14 @@ public interface IOrganizationStrategy extends IStrategy {
     long USER_ORGANIZATION_PARENT = 903;
     long ORGANIZATION_TYPE = 905;
 
+    /**
+     * Gets user organizations that current user can see (at least reading).
+     * That is, it returns all user organizations that accessed by user's organizations.
+     * 
+     * @param locale Locale. It is used in sorting of user organizations by name.
+     * @param excludeOrganizationsId Ids of user organizations that should be excluded from returned list.
+     * @return 
+     */
     @Transactional
     List<? extends DomainObject> getUserOrganizations(Locale locale, Long... excludeOrganizationsId);
 
@@ -41,6 +49,6 @@ public interface IOrganizationStrategy extends IStrategy {
 
     @Transactional
     Long validateName(Long id, String name, Locale locale);
-    
+
     String getUniqueCode(DomainObject organization);
 }
