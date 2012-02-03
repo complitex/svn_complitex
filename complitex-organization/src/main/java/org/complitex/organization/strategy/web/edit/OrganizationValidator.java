@@ -26,11 +26,15 @@ public class OrganizationValidator implements IValidator {
     private OrganizationEditComponent organizationEditComponent;
 
     @Override
-    public boolean validate(DomainObject object, DomainObjectEditPanel editPanel) {
-        boolean valid = checkDistrict(object, getEditComponent(editPanel));
+    public boolean validate(DomainObject organization, DomainObjectEditPanel editPanel) {
+        return validate(organization, getEditComponent(editPanel));
+    }
+
+    protected boolean validate(DomainObject organization, OrganizationEditComponent editComponent) {
+        boolean valid = checkDistrict(organization, editComponent);
 
         if (valid) {
-            valid = checkUniqueness(object, getEditComponent(editPanel));
+            valid = checkUniqueness(organization, editComponent);
         }
 
         return valid;
