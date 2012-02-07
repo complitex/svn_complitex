@@ -1,5 +1,6 @@
 package org.complitex.dictionary.service.executor;
 
+import java.util.Map;
 import org.complitex.dictionary.entity.IExecutorObject;
 import org.complitex.dictionary.entity.ILoggable;
 import org.complitex.dictionary.service.LogBean;
@@ -21,9 +22,9 @@ public class AsyncTaskBean {
     protected LogBean logBean;
 
     @Asynchronous
-    public void execute(IExecutorObject object, ITaskBean task, ITaskListener listener){
+    public void execute(IExecutorObject object, ITaskBean task, ITaskListener listener, Map commandParameters){
         try {
-            boolean noSkip = task.execute(object);
+            boolean noSkip = task.execute(object, commandParameters);
 
             if (noSkip) {
                 log.debug("Задача {} завершена успешно.", task);

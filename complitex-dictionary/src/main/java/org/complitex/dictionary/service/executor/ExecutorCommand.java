@@ -1,5 +1,6 @@
 package org.complitex.dictionary.service.executor;
 
+import java.util.Map;
 import org.complitex.dictionary.entity.IExecutorObject;
 import org.complitex.dictionary.entity.ILoggable;
 
@@ -35,6 +36,9 @@ public class ExecutorCommand {
     private Queue<IExecutorObject> queue = new ConcurrentLinkedQueue<IExecutorObject>();
     private ITaskBean task;
     private IExecutorListener listener;
+    
+    // параметры управления ходом выполнения комманды
+    protected Map commandParameters;
 
     private int maxErrors;
     int maxThread;
@@ -185,5 +189,13 @@ public class ExecutorCommand {
 
     public int getRunningThreadCount(){
         return runningThread.get();
+    }
+
+    public Map getCommandParameters() {
+        return commandParameters;
+    }
+
+    public void setCommandParameters(Map processParameters) {
+        this.commandParameters = processParameters;
     }
 }
