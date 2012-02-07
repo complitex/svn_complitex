@@ -104,7 +104,7 @@ public class ExecutorBean {
                     executeNext(executorCommand);
                 }
             }
-        });
+        }, executorCommand.getCommandParameters());
 
         log.info("Выполнение процесса {} над объектом {}", task.getControllerClass().getSimpleName(), object);
     }
