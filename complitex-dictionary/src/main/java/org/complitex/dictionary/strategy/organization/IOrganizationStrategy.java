@@ -35,9 +35,6 @@ public interface IOrganizationStrategy extends IStrategy {
     List<? extends DomainObject> getUserOrganizations(Locale locale, Long... excludeOrganizationsId);
 
     @Transactional
-    List<? extends DomainObject> getAllOrganizations(Locale locale, Long... excludeOrganizationsId);
-
-    @Transactional
     Set<Long> getTreeChildrenOrganizationIds(long parentOrganizationId);
 
     String getDistrictCode(DomainObject organization);
