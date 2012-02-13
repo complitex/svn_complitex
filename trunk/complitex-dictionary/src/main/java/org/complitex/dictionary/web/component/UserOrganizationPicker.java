@@ -5,6 +5,7 @@
 package org.complitex.dictionary.web.component;
 
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -37,11 +38,31 @@ public class UserOrganizationPicker extends Panel {
     }
 
     private void init(final IModel<Long> organizationIdModel, boolean updating, final Long... excludeOrganizationsId) {
-        final IModel<List<? extends DomainObject>> allOrganizationsModel = new LoadableDetachableModel<List<? extends DomainObject>>() {
+        final IModel<List<? extends DomainObject>> userOrganizationsModel = new LoadableDetachableModel<List<? extends DomainObject>>() {
 
             @Override
             protected List<? extends DomainObject> load() {
-                return organizationStrategy.getAllOrganizations(getLocale(), excludeOrganizationsId);
+                // organizations visible to user
+                List<? extends DomainObject> userOrganizatons =
+                        organizationStrategy.getUserOrganizations(getLocale(), excludeOrganizationsId);
+
+                //maybe current organization is not visible to user however we have to add it to list of user organizations as well
+                final Long currentOrganizationId = organizationIdModel.getObject();
+                if (currentOrganizationId != null) {
+                    // check whether current organization within list already
+                    boolean found = false;
+                    for (DomainObject o : userOrganizatons) {
+                        if (o.getId().equals(currentOrganizationId)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        userOrganizatons = ImmutableList.<DomainObject>builder().addAll(userOrganizatons).
+                                add(organizationStrategy.findById(currentOrganizationId, true)).build();
+                    }
+                }
+                return userOrganizatons;
             }
         };
         DomainObjectDisableAwareRenderer renderer = new DomainObjectDisableAwareRenderer() {
@@ -57,7 +78,7 @@ public class UserOrganizationPicker extends Panel {
             public DomainObject getObject() {
                 final Long id = organizationIdModel.getObject();
                 if (id != null) {
-                    return Iterables.find(allOrganizationsModel.getObject(), new Predicate<DomainObject>() {
+                    return Iterables.find(userOrganizationsModel.getObject(), new Predicate<DomainObject>() {
 
                         @Override
                         public boolean apply(DomainObject input) {
@@ -74,7 +95,7 @@ public class UserOrganizationPicker extends Panel {
             }
         };
         DisableAwareDropDownChoice<DomainObject> select = new DisableAwareDropDownChoice<DomainObject>("select", model,
-                allOrganizationsModel, renderer);
+                userOrganizationsModel, renderer);
         select.setNullValid(true);
         select.setOutputMarkupId(true);
 

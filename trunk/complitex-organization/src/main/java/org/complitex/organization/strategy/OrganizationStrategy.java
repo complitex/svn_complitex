@@ -301,32 +301,6 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
 
     @Transactional
     @Override
-    public List<? extends DomainObject> getAllOrganizations(Locale locale, Long... excludeOrganizationsId) {
-        DomainObjectExample example = new DomainObjectExample();
-        example.setAdmin(true);
-        if (locale != null) {
-            example.setOrderByAttributeTypeId(NAME);
-            example.setLocaleId(localeBean.convert(locale).getId());
-            example.setAsc(true);
-        }
-        configureExample(example, ImmutableMap.<String, Long>of(), null);
-        List<? extends DomainObject> allOrganizations = find(example);
-        if (excludeOrganizationsId == null) {
-            return allOrganizations;
-        }
-
-        List<DomainObject> finalAllOrganizations = Lists.newArrayList();
-        Set<Long> excludeSet = Sets.newHashSet(excludeOrganizationsId);
-        for (DomainObject organization : allOrganizations) {
-            if (!excludeSet.contains(organization.getId())) {
-                finalAllOrganizations.add(organization);
-            }
-        }
-        return finalAllOrganizations;
-    }
-
-    @Transactional
-    @Override
     public List<? extends DomainObject> getUserOrganizations(Locale locale, Long... excludeOrganizationsId) {
         DomainObjectExample example = new DomainObjectExample();
         example.addAdditionalParam(ORGANIZATION_TYPE_PARAMETER, ImmutableList.of(OrganizationTypeStrategy.USER_ORGANIZATION_TYPE));
