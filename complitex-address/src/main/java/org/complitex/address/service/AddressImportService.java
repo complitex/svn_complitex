@@ -333,8 +333,12 @@ public class AddressImportService extends AbstractImportService{
                 domainObject.setExternalId(Long.parseLong(line[0].trim()));
 
                 //Название типа населенного пункта
-                Attribute name = domainObject.getAttribute(CityTypeStrategy.SHORT_NAME);
+                Attribute name = domainObject.getAttribute(CityTypeStrategy.NAME);
                 stringCultureBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[2].trim());
+                
+                //Короткое название типа населенного пункта
+                Attribute shortName = domainObject.getAttribute(CityTypeStrategy.SHORT_NAME);
+                stringCultureBean.getSystemStringCulture(shortName.getLocalizedValues()).setValue(line[1].trim());
 
                 cityTypeStrategy.insert(domainObject, DateUtil.getCurrentDate());
 
@@ -501,8 +505,12 @@ public class AddressImportService extends AbstractImportService{
                 domainObject.setExternalId(Long.parseLong(line[0].trim()));
 
                 //Название типа улицы
-                Attribute name = domainObject.getAttribute(StreetTypeStrategy.SHORT_NAME);
+                Attribute name = domainObject.getAttribute(StreetTypeStrategy.NAME);
                 stringCultureBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[2].trim());
+                
+                //Короткое название улицы
+                Attribute shortName = domainObject.getAttribute(StreetTypeStrategy.SHORT_NAME);
+                stringCultureBean.getSystemStringCulture(shortName.getLocalizedValues()).setValue(line[1].trim());
 
                 streetTypeStrategy.insert(domainObject, DateUtil.getCurrentDate());
 
