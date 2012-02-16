@@ -86,18 +86,37 @@ public class UserEdit extends FormTemplatePage {
         final IModel<User> userModel = new Model<User>(user);
 
         final SearchComponentState searchComponentState = new SearchComponentState();
-
+        Locale userLocale = null;
         if (userId != null) {
+            // Адрес
             for (String s : SEARCH_FILTERS) {
                 searchComponentState.put(s, preferenceBean.getPreferenceDomainObject(userId, DEFAULT_STATE_PAGE, s));
             }
-        }
 
+            // Локаль
+            Preference localePreference = preferenceBean.getPreference(userId, GLOBAL_PAGE, LOCALE_KEY);
+            userLocale = localePreference != null ? new Locale(localePreference.getValue()) : null;
+        }
+        final IModel<Locale> localeModel = new Model<Locale>(userLocale != null ? userLocale : localeBean.getSystemLocale());
+
+        Boolean copyUseDefaultAddressFlag = null;
         //Копирование
         if (copyUser) {
+            // запомнить флаг установки адреса в поисковой строке прежде чем обнулить user id
+            final Preference useDefaultAddressPreference = preferenceBean.getPreference(userId, GLOBAL_PAGE, IS_USE_DEFAULT_STATE_KEY);
+            if (useDefaultAddressPreference != null) {
+                copyUseDefaultAddressFlag = Boolean.valueOf(useDefaultAddressPreference.getValue());
+            }
+
             userId = null;
             user.setId(null);
             user.setUserInfoObjectId(null);
+
+            // заменить весь объект UserInfo
+            user.setUserInfo(userInfoStrategy.newInstance());
+
+            // очистить логин
+            user.setLogin(null);
 
             for (UserOrganization userOrganization : user.getUserOrganizations()) {
                 userOrganization.setId(null);
@@ -113,11 +132,11 @@ public class UserEdit extends FormTemplatePage {
         final User oldUser = (userId != null) ? CloneUtil.cloneObject(userModel.getObject()) : null;
 
         //Форма
-        Form form = new Form<User>("form");
+        Form<User> form = new Form<User>("form");
         add(form);
 
         //Логин
-        RequiredTextField login = new RequiredTextField<String>("login", new PropertyModel<String>(userModel, "login"));
+        RequiredTextField<String> login = new RequiredTextField<String>("login", new PropertyModel<String>(userModel, "login"));
         login.setEnabled(userId == null);
         form.add(login);
 
@@ -133,10 +152,6 @@ public class UserEdit extends FormTemplatePage {
         form.add(userInfo);
 
         //Локаль
-        Preference localePreference = preferenceBean.getPreference(userId, GLOBAL_PAGE, LOCALE_KEY);
-
-        final IModel<Locale> localeModel = new Model<Locale>(localePreference != null
-                ? new Locale(localePreference.getValue()) : localeBean.getSystemLocale());
         form.add(new LocalePicker("locale", localeModel, false));
 
         //Группы привилегий
@@ -223,9 +238,15 @@ public class UserEdit extends FormTemplatePage {
         });
 
         //Адрес по умолчанию
-        Preference useDefaultPreference = preferenceBean.getOrCreatePreference(userId, GLOBAL_PAGE, IS_USE_DEFAULT_STATE_KEY);
-        final Model<Boolean> useDefaultModel = new Model<Boolean>(Boolean.valueOf(useDefaultPreference.getValue()));
-        form.add(new CheckBox("use_default_address", useDefaultModel));
+        Boolean useDefaultAddressFlag = null;
+        if (!copyUser) {
+            Preference useDefaultAddressPreference = preferenceBean.getOrCreatePreference(userId, GLOBAL_PAGE, IS_USE_DEFAULT_STATE_KEY);
+            useDefaultAddressFlag = Boolean.valueOf(useDefaultAddressPreference.getValue());
+        } else {
+            useDefaultAddressFlag = copyUseDefaultAddressFlag;
+        }
+        final Model<Boolean> useDefaultAddressModel = new Model<Boolean>(useDefaultAddressFlag);
+        form.add(new CheckBox("use_default_address", useDefaultAddressModel));
 
         form.add(new WiQuerySearchComponent("searchComponent", searchComponentState, SEARCH_FILTERS, null, ShowMode.ACTIVE, true));
 
@@ -255,7 +276,7 @@ public class UserEdit extends FormTemplatePage {
                         }
 
                         //Использовать ли адрес по умолчанию при входе в систему
-                        preferenceBean.save(user.getId(), GLOBAL_PAGE, IS_USE_DEFAULT_STATE_KEY, useDefaultModel.getObject().toString());
+                        preferenceBean.save(user.getId(), GLOBAL_PAGE, IS_USE_DEFAULT_STATE_KEY, useDefaultAddressModel.getObject().toString());
 
                         logBean.info(Module.NAME, UserEdit.class, User.class, null, user.getId(),
                                 (user.getId() == null) ? Log.EVENT.CREATE : Log.EVENT.EDIT, getLogChanges(oldUser, user), null);
