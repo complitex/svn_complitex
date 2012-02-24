@@ -23,7 +23,7 @@ public class SessionBean extends AbstractBean {
 
     private static final String MAPPING_NAMESPACE = SessionBean.class.getName();
     private static final String ORGANIZATION_ENTITY = "organization";
-    static final String CHILD_ORGANIZATION_VIEW_ROLE = "CHILD_ORGANIZATION_VIEW";
+    public static final String CHILD_ORGANIZATION_VIEW_ROLE = "CHILD_ORGANIZATION_VIEW";
     private static final String ADMIN_LOGIN = "admin";
     @Resource
     private SessionContext sessionContext;
@@ -52,7 +52,7 @@ public class SessionBean extends AbstractBean {
         return sqlSession().selectList(MAPPING_NAMESPACE + ".selectOrganizationChildrenObjectIds", parentObjectId);
     }
 
-    private List<Long> getUserOrganizationTreeObjectIds() {
+    public List<Long> getUserOrganizationTreeObjectIds() {
         List<Long> objectIds = new ArrayList<Long>();
 
         for (Long objectId : getUserOrganizationObjectIds()) {
