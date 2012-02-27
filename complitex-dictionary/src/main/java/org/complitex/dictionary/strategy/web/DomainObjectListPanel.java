@@ -9,7 +9,6 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
@@ -19,7 +18,6 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.converter.*;
 import org.complitex.dictionary.entity.Attribute;
@@ -33,8 +31,6 @@ import org.complitex.dictionary.service.LocaleBean;
 import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
-import org.complitex.dictionary.strategy.web.model.DomainObjectIdModel;
-import org.complitex.dictionary.util.StringUtil;
 import org.complitex.dictionary.web.DictionaryFwSession;
 import org.complitex.dictionary.web.component.ShowMode;
 import org.complitex.dictionary.web.component.datatable.ArrowOrderByBorder;
@@ -203,7 +199,7 @@ public final class DomainObjectListPanel extends Panel {
             protected void populateItem(Item<DomainObject> item) {
                 DomainObject object = item.getModelObject();
 
-                item.add(new Label("id", StringUtil.valueOf(object.getId())));
+                item.add(new Label("order", String.valueOf(getViewOffset() + item.getIndex() + 1)));
 
                 final Map<Attribute, EntityAttributeType> attrToTypeMap = Maps.newLinkedHashMap();
                 for (EntityAttributeType attrType : listAttributeTypes) {
@@ -304,8 +300,6 @@ public final class DomainObjectListPanel extends Panel {
         filterForm.add(columns);
 
         //Filters
-        filterForm.add(new TextField<String>("id", new DomainObjectIdModel(new PropertyModel<Long>(example, "id"))));
-
         ListView<EntityAttributeType> filters = new ListView<EntityAttributeType>("filters", listAttributeTypes) {
 
             @Override

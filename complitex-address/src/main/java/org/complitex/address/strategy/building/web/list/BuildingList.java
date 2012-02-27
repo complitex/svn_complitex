@@ -20,14 +20,12 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.address.strategy.building.BuildingStrategy;
 import org.complitex.address.strategy.building.entity.Building;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.service.LocaleBean;
 import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
-import org.complitex.dictionary.strategy.web.model.DomainObjectIdModel;
 import org.complitex.dictionary.util.StringUtil;
 import org.complitex.dictionary.web.component.ShowMode;
 import org.complitex.dictionary.web.component.datatable.ArrowOrderByBorder;
@@ -157,7 +155,6 @@ public final class BuildingList extends ScrollListPage {
         dataProvider.setSort(getSortProperty(""), getSortOrder(true));
 
         //Filters
-        filterForm.add(new TextField<String>("id", new DomainObjectIdModel(new PropertyModel<Long>(example, "id"))));
         filterForm.add(new TextField<String>("numberFilter", new Model<String>() {
 
             @Override
@@ -202,7 +199,7 @@ public final class BuildingList extends ScrollListPage {
             protected void populateItem(Item<Building> item) {
                 Building building = item.getModelObject();
 
-                item.add(new Label("id", StringUtil.valueOf(building.getId())));
+                item.add(new Label("order", StringUtil.valueOf(getViewOffset() + item.getIndex() + 1)));
                 item.add(new Label("number", building.getAccompaniedNumber(getLocale())));
                 item.add(new Label("corp", building.getAccompaniedCorp(getLocale())));
                 item.add(new Label("structure", building.getAccompaniedStructure(getLocale())));
