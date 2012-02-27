@@ -8,30 +8,33 @@ import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.CSSPackageResource;
 import org.apache.wicket.markup.html.JavascriptPackageResource;
-import org.complitex.dictionary.web.component.search.CollapsibleSearchPanel;
+import org.complitex.dictionary.web.component.search.CollapsibleInputSearchComponent;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
 
 /**
  *
  * @author Artem
  */
-public class CollapsibleSearchToolbarButton extends ToolbarButton {
+public class CollapsibleInputSearchToolbarButton extends ToolbarButton {
 
-    private final CollapsibleSearchPanel collapsibleSearchPanel;
-
-    public CollapsibleSearchToolbarButton(String id, CollapsibleSearchPanel collapsibleSearchPanel) {
-        super(id, new ResourceReference("images/gear_blue.png"), "collapsible_search_toolbar_button_title", true);
+    public CollapsibleInputSearchToolbarButton(String id) {
+        super(id, new ResourceReference("images/gear_blue.png"), "collapsible_input_search_toolbar_button_title", true);
 
         add(CSSPackageResource.getHeaderContribution(CollapsibleSearchToolbarButton.class,
                 CollapsibleSearchToolbarButton.class.getSimpleName() + ".css"));
         add(JavascriptPackageResource.getHeaderContribution(CollapsibleSearchToolbarButton.class,
                 CollapsibleSearchToolbarButton.class.getSimpleName() + ".js"));
-
-        this.collapsibleSearchPanel = collapsibleSearchPanel;
     }
 
     @Override
-    protected void onClick(AjaxRequestTarget target) {
-        collapsibleSearchPanel.toggle(target);
+    protected void onClick(final AjaxRequestTarget target) {
+        getPage().visitChildren(CollapsibleInputSearchComponent.class, new IVisitor<CollapsibleInputSearchComponent>() {
+
+            @Override
+            public Object component(CollapsibleInputSearchComponent collapsibleInputSearchComponent) {
+                collapsibleInputSearchComponent.toggle(target);
+                return IVisitor.CONTINUE_TRAVERSAL;
+            }
+        });
     }
 }
