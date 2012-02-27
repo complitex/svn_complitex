@@ -24,7 +24,6 @@ import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionary.web.DictionaryFwSession;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
-import org.complitex.dictionary.web.component.search.WiQuerySearchComponent;
 import org.complitex.dictionary.web.component.type.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +37,7 @@ import java.util.Map;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.strategy.web.DomainObjectEditPanel;
 
+import org.complitex.dictionary.web.component.search.CollapsibleInputSearchComponent;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 import static org.apache.wicket.util.string.Strings.isEmpty;
@@ -190,7 +190,7 @@ public class DomainObjectInputPanel extends Panel {
             parentContainer.setVisible(false);
             parentContainer.add(new EmptyPanel("parentSearch"));
         } else {
-            WiQuerySearchComponent parentSearchComponent = new WiQuerySearchComponent("parentSearch", getParentSearchComponentState(),
+            CollapsibleInputSearchComponent parentSearchComponent = new CollapsibleInputSearchComponent("parentSearch", getParentSearchComponentState(),
                     parentFilters, parentSearchCallback, ShowMode.ACTIVE, !isHistory() && canEdit(strategyName, entity, object)) {
 
                 @Override

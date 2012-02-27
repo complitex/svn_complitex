@@ -4,6 +4,8 @@
  */
 package org.complitex.address.strategy.apartment.web.edit;
 
+import com.google.common.collect.Lists;
+import java.util.List;
 import java.util.Locale;
 import javax.ejb.EJB;
 import org.apache.wicket.PageParameters;
@@ -20,6 +22,8 @@ import org.complitex.dictionary.util.CloneUtil;
 import org.complitex.dictionary.util.DateUtil;
 import org.complitex.dictionary.util.EjbBeanLocator;
 import org.complitex.dictionary.util.ResourceUtil;
+import org.complitex.template.web.component.toolbar.ToolbarButton;
+import org.complitex.template.web.component.toolbar.search.CollapsibleInputSearchToolbarButton;
 import org.complitex.template.web.pages.DomainObjectEdit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -168,5 +172,14 @@ public final class ApartmentEdit extends DomainObjectEdit {
         getLogBean().log(Log.STATUS.WARN, moduleName, controllerClass, Log.EVENT.CREATE,
                 EjbBeanLocator.getBean(ApartmentStrategy.class), null, invalidObject,
                 ResourceUtil.getString(RESOURCE_BUNDLE, "apartment_bulk_save_invalid", locale), numbers, invalidNumber);
+    }
+
+    @Override
+    protected List<? extends ToolbarButton> getToolbarButtons(String id) {
+        List<ToolbarButton> toolbarButtons = Lists.newArrayList();
+        toolbarButtons.addAll(super.getToolbarButtons(id));
+        toolbarButtons.add(new CollapsibleInputSearchToolbarButton(id));
+        return toolbarButtons;
+
     }
 }

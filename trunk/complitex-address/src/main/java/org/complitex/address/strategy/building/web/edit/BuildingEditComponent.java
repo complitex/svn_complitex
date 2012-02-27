@@ -5,7 +5,6 @@
 package org.complitex.address.strategy.building.web.edit;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -14,13 +13,10 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
-import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.complitex.address.strategy.building.BuildingStrategy;
 import org.complitex.address.strategy.building.entity.Building;
-import org.complitex.address.strategy.district.DistrictStrategy;
 import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.DomainObject;
-import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
@@ -28,13 +24,10 @@ import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.ShowMode;
 import org.complitex.dictionary.web.component.list.AjaxRemovableListView;
-import org.complitex.dictionary.web.component.search.ISearchCallback;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
-import org.complitex.dictionary.web.component.search.WiQuerySearchComponent;
 
 import javax.ejb.EJB;
-import java.io.Serializable;
-import java.util.Map;
+import org.complitex.dictionary.web.component.search.CollapsibleInputSearchComponent;
 
 /**
  *
@@ -43,30 +36,13 @@ import java.util.Map;
 public final class BuildingEditComponent extends AbstractComplexAttributesPanel {
 
     @EJB
-    private DistrictStrategy districtStrategy;
-    @EJB
-    private StringCultureBean stringBean;
-    @EJB
     private StrategyFactory strategyFactory;
     private SearchComponentState districtSearchComponentState;
-
-    private class DistrictSearchCallback implements ISearchCallback, Serializable {
-
-        @Override
-        public void found(Component component, final Map<String, Long> ids, final AjaxRequestTarget target) {
-            DomainObject district = districtSearchComponentState.get("district");
-            if (district != null && district.getId() > 0) {
-                districtAttribute.setValueId(district.getId());
-            } else {
-                districtAttribute.setValueId(null);
-            }
-        }
-    }
+    private FeedbackPanel messages;
 
     public BuildingEditComponent(String id, boolean disabled) {
         super(id, disabled);
     }
-    private FeedbackPanel messages;
 
     private FeedbackPanel findFeedbackPanel() {
         if (messages == null) {
@@ -81,7 +57,6 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
         }
         return messages;
     }
-    private Attribute districtAttribute;
 
     @Override
     protected void init() {
@@ -90,22 +65,22 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
         attributesContainer.setOutputMarkupId(true);
         add(attributesContainer);
 
+        IStrategy buildingStrategy = strategyFactory.getStrategy("building");
+        IStrategy districtStrategy = strategyFactory.getStrategy("district");
+
         final Building building = (Building) getDomainObject();
+
+        final boolean enabled = !isDisabled() && DomainObjectAccessUtil.canEdit(null, "building", building);
 
         final SearchComponentState parentSearchComponentState = getInputPanel().getParentSearchComponentState();
 
         //district
-        WebMarkupContainer districtContainer = new WebMarkupContainer("districtContainer");
+        final WebMarkupContainer districtContainer = new WebMarkupContainer("districtContainer");
         attributesContainer.add(districtContainer);
 
-        Label districtLabel = new Label("districtLabel", new AbstractReadOnlyModel<String>() {
-
-            @Override
-            public String getObject() {
-                IStrategy buildingStrategy = strategyFactory.getStrategy("building");
-                return stringBean.displayValue(buildingStrategy.getEntity().getAttributeType(BuildingStrategy.DISTRICT).getAttributeNames(), getLocale());
-            }
-        });
+        Label districtLabel = new Label("districtLabel",
+                DomainObjectInputPanel.labelModel(buildingStrategy.getEntity().getAttributeType(BuildingStrategy.DISTRICT).
+                getAttributeNames(), getLocale()));
         districtContainer.add(districtLabel);
         districtSearchComponentState = new SearchComponentState() {
 
@@ -116,26 +91,21 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
                 if ("district".equals(entity)) {
                     building.setDistrict(object);
                 }
-
                 return object;
             }
         };
         districtSearchComponentState.updateState(parentSearchComponentState);
 
-        districtAttribute = building.getAttribute(BuildingStrategy.DISTRICT);
-
+        final Attribute districtAttribute = building.getAttribute(BuildingStrategy.DISTRICT);
         if (districtAttribute != null) {
-            Long districtId = districtAttribute.getValueId();
-
+            final Long districtId = districtAttribute.getValueId();
             if (districtId != null) {
                 DomainObject district = districtStrategy.findById(districtId, true);
                 districtSearchComponentState.put("district", district);
             }
         }
-
-        districtContainer.add(new WiQuerySearchComponent("district", districtSearchComponentState,
-                ImmutableList.of("country", "region", "city", "district"), new DistrictSearchCallback(), ShowMode.ACTIVE,
-                !isDisabled() && DomainObjectAccessUtil.canEdit(null, "building", building)));
+        districtContainer.add(new CollapsibleInputSearchComponent("district", districtSearchComponentState,
+                ImmutableList.of("country", "region", "city", "district"), null, ShowMode.ACTIVE, enabled));
         districtContainer.setVisible(districtAttribute != null);
 
         //primary building address
@@ -163,7 +133,7 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
             protected void populateItem(ListItem<DomainObject> item) {
                 final DomainObject address = item.getModelObject();
 
-                DomainObjectInputPanel alternativeAddess = new DomainObjectInputPanel("alternativeAddess", address,
+                DomainObjectInputPanel alternativeAddress = new DomainObjectInputPanel("alternativeAddress", address,
                         "building_address", null, getInputPanel().getParentId(), getInputPanel().getParentEntity(),
                         getInputPanel().getDate()) {
 
@@ -180,9 +150,9 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
                         return alternativeAddressComponentState;
                     }
                 };
-                item.add(alternativeAddess);
+                item.add(alternativeAddress);
                 addRemoveSubmitLink("remove", findParent(Form.class), item, null, attributesContainer, feedbackPanel).
-                        setVisible(!isDisabled() && DomainObjectAccessUtil.canEdit(null, "building", building));
+                        setVisible(enabled);
             }
         };
         attributesContainer.add(alternativeAdresses);
@@ -201,10 +171,31 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
 
             @Override
             protected void onError(AjaxRequestTarget target, Form<?> form) {
+                super.onError(target, form);
                 target.addComponent(feedbackPanel);
             }
         };
-        add.setVisible(!isDisabled() && DomainObjectAccessUtil.canEdit(null, "building", building));
+        add.setVisible(enabled);
         add(add);
+    }
+
+    @Override
+    public void onInsert() {
+        beforePersist();
+    }
+
+    @Override
+    public void onUpdate() {
+        beforePersist();
+    }
+
+    private void beforePersist() {
+        final Attribute districtAttribute = getDomainObject().getAttribute(BuildingStrategy.DISTRICT);
+        final DomainObject district = districtSearchComponentState.get("district");
+        if (district != null && district.getId() > 0 && district.getId() > 0) {
+            districtAttribute.setValueId(district.getId());
+        } else {
+            districtAttribute.setValueId(null);
+        }
     }
 }

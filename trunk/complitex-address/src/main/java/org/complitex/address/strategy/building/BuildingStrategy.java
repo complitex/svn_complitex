@@ -36,6 +36,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.text.MessageFormat;
 import java.util.*;
+import org.complitex.address.strategy.building.web.edit.BuildingEdit;
 import org.complitex.dictionary.Module;
 import org.complitex.dictionary.entity.Log;
 import org.complitex.dictionary.service.LogBean;
@@ -374,7 +375,7 @@ public class BuildingStrategy extends TemplateStrategy {
 
     @Override
     public int getSearchTextFieldSize() {
-        return 5;
+        return 8;
     }
 
     @Transactional
@@ -653,5 +654,10 @@ public class BuildingStrategy extends TemplateStrategy {
     @Override
     public String[] getListRoles() {
         return new String[]{SecurityRole.ADDRESS_MODULE_VIEW};
+    }
+
+    @Override
+    public Class<? extends WebPage> getEditPage() {
+        return BuildingEdit.class;
     }
 }
