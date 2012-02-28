@@ -314,6 +314,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
         example.setTable(getEntityTable());
         prepareExampleForPermissionCheck(example);
+        extendOrderBy(example);
 
         List<DomainObject> objects = sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + "." + FIND_OPERATION, example);
         for (DomainObject object : objects) {
@@ -557,9 +558,9 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
             insertUpdatedDomainObject(newObject, updateDate);
         }
     }
-    
+
     @Transactional
-    protected void archiveAttribute(Attribute attribute, Date archiveDate){
+    protected void archiveAttribute(Attribute attribute, Date archiveDate) {
         attribute.setEndDate(archiveDate);
         attribute.setStatus(StatusType.ARCHIVE);
         sqlSession().update(ATTRIBUTE_NAMESPACE + "." + UPDATE_OPERATION, new Parameter(getEntityTable(), attribute));
@@ -939,6 +940,9 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     @Override
     public long getDefaultOrderByAttributeId() {
         return getEntity().getId();
+    }
+
+    protected void extendOrderBy(DomainObjectExample example) {
     }
 
     /*

@@ -167,4 +167,12 @@ public class RoomStrategy extends TemplateStrategy {
     public Class<? extends WebPage> getEditPage() {
         return RoomEdit.class;
     }
+
+    @Override
+    protected void extendOrderBy(DomainObjectExample example) {
+        if (example.getOrderByAttributeTypeId() != null
+                && example.getOrderByAttributeTypeId().equals(NAME)) {
+            example.setOrderByNumber(true);
+        }
+    }
 }
