@@ -12,16 +12,12 @@ import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.util.time.Duration;
 import org.complitex.address.entity.AddressImportFile;
 import org.complitex.address.service.AddressImportService;
-import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.IImportFile;
 import org.complitex.dictionary.entity.ImportMessage;
-import org.complitex.dictionary.web.component.DisableAwareDropDownChoice;
-import org.complitex.dictionary.web.component.DomainObjectDisableAwareRenderer;
 import org.complitex.template.web.security.SecurityRole;
 import org.complitex.template.web.template.TemplatePage;
 
@@ -29,6 +25,7 @@ import javax.ejb.EJB;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.apache.wicket.model.ResourceModel;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -36,20 +33,23 @@ import java.util.List;
  */
 @AuthorizeInstantiation(SecurityRole.ADMIN_MODULE_EDIT)
 public class ImportPage extends TemplatePage {
+
     @EJB
     private AddressImportService addressImportService;
-
     private int stopTimer = 0;
+    private final IModel<List<IImportFile>> dictionaryModel;
 
     public ImportPage() {
+        add(new Label("title", new ResourceModel("title")));
+
         final WebMarkupContainer container = new WebMarkupContainer("container");
         add(container);
 
-        final IModel<List<IImportFile>> dictionaryModel = new ListModel<IImportFile>();
+        dictionaryModel = new ListModel<IImportFile>();
 
         container.add(new FeedbackPanel("messages"));
 
-        Form form = new Form("form");
+        Form<Void> form = new Form<Void>("form");
         container.add(form);
 
         //Справочники
@@ -58,9 +58,9 @@ public class ImportPage extends TemplatePage {
 
         form.add(new CheckBoxMultipleChoice<IImportFile>("address", dictionaryModel, dictionaryList,
                 new IChoiceRenderer<IImportFile>() {
+
                     @Override
                     public Object getDisplayValue(IImportFile object) {
-
                         return object.getFileName() + getStatus(addressImportService.getMessage(object));
                     }
 
@@ -72,13 +72,12 @@ public class ImportPage extends TemplatePage {
 
 
         //Кнопка импортировать
-        Button process = new Button("process"){
+        Button process = new Button("process") {
+
             @Override
             public void onSubmit() {
-
                 if (!addressImportService.isProcessing()) {
                     addressImportService.process(dictionaryModel.getObject());
-
                     container.add(newTimer());
                 }
             }
@@ -92,11 +91,13 @@ public class ImportPage extends TemplatePage {
 
         //Ошибки
         container.add(new Label("error", new LoadableDetachableModel<Object>() {
+
             @Override
             protected Object load() {
                 return addressImportService.getErrorMessage();
             }
-        }){
+        }) {
+
             @Override
             public boolean isVisible() {
                 return addressImportService.isError();
@@ -104,18 +105,22 @@ public class ImportPage extends TemplatePage {
         });
     }
 
-    private AjaxSelfUpdatingTimerBehavior newTimer(){
+    private AjaxSelfUpdatingTimerBehavior newTimer() {
         stopTimer = 0;
 
-        return new AjaxSelfUpdatingTimerBehavior(Duration.seconds(1)){
+        return new AjaxSelfUpdatingTimerBehavior(Duration.seconds(1)) {
+
             @Override
             protected void onPostProcessTarget(AjaxRequestTarget target) {
-                if (!addressImportService.isProcessing()){
+                if (!addressImportService.isProcessing()) {
+
+                    dictionaryModel.setObject(null);
+
                     stopTimer++;
                 }
 
-                if (stopTimer > 2){
-                    if (addressImportService.isSuccess()){
+                if (stopTimer > 2) {
+                    if (addressImportService.isSuccess()) {
                         info(getString("success"));
                     }
                     stop();
@@ -124,19 +129,17 @@ public class ImportPage extends TemplatePage {
         };
     }
 
-    private String getStatus(ImportMessage im){
+    private String getStatus(ImportMessage im) {
         if (im != null) {
-            if (im.getIndex() < 1 && !addressImportService.isProcessing()){
+            if (im.getIndex() < 1 && !addressImportService.isProcessing()) {
                 return " - " + getStringOrKey("error");
-            }else if (im.getIndex() == im.getCount()){
+            } else if (im.getIndex() == im.getCount()) {
                 return " - " + getStringFormat("complete", im.getIndex());
-            }else{
+            } else {
                 return " - " + getStringFormat("processing", im.getIndex(), im.getCount());
             }
         }
 
         return "";
     }
-
 }
-
