@@ -404,8 +404,12 @@ public class BuildingStrategy extends TemplateStrategy {
     }
 
     @Transactional
-    public Long checkForExistingAddress(Long id, String number, String corp, String structure, Long parentEntityId, Long parentId, Locale locale) {
+    public Long checkForExistingAddress(Long id, String number, String corp, String structure, long parentEntityId, long parentId, Locale locale) {
         Map<String, Object> params = Maps.newHashMap();
+        params.put("additionalAddressAT", BUILDING_ADDRESS);
+        params.put("buildingAddressNumberAT", BuildingAddressStrategy.NUMBER);
+        params.put("buildingAddressCorpAT", BuildingAddressStrategy.CORP);
+        params.put("buildingAddressStructureAT", BuildingAddressStrategy.STRUCTURE);
         params.put("number", number);
         params.put("corp", corp);
         params.put("structure", structure);

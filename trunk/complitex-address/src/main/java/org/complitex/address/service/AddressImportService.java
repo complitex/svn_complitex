@@ -1,5 +1,6 @@
 package org.complitex.address.service;
 
+import java.util.Set;
 import au.com.bytecode.opencsv.CSVReader;
 import org.complitex.address.Module;
 import org.complitex.address.entity.AddressImportFile;
@@ -27,10 +28,12 @@ import javax.annotation.Resource;
 import javax.ejb.*;
 import javax.transaction.*;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.complitex.dictionary.service.LocaleBean;
 import static org.complitex.address.entity.AddressImportFile.*;
 
 /**
@@ -40,56 +43,42 @@ import static org.complitex.address.entity.AddressImportFile.*;
 @Singleton
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 @TransactionManagement(TransactionManagementType.BEAN)
-public class AddressImportService extends AbstractImportService{
-    private final static Logger log = LoggerFactory.getLogger(AddressImportService.class);
+public class AddressImportService extends AbstractImportService {
 
+    private final static Logger log = LoggerFactory.getLogger(AddressImportService.class);
     @Resource
     private UserTransaction userTransaction;
-
     @EJB
-    private StringCultureBean stringCultureBean;
-
+    private StringCultureBean stringBean;
+    @EJB
+    private LocaleBean localeBean;
     @EJB
     private CountryStrategy countryStrategy;
-
     @EJB
     private RegionStrategy regionStrategy;
-
     @EJB
     private CityTypeStrategy cityTypeStrategy;
-
     @EJB
     private CityStrategy cityStrategy;
-
     @EJB
     private DistrictStrategy districtStrategy;
-
     @EJB
     private StreetTypeStrategy streetTypeStrategy;
-
     @EJB
     private StreetStrategy streetStrategy;
-
     @EJB
     private BuildingStrategy buildingStrategy;
-
     @EJB
     private BuildingAddressStrategy buildingAddressStrategy;
-
     @EJB
     private ConfigBean configBean;
-
     @EJB
     private LogBean logBean;
-
     private boolean processing;
     private boolean error;
     private boolean success;
-
     private String errorMessage;
-
     private Map<IImportFile, ImportMessage> messages = new LinkedHashMap<IImportFile, ImportMessage>();
-
     private IImportListener listener = new IImportListener() {
 
         @Override
@@ -125,11 +114,11 @@ public class AddressImportService extends AbstractImportService{
         return errorMessage;
     }
 
-    public ImportMessage getMessage(IImportFile importFile){
+    public ImportMessage getMessage(IImportFile importFile) {
         return messages.get(importFile);
     }
 
-    private void init(){
+    private void init() {
         messages.clear();
         processing = true;
         error = false;
@@ -139,7 +128,7 @@ public class AddressImportService extends AbstractImportService{
 
     public <T extends IImportFile> void process(T importFile, IImportListener listener)
             throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
-        switch ((AddressImportFile)importFile){
+        switch ((AddressImportFile) importFile) {
             case COUNTRY:
                 importCountry(listener);
                 break;
@@ -168,8 +157,8 @@ public class AddressImportService extends AbstractImportService{
     }
 
     @Asynchronous
-    public <T extends IImportFile> void process(List<T> addressFiles){
-        if (processing){
+    public <T extends IImportFile> void process(List<T> addressFiles) {
+        if (processing) {
             return;
         }
 
@@ -178,7 +167,7 @@ public class AddressImportService extends AbstractImportService{
         configBean.getString(DictionaryConfig.IMPORT_FILE_STORAGE_DIR, true); //reload config cache
 
         try {
-            for(T t : addressFiles){
+            for (T t : addressFiles) {
                 userTransaction.begin();
 
                 process(t, listener);
@@ -200,7 +189,7 @@ public class AddressImportService extends AbstractImportService{
             errorMessage = e instanceof AbstractException ? e.getMessage() : new ImportCriticalException(e).getMessage();
 
             logBean.error(Module.NAME, AddressImportService.class, null, null, Log.EVENT.CREATE, errorMessage);
-        }finally {
+        } finally {
             processing = false;
         }
     }
@@ -221,7 +210,7 @@ public class AddressImportService extends AbstractImportService{
         try {
             String[] line;
 
-            while ((line = reader.readNext()) != null){
+            while ((line = reader.readNext()) != null) {
                 recordIndex++;
 
                 DomainObject domainObject = countryStrategy.newInstance();
@@ -231,7 +220,7 @@ public class AddressImportService extends AbstractImportService{
                 domainObject.setExternalId(Long.parseLong(line[0].trim()));
 
                 //Название страны
-                stringCultureBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[1].trim());
+                stringBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[1].trim());
 
                 countryStrategy.insert(domainObject, DateUtil.getCurrentDate());
 
@@ -241,7 +230,7 @@ public class AddressImportService extends AbstractImportService{
             listener.completeImport(COUNTRY, recordIndex);
         } catch (IOException e) {
             throw new ImportFileReadException(e, COUNTRY.getFileName(), recordIndex);
-        } catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             throw new ImportFileReadException(e, COUNTRY.getFileName(), recordIndex);
         } finally {
             try {
@@ -287,7 +276,7 @@ public class AddressImportService extends AbstractImportService{
 
                 //Название региона
                 Attribute name = domainObject.getAttribute(RegionStrategy.NAME);
-                stringCultureBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[2].trim());
+                stringBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[2].trim());
 
                 regionStrategy.insert(domainObject, DateUtil.getCurrentDate());
 
@@ -324,7 +313,7 @@ public class AddressImportService extends AbstractImportService{
         try {
             String[] line;
 
-            while ((line = reader.readNext()) != null){
+            while ((line = reader.readNext()) != null) {
                 recordIndex++;
 
                 DomainObject domainObject = cityTypeStrategy.newInstance();
@@ -334,11 +323,11 @@ public class AddressImportService extends AbstractImportService{
 
                 //Название типа населенного пункта
                 Attribute name = domainObject.getAttribute(CityTypeStrategy.NAME);
-                stringCultureBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[2].trim());
-                
+                stringBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[2].trim());
+
                 //Короткое название типа населенного пункта
                 Attribute shortName = domainObject.getAttribute(CityTypeStrategy.SHORT_NAME);
-                stringCultureBean.getSystemStringCulture(shortName.getLocalizedValues()).setValue(line[1].trim());
+                stringBean.getSystemStringCulture(shortName.getLocalizedValues()).setValue(line[1].trim());
 
                 cityTypeStrategy.insert(domainObject, DateUtil.getCurrentDate());
 
@@ -348,7 +337,7 @@ public class AddressImportService extends AbstractImportService{
             listener.completeImport(CITY_TYPE, recordIndex);
         } catch (IOException e) {
             throw new ImportFileReadException(e, CITY_TYPE.getFileName(), recordIndex);
-        } catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             throw new ImportFileReadException(e, CITY_TYPE.getFileName(), recordIndex);
         } finally {
             try {
@@ -400,7 +389,7 @@ public class AddressImportService extends AbstractImportService{
 
                 //Название населенного пункта
                 Attribute name = domainObject.getAttribute(CityStrategy.NAME);
-                stringCultureBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[3].trim());
+                stringBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[3].trim());
 
                 cityStrategy.insert(domainObject, DateUtil.getCurrentDate());
 
@@ -455,11 +444,11 @@ public class AddressImportService extends AbstractImportService{
 
                 //Код района
                 Attribute code = domainObject.getAttribute(DistrictStrategy.CODE);
-                stringCultureBean.getSystemStringCulture(code.getLocalizedValues()).setValue(line[2].trim());
+                stringBean.getSystemStringCulture(code.getLocalizedValues()).setValue(line[2].trim());
 
                 //Название района
                 Attribute name = domainObject.getAttribute(DistrictStrategy.NAME);
-                stringCultureBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[3].trim());
+                stringBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[3].trim());
 
                 districtStrategy.insert(domainObject, DateUtil.getCurrentDate());
 
@@ -496,7 +485,7 @@ public class AddressImportService extends AbstractImportService{
         try {
             String[] line;
 
-            while ((line = reader.readNext()) != null){
+            while ((line = reader.readNext()) != null) {
                 recordIndex++;
 
                 DomainObject domainObject = streetTypeStrategy.newInstance();
@@ -506,11 +495,11 @@ public class AddressImportService extends AbstractImportService{
 
                 //Название типа улицы
                 Attribute name = domainObject.getAttribute(StreetTypeStrategy.NAME);
-                stringCultureBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[2].trim());
-                
+                stringBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[2].trim());
+
                 //Короткое название улицы
                 Attribute shortName = domainObject.getAttribute(StreetTypeStrategy.SHORT_NAME);
-                stringCultureBean.getSystemStringCulture(shortName.getLocalizedValues()).setValue(line[1].trim());
+                stringBean.getSystemStringCulture(shortName.getLocalizedValues()).setValue(line[1].trim());
 
                 streetTypeStrategy.insert(domainObject, DateUtil.getCurrentDate());
 
@@ -520,7 +509,7 @@ public class AddressImportService extends AbstractImportService{
             listener.completeImport(STREET_TYPE, recordIndex);
         } catch (IOException e) {
             throw new ImportFileReadException(e, STREET_TYPE.getFileName(), recordIndex);
-        } catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             throw new ImportFileReadException(e, STREET_TYPE.getFileName(), recordIndex);
         } finally {
             try {
@@ -572,11 +561,15 @@ public class AddressImportService extends AbstractImportService{
 
                 //Название улицы
                 Attribute name = domainObject.getAttribute(StreetStrategy.NAME);
-                stringCultureBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[3].trim());
+                stringBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[3].trim());
 
-                streetStrategy.insert(domainObject, DateUtil.getCurrentDate());
-
-                listener.recordProcessed(STREET, recordIndex);
+                // сначала ищем улицу в системе с таким названием, типом и родителем(городом)
+                final Long existingStreetId = streetStrategy.performDefaultValidation(domainObject, localeBean.getSystemLocale());
+                if (existingStreetId != null) { // нашли, пропускаем улицу
+                } else { // не нашли, сохраняем улицу
+                    streetStrategy.insert(domainObject, DateUtil.getCurrentDate());
+                    listener.recordProcessed(STREET, recordIndex);
+                }
             }
 
             listener.completeImport(STREET, recordIndex);
@@ -617,8 +610,8 @@ public class AddressImportService extends AbstractImportService{
                 Building building;
                 DomainObject buildingAddress;
 
-                if (buildingId == null){
-                    building = (Building) buildingStrategy.newInstance();
+                if (buildingId == null) {
+                    building = buildingStrategy.newInstance();
 
                     //BUILDING_ID
                     building.setExternalId(Long.parseLong(line[0].trim()));
@@ -632,7 +625,7 @@ public class AddressImportService extends AbstractImportService{
 
                     //Primary Address
                     buildingAddress = building.getPrimaryAddress();
-                }else{
+                } else {
                     building = buildingStrategy.findById(buildingId, true);
 
                     //Alternative address
@@ -649,25 +642,55 @@ public class AddressImportService extends AbstractImportService{
                 buildingAddress.setParentId(streetId);
 
                 //Номер дома
-                Attribute number = buildingAddress.getAttribute(BuildingAddressStrategy.NUMBER);
-                stringCultureBean.getSystemStringCulture(number.getLocalizedValues()).setValue(line[3].trim());
+                final String number = line[3].trim();
+                final Attribute numberAttribute = buildingAddress.getAttribute(BuildingAddressStrategy.NUMBER);
+                stringBean.getSystemStringCulture(numberAttribute.getLocalizedValues()).setValue(number);
 
                 //Корпус
-                Attribute corp = buildingAddress.getAttribute(BuildingAddressStrategy.CORP);
-                stringCultureBean.getSystemStringCulture(corp.getLocalizedValues()).setValue(line[4].trim());
+                final String corp = line[4].trim();
+                final Attribute corpAttribute = buildingAddress.getAttribute(BuildingAddressStrategy.CORP);
+                stringBean.getSystemStringCulture(corpAttribute.getLocalizedValues()).setValue(corp);
 
                 //Строение
-                Attribute structure = buildingAddress.getAttribute(BuildingAddressStrategy.STRUCTURE);
-                stringCultureBean.getSystemStringCulture(structure.getLocalizedValues()).setValue(line[5].trim());
+                final String structure = line[5].trim();
+                final Attribute structureAttribute = buildingAddress.getAttribute(BuildingAddressStrategy.STRUCTURE);
+                stringBean.getSystemStringCulture(structureAttribute.getLocalizedValues()).setValue(structure);
 
-                if (buildingId == null){
-                    buildingStrategy.insert(building, DateUtil.getCurrentDate());
-                } else{
-                    DomainObject oldBuilding = buildingStrategy.findById(buildingId, true);
-                    buildingStrategy.update(oldBuilding, building, DateUtil.getCurrentDate());
+                // 1. все адреса дома должны иметь разные улицы
+                {
+                    //кол-во адресов:
+                    final int addressCount = building.getAllAddresses().size();
+
+                    //кол-во улиц:
+                    Set<Long> streetIds = new HashSet<Long>();
+                    for (DomainObject address : building.getAllAddresses()) {
+                        final Long currentStreetId = address.getParentId();
+                        if (currentStreetId != null) {
+                            streetIds.add(currentStreetId);
+                        }
+                    }
+                    final int streetCount = streetIds.size();
+
+                    if (addressCount > streetCount) {
+                        // кол-во адресов больше кол-ва улиц, следовательно некоторые адреса имеет одинаковые улицы. 
+                        // Такого быть не должно. Пропускаем такие записи.
+                    } else {
+                        // 2. ищем адрес дома в системе по номеру, корпусу, строению и улице
+                        final Long existingBuildingAddressId = buildingStrategy.checkForExistingAddress(buildingId,
+                                number, corp, structure, BuildingAddressStrategy.PARENT_STREET_ENTITY_ID, streetId,
+                                localeBean.getSystemLocale());
+                        if (existingBuildingAddressId != null) { // нашли, пропускаем запись
+                        } else { // не нашли, сохраняем дом и адрес
+                            if (buildingId == null) { // новый дом
+                                buildingStrategy.insert(building, DateUtil.getCurrentDate());
+                                listener.recordProcessed(BUILDING, recordIndex);
+                            } else { // существующий дом, доп. адрес
+                                DomainObject oldBuilding = buildingStrategy.findById(buildingId, true);
+                                buildingStrategy.update(oldBuilding, building, oldBuilding.getStartDate());
+                            }
+                        }
+                    }
                 }
-
-                listener.recordProcessed(BUILDING, recordIndex);
             }
 
             listener.completeImport(BUILDING, recordIndex);
