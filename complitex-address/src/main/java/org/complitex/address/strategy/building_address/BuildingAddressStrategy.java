@@ -39,7 +39,7 @@ public class BuildingAddressStrategy extends TemplateStrategy {
     public static final long STRUCTURE = 1502;
     public static final long PARENT_STREET_ENTITY_ID = 300L;
     /**
-     * It indicates sorting by combination of number, corp and structure
+     * It indicates default sorting by combination of number, corp and structure
      */
     public static final long DEFAULT_ORDER_BY_ID = -1;
     @EJB

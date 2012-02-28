@@ -25,8 +25,6 @@ import org.complitex.address.strategy.building.BuildingStrategy;
 import org.complitex.address.strategy.building.entity.Building;
 import org.complitex.address.strategy.building_address.BuildingAddressStrategy;
 import org.complitex.dictionary.strategy.IStrategy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -34,7 +32,6 @@ import org.slf4j.LoggerFactory;
  */
 public class BuildingValidator implements IValidator {
 
-    private static final Logger log = LoggerFactory.getLogger(BuildingValidator.class);
     private final Locale systemLocale;
 
     public BuildingValidator(Locale systemLocale) {
@@ -44,8 +41,8 @@ public class BuildingValidator implements IValidator {
     @Override
     public boolean validate(DomainObject object, DomainObjectEditPanel editPanel) {
         Building building = (Building) object;
-        return validateParents(building, editPanel) && validateCity(building, editPanel) && validateStreets(building, editPanel) &&
-                    validateAdresses(building, editPanel);
+        return validateParents(building, editPanel) && validateCity(building, editPanel) && validateStreets(building, editPanel)
+                && validateAdresses(building, editPanel);
     }
 
     private boolean validateCity(Building building, DomainObjectEditPanel editPanel) {
@@ -95,19 +92,19 @@ public class BuildingValidator implements IValidator {
     private boolean validateStreets(Building building, DomainObjectEditPanel editPanel) {
         //все адреса дома должны иметь разные улицы
         //кол-во адресов:
-        int addressCount = building.getAllAddresses().size();
+        final int addressCount = building.getAllAddresses().size();
 
         //кол-во улиц:
         Set<Long> streetIds = Sets.newHashSet();
         for (DomainObject address : building.getAllAddresses()) {
-            Long streetId = getStreetId(address);
+            final Long streetId = getStreetId(address);
             if (streetId != null) {
                 streetIds.add(streetId);
             }
         }
-        int streetCount = streetIds.size();
+        final int streetCount = streetIds.size();
 
-        if(addressCount == 1 && streetCount == 0){
+        if (addressCount == 1 && streetCount == 0) {
             //дом привязан напрямую к городу.
             return true;
         }

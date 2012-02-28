@@ -25,14 +25,17 @@
             <include refid="org.complitex.dictionary.entity.DomainObject.permissionFilter"/>
     </select>
 
-    <select id="checkBuildingAddress" parameterType="hashmap" resultType="long">
+    <select id="checkBuildingAddress" parameterType="map" resultType="long">
         SELECT DISTINCT b.`object_id` FROM `building` b
             JOIN `building_address` addr ON (addr.`status` IN ('ACTIVE', 'INACTIVE') AND ((b.`parent_id` = addr.`object_id`) OR
                 EXISTS(SELECT 1 FROM `building_attribute` ba WHERE ba.`object_id` = b.`object_id` AND ba.`status` = 'ACTIVE'
-                    AND ba.`attribute_type_id` = 501 AND ba.`value_id` = addr.`object_id`)))
-            JOIN `building_address_attribute` num ON (num.`object_id` = addr.`object_id` AND num.`status` = 'ACTIVE' AND num.`attribute_type_id` = 1500)
-            LEFT JOIN `building_address_attribute` corp ON (corp.`object_id` = addr.`object_id` AND corp.`status` = 'ACTIVE' AND corp.`attribute_type_id` = 1501)
-            LEFT JOIN `building_address_attribute` struc ON (struc.`object_id` = addr.`object_id` AND struc.`status` = 'ACTIVE' AND struc.`attribute_type_id` = 1502)
+                    AND ba.`attribute_type_id` = ${additionalAddressAT} AND ba.`value_id` = addr.`object_id`)))
+            JOIN `building_address_attribute` num ON (num.`object_id` = addr.`object_id` AND num.`status` = 'ACTIVE' 
+                    AND num.`attribute_type_id` = ${buildingAddressNumberAT})
+            LEFT JOIN `building_address_attribute` corp ON (corp.`object_id` = addr.`object_id` AND corp.`status` = 'ACTIVE' 
+                    AND corp.`attribute_type_id` = ${buildingAddressCorpAT})
+            LEFT JOIN `building_address_attribute` struc ON (struc.`object_id` = addr.`object_id` AND struc.`status` = 'ACTIVE' 
+                    AND struc.`attribute_type_id` = ${buildingAddressStructureAT})
         WHERE b.`status` IN ('ACTIVE', 'INACTIVE') AND
             num.`value_id` IN (SELECT sc.`id` FROM `building_address_string_culture` sc WHERE sc.`value` = #{number} AND sc.`locale_id` = #{localeId}) AND
                 <choose>

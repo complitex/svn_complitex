@@ -213,6 +213,8 @@ public class StreetStrategy extends TemplateStrategy {
     @Override
     public Long performDefaultValidation(DomainObject streetObject, Locale locale) {
         Map<String, Object> params = super.createValidationParams(streetObject, locale);
+        params.put("streetNameAT", NAME);
+        params.put("streetTypeAT", STREET_TYPE);
         Long streetTypeId = getStreetType(streetObject);
         params.put("streetTypeId", streetTypeId);
         List<Long> results = sqlSession().selectList(STREET_NAMESPACE + ".defaultValidation", params);
