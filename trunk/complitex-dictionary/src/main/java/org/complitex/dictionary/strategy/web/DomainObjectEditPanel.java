@@ -5,6 +5,7 @@
 package org.complitex.dictionary.strategy.web;
 
 import com.google.common.collect.Lists;
+import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -20,7 +21,6 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.Module;
@@ -45,6 +45,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import org.apache.wicket.RestartResponseException;
+import org.apache.wicket.model.LoadableDetachableModel;
+import org.complitex.dictionary.service.SessionBean;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
 
 /**
@@ -60,6 +62,8 @@ public class DomainObjectEditPanel extends Panel {
     private StringCultureBean stringBean;
     @EJB
     private LogBean logBean;
+    @EJB
+    private SessionBean sessionBean;
     private String entity;
     private String strategyName;
     private DomainObject oldObject;
@@ -116,11 +120,13 @@ public class DomainObjectEditPanel extends Panel {
     }
 
     protected void init() {
-        IModel<String> labelModel = new AbstractReadOnlyModel<String>() {
+        IModel<String> labelModel = new LoadableDetachableModel<String>() {
 
             @Override
-            public String getObject() {
-                return stringBean.displayValue(getStrategy().getEntity().getEntityNames(), getLocale());
+            protected String load() {
+                final String entityName = stringBean.displayValue(getStrategy().getEntity().getEntityNames(), getLocale());
+                return isNew() || !sessionBean.isAdmin() ? entityName
+                        : MessageFormat.format(getString("label_edit"), entityName, newObject.getId());
             }
         };
         Label title = new Label("title", labelModel);
@@ -133,7 +139,7 @@ public class DomainObjectEditPanel extends Panel {
         messages.setOutputMarkupId(true);
         add(messages);
 
-        Form form = new Form("form");
+        Form<Void> form = new Form<Void>("form");
 
         //input panel
         objectInputPanel = new DomainObjectInputPanel("domainObjectInputPanel", newObject, entity, strategyName,
@@ -149,7 +155,7 @@ public class DomainObjectEditPanel extends Panel {
 
         //history
         WebMarkupContainer historyContainer = new WebMarkupContainer("historyContainer");
-        Link history = new Link("history") {
+        Link<Void> history = new Link<Void>("history") {
 
             @Override
             public void onClick() {
@@ -227,7 +233,7 @@ public class DomainObjectEditPanel extends Panel {
         };
         submit.setVisible(DomainObjectAccessUtil.canEdit(strategyName, entity, newObject));
         form.add(submit);
-        Link cancel = new Link("cancel") {
+        Link<Void> cancel = new Link<Void>("cancel") {
 
             @Override
             public void onClick() {
@@ -236,7 +242,7 @@ public class DomainObjectEditPanel extends Panel {
         };
         cancel.setVisible(DomainObjectAccessUtil.canEdit(strategyName, entity, newObject));
         form.add(cancel);
-        Link back = new Link("back") {
+        Link<Void> back = new Link<Void>("back") {
 
             @Override
             public void onClick() {
