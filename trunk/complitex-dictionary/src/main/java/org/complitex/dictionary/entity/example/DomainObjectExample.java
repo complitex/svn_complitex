@@ -24,6 +24,7 @@ public class DomainObjectExample implements Serializable {
     private int size;
     private Long localeId;
     private Long orderByAttributeTypeId;
+    private boolean orderByNumber;
     private boolean asc;
     private Long id;
     private String parentEntity;
@@ -193,5 +194,13 @@ public class DomainObjectExample implements Serializable {
 
     public void setAdmin(boolean admin) {
         this.admin = admin;
+    }
+
+    public boolean isOrderByNumber() {
+        return orderByNumber;
+    }
+
+    public void setOrderByNumber(boolean orderByNumber) {
+        this.orderByNumber = orderByNumber;
     }
 }

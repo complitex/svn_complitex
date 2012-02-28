@@ -31,23 +31,36 @@
     <select id="selectObjectIdByExternalId" resultType="long" parameterType="map">
         SELECT e.`object_id` FROM `${table}` e WHERE e.`external_id` = #{externalId}
     </select>
+    
+    <sql id="orderByAtrributeTypeIdFragment">
+        SELECT sc.`value` FROM `${table}_string_culture` sc WHERE sc.`locale_id` = #{localeId} AND sc.`id` =
+            (SELECT orderByAttr.`value_id` FROM `${table}_attribute` orderByAttr WHERE orderByAttr.`object_id` = e.`object_id`
+                AND orderByAttr.`status` = 'ACTIVE' AND orderByAttr.`attribute_type_id` = #{orderByAttributeTypeId}
+            )
+    </sql>
 
     <sql id="orderBy">
         <if test="orderByAttributeTypeId != null">
-            ORDER BY (
-                    SELECT sc.`value` FROM `${table}_string_culture` sc WHERE sc.`locale_id` = #{localeId} AND sc.`id` =
-                    (SELECT orderByAttr.`value_id` FROM `${table}_attribute` orderByAttr WHERE orderByAttr.`object_id` = e.`object_id`
-                        AND orderByAttr.`status` = 'ACTIVE' AND orderByAttr.`attribute_type_id` = #{orderByAttributeTypeId}
-                    )
-                )
-                <choose>
-                    <when test="asc">
-                        ASC
-                    </when>
-                    <otherwise>
-                        DESC
-                    </otherwise>
-                </choose>
+            ORDER BY 
+            <choose>
+                <when test="orderByNumber">
+                    LPAD(
+                        (<include refid="org.complitex.dictionary.entity.DomainObject.orderByAtrributeTypeIdFragment"/>), 
+                        15, ' ')
+                </when>
+                <otherwise>
+                    (<include refid="org.complitex.dictionary.entity.DomainObject.orderByAtrributeTypeIdFragment"/>)
+                </otherwise>
+            </choose>
+            
+            <choose>
+                <when test="asc">
+                    ASC
+                </when>
+                <otherwise>
+                    DESC
+                </otherwise>
+            </choose>
         </if>
     </sql>
 

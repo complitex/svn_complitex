@@ -157,4 +157,12 @@ public class ApartmentStrategy extends TemplateStrategy {
     public Class<? extends WebPage> getEditPage() {
         return ApartmentEdit.class;
     }
+
+    @Override
+    protected void extendOrderBy(DomainObjectExample example) {
+        if (example.getOrderByAttributeTypeId() != null
+                && example.getOrderByAttributeTypeId().equals(NAME)) {
+            example.setOrderByNumber(true);
+        }
+    }
 }
