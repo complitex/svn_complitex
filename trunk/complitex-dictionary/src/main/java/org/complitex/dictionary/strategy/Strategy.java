@@ -297,7 +297,11 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         return null;
     }
 
-    protected void prepareExampleForPermissionCheck(DomainObjectExample example) {
+    /**
+     * Helper method. Prepares example for permission check.
+     * @param example 
+     */
+    public void prepareExampleForPermissionCheck(DomainObjectExample example) {
         boolean isAdmin = sessionBean.isAdmin();
         example.setAdmin(isAdmin);
         if (!isAdmin) {
