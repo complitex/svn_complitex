@@ -5,15 +5,16 @@
 
     <select id="find" resultMap="org.complitex.dictionary.entity.DomainObject.DomainObject" parameterType="DomainObjectExample">
         SELECT e.* FROM `street` e WHERE
-        <include refid="org.complitex.dictionary.entity.DomainObject.statusFilter"/>
-        <include refid="org.complitex.dictionary.entity.DomainObject.permissionFilter"/>
-        <include refid="org.complitex.dictionary.entity.DomainObject.filter"/>
-        <include refid="org.complitex.address.strategy.street.Street.filterByDistrict"/>
+        <include refid="org.complitex.address.strategy.street.Street.streetFilter"/>
         <include refid="org.complitex.dictionary.entity.DomainObject.orderBy"/>
         <include refid="org.complitex.dictionary.entity.DomainObject.limit"/>
     </select>
     
-    <sql id="filterByDistrict">
+    <sql id="streetFilter">
+        <include refid="org.complitex.dictionary.entity.DomainObject.statusFilter"/>
+        <include refid="org.complitex.dictionary.entity.DomainObject.permissionFilter"/>
+        <include refid="org.complitex.dictionary.entity.DomainObject.filter"/>
+        
         <if test="additionalParams != null and additionalParams['district'] != null">
             AND (EXISTS(
                     SELECT 1 FROM `building` b
@@ -38,10 +39,7 @@
 
     <select id="count" resultType="integer" parameterType="DomainObjectExample">
         SELECT COUNT(*) FROM `street` e WHERE
-        <include refid="org.complitex.dictionary.entity.DomainObject.statusFilter"/>
-        <include refid="org.complitex.dictionary.entity.DomainObject.permissionFilter"/>
-        <include refid="org.complitex.dictionary.entity.DomainObject.filter"/>
-        <include refid="org.complitex.address.strategy.street.Street.filterByDistrict"/>
+        <include refid="org.complitex.address.strategy.street.Street.streetFilter"/>
     </select>
 
     <!-- Validation -->

@@ -32,7 +32,16 @@ import java.io.Serializable;
 import java.util.*;
 
 /**
- *
+ * Street strategy.
+
+ * <p><b>Important note : </b>
+ * In some projects custom logic is needed for some operations. In these cases EJB interceptor technique is used 
+ * to intercept calls to relevant operations and to apply custom logic instead of all-project general code. 
+ * For example, in pspoffice project <code>org.complitex.pspoffice.address.street.StreetStrategyInterceptor</code>
+ * is used to replace logic for "found" and "count" operations.</p>
+ * 
+ * @see StreetStrategyInterceptor
+ * 
  * @author Artem
  */
 @Stateless
