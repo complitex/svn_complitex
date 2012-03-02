@@ -33,10 +33,11 @@ public class DomainObjectEdit extends FormTemplatePage {
 
     public DomainObjectEdit(PageParameters parameters) {
         init(parameters.getString(ENTITY), parameters.getString(STRATEGY), parameters.getAsLong(OBJECT_ID),
-                parameters.getAsLong(PARENT_ID), parameters.getString(PARENT_ENTITY));
+                parameters.getAsLong(PARENT_ID), parameters.getString(PARENT_ENTITY), parameters.getString(BACK_INFO_SESSION_KEY));
     }
 
-    protected void init(String entity, String strategy, Long objectId, Long parentId, String parentEntity) {
+    protected void init(String entity, String strategy, Long objectId, Long parentId, String parentEntity, 
+            String backInfoSessionKey) {
         this.entity = entity;
         this.strategy = strategy;
 
@@ -44,13 +45,14 @@ public class DomainObjectEdit extends FormTemplatePage {
             throw new UnauthorizedInstantiationException(getClass());
         }
 
-        add(editPanel = newEditPanel("editPanel", entity, strategy, objectId, parentId, parentEntity, DomainObjectList.SCROLL_PARAMETER));
+        add(editPanel = newEditPanel("editPanel", entity, strategy, objectId, parentId, parentEntity, 
+                DomainObjectList.SCROLL_PARAMETER, backInfoSessionKey));
     }
 
     protected DomainObjectEditPanel newEditPanel(String id, String entity, String strategy, Long objectId, Long parentId,
-            String parentEntity, String scrollListPageParameterName) {
+            String parentEntity, String scrollListPageParameterName, String backInfoSessionKey) {
         return new DomainObjectEditPanel(id, entity, strategy, objectId, parentId, parentEntity,
-                scrollListPageParameterName);
+                scrollListPageParameterName, backInfoSessionKey);
     }
 
     @Override

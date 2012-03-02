@@ -11,8 +11,6 @@ import org.complitex.template.web.pages.DomainObjectList;
 import org.complitex.template.web.pages.HistoryPage;
 import org.complitex.template.web.pages.ObjectNotFoundPage;
 import org.complitex.template.web.security.SecurityRole;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -25,7 +23,7 @@ public abstract class TemplateStrategy extends Strategy {
     public static final String OBJECT_ID = "object_id";
     public static final String PARENT_ID = "parent_id";
     public static final String PARENT_ENTITY = "parent_entity";
-    private static final Logger log = LoggerFactory.getLogger(TemplateStrategy.class);
+    public static final String BACK_INFO_SESSION_KEY = "back_info_session_key";
 
     @Override
     public Class<? extends WebPage> getListPage() {

@@ -44,8 +44,9 @@ public final class ApartmentEdit extends DomainObjectEdit {
 
     @Override
     protected DomainObjectEditPanel newEditPanel(String id, String entity, String strategy, Long objectId,
-            Long parentId, String parentEntity, String scrollListPageParameterName) {
-        return new DomainObjectEditPanel(id, entity, strategy, objectId, parentId, parentEntity, scrollListPageParameterName) {
+            Long parentId, String parentEntity, String scrollListPageParameterName, String backInfoSessionKey) {
+        return new DomainObjectEditPanel(id, entity, strategy, objectId, parentId, parentEntity,
+                scrollListPageParameterName, backInfoSessionKey) {
 
             private boolean bulkSaveFlag;
 

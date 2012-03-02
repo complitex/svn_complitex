@@ -47,6 +47,8 @@ import javax.ejb.EJB;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.complitex.dictionary.service.SessionBean;
+import org.complitex.dictionary.web.component.back.BackInfo;
+import org.complitex.dictionary.web.component.back.BackInfoManager;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
 
 /**
@@ -75,9 +77,10 @@ public class DomainObjectEditPanel extends Panel {
     private FeedbackPanel messages;
     private WebMarkupContainer permissionsPanelContainer;
     private Set<Long> parentSubjectIds;
+    private final String backInfoSessionKey;
 
     public DomainObjectEditPanel(String id, String entity, String strategyName, Long objectId, Long parentId,
-            String parentEntity, String scrollListPageParameterName) {
+            String parentEntity, String scrollListPageParameterName, String backInfoSessionKey) {
         super(id);
 
         add(getHeaderContribution(SCROLL_JS));
@@ -87,6 +90,7 @@ public class DomainObjectEditPanel extends Panel {
         this.parentId = parentId;
         this.parentEntity = parentEntity;
         this.scrollListPageParameterName = scrollListPageParameterName;
+        this.backInfoSessionKey = backInfoSessionKey;
 
         if (objectId == null) {
             //create new entity
@@ -352,6 +356,14 @@ public class DomainObjectEditPanel extends Panel {
     }
 
     protected void back() {
+        if(!Strings.isEmpty(backInfoSessionKey)){
+            BackInfo backInfo = BackInfoManager.get(this, backInfoSessionKey);
+            if(backInfo != null){
+                backInfo.back(this);
+                return;
+            }
+        }
+        
         if (isNew() || (parentId == null && Strings.isEmpty(parentEntity))) {
             //return to list page for current entity.
             PageParameters listPageParams = getStrategy().getListPageParams();
