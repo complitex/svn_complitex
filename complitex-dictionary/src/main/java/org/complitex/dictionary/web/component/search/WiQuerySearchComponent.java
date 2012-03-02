@@ -42,6 +42,7 @@ import org.odlabs.wiquery.ui.autocomplete.AbstractAutocompleteComponent;
 public class WiQuerySearchComponent extends Panel {
 
     protected static final String NOT_SPECIFIED_KEY = "not_specified";
+    public static final int AUTO_COMPLETE_SIZE = 10;
 
     public static class SearchFilterSettings implements Serializable {
 
@@ -86,7 +87,6 @@ public class WiQuerySearchComponent extends Panel {
     private StrategyFactory strategyFactory;
     @EJB
     private LocaleBean localeBean;
-    protected static final int AUTO_COMPLETE_SIZE = 10;
     private final List<String> searchFilters;
     private final List<SearchFilterSettings> searchFilterSettings;
     private final ISearchCallback callback;

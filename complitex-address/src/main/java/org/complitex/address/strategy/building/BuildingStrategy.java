@@ -650,7 +650,7 @@ public class BuildingStrategy extends TemplateStrategy {
         }
     }
 
-    public Long getDistrictId(DomainObject building) {
+    public Long getDistrictId(Building building) {
         Attribute districtAttribute = building.getAttribute(DISTRICT);
         return districtAttribute != null ? districtAttribute.getValueId() : null;
     }
