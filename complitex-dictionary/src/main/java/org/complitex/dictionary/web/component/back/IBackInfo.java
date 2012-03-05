@@ -11,7 +11,7 @@ import org.apache.wicket.Component;
  *
  * @author Artem
  */
-public abstract class BackInfo implements Serializable {
+public interface IBackInfo extends Serializable {
 
-    public abstract void back(Component pageComponent);
+    void back(Component pageComponent);
 }

@@ -12,7 +12,7 @@ import org.apache.wicket.PageParameters;
  *
  * @author Artem
  */
-public class BookmarkableBackInfo extends BackInfo {
+public class BookmarkableBackInfo implements IBackInfo {
 
     private final Class<? extends Page> pageClass;
     private final PageParameters params;
