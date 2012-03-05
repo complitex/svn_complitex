@@ -1,5 +1,6 @@
 package org.complitex.dictionary.web.component.search;
 
+import com.google.common.collect.ImmutableSet;
 import org.complitex.dictionary.entity.DomainObject;
 
 import java.io.Serializable;
@@ -7,6 +8,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import org.complitex.dictionary.util.Numbers;
 
 /**
@@ -29,32 +31,38 @@ public class SearchComponentState extends HashMap<String, DomainObject> implemen
         return empty;
     }
 
-    public void updateState(Map<String, ? extends DomainObject> state) {
-        boolean clean = false;
+    private static boolean isEqual(DomainObject o1, DomainObject o2) {
+        if (o1 == null && o2 == null) {
+            //not changed
+            return true;
+        } else {
+            if (o1 == null || o2 == null) {
+                //changed
+                return false;
+            } else {
+                return Numbers.isEqual(o1.getId(), o2.getId());
+            }
+        }
+    }
 
-        for (String key : state.keySet()) {
-            DomainObject that = state.get(key);
-            DomainObject current = get(key);
+    public void updateState(Map<String, ? extends DomainObject> state) {
+        boolean clear = false;
+
+        final Set<String> keys = ImmutableSet.<String>builder().addAll(state.keySet()).addAll(keySet()).build();
+
+        for (String key : keys) {
+            final DomainObject that = state.get(key);
+            final DomainObject current = get(key);
 
             //clear if object changed
-            if (that == null && current == null) {
-                //not changed
-            } else {
-                if (that == null || current == null) {
-                    //changed
-                    clean = true;
-                    break;
-                } else {
-                    if (!Numbers.isEqual(that.getId(), current.getId())) {
-                        clean = true;
-                        break;
-                    }
-                }
+            clear = !isEqual(that, current);
+            if (clear) {
+                break;
             }
         }
 
-        if (clean) {
-            for (String k : this.keySet()) {
+        if (clear) {
+            for (String k : keySet()) {
                 put(k, new DomainObject(NOT_SPECIFIED_ID));
             }
         }
