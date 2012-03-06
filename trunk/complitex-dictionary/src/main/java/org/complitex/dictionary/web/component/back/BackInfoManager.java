@@ -21,11 +21,11 @@ public final class BackInfoManager {
         return ((WebRequest) pageComponent.getRequest()).getHttpServletRequest().getSession();
     }
 
-    public static void put(Component pageComponent, String key, IBackInfo backInfo) {
+    public static void put(Component pageComponent, String key, BackInfo backInfo) {
         session(pageComponent).setAttribute(key, backInfo);
     }
 
-    public static IBackInfo get(Component pageComponent, String key) {
-        return (IBackInfo) session(pageComponent).getAttribute(key);
+    public static BackInfo get(Component pageComponent, String key) {
+        return (BackInfo) session(pageComponent).getAttribute(key);
     }
 }

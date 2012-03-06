@@ -47,7 +47,7 @@ import javax.ejb.EJB;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.complitex.dictionary.service.SessionBean;
-import org.complitex.dictionary.web.component.back.IBackInfo;
+import org.complitex.dictionary.web.component.back.BackInfo;
 import org.complitex.dictionary.web.component.back.BackInfoManager;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
 
@@ -357,7 +357,7 @@ public class DomainObjectEditPanel extends Panel {
 
     protected void back() {
         if(!Strings.isEmpty(backInfoSessionKey)){
-            IBackInfo backInfo = BackInfoManager.get(this, backInfoSessionKey);
+            BackInfo backInfo = BackInfoManager.get(this, backInfoSessionKey);
             if(backInfo != null){
                 backInfo.back(this);
                 return;
