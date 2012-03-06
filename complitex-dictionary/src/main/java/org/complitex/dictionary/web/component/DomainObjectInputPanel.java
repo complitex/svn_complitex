@@ -194,7 +194,9 @@ public class DomainObjectInputPanel extends Panel {
                     parentFilters, parentSearchCallback, ShowMode.ACTIVE, !isHistory() && canEdit(strategyName, entity, object)) {
 
                 @Override
-                protected void onUpdate(AjaxRequestTarget target, String entity) {
+                protected void onSelect(AjaxRequestTarget target, String entity) {
+                    super.onSelect(target, entity);
+
                     if (object.getId() == null) {
                         DomainObject parent = getModelObject(entity);
                         if (parent != null && parent.getId() != null && parent.getId() > 0) {
@@ -209,7 +211,6 @@ public class DomainObjectInputPanel extends Panel {
                             editPanel.updateParentPermissions(target, parent.getSubjectIds());
                         }
                     }
-                    super.onUpdate(target, entity);
                 }
             };
             parentContainer.add(parentSearchComponent);

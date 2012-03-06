@@ -721,6 +721,11 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         return 30;
     }
 
+    @Override
+    public boolean allowProceedNextSearchFilter() {
+        return false;
+    }
+
     /*
      * List page related functionality.
      */

@@ -44,6 +44,28 @@ public interface IStrategy {
     String UPDATE_CHILDREN_ACTIVITY_OPERATION = "updateChildrenActivity";
     String DELETE_OPERATION = "delete";
 
+    public static class DomainObjectPermissionInfo {
+
+        private Long id;
+        private Long permissionId;
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public Long getPermissionId() {
+            return permissionId;
+        }
+
+        public void setPermissionId(Long permissionId) {
+            this.permissionId = permissionId;
+        }
+    }
+
     @Transactional
     void archive(DomainObject object, Date endDate);
 
@@ -148,6 +170,8 @@ public interface IStrategy {
     List<String> getSearchFilters();
 
     int getSearchTextFieldSize();
+    
+    boolean allowProceedNextSearchFilter();
 
     IValidator getValidator();
 
@@ -173,28 +197,6 @@ public interface IStrategy {
     void replacePermissions(DomainObjectPermissionInfo objectPermissionInfo, Set<Long> subjectIds);
 
     boolean isNeedToChangePermission(Set<Long> oldSubjectIds, Set<Long> newSubjectIds);
-
-    public static class DomainObjectPermissionInfo {
-
-        private Long id;
-        private Long permissionId;
-
-        public Long getId() {
-            return id;
-        }
-
-        public void setId(Long id) {
-            this.id = id;
-        }
-
-        public Long getPermissionId() {
-            return permissionId;
-        }
-
-        public void setPermissionId(Long permissionId) {
-            this.permissionId = permissionId;
-        }
-    }
 
     String[] getListRoles();
 

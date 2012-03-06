@@ -378,6 +378,11 @@ public class BuildingStrategy extends TemplateStrategy {
         return 8;
     }
 
+    @Override
+    public boolean allowProceedNextSearchFilter() {
+        return true;
+    }
+
     @Transactional
     @Override
     protected void insertDomainObject(DomainObject object, Date insertDate) {
