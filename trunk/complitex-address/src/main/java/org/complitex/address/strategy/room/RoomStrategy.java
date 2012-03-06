@@ -154,6 +154,11 @@ public class RoomStrategy extends TemplateStrategy {
     }
 
     @Override
+    public boolean allowProceedNextSearchFilter() {
+        return true;
+    }
+
+    @Override
     public String[] getEditRoles() {
         return new String[]{SecurityRole.ADDRESS_MODULE_EDIT, SecurityRole.ROOM_EDIT};
     }

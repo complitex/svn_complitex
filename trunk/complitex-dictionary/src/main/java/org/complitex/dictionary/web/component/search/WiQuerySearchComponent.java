@@ -5,6 +5,7 @@ import com.google.common.base.Predicate;
 import static com.google.common.collect.Iterables.*;
 import static com.google.common.collect.Lists.*;
 import static com.google.common.collect.Maps.*;
+import static com.google.common.collect.Sets.*;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
@@ -29,8 +30,10 @@ import org.odlabs.wiquery.ui.autocomplete.AutocompleteAjaxComponent;
 
 import javax.ejb.EJB;
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.util.string.Strings;
 import org.odlabs.wiquery.ui.autocomplete.AbstractAutocompleteComponent;
@@ -242,11 +245,8 @@ public class WiQuerySearchComponent extends Panel {
         return filterComponent;
     }
 
-    protected List<DomainObject> getValues(String term, final String entity) {
-        Map<String, DomainObject> previousInfo = getState(getIndex(entity) - 1);
-
-        List<DomainObject> choiceList = newArrayList();
-        ShowMode currentShowMode = (getSearchFilterSettings() == null) ? getShowModeSetting()
+    protected ShowMode getShowMode(final String entity) {
+        return getSearchFilterSettings() == null ? getShowModeSetting()
                 : find(getSearchFilterSettings(), new Predicate<SearchFilterSettings>() {
 
             @Override
@@ -254,27 +254,34 @@ public class WiQuerySearchComponent extends Panel {
                 return entity.equals(input.getSearchFilter());
             }
         }).getShowMode();
+    }
 
-        List<? extends DomainObject> equalToExample = findByExample(entity, term, previousInfo,
+    protected List<DomainObject> getValues(String term, String entity) {
+        final List<DomainObject> choiceList = newArrayList();
+
+        final Map<String, DomainObject> previousInfo = getState(getIndex(entity) - 1);
+        final ShowMode currentShowMode = getShowMode(entity);
+
+        final List<? extends DomainObject> equalToExample = findByExample(entity, term, previousInfo,
                 ComparisonType.EQUALITY, currentShowMode, AUTO_COMPLETE_SIZE);
         choiceList.addAll(equalToExample);
+
         if (equalToExample.size() < AUTO_COMPLETE_SIZE) {
-            List<? extends DomainObject> likeExample = findByExample(entity, term, previousInfo, ComparisonType.LIKE,
+
+            final Set<Long> idsSet = newHashSet();
+            for (DomainObject o : equalToExample) {
+                idsSet.add(o.getId());
+            }
+
+            final List<? extends DomainObject> likeExample = findByExample(entity, term, previousInfo, ComparisonType.LIKE,
                     currentShowMode, AUTO_COMPLETE_SIZE);
-            if (equalToExample.isEmpty()) {
-                choiceList.addAll(likeExample);
-            } else {
-                for (DomainObject likeObject : likeExample) {
-                    boolean isAddedAlready = false;
-                    for (DomainObject equalObject : equalToExample) {
-                        if (equalObject.getId().equals(likeObject.getId())) {
-                            isAddedAlready = true;
-                            break;
-                        }
-                    }
-                    if (!isAddedAlready) {
-                        choiceList.add(likeObject);
-                    }
+
+            final Iterator<? extends DomainObject> likeIterator = likeExample.iterator();
+            while (likeIterator.hasNext() && choiceList.size() < AUTO_COMPLETE_SIZE) {
+                final DomainObject likeObject = likeIterator.next();
+                if (!idsSet.contains(likeObject.getId())) {
+                    choiceList.add(likeObject);
+                    idsSet.add(likeObject.getId());
                 }
             }
         }
@@ -287,19 +294,47 @@ public class WiQuerySearchComponent extends Panel {
         return new DomainObject(SearchComponentState.NOT_SPECIFIED_ID);
     }
 
-    protected void onUpdate(AjaxRequestTarget target, String entity) {
-        int index = getIndex(entity);
-        DomainObject modelObject = getModelObject(entity);
+    protected final boolean isSingleObjectVisible(IStrategy strategy) {
+        final Map<String, DomainObject> previousInfo = getState(getIndex(strategy.getEntityTable()) - 1);
+        DomainObjectExample example = new DomainObjectExample();
+        strategy.configureExample(example, WiQuerySearchComponent.<Long>transformToIds(previousInfo), null);
+        example.setStatus(getShowMode(strategy.getEntityTable()).name());
+        return strategy.count(example) == 1;
+    }
 
-        if (index < getSearchFilters().size() && modelObject != null) {
-            int size = getSearchFilters().size();
+    protected final void onUpdate(AjaxRequestTarget target, String entity) {
+        final int index = getIndex(entity);
+        final DomainObject modelObject = getModelObject(entity);
+
+        final int size = getSearchFilters().size();
+        int lastFilledIndex = index;
+        if (index < size && modelObject != null) {
             for (int j = index + 1; j < size; j++) {
-                setModelObject(j, null);
+                final String currentEntity = getSearchFilters().get(j);
+                IStrategy currentStrategy = strategyFactory.getStrategy(currentEntity);
+                DomainObject currentObject = null;
+                if (currentStrategy.allowProceedNextSearchFilter()) {
+                    if (isSingleObjectVisible(currentStrategy)) {
+                        currentObject = getValues(null, currentEntity).get(0);
+                    }
+                }
+                setModelObject(j, currentObject);
+
+                if (currentObject != null) {
+                    lastFilledIndex = j;
+                }
             }
-            updateSearchContainer(target);
-            setFocus(target, index + 1 < getSearchFilters().size() ? getSearchFilters().get(index + 1) : null);
+
+            setFocus(target, lastFilledIndex + 1 < size ? getSearchFilters().get(lastFilledIndex + 1) : null);
         }
-        invokeCallback(index, target);
+
+        onSelect(target, getSearchFilters().get(lastFilledIndex));
+
+        updateSearchContainer(target);
+        invokeCallback(lastFilledIndex, target);
+    }
+
+    protected void onSelect(AjaxRequestTarget target, String entity) {
     }
 
     protected final void updateSearchContainer(AjaxRequestTarget target) {

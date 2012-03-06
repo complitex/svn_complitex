@@ -149,6 +149,11 @@ public class ApartmentStrategy extends TemplateStrategy {
     }
 
     @Override
+    public boolean allowProceedNextSearchFilter() {
+        return true;
+    }
+
+    @Override
     public String[] getListRoles() {
         return new String[]{SecurityRole.ADDRESS_MODULE_VIEW};
     }
