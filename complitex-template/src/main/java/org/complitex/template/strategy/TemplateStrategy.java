@@ -23,7 +23,6 @@ public abstract class TemplateStrategy extends Strategy {
     public static final String OBJECT_ID = "object_id";
     public static final String PARENT_ID = "parent_id";
     public static final String PARENT_ENTITY = "parent_entity";
-    public static final String BACK_INFO_SESSION_KEY = "back_info_session_key";
 
     @Override
     public Class<? extends WebPage> getListPage() {

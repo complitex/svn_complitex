@@ -47,9 +47,9 @@ $(function(){
         var collapsedMainMenuClassName = "collapsed";
 
         var t = Complitex.Common.getCookie(Complitex.Common.MenuInfo.MAIN_MENU_COOKIE);
-        //t = 1 - expanded, t = 0 - collapsed
+        //t = Complitex.Common.MenuInfo.MAIN_MENU_COLLAPSED - expanded, t = Complitex.Common.MenuInfo.MAIN_MENU_EXPANDED - collapsed
         if(t){
-            if(t == 0){
+            if(t == Complitex.Common.MenuInfo.MAIN_MENU_COLLAPSED){
                 //collapsed
                 $("#LeftPanel").toggle();
                 $("#TopPanel #ButtonMain").removeClass(expandedMainMenuClassName).addClass(collapsedMainMenuClassName);
@@ -68,11 +68,11 @@ $(function(){
         $("#TopPanel #ButtonMain").click(function(){
             $("#LeftPanel").toggle("fast");
             if($(this).hasClass(expandedMainMenuClassName)){
-                Complitex.Common.setCookie(Complitex.Common.MenuInfo.MAIN_MENU_COOKIE, "0", "");
+                Complitex.Common.setCookie(Complitex.Common.MenuInfo.MAIN_MENU_COOKIE, Complitex.Common.MenuInfo.MAIN_MENU_COLLAPSED, "");
                 $(this).removeClass(expandedMainMenuClassName).addClass(collapsedMainMenuClassName);
                 $("#Content").removeClass(collapsedContentClassName).addClass(expandedContentClassName);
             } else {
-                Complitex.Common.setCookie(Complitex.Common.MenuInfo.MAIN_MENU_COOKIE, "1", "");
+                Complitex.Common.setCookie(Complitex.Common.MenuInfo.MAIN_MENU_COOKIE, Complitex.Common.MenuInfo.MAIN_MENU_EXPANDED, "");
                 $(this).addClass(expandedMainMenuClassName).removeClass(collapsedMainMenuClassName);
                 $("#Content").removeClass(expandedContentClassName).addClass(collapsedContentClassName);
             }

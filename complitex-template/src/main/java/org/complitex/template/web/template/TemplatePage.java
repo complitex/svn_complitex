@@ -21,7 +21,6 @@ import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.entity.PreferenceKey;
 import org.complitex.dictionary.service.SessionBean;
 import org.complitex.dictionary.util.ResourceUtil;
-import org.complitex.dictionary.web.component.BookmarkablePageLinkPanel;
 import org.complitex.resources.WebCommonResourceInitializer;
 import org.complitex.template.web.component.toolbar.HelpButton;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
@@ -44,10 +43,9 @@ import java.util.*;
 public abstract class TemplatePage extends WebPage {
 
     private static final Logger log = LoggerFactory.getLogger(TemplatePage.class);
-    
+    public static final String BACK_INFO_SESSION_KEY = "back_info_session_key";
     @EJB
     private SessionBean sessionBean;
-    
     private String page = getClass().getName();
     private Set<String> resourceBundle = new HashSet<String>();
     private boolean isPostBack;
@@ -92,18 +90,9 @@ public abstract class TemplatePage extends WebPage {
 
             add(new Label("current_user_fullname", fullName != null ? fullName : ""));
             add(new Label("current_user_department", depName != null ? depName : ""));
-
-            try {
-                //noinspection unchecked
-                add(new BookmarkablePageLinkPanel("profile", getString("profile"),
-                        getClass().getClassLoader().loadClass("org.complitex.admin.web.ProfilePage"), null));
-            } catch (ClassNotFoundException e) {
-                add(new EmptyPanel("profile"));
-            }
         } else {
             add(new EmptyPanel("current_user_fullname"));
             add(new EmptyPanel("current_user_department"));
-            add(new EmptyPanel("profile"));
         }
 
         add(new Form<Void>("exit") {
@@ -121,6 +110,29 @@ public abstract class TemplatePage extends WebPage {
 
         if (!isPostBack) {
             isPostBack = true;
+
+            //add user profile page link.
+            if (isUserAuthorized()) {
+                final String profilePageClassName = "org.complitex.admin.web.ProfilePage";
+                try {
+                    @SuppressWarnings("unchecked")
+                    final Class<? extends WebPage> profilePageClass =
+                            (Class<? extends WebPage>) Thread.currentThread().getContextClassLoader().loadClass(profilePageClassName);
+
+                    add(new Link<Void>("profile") {
+
+                        @Override
+                        public void onClick() {
+                            onProfileClick(profilePageClass);
+                        }
+                    });
+                } catch (ClassNotFoundException e) {
+                    log.warn("Profile page class was not found: " + profilePageClassName, e);
+                    add(new EmptyPanel("profile"));
+                }
+            } else {
+                add(new EmptyPanel("profile"));
+            }
 
             //add page custom buttons.
             List<? extends ToolbarButton> buttons = getToolbarButtons("pageToolbarButton");
@@ -313,5 +325,9 @@ public abstract class TemplatePage extends WebPage {
 
     public final boolean isUserAuthorized() {
         return getTemplateWebApplication().hasAnyRole(SecurityRole.AUTHORIZED);
+    }
+
+    protected void onProfileClick(Class<? extends WebPage> profilePageClass) {
+        setResponsePage(profilePageClass, null);
     }
 }

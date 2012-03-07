@@ -27,6 +27,8 @@ import org.complitex.template.web.security.SecurityRole;
 @AuthorizeInstantiation(SecurityRole.ADDRESS_MODULE_VIEW)
 public class AddressMenu extends ResourceTemplateMenu {
 
+    public static final String ADDRESS_MENU_ITEM_SUFFIX = "_address_item";
+
     private static IStrategy getStrategy(String entity) {
         return EjbBeanLocator.getBean(StrategyFactory.class).getStrategy(entity);
     }
@@ -43,27 +45,27 @@ public class AddressMenu extends ResourceTemplateMenu {
     @Override
     public List<ITemplateLink> getTemplateLinks(final Locale locale) {
         List<ITemplateLink> links = Lists.newArrayList();
-        for (final String address : getAddressInfoProvider().getAddressInfo().getAddresses()) {
+        for (final String addressEntity : getAddressInfoProvider().getAddressInfo().getAddresses()) {
             links.add(new ITemplateLink() {
 
                 @Override
                 public String getLabel(Locale locale) {
-                    return getStrategy(address).getPluralEntityLabel(locale);
+                    return getStrategy(addressEntity).getPluralEntityLabel(locale);
                 }
 
                 @Override
                 public Class<? extends Page> getPage() {
-                    return getStrategy(address).getListPage();
+                    return getStrategy(addressEntity).getListPage();
                 }
 
                 @Override
                 public PageParameters getParameters() {
-                    return getStrategy(address).getListPageParams();
+                    return getStrategy(addressEntity).getListPageParams();
                 }
 
                 @Override
                 public String getTagId() {
-                    return address + "_address_item";
+                    return addressEntity + ADDRESS_MENU_ITEM_SUFFIX;
                 }
             });
         }

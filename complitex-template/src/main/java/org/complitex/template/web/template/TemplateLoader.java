@@ -3,14 +3,13 @@ package org.complitex.template.web.template;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -20,49 +19,68 @@ import java.util.List;
  * Загружает список меню из файла конфигурации.
  */
 public class TemplateLoader {
-    private List<String> menuClassNames;
 
-        public TemplateLoader(InputStream inputStream) {
-            try {
-                DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-                Document document = documentBuilder.parse(inputStream);
+    private static final String SIDEBAR_ELEMENT_NAME = "sidebar";
+    private static final String MENU_ELEMENT_NAME = "menu";
+    private static final String CLASS_ATTRIBUTE_NAME = "class";
+    private static final String HOME_PAGE_CLASS_ELEMENT_NAME = "homepage-class";
+    private final Collection<String> menuClassNames;
+    private final String homePageClassName;
 
-                menuClassNames = getFragmentsClassName(document);
-            } catch (ParserConfigurationException e) {
-                e.printStackTrace();
-            } catch (SAXException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+    public TemplateLoader(InputStream inputStream) {
+        try {
+            DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            Document document = documentBuilder.parse(inputStream);
+
+            this.menuClassNames = Collections.unmodifiableCollection(getMenuClassNames(document));
+            this.homePageClassName = getHomePageClassName(document);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private List<String> getMenuClassNames(Document document) {
+        NodeList sidebar = document.getElementsByTagName(SIDEBAR_ELEMENT_NAME);
+
+        if (sidebar.getLength() == 0) {
+            return null;
         }
 
-        private List<String> getFragmentsClassName(Document document) {
-            NodeList sidebar = document.getElementsByTagName("sidebar");
-            if (sidebar.getLength() == 0) {
-                return null;
-            }
+        List<String> menuClassNamesList = new ArrayList<String>();
 
-            List<String> menuClassNames = new ArrayList<String>();
-
-            NodeList fragments = sidebar.item(0).getChildNodes();
-
-            for (int i = 0; i < fragments.getLength(); i++) {
-                if (fragments.item(i) instanceof Element) {
-                    Element menu = (Element) fragments.item(i);
-                    if ("menu".equals(menu.getTagName())) {
-                        String className = menu.getAttribute("class");
-                        if (className.length() > 0) {
-                            menuClassNames.add(className);
-                        }
+        NodeList fragments = sidebar.item(0).getChildNodes();
+        for (int i = 0; i < fragments.getLength(); i++) {
+            if (fragments.item(i) instanceof Element) {
+                Element menu = (Element) fragments.item(i);
+                if (MENU_ELEMENT_NAME.equals(menu.getTagName())) {
+                    String className = menu.getAttribute(CLASS_ATTRIBUTE_NAME);
+                    if (className.length() > 0) {
+                        menuClassNamesList.add(className);
                     }
                 }
             }
-
-            return menuClassNames;
         }
 
-        public List<String> getMenuClassNames() {
-            return menuClassNames;
-        }
+        return menuClassNamesList;
     }
+
+    private String getHomePageClassName(Document document) {
+        NodeList homePageClassElements = document.getElementsByTagName(HOME_PAGE_CLASS_ELEMENT_NAME);
+
+        if (homePageClassElements.getLength() > 1) {
+            throw new RuntimeException("There are more one " + HOME_PAGE_CLASS_ELEMENT_NAME + " elements.");
+        }
+
+        Element homePageClassElement = (Element) homePageClassElements.item(0);
+        String result = homePageClassElement.getTextContent();
+        return result != null ? result.trim() : null;
+    }
+
+    public Collection<String> getMenuClassNames() {
+        return menuClassNames;
+    }
+
+    public String getHomePageClassName() {
+        return homePageClassName;
+    }
+}

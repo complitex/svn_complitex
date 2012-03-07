@@ -134,7 +134,7 @@ Complitex.Common = {
 
     getApplicationContext : function(){
         var pathname = window.location.pathname;
-        return pathname.substring(0, pathname.indexOf("/", 1));
+        return pathname;
     },
 
     getDomain : function(){
@@ -149,6 +149,10 @@ Complitex.Common = {
 
         //main menu
         MAIN_MENU_COOKIE : "MainMenuCookie",
+        
+        MAIN_MENU_EXPANDED : "1",
+        
+        MAIN_MENU_COLLAPSED : "0",
 
         //simple menu item
         SELECTED_MENU_ITEM_COOKIE : "SelectedMenuItem"

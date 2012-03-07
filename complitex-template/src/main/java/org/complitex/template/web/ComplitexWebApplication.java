@@ -1,7 +1,6 @@
 package org.complitex.template.web;
 
 import org.apache.wicket.Page;
-import org.complitex.template.web.pages.welcome.WelcomePage;
 import org.complitex.template.web.template.TemplateWebApplication;
 
 /**
@@ -17,6 +16,6 @@ public class ComplitexWebApplication extends TemplateWebApplication {
 
     @Override
     public Class<? extends Page> getHomePage() {
-        return WelcomePage.class;
+        return TemplateWebApplication.getHomePageClass();
     }
 }
