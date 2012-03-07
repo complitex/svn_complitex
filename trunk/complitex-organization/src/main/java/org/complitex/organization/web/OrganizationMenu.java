@@ -19,7 +19,9 @@ import org.complitex.template.web.security.SecurityRole;
  * @author Artem
  */
 @AuthorizeInstantiation(SecurityRole.ORGANIZATION_MODULE_VIEW)
-public class OrganizationTemplateMenu extends ResourceTemplateMenu {
+public class OrganizationMenu extends ResourceTemplateMenu {
+
+    public static final String ORGANIZATION_MENU_ITEM = "organization_item";
 
     protected IStrategy getStrategy() {
         return EjbBeanLocator.getBean(StrategyFactory.class).getStrategy("organization");
@@ -51,7 +53,7 @@ public class OrganizationTemplateMenu extends ResourceTemplateMenu {
 
             @Override
             public String getTagId() {
-                return "organization_item";
+                return ORGANIZATION_MENU_ITEM;
             }
         });
         return links;

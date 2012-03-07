@@ -18,7 +18,6 @@ import org.complitex.dictionary.web.component.ShowMode;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
 import org.complitex.dictionary.web.component.search.WiQuerySearchComponent;
 import org.complitex.template.web.component.LocalePicker;
-import org.complitex.template.web.pages.welcome.WelcomePage;
 import org.complitex.template.web.security.SecurityRole;
 import org.complitex.template.web.template.FormTemplatePage;
 
@@ -27,6 +26,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.wicket.PageParameters;
+import org.apache.wicket.util.string.Strings;
+import org.complitex.dictionary.web.component.back.BackInfo;
+import org.complitex.dictionary.web.component.back.BackInfoManager;
 import static org.complitex.dictionary.web.DictionaryFwSession.*;
 
 /**
@@ -41,12 +44,12 @@ public class ProfilePage extends FormTemplatePage {
     @EJB
     private SessionBean sessionBean;
 
-    public ProfilePage() {
+    public ProfilePage(PageParameters parameters) {
         add(new Label("title", getString("title")));
         add(new FeedbackPanel("messages"));
 
         //Форма
-        Form form = new Form("form");
+        Form<Void> form = new Form<Void>("form");
         add(form);
 
         //Локаль
@@ -129,11 +132,19 @@ public class ProfilePage extends FormTemplatePage {
             }
         });
 
+        final String backInfoSessionKey = parameters.getString(BACK_INFO_SESSION_KEY);
         form.add(new Button("cancel") {
 
             @Override
             public void onSubmit() {
-                setResponsePage(WelcomePage.class);
+                if (!Strings.isEmpty(backInfoSessionKey)) {
+                    final BackInfo backInfo = BackInfoManager.get(this, backInfoSessionKey);
+                    if (backInfo != null) {
+                        backInfo.back(this);
+                        return;
+                    }
+                }
+                setResponsePage(getApplication().getHomePage());
             }
         });
     }

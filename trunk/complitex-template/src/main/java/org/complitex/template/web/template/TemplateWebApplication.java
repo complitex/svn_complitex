@@ -21,10 +21,16 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.wicket.Page;
+import org.apache.wicket.application.IClassResolver;
+import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.mybatis.inject.JavaEE6ModuleNamingStrategy;
 import org.complitex.template.web.pages.access.AccessDeniedPage;
+import org.complitex.template.web.pages.welcome.WelcomePage;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -34,8 +40,9 @@ public abstract class TemplateWebApplication extends ServletAuthWebApplication i
 
     private static final Logger log = LoggerFactory.getLogger(TemplateWebApplication.class);
     private static final String TEMPLATE_CONFIG_FILE_NAME = "template-config.xml";
-    private List<Class<ITemplateMenu>> menuClasses;
-    private final static ThemeResourceReference theme = new ThemeResourceReference();
+    private static final ThemeResourceReference theme = new ThemeResourceReference();
+    private volatile Collection<Class<ITemplateMenu>> menuClasses;
+    private volatile static Class<? extends Page> homePageClass;
 
     @Override
     protected void init() {
@@ -67,17 +74,35 @@ public abstract class TemplateWebApplication extends ServletAuthWebApplication i
             } else {
                 throw new RuntimeException("Template config file " + TEMPLATE_CONFIG_FILE_NAME + " was not found.");
             }
-            TemplateLoader templateLoader = new TemplateLoader(inputStream);
-            List<String> menuClassNames = templateLoader.getMenuClassNames();
 
-            menuClasses = new ArrayList<Class<ITemplateMenu>>();
+            TemplateLoader templateLoader = new TemplateLoader(inputStream);
+            final IClassResolver wicketClassResolver = getApplicationSettings().getClassResolver();
+
+            //template menus
+            Collection<String> menuClassNames = templateLoader.getMenuClassNames();
+            final Collection<Class<ITemplateMenu>> templateMenuClasses = new ArrayList<Class<ITemplateMenu>>();
             for (String menuClassName : menuClassNames) {
                 try {
-                    Class menuClass = getApplicationSettings().getClassResolver().resolveClass(menuClassName);
-                    menuClasses.add(menuClass);
-                } catch (Exception e) {
-                    log.warn("Меню не найдено : {}", menuClassName);
+                    Class<ITemplateMenu> menuClass = (Class<ITemplateMenu>) wicketClassResolver.resolveClass(menuClassName);
+                    templateMenuClasses.add(menuClass);
+                } catch (ClassNotFoundException e) {
+                    log.warn("Меню не найдено: {}", menuClassName);
                 }
+            }
+            this.menuClasses = Collections.unmodifiableCollection(templateMenuClasses);
+
+            //home page
+            final String homePageClassName = templateLoader.getHomePageClassName();
+            if (!Strings.isEmpty(homePageClassName)) {
+                try {
+                    homePageClass = (Class<? extends Page>) wicketClassResolver.resolveClass(homePageClassName);
+                } catch (ClassNotFoundException e) {
+                    log.warn("Домашняя страница не найдена: {}, будет использована страница {}", homePageClassName,
+                            WelcomePage.class);
+                }
+            }
+            if (homePageClass == null) {
+                homePageClass = WelcomePage.class;
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -88,8 +113,12 @@ public abstract class TemplateWebApplication extends ServletAuthWebApplication i
         addComponentInstantiationListener(new JavaEEComponentInjector(this, new JavaEE6ModuleNamingStrategy()));
     }
 
-    public List<Class<ITemplateMenu>> getMenuClasses() {
+    public Collection<Class<ITemplateMenu>> getMenuClasses() {
         return menuClasses;
+    }
+
+    public static Class<? extends Page> getHomePageClass() {
+        return homePageClass;
     }
 
     @Override
