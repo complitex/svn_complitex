@@ -38,24 +38,27 @@
             </tr>
             <tr>
                 <td id="TopPanel">
-                    <div id="ButtonMain" class="expanded">
+                    <div wicket:id="infoPanelButton" id="ButtonMain" class="expanded">
                         <div>
                             <wicket:message key="main-sidebar.message"/>
                         </div>
                     </div>
                     <div wicket:id="toolbar">
                         <span wicket:id="commonPart">
-                            <span wicket:id="help"></span>
+                            <span wicket:id="commonButton"></span>
+                        </span>
+                        <span wicket:id="applicationPart">
+                            <span wicket:id="applicationButton"></span>
                         </span>
                         <span wicket:id="pagePart">
-                            <span wicket:id="pageToolbarButton"></span>
+                            <span wicket:id="pageButton"></span>
                         </span>
                     </div>
                 </td>
             </tr>
             <tr>
                 <td>
-                    <div id="LeftPanel">
+                    <div wicket:id="infoPanel" id="LeftPanel">
                         <div class="block LeftBlock" wicket:id="sidebar">
                             <div wicket:id="menu_placeholder">[menu content will go here]</div>
                             <wicket:fragment wicket:id="menu">

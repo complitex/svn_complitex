@@ -21,7 +21,7 @@ public final class MenuManager {
      */
     public static final String SELECTED_MENU_ITEM_COOKIE = "SelectedMenuItem";
     /**
-     * Main menu cookie's name const. This const must be the same as appropriate const in common.js.
+     * Main menu (info left panel) cookie's name const. This const must be the same as appropriate const in common.js.
      */
     public static final String MAIN_MENU_COOKIE = "MainMenuCookie";
     /**

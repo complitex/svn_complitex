@@ -7,6 +7,7 @@ package org.complitex.template.web.security;
 public final class SecurityRole {
 
     public final static String AUTHORIZED = "AUTHORIZED";
+    public final static String INFO_PANEL_ALLOWED = "INFO_PANEL_ALLOWED";
     public static final String ADDRESS_MODULE_EDIT = "ADDRESS_MODULE_EDIT";
     public static final String ADDRESS_MODULE_VIEW = "ADDRESS_MODULE_VIEW";
     public static final String APARTMENT_EDIT = "APARTMENT_EDIT";

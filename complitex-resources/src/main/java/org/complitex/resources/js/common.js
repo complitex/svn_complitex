@@ -141,20 +141,33 @@ Complitex.Common = {
         return "";
     },
 
+    /**
+     * See also org.complitex.template.web.template.MenuManager class.
+     */
     MenuInfo : {
 
-        //public constants
+        //public constants.
+        
         //simple menu
         MENU_COOKIE_PREFIX : "MenuPrefix_",
 
-        //main menu
+        /** 
+         *  Main menu (info left panel) cookie's name const. This const must be the same as appropriate const in 
+         *  org.complitex.template.web.template.MenuManager class.
+         */
         MAIN_MENU_COOKIE : "MainMenuCookie",
         
+        /**
+         * Possible main menu cookie's values. Must be the same as appropriate const values in
+         * org.complitex.template.web.template.MenuManager class.
+         */
         MAIN_MENU_EXPANDED : "1",
-        
         MAIN_MENU_COLLAPSED : "0",
 
-        //simple menu item
+        /** 
+         *  Selected menu item cookie's name const. This const must be the same as appropriate const in 
+         *  org.complitex.template.web.template.MenuManager class.
+         */
         SELECTED_MENU_ITEM_COOKIE : "SelectedMenuItem"
     }
 }

@@ -68,12 +68,15 @@ public class TemplateLoader {
         NodeList homePageClassElements = document.getElementsByTagName(HOME_PAGE_CLASS_ELEMENT_NAME);
 
         if (homePageClassElements.getLength() > 1) {
-            throw new RuntimeException("There are more one " + HOME_PAGE_CLASS_ELEMENT_NAME + " elements.");
+            throw new IllegalStateException("There are more one " + HOME_PAGE_CLASS_ELEMENT_NAME + " elements.");
         }
 
-        Element homePageClassElement = (Element) homePageClassElements.item(0);
-        String result = homePageClassElement.getTextContent();
-        return result != null ? result.trim() : null;
+        if (homePageClassElements.getLength() == 1) {
+            Element homePageClassElement = (Element) homePageClassElements.item(0);
+            String result = homePageClassElement.getTextContent();
+            return result != null ? result.trim() : null;
+        }
+        return null;
     }
 
     public Collection<String> getMenuClassNames() {

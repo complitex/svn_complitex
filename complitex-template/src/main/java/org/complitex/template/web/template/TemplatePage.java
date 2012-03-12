@@ -1,6 +1,6 @@
 package org.complitex.template.web.template;
 
-import org.apache.wicket.Component;
+import com.google.common.collect.ImmutableList;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
 import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
@@ -49,7 +49,6 @@ public abstract class TemplatePage extends WebPage {
     private String page = getClass().getName();
     private Set<String> resourceBundle = new HashSet<String>();
     private boolean isPostBack;
-    private final WebMarkupContainer toolbar;
 
     protected TemplatePage() {
         add(JavascriptPackageResource.getHeaderContribution(CoreJavaScriptResourceReference.get()));
@@ -65,18 +64,20 @@ public abstract class TemplatePage extends WebPage {
             }
         });
 
-        //toolbar
-        toolbar = new WebMarkupContainer("toolbar");
-        add(toolbar);
-        WebMarkupContainer commonPart = new WebMarkupContainer("commonPart");
-        toolbar.add(commonPart);
+        final boolean infoPanelAllowed = hasAnyRole(SecurityRole.INFO_PANEL_ALLOWED);
+        if (!infoPanelAllowed) {
+            MenuManager.hideMainMenu();
+        }
+        WebMarkupContainer infoPanelButton = new WebMarkupContainer("infoPanelButton");
+        infoPanelButton.setVisibilityAllowed(infoPanelAllowed);
+        add(infoPanelButton);
 
-        //add common buttons.
-        HelpButton help = new HelpButton("help");
-        commonPart.add(help);
+        WebMarkupContainer infoPanel = new WebMarkupContainer("infoPanel");
+        infoPanel.setVisibilityAllowed(infoPanelAllowed);
+        add(infoPanel);
 
         //menu
-        add(new ListView<ITemplateMenu>("sidebar", newTemplateMenus()) {
+        infoPanel.add(new ListView<ITemplateMenu>("sidebar", newTemplateMenus()) {
 
             @Override
             protected void populateItem(ListItem<ITemplateMenu> item) {
@@ -134,13 +135,40 @@ public abstract class TemplatePage extends WebPage {
                 add(new EmptyPanel("profile"));
             }
 
-            //add page custom buttons.
-            List<? extends ToolbarButton> buttons = getToolbarButtons("pageToolbarButton");
-            if (buttons == null) {
-                buttons = Collections.emptyList();
-            }
+            //toolbar
+            WebMarkupContainer toolbar = new WebMarkupContainer("toolbar");
+            add(toolbar);
+            //common toolbar buttons.
+            ListView<ToolbarButton> commonPart = new ListView<ToolbarButton>("commonPart", getCommonButtons("commonButton")) {
 
-            Component pagePart = new ListView<ToolbarButton>("pagePart", buttons) {
+                @Override
+                protected void populateItem(ListItem<ToolbarButton> item) {
+                    item.add(item.getModelObject());
+                }
+            };
+            toolbar.add(commonPart);
+
+            //application-wide toolbar buttons.
+            List<? extends ToolbarButton> applicationButtons = getTemplateWebApplication().
+                    getApplicationToolbarButtons("applicationButton");
+            if (applicationButtons == null) {
+                applicationButtons = Collections.emptyList();
+            }
+            ListView<ToolbarButton> applicationPart = new ListView<ToolbarButton>("applicationPart", applicationButtons) {
+
+                @Override
+                protected void populateItem(ListItem<ToolbarButton> item) {
+                    item.add(item.getModelObject());
+                }
+            };
+            toolbar.add(applicationPart);
+
+            //page-wide toolbar buttons.
+            List<? extends ToolbarButton> pageButtons = getToolbarButtons("pageButton");
+            if (pageButtons == null) {
+                pageButtons = Collections.emptyList();
+            }
+            ListView<ToolbarButton> pagePart = new ListView<ToolbarButton>("pagePart", pageButtons) {
 
                 @Override
                 protected void populateItem(ListItem<ToolbarButton> item) {
@@ -149,6 +177,10 @@ public abstract class TemplatePage extends WebPage {
             };
             toolbar.add(pagePart);
         }
+    }
+
+    private List<? extends ToolbarButton> getCommonButtons(String id) {
+        return ImmutableList.of(new HelpButton(id));
     }
 
     /**

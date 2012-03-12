@@ -29,6 +29,7 @@ import org.apache.wicket.Page;
 import org.apache.wicket.application.IClassResolver;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.mybatis.inject.JavaEE6ModuleNamingStrategy;
+import org.complitex.template.web.component.toolbar.ToolbarButton;
 import org.complitex.template.web.pages.access.AccessDeniedPage;
 import org.complitex.template.web.pages.welcome.WelcomePage;
 
@@ -124,6 +125,10 @@ public abstract class TemplateWebApplication extends ServletAuthWebApplication i
     @Override
     public Session newSession(Request request, Response response) {
         return new TemplateSession(request, newSessionStorage());
+    }
+
+    public List<? extends ToolbarButton> getApplicationToolbarButtons(String id) {
+        return null;
     }
 
     private static class DefaultSessionStorage implements ISessionStorage, Serializable {
