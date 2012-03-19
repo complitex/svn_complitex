@@ -11,7 +11,7 @@
     </resultMap>
 
     <insert id="insert" parameterType="Parameter">
-        insert into `${table}_string_culture`(`id`, `locale_id`, `value`) values (#{object.id}, #{object.localeId}, UPPER(#{object.value}))
+        insert into `${table}_string_culture`(`id`, `locale_id`, `value`) values (#{object.id}, #{object.localeId}, #{object.value})
     </insert>
 
     <select id="find" parameterType="map" resultMap="org.complitex.dictionary.entity.StringCulture.StringCulture">
@@ -19,7 +19,7 @@
     </select>
 
     <insert id="insertDescriptionData" parameterType="StringCulture">
-        insert into `string_culture`(`id`, `locale_id`, `value`) values (#{id}, #{localeId}, UPPER(#{value}))
+        insert into `string_culture`(`id`, `locale_id`, `value`) values (#{id}, #{localeId}, #{value})
     </insert>
 
     <!-- deletion -->

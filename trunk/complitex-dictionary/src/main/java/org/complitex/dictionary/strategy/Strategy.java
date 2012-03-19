@@ -364,17 +364,22 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
     @Transactional
     protected void insertAttribute(Attribute attribute) {
-        List<StringCulture> strings = attribute.getLocalizedValues();
+        final List<StringCulture> strings = attribute.getLocalizedValues();
         if (strings == null) {
             //reference attribute
         } else {
-            Long generatedStringId = stringBean.insertStrings(strings, getEntityTable());
+            final Long generatedStringId = insertStrings(attribute.getAttributeTypeId(), strings);
             attribute.setValueId(generatedStringId);
         }
 
         if (attribute.getValueId() != null || getEntity().getAttributeType(attribute.getAttributeTypeId()).isMandatory()) {
             sqlSession().insert(ATTRIBUTE_NAMESPACE + "." + INSERT_OPERATION, new Parameter(getEntityTable(), attribute));
         }
+    }
+
+    @Transactional
+    protected Long insertStrings(long attributeTypeId, List<StringCulture> strings) {
+        return stringBean.insertStrings(strings, getEntityTable());
     }
 
     @Transactional
