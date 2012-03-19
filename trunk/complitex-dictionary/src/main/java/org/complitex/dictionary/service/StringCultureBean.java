@@ -40,9 +40,9 @@ public class StringCultureBean extends AbstractBean {
 
     private static class StringCultureComparator implements Comparator<StringCulture> {
 
-        private Long systemLocaleId;
+        private final Long systemLocaleId;
 
-        public StringCultureComparator(Long systemLocaleId) {
+        StringCultureComparator(Long systemLocaleId) {
             this.systemLocaleId = systemLocaleId;
         }
 
