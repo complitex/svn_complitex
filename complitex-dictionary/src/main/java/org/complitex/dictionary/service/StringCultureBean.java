@@ -67,7 +67,7 @@ public class StringCultureBean extends AbstractBean {
     }
 
     @Transactional
-    public Long insertStrings(List<StringCulture> strings, String entityTable) {
+    public Long insertStrings(List<StringCulture> strings, String entityTable, boolean upperCase) {
         if (strings != null && !strings.isEmpty()) {
             boolean allValuesAreEmpty = true;
             for (StringCulture string : strings) {
@@ -84,7 +84,7 @@ public class StringCultureBean extends AbstractBean {
             for (StringCulture string : strings) {
                 if (!Strings.isEmpty(string.getValue())) {
                     string.setId(stringId);
-                    insert(string, entityTable);
+                    insert(string, entityTable, upperCase);
                 }
             }
             return stringId;
@@ -92,8 +92,28 @@ public class StringCultureBean extends AbstractBean {
         return null;
     }
 
+    /**
+     * Inserts strings in upper case by default.
+     * @param strings
+     * @param entityTable
+     * @return String's generated ID.
+     */
     @Transactional
-    protected void insert(StringCulture string, String entityTable) {
+    public Long insertStrings(List<StringCulture> strings, String entityTable) {
+        return insertStrings(strings, entityTable, true);
+    }
+
+    @Transactional
+    protected void insert(StringCulture string, String entityTable, boolean upperCase) {
+        //if string should be in upper case:
+        if (upperCase) {
+            //find given string culture's locale
+            final java.util.Locale locale = localeBean.getLocale(string.getLocaleId());
+
+            //upper case string culture's value
+            string.setValue(string.getValue().toUpperCase(locale));
+        }
+
         if (Strings.isEmpty(entityTable)) {
             sqlSession().insert(MAPPING_NAMESPACE + ".insertDescriptionData", string);
         } else {
