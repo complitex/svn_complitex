@@ -35,7 +35,7 @@ public abstract class AjaxRemovableListView<T extends Serializable> extends List
         init();
     }
 
-    protected AjaxRemovableListView init() {
+    protected AjaxRemovableListView<T> init() {
         setReuseItems(true);
         return this;
     }
@@ -52,8 +52,8 @@ public abstract class AjaxRemovableListView<T extends Serializable> extends List
         return removeSubmitLink;
     }
 
-    protected AjaxLink addRemoveLink(String linkId, ListItem<T> item, Component toFocus, Component... toUpdate) {
-        AjaxLink removeLink = getRemoveLink(linkId, toFocus, toUpdate);
+    protected AjaxLink<Void> addRemoveLink(String linkId, ListItem<T> item, Component toFocus, Component... toUpdate) {
+        AjaxLink<Void> removeLink = getRemoveLink(linkId, toFocus, toUpdate);
         item.add(removeLink);
         return removeLink;
     }
@@ -64,7 +64,7 @@ public abstract class AjaxRemovableListView<T extends Serializable> extends List
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-                if (validate((ListItem<T>) this.getParent())) {
+                if (approveRemoval((ListItem<T>) this.getParent())) {
                     updateListViewOnRemoval(this, target, toFocus, toUpdate);
                 } else {
                     for (Component comp : toUpdate) {
@@ -84,13 +84,13 @@ public abstract class AjaxRemovableListView<T extends Serializable> extends List
         return link;
     }
 
-    protected AjaxLink getRemoveLink(String linkId, final Component toFocus, final Component... toUpdate) {
-        return new AjaxLink(linkId) {
+    protected AjaxLink<Void> getRemoveLink(String linkId, final Component toFocus, final Component... toUpdate) {
+        return new AjaxLink<Void>(linkId) {
 
             @SuppressWarnings({"unchecked"})
             @Override
             public void onClick(AjaxRequestTarget target) {
-                if (validate((ListItem<T>) this.getParent())) {
+                if (approveRemoval((ListItem<T>) this.getParent())) {
                     updateListViewOnRemoval(this, target, toFocus, toUpdate);
                 } else {
                     for (Component comp : toUpdate) {
@@ -101,7 +101,7 @@ public abstract class AjaxRemovableListView<T extends Serializable> extends List
         };
     }
 
-    protected boolean validate(ListItem<T> item) {
+    protected boolean approveRemoval(ListItem<T> item) {
         return true;
     }
 

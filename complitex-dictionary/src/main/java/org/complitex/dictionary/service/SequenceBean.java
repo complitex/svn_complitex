@@ -17,8 +17,8 @@ public class SequenceBean extends AbstractBean{
     public long nextStringId(String entityTable) {
         long nextStringId;
         if (Strings.isEmpty(entityTable)) {
-            nextStringId = (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".nextStringIdForDescriptionData", entityTable);
-            sqlSession().update(MAPPING_NAMESPACE + ".incrementStringIdForDescriptionData", entityTable);
+            nextStringId = (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".nextStringIdForDescriptionData");
+            sqlSession().update(MAPPING_NAMESPACE + ".incrementStringIdForDescriptionData");
         } else {
             nextStringId = (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".nextStringId", entityTable);
             sqlSession().update(MAPPING_NAMESPACE + ".incrementStringId", entityTable);

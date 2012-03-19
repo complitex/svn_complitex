@@ -14,7 +14,7 @@
         insert into `${table}_string_culture`(`id`, `locale_id`, `value`) values (#{object.id}, #{object.localeId}, UPPER(#{object.value}))
     </insert>
 
-    <select id="find" parameterType="hashmap" resultMap="org.complitex.dictionary.entity.StringCulture.StringCulture">
+    <select id="find" parameterType="map" resultMap="org.complitex.dictionary.entity.StringCulture.StringCulture">
         SELECT sc.* FROM `${table}_string_culture` sc WHERE sc.`id` = #{id}
     </select>
 
