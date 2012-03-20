@@ -1,14 +1,11 @@
 package org.complitex.dictionary.web.component.search;
 
-import com.google.common.collect.ImmutableSet;
 import org.complitex.dictionary.entity.DomainObject;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import org.complitex.dictionary.util.Numbers;
 
 /**
@@ -48,11 +45,9 @@ public class SearchComponentState extends HashMap<String, DomainObject> implemen
     public void updateState(Map<String, ? extends DomainObject> state) {
         boolean clear = false;
 
-        final Set<String> keys = ImmutableSet.<String>builder().addAll(state.keySet()).addAll(keySet()).build();
-
-        for (String key : keys) {
-            final DomainObject that = state.get(key);
-            final DomainObject current = get(key);
+        for (String key : state.keySet()) {
+            DomainObject that = state.get(key);
+            DomainObject current = get(key);
 
             //clear if object changed
             clear = !isEqual(that, current);
@@ -62,44 +57,11 @@ public class SearchComponentState extends HashMap<String, DomainObject> implemen
         }
 
         if (clear) {
-            for (String k : keySet()) {
+            for (String k : this.keySet()) {
                 put(k, new DomainObject(NOT_SPECIFIED_ID));
             }
         }
 
         putAll(state);
-    }
-
-    public boolean isEqual(SearchComponentState searchComponentState, Collection<String> entityEqualCriteria) {
-        if (entityEqualCriteria == null || entityEqualCriteria.isEmpty()) {
-            throw new IllegalArgumentException("EntityEqualCriteria is null or empty.");
-        }
-
-        if (this.isEmpty() && (searchComponentState == null || searchComponentState.isEmpty())) {
-            return true;
-        }
-
-        if (this.isEmpty() || searchComponentState == null || searchComponentState.isEmpty()) {
-            return false;
-        }
-
-        for (String entity : entityEqualCriteria) {
-            DomainObject thisObject = this.get(entity);
-            DomainObject thatObject = searchComponentState.get(entity);
-            if ((thisObject == null || thisObject.getId() == null || thisObject.getId().equals(NOT_SPECIFIED_ID))
-                    && (thatObject == null || thatObject.getId() == null || thatObject.getId().equals(NOT_SPECIFIED_ID))) {
-                //consider it as equal objects
-                continue;
-            }
-            if (thisObject == null || thisObject.getId() == null || thisObject.getId().equals(NOT_SPECIFIED_ID)
-                    || thatObject == null || thatObject.getId() == null || thatObject.getId().equals(NOT_SPECIFIED_ID)) {
-                return false;
-            }
-
-            if (!thisObject.getId().equals(thatObject.getId())) {
-                return false;
-            }
-        }
-        return true;
     }
 }
