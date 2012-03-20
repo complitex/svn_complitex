@@ -149,6 +149,8 @@ public interface IStrategy {
     PageParameters getHistoryPageParams(long objectId);
 
     List<EntityAttributeType> getListColumns();
+    
+    long getDefaultSortAttributeTypeId();
 
     Class<? extends WebPage> getListPage();
 

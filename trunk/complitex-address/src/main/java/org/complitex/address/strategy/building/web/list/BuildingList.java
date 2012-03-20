@@ -152,7 +152,9 @@ public final class BuildingList extends ScrollListPage {
                 return buildingStrategy.count(example);
             }
         };
-        dataProvider.setSort(getSortProperty(""), getSortOrder(true));
+        final String sortProperty = getSortProperty(String.valueOf(buildingStrategy.getDefaultSortAttributeTypeId()));
+        final boolean sortOrder = getSortOrder(true);
+        dataProvider.setSort(sortProperty, sortOrder);
 
         //Filters
         filterForm.add(new TextField<String>("numberFilter", new Model<String>() {

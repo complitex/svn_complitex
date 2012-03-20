@@ -669,4 +669,9 @@ public class BuildingStrategy extends TemplateStrategy {
     public Class<? extends WebPage> getEditPage() {
         return BuildingEdit.class;
     }
+
+    @Override
+    public long getDefaultSortAttributeTypeId() {
+        return OrderBy.NUMBER.getOrderByAttributeId();
+    }
 }

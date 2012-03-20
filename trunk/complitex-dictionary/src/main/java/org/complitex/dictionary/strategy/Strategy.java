@@ -751,6 +751,14 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     }
 
     /**
+     * Determines column in list page by that list page's data will be sorted by default when there is no sorting column in preferences.
+     */
+    @Override
+    public long getDefaultSortAttributeTypeId() {
+        return Collections.min(getListAttributeTypes());
+    }
+
+    /**
      *
      * @return Сортированный список идентификаторов атрибутов, которые должны выводиться в качестве колонок на странице записей.
      */
