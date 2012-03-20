@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import org.apache.wicket.util.string.Strings;
 
 /**
  *
@@ -161,7 +162,8 @@ public class DictionaryFwSession extends WebSession {
     }
 
     public Boolean getPreferenceBoolean(String page, String key) {
-        return Boolean.valueOf(getPreferenceString(page, key));
+        final String preferenceString = getPreferenceString(page, key);
+        return !Strings.isEmpty(preferenceString) ? Boolean.valueOf(preferenceString) : null;
     }
 
     //Enum key
@@ -194,7 +196,10 @@ public class DictionaryFwSession extends WebSession {
         if (componentState == null) {
             componentState = new SearchComponentState();
 
-            boolean useDefault = getPreferenceBoolean(GLOBAL_PAGE, IS_USE_DEFAULT_STATE_KEY);
+            Boolean useDefault = getPreferenceBoolean(GLOBAL_PAGE, IS_USE_DEFAULT_STATE_KEY);
+            if (useDefault == null) {
+                useDefault = false;
+            }
 
             for (Preference p : getPreferenceMap(useDefault ? DEFAULT_STATE_PAGE : GLOBAL_STATE_PAGE).values()) {
                 componentState.put(p.getKey(), getPreferenceDomainObject(p.getPage(), p.getKey()));

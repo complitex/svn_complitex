@@ -189,8 +189,11 @@ public final class DomainObjectListPanel extends Panel {
                 return getStrategy().count(example);
             }
         };
-        dataProvider.setSort(getSession().getPreferenceString(page, PreferenceKey.SORT_PROPERTY, ""),
-                getSession().getPreferenceBoolean(page, PreferenceKey.SORT_ORDER, true));
+
+        final String sortProperty = getSession().getPreferenceString(page, PreferenceKey.SORT_PROPERTY,
+                String.valueOf(getStrategy().getDefaultSortAttributeTypeId()));
+        final boolean sortOrder = getSession().getPreferenceBoolean(page, PreferenceKey.SORT_ORDER, true);
+        dataProvider.setSort(sortProperty, sortOrder);
 
         //Data View
         dataView = new DataView<DomainObject>("data", dataProvider, 1) {
