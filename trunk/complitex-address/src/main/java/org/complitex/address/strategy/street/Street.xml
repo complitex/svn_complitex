@@ -38,7 +38,7 @@
     </sql>
 
     <select id="count" resultType="integer" parameterType="DomainObjectExample">
-        SELECT COUNT(*) FROM `street` e WHERE
+        SELECT COUNT(1) FROM `street` e WHERE
         <include refid="org.complitex.address.strategy.street.Street.streetFilter"/>
     </select>
 
