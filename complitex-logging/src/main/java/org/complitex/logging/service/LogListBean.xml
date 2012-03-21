@@ -54,7 +54,7 @@
     </select>
 
     <select id="selectLogsCount" resultType="int">
-        select count(*) from `log` <include refid="logFilterWhere"/>
+        select count(1) from `log` <include refid="logFilterWhere"/>
     </select>
 
     <select id="selectModules" resultType="string">

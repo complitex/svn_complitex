@@ -11,7 +11,7 @@
     </update>
 
     <select id="isExistConfig" parameterType="string" resultType="boolean">
-        select count(*) > 0 from `config` where `name` = #{name}
+        select count(1) > 0 from `config` where `name` = #{name}
     </select>
 
     <select id="selectConfigValue" parameterType="string" resultType="string">

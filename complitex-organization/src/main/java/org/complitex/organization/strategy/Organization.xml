@@ -54,7 +54,7 @@
     </sql>
 
     <select id="count" resultType="integer" parameterType="DomainObjectExample">
-        SELECT COUNT(*) FROM `organization` e WHERE
+        SELECT COUNT(1) FROM `organization` e WHERE
         <include refid="org.complitex.dictionary.entity.DomainObject.statusFilter"/>
         <include refid="org.complitex.dictionary.entity.DomainObject.permissionFilter"/>
         <include refid="org.complitex.organization.strategy.Organization.filter"/>

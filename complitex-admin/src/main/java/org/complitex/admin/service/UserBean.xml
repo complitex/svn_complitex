@@ -22,7 +22,7 @@
     <!--User-->
 
     <select id="isUniqueLogin" resultType="boolean" parameterType="string">
-        select count(*) = 0 from `user` u where u.`login` = #{login}
+        select count(1) = 0 from `user` u where u.`login` = #{login}
     </select>
 
     <select id="selectUser" resultMap="userResultMap" parameterType="long">
