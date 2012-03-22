@@ -242,6 +242,7 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
             prepareExampleForPermissionCheck(example);
         }
 
+        @SuppressWarnings("unchecked")
         List<DomainObject> organizations = sqlSession().selectList(ORGANIZATION_NAMESPACE + "." + FIND_OPERATION, example);
         for (DomainObject object : organizations) {
             loadAttributes(object);
@@ -275,6 +276,7 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
     @Transactional
     @Override
     public Long validateCode(Long id, String code) {
+        @SuppressWarnings("unchecked")
         List<Long> results = sqlSession().selectList(ORGANIZATION_NAMESPACE + ".validateCode", code);
         for (Long result : results) {
             if (!result.equals(id)) {
@@ -290,6 +292,7 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
         Map<String, Object> params = Maps.newHashMap();
         params.put("name", name);
         params.put("localeId", localeBean.convert(locale).getId());
+        @SuppressWarnings("unchecked")
         List<Long> results = sqlSession().selectList(ORGANIZATION_NAMESPACE + ".validateName", params);
         for (Long result : results) {
             if (!result.equals(id)) {
@@ -328,15 +331,16 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
     @Transactional
     @Override
     public Set<Long> getTreeChildrenOrganizationIds(long parentOrganizationId) {
+        @SuppressWarnings("unchecked")
         Set<Long> childrenIds = Sets.newHashSet(sqlSession().selectList(ORGANIZATION_NAMESPACE + ".findOrganizationChildrenObjectIds",
                 parentOrganizationId));
-        Set<Long> treeChildren = Sets.newHashSet(childrenIds);
+        Set<Long> treeChildrenIds = Sets.newHashSet(childrenIds);
 
         for (Long childId : childrenIds) {
-            treeChildren.addAll(getTreeChildrenOrganizationIds(childId));
+            treeChildrenIds.addAll(getTreeChildrenOrganizationIds(childId));
         }
 
-        return treeChildren;
+        return Collections.unmodifiableSet(treeChildrenIds);
     }
 
     @Override
