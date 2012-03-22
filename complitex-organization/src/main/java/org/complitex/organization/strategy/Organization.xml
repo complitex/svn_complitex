@@ -44,7 +44,7 @@
         </foreach>
         <if test="additionalParams != null and additionalParams['organizationTypeIds'] != null">
             AND EXISTS(SELECT 1 FROM `organization_attribute` attr WHERE attr.`object_id` = e.`object_id`
-                        AND attr.`status` = 'ACTIVE' AND attr.`attribute_type_id` = 905
+                        AND attr.`status` = 'ACTIVE' AND attr.`attribute_type_id` = 904
                         AND attr.`value_id` IN
                             <foreach open="(" close=")" separator="," item="id" collection="additionalParams['organizationTypeIds']">
                                 #{id}
