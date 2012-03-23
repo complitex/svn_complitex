@@ -70,12 +70,7 @@ public class UserList extends ScrollListPage {
     private void init() {
         add(new Label("title", new ResourceModel("title")));
 
-        UserFilter filter = (UserFilter) getFilterObject(null);
-        if (filter == null) {
-            filter = userBean.newUserFilter();
-            setFilterObject(filter);
-        }
-
+        final UserFilter filter = userBean.newUserFilter();
         final IModel<UserFilter> filterModel = new Model<UserFilter>(filter);
 
         final WebMarkupContainer content = new WebMarkupContainer("content");
@@ -132,15 +127,10 @@ public class UserList extends ScrollListPage {
 
             @Override
             protected Iterable<? extends User> getData(int first, int count) {
-                boolean asc = getSort().isAscending();
-                String sortProperty = getSort().getProperty();
+                final boolean asc = getSort().isAscending();
+                final String sortProperty = getSort().getProperty();
 
                 UserFilter filter = filterModel.getObject();
-
-                setSortProperty(sortProperty);
-                setSortOrder(asc);
-                setFilterObject(filter);
-
                 filter.setFirst(first);
                 filter.setCount(count);
 
@@ -160,7 +150,7 @@ public class UserList extends ScrollListPage {
                 return userBean.getUsersCount(filterModel.getObject());
             }
         };
-        dataProvider.setSort(getSortProperty("login"), getSortOrder(true));
+        dataProvider.setSort("login", true);
 
         DataView<User> dataView = new DataView<User>("users", dataProvider, 1) {
 
