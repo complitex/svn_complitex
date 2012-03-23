@@ -26,15 +26,13 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.util.string.Strings;
-import org.complitex.dictionary.entity.PreferenceKey;
 import org.complitex.dictionary.web.DictionaryFwSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.wicket.markup.html.JavascriptPackageResource;
+import org.complitex.dictionary.entity.PreferenceKey;
 import org.complitex.resources.WebCommonResourceInitializer;
 
 /**
@@ -42,44 +40,58 @@ import org.complitex.resources.WebCommonResourceInitializer;
  * @author Artem
  */
 public class PagingNavigator extends Panel {
-    private static final Logger log = LoggerFactory.getLogger(PagingNavigator.class);
 
     private static final int LEFT_OFFSET = 3;
     private static final int RIGHT_OFFSET = 3;
     private static final List<Integer> SUPPORTED_PAGE_SIZES = Arrays.asList(10, 20, 30, 50, 100);
-    private DataView dataView;
+    private DataView<?> dataView;
     private WebMarkupContainer pageBar;
-    private Form newPageForm;
+    private Form<Void> newPageForm;
     private WebMarkupContainer allPagesRegion;
     private PropertyModel<Integer> rowsPerPagePropertyModel;
     private Component[] toUpdate;
-    private String page;
     private List<IPagingNavigatorListener> listeners = new ArrayList<IPagingNavigatorListener>();
 
-    public PagingNavigator(String id, final DataView dataView, final String page, Component... toUpdate) {
+    /**
+     * The same as general constructor except that navigator don't persist number of rows per page to preferences.
+     * 
+     * @param id Wicket component's id.
+     * @param dataView Data view.
+     * @param toUpdate List of components to be updated on navigation events.
+     */
+    public PagingNavigator(String id, final DataView<?> dataView, Component... toUpdate) {
+        this(id, dataView, null, toUpdate);
+    }
+
+    /**
+     * General constructor.
+     * 
+     * @param id Wicket component's id.
+     * @param dataView Data view.
+     * @param page Preference page. If {@code page} is not not {@code null} then it is used to persist number of rows per page as 
+     * {@link PreferenceKey#ROWS_PER_PAGE} preference.
+     * @param toUpdate List of components to be updated on navigation events.
+     */
+    public PagingNavigator(String id, final DataView<?> dataView, final String page, Component... toUpdate) {
         super(id);
         setOutputMarkupId(true);
         add(JavascriptPackageResource.getHeaderContribution(WebCommonResourceInitializer.SCROLL_JS));
 
         this.dataView = dataView;
-        this.page = page;
         this.toUpdate = toUpdate;
 
         rowsPerPagePropertyModel = new PropertyModel<Integer>(dataView, "itemsPerPage");
 
         //retrieve table page size from preferences.
-        Integer rowsPerPage = getSession().getPreferenceInteger(page, PreferenceKey.ROWS_PER_PAGE, 10);
-        if (rowsPerPage == null) {
+        Integer rowsPerPage;
+        if (page != null) {
+            rowsPerPage = getSession().getPreferenceInteger(page, PreferenceKey.ROWS_PER_PAGE, SUPPORTED_PAGE_SIZES.get(0));
+        } else {
             rowsPerPage = SUPPORTED_PAGE_SIZES.get(0);
         }
-
         rowsPerPagePropertyModel.setObject(rowsPerPage);
 
-        //retrieve table page index from preferences.
-        Integer pageIndex = getSession().getPreferenceInteger(page, PreferenceKey.PAGE_INDEX, 0);
-        if (pageIndex != null && pageIndex < dataView.getPageCount()) {
-            dataView.setCurrentPage(pageIndex);
-        }
+        dataView.setCurrentPage(0);
 
         WebMarkupContainer pageNavigator = new WebMarkupContainer("pageNavigator");
         add(pageNavigator);
@@ -148,7 +160,7 @@ public class PagingNavigator extends Panel {
 
 
         //new page form
-        newPageForm = new Form("newPageForm");
+        newPageForm = new Form<Void>("newPageForm");
         IModel<String> newPageNumberModel = new Model<String>() {
 
             @Override
@@ -172,10 +184,6 @@ public class PagingNavigator extends Panel {
                     }
                 }
             }
-//            @Override
-//            public String getObject() {
-//                return String.valueOf(pageable.getCurrentPage() + 1);
-//            }
         };
         TextField<String> newPageNumber = new TextField<String>("newPageNumber", newPageNumberModel);
         AjaxButton goToPage = new AjaxButton("goToPage", newPageForm) {
@@ -201,7 +209,9 @@ public class PagingNavigator extends Panel {
 
             @Override
             public void setObject(Integer rowsPerPage) {
-                getSession().putPreference(page, PreferenceKey.ROWS_PER_PAGE, rowsPerPage, true);
+                if (page != null) {
+                    getSession().putPreference(page, PreferenceKey.ROWS_PER_PAGE, rowsPerPage, true);
+                }
                 rowsPerPagePropertyModel.setObject(rowsPerPage);
             }
         };
@@ -305,7 +315,7 @@ public class PagingNavigator extends Panel {
                 updatePageComponents(target);
 
                 //listeners
-                for (IPagingNavigatorListener listener : listeners){
+                for (IPagingNavigatorListener listener : listeners) {
                     listener.onChangePage();
                 }
             }
@@ -313,8 +323,8 @@ public class PagingNavigator extends Panel {
     }
 
     protected void appendScrollupJavascript(AjaxRequestTarget target) {
-            String javascript = "scrollTo(0, {axis:'y'});";
-            target.appendJavascript(javascript);
+        String javascript = "scrollTo(0, {axis:'y'});";
+        target.appendJavascript(javascript);
     }
 
     @Override
@@ -327,17 +337,11 @@ public class PagingNavigator extends Panel {
         super.onBeforeRender();
     }
 
-    @Override
-    protected void onAfterRender() {
-        super.onAfterRender();
-        getSession().putPreference(page, PreferenceKey.PAGE_INDEX, dataView.getCurrentPage(), true);
-    }
-
-    public void addListener(IPagingNavigatorListener listener){
+    public void addListener(IPagingNavigatorListener listener) {
         listeners.add(listener);
     }
 
-    public void removeListener(IPagingNavigatorListener listener){
+    public void removeListener(IPagingNavigatorListener listener) {
         listeners.remove(listener);
     }
 
@@ -357,7 +361,7 @@ public class PagingNavigator extends Panel {
          * @param resourceKey
          *            resource key of the message
          */
-        public TitleResourceAppender(String resourceKey) {
+        TitleResourceAppender(String resourceKey) {
             this.resourceKey = resourceKey;
         }
 
@@ -387,7 +391,7 @@ public class PagingNavigator extends Panel {
          * @param page
          *            page number to use as the ${page} var
          */
-        public TitlePageNumberAppender(int page) {
+        TitlePageNumberAppender(int page) {
             this.page = page;
         }
 

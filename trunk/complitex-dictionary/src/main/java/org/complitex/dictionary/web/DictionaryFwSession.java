@@ -30,8 +30,6 @@ public class DictionaryFwSession extends WebSession {
     private Map<String, SearchComponentState> searchComponentSessionState = new HashMap<String, SearchComponentState>();
     private Map<String, Map<String, Preference>> preferences = new HashMap<String, Map<String, Preference>>();
     private ISessionStorage sessionStorage;
-    private LocaleBean localeBean = EjbBeanLocator.getBean(LocaleBean.class);
-    private StrategyFactory strategyFactory = EjbBeanLocator.getBean(StrategyFactory.class);
 
     public DictionaryFwSession(Request request, ISessionStorage sessionStorage) {
         super(request);
@@ -45,7 +43,8 @@ public class DictionaryFwSession extends WebSession {
         }
 
         //locale
-        String language = getPreferenceString(GLOBAL_PAGE, LOCALE_KEY);
+        final String language = getPreferenceString(GLOBAL_PAGE, LOCALE_KEY);
+        final LocaleBean localeBean = EjbBeanLocator.getBean(LocaleBean.class);
         super.setLocale(language != null ? new Locale(language) : localeBean.getSystemLocale());
     }
 
@@ -218,6 +217,7 @@ public class DictionaryFwSession extends WebSession {
             try {
                 Long domainObjectId = Long.valueOf(p.getValue());
                 if (domainObjectId != null && domainObjectId > 0) {
+                    final StrategyFactory strategyFactory = EjbBeanLocator.getBean(StrategyFactory.class);
                     return strategyFactory.getStrategy(p.getKey()).findById(domainObjectId, true);
                 }
             } catch (Exception e) {
@@ -241,16 +241,15 @@ public class DictionaryFwSession extends WebSession {
     @Override
     public Locale getLocale() {
         if (getPreferenceString(GLOBAL_PAGE, LOCALE_KEY) == null) {
+            final LocaleBean localeBean = EjbBeanLocator.getBean(LocaleBean.class);
             setLocale(localeBean.getSystemLocale());
         }
-
         return super.getLocale();
     }
 
     @Override
     public void setLocale(Locale locale) {
         putPreference(GLOBAL_PAGE, LOCALE_KEY, locale.getLanguage(), true);
-
         super.setLocale(locale);
     }
 }

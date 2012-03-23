@@ -96,12 +96,7 @@ public final class BuildingList extends ScrollListPage {
         content.setOutputMarkupPlaceholderTag(true);
 
         //Example
-        example = (DomainObjectExample) getFilterObject(null);
-
-        if (example == null) {
-            example = new DomainObjectExample();
-            setFilterObject(example);
-        }
+        example = new DomainObjectExample();
 
         //Search
         final List<String> searchFilters = buildingStrategy.getSearchFilters();
@@ -123,16 +118,11 @@ public final class BuildingList extends ScrollListPage {
 
             @Override
             protected Iterable<? extends Building> getData(int first, int count) {
-                boolean asc = getSort().isAscending();
-                String sortProperty = getSort().getProperty();
-
-                //store preference
-                setSortProperty(sortProperty);
-                setSortOrder(asc);
-                setFilterObject(example);
-
                 //store state
                 getTemplateSession().storeGlobalSearchComponentState();
+
+                boolean asc = getSort().isAscending();
+                String sortProperty = getSort().getProperty();
 
                 if (!Strings.isEmpty(sortProperty)) {
                     example.setOrderByAttributeTypeId(Long.valueOf(sortProperty));
@@ -152,9 +142,7 @@ public final class BuildingList extends ScrollListPage {
                 return buildingStrategy.count(example);
             }
         };
-        final String sortProperty = getSortProperty(String.valueOf(buildingStrategy.getDefaultSortAttributeTypeId()));
-        final boolean sortOrder = getSortOrder(true);
-        dataProvider.setSort(sortProperty, sortOrder);
+        dataProvider.setSort(String.valueOf(buildingStrategy.getDefaultSortAttributeTypeId()), true);
 
         //Filters
         filterForm.add(new TextField<String>("numberFilter", new Model<String>() {
@@ -258,7 +246,7 @@ public final class BuildingList extends ScrollListPage {
         filterForm.add(submit);
 
         //Navigator
-        content.add(new PagingNavigator("navigator", dataView, getClass().getName(), content));
+        content.add(new PagingNavigator("navigator", dataView, getPreferencesPage(), content));
     }
 
     @Override

@@ -22,7 +22,6 @@ import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.converter.*;
 import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.DomainObject;
-import org.complitex.dictionary.entity.PreferenceKey;
 import org.complitex.dictionary.entity.SimpleTypes;
 import org.complitex.dictionary.entity.description.EntityAttributeType;
 import org.complitex.dictionary.entity.example.AttributeExample;
@@ -113,13 +112,8 @@ public final class DomainObjectListPanel extends Panel {
         content.setOutputMarkupPlaceholderTag(true);
 
         //Example
-        example = (DomainObjectExample) getSession().getPreferenceObject(page, PreferenceKey.FILTER_OBJECT, null);
-
-        if (example == null) {
-            example = new DomainObjectExample();
-            example.setTable(entity);
-            getSession().putPreferenceObject(page, PreferenceKey.FILTER_OBJECT, example);
-        }
+        example = new DomainObjectExample();
+        example.setTable(entity);
 
         //Search
         final List<String> searchFilters = getStrategy().getSearchFilters();
@@ -160,14 +154,8 @@ public final class DomainObjectListPanel extends Panel {
 
             @Override
             protected Iterable<? extends DomainObject> getData(int first, int count) {
-                //store preference
-                DictionaryFwSession session = getSession();
-                session.putPreference(page, PreferenceKey.SORT_PROPERTY, getSort().getProperty(), true);
-                session.putPreference(page, PreferenceKey.SORT_ORDER, getSort().isAscending(), true);
-                session.putPreferenceObject(page, PreferenceKey.FILTER_OBJECT, example);
-
                 //store state
-                session.storeGlobalSearchComponentState();
+                getSession().storeGlobalSearchComponentState();
 
                 if (!Strings.isEmpty(getSort().getProperty())) {
                     Long sortProperty = Long.valueOf(getSort().getProperty());
@@ -189,11 +177,7 @@ public final class DomainObjectListPanel extends Panel {
                 return getStrategy().count(example);
             }
         };
-
-        final String sortProperty = getSession().getPreferenceString(page, PreferenceKey.SORT_PROPERTY,
-                String.valueOf(getStrategy().getDefaultSortAttributeTypeId()));
-        final boolean sortOrder = getSession().getPreferenceBoolean(page, PreferenceKey.SORT_ORDER, true);
-        dataProvider.setSort(sortProperty, sortOrder);
+        dataProvider.setSort(String.valueOf(getStrategy().getDefaultSortAttributeTypeId()), true);
 
         //Data View
         dataView = new DataView<DomainObject>("data", dataProvider, 1) {

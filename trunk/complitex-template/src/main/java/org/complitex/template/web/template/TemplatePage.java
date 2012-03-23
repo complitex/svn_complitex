@@ -18,7 +18,6 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.util.string.Strings;
-import org.complitex.dictionary.entity.PreferenceKey;
 import org.complitex.dictionary.service.SessionBean;
 import org.complitex.dictionary.util.ResourceUtil;
 import org.complitex.resources.WebCommonResourceInitializer;
@@ -322,37 +321,13 @@ public abstract class TemplatePage extends WebPage {
         resourceBundle.addAll(bundle);
     }
 
-    /* Template Session Preferences*/
+    /* Template Session Preferences */
     public String getPreferencesPage() {
         return page;
     }
 
     public void setPreferencesPage(String page) {
         this.page = page;
-    }
-
-    public void setSortProperty(String sortProperty) {
-        getTemplateSession().putPreference(page, PreferenceKey.SORT_PROPERTY, sortProperty, true);
-    }
-
-    public String getSortProperty(String _default) {
-        return getTemplateSession().getPreferenceString(page, PreferenceKey.SORT_PROPERTY, _default);
-    }
-
-    public void setSortOrder(Boolean sortOrder) {
-        getTemplateSession().putPreference(page, PreferenceKey.SORT_ORDER, sortOrder, true);
-    }
-
-    public Boolean getSortOrder(Boolean _default) {
-        return getTemplateSession().getPreferenceBoolean(page, PreferenceKey.SORT_ORDER, _default);
-    }
-
-    public void setFilterObject(Object filterObject) {
-        getTemplateSession().putPreferenceObject(page, PreferenceKey.FILTER_OBJECT, filterObject);
-    }
-
-    public Object getFilterObject(Object _default) {
-        return getTemplateSession().getPreferenceObject(page, PreferenceKey.FILTER_OBJECT, _default);
     }
 
     public final boolean isUserAuthorized() {
