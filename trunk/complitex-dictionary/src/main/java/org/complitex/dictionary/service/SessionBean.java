@@ -1,5 +1,6 @@
 package org.complitex.dictionary.service;
 
+import com.google.common.collect.ImmutableSet;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.service.exception.WrongCurrentPasswordException;
 import org.complitex.dictionary.strategy.IStrategy;
@@ -12,6 +13,7 @@ import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import java.util.*;
 import org.complitex.dictionary.entity.DomainObject;
+import org.complitex.dictionary.entity.UserGroup.GROUP_NAME;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -24,7 +26,6 @@ public class SessionBean extends AbstractBean {
     private static final String MAPPING_NAMESPACE = SessionBean.class.getName();
     private static final String ORGANIZATION_ENTITY = "organization";
     public static final String CHILD_ORGANIZATION_VIEW_ROLE = "CHILD_ORGANIZATION_VIEW";
-    private static final String ADMIN_LOGIN = "admin";
     @Resource
     private SessionContext sessionContext;
     @EJB
@@ -33,7 +34,28 @@ public class SessionBean extends AbstractBean {
     private StrategyFactory strategyFactory;
 
     public boolean isAdmin() {
-        return ADMIN_LOGIN.equals(sessionContext.getCallerPrincipal().getName());
+        final Set<GROUP_NAME> userGroups = getCurrentUserGroups();
+        return userGroups.contains(GROUP_NAME.ADMINISTRATORS);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Set<GROUP_NAME> getCurrentUserGroups() {
+        final String login = sessionContext.getCallerPrincipal().getName();
+        List<String> ugs = sqlSession().selectList(MAPPING_NAMESPACE + ".getUserGroups", login);
+        if (ugs != null && !ugs.isEmpty()) {
+            final Set<GROUP_NAME> userGroups = EnumSet.noneOf(GROUP_NAME.class);
+            for (String ug : ugs) {
+                GROUP_NAME group;
+                try {
+                    group = GROUP_NAME.valueOf(ug);
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalStateException("User with login `" + login + "` is member of unknown user group: `" + ug + "`", e);
+                }
+                userGroups.add(group);
+            }
+            return ImmutableSet.copyOf(userGroups);
+        }
+        throw new IllegalStateException("User with login `" + login + "` is not member of any user group.");
     }
 
     public Long getCurrentUserId() {
@@ -44,10 +66,12 @@ public class SessionBean extends AbstractBean {
         return sessionContext.getCallerPrincipal().getName();
     }
 
+    @SuppressWarnings("unchecked")
     public List<Long> getUserOrganizationObjectIds() {
         return sqlSession().selectList(MAPPING_NAMESPACE + ".selectOrganizationObjectIds", getCurrentUserLogin());
     }
 
+    @SuppressWarnings("unchecked")
     private List<Long> getOrganizationChildrenObjectId(Long parentObjectId) {
         return sqlSession().selectList(MAPPING_NAMESPACE + ".selectOrganizationChildrenObjectIds", parentObjectId);
     }
@@ -72,6 +96,7 @@ public class SessionBean extends AbstractBean {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private List<Long> getUserOrganizationTreePermissionIds(String table) {
         String s = "";
         String d = "";
@@ -92,6 +117,7 @@ public class SessionBean extends AbstractBean {
         return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectMainOrganizationObjectId", getCurrentUserLogin());
     }
 
+    @SuppressWarnings("unchecked")
     private List<Long> getUserOrganizationPermissionIds(final String table) {
         return sqlSession().selectList(MAPPING_NAMESPACE + ".selectUserOrganizationPermissionIds",
                 new HashMap<String, String>() {

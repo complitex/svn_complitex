@@ -52,4 +52,8 @@
     <select id="getUserGroupCount" parameterType="string" resultType="int">
         SELECT COUNT(1) FROM `usergroup` WHERE `login` = #{login}
     </select>
+    
+    <select id="getUserGroups" parameterType="string" resultType="string">
+        SELECT `group_name` FROM `usergroup` WHERE `login` = #{login}
+    </select>
 </mapper>
