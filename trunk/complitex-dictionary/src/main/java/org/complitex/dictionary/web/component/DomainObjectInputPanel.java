@@ -21,7 +21,6 @@ import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.IStrategy.SimpleObjectInfo;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
-import org.complitex.dictionary.web.DictionaryFwSession;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
 import org.complitex.dictionary.web.component.type.*;
@@ -86,6 +85,8 @@ public class DomainObjectInputPanel extends Panel {
     private Long parentId;
     private String parentEntity;
     private Date date;
+    private final Entity description;
+    private boolean isPostBack;
 
     /**
      * For use in history components
@@ -105,6 +106,7 @@ public class DomainObjectInputPanel extends Panel {
         this.parentId = parentId;
         this.parentEntity = parentEntity;
         this.date = date;
+        this.description = getStrategy().getEntity();
         init();
     }
 
@@ -124,6 +126,7 @@ public class DomainObjectInputPanel extends Panel {
         this.strategyName = strategyName;
         this.parentId = parentId;
         this.parentEntity = parentEntity;
+        this.description = getStrategy().getEntity();
         init();
     }
 
@@ -152,36 +155,12 @@ public class DomainObjectInputPanel extends Panel {
     }
 
     private void init() {
-        final Entity description = getStrategy().getEntity();
-
         //simple attributes
-        final Map<Attribute, EntityAttributeType> attrToTypeMap = newLinkedHashMap();
-        for (Attribute attr : object.getAttributes()) {
-            EntityAttributeType attrType = description.getAttributeType(attr.getAttributeTypeId());
-            if (getStrategy().isSimpleAttributeType(attrType)) {
-                attrToTypeMap.put(attr, attrType);
-            }
-        }
-
-        ListView<Attribute> simpleAttributes = new ListView<Attribute>("simpleAttributes", newArrayList(attrToTypeMap.keySet())) {
-
-            @Override
-            protected void populateItem(ListItem<Attribute> item) {
-                Attribute attr = item.getModelObject();
-                final EntityAttributeType attributeType = attrToTypeMap.get(attr);
-                item.add(new Label("label", labelModel(attributeType.getAttributeNames(), getLocale())));
-                WebMarkupContainer required = new WebMarkupContainer("required");
-                item.add(required);
-                required.setVisible(attributeType.isMandatory());
-
-                Component input = newInputComponent(entity, strategyName, object, attr, getLocale(), isHistory());
-                item.add(input);
-            }
-        };
+        ListView<Attribute> simpleAttributes = newSimpleAttributeListView("simpleAttributes");
         simpleAttributes.setReuseItems(true);
         add(simpleAttributes);
-        searchComponentState = initParentSearchComponentState();
 
+        searchComponentState = initParentSearchComponentState();
         WebMarkupContainer parentContainer = new WebMarkupContainer("parentContainer");
         add(parentContainer);
         List<String> parentFilters = getStrategy().getParentSearchFilters();
@@ -216,13 +195,67 @@ public class DomainObjectInputPanel extends Panel {
             parentContainer.add(parentSearchComponent);
             parentSearchComponent.invokeCallback();
         }
+    }
+
+    @Override
+    protected void onBeforeRender() {
+        super.onBeforeRender();
 
         //complex attributes
-        //before simple attributes:
-        addComplexAttributesPanel("complexAttributesBefore", getStrategy().getComplexAttributesPanelBeforeClass());
+        if (!isPostBack) {
+            isPostBack = true;
 
-        //after simple attributes:
-        addComplexAttributesPanel("complexAttributesAfter", getStrategy().getComplexAttributesPanelAfterClass());
+            //before simple attributes:
+            addComplexAttributesPanelBefore("complexAttributesBefore");
+
+            //after simple attributes:
+            addComplexAttributesPanelAfter("complexAttributesAfter");
+        }
+    }
+
+    protected void addComplexAttributesPanelBefore(String id) {
+        addComplexAttributesPanel(id, getStrategy().getComplexAttributesPanelBeforeClass());
+    }
+
+    protected void addComplexAttributesPanelAfter(String id) {
+        addComplexAttributesPanel(id, getStrategy().getComplexAttributesPanelAfterClass());
+    }
+
+    protected ListView<Attribute> newSimpleAttributeListView(String id) {
+        final List<Attribute> simpleAttributes = getSimpleAttributes(object.getAttributes());
+
+        final Map<Attribute, EntityAttributeType> attrToTypeMap = newLinkedHashMap();
+        for (Attribute attr : simpleAttributes) {
+            EntityAttributeType attrType = description.getAttributeType(attr.getAttributeTypeId());
+            attrToTypeMap.put(attr, attrType);
+        }
+
+        return new ListView<Attribute>(id, simpleAttributes) {
+
+            @Override
+            protected void populateItem(ListItem<Attribute> item) {
+                Attribute attr = item.getModelObject();
+                final EntityAttributeType attributeType = attrToTypeMap.get(attr);
+                item.add(new Label("label", labelModel(attributeType.getAttributeNames(), getLocale())));
+                WebMarkupContainer required = new WebMarkupContainer("required");
+                item.add(required);
+                required.setVisible(attributeType.isMandatory());
+
+                Component input = newInputComponent(entity, strategyName, object, attr, getLocale(), isHistory());
+                item.add(input);
+            }
+        };
+    }
+
+    protected List<Attribute> getSimpleAttributes(List<Attribute> allAttributes) {
+        final List<Attribute> attributes = newArrayList();
+        for (Attribute attribute : allAttributes) {
+            EntityAttributeType attrType = description.getAttributeType(attribute.getAttributeTypeId());
+            if (getStrategy().isSimpleAttributeType(attrType)) {
+                attributes.add(attribute);
+            }
+        }
+        return attributes;
     }
 
     private static StringCultureBean stringBean() {
@@ -369,14 +402,5 @@ public class DomainObjectInputPanel extends Panel {
 
     public SearchComponentState getParentSearchComponentState() {
         return searchComponentState;
-    }
-
-    @Override
-    public DictionaryFwSession getSession() {
-        return (DictionaryFwSession) super.getSession();
-    }
-
-    protected SearchComponentState getSearchComponentStateFromSession() {
-        return getSession().getGlobalSearchComponentState();
     }
 }

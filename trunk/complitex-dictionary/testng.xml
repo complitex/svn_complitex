@@ -13,11 +13,6 @@
             <class name="org.complitex.dictionary.util.StringUtilTest"/>
         </classes>
     </test>
-    <test name="AddressNumberParserTest">
-        <classes>
-            <class name="org.complitex.dictionary.util.AddressNumberParserTest"/>
-        </classes>
-    </test>
     <test name="DateUtilTest">
         <classes>
             <class name="org.complitex.dictionary.util.DateUtilTest"/>

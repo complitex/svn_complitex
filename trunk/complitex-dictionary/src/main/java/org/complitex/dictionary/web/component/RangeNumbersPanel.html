@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket>
+    <head>
+        <title></title>
+    </head>
+    <body>
+        <wicket:panel>
+            <table wicket:id="numbersContainer" cellpadding="0" cellspacing="0" border="0">
+                <tr wicket:id="numbers">
+                    <td>
+                        <div wicket:id="number"></div>
+                        <div wicket:id="range"></div>
+                    </td>
+                    <td>
+                        <a wicket:id="remove">
+                            <wicket:message key="remove"/>
+                        </a>
+                    </td>
+                </tr>
+            </table>
+            <div>
+                <a wicket:id="addNumber" style="margin-left: 10px;">
+                    <wicket:message key="addNumber"/>
+                </a>
+                <a wicket:id="addRange" style="margin-left: 10px;">
+                    <wicket:message key="addRange"/>
+                </a>
+            </div>
+        </wicket:panel>
+    </body>
+</html>
