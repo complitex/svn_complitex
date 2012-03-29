@@ -123,6 +123,10 @@ public class DomainObjectEditPanel extends Panel {
         return oldObject == null;
     }
 
+    public FeedbackPanel getMessages() {
+        return messages;
+    }
+
     protected void init() {
         IModel<String> labelModel = new LoadableDetachableModel<String>() {
 
@@ -146,8 +150,7 @@ public class DomainObjectEditPanel extends Panel {
         Form<Void> form = new Form<Void>("form");
 
         //input panel
-        objectInputPanel = new DomainObjectInputPanel("domainObjectInputPanel", newObject, entity, strategyName,
-                parentId, parentEntity);
+        objectInputPanel = newInputPanel("domainObjectInputPanel", newObject, entity, strategyName, parentId, parentEntity);
         form.add(objectInputPanel);
 
         //children
@@ -263,6 +266,11 @@ public class DomainObjectEditPanel extends Panel {
                 DomainObjectAccessUtil.canEdit(strategyName, entity, newObject));
     }
 
+    protected DomainObjectInputPanel newInputPanel(String id, DomainObject newObject, String entity,
+            String strategyName, Long parentId, String parentEntity) {
+        return new DomainObjectInputPanel("domainObjectInputPanel", newObject, entity, strategyName, parentId, parentEntity);
+    }
+
     protected boolean validate() {
         boolean valid = objectInputPanel.validateParent();
         valid &= validatePermissions();
@@ -356,14 +364,14 @@ public class DomainObjectEditPanel extends Panel {
     }
 
     protected void back() {
-        if(!Strings.isEmpty(backInfoSessionKey)){
+        if (!Strings.isEmpty(backInfoSessionKey)) {
             BackInfo backInfo = BackInfoManager.get(this, backInfoSessionKey);
-            if(backInfo != null){
+            if (backInfo != null) {
                 backInfo.back(this);
                 return;
             }
         }
-        
+
         if (isNew() || (parentId == null && Strings.isEmpty(parentEntity))) {
             //return to list page for current entity.
             PageParameters listPageParams = getStrategy().getListPageParams();
