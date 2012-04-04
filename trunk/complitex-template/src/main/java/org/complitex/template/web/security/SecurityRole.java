@@ -18,28 +18,14 @@ public final class SecurityRole {
     public static final String OWNERSHIP_MODULE_VIEW = "OWNERSHIP_MODULE_VIEW";
     public static final String PRIVILEGE_MODULE_EDIT = "PRIVILEGE_MODULE_EDIT";
     public final static String ADMIN_MODULE_EDIT = "ADMIN_MODULE_EDIT";
-    
     /*
      * Pps office roles.
      */
     public static final String PERSON_MODULE_EDIT = "PERSON_MODULE_EDIT";
     public static final String PERSON_MODULE_VIEW = "PERSON_MODULE_VIEW";
     public static final String PERSON_MODULE_DESCRIPTION_EDIT = "PERSON_MODULE_DESCRIPTION_EDIT";
-//    public static final String OWNER_RELATIONSHIP_MODULE_EDIT = "OWNER_RELATIONSHIP_MODULE_EDIT";
-//    public static final String OWNER_RELATIONSHIP_MODULE_VIEW = "OWNER_RELATIONSHIP_MODULE_VIEW";
-//    public static final String REGISTRATION_TYPE_MODULE_EDIT = "REGISTRATION_TYPE_MODULE_EDIT";
-//    public static final String REGISTRATION_TYPE_MODULE_VIEW = "REGISTRATION_TYPE_MODULE_VIEW";
-//    public static final String DOCUMENT_TYPE_MODULE_EDIT = "DOCUMENT_TYPE_MODULE_EDIT";
-//    public static final String DOCUMENT_TYPE_MODULE_VIEW = "DOCUMENT_TYPE_MODULE_VIEW";
-//    public static final String MILITARY_SERVICE_RELATION_MODULE_EDIT = "MILITARY_SERVICE_RELATION_MODULE_EDIT";
-//    public static final String MILITARY_SERVICE_RELATION_MODULE_VIEW = "MILITARY_SERVICE_RELATION_MODULE_VIEW";
-//    public static final String DEPARTURE_REASON_MODULE_EDIT = "DEPARTURE_REASON_MODULE_EDIT";
-//    public static final String DEPARTURE_REASON_MODULE_VIEW = "DEPARTURE_REASON_MODULE_VIEW";
-//    public static final String HOUSING_RIGHT_MODULE_EDIT = "HOUSING_RIGHT_MODULE_EDIT";
-//    public static final String HOUSING_RIGHT_MODULE_VIEW = "HOUSING_RIGHT_MODULE_VIEW";
     public static final String REFERENCE_DATA_MODULE_EDIT = "REFERENCE_DATA_MODULE_EDIT";
     public static final String REFERENCE_DATA_MODULE_VIEW = "REFERENCE_DATA_MODULE_VIEW";
-    
 
     private SecurityRole() {
     }
