@@ -17,13 +17,13 @@ public enum SimpleTypes {
 
     public static final int BIG_STRING_VIEW_LENGTH = 20;
 
-    private Class type;
+    private Class<?> type;
 
-    private SimpleTypes(Class type) {
+    private SimpleTypes(Class<?> type) {
         this.type = type;
     }
 
-    public Class getType() {
+    public Class<?> getType() {
         return type;
     }
 
