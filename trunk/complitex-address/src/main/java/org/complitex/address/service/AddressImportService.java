@@ -93,6 +93,7 @@ public class AddressImportService extends AbstractImportService {
 
         @Override
         public void completeImport(IImportFile importFile, int recordCount) {
+            messages.get(importFile).setCompleted();
             logBean.info(Module.NAME, AddressImportService.class, importFile.getClass(), null, Log.EVENT.CREATE,
                     "Имя файла: {0}, количество записей: {1}", importFile.getFileName(), recordCount);
         }
