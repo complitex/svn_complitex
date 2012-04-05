@@ -16,7 +16,7 @@ import org.complitex.template.strategy.TemplateStrategy;
 @Startup
 public class DefaultOrganizationModule implements IOrganizationModule {
 
-    public static final String NAME = "DefaultOrganizationModule";
+    public static final String NAME = "org.complitex.organization";
     public static final String CUSTOM_ORGANIZATION_MODULE_BEAN_NAME = "OrganizationModule";
     
     @EJB(name = "OrganizationStrategy")
@@ -29,9 +29,15 @@ public class DefaultOrganizationModule implements IOrganizationModule {
 
     private void registerLink() {
         IOrganizationModule organizationModule = EjbBeanLocator.getBean(CUSTOM_ORGANIZATION_MODULE_BEAN_NAME, true);
-        organizationModule = organizationModule != null ? organizationModule : this;
-        LogManager.get().registerLink(DomainObject.class.getName(), organizationStrategy.getEntityTable(), getEditPage(),
-                getEditPageParams(), TemplateStrategy.OBJECT_ID);
+
+        if(organizationModule == null){
+            organizationModule = this;
+        }
+        
+        LogManager.get().registerLink(DomainObject.class.getName(), organizationStrategy.getEntityTable(), 
+                organizationModule.getEditPage(),
+                organizationModule.getEditPageParams(), 
+                TemplateStrategy.OBJECT_ID);
     }
 
     @Override
