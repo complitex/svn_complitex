@@ -6,13 +6,12 @@ import java.io.Serializable;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 01.03.11 13:30
  */
-public class ImportMessage implements Serializable{
-    private IImportFile importFile;
-    private int count;
-    private int index;
+public class ImportMessage implements Serializable {
 
-    public ImportMessage() {
-    }
+    private final IImportFile importFile;
+    private final int count;
+    private volatile int index;
+    private volatile boolean completed;
 
     public ImportMessage(IImportFile importFile, int count, int index) {
         this.importFile = importFile;
@@ -20,20 +19,20 @@ public class ImportMessage implements Serializable{
         this.index = index;
     }
 
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted() {
+        this.completed = true;
+    }
+
     public IImportFile getImportFile() {
         return importFile;
     }
 
-    public void setImportFile(IImportFile importFile) {
-        this.importFile = importFile;
-    }
-
     public int getCount() {
         return count;
-    }
-
-    public void setCount(int count) {
-        this.count = count;
     }
 
     public int getIndex() {
