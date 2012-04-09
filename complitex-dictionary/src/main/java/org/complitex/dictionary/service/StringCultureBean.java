@@ -168,14 +168,6 @@ public class StringCultureBean extends AbstractBean {
         builder.append("]");
         throw new IllegalStateException("Domain object's localized strings have no a string associated with system locale."
                 + " System locale ID: " + localeBean.getSystemLocaleObject().getId() + ", Localized strings: " + builder);
-
-//        return Iterables.find(strings, new Predicate<StringCulture>() {
-//
-//            @Override
-//            public boolean apply(StringCulture string) {
-//                return localeBean.getLocaleObject(string.getLocaleId()).isSystem();
-//            }
-//        });
     }
 
     public String displayValue(List<StringCulture> strings, final java.util.Locale locale) {
