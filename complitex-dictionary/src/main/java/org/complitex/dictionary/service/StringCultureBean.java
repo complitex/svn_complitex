@@ -149,13 +149,33 @@ public class StringCultureBean extends AbstractBean {
     }
 
     public StringCulture getSystemStringCulture(List<StringCulture> strings) {
-        return Iterables.find(strings, new Predicate<StringCulture>() {
-
-            @Override
-            public boolean apply(StringCulture string) {
-                return localeBean.getLocaleObject(string.getLocaleId()).isSystem();
+        for (StringCulture string : strings) {
+            if (localeBean.getSystemLocaleObject().getId().equals(string.getLocaleId())) {
+                return string;
             }
-        });
+        }
+
+        final StringBuilder builder = new StringBuilder();
+        builder.append("[");
+        for (StringCulture string : strings) {
+            builder.append("{ID: ").append(string.getId()).append(", locale id: ").append(string.getLocaleId()).
+                    append(", value: '").append(string.getValue()).append("' }, ");
+        }
+        //remove last ", "
+        if (builder.length() > 0) {
+            builder.delete(builder.length() - 2, builder.length());
+        }
+        builder.append("]");
+        throw new IllegalStateException("Domain object's localized strings have no a string associated with system locale."
+                + " System locale ID: " + localeBean.getSystemLocaleObject().getId() + ", Localized strings: " + builder);
+
+//        return Iterables.find(strings, new Predicate<StringCulture>() {
+//
+//            @Override
+//            public boolean apply(StringCulture string) {
+//                return localeBean.getLocaleObject(string.getLocaleId()).isSystem();
+//            }
+//        });
     }
 
     public String displayValue(List<StringCulture> strings, final java.util.Locale locale) {
