@@ -48,6 +48,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.complitex.dictionary.entity.PreferenceKey;
 import org.complitex.dictionary.web.component.search.CollapsibleSearchPanel;
 
 /**
@@ -112,8 +113,11 @@ public final class DomainObjectListPanel extends Panel {
         content.setOutputMarkupPlaceholderTag(true);
 
         //Example
-        example = new DomainObjectExample();
-        example.setTable(entity);
+        example = (DomainObjectExample) getSession().getPreferenceObject(page, PreferenceKey.FILTER_OBJECT, null);
+        if (example == null) {
+            example = new DomainObjectExample();
+            example.setTable(entity);
+        }
 
         //Search
         final List<String> searchFilters = getStrategy().getSearchFilters();
@@ -154,6 +158,9 @@ public final class DomainObjectListPanel extends Panel {
 
             @Override
             protected Iterable<? extends DomainObject> getData(int first, int count) {
+                //store preference
+                getSession().putPreferenceObject(page, PreferenceKey.FILTER_OBJECT, example);
+
                 //store state
                 getSession().storeGlobalSearchComponentState();
 

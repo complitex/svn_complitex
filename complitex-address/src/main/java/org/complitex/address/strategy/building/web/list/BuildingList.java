@@ -96,7 +96,7 @@ public final class BuildingList extends ScrollListPage {
         content.setOutputMarkupPlaceholderTag(true);
 
         //Example
-        example = new DomainObjectExample();
+        example = (DomainObjectExample) getFilterObject(new DomainObjectExample());
 
         //Search
         final List<String> searchFilters = buildingStrategy.getSearchFilters();
@@ -118,6 +118,8 @@ public final class BuildingList extends ScrollListPage {
 
             @Override
             protected Iterable<? extends Building> getData(int first, int count) {
+                setFilterObject(example);
+
                 //store state
                 getTemplateSession().storeGlobalSearchComponentState();
 
