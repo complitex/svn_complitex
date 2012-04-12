@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.EJB;
 import java.text.MessageFormat;
 import java.util.*;
+import org.complitex.dictionary.entity.PreferenceKey;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -328,6 +329,14 @@ public abstract class TemplatePage extends WebPage {
 
     public void setPreferencesPage(String page) {
         this.page = page;
+    }
+
+    public void setFilterObject(Object filterObject) {
+        getTemplateSession().putPreferenceObject(page, PreferenceKey.FILTER_OBJECT, filterObject);
+    }
+
+    public Object getFilterObject(Object _default) {
+        return getTemplateSession().getPreferenceObject(page, PreferenceKey.FILTER_OBJECT, _default);
     }
 
     public final boolean isUserAuthorized() {

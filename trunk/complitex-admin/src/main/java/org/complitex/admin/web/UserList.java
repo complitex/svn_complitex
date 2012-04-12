@@ -70,7 +70,7 @@ public class UserList extends ScrollListPage {
     private void init() {
         add(new Label("title", new ResourceModel("title")));
 
-        final UserFilter filter = userBean.newUserFilter();
+        UserFilter filter = (UserFilter) getFilterObject(userBean.newUserFilter());
         final IModel<UserFilter> filterModel = new Model<UserFilter>(filter);
 
         final WebMarkupContainer content = new WebMarkupContainer("content");
@@ -131,6 +131,7 @@ public class UserList extends ScrollListPage {
                 final String sortProperty = getSort().getProperty();
 
                 UserFilter filter = filterModel.getObject();
+                setFilterObject(filter);
                 filter.setFirst(first);
                 filter.setCount(count);
 
