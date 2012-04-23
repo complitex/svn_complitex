@@ -13,7 +13,6 @@ import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
@@ -31,26 +30,29 @@ public class EntityBean extends AbstractBean {
     /**
      * Cache for Entity objects.
      */
-    private ConcurrentHashMap<String, Entity> metadataMap = new ConcurrentHashMap<String, Entity>();
+    private final Map<String, Entity> cache = Collections.synchronizedMap(new HashMap<String, Entity>());
 
     public Entity getEntity(String entity) {
-        Entity cacheEntity = metadataMap.get(entity);
-        if (cacheEntity != null) {
-            return cacheEntity;
-        } else {
-            Entity dbEntity = loadFromDb(entity);
-            metadataMap.put(entity, dbEntity);
-            return dbEntity;
+        synchronized (cache) {
+            Entity e = cache.get(entity);
+            if (e == null) {
+                Entity dbEntity = loadFromDb(entity);
+                cache.put(entity, dbEntity);
+                e = dbEntity;
+            }
+            return e;
         }
     }
 
     @Transactional
-    protected Entity loadFromDb(String entity) {
+    private Entity loadFromDb(String entity) {
         return (Entity) sqlSession().selectOne(MAPPING_NAMESPACE + ".load", ImmutableMap.of("entity", entity));
     }
 
-    protected void invalidateCache(String entity) {
-        metadataMap.put(entity, loadFromDb(entity));
+    private void updateCache(String entity) {
+        synchronized (cache) {
+            cache.put(entity, loadFromDb(entity));
+        }
     }
 
     public String getAttributeLabel(String entityTable, long attributeTypeId, Locale locale) {
@@ -71,38 +73,40 @@ public class EntityBean extends AbstractBean {
 
         boolean changed = false;
 
-        //attributes
-        Set<Long> toDeleteAttributeIds = Sets.newHashSet();
+        synchronized (cache) {
+            //attributes
+            Set<Long> toDeleteAttributeIds = Sets.newHashSet();
 
-        for (EntityAttributeType oldAttributeType : oldEntity.getEntityAttributeTypes()) {
-            boolean removed = true;
-            for (EntityAttributeType newAttributeType : newEntity.getEntityAttributeTypes()) {
-                if (oldAttributeType.getId().equals(newAttributeType.getId())) {
-                    removed = false;
-                    break;
+            for (EntityAttributeType oldAttributeType : oldEntity.getEntityAttributeTypes()) {
+                boolean removed = true;
+                for (EntityAttributeType newAttributeType : newEntity.getEntityAttributeTypes()) {
+                    if (oldAttributeType.getId().equals(newAttributeType.getId())) {
+                        removed = false;
+                        break;
+                    }
+                }
+                if (removed) {
+                    changed = true;
+                    toDeleteAttributeIds.add(oldAttributeType.getId());
                 }
             }
-            if (removed) {
-                changed = true;
-                toDeleteAttributeIds.add(oldAttributeType.getId());
-            }
-        }
-        removeAttributeTypes(oldEntity.getEntityTable(), toDeleteAttributeIds, updateDate);
+            removeAttributeTypes(oldEntity.getEntityTable(), toDeleteAttributeIds, updateDate);
 
-        for (EntityAttributeType attributeType : newEntity.getEntityAttributeTypes()) {
-            if (attributeType.getId() == null) {
-                changed = true;
-                insertAttributeType(attributeType, newEntity.getId(), updateDate);
+            for (EntityAttributeType attributeType : newEntity.getEntityAttributeTypes()) {
+                if (attributeType.getId() == null) {
+                    changed = true;
+                    insertAttributeType(attributeType, newEntity.getId(), updateDate);
+                }
             }
-        }
 
-        if (changed) {
-            invalidateCache(oldEntity.getEntityTable());
+            if (changed) {
+                updateCache(oldEntity.getEntityTable());
+            }
         }
     }
 
     @Transactional
-    protected void insertAttributeType(EntityAttributeType attributeType, long entityId, Date startDate) {
+    private void insertAttributeType(EntityAttributeType attributeType, long entityId, Date startDate) {
         attributeType.setStartDate(startDate);
         attributeType.setEntityId(entityId);
         Long stringId = stringBean.insertStrings(attributeType.getAttributeNames(), null);
@@ -114,7 +118,7 @@ public class EntityBean extends AbstractBean {
     }
 
     @Transactional
-    protected void removeAttributeTypes(String entityTable, Collection<Long> attributeTypeIds, Date endDate) {
+    private void removeAttributeTypes(String entityTable, Collection<Long> attributeTypeIds, Date endDate) {
         if (attributeTypeIds != null && !attributeTypeIds.isEmpty()) {
             Map<String, Object> params = ImmutableMap.<String, Object>builder().
                     put("endDate", endDate).
