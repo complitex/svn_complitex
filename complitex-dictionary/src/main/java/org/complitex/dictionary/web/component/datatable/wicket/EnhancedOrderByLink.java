@@ -11,7 +11,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.ISortState;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.ISortStateLocator;
-import org.apache.wicket.extensions.markup.html.repeater.data.sort.OrderByLink;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.util.lang.Objects;
@@ -31,12 +30,9 @@ public class EnhancedOrderByLink extends AjaxLink {
 
     /** sortable property */
     private final String property;
-
     /** locator for sort state object */
     private final ISortStateLocator stateLocator;
-
     private DataView<?> dataView;
-
     private Component refreshComponent;
 
     /**
@@ -138,7 +134,6 @@ public class EnhancedOrderByLink extends AjaxLink {
     private final class SortStateChange extends Change {
 
         private static final long serialVersionUID = 1L;
-
         private final ISortState old = (ISortState) Objects.cloneModel(stateLocator.getSortState());
 
         /**
@@ -146,7 +141,7 @@ public class EnhancedOrderByLink extends AjaxLink {
          */
         @Override
         public void undo() {
-            stateLocator.setSortState(old);
+            stateLocator.getSortState().setPropertySortOrder(property, old.getPropertySortOrder(property));
         }
 
         /**
@@ -168,11 +163,8 @@ public class EnhancedOrderByLink extends AjaxLink {
     public static class CssModifier extends AttributeModifier {
 
         private static final long serialVersionUID = 1L;
-
         public static final char DEFAULT_CSS_CLASS_SEPARATOR = ' ';
-
         private char cssClassSeparator = DEFAULT_CSS_CLASS_SEPARATOR;
-
         private ICssProvider cssProvider;
 
         /**
@@ -295,11 +287,8 @@ public class EnhancedOrderByLink extends AjaxLink {
     public static class CssProvider implements ICssProvider {
 
         private static final long serialVersionUID = 1L;
-
         private final String ascending;
-
         private final String descending;
-
         private final String none;
 
         /**
@@ -347,7 +336,6 @@ public class EnhancedOrderByLink extends AjaxLink {
     public static class VoidCssProvider extends CssProvider {
 
         private static final long serialVersionUID = 1L;
-
         private static ICssProvider instance = new VoidCssProvider();
 
         /**
@@ -370,7 +358,6 @@ public class EnhancedOrderByLink extends AjaxLink {
     public static class DefaultCssProvider extends CssProvider {
 
         private static final long serialVersionUID = 1L;
-
         private static DefaultCssProvider instance = new DefaultCssProvider();
 
         private DefaultCssProvider() {
