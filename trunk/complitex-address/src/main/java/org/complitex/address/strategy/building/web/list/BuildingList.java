@@ -118,7 +118,12 @@ public final class BuildingList extends ScrollListPage {
 
             @Override
             protected Iterable<? extends Building> getData(int first, int count) {
-                setFilterObject(example);
+                //store preference, but before clear data order related properties.
+                {
+                    example.setAsc(false);
+                    example.setOrderByAttributeTypeId(null);
+                    setFilterObject(example);
+                }
 
                 //store state
                 getTemplateSession().storeGlobalSearchComponentState();

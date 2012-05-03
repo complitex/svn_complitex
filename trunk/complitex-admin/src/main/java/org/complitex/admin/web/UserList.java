@@ -127,13 +127,18 @@ public class UserList extends ScrollListPage {
 
             @Override
             protected Iterable<? extends User> getData(int first, int count) {
+                final UserFilter filter = filterModel.getObject();
+
+                //store preference, but before clear data order related properties.
+                {
+                    filter.setAscending(false);
+                    filter.setSortProperty(null);
+                    filter.setSortAttributeTypeId(null);
+                    setFilterObject(filter);
+                }
+
                 final boolean asc = getSort().isAscending();
                 final String sortProperty = getSort().getProperty();
-
-                UserFilter filter = filterModel.getObject();
-                setFilterObject(filter);
-                filter.setFirst(first);
-                filter.setCount(count);
 
                 if (StringUtil.isNumeric(sortProperty)) {
                     filter.setSortProperty(null);
@@ -142,6 +147,8 @@ public class UserList extends ScrollListPage {
                     filter.setSortProperty(sortProperty);
                     filter.setSortAttributeTypeId(null);
                 }
+                filter.setFirst(first);
+                filter.setCount(count);
                 filter.setAscending(asc);
                 return userBean.getUsers(filter);
             }
