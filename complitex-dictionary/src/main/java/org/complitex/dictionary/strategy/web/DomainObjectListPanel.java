@@ -158,8 +158,12 @@ public final class DomainObjectListPanel extends Panel {
 
             @Override
             protected Iterable<? extends DomainObject> getData(int first, int count) {
-                //store preference
-                getSession().putPreferenceObject(page, PreferenceKey.FILTER_OBJECT, example);
+                //store preference, but before clear data order related properties.
+                {
+                    example.setAsc(false);
+                    example.setOrderByAttributeTypeId(null);
+                    getSession().putPreferenceObject(page, PreferenceKey.FILTER_OBJECT, example);
+                }
 
                 //store state
                 getSession().storeGlobalSearchComponentState();
