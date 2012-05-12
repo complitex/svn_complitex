@@ -17,7 +17,6 @@ import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.service.PermissionBean;
-import org.complitex.dictionary.service.SessionBean;
 import org.complitex.dictionary.web.component.DisableAwareListMultipleChoice;
 import org.complitex.dictionary.web.component.DomainObjectDisableAwareRenderer;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;

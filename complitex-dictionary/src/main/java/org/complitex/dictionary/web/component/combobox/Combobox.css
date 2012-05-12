@@ -1,0 +1,21 @@
+.ui-combobox {
+    position: relative;
+    display: inline-block;
+}
+.ui-combobox .ui-combobox-select-all {
+    background: white !important;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    margin-left: -1px;
+    padding: 0;
+}
+
+.ui-combobox .ui-combobox-select-all .ui-icon {
+    left: 0.5em !important;
+    margin-left: 0px !important;
+}
+
+.ui-combobox .ui-autocomplete-input {
+    margin: 0;
+}
