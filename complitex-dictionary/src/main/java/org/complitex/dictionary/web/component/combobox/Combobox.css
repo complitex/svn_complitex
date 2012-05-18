@@ -19,3 +19,7 @@
 .ui-combobox .ui-autocomplete-input {
     margin: 0;
 }
+
+.ui-combobox .ui-combobox-select-all.ui-button-disabled {
+    opacity: 0.9 !important;
+}

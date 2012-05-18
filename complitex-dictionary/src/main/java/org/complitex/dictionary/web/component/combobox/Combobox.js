@@ -13,7 +13,8 @@
             value = selected.val() ? selected.text() : "",
             wrapper = $("<span>")
             .addClass("ui-combobox")
-            .insertAfter(select);
+            .insertAfter(select),
+            disabled = select.is(":disabled");
 
             input = $("<input type='text'>")
             .appendTo(wrapper)
@@ -25,6 +26,7 @@
                 }
             })
             .autocomplete({
+                disabled: disabled,
                 delay: 0,
                 minLength: 0,
                 source: function(request, response) {
@@ -71,6 +73,10 @@
                 }
             });
             
+            if(disabled) {
+                input.attr("disabled", "disabled");
+            }
+            
             input.data("autocomplete")._renderItem = function(ul, item) {
                 $("<li></li>")
                 .data("item.autocomplete", item)
@@ -82,6 +88,7 @@
             .attr("tabIndex", -1)
             .appendTo(wrapper)
             .button({
+                disabled: disabled,
                 icons: {
                     primary: "ui-icon-triangle-1-s"
                 },
