@@ -24,14 +24,16 @@ import org.odlabs.wiquery.ui.widget.WidgetJavascriptResourceReference;
  * @author Artem
  */
 public class Combobox<T> extends Panel {
-
+    
     @WiQueryUIPlugin
     private static class ComboboxField<T> extends DisableAwareDropDownChoice<T> implements IWiQueryPlugin {
-
-        ComboboxField(String id, IModel<T> model, List<? extends T> data, IDisableAwareChoiceRenderer<? super T> renderer) {
+        
+        ComboboxField(String id, IModel<T> model, List<? extends T> data, IDisableAwareChoiceRenderer<? super T> renderer,
+                boolean enabled) {
             super(id, model, data, renderer);
+            setEnabled(enabled);
         }
-
+        
         @Override
         public void contribute(WiQueryResourceManager wiQueryResourceManager) {
             wiQueryResourceManager.addJavaScriptResource(WidgetJavascriptResourceReference.get());
@@ -41,31 +43,32 @@ public class Combobox<T> extends Panel {
             wiQueryResourceManager.addJavaScriptResource(Combobox.class, Combobox.class.getSimpleName() + ".js");
             wiQueryResourceManager.addCssResource(Combobox.class, Combobox.class.getSimpleName() + ".css");
         }
-
+        
         @Override
         public JsStatement statement() {
             return new JsQuery(this).$().chain("combobox");
         }
     }
     private final ComboboxField<T> select;
-
-    public Combobox(String id, IModel<T> model, List<? extends T> data, IDisableAwareChoiceRenderer<? super T> renderer) {
+    
+    public Combobox(String id, IModel<T> model, List<? extends T> data, IDisableAwareChoiceRenderer<? super T> renderer,
+            boolean enabled) {
         super(id);
-
-        select = new ComboboxField<T>("select", model, data, renderer);
+        
+        select = new ComboboxField<T>("select", model, data, renderer, enabled);
         add(select);
     }
-
+    
     public final Combobox<T> setRequired(final boolean required) {
         select.setRequired(required);
         return this;
     }
-
+    
     public final Combobox<T> setLabel(IModel<String> labelModel) {
         select.setLabel(labelModel);
         return this;
     }
-
+    
     public final Combobox<T> setNullValid(boolean nullValid) {
         select.setNullValid(nullValid);
         return this;
