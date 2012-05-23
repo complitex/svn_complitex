@@ -18,6 +18,9 @@ public class EjbBeanLocator {
 
     private static final Logger log = LoggerFactory.getLogger(EjbBeanLocator.class);
 
+    private EjbBeanLocator() {
+    }
+
     public static <T> T getBean(String beanName) {
         return (T) getBean(beanName, false);
     }
