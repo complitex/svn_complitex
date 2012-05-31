@@ -331,9 +331,9 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
     @Transactional
     @Override
     public Set<Long> getTreeChildrenOrganizationIds(long parentOrganizationId) {
-        @SuppressWarnings("unchecked")
-        Set<Long> childrenIds = Sets.newHashSet(sqlSession().selectList(ORGANIZATION_NAMESPACE + ".findOrganizationChildrenObjectIds",
-                parentOrganizationId));
+        List<Long> results = sqlSession().selectList(ORGANIZATION_NAMESPACE + ".findOrganizationChildrenObjectIds",
+                parentOrganizationId);
+        Set<Long> childrenIds = Sets.newHashSet(results);
         Set<Long> treeChildrenIds = Sets.newHashSet(childrenIds);
 
         for (Long childId : childrenIds) {

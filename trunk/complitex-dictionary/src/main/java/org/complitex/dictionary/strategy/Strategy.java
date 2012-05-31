@@ -898,15 +898,15 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     public TreeSet<Date> getHistoryDates(long objectId) {
         DomainObjectExample example = new DomainObjectExample(objectId);
         example.setTable(getEntityTable());
+        List<Date> results = sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + ".historyDates", example);
 
-        return newTreeSet(filter(sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + ".historyDates", example),
-                new Predicate<Date>() {
+        return newTreeSet(filter(results, new Predicate<Date>() {
 
-                    @Override
-                    public boolean apply(Date input) {
-                        return input != null;
-                    }
-                }));
+            @Override
+            public boolean apply(Date input) {
+                return input != null;
+            }
+        }));
     }
 
     @Transactional
@@ -1131,7 +1131,8 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         params.put("parentEntity", getEntityTable());
         params.put("start", start);
         params.put("size", size);
-        return newHashSet(sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + "." + FIND_CHILDREN_ACTIVITY_INFO_OPERATION, params));
+        List<Long> results = sqlSession().selectList(DOMAIN_OBJECT_NAMESPACE + "." + FIND_CHILDREN_ACTIVITY_INFO_OPERATION, params);
+        return newHashSet(results);
     }
 
     @Transactional

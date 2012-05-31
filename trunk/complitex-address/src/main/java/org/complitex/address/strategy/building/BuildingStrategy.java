@@ -580,7 +580,8 @@ public class BuildingStrategy extends TemplateStrategy {
 
     @Transactional
     private Set<Long> findBuildingAddresses(long buildingId) {
-        return Sets.newHashSet(sqlSession().selectList(BUILDING_NAMESPACE + ".findBuildingAddresses", buildingId));
+        List<Long> results = sqlSession().selectList(BUILDING_NAMESPACE + ".findBuildingAddresses", buildingId);
+        return Sets.newHashSet(results);
     }
 
     @Transactional
