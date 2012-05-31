@@ -4,7 +4,7 @@
  */
 package org.complitex.dictionary.web.component.type;
 
-import com.google.common.collect.ImmutableList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
@@ -21,7 +21,7 @@ import org.complitex.dictionary.util.ResourceUtil;
 public final class GenderPanel extends Panel {
 
     private static final String RESOURCE_BUNDLE = GenderPanel.class.getName();
-    private static final List<Gender> GENDERS = ImmutableList.of(Gender.values());
+    private static final List<Gender> GENDERS = Arrays.asList(Gender.values());
 
     public GenderPanel(String id, IModel<Gender> model, boolean required, IModel<String> labelModel, boolean enabled) {
         super(id);
