@@ -203,22 +203,26 @@ public class BuildingAddressStrategy extends TemplateStrategy {
 
     @Transactional
     private Set<Long> findBuildingActivityInfoByParent(long buildingAddressId) {
-        return Sets.newHashSet(sqlSession().selectList(BUILDING_ADDRESS_NAMESPACE + ".findBuildingActivityInfoByParent", buildingAddressId));
+        List<Long> results = sqlSession().selectList(BUILDING_ADDRESS_NAMESPACE + ".findBuildingActivityInfoByParent", buildingAddressId);
+        return Sets.newHashSet(results);
     }
 
     @Transactional
     private Set<Long> findBuildingActivityInfoByReference(long buildingAddressId) {
-        return Sets.newHashSet(sqlSession().selectList(BUILDING_ADDRESS_NAMESPACE + ".findBuildingActivityInfoByReference", buildingAddressId));
+        List<Long> results = sqlSession().selectList(BUILDING_ADDRESS_NAMESPACE + ".findBuildingActivityInfoByReference", buildingAddressId);
+        return Sets.newHashSet(results);
     }
 
     @Transactional
     private Set<Long> findReferenceAddressActivityInfo(long buildingId) {
-        return Sets.newHashSet(sqlSession().selectList(BUILDING_ADDRESS_NAMESPACE + ".findReferenceAddressActivityInfo", buildingId));
+        List<Long> results = sqlSession().selectList(BUILDING_ADDRESS_NAMESPACE + ".findReferenceAddressActivityInfo", buildingId);
+        return Sets.newHashSet(results);
     }
 
     @Transactional
     private Set<Long> findParentAddressActivityInfo(long buildingId) {
-        return Sets.newHashSet(sqlSession().selectList(BUILDING_ADDRESS_NAMESPACE + ".findParentAddressActivityInfo", buildingId));
+        List<Long> results = sqlSession().selectList(BUILDING_ADDRESS_NAMESPACE + ".findParentAddressActivityInfo", buildingId);
+        return Sets.newHashSet(results);
     }
 
     @Transactional

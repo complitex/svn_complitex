@@ -175,7 +175,8 @@ public class DistrictStrategy extends TemplateStrategy {
     protected Set<Long> findChildrenActivityInfo(long districtId) {
         Map<String, Object> params = Maps.newHashMap();
         params.put("districtId", districtId);
-        return Sets.newHashSet(sqlSession().selectList(DISTRICT_NAMESPACE + "." + FIND_CHILDREN_ACTIVITY_INFO_OPERATION, params));
+        List<Long> results = sqlSession().selectList(DISTRICT_NAMESPACE + "." + FIND_CHILDREN_ACTIVITY_INFO_OPERATION, params);
+        return Sets.newHashSet(results);
     }
 
     @Transactional
