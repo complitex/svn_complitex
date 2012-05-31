@@ -4,7 +4,7 @@
  */
 package org.complitex.dictionary.web.component;
 
-import com.google.common.collect.ImmutableList;
+import java.util.Arrays;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -44,7 +44,7 @@ public final class ChildrenContainer extends Panel {
         if (childrenEntities == null) {
             childrenEntities = new String[0];
         }
-        ListView<String> childrenContainers = new ListView<String>("childrenContainers", ImmutableList.of(childrenEntities)) {
+        ListView<String> childrenContainers = new ListView<String>("childrenContainers", Arrays.asList(childrenEntities)) {
 
             @Override
             protected void populateItem(ListItem<String> item) {

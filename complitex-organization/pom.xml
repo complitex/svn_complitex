@@ -16,15 +16,7 @@
     <dependencies>
         <dependency>
             <groupId>org.complitex</groupId>
-            <artifactId>complitex-template</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.complitex</groupId>
             <artifactId>complitex-address</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.complitex</groupId>
-            <artifactId>complitex-dictionary</artifactId>
         </dependency>
         <dependency>
             <groupId>org.complitex</groupId>
