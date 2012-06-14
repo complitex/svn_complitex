@@ -1,8 +1,8 @@
 package org.complitex.template.strategy;
 
 import org.apache.wicket.Page;
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.complitex.dictionary.strategy.Strategy;
 import org.complitex.dictionary.strategy.web.validate.DefaultValidator;
 import org.complitex.dictionary.strategy.web.validate.IValidator;
@@ -32,7 +32,7 @@ public abstract class TemplateStrategy extends Strategy {
     @Override
     public PageParameters getListPageParams() {
         PageParameters params = new PageParameters();
-        params.put(ENTITY, getEntityTable());
+        params.set(ENTITY, getEntityTable());
         return params;
     }
 
@@ -44,10 +44,10 @@ public abstract class TemplateStrategy extends Strategy {
     @Override
     public PageParameters getEditPageParams(Long objectId, Long parentId, String parentEntity) {
         PageParameters params = new PageParameters();
-        params.put(ENTITY, getEntityTable());
-        params.put(OBJECT_ID, objectId);
-        params.put(PARENT_ID, parentId);
-        params.put(PARENT_ENTITY, parentEntity);
+        params.set(ENTITY, getEntityTable());
+        params.set(OBJECT_ID, objectId);
+        params.set(PARENT_ID, parentId);
+        params.set(PARENT_ENTITY, parentEntity);
         return params;
     }
 
@@ -59,8 +59,8 @@ public abstract class TemplateStrategy extends Strategy {
     @Override
     public PageParameters getHistoryPageParams(long objectId) {
         PageParameters params = new PageParameters();
-        params.put(ENTITY, getEntityTable());
-        params.put(OBJECT_ID, objectId);
+        params.set(ENTITY, getEntityTable());
+        params.set(OBJECT_ID, objectId);
         return params;
     }
 

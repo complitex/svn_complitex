@@ -1,6 +1,5 @@
 package org.complitex.dictionary.web;
 
-import org.apache.wicket.Request;
 import org.apache.wicket.protocol.http.WebSession;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.Preference;
@@ -13,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import org.apache.wicket.request.Request;
 import org.apache.wicket.util.string.Strings;
 
 /**

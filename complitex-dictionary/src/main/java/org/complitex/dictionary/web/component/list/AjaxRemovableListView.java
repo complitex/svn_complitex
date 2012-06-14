@@ -18,6 +18,8 @@ import org.apache.wicket.model.Model;
 
 import java.io.Serializable;
 import java.util.List;
+import org.apache.wicket.util.visit.IVisit;
+import org.apache.wicket.util.visit.IVisitor;
 
 /**
  *
@@ -68,7 +70,7 @@ public abstract class AjaxRemovableListView<T extends Serializable> extends List
                     updateListViewOnRemoval(this, target, toFocus, toUpdate);
                 } else {
                     for (Component comp : toUpdate) {
-                        target.addComponent(comp);
+                        target.add(comp);
                     }
                 }
             }
@@ -77,6 +79,10 @@ public abstract class AjaxRemovableListView<T extends Serializable> extends List
             protected void onComponentTag(ComponentTag tag) {
                 super.onComponentTag(tag);
                 tag.put("name", "delete:" + item.getId());
+            }
+
+            @Override
+            protected void onError(AjaxRequestTarget target, Form<?> form) {
             }
         };
         link.setDefaultFormProcessing(false);
@@ -94,7 +100,7 @@ public abstract class AjaxRemovableListView<T extends Serializable> extends List
                     updateListViewOnRemoval(this, target, toFocus, toUpdate);
                 } else {
                     for (Component comp : toUpdate) {
-                        target.addComponent(comp);
+                        target.add(comp);
                     }
                 }
             }
@@ -141,16 +147,16 @@ public abstract class AjaxRemovableListView<T extends Serializable> extends List
         }
 
         for (Component comp : toUpdate) {
-            target.addComponent(comp);
+            target.add(comp);
         }
     }
 
     protected final ListItem<T> getCurrentItem(Component component) {
-        return (ListItem<T>) component.visitParents(ListItem.class, new IVisitor<Component>() {
+        return component.visitParents(ListItem.class, new IVisitor<Component, ListItem<T>>() {
 
             @Override
-            public Object component(Component component) {
-                return component;
+            public void component(Component object, IVisit<ListItem<T>> visit) {
+                visit.stop((ListItem<T>) object);
             }
         });
     }

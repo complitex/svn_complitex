@@ -5,8 +5,8 @@
 package org.complitex.dictionary.strategy.web;
 
 import org.apache.wicket.Application;
-import org.apache.wicket.authorization.strategies.role.IRoleCheckingStrategy;
-import org.apache.wicket.authorization.strategies.role.Roles;
+import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingStrategy;
+import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.StatusType;
 import org.complitex.dictionary.strategy.IStrategy;

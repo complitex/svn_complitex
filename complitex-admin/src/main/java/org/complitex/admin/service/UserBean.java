@@ -22,12 +22,12 @@ import java.util.Map;
  */
 @Stateless(name = "UserBean")
 public class UserBean extends AbstractBean {
-    public static final String STATEMENT_PREFIX = UserBean.class.getCanonicalName();
 
+    public static final String STATEMENT_PREFIX = UserBean.class.getCanonicalName();
     @EJB
     private UserInfoStrategy userInfoStrategy;
 
-    public User newUser(){
+    public User newUser() {
         User user = new User();
 
         user.setUserGroups(new ArrayList<UserGroup>());
@@ -37,22 +37,22 @@ public class UserBean extends AbstractBean {
     }
 
     @Transactional
-    public boolean isUniqueLogin(String login){
+    public boolean isUniqueLogin(String login) {
         return (Boolean) sqlSession().selectOne(STATEMENT_PREFIX + ".isUniqueLogin", login);
     }
 
     @Transactional
-    public User getUser(Long id){
+    public User getUser(Long id) {
         return getUser(id, true);
     }
 
     @Transactional
-    public User getUser(Long id, boolean createUserInfo){
+    public User getUser(Long id, boolean createUserInfo) {
         User user = (User) sqlSession().selectOne(STATEMENT_PREFIX + ".selectUser", id);
 
-        if (user.getUserInfoObjectId() != null){
+        if (user.getUserInfoObjectId() != null) {
             user.setUserInfo(userInfoStrategy.findById(user.getUserInfoObjectId(), false));
-        }else if (createUserInfo){
+        } else if (createUserInfo) {
             user.setUserInfo(userInfoStrategy.newInstance());
         }
 
@@ -60,26 +60,26 @@ public class UserBean extends AbstractBean {
     }
 
     @Transactional
-    public void save(User user){
+    public void save(User user) {
         //удаление дубликатов организаций
         Map<Long, UserOrganization> userOrganizationMap = new HashMap<Long, UserOrganization>();
-        for (UserOrganization userOrganization : user.getUserOrganizations()){
+        for (UserOrganization userOrganization : user.getUserOrganizations()) {
             userOrganizationMap.put(userOrganization.getOrganizationObjectId(), userOrganization);
         }
 
         //установка главной организации, если не установлено пользователем
         boolean hasMain = false;
-        for (UserOrganization userOrganization : userOrganizationMap.values()){
-            if (userOrganization.isMain()){
+        for (UserOrganization userOrganization : userOrganizationMap.values()) {
+            if (userOrganization.isMain()) {
                 hasMain = true;
                 break;
             }
         }
-        if (!hasMain && !userOrganizationMap.isEmpty()){
+        if (!hasMain && !userOrganizationMap.isEmpty()) {
             userOrganizationMap.values().iterator().next().setMain(true);
         }
 
-        if (user.getId() == null){ //Сохранение нового пользователя
+        if (user.getId() == null) { //Сохранение нового пользователя
             //сохранение информации о пользователе
             userInfoStrategy.insert(user.getUserInfo(), DateUtil.getCurrentDate());
             user.setUserInfoObjectId(user.getUserInfo().getId());
@@ -89,69 +89,69 @@ public class UserBean extends AbstractBean {
             sqlSession().insert(STATEMENT_PREFIX + ".insertUser", user);
 
             //сохранение групп привилегий
-            for(UserGroup userGroup : user.getUserGroups()){
+            for (UserGroup userGroup : user.getUserGroups()) {
                 userGroup.setLogin(user.getLogin());
                 sqlSession().insert(STATEMENT_PREFIX + ".insertUserGroup", userGroup);
             }
 
             //сохранение организаций
-            for (UserOrganization userOrganization : userOrganizationMap.values()){
-                if (userOrganization.getOrganizationObjectId() != null){
+            for (UserOrganization userOrganization : userOrganizationMap.values()) {
+                if (userOrganization.getOrganizationObjectId() != null) {
                     userOrganization.setUserId(user.getId());
                     sqlSession().insert(STATEMENT_PREFIX + ".insertUserOrganization", userOrganization);
                 }
             }
 
-        }else{ //Редактирование пользователя
+        } else { //Редактирование пользователя
             User dbUser = (User) sqlSession().selectOne(STATEMENT_PREFIX + ".selectUser", user.getId());
 
             //удаление групп привилегий
-            for (UserGroup dbUserGroup : dbUser.getUserGroups()){
+            for (UserGroup dbUserGroup : dbUser.getUserGroups()) {
                 boolean contain = false;
 
-                for (UserGroup userGroup : user.getUserGroups()){
-                    if (userGroup.getGroupName().equals(dbUserGroup.getGroupName())){
+                for (UserGroup userGroup : user.getUserGroups()) {
+                    if (userGroup.getGroupName().equals(dbUserGroup.getGroupName())) {
                         contain = true;
                         break;
                     }
                 }
 
-                if (!contain){
+                if (!contain) {
                     sqlSession().delete(STATEMENT_PREFIX + ".deleteUserGroup", dbUserGroup.getId());
                 }
             }
 
             //добавление групп привилегий
-            for (UserGroup userGroup : user.getUserGroups()){
+            for (UserGroup userGroup : user.getUserGroups()) {
                 boolean contain = false;
 
-                for (UserGroup dbUserGroup : dbUser.getUserGroups()){
-                    if (userGroup.getGroupName().equals(dbUserGroup.getGroupName())){
+                for (UserGroup dbUserGroup : dbUser.getUserGroups()) {
+                    if (userGroup.getGroupName().equals(dbUserGroup.getGroupName())) {
                         contain = true;
                         break;
                     }
                 }
 
-                if (!contain){
+                if (!contain) {
                     userGroup.setLogin(user.getLogin());
                     sqlSession().insert(STATEMENT_PREFIX + ".insertUserGroup", userGroup);
                 }
             }
 
             //обновление и удаление организаций
-            for (UserOrganization dbUserOrganization : dbUser.getUserOrganizations()){
+            for (UserOrganization dbUserOrganization : dbUser.getUserOrganizations()) {
                 boolean contain = false;
 
-                for (UserOrganization userOrganization : userOrganizationMap.values()){
-                    if (userOrganization.getOrganizationObjectId() == null){
+                for (UserOrganization userOrganization : userOrganizationMap.values()) {
+                    if (userOrganization.getOrganizationObjectId() == null) {
                         continue;
                     }
 
-                    if (userOrganization.getOrganizationObjectId().equals(dbUserOrganization.getOrganizationObjectId())){
+                    if (userOrganization.getOrganizationObjectId().equals(dbUserOrganization.getOrganizationObjectId())) {
                         contain = true;
 
                         //обновление основной организации
-                        if (dbUserOrganization.isMain() != userOrganization.isMain()){
+                        if (dbUserOrganization.isMain() != userOrganization.isMain()) {
                             sqlSession().update(STATEMENT_PREFIX + ".updateUserOrganization", userOrganization);
                         }
 
@@ -159,45 +159,45 @@ public class UserBean extends AbstractBean {
                     }
                 }
 
-                if (!contain){
+                if (!contain) {
                     sqlSession().delete(STATEMENT_PREFIX + ".deleteUserOrganization", dbUserOrganization.getId());
                 }
             }
 
             //добавление организаций
-            for (UserOrganization userOrganization : userOrganizationMap.values()){
-                if (userOrganization.getOrganizationObjectId() == null){
+            for (UserOrganization userOrganization : userOrganizationMap.values()) {
+                if (userOrganization.getOrganizationObjectId() == null) {
                     continue;
                 }
 
                 boolean contain = false;
 
-                for (UserOrganization dbUserOrganization : dbUser.getUserOrganizations()){
-                    if (userOrganization.getOrganizationObjectId().equals(dbUserOrganization.getOrganizationObjectId())){
+                for (UserOrganization dbUserOrganization : dbUser.getUserOrganizations()) {
+                    if (userOrganization.getOrganizationObjectId().equals(dbUserOrganization.getOrganizationObjectId())) {
                         contain = true;
                         break;
                     }
                 }
 
-                if (!contain){
+                if (!contain) {
                     userOrganization.setUserId(user.getId());
                     sqlSession().insert(STATEMENT_PREFIX + ".insertUserOrganization", userOrganization);
                 }
             }
 
             //изменение пароля
-            if(user.getNewPassword() != null){
+            if (user.getNewPassword() != null) {
                 user.setPassword(DigestUtils.md5Hex(user.getNewPassword())); //md5 password
                 sqlSession().update(STATEMENT_PREFIX + ".updateUser", user);
-            }else{
+            } else {
                 user.setPassword(null); //не обновлять пароль
             }
 
             //сохранение информации о пользователе
-            if (user.getUserInfoObjectId() != null){
+            if (user.getUserInfoObjectId() != null) {
                 DomainObject userInfo = user.getUserInfo();
                 userInfoStrategy.update(userInfoStrategy.findById(userInfo.getId(), false), userInfo, DateUtil.getCurrentDate());
-            }else{
+            } else {
                 userInfoStrategy.insert(user.getUserInfo(), DateUtil.getCurrentDate());
                 user.setUserInfoObjectId(user.getUserInfo().getId());
                 sqlSession().update(STATEMENT_PREFIX + ".updateUser", user);
@@ -207,11 +207,11 @@ public class UserBean extends AbstractBean {
 
     @SuppressWarnings({"unchecked"})
     @Transactional
-    public List<User> getUsers(UserFilter filter){
+    public List<User> getUsers(UserFilter filter) {
         List<User> users = sqlSession().selectList(STATEMENT_PREFIX + ".selectUsers", filter);
         //todo change to db load
-        for (User user : users){
-            if (user.getUserInfoObjectId() != null){
+        for (User user : users) {
+            if (user.getUserInfoObjectId() != null) {
                 user.setUserInfo(userInfoStrategy.findById(user.getUserInfoObjectId(), false));
             }
         }
@@ -220,14 +220,14 @@ public class UserBean extends AbstractBean {
     }
 
     @Transactional
-    public int getUsersCount(UserFilter filter){
+    public int getUsersCount(UserFilter filter) {
         return (Integer) sqlSession().selectOne(STATEMENT_PREFIX + ".selectUsersCount", filter);
     }
 
-    public UserFilter newUserFilter(){
+    public UserFilter newUserFilter() {
         UserFilter userFilter = new UserFilter();
 
-        for (EntityAttributeType entityAttributeType : userInfoStrategy.getListColumns()){
+        for (EntityAttributeType entityAttributeType : userInfoStrategy.getListColumns()) {
             userFilter.getAttributeExamples().add(new AttributeExample(entityAttributeType.getId()));
         }
 
@@ -253,4 +253,3 @@ public class UserBean extends AbstractBean {
         return attributeColumns;
     }
 }
-

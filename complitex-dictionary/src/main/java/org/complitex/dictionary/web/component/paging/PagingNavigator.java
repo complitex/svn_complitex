@@ -1,20 +1,18 @@
 package org.complitex.dictionary.web.component.paging;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigationIncrementLink;
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigationLink;
-import org.apache.wicket.behavior.AbstractBehavior;
 import org.apache.wicket.markup.ComponentTag;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.AbstractLink;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -31,8 +29,10 @@ import org.complitex.dictionary.web.DictionaryFwSession;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.apache.wicket.markup.html.JavascriptPackageResource;
+import org.apache.wicket.behavior.Behavior;
+import org.apache.wicket.request.resource.SharedResourceReference;
 import org.complitex.dictionary.entity.PreferenceKey;
+import org.complitex.dictionary.web.component.image.StaticImage;
 import org.complitex.resources.WebCommonResourceInitializer;
 
 /**
@@ -63,6 +63,11 @@ public class PagingNavigator extends Panel {
         this(id, dataView, null, toUpdate);
     }
 
+    @Override
+    public void renderHead(IHeaderResponse response) {
+        response.renderJavaScriptReference(WebCommonResourceInitializer.SCROLL_JS);
+    }
+
     /**
      * General constructor.
      * 
@@ -75,7 +80,6 @@ public class PagingNavigator extends Panel {
     public PagingNavigator(String id, final DataView<?> dataView, final String page, Component... toUpdate) {
         super(id);
         setOutputMarkupId(true);
-        add(JavascriptPackageResource.getHeaderContribution(WebCommonResourceInitializer.SCROLL_JS));
 
         this.dataView = dataView;
         this.toUpdate = toUpdate;
@@ -100,16 +104,16 @@ public class PagingNavigator extends Panel {
 
         // Add additional page links
         pageBar.add(newPagingNavigationLink("first", dataView, 0).
-                add(new Image("firstImage", new ResourceReference("images/pageNavStart.gif"))).
+                add(new StaticImage("firstImage", new SharedResourceReference("images/pageNavStart.gif"))).
                 add(new TitleResourceAppender("PagingNavigator.first")));
         pageBar.add(newPagingNavigationIncrementLink("prev", dataView, -1).
-                add(new Image("prevImage", new ResourceReference("images/pageNavPrev.gif"))).
+                add(new StaticImage("prevImage", new SharedResourceReference("images/pageNavPrev.gif"))).
                 add(new TitleResourceAppender("PagingNavigator.previous")));
         pageBar.add(newPagingNavigationIncrementLink("next", dataView, 1).
-                add(new Image("nextImage", new ResourceReference("images/pageNavNext.gif"))).
+                add(new StaticImage("nextImage", new SharedResourceReference("images/pageNavNext.gif"))).
                 add(new TitleResourceAppender("PagingNavigator.next")));
         pageBar.add(newPagingNavigationLink("last", dataView, -1).
-                add(new Image("lastImage", new ResourceReference("images/pageNavEnd.gif"))).
+                add(new StaticImage("lastImage", new SharedResourceReference("images/pageNavEnd.gif"))).
                 add(new TitleResourceAppender("PagingNavigator.last")));
 
         //navigation before
@@ -192,6 +196,10 @@ public class PagingNavigator extends Panel {
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
                 //update model - newPageNumberModel
                 updatePageComponents(target);
+            }
+
+            @Override
+            protected void onError(AjaxRequestTarget target, Form<?> form) {
             }
         };
 
@@ -287,10 +295,10 @@ public class PagingNavigator extends Panel {
     protected void updatePageComponents(AjaxRequestTarget target) {
         if (toUpdate != null) {
             for (Component container : toUpdate) {
-                target.addComponent(container);
+                target.add(container);
             }
         }
-        target.addComponent(this);
+        target.add(this);
     }
 
     /**
@@ -324,7 +332,7 @@ public class PagingNavigator extends Panel {
 
     protected void appendScrollupJavascript(AjaxRequestTarget target) {
         String javascript = "scrollTo(0, {axis:'y'});";
-        target.appendJavascript(javascript);
+        target.appendJavaScript(javascript);
     }
 
     @Override
@@ -350,7 +358,7 @@ public class PagingNavigator extends Panel {
      *
      * @author igor.vaynberg
      */
-    private final class TitleResourceAppender extends AbstractBehavior {
+    private final class TitleResourceAppender extends Behavior {
 
         private static final long serialVersionUID = 1L;
         private final String resourceKey;
@@ -372,16 +380,9 @@ public class PagingNavigator extends Panel {
         }
     }
 
-    /**
-     * Appends title attribute to navigation links
-     *
-     * @author igor.vaynberg
-     */
-    private final class TitlePageNumberAppender extends AbstractBehavior {
+    private final class TitlePageNumberAppender extends Behavior {
 
         private static final long serialVersionUID = 1L;
-        /** resource key for the message */
-        private static final String RES = "PagingNavigation.page";
         /** page number */
         private final int page;
 
@@ -395,7 +396,6 @@ public class PagingNavigator extends Panel {
             this.page = page;
         }
 
-        /** {@inheritDoc} */
         @Override
         public void onComponentTag(Component component, ComponentTag tag) {
             tag.put("title", page + 1);

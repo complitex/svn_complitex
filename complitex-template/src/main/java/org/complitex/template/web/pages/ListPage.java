@@ -4,7 +4,7 @@
  */
 package org.complitex.template.web.pages;
 
-import org.apache.wicket.PageParameters;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.complitex.template.web.template.TemplatePage;
 
 /**

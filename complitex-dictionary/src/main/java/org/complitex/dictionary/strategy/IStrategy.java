@@ -4,7 +4,6 @@
  */
 package org.complitex.dictionary.strategy;
 
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
 import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.DomainObject;
@@ -20,6 +19,7 @@ import org.complitex.dictionary.web.component.search.SearchComponentState;
 
 import java.util.*;
 import org.apache.wicket.Page;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 /**
  *

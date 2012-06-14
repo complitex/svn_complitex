@@ -7,9 +7,10 @@ package org.complitex.address.strategy.apartment.web.edit;
 import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Locale;
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.markup.html.CSSPackageResource;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.request.resource.PackageResourceReference;
 import org.complitex.address.strategy.apartment.ApartmentStrategy;
 import org.complitex.dictionary.Module;
 import org.complitex.dictionary.entity.Attribute;
@@ -42,7 +43,13 @@ public final class ApartmentEdit extends DomainObjectEdit {
 
     public ApartmentEdit(PageParameters parameters) {
         super(parameters);
-        add(CSSPackageResource.getHeaderContribution(ApartmentEdit.class, ApartmentEdit.class.getSimpleName() + ".css"));
+    }
+
+    @Override
+    public void renderHead(IHeaderResponse response) {
+        super.renderHead(response);
+        response.renderCSSReference(new PackageResourceReference(
+                ApartmentEdit.class, ApartmentEdit.class.getSimpleName() + ".css"));
     }
 
     @Override

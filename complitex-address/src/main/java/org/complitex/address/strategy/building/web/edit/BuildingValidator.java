@@ -14,6 +14,8 @@ import org.apache.wicket.Component;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.string.Strings;
+import org.apache.wicket.util.visit.IVisit;
+import org.apache.wicket.util.visit.IVisitor;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.strategy.StrategyFactory;
@@ -164,14 +166,14 @@ public class BuildingValidator implements IValidator {
 
     private BuildingEditComponent findEditComponent(Component component) {
         if (editComponent == null) {
-            component.getPage().visitChildren(BuildingEditComponent.class, new Component.IVisitor<BuildingEditComponent>() {
+            editComponent = component.getPage().visitChildren(BuildingEditComponent.class,
+                    new IVisitor<BuildingEditComponent, BuildingEditComponent>() {
 
-                @Override
-                public Object component(BuildingEditComponent comp) {
-                    editComponent = comp;
-                    return STOP_TRAVERSAL;
-                }
-            });
+                        @Override
+                        public void component(BuildingEditComponent object, IVisit<BuildingEditComponent> visit) {
+                            visit.stop(object);
+                        }
+                    });
         }
         return editComponent;
     }

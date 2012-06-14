@@ -7,7 +7,7 @@ package org.complitex.dictionary.web.component.css;
 import static com.google.common.collect.Sets.*;
 import java.util.Set;
 import org.apache.wicket.Component;
-import org.apache.wicket.behavior.AbstractBehavior;
+import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.util.string.Strings;
 
@@ -15,7 +15,7 @@ import org.apache.wicket.util.string.Strings;
  *
  * @author Artem
  */
-public class CssAttributeBehavior extends AbstractBehavior {
+public class CssAttributeBehavior extends Behavior {
 
     private Set<String> cssClasses = newLinkedHashSet();
 
@@ -31,7 +31,7 @@ public class CssAttributeBehavior extends AbstractBehavior {
     public void onComponentTag(Component component, ComponentTag tag) {
         for (String className : cssClasses) {
             if (!Strings.isEmpty(className)) {
-                CharSequence oldClassName = tag.getString("class");
+                CharSequence oldClassName = tag.getAttribute("class");
                 if (Strings.isEmpty(oldClassName)) {
                     tag.put("class", className);
                 } else {

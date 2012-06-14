@@ -6,7 +6,7 @@ package org.complitex.dictionary.web.component.hint;
 
 import java.text.MessageFormat;
 import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.html.JavascriptPackageResource;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -40,9 +40,12 @@ public final class HintTextFieldPanel<T> extends Panel {
         init(model, type, placeholderModel, textFieldValidatorKeyPrefix);
     }
 
-    private void init(IModel<T> model, Class<T> type, final IModel<String> placeholderModel, final String textFieldValidatorKeyPrefix) {
-        add(JavascriptPackageResource.getHeaderContribution(WebCommonResourceInitializer.PLACEHOLDER_JS));
+    @Override
+    public void renderHead(IHeaderResponse response) {
+        response.renderJavaScriptReference(WebCommonResourceInitializer.PLACEHOLDER_JS);
+    }
 
+    private void init(IModel<T> model, Class<T> type, final IModel<String> placeholderModel, final String textFieldValidatorKeyPrefix) {
         textField = new TextField<T>("textField", model, type) {
 
             @Override

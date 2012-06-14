@@ -48,6 +48,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.complitex.dictionary.entity.PreferenceKey;
 import org.complitex.dictionary.web.component.search.CollapsibleSearchPanel;
 
@@ -93,7 +94,7 @@ public final class DomainObjectListPanel extends Panel {
         content.setVisible(true);
         if (target != null) {
             dataView.setCurrentPage(0);
-            target.addComponent(content);
+            target.add(content);
         }
     }
 
@@ -188,7 +189,7 @@ public final class DomainObjectListPanel extends Panel {
                 return getStrategy().count(example);
             }
         };
-        dataProvider.setSort(String.valueOf(getStrategy().getDefaultSortAttributeTypeId()), true);
+        dataProvider.setSort(String.valueOf(getStrategy().getDefaultSortAttributeTypeId()), SortOrder.ASCENDING);
 
         //Data View
         dataView = new DataView<DomainObject>("data", dataProvider, 1) {
@@ -197,7 +198,7 @@ public final class DomainObjectListPanel extends Panel {
             protected void populateItem(Item<DomainObject> item) {
                 DomainObject object = item.getModelObject();
 
-                item.add(new Label("order", String.valueOf(getViewOffset() + item.getIndex() + 1)));
+                item.add(new Label("order", String.valueOf(getFirstItemOffset() + item.getIndex() + 1)));
 
                 final Map<Attribute, EntityAttributeType> attrToTypeMap = Maps.newLinkedHashMap();
                 for (EntityAttributeType attrType : listAttributeTypes) {
@@ -398,7 +399,7 @@ public final class DomainObjectListPanel extends Panel {
                     AttributeExample attrExample = example.getAttributeExample(attrType.getId());
                     attrExample.setValue(null);
                 }
-                target.addComponent(content);
+                target.add(content);
             }
         };
         filterForm.add(reset);
@@ -408,7 +409,11 @@ public final class DomainObjectListPanel extends Panel {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-                target.addComponent(content);
+                target.add(content);
+            }
+
+            @Override
+            protected void onError(AjaxRequestTarget target, Form<?> form) {
             }
         };
         filterForm.add(submit);

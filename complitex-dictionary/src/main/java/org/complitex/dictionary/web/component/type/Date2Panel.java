@@ -5,7 +5,7 @@
 package org.complitex.dictionary.web.component.type;
 
 import java.util.Date;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.form.FormComponentPanel;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
@@ -49,8 +49,8 @@ public final class Date2Panel extends FormComponentPanel<Date> {
                     }
                 }, Date2Panel.class.getSimpleName() + ".day");
         dayField.getTextField().setLabel(labelModel).add(new MinimumValidator<Integer>(1)).add(new MaximumValidator<Integer>(31)).
-                add(new SimpleAttributeModifier("size", String.valueOf(2))).
-                add(new SimpleAttributeModifier("maxlength", String.valueOf(2)));
+                add(AttributeModifier.replace("size", String.valueOf(2))).
+                add(AttributeModifier.replace("maxlength", String.valueOf(2)));
         add(dayField);
 
         monthField = new MonthDropDownChoice("month", new PropertyModel<Integer>(this, "month")) {
@@ -72,8 +72,8 @@ public final class Date2Panel extends FormComponentPanel<Date> {
                     }
                 }, Date2Panel.class.getSimpleName() + ".year");
         yearField.getTextField().setLabel(labelModel).add(new MinimumValidator<Integer>(1900)).
-                add(new SimpleAttributeModifier("size", String.valueOf(4))).
-                add(new SimpleAttributeModifier("maxlength", String.valueOf(4)));
+                add(AttributeModifier.replace("size", String.valueOf(4))).
+                add(AttributeModifier.replace("maxlength", String.valueOf(4)));
         add(yearField);
     }
 

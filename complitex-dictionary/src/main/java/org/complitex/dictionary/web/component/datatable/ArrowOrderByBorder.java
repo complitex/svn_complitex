@@ -5,8 +5,8 @@
 package org.complitex.dictionary.web.component.datatable;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.extensions.markup.html.repeater.data.sort.ISortState;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.ISortStateLocator;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.AbstractReadOnlyModel;
@@ -31,9 +31,9 @@ public class ArrowOrderByBorder extends EnhancedOrderByBorder {
 
             @Override
             public String getObject() {
-                if (stateLocator.getSortState().getPropertySortOrder(property) == ISortState.DESCENDING) {
+                if (stateLocator.getSortState().getPropertySortOrder(property) == SortOrder.DESCENDING) {
                     return UP;
-                } else if (stateLocator.getSortState().getPropertySortOrder(property) == ISortState.ASCENDING) {
+                } else if (stateLocator.getSortState().getPropertySortOrder(property) == SortOrder.ASCENDING) {
                     return DOWN;
                 }
                 return null;

@@ -4,9 +4,11 @@
  */
 package org.complitex.dictionary.web.component;
 
-import org.apache.wicket.Application;
+import java.util.Date;
 import org.apache.wicket.datetime.PatternDateConverter;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.request.resource.SharedResourceReference;
 import org.apache.wicket.util.convert.IConverter;
 
 /**
@@ -15,8 +17,8 @@ import org.apache.wicket.util.convert.IConverter;
  */
 public class DatePicker<T> extends org.odlabs.wiquery.ui.datepicker.DatePicker<T> {
 
-    private static final String IMAGE_SRC = "resources/" + Application.class.getName() + "/images/calendar.gif";
-    private static IConverter CONVERTER = new PatternDateConverter("dd.MM.yyyy", true);
+    private static final String RELATIVE_IMAGE_SRC = "images/calendar.gif";
+    private static IConverter<Date> CONVERTER = new PatternDateConverter("dd.MM.yyyy", true);
 
     public DatePicker(String id, boolean enabled) {
         super(id);
@@ -60,7 +62,7 @@ public class DatePicker<T> extends org.odlabs.wiquery.ui.datepicker.DatePicker<T
 
     protected void init(boolean enabled) {
         if (enabled) {
-            setButtonImage(IMAGE_SRC);
+            setButtonImage(getImageUrl(getRequestCycle()));
             setShowOn(ShowOnEnum.BOTH);
             setButtonImageOnly(true);
         }
@@ -68,8 +70,12 @@ public class DatePicker<T> extends org.odlabs.wiquery.ui.datepicker.DatePicker<T
         setDateFormat("dd.mm.yy");
     }
 
+    private static String getImageUrl(RequestCycle requestCycle) {
+        return requestCycle.urlFor(new SharedResourceReference(RELATIVE_IMAGE_SRC), null).toString();
+    }
+
     @Override
-    public IConverter getConverter(Class<?> type) {
-        return CONVERTER;
+    public <C> IConverter<C> getConverter(Class<C> type) {
+        return (IConverter<C>) CONVERTER;
     }
 }

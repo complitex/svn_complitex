@@ -64,6 +64,6 @@ public class CollapsibleSearchPanel extends Panel {
             getSearchComponent().toggle(target);
         }
         showModePanel.setVisible(!showModePanel.isVisible());
-        target.addComponent(showModePanel);
+        target.add(showModePanel);
     }
 }

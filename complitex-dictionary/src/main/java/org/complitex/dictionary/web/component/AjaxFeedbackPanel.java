@@ -14,24 +14,25 @@ import java.util.List;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 02.09.2010 13:46:19
  */
-public class AjaxFeedbackPanel extends FeedbackPanel{
+public class AjaxFeedbackPanel extends FeedbackPanel {
+
     private List<FeedbackMessage> rendered = new ArrayList<FeedbackMessage>();
     private boolean showTome = true;
 
-    public AjaxFeedbackPanel(final String id){
+    public AjaxFeedbackPanel(final String id) {
         this(id, null);
     }
 
-    public AjaxFeedbackPanel(final String id, IFeedbackMessageFilter filter){
+    public AjaxFeedbackPanel(final String id, IFeedbackMessageFilter filter) {
         super(id, filter);
 
         setOutputMarkupId(true);
 
-        add(new AjaxLink("clean"){
+        add(new AjaxLink<Void>("clean") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
-                target.addComponent(AjaxFeedbackPanel.this);
+                target.add(AjaxFeedbackPanel.this);
                 clean();
             }
 
@@ -43,8 +44,9 @@ public class AjaxFeedbackPanel extends FeedbackPanel{
     }
 
     @Override
-    protected FeedbackMessagesModel newFeedbackMessagesModel(){
-        return new FeedbackMessagesModel(this){
+    protected FeedbackMessagesModel newFeedbackMessagesModel() {
+        return new FeedbackMessagesModel(this) {
+
             @Override
             protected List<FeedbackMessage> processMessages(List<FeedbackMessage> messages) {
                 rendered.addAll(messages);
@@ -54,7 +56,7 @@ public class AjaxFeedbackPanel extends FeedbackPanel{
         };
     }
 
-    public void clean(){
+    public void clean() {
         rendered.clear();
     }
 

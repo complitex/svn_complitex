@@ -5,11 +5,9 @@
 package org.complitex.address.strategy.building.web.list;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
@@ -39,6 +37,9 @@ import org.complitex.template.web.security.SecurityRole;
 
 import javax.ejb.EJB;
 import java.util.List;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.complitex.dictionary.web.component.search.CollapsibleSearchPanel;
 import org.complitex.template.web.component.toolbar.search.CollapsibleSearchToolbarButton;
 import org.complitex.template.web.pages.DomainObjectList;
@@ -76,7 +77,7 @@ public final class BuildingList extends ScrollListPage {
         content.setVisible(true);
         if (target != null) {
             dataView.setCurrentPage(0);
-            target.addComponent(content);
+            target.add(content);
         }
     }
 
@@ -149,7 +150,7 @@ public final class BuildingList extends ScrollListPage {
                 return buildingStrategy.count(example);
             }
         };
-        dataProvider.setSort(String.valueOf(buildingStrategy.getDefaultSortAttributeTypeId()), true);
+        dataProvider.setSort(String.valueOf(buildingStrategy.getDefaultSortAttributeTypeId()), SortOrder.ASCENDING);
 
         //Filters
         filterForm.add(new TextField<String>("numberFilter", new Model<String>() {
@@ -196,7 +197,7 @@ public final class BuildingList extends ScrollListPage {
             protected void populateItem(Item<Building> item) {
                 Building building = item.getModelObject();
 
-                item.add(new Label("order", StringUtil.valueOf(getViewOffset() + item.getIndex() + 1)));
+                item.add(new Label("order", StringUtil.valueOf(getFirstItemOffset() + item.getIndex() + 1)));
                 item.add(new Label("number", building.getAccompaniedNumber(getLocale())));
                 item.add(new Label("corp", building.getAccompaniedCorp(getLocale())));
                 item.add(new Label("structure", building.getAccompaniedStructure(getLocale())));
@@ -237,7 +238,7 @@ public final class BuildingList extends ScrollListPage {
                 example.addAdditionalParam(BuildingStrategy.CORP, null);
                 example.addAdditionalParam(BuildingStrategy.STRUCTURE, null);
 
-                target.addComponent(content);
+                target.add(content);
             }
         };
         filterForm.add(reset);
@@ -247,7 +248,11 @@ public final class BuildingList extends ScrollListPage {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-                target.addComponent(content);
+                target.add(content);
+            }
+
+            @Override
+            protected void onError(AjaxRequestTarget target, Form<?> form) {
             }
         };
         filterForm.add(submit);

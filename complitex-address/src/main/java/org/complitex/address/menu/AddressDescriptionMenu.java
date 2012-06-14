@@ -1,10 +1,7 @@
 package org.complitex.address.menu;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.apache.wicket.Page;
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.template.web.pages.EntityDescription;
 import org.complitex.template.web.template.ITemplateLink;
@@ -13,6 +10,8 @@ import org.complitex.address.resource.CommonResources;
 
 import java.util.List;
 import java.util.Locale;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.complitex.address.AddressInfoProvider;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.util.EjbBeanLocator;
@@ -49,7 +48,7 @@ public class AddressDescriptionMenu extends ResourceTemplateMenu {
 
                 @Override
                 public PageParameters getParameters() {
-                    return new PageParameters(ImmutableMap.of(EntityDescription.ENTITY, address));
+                    return new PageParameters().set(EntityDescription.ENTITY, address);
                 }
 
                 @Override

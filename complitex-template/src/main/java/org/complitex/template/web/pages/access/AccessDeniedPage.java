@@ -4,7 +4,7 @@
  */
 package org.complitex.template.web.pages.access;
 
-import org.apache.wicket.markup.html.CSSPackageResource;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.ResourceModel;
 import org.complitex.resources.WebCommonResourceInitializer;
@@ -20,8 +20,12 @@ public final class AccessDeniedPage extends org.apache.wicket.markup.html.pages.
     }
 
     private void init() {
-        add(CSSPackageResource.getHeaderContribution(WebCommonResourceInitializer.STYLE_CSS));
         add(new Label("title", new ResourceModel("title")));
     }
-}
 
+    @Override
+    public void renderHead(IHeaderResponse response) {
+        super.renderHead(response);
+        response.renderCSSReference(WebCommonResourceInitializer.STYLE_CSS);
+    }
+}

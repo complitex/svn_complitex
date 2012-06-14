@@ -29,8 +29,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
-import org.apache.wicket.Component;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
+import org.apache.wicket.AttributeModifier;
 import org.complitex.dictionary.entity.StatusType;
 import org.complitex.dictionary.strategy.web.DomainObjectEditPanel;
 
@@ -130,7 +129,7 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
         DisableAwareListMultipleChoice<DomainObject> organizationType =
                 new DisableAwareListMultipleChoice<DomainObject>("organizationType", organizationTypesModel,
                 allOrganizationTypes, renderer);
-        organizationType.add(new SimpleAttributeModifier("size", allOrganizationTypes.size() > 8 ? "8"
+        organizationType.add(AttributeModifier.replace("size", allOrganizationTypes.size() > 8 ? "8"
                 : String.valueOf(allOrganizationTypes.size())));
         if (isOrganizationTypeEnabled()) {
             organizationType.add(new AjaxFormComponentUpdatingBehavior("onclick") {
@@ -204,14 +203,7 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
                 @Override
                 protected void onUpdate(AjaxRequestTarget target, DomainObject newOrganization) {
                     if (newOrganization != null && newOrganization.getId() != null && newOrganization.getId() > 0) {
-                        DomainObjectEditPanel editPanel =
-                                (DomainObjectEditPanel) visitParents(DomainObjectEditPanel.class, new IVisitor<Component>() {
-
-                            @Override
-                            public Object component(Component component) {
-                                return component;
-                            }
-                        });
+                        DomainObjectEditPanel editPanel = findParent(DomainObjectEditPanel.class);
                         editPanel.updateParentPermissions(target, newOrganization.getSubjectIds());
                     }
                 }
@@ -246,7 +238,7 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
         parentContainer.setVisible(isParentVisible());
         boolean parentContainerVisibleNow = parentContainer.isVisible();
         if (parentContainerWasVisible ^ parentContainerVisibleNow) {
-            target.addComponent(parentContainer);
+            target.add(parentContainer);
         }
 
         // district container
@@ -258,7 +250,7 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
         boolean districtRequiredContainerVisibleNow = districtRequiredContainer.isVisible();
         if ((districtContainerWasVisible ^ districtContainerVisibleNow)
                 || (districtRequiredContainerWasVisible ^ districtRequiredContainerVisibleNow)) {
-            target.addComponent(districtContainer);
+            target.add(districtContainer);
         }
     }
 

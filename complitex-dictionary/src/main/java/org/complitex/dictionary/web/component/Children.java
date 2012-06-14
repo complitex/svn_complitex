@@ -94,8 +94,8 @@ public final class Children extends Panel {
                     content.setVisible(true);
                 }
                 toggleModel.toggle();
-                target.addComponent(toggleStatus);
-                target.addComponent(content);
+                target.add(toggleStatus);
+                target.add(content);
             }
         };
         toggleLink.add(toggleStatus);

@@ -8,7 +8,6 @@ import static com.google.common.collect.Maps.*;
 import static com.google.common.collect.Sets.*;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
@@ -34,6 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.util.string.Strings;
 import org.odlabs.wiquery.ui.autocomplete.AbstractAutocompleteComponent;
@@ -209,7 +209,7 @@ public class WiQuerySearchComponent extends Panel {
                 //size
                 int size = getSize(entity);
                 if (size > 0) {
-                    autocompleteField.add(new SimpleAttributeModifier("size", String.valueOf(size)));
+                    autocompleteField.add(AttributeModifier.replace("size", String.valueOf(size)));
                 }
                 item.add(filterComponent);
             }
@@ -338,7 +338,7 @@ public class WiQuerySearchComponent extends Panel {
     }
 
     protected final void updateSearchContainer(AjaxRequestTarget target) {
-        target.addComponent(searchContainer);
+        target.add(searchContainer);
     }
 
     protected final void setFocus(AjaxRequestTarget target, String searchFilter) {

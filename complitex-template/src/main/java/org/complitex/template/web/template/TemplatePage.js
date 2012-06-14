@@ -29,10 +29,10 @@ $(function(){
         $(".block h2").click(function(){
             $(this).parent().find(".bottom").toggle("fast");
             if($(this).hasClass(expandedMenuClassName)){
-                Complitex.Common.setCookie(Complitex.Common.MenuInfo.MENU_COOKIE_PREFIX + $(this).parent().attr("id"), "0", "");
+                Complitex.Common.addCookie(Complitex.Common.MenuInfo.MENU_COOKIE_PREFIX + $(this).parent().attr("id"), "0", "");
                 $(this).removeClass(expandedMenuClassName).addClass(collapsedMenuClassName);
             } else {
-                Complitex.Common.setCookie(Complitex.Common.MenuInfo.MENU_COOKIE_PREFIX + $(this).parent().attr("id"), "1", "");
+                Complitex.Common.addCookie(Complitex.Common.MenuInfo.MENU_COOKIE_PREFIX + $(this).parent().attr("id"), "1", "");
                 $(this).removeClass(collapsedMenuClassName).addClass(expandedMenuClassName);
             }
         });

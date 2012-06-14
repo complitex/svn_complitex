@@ -2,10 +2,10 @@ package org.complitex.resources;
 
 import org.apache.wicket.Application;
 import org.apache.wicket.IInitializer;
-import org.apache.wicket.ResourceReference;
 import org.apache.wicket.SharedResources;
-import org.apache.wicket.markup.html.CSSPackageResource;
-import org.apache.wicket.markup.html.JavascriptPackageResource;
+import org.apache.wicket.request.resource.PackageResourceReference;
+import org.apache.wicket.request.resource.ResourceReference;
+import org.apache.wicket.request.resource.SharedResourceReference;
 
 /**
  *
@@ -42,15 +42,19 @@ public final class WebCommonResourceInitializer implements IInitializer {
     @Override
     public void init(Application application) {
         SharedResources sharedResources = application.getSharedResources();
-        sharedResources.add(STYLE_RESOURCE_NAME, CSSPackageResource.get(getClass(), STYLE_RELATIVE_PATH));
-        sharedResources.add(COMMON_RESOURCE_NAME, JavascriptPackageResource.get(getClass(), COMMON_RELATIVE_PATH));
-        sharedResources.add(IE_SELECT_FIX_RESOURCE_NAME, JavascriptPackageResource.get(getClass(), IE_SELECT_FIX_RELATIVE_PATH));
-        sharedResources.add(HIGHLIHT_RESOURCE_NAME, JavascriptPackageResource.get(getClass(), HIGHLIGHT_RELATIVE_PATH));
-        sharedResources.add(SCROLL_RESOURCE_NAME, JavascriptPackageResource.get(getClass(), SCROLL_RELATIVE_PATH));
-        sharedResources.add(PLACEHOLDER_RESOURCE_NAME, JavascriptPackageResource.get(getClass(), PLACEHOLDER_RELATIVE_PATH));
+        sharedResources.add(STYLE_RESOURCE_NAME, new PackageResourceReference(getClass(), STYLE_RELATIVE_PATH).getResource());
+        sharedResources.add(COMMON_RESOURCE_NAME, new PackageResourceReference(getClass(), COMMON_RELATIVE_PATH).getResource());
+        sharedResources.add(IE_SELECT_FIX_RESOURCE_NAME, new PackageResourceReference(getClass(), IE_SELECT_FIX_RELATIVE_PATH).getResource());
+        sharedResources.add(HIGHLIHT_RESOURCE_NAME, new PackageResourceReference(getClass(), HIGHLIGHT_RELATIVE_PATH).getResource());
+        sharedResources.add(SCROLL_RESOURCE_NAME, new PackageResourceReference(getClass(), SCROLL_RELATIVE_PATH).getResource());
+        sharedResources.add(PLACEHOLDER_RESOURCE_NAME, new PackageResourceReference(getClass(), PLACEHOLDER_RELATIVE_PATH).getResource());
     }
 
     private static ResourceReference newResourceReference(String resourceName) {
-        return new ResourceReference(resourceName);
+        return new SharedResourceReference(resourceName);
+    }
+
+    @Override
+    public void destroy(Application application) {
     }
 }

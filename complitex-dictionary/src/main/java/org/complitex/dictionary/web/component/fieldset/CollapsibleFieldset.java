@@ -7,14 +7,15 @@ package org.complitex.dictionary.web.component.fieldset;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.border.Border;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.request.resource.PackageResourceReference;
 import org.complitex.dictionary.web.component.css.CssAttributeBehavior;
-import org.odlabs.wiquery.core.commons.IWiQueryPlugin;
-import org.odlabs.wiquery.core.commons.WiQueryResourceManager;
+import org.odlabs.wiquery.core.IWiQueryPlugin;
 import org.odlabs.wiquery.core.javascript.JsQuery;
 import org.odlabs.wiquery.core.javascript.JsStatement;
 import org.odlabs.wiquery.ui.commons.WiQueryUIPlugin;
@@ -66,7 +67,7 @@ public class CollapsibleFieldset extends Border implements IWiQueryPlugin {
 
     protected void init(Component titleComponent, boolean collapsed, final ICollapsibleFieldsetListener listener) {
         WebMarkupContainer legend = new WebMarkupContainer("collapsibleFieldsetLegend");
-        add(legend);
+        addToBorder(legend);
 
         if (listener != null) {
             final IModel<Boolean> stateModel = new Model<Boolean>(!collapsed);
@@ -90,15 +91,21 @@ public class CollapsibleFieldset extends Border implements IWiQueryPlugin {
         }
         legend.add(image);
         legend.add(titleComponent);
-        
+
         WebMarkupContainer content = new WebMarkupContainer("collapsibleFieldsetContent");
-        add(content);
+        if (collapsed) {
+            content.add(new CssAttributeBehavior("hidden"));
+        }
+        addToBorder(content);
         content.add(getBodyContainer());
     }
 
     @Override
-    public void contribute(WiQueryResourceManager wiQueryResourceManager) {
-        wiQueryResourceManager.addJavaScriptResource(CollapsibleFieldset.class, CollapsibleFieldset.class.getSimpleName() + ".js");
+    public void renderHead(IHeaderResponse response) {
+        response.renderJavaScriptReference(new PackageResourceReference(CollapsibleFieldset.class,
+                CollapsibleFieldset.class.getSimpleName() + ".js"));
+        response.renderCSSReference(new PackageResourceReference(CollapsibleFieldset.class,
+                CollapsibleFieldset.class.getSimpleName() + ".css"));
     }
 
     @Override

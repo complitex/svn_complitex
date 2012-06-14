@@ -6,7 +6,7 @@ package org.complitex.dictionary.web.component.back;
 
 import javax.servlet.http.HttpSession;
 import org.apache.wicket.Component;
-import org.apache.wicket.protocol.http.WebRequest;
+import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
 
 /**
  *
@@ -18,7 +18,7 @@ public final class BackInfoManager {
     }
 
     private static HttpSession session(Component pageComponent) {
-        return ((WebRequest) pageComponent.getRequest()).getHttpServletRequest().getSession();
+        return ((ServletWebRequest) pageComponent.getRequest()).getContainerRequest().getSession();
     }
 
     public static void put(Component pageComponent, String key, BackInfo backInfo) {

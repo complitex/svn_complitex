@@ -5,7 +5,7 @@
 package org.complitex.organization.strategy.web.edit;
 
 import java.util.Set;
-import org.apache.wicket.PageParameters;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
 import org.complitex.dictionary.strategy.web.DomainObjectEditPanel;
 import org.complitex.dictionary.web.component.permission.DomainObjectPermissionsPanel;

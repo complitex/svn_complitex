@@ -7,7 +7,6 @@ package org.complitex.template.web.pages;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.util.Collections;
-import org.apache.wicket.PageParameters;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
 import org.complitex.dictionary.strategy.web.DomainObjectListPanel;
@@ -18,7 +17,8 @@ import java.util.List;
 import javax.ejb.EJB;
 import org.apache.wicket.Page;
 import org.apache.wicket.authorization.UnauthorizedInstantiationException;
-import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.web.DictionaryFwSession;
@@ -31,7 +31,7 @@ import org.complitex.template.web.security.SecurityRole;
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)
 public final class DomainObjectList extends ScrollListPage {
-    
+
     public static final String ENTITY = "entity";
     public static final String STRATEGY = "strategy";
     @EJB
@@ -39,28 +39,28 @@ public final class DomainObjectList extends ScrollListPage {
     private DomainObjectListPanel listPanel;
     private String entity;
     private String strategyName;
-    
+
     public DomainObjectList(PageParameters params) {
         super(params);
-        
-        entity = params.getString(ENTITY);
-        strategyName = params.getString(STRATEGY);
-        
+
+        entity = params.get(ENTITY).toString();
+        strategyName = params.get(STRATEGY).toString();
+
         if (!hasAnyRole(strategyFactory.getStrategy(strategyName, entity).getListRoles())) {
             throw new UnauthorizedInstantiationException(getClass());
         }
         add(listPanel = new DomainObjectListPanel("listPanel", entity, strategyName));
     }
-    
+
     @Override
     protected List<? extends ToolbarButton> getToolbarButtons(String id) {
         return ImmutableList.of(new AddItemButton(id) {
-            
+
             @Override
             protected void onClick() {
                 onAddObject(this.getPage(), strategyFactory.getStrategy(strategyName, entity), getTemplateSession());
             }
-            
+
             @Override
             protected void onBeforeRender() {
                 if (!DomainObjectAccessUtil.canAddNew(strategyName, entity)) {
@@ -70,7 +70,7 @@ public final class DomainObjectList extends ScrollListPage {
             }
         }, new CollapsibleSearchToolbarButton(id, listPanel.getSearchPanel()));
     }
-    
+
     public static void onAddObject(Page page, IStrategy strategy, DictionaryFwSession session) {
         if (strategy.getSearchFilters() != null && !strategy.getSearchFilters().isEmpty()) {
             SearchComponentState globalSearchComponentState = session.getGlobalSearchComponentState();

@@ -7,7 +7,7 @@ package org.complitex.dictionary.util;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import javax.servlet.http.HttpServletRequest;
-import org.apache.wicket.protocol.http.WebRequest;
+import org.apache.wicket.request.Request;
 import org.apache.wicket.util.string.Strings;
 
 /**
@@ -32,8 +32,8 @@ public final class OSInfoUtil {
         return null;
     }
 
-    public static String lineSeparator(WebRequest request) {
-        return lineSeparator(request.getHttpServletRequest());
+    public static String lineSeparator(Request request) {
+        return lineSeparator((HttpServletRequest) request.getContainerRequest());
     }
 
     public static String lineSeparator() {

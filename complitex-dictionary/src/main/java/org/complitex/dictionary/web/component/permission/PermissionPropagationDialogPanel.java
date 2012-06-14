@@ -7,8 +7,6 @@ package org.complitex.dictionary.web.component.permission;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.odlabs.wiquery.core.javascript.JsStatement;
-import org.odlabs.wiquery.ui.core.JsScopeUiEvent;
 import org.odlabs.wiquery.ui.dialog.Dialog;
 
 /**
@@ -43,7 +41,7 @@ public abstract class PermissionPropagationDialogPanel extends Panel {
         };
         dialog.add(yes);
 
-        Link<Void> no = new Link("no") {
+        Link<Void> no = new Link<Void>("no") {
 
             @Override
             public void onClick() {

@@ -63,7 +63,7 @@ public class InputPanel<T> extends Panel {
                 protected void onUpdate(AjaxRequestTarget target) {
                     //update own model
                     for (MarkupContainer updateComponent : toUpdate) {
-                        target.addComponent(updateComponent);
+                        target.add(updateComponent);
                     }
                 }
             });

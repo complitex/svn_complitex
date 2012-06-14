@@ -6,8 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.feedback.IFeedbackMessageFilter;
-import org.apache.wicket.markup.html.CSSPackageResource;
-import org.apache.wicket.markup.html.JavascriptPackageResource;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
@@ -19,15 +18,15 @@ import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.protocol.http.WebRequestCycle;
-import org.apache.wicket.request.target.basic.RedirectRequestTarget;
+import org.apache.wicket.request.http.handler.RedirectRequestHandler;
+import org.apache.wicket.request.resource.PackageResourceReference;
 import org.complitex.dictionary.entity.Log.EVENT;
 import org.complitex.dictionary.service.LogBean;
 import org.complitex.dictionary.service.SessionBean;
 import org.complitex.resources.WebCommonResourceInitializer;
 import org.complitex.template.Module;
 import org.complitex.template.web.security.SecurityWebListener;
-import org.odlabs.wiquery.core.commons.CoreJavaScriptResourceReference;
+import org.odlabs.wiquery.core.resources.CoreJavaScriptResourceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,12 +46,16 @@ public final class Login extends WebPage {
         init();
     }
 
-    private void init() {
-        add(JavascriptPackageResource.getHeaderContribution(CoreJavaScriptResourceReference.get()));
-        add(JavascriptPackageResource.getHeaderContribution(WebCommonResourceInitializer.COMMON_JS));
-        add(JavascriptPackageResource.getHeaderContribution(getClass(), getClass().getSimpleName() + ".js"));
-        add(CSSPackageResource.getHeaderContribution(WebCommonResourceInitializer.STYLE_CSS));
+    @Override
+    public void renderHead(IHeaderResponse response) {
+        super.renderHead(response);
+        response.renderJavaScriptReference(CoreJavaScriptResourceReference.get());
+        response.renderJavaScriptReference(WebCommonResourceInitializer.COMMON_JS);
+        response.renderJavaScriptReference(new PackageResourceReference(Login.class, Login.class.getSimpleName() + ".js"));
+        response.renderCSSReference(WebCommonResourceInitializer.STYLE_CSS);
+    }
 
+    private void init() {
         add(new Label("login.title", new ResourceModel("login.title")));
         final FeedbackPanel messages = new FeedbackPanel("messages");
         add(messages);
@@ -83,7 +86,7 @@ public final class Login extends WebPage {
 
             @Override
             public void onSubmit() {
-                HttpServletRequest request = ((WebRequestCycle) getRequestCycle()).getWebRequest().getHttpServletRequest();
+                HttpServletRequest servletRequest = (HttpServletRequest) getRequest().getContainerRequest();
 
                 String login = loginModel.getObject();
                 String password = passwordModel.getObject();
@@ -91,7 +94,7 @@ public final class Login extends WebPage {
                 boolean isError = false;
 
                 try {
-                    request.login(login, password);
+                    servletRequest.login(login, password);
                 } catch (ServletException e) {
                     log.warn("Login failed. User login: " + login + ", password: " + password + ".", e);
                     error(getString("login.error.unauthorized"));
@@ -107,7 +110,7 @@ public final class Login extends WebPage {
                             isError = true;
                             logBean.warn(Module.NAME, SecurityWebListener.class, null, null, EVENT.USER_LOGIN,
                                     "Заблокированный пользователь пытается попасть в систему. Логин пользователя: {0}, IP: {1}",
-                                    login, request.getRemoteAddr());
+                                    login, servletRequest.getRemoteAddr());
                         }
                     } catch (Exception e) {
                         log.error("", e);
@@ -118,7 +121,7 @@ public final class Login extends WebPage {
                     if (isError) {
                         //logout user.
                         try {
-                            request.logout();
+                            servletRequest.logout();
                         } catch (ServletException e) {
                             log.error("Couldn't to log out user.");
                             throw new IllegalStateException(e);
@@ -136,7 +139,7 @@ public final class Login extends WebPage {
                      */
                     //1. Log out
                     try {
-                        request.logout();
+                        servletRequest.logout();
                     } catch (ServletException e) {
                         log.error("Couldn't to logout user.");
                         throw new IllegalStateException(e);
@@ -148,7 +151,7 @@ public final class Login extends WebPage {
                     //3. Redirect
                     String url = LoginSuccessServlet.PATH + "?login=" + Hex.encodeHexString(login.getBytes())
                             + "&password=" + Hex.encodeHexString(password.getBytes());
-                    getRequestCycle().setRequestTarget(new RedirectRequestTarget(url));
+                    getRequestCycle().scheduleRequestHandlerAfterCurrent(new RedirectRequestHandler(url));
                 }
             }
         });

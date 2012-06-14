@@ -1,6 +1,6 @@
 package org.complitex.template.web.template;
 
-import org.apache.wicket.Request;
+import org.apache.wicket.request.Request;
 import org.complitex.dictionary.web.DictionaryFwSession;
 import org.complitex.dictionary.web.ISessionStorage;
 

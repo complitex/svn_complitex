@@ -1,6 +1,5 @@
 package org.complitex.template.web.component.toolbar;
 
-import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.ComponentTag;
@@ -11,6 +10,8 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IComponentAssignedModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.request.resource.ResourceReference;
+import org.complitex.dictionary.web.component.image.StaticImage;
 
 /**
  *
@@ -96,17 +97,17 @@ public abstract class ToolbarButton extends Panel {
     }
 
     protected Image newImage(String imageId, ResourceReference imageSrc, final IModel<String> titleModel) {
-        return new Image(imageId, imageSrc) {
+        Image image = new StaticImage(imageId, imageSrc) {
 
             @Override
             protected void onComponentTag(ComponentTag tag) {
                 super.onComponentTag(tag);
                 tag.put("title", titleModel.getObject());
-
-                if (tagId != null) {
-                    tag.put("id", tagId);
-                }
             }
         };
+        if (tagId != null) {
+            image.setMarkupId(tagId);
+        }
+        return image;
     }
 }

@@ -12,6 +12,7 @@ import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.util.visit.IVisit;
 import org.complitex.dictionary.converter.*;
 import org.complitex.dictionary.entity.*;
 import org.complitex.dictionary.entity.description.Entity;
@@ -34,6 +35,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import org.apache.wicket.util.string.Strings;
+import org.apache.wicket.util.visit.IVisitor;
 import org.complitex.dictionary.strategy.web.DomainObjectEditPanel;
 
 import org.complitex.dictionary.web.component.search.CollapsibleInputSearchComponent;
@@ -179,14 +181,14 @@ public class DomainObjectInputPanel extends Panel {
                     if (object.getId() == null) {
                         DomainObject parent = getModelObject(entity);
                         if (parent != null && parent.getId() != null && parent.getId() > 0) {
-                            DomainObjectEditPanel editPanel =
-                                    (DomainObjectEditPanel) visitParents(DomainObjectEditPanel.class, new IVisitor<Component>() {
+                            DomainObjectEditPanel editPanel = visitParents(DomainObjectEditPanel.class,
+                                    new IVisitor<Component, DomainObjectEditPanel>() {
 
-                                @Override
-                                public Object component(Component component) {
-                                    return component;
-                                }
-                            });
+                                        @Override
+                                        public void component(Component object, IVisit<DomainObjectEditPanel> visit) {
+                                            visit.stop((DomainObjectEditPanel) object);
+                                        }
+                                    });
                             editPanel.updateParentPermissions(target, parent.getSubjectIds());
                         }
                     }

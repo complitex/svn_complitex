@@ -1,10 +1,7 @@
 package org.complitex.organization.web;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import org.apache.wicket.Page;
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.template.web.pages.EntityDescription;
 import org.complitex.template.web.template.ITemplateLink;
@@ -12,6 +9,8 @@ import org.complitex.template.web.template.ResourceTemplateMenu;
 
 import java.util.List;
 import java.util.Locale;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.util.EjbBeanLocator;
 import org.complitex.template.web.security.SecurityRole;
@@ -45,7 +44,7 @@ public class OrganizationDescriptionTemplateMenu extends ResourceTemplateMenu {
 
             @Override
             public PageParameters getParameters() {
-                return new PageParameters(ImmutableMap.of(EntityDescription.ENTITY, "organization"));
+                return new PageParameters().set(EntityDescription.ENTITY, "organization");
             }
 
             @Override

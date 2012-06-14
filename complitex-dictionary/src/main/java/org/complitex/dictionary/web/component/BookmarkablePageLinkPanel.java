@@ -1,13 +1,12 @@
 package org.complitex.dictionary.web.component;
 
 import org.apache.wicket.Page;
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.Strings;
-import org.complitex.dictionary.web.component.scroll.AddIdBehavior;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -26,7 +25,7 @@ public class BookmarkablePageLinkPanel<T> extends Panel {
         super(id);
         Link link = new BookmarkablePageLink<T>("link", page, parameters);
         if (!Strings.isEmpty(markupId)) {
-            link.add(new AddIdBehavior(markupId));
+            link.setMarkupId(markupId);
         }
         link.add(new Label("label", label));
         add(link);

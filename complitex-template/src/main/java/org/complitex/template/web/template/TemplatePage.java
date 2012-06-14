@@ -3,10 +3,7 @@ package org.complitex.template.web.template;
 import com.google.common.collect.ImmutableList;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
-import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
-import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.html.CSSPackageResource;
-import org.apache.wicket.markup.html.JavascriptPackageResource;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
@@ -24,14 +21,16 @@ import org.complitex.resources.WebCommonResourceInitializer;
 import org.complitex.template.web.component.toolbar.HelpButton;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
 import org.complitex.template.web.security.SecurityRole;
-import org.odlabs.wiquery.core.commons.CoreJavaScriptResourceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import java.text.MessageFormat;
 import java.util.*;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.request.resource.PackageResourceReference;
 import org.complitex.dictionary.entity.PreferenceKey;
+import org.odlabs.wiquery.core.resources.CoreJavaScriptResourceReference;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -50,12 +49,15 @@ public abstract class TemplatePage extends WebPage {
     private Set<String> resourceBundle = new HashSet<String>();
     private boolean isPostBack;
 
-    protected TemplatePage() {
-        add(JavascriptPackageResource.getHeaderContribution(CoreJavaScriptResourceReference.get()));
-        add(JavascriptPackageResource.getHeaderContribution(WebCommonResourceInitializer.COMMON_JS));
-        add(JavascriptPackageResource.getHeaderContribution(TemplatePage.class, TemplatePage.class.getSimpleName() + ".js"));
-        add(CSSPackageResource.getHeaderContribution(WebCommonResourceInitializer.STYLE_CSS));
+    @Override
+    public void renderHead(IHeaderResponse response) {
+        response.renderJavaScriptReference(new TemplateApplicationCommonResourceGroup(
+                CoreJavaScriptResourceReference.get(), WebCommonResourceInitializer.COMMON_JS,
+                new PackageResourceReference(TemplatePage.class, TemplatePage.class.getSimpleName() + ".js"),
+                WebCommonResourceInitializer.STYLE_CSS));
+    }
 
+    protected TemplatePage() {
         add(new Link<Void>("home") {
 
             @Override
@@ -188,11 +190,12 @@ public abstract class TemplatePage extends WebPage {
      */
     private class TemplateMenu extends Fragment {
 
-        private String tagId;
-
         private TemplateMenu(String id, String markupId, MarkupContainer markupProvider, ITemplateMenu menu) {
             super(id, markupId, markupProvider);
-            this.tagId = menu.getTagId();
+
+            if (!Strings.isEmpty(menu.getTagId())) {
+                setMarkupId(menu.getTagId());
+            }
 
             add(new Label("menu_title", menu.getTitle(getLocale())));
             add(new ListView<ITemplateLink>("menu_items", menu.getTemplateLinks(getLocale())) {
@@ -201,28 +204,15 @@ public abstract class TemplatePage extends WebPage {
                 protected void populateItem(ListItem<ITemplateLink> item) {
                     final ITemplateLink templateLink = item.getModelObject();
                     BookmarkablePageLink link = new BookmarkablePageLink<Class<? extends Page>>("link", templateLink.getPage(),
-                            templateLink.getParameters()) {
+                            templateLink.getParameters());
+                    if (!Strings.isEmpty(templateLink.getTagId())) {
+                        link.setMarkupId(templateLink.getTagId());
+                    }
 
-                        @Override
-                        protected void onComponentTag(ComponentTag tag) {
-                            super.onComponentTag(tag);
-                            if (!Strings.isEmpty(templateLink.getTagId())) {
-                                tag.put("id", templateLink.getTagId());
-                            }
-                        }
-                    };
                     link.add(new Label("label", templateLink.getLabel(getLocale())));
                     item.add(link);
                 }
             });
-        }
-
-        @Override
-        protected void onComponentTag(ComponentTag tag) {
-            super.onComponentTag(tag);
-            if (!Strings.isEmpty(tagId)) {
-                tag.put("id", tagId);
-            }
         }
     }
 

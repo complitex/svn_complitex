@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.codec.binary.Hex;
 import org.complitex.template.web.security.SecurityWebListener;
-import org.complitex.template.web.template.TemplateWebApplication;
 
 /**
  *
@@ -32,8 +31,7 @@ public class LoginSuccessServlet extends HttpServlet {
             request.login(login, password);
             request.getSession().setAttribute(SecurityWebListener.LOGGED_IN, login);
 
-            //TODO: investigate better solution because this will be broken as url mounting overrides.
-            String url = context + "/?wicket:bookmarkablePage=:" + TemplateWebApplication.getHomePageClass().getName();
+            String url = context + "/";
             responce.encodeRedirectURL(url);
             responce.sendRedirect(url);
         } catch (Exception e) {

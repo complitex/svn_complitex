@@ -4,8 +4,8 @@
  */
 package org.complitex.template.web.pages;
 
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.complitex.dictionary.strategy.web.HistoryPanel;
 import static org.complitex.template.strategy.TemplateStrategy.*;
 import org.complitex.template.web.security.SecurityRole;
@@ -19,11 +19,11 @@ import org.complitex.template.web.template.TemplatePage;
 public class HistoryPage extends TemplatePage {
 
     public HistoryPage(PageParameters params) {
-        add(newHistoryPanel("historyPanel", params.getString(STRATEGY), params.getString(ENTITY), params.getAsLong(OBJECT_ID)));
+        add(newHistoryPanel("historyPanel", params.get(STRATEGY).toString(), params.get(ENTITY).toString(),
+                params.get(OBJECT_ID).toLong()));
     }
 
     protected HistoryPanel newHistoryPanel(String id, String strategyName, String entity, long objectId) {
         return new HistoryPanel(id, strategyName, entity, objectId);
     }
 }
-

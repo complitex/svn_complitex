@@ -4,7 +4,7 @@
  */
 package org.complitex.dictionary.util;
 
-import org.apache.wicket.util.lang.Objects;
+import org.apache.wicket.util.lang.WicketObjects;
 
 /**
  *
@@ -16,6 +16,6 @@ public final class CloneUtil {
     }
 
     public static <T> T cloneObject(T object) {
-        return (T) Objects.cloneObject(object);
+        return (T) WicketObjects.cloneObject(object);
     }
 }

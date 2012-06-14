@@ -13,6 +13,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
+import org.apache.wicket.util.visit.IVisit;
 import org.complitex.address.strategy.building.BuildingStrategy;
 import org.complitex.address.strategy.building.entity.Building;
 import org.complitex.dictionary.entity.Attribute;
@@ -27,6 +28,7 @@ import org.complitex.dictionary.web.component.list.AjaxRemovableListView;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
 
 import javax.ejb.EJB;
+import org.apache.wicket.util.visit.IVisitor;
 import org.complitex.dictionary.web.component.search.CollapsibleInputSearchComponent;
 
 /**
@@ -46,12 +48,11 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
 
     private FeedbackPanel findFeedbackPanel() {
         if (messages == null) {
-            getPage().visitChildren(FeedbackPanel.class, new IVisitor<FeedbackPanel>() {
+            messages = getPage().visitChildren(FeedbackPanel.class, new IVisitor<FeedbackPanel, FeedbackPanel>() {
 
                 @Override
-                public Object component(FeedbackPanel feedbackPanel) {
-                    messages = feedbackPanel;
-                    return STOP_TRAVERSAL;
+                public void component(FeedbackPanel object, IVisit<FeedbackPanel> visit) {
+                    visit.stop(object);
                 }
             });
         }
@@ -165,14 +166,13 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
                 DomainObject newBuildingAddress = buildingAddressStrategy.newInstance();
                 building.addAlternativeAddress(newBuildingAddress);
 
-                target.addComponent(attributesContainer);
-                target.addComponent(feedbackPanel);
+                target.add(attributesContainer);
+                target.add(feedbackPanel);
             }
 
             @Override
             protected void onError(AjaxRequestTarget target, Form<?> form) {
-                super.onError(target, form);
-                target.addComponent(feedbackPanel);
+                target.add(feedbackPanel);
             }
         };
         add.setVisible(enabled);

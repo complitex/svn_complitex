@@ -1,8 +1,6 @@
 package org.complitex.admin.web;
 
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
@@ -38,9 +36,12 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.complitex.dictionary.util.StringUtil;
 
 /**
@@ -92,14 +93,18 @@ public class UserList extends ScrollListPage {
                 for (AttributeExample attributeExample : userFilter.getAttributeExamples()) {
                     attributeExample.setValue(null);
                 }
-                target.addComponent(content);
+                target.add(content);
             }
         });
         filterForm.add(new AjaxButton("submit", filterForm) {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-                target.addComponent(content);
+                target.add(content);
+            }
+
+            @Override
+            protected void onError(AjaxRequestTarget target, Form<?> form) {
             }
         });
 
@@ -158,7 +163,7 @@ public class UserList extends ScrollListPage {
                 return userBean.getUsersCount(filterModel.getObject());
             }
         };
-        dataProvider.setSort("login", true);
+        dataProvider.setSort("login", SortOrder.ASCENDING);
 
         DataView<User> dataView = new DataView<User>("users", dataProvider, 1) {
 
@@ -185,11 +190,11 @@ public class UserList extends ScrollListPage {
 
                 item.add(new BookmarkablePageLinkPanel<User>("action_edit", getString("action_edit"),
                         ScrollListBehavior.SCROLL_PREFIX + String.valueOf(user.getId()),
-                        UserEdit.class, new PageParameters("user_id=" + user.getId())));
+                        UserEdit.class, new PageParameters().set("user_id", user.getId())));
 
                 item.add(new BookmarkablePageLinkPanel<User>("action_copy", getString("action_copy"),
                         ScrollListBehavior.SCROLL_PREFIX + String.valueOf(user.getId()),
-                        UserEdit.class, new PageParameters("user_id=" + user.getId() + ",action=copy")));
+                        UserEdit.class, new PageParameters().set("user_id", user.getId()).set("action", "copy")));
             }
         };
         filterForm.add(dataView);

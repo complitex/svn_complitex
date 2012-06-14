@@ -5,10 +5,9 @@
 package org.complitex.template.web.pages;
 
 import javax.ejb.EJB;
-import static com.google.common.collect.ImmutableMap.*;
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.authorization.UnauthorizedInstantiationException;
-import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.strategy.web.EntityDescriptionPanel;
@@ -27,7 +26,7 @@ public class EntityDescription extends TemplatePage {
     private StrategyFactory strategyFactory;
 
     public EntityDescription(PageParameters params) {
-        String entity = params.getString(ENTITY);
+        String entity = params.get(ENTITY).toString();
         authorize(entity);
         add(newDescriptionPanel("entityDescriptionPanel", entity));
     }
@@ -42,7 +41,6 @@ public class EntityDescription extends TemplatePage {
     }
 
     protected EntityDescriptionPanel newDescriptionPanel(String id, String entity) {
-        return new EntityDescriptionPanel(id, entity, new PageParameters(of(ENTITY, entity)));
+        return new EntityDescriptionPanel(id, entity, new PageParameters().set(ENTITY, entity));
     }
 }
-

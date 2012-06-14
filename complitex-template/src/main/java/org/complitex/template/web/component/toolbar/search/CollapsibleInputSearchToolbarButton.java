@@ -4,10 +4,12 @@
  */
 package org.complitex.template.web.component.toolbar.search;
 
-import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.CSSPackageResource;
-import org.apache.wicket.markup.html.JavascriptPackageResource;
+import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.request.resource.PackageResourceReference;
+import org.apache.wicket.request.resource.SharedResourceReference;
+import org.apache.wicket.util.visit.IVisit;
+import org.apache.wicket.util.visit.IVisitor;
 import org.complitex.dictionary.web.component.search.CollapsibleInputSearchComponent;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
 
@@ -18,22 +20,25 @@ import org.complitex.template.web.component.toolbar.ToolbarButton;
 public class CollapsibleInputSearchToolbarButton extends ToolbarButton {
 
     public CollapsibleInputSearchToolbarButton(String id) {
-        super(id, new ResourceReference("images/gear_blue.png"), "collapsible_input_search_toolbar_button_title", true);
+        super(id, new SharedResourceReference("images/gear_blue.png"), "collapsible_input_search_toolbar_button_title", true);
+    }
 
-        add(CSSPackageResource.getHeaderContribution(CollapsibleSearchToolbarButton.class,
+    @Override
+    public void renderHead(IHeaderResponse response) {
+        response.renderCSSReference(new PackageResourceReference(CollapsibleSearchToolbarButton.class,
                 CollapsibleSearchToolbarButton.class.getSimpleName() + ".css"));
-        add(JavascriptPackageResource.getHeaderContribution(CollapsibleSearchToolbarButton.class,
+        response.renderJavaScriptReference(new PackageResourceReference(CollapsibleSearchToolbarButton.class,
                 CollapsibleSearchToolbarButton.class.getSimpleName() + ".js"));
     }
 
     @Override
     protected void onClick(final AjaxRequestTarget target) {
-        getPage().visitChildren(CollapsibleInputSearchComponent.class, new IVisitor<CollapsibleInputSearchComponent>() {
+        getPage().visitChildren(CollapsibleInputSearchComponent.class, new IVisitor<CollapsibleInputSearchComponent, Void>() {
 
             @Override
-            public Object component(CollapsibleInputSearchComponent collapsibleInputSearchComponent) {
+            public void component(CollapsibleInputSearchComponent collapsibleInputSearchComponent, IVisit<Void> visit) {
                 collapsibleInputSearchComponent.toggle(target);
-                return IVisitor.CONTINUE_TRAVERSAL;
+                visit.dontGoDeeper();
             }
         });
     }

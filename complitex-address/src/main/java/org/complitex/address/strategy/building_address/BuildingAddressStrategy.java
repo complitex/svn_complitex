@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.wicket.Component;
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.util.string.Strings;
@@ -25,6 +24,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.io.Serializable;
 import java.util.*;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 /**
  *
