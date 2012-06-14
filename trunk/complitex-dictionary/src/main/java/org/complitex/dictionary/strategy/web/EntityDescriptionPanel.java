@@ -8,7 +8,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.wicket.MarkupContainer;
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -40,6 +39,7 @@ import javax.ejb.EJB;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.complitex.dictionary.strategy.IStrategy;
 
 /**
@@ -213,7 +213,7 @@ public class EntityDescriptionPanel extends Panel {
                 EntityAttributeType attributeType = entityBean.newAttributeType();
                 attributeType.getEntityAttributeValueTypes().add(new EntityAttributeValueType());
                 description.getEntityAttributeTypes().add(attributeType);
-                target.addComponent(attributesContainer);
+                target.add(attributesContainer);
             }
         };
         form.add(addAttribute);

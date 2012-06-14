@@ -3,7 +3,7 @@
 
 var Complitex = Complitex || {};
 Complitex.Common = {
-    setCookie : function(name, value, expires){
+    addCookie : function(name, value, expires){
         // set time, it's in milliseconds
         var today = new Date();
         today.setTime( today.getTime() );
@@ -47,39 +47,6 @@ Complitex.Common = {
         return result;
     },
 
-//    getCookieName : function(substring){
-//        // first we'll split this cookie up into name/value pairs
-//        // note: document.cookie only returns name=value, not the other components
-//        var a_all_cookies = document.cookie.split( ';' );
-//        var a_temp_cookie = '';
-//        var cookie_name = '';
-//        var b_cookie_found = false; // set boolean t/f default f
-//
-//        for (var i = 0; i < a_all_cookies.length; i++ )
-//        {
-//            // now we'll split apart each name=value pair
-//            a_temp_cookie = a_all_cookies[i].split( '=' );
-//
-//
-//            // and trim left/right whitespace while we're at it
-//            cookie_name = a_temp_cookie[0].replace(/^\s+|\s+$/g, '');
-//
-//            // if the extracted name matches passed check_name
-//            if (cookie_name.indexOf(substring, 0) > -1)
-//            {
-//
-//                return cookie_name;
-//                break;
-//            }
-//            a_temp_cookie = null;
-//            cookie_name = '';
-//        }
-//        if ( !b_cookie_found )
-//        {
-//            return null;
-//        }
-//    },
-
     // this fixes an issue with the old method, ambiguous values
     // with this test document.cookie.indexOf( name + "=" );
     getCookie : function(name){
@@ -111,7 +78,6 @@ Complitex.Common = {
                 }
                 // note that in cases where cookie is initialized but no value, null is returned
                 return cookie_value;
-                break;
             }
             a_temp_cookie = null;
             cookie_name = '';
@@ -120,6 +86,11 @@ Complitex.Common = {
         {
             return null;
         }
+    },
+    
+    setCookie : function(name, value, expires){
+        Complitex.Common.deleteCookie(name);
+        Complitex.Common.addCookie(name, value, expires);
     },
 
     deleteCookie : function(name){
@@ -131,10 +102,17 @@ Complitex.Common = {
             ( ( domain ) ? ";domain=" + domain : "" ) +
             ";expires=Thu, 01-Jan-1970 00:00:01 GMT";
     },
-
+    
     getApplicationContext : function(){
+        var applicationContext;
         var pathname = window.location.pathname;
-        return pathname;
+        var secondSlashIndex = pathname.indexOf("/", 1);
+        if(secondSlashIndex > 0){
+            applicationContext = pathname.substring(0, secondSlashIndex);
+        } else {
+            applicationContext = pathname;
+        }
+        return applicationContext+"/";
     },
 
     getDomain : function(){

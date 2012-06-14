@@ -1,6 +1,6 @@
 package org.complitex.template.web.component.toolbar;
 
-import org.apache.wicket.ResourceReference;
+import org.apache.wicket.request.resource.SharedResourceReference;
 
 /**
  *
@@ -12,6 +12,6 @@ public abstract class DisableItemButton extends ToolbarButton {
     private static final String TITLE_KEY = "image.title.disableItem";
 
     public DisableItemButton(String id) {
-        super(id, new ResourceReference(IMAGE_SRC), TITLE_KEY);
+        super(id, new SharedResourceReference(IMAGE_SRC), TITLE_KEY);
     }
 }

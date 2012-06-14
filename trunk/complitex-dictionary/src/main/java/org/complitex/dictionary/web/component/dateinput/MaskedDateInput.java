@@ -6,9 +6,10 @@ package org.complitex.dictionary.web.component.dateinput;
 
 import java.util.Date;
 import java.util.Locale;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.request.resource.PackageResourceReference;
 import org.complitex.dictionary.web.component.DatePicker;
-import org.odlabs.wiquery.core.commons.WiQueryResourceManager;
 import org.odlabs.wiquery.core.javascript.JsStatement;
 import org.odlabs.wiquery.ui.datepicker.DateOption;
 
@@ -94,17 +95,17 @@ public class MaskedDateInput extends DatePicker<Date> {
     }
 
     @Override
-    public void contribute(WiQueryResourceManager wiQueryResourceManager) {
-        super.contribute(wiQueryResourceManager);
+    public void renderHead(IHeaderResponse response) {
+        super.renderHead(response);
 
-        wiQueryResourceManager.addJavaScriptResource(MaskedDateInput.class, "jquery.masked_dateinput.js");
+        response.renderJavaScriptReference(new PackageResourceReference(MaskedDateInput.class, "jquery.masked_dateinput.js"));
 
         // If locale is null or current locale is US: no translation is needed.
         Locale locale = getLocale();
         if (locale != null && !locale.equals(Locale.US)) {
-            wiQueryResourceManager.addJavaScriptResource(new MaskedDateInputLanguageResourceReference(locale));
+            response.renderJavaScriptReference(new MaskedDateInputLanguageResourceReference(locale));
         }
 
-        wiQueryResourceManager.addCssResource(MaskedDateInput.class, "jquery.masked_dateinput.css");
+        response.renderCSSReference(new PackageResourceReference(MaskedDateInput.class, "jquery.masked_dateinput.css"));
     }
 }

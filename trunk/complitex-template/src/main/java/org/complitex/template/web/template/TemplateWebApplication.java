@@ -1,8 +1,6 @@
 package org.complitex.template.web.template;
 
-import org.apache.wicket.Request;
-import org.apache.wicket.ResourceReference;
-import org.apache.wicket.Response;
+import org.apache.wicket.Application;
 import org.apache.wicket.Session;
 import org.complitex.dictionary.entity.Preference;
 import org.complitex.dictionary.service.PreferenceBean;
@@ -25,10 +23,17 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.wicket.IApplicationListener;
 import org.apache.wicket.Page;
 import org.apache.wicket.application.IClassResolver;
+import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.html.IHeaderResponseDecorator;
+import org.apache.wicket.request.Request;
+import org.apache.wicket.request.Response;
+import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.mybatis.inject.JavaEE6ModuleNamingStrategy;
+import org.complitex.dictionary.web.component.image.markup.WicketStaticImageResolver;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
 import org.complitex.template.web.pages.access.AccessDeniedPage;
 import org.complitex.template.web.pages.welcome.WelcomePage;
@@ -54,6 +59,25 @@ public abstract class TemplateWebApplication extends ServletAuthWebApplication i
 
         getApplicationSettings().setPageExpiredErrorPage(SessionExpiredPage.class);
         getApplicationSettings().setAccessDeniedPage(AccessDeniedPage.class);
+
+        getApplicationListeners().add(new IApplicationListener() {
+
+            @Override
+            public void onAfterInitialized(Application application) {
+                application.setHeaderResponseDecorator(new IHeaderResponseDecorator() {
+
+                    public IHeaderResponse decorate(IHeaderResponse response) {
+                        return new TemplateApplicationDecoratingHeaderResponse(response);
+                    }
+                });
+
+                application.getPageSettings().addComponentResolver(new WicketStaticImageResolver());
+            }
+
+            @Override
+            public void onBeforeDestroyed(Application application) {
+            }
+        });
     }
 
     @Override
@@ -61,7 +85,6 @@ public abstract class TemplateWebApplication extends ServletAuthWebApplication i
         return theme;
     }
 
-    @SuppressWarnings({"unchecked", "ConstantConditions"})
     private void initializeTemplateConfig() throws RuntimeException {
         try {
             Iterator<URL> resources = getApplicationSettings().getClassResolver().getResources(TEMPLATE_CONFIG_FILE_NAME);
@@ -111,7 +134,7 @@ public abstract class TemplateWebApplication extends ServletAuthWebApplication i
     }
 
     private void initializeJEEInjector() {
-        addComponentInstantiationListener(new JavaEEComponentInjector(this, new JavaEE6ModuleNamingStrategy()));
+        getComponentInstantiationListeners().add(new JavaEEComponentInjector(this, new JavaEE6ModuleNamingStrategy()));
     }
 
     public Collection<Class<ITemplateMenu>> getMenuClasses() {

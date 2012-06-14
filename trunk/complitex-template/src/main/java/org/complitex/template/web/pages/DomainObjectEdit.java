@@ -1,7 +1,8 @@
 package org.complitex.template.web.pages;
 
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import com.google.common.collect.ImmutableList;
-import org.apache.wicket.PageParameters;
 import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
 import org.complitex.dictionary.strategy.web.DomainObjectEditPanel;
 import org.complitex.template.web.component.toolbar.DisableItemButton;
@@ -12,7 +13,6 @@ import org.complitex.template.web.template.FormTemplatePage;
 import java.util.List;
 import javax.ejb.EJB;
 import org.apache.wicket.authorization.UnauthorizedInstantiationException;
-import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.template.web.component.toolbar.DeleteItemButton;
 import org.complitex.template.web.security.SecurityRole;
@@ -32,11 +32,12 @@ public class DomainObjectEdit extends FormTemplatePage {
     private String strategy;
 
     public DomainObjectEdit(PageParameters parameters) {
-        init(parameters.getString(ENTITY), parameters.getString(STRATEGY), parameters.getAsLong(OBJECT_ID),
-                parameters.getAsLong(PARENT_ID), parameters.getString(PARENT_ENTITY), parameters.getString(BACK_INFO_SESSION_KEY));
+        init(parameters.get(ENTITY).toString(), parameters.get(STRATEGY).toString(), parameters.get(OBJECT_ID).toOptionalLong(),
+                parameters.get(PARENT_ID).toOptionalLong(), parameters.get(PARENT_ENTITY).toString(),
+                parameters.get(BACK_INFO_SESSION_KEY).toString());
     }
 
-    protected void init(String entity, String strategy, Long objectId, Long parentId, String parentEntity, 
+    protected void init(String entity, String strategy, Long objectId, Long parentId, String parentEntity,
             String backInfoSessionKey) {
         this.entity = entity;
         this.strategy = strategy;
@@ -45,7 +46,7 @@ public class DomainObjectEdit extends FormTemplatePage {
             throw new UnauthorizedInstantiationException(getClass());
         }
 
-        add(editPanel = newEditPanel("editPanel", entity, strategy, objectId, parentId, parentEntity, 
+        add(editPanel = newEditPanel("editPanel", entity, strategy, objectId, parentId, parentEntity,
                 DomainObjectList.SCROLL_PARAMETER, backInfoSessionKey));
     }
 
@@ -102,4 +103,3 @@ public class DomainObjectEdit extends FormTemplatePage {
         });
     }
 }
-

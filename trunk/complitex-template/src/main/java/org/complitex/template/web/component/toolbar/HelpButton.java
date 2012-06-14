@@ -1,6 +1,6 @@
 package org.complitex.template.web.component.toolbar;
 
-import org.apache.wicket.ResourceReference;
+import org.apache.wicket.request.resource.SharedResourceReference;
 
 /**
  *
@@ -12,7 +12,7 @@ public class HelpButton extends ToolbarButton {
     private static final String TITLE_KEY = "image.title.help";
 
     public HelpButton(String id) {
-        super(id, new ResourceReference(IMAGE_SRC), TITLE_KEY);
+        super(id, new SharedResourceReference(IMAGE_SRC), TITLE_KEY);
     }
 
     @Override

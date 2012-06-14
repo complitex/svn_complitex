@@ -3,7 +3,7 @@
  * @author Artem
  */
 
-(function( $ ){
+(function($){
     $.fn.extend({
         collapsible_fieldset: function(){
             return this.each(function(){
@@ -11,9 +11,7 @@
                 var legend = fieldset.children("legend");
                 var content = fieldset.children(".fs_content");
                 var image = legend.find(".fs_image");
-                if(image.hasClass("plus")){
-                    content.hide();
-                }
+                
                 legend.bind("click", function(){
                     if(image.hasClass("minus")){
                         image.removeClass("minus").addClass("plus");
@@ -25,4 +23,4 @@
             });
         }
     });
-})( jQuery );
+})(jQuery);

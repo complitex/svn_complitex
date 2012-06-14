@@ -8,6 +8,7 @@ import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.complitex.template.strategy.TemplateStrategy;
 
 @Singleton(name = "AddressModule")
@@ -15,15 +16,14 @@ import org.complitex.template.strategy.TemplateStrategy;
 public class Module {
 
     public static final String NAME = "org.complitex.address";
-
     @EJB
     private AddressInfoProvider addressInfoProvider;
 
     @PostConstruct
     public void init() {
         for (String e : addressInfoProvider.getAddressInfo().getAddresses()) {
-            LogManager.get().registerLink(DomainObject.class.getName(), e, DomainObjectEdit.class, "entity=" + e,
-                    TemplateStrategy.OBJECT_ID);
+            LogManager.get().registerLink(DomainObject.class.getName(), e, DomainObjectEdit.class,
+                    new PageParameters().set(TemplateStrategy.ENTITY, e), TemplateStrategy.OBJECT_ID);
         }
     }
 }

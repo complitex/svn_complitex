@@ -1,6 +1,6 @@
 package org.complitex.organization.strategy.web.edit;
 
-import org.apache.wicket.Component;
+import org.apache.wicket.util.visit.IVisit;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.strategy.web.DomainObjectEditPanel;
 import org.complitex.dictionary.strategy.web.validate.IValidator;
@@ -10,6 +10,7 @@ import org.complitex.organization.strategy.OrganizationStrategy;
 
 import java.text.MessageFormat;
 import java.util.Locale;
+import org.apache.wicket.util.visit.IVisitor;
 import org.complitex.dictionary.util.AttributeUtil;
 
 /**
@@ -42,14 +43,14 @@ public class OrganizationValidator implements IValidator {
 
     private OrganizationEditComponent getEditComponent(DomainObjectEditPanel editPanel) {
         if (organizationEditComponent == null) {
-            editPanel.visitChildren(OrganizationEditComponent.class, new Component.IVisitor<OrganizationEditComponent>() {
+            organizationEditComponent = editPanel.visitChildren(OrganizationEditComponent.class,
+                    new IVisitor<OrganizationEditComponent, OrganizationEditComponent>() {
 
-                @Override
-                public Object component(OrganizationEditComponent component) {
-                    organizationEditComponent = component;
-                    return STOP_TRAVERSAL;
-                }
-            });
+                        @Override
+                        public void component(OrganizationEditComponent object, IVisit<OrganizationEditComponent> visit) {
+                            visit.stop(object);
+                        }
+                    });
         }
 
         return organizationEditComponent;

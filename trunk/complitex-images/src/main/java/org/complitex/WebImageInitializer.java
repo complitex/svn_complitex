@@ -3,16 +3,14 @@ package org.complitex;
 import org.apache.wicket.Application;
 import org.apache.wicket.IInitializer;
 import org.apache.wicket.SharedResources;
-import org.apache.wicket.markup.html.PackageResource;
 import org.apache.wicket.util.file.Files;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.wicket.request.resource.PackageResourceReference;
 
 /**
  *
@@ -20,7 +18,6 @@ import java.util.List;
  */
 public final class WebImageInitializer implements IInitializer {
 
-    private static final Logger log = LoggerFactory.getLogger(WebImageInitializer.class);
     private static final List<String> IMAGE_EXTENSIONS = Arrays.asList(
             "jpg", "jpeg", "gif", "bmp", "png");
     private static final String IMAGES_DIRECTORY_NAME = "images";
@@ -50,10 +47,14 @@ public final class WebImageInitializer implements IInitializer {
                 String relatedPath = IMAGES_DIRECTORY_NAME + "/" + image.getName();
                 //Now resource name is equal to physical related path but it is not required and may will be changed in future.
                 String resourceName = relatedPath;
-                sharedResources.add(resourceName, PackageResource.get(getClass(), relatedPath));
+                sharedResources.add(resourceName, new PackageResourceReference(getClass(), relatedPath).getResource());
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void destroy(Application application) {
     }
 }

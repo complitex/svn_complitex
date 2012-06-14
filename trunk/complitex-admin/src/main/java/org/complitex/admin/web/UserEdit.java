@@ -1,10 +1,10 @@
 package org.complitex.admin.web;
 
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.*;
@@ -72,7 +72,7 @@ public class UserEdit extends FormTemplatePage {
 
     public UserEdit(final PageParameters parameters) {
         super();
-        init(parameters.getAsLong("user_id"), "copy".equals(parameters.getString("action")));
+        init(parameters.get("user_id").toOptionalLong(), "copy".equals(parameters.get("action").toString()));
     }
 
     private void init(Long userId, boolean copyUser) {
@@ -219,8 +219,8 @@ public class UserEdit extends FormTemplatePage {
                     public void onClick(AjaxRequestTarget target) {
                         userModel.getObject().getUserOrganizations().remove(item.getIndex());
                         listView.removeAll();
-                        target.addComponent(organizationContainer);
-                        target.addComponent(messages);
+                        target.add(organizationContainer);
+                        target.add(messages);
                     }
                 });
             }
@@ -232,8 +232,8 @@ public class UserEdit extends FormTemplatePage {
             @Override
             public void onClick(AjaxRequestTarget target) {
                 userModel.getObject().getUserOrganizations().add(new UserOrganization());
-                target.addComponent(organizationContainer);
-                target.addComponent(messages);
+                target.add(organizationContainer);
+                target.add(messages);
             }
         });
 
@@ -285,19 +285,18 @@ public class UserEdit extends FormTemplatePage {
                         getSession().info(getString("info.saved"));
                         back(user.getId());
                     } else {
-                        target.addComponent(messages);
+                        target.add(messages);
                     }
                 } catch (Exception e) {
                     log.error("Ошибка сохранения пользователя", e);
                     error(getString("error.saved"));
-                    target.addComponent(messages);
+                    target.add(messages);
                 }
             }
 
             @Override
             protected void onError(AjaxRequestTarget target, Form<?> form) {
-                super.onError(target, form);
-                target.addComponent(messages);
+                target.add(messages);
             }
         };
         form.add(save);
@@ -426,7 +425,7 @@ public class UserEdit extends FormTemplatePage {
     private void back(Long userId) {
         if (userId != null) {
             PageParameters params = new PageParameters();
-            params.put(UserList.SCROLL_PARAMETER, userId);
+            params.set(UserList.SCROLL_PARAMETER, userId);
             setResponsePage(UserList.class, params);
         } else {
             setResponsePage(UserList.class);

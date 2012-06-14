@@ -1,6 +1,5 @@
 package org.complitex.template.web.pages;
 
-import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
@@ -20,13 +19,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 04.10.2010 13:21:37
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)
-public class ConfigEdit extends FormTemplatePage{
+public class ConfigEdit extends FormTemplatePage {
+
     @EJB(name = "ConfigBean")
     private ConfigBean configBean;
 
@@ -36,14 +37,14 @@ public class ConfigEdit extends FormTemplatePage{
         add(new Label("title", getString("title")));
         add(new FeedbackPanel("messages"));
 
-        Form form = new Form("form");
+        Form<Void> form = new Form<Void>("form");
         add(form);
 
         final List<IConfig> configs = new ArrayList<IConfig>(configBean.getConfigs());
 
         final Map<IConfig, IModel<String>> model = new HashMap<IConfig, IModel<String>>();
 
-        for (IConfig config : configs){
+        for (IConfig config : configs) {
             model.put(config, new Model<String>(configBean.getString(config, true)));
         }
 
@@ -52,7 +53,7 @@ public class ConfigEdit extends FormTemplatePage{
 
         final Map<String, List<IConfig>> configGroupMap = configBean.getConfigGroups();
 
-        ListView<String> groupNames = new ListView<String>("groupNames", new ArrayList<String>(configGroupMap.keySet())){
+        ListView<String> groupNames = new ListView<String>("groupNames", new ArrayList<String>(configGroupMap.keySet())) {
 
             @Override
             protected void populateItem(ListItem<String> item) {
@@ -60,7 +61,8 @@ public class ConfigEdit extends FormTemplatePage{
 
                 item.add(new Label("groupName", getStringOrKey(groupKey)));
 
-                item.add(new ListView<IConfig>("listView", configGroupMap.get(groupKey)){
+                item.add(new ListView<IConfig>("listView", configGroupMap.get(groupKey)) {
+
                     {
                         setReuseItems(true);
                     }
@@ -78,13 +80,14 @@ public class ConfigEdit extends FormTemplatePage{
         groupNames.setReuseItems(true);
         form.add(groupNames);
 
-        Button save = new Button("save"){
+        Button save = new Button("save") {
+
             @Override
             public void onSubmit() {
-                for (IConfig configName : configs){
+                for (IConfig configName : configs) {
                     String value = model.get(configName).getObject();
 
-                    if (!configBean.getString(configName, true).equals(value)){
+                    if (!configBean.getString(configName, true).equals(value)) {
                         configBean.update(configName, value);
                     }
                 }

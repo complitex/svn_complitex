@@ -1,6 +1,7 @@
 package org.complitex.admin.web;
 
-import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -26,10 +27,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.web.component.back.BackInfo;
 import org.complitex.dictionary.web.component.back.BackInfoManager;
+import org.complitex.template.web.template.MenuManager;
 import static org.complitex.dictionary.web.DictionaryFwSession.*;
 
 /**
@@ -132,7 +133,7 @@ public class ProfilePage extends FormTemplatePage {
             }
         });
 
-        final String backInfoSessionKey = parameters.getString(BACK_INFO_SESSION_KEY);
+        final String backInfoSessionKey = parameters.get(BACK_INFO_SESSION_KEY).toString();
         form.add(new Button("cancel") {
 
             @Override
@@ -147,5 +148,7 @@ public class ProfilePage extends FormTemplatePage {
                 setResponsePage(getApplication().getHomePage());
             }
         });
+        
+        MenuManager.removeMenuItem();
     }
 }

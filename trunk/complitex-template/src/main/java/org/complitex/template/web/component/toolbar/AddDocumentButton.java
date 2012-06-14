@@ -1,6 +1,6 @@
 package org.complitex.template.web.component.toolbar;
 
-import org.apache.wicket.ResourceReference;
+import org.apache.wicket.request.resource.SharedResourceReference;
 
 /**
  *
@@ -12,6 +12,6 @@ public abstract class AddDocumentButton extends ToolbarButton {
     private static final String TITLE_KEY = "image.title.addDocument";
 
     public AddDocumentButton(String id) {
-        super(id, new ResourceReference(IMAGE_SRC), TITLE_KEY, "AddDocumentButton");
+        super(id, new SharedResourceReference(IMAGE_SRC), TITLE_KEY, "AddDocumentButton");
     }
 }

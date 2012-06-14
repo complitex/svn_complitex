@@ -10,9 +10,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.ejb.EJB;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.request.resource.PackageResourceReference;
 import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.entity.DomainObject;
@@ -20,8 +22,7 @@ import org.complitex.dictionary.service.PermissionBean;
 import org.complitex.dictionary.web.component.DisableAwareListMultipleChoice;
 import org.complitex.dictionary.web.component.DomainObjectDisableAwareRenderer;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
-import org.odlabs.wiquery.core.commons.IWiQueryPlugin;
-import org.odlabs.wiquery.core.commons.WiQueryResourceManager;
+import org.odlabs.wiquery.core.IWiQueryPlugin;
 import org.odlabs.wiquery.core.javascript.JsQuery;
 import org.odlabs.wiquery.core.javascript.JsStatement;
 import org.odlabs.wiquery.ui.commons.WiQueryUIPlugin;
@@ -212,8 +213,11 @@ public class DomainObjectPermissionsPanel extends Panel implements IWiQueryPlugi
     }
 
     @Override
-    public void contribute(WiQueryResourceManager wiQueryResourceManager) {
-        wiQueryResourceManager.addJavaScriptResource(DomainObjectPermissionsPanel.class, DomainObjectPermissionsPanel.class.getSimpleName() + ".js");
+    public void renderHead(IHeaderResponse response) {
+        response.renderJavaScriptReference(
+                new PackageResourceReference(DomainObjectPermissionsPanel.class,
+                DomainObjectPermissionsPanel.class.getSimpleName() + ".js"));
+
     }
 
     @Override

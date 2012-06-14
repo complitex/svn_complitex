@@ -1,11 +1,9 @@
 package org.complitex.logging.web;
 
-import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
-import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.datetime.markup.html.basic.DateLabel;
-import org.apache.wicket.markup.html.JavascriptPackageResource;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
@@ -33,13 +31,15 @@ import org.complitex.resources.WebCommonResourceInitializer;
 
 import javax.ejb.EJB;
 import java.util.*;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
+import org.apache.wicket.request.resource.SharedResourceReference;
 import org.complitex.dictionary.web.component.datatable.DataProvider;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 19.08.2010 13:08:10
  *
- * todo добавить механизм регистрации внешних файлов свойств
  */
 @AuthorizeInstantiation(SecurityRole.ADMIN_MODULE_EDIT)
 public class LogList extends TemplatePage {
@@ -54,10 +54,13 @@ public class LogList extends TemplatePage {
         init();
     }
 
+    @Override
+    public void renderHead(IHeaderResponse response) {
+        super.renderHead(response);
+        response.renderJavaScriptReference(WebCommonResourceInitializer.IE_SELECT_FIX_JS);
+    }
+
     private void init() {
-
-        add(JavascriptPackageResource.getHeaderContribution(WebCommonResourceInitializer.IE_SELECT_FIX_JS));
-
         add(new Label("title", getString("title")));
         add(new FeedbackPanel("messages"));
 
@@ -190,7 +193,7 @@ public class LogList extends TemplatePage {
                 return logListBean.getLogsCount(filterModel.getObject());
             }
         };
-        dataProvider.setSort("date", false);
+        dataProvider.setSort("date", SortOrder.DESCENDING);
 
         //Таблица журнала событий
         DataView<Log> dataView = new DataView<Log>("logs", dataProvider, 1) {
@@ -213,7 +216,7 @@ public class LogList extends TemplatePage {
                 logChangePanel.setVisible(!log.getLogChanges().isEmpty() && expandModel.contains(log.getId()));
                 item.add(logChangePanel);
 
-                Image expandImage = new Image("expand_image", new ResourceReference(
+                Image expandImage = new Image("expand_image", new SharedResourceReference(
                         expandModel.contains(log.getId()) ? IMAGE_ARROW_TOP : IMAGE_ARROW_BOTTOM));
 
                 AjaxSubmitLink expandLink = new AjaxSubmitLink("expand_link") {
@@ -225,7 +228,11 @@ public class LogList extends TemplatePage {
                         } else {
                             expandModel.add(log.getId());
                         }
-                        target.addComponent(filterForm);
+                        target.add(filterForm);
+                    }
+
+                    @Override
+                    protected void onError(AjaxRequestTarget target, Form<?> form) {
                     }
                 };
                 expandLink.setDefaultFormProcessing(false);

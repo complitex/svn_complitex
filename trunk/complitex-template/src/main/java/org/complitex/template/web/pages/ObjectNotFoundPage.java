@@ -5,13 +5,13 @@
 package org.complitex.template.web.pages;
 
 import org.apache.wicket.Page;
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.markup.html.CSSPackageResource;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.complitex.resources.WebCommonResourceInitializer;
 
 /**
@@ -52,10 +52,13 @@ public class ObjectNotFoundPage extends WebPage {
         return new BookmarkablePageLink<Void>(id, backPageClass);
     }
 
-    private void init(Link backLink) {
-        add(CSSPackageResource.getHeaderContribution(WebCommonResourceInitializer.STYLE_CSS));
+    private void init(Link<Void> backLink) {
         add(new Label("title", new ResourceModel("title")));
         add(backLink);
     }
-}
 
+    @Override
+    public void renderHead(IHeaderResponse response) {
+        response.renderCSSReference(WebCommonResourceInitializer.STYLE_CSS);
+    }
+}

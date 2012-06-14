@@ -15,7 +15,6 @@ import java.util.List;
 public class LogListBean extends AbstractBean {
     public static final String STATEMENT_PREFIX = LogListBean.class.getCanonicalName();
 
-    @SuppressWarnings({"unchecked"})
     @Transactional
     public List<Log> getLogs(LogFilter filter){
         return sqlSession().selectList(STATEMENT_PREFIX + ".selectLogs", filter);
@@ -26,19 +25,16 @@ public class LogListBean extends AbstractBean {
         return (Integer) sqlSession().selectOne(STATEMENT_PREFIX + ".selectLogsCount", filter);
     }
 
-    @SuppressWarnings({"unchecked"})
     @Transactional
     public List<String> getModules(){
         return sqlSession().selectList(STATEMENT_PREFIX + ".selectModules");
     }
 
-    @SuppressWarnings({"unchecked"})
     @Transactional
     public List<String> getControllers(){
         return sqlSession().selectList(STATEMENT_PREFIX + ".selectControllers");
     }
 
-    @SuppressWarnings({"unchecked"})
     @Transactional
     public List<String> getModels(){
         return sqlSession().selectList(STATEMENT_PREFIX + ".selectModels");

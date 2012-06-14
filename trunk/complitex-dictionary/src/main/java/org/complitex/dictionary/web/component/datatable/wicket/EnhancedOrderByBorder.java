@@ -46,7 +46,7 @@ public class EnhancedOrderByBorder extends Border {
                 EnhancedOrderByBorder.this.onSortChanged();
             }
         };
-        add(link);
+        addToBorder(link);
         add(new EnhancedOrderByLink.CssModifier(link, cssProvider));
         link.add(getBodyContainer());
     }

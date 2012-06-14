@@ -13,20 +13,20 @@ import org.apache.wicket.extensions.markup.html.repeater.data.sort.ISortState;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.ISortStateLocator;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.AbstractReadOnlyModel;
-import org.apache.wicket.util.lang.Objects;
 import org.apache.wicket.util.string.Strings;
-import org.apache.wicket.version.undo.Change;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.OrderByLink;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 
 /**
  *
  * @author Artem
  */
-public class EnhancedOrderByLink extends AjaxLink {
+public class EnhancedOrderByLink extends AjaxLink<Void> {
 
     /** sortable property */
     private final String property;
@@ -99,65 +99,53 @@ public class EnhancedOrderByLink extends AjaxLink {
 
     /**
      * Re-sort data provider according to this link
-     *
+     * 
      * @return this
      */
     public final EnhancedOrderByLink sort() {
         if (isVersioned()) {
             // version the old state
-            Change change = new SortStateChange();
-            addStateChange(change);
+            addStateChange();
         }
 
         ISortState state = stateLocator.getSortState();
 
-        int oldDir = state.getPropertySortOrder(property);
+        // get current sort order
+        SortOrder order = state.getPropertySortOrder(property);
 
-        int newDir = ISortState.ASCENDING;
-
-        if (oldDir == ISortState.ASCENDING) {
-            newDir = ISortState.DESCENDING;
-        }
-
-        state.setPropertySortOrder(property, newDir);
+        // set next sort order
+        state.setPropertySortOrder(property, nextSortOrder(order));
 
         return this;
+    }
+
+    /**
+     * returns the next sort order when changing it
+     * 
+     * @param order
+     *            previous sort order
+     * @return next sort order
+     */
+    protected SortOrder nextSortOrder(final SortOrder order) {
+        // init / flip order
+        if (order == SortOrder.NONE) {
+            return SortOrder.ASCENDING;
+        } else {
+            return order == SortOrder.ASCENDING ? SortOrder.DESCENDING : SortOrder.ASCENDING;
+        }
     }
 
     @Override
     public void onClick(AjaxRequestTarget target) {
         sort();
         onSortChanged();
-        target.addComponent(refreshComponent);
-    }
-
-    private final class SortStateChange extends Change {
-
-        private static final long serialVersionUID = 1L;
-        private final ISortState old = (ISortState) Objects.cloneModel(stateLocator.getSortState());
-
-        /**
-         * @see org.apache.wicket.version.undo.Change#undo()
-         */
-        @Override
-        public void undo() {
-            stateLocator.getSortState().setPropertySortOrder(property, old.getPropertySortOrder(property));
-        }
-
-        /**
-         * @see java.lang.Object#toString()
-         */
-        @Override
-        public String toString() {
-            return "[StateOrderChange old=" + old.toString() + "]";
-        }
+        target.add(refreshComponent);
     }
 
     /**
      * Uses the specified ICssProvider to add css class attributes to the link.
      *
      * @author Igor Vaynberg ( ivaynberg )
-     * @author Artem
      *
      */
     public static class CssModifier extends AttributeModifier {
@@ -174,22 +162,17 @@ public class EnhancedOrderByLink extends AjaxLink {
          *            implementation of ICssProvider
          */
         public CssModifier(final EnhancedOrderByLink link, final ICssProvider cssProvider) {
-            super("class", true, new AbstractReadOnlyModel<String>() {
+            super("class", new AbstractReadOnlyModel<String>() {
 
                 private static final long serialVersionUID = 1L;
 
                 @Override
                 public String getObject() {
-
                     final ISortState sortState = link.stateLocator.getSortState();
                     return cssProvider.getClassAttributeValue(sortState, link.property);
                 }
             });
             this.cssProvider = cssProvider;
-        }
-
-        public void setCssClassSeparator(char cssClassSeparator) {
-            this.cssClassSeparator = cssClassSeparator;
         }
 
         /**
@@ -222,7 +205,7 @@ public class EnhancedOrderByLink extends AjaxLink {
             return newValue.toString();
         }
 
-        private static final List<String> getSupportedCssClasses(ICssProvider cssProvider) {
+        private static List<String> getSupportedCssClasses(ICssProvider cssProvider) {
             if (cssProvider.getSupportedCssClasses() != null) {
                 return Arrays.asList(cssProvider.getSupportedCssClasses());
             } else {
@@ -230,7 +213,7 @@ public class EnhancedOrderByLink extends AjaxLink {
             }
         }
 
-        private static final String[] split(String value, char separator) {
+        private static String[] split(String value, char separator) {
             if (Strings.isEmpty(value)) {
                 return new String[0];
             }
@@ -310,11 +293,12 @@ public class EnhancedOrderByLink extends AjaxLink {
          *      java.lang.String)
          */
         @Override
-        public String getClassAttributeValue(ISortState state, String property) {
-            int dir = state.getPropertySortOrder(property);
-            if (dir == ISortState.ASCENDING) {
+        public String getClassAttributeValue(final ISortState state, final String property) {
+            SortOrder dir = state.getPropertySortOrder(property);
+
+            if (dir == SortOrder.ASCENDING) {
                 return ascending;
-            } else if (dir == ISortState.DESCENDING) {
+            } else if (dir == SortOrder.DESCENDING) {
                 return descending;
             } else {
                 return none;

@@ -1,10 +1,10 @@
 package org.complitex.template.web.template;
 
 import org.apache.wicket.Page;
-import org.apache.wicket.PageParameters;
 
 import java.io.Serializable;
 import java.util.Locale;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru

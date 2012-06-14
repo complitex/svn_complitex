@@ -10,10 +10,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.apache.wicket.Component;
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
-import static org.apache.wicket.markup.html.JavascriptPackageResource.*;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -23,6 +22,7 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.util.string.Strings;
+import org.apache.wicket.util.visit.IVisit;
 import org.complitex.dictionary.Module;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.Log;
@@ -46,6 +46,8 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.EJB;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.util.visit.IVisitor;
 import org.complitex.dictionary.service.SessionBean;
 import org.complitex.dictionary.web.component.back.BackInfo;
 import org.complitex.dictionary.web.component.back.BackInfoManager;
@@ -83,8 +85,6 @@ public class DomainObjectEditPanel extends Panel {
             String parentEntity, String scrollListPageParameterName, String backInfoSessionKey) {
         super(id);
 
-        add(getHeaderContribution(SCROLL_JS));
-
         this.entity = entity;
         this.strategyName = strategyName;
         this.parentId = parentId;
@@ -105,6 +105,11 @@ public class DomainObjectEditPanel extends Panel {
             oldObject = cloneObject(newObject);
         }
         init();
+    }
+
+    @Override
+    public void renderHead(IHeaderResponse response) {
+        response.renderJavaScriptReference(SCROLL_JS);
     }
 
     protected IStrategy getStrategy() {
@@ -216,26 +221,25 @@ public class DomainObjectEditPanel extends Panel {
                             }
                         }
                     } else {
-                        target.addComponent(messages);
+                        target.add(messages);
                         scrollToMessages(target);
                     }
                 } catch (Exception e) {
                     log.error("", e);
                     error(getString("db_error"));
-                    target.addComponent(messages);
+                    target.add(messages);
                     scrollToMessages(target);
                 }
             }
 
             @Override
             protected void onError(AjaxRequestTarget target, Form<?> form) {
-                super.onError(target, form);
-                target.addComponent(messages);
+                target.add(messages);
                 scrollToMessages(target);
             }
 
             private void scrollToMessages(AjaxRequestTarget target) {
-                target.appendJavascript(scrollTo(label.getMarkupId()));
+                target.appendJavaScript(scrollTo(label.getMarkupId()));
             }
         };
         submit.setVisible(DomainObjectAccessUtil.canEdit(strategyName, entity, newObject));
@@ -337,28 +341,26 @@ public class DomainObjectEditPanel extends Panel {
             }
             this.parentSubjectIds = parentSubjectIds;
             permissionsPanelContainer.replace(newPermissionsPanel("permissionsPanel", this.parentSubjectIds));
-            target.addComponent(permissionsPanelContainer);
+            target.add(permissionsPanelContainer);
         }
     }
 
     protected void onInsert() {
-        visitChildren(AbstractComplexAttributesPanel.class, new IVisitor<AbstractComplexAttributesPanel>() {
+        visitChildren(AbstractComplexAttributesPanel.class, new IVisitor<AbstractComplexAttributesPanel, Void>() {
 
             @Override
-            public Object component(AbstractComplexAttributesPanel complexAttributesPanel) {
+            public void component(AbstractComplexAttributesPanel complexAttributesPanel, IVisit<Void> visit) {
                 complexAttributesPanel.onInsert();
-                return CONTINUE_TRAVERSAL;
             }
         });
     }
 
     protected void onUpdate() {
-        visitChildren(AbstractComplexAttributesPanel.class, new IVisitor<AbstractComplexAttributesPanel>() {
+        visitChildren(AbstractComplexAttributesPanel.class, new IVisitor<AbstractComplexAttributesPanel, Void>() {
 
             @Override
-            public Object component(AbstractComplexAttributesPanel complexAttributesPanel) {
+            public void component(AbstractComplexAttributesPanel complexAttributesPanel, IVisit<Void> visit) {
                 complexAttributesPanel.onUpdate();
-                return CONTINUE_TRAVERSAL;
             }
         });
     }
@@ -375,7 +377,7 @@ public class DomainObjectEditPanel extends Panel {
         if (isNew() || (parentId == null && Strings.isEmpty(parentEntity))) {
             //return to list page for current entity.
             PageParameters listPageParams = getStrategy().getListPageParams();
-            listPageParams.put(scrollListPageParameterName, newObject.getId());
+            listPageParams.set(scrollListPageParameterName, newObject.getId());
             setResponsePage(getStrategy().getListPage(), listPageParams);
         } else {
             //return to edit page for parent entity.

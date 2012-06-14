@@ -5,16 +5,18 @@
     <div align="right">
         <a href="#" wicket:id="clean">&times;</a>
     </div>
-    <div id="feedback_container"  style="height:100px; overflow-y:auto; margin-bottom:5px">
-        <ul id="feedbackul_id" wicket:id="feedbackul" class="feedbackPanel">
+    <div id="feedback_container" style="height:100px; overflow-y:auto; margin-bottom:5px;">
+        <ul wicket:id="feedbackul" class="feedbackPanel">
             <li wicket:id="messages" class="errorlevel">
                 <span wicket:id="message" class="errorlevel">A message</span>
             </li>
         </ul>
     </div>
     <script type="text/javascript">
-        var feedback_container = document.getElementById("feedback_container");
-        feedback_container.scrollTop = feedback_container.scrollHeight;
+        (function(){
+            var feedback_container = document.getElementById("feedback_container");
+            feedback_container.scrollTop = feedback_container.scrollHeight;
+        })();
     </script>
 </wicket:panel>
 </body>

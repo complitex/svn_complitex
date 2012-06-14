@@ -40,13 +40,19 @@
 
     <properties>
         <!-- wicket version -->
-        <wicket.version>1.4.20</wicket.version>
+        <wicket.version>1.5.6</wicket.version>
+        
+        <!-- wicketstuff inject -->
+        <wicket-inject.version>1.5.5</wicket-inject.version>
+        
+        <!-- wiquery version -->
+        <wiquery.version>1.5.6</wiquery.version>
 
         <!-- source encoding -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!--skip test-->
-        <maven.test.skip>true</maven.test.skip>
+        <maven.test.skip>false</maven.test.skip>
         <compiler.showDeprecation>true</compiler.showDeprecation>
     </properties>
 
@@ -122,6 +128,7 @@
                 <groupId>org.apache.wicket</groupId>
                 <artifactId>wicket</artifactId>
                 <version>${wicket.version}</version>
+                <type>pom</type>
             </dependency>
             <dependency>
                 <groupId>org.apache.wicket</groupId>
@@ -145,20 +152,20 @@
             </dependency>
             <dependency>
                 <groupId>org.wicketstuff</groupId>
-                <artifactId>javaee-inject</artifactId>
-                <version>${wicket.version}</version>
+                <artifactId>wicketstuff-javaee-inject</artifactId>
+                <version>${wicket-inject.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.odlabs.wiquery</groupId>
+                <artifactId>wiquery-core</artifactId>
+                <version>${wiquery.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.odlabs.wiquery</groupId>
-                <artifactId>wiquery</artifactId>
-                <version>1.2.3</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>log4j</groupId>
-                        <artifactId>log4j</artifactId>
-                    </exclusion>
-                </exclusions>
+                <artifactId>wiquery-jquery-ui</artifactId>
+                <version>${wiquery.version}</version>
             </dependency>
 
             <!-- Java EE API -->
@@ -319,8 +326,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
                     <encoding>UTF-8</encoding>
                     <showDeprecation>${compiler.showDeprecation}</showDeprecation>
                 </configuration>

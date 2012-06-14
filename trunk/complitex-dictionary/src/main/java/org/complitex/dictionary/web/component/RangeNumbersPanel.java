@@ -277,14 +277,13 @@ public class RangeNumbersPanel extends Panel {
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
                 numbersList.addNumber(null);
-                target.addComponent(numbersContainer);
-                target.addComponent(getMessages());
+                target.add(numbersContainer);
+                target.add(getMessages());
             }
 
             @Override
             protected void onError(AjaxRequestTarget target, Form<?> form) {
-                super.onError(target, form);
-                target.addComponent(getMessages());
+                target.add(getMessages());
             }
         });
 
@@ -293,14 +292,13 @@ public class RangeNumbersPanel extends Panel {
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
                 numbersList.addRange();
-                target.addComponent(numbersContainer);
-                target.addComponent(getMessages());
+                target.add(numbersContainer);
+                target.add(getMessages());
             }
 
             @Override
             protected void onError(AjaxRequestTarget target, Form<?> form) {
-                super.onError(target, form);
-                target.addComponent(getMessages());
+                target.add(getMessages());
             }
         });
     }
