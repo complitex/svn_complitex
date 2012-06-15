@@ -28,8 +28,12 @@ import javax.ejb.EJB;
 import java.text.MessageFormat;
 import java.util.*;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.request.resource.PackageResourceReference;
+import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.PreferenceKey;
+import org.complitex.template.web.component.MainUserOrganizationPicker;
 import org.odlabs.wiquery.core.resources.CoreJavaScriptResourceReference;
 
 /**
@@ -47,7 +51,6 @@ public abstract class TemplatePage extends WebPage {
     private SessionBean sessionBean;
     private String page = getClass().getName();
     private Set<String> resourceBundle = new HashSet<String>();
-    private boolean isPostBack;
 
     @Override
     public void renderHead(IHeaderResponse response) {
@@ -87,16 +90,25 @@ public abstract class TemplatePage extends WebPage {
             }
         });
 
-        if (isUserAuthorized()) {
-            String fullName = sessionBean.getCurrentUserFullName(getLocale());
-            String depName = sessionBean.getMainUserOrganizationName(getLocale());
+        boolean isUserAuthorized = isUserAuthorized();
+        //full user name.
+        final String fullName = isUserAuthorized ? sessionBean.getCurrentUserFullName(getLocale()) : null;
+        add(new Label("current_user_fullname", fullName));
 
-            add(new Label("current_user_fullname", fullName != null ? fullName : ""));
-            add(new Label("current_user_department", depName != null ? depName : ""));
-        } else {
-            add(new EmptyPanel("current_user_fullname"));
-            add(new EmptyPanel("current_user_department"));
-        }
+        //main user's organization.
+        IModel<DomainObject> mainUserOrganizationModel = new Model<DomainObject>() {
+
+            @Override
+            public void setObject(DomainObject mainUserOrganization) {
+                getTemplateSession().setMainUserOrganization(mainUserOrganization);
+            }
+
+            @Override
+            public DomainObject getObject() {
+                return sessionBean.getMainUserOrganization(getTemplateSession());
+            }
+        };
+        add(new MainUserOrganizationPicker("mainUserOrganizationPicker", mainUserOrganizationModel));
 
         add(new Form<Void>("exit") {
 
@@ -104,81 +116,76 @@ public abstract class TemplatePage extends WebPage {
             public void onSubmit() {
                 getTemplateWebApplication().logout();
             }
-        }.setVisible(isUserAuthorized()));
+        }.setVisible(isUserAuthorized));
     }
 
     @Override
-    protected void onBeforeRender() {
-        super.onBeforeRender();
+    protected void onInitialize() {
+        super.onInitialize();
 
-        if (!isPostBack) {
-            isPostBack = true;
+        //add user profile page link.
+        if (isUserAuthorized()) {
+            final String profilePageClassName = "org.complitex.admin.web.ProfilePage";
+            try {
+                final Class<? extends WebPage> profilePageClass =
+                        (Class<? extends WebPage>) Thread.currentThread().getContextClassLoader().loadClass(profilePageClassName);
 
-            //add user profile page link.
-            if (isUserAuthorized()) {
-                final String profilePageClassName = "org.complitex.admin.web.ProfilePage";
-                try {
-                    @SuppressWarnings("unchecked")
-                    final Class<? extends WebPage> profilePageClass =
-                            (Class<? extends WebPage>) Thread.currentThread().getContextClassLoader().loadClass(profilePageClassName);
+                add(new Link<Void>("profile") {
 
-                    add(new Link<Void>("profile") {
-
-                        @Override
-                        public void onClick() {
-                            onProfileClick(profilePageClass);
-                        }
-                    });
-                } catch (ClassNotFoundException e) {
-                    log.warn("Profile page class was not found: " + profilePageClassName, e);
-                    add(new EmptyPanel("profile"));
-                }
-            } else {
+                    @Override
+                    public void onClick() {
+                        onProfileClick(profilePageClass);
+                    }
+                });
+            } catch (ClassNotFoundException e) {
+                log.warn("Profile page class was not found: " + profilePageClassName, e);
                 add(new EmptyPanel("profile"));
             }
-
-            //toolbar
-            WebMarkupContainer toolbar = new WebMarkupContainer("toolbar");
-            add(toolbar);
-            //common toolbar buttons.
-            ListView<ToolbarButton> commonPart = new ListView<ToolbarButton>("commonPart", getCommonButtons("commonButton")) {
-
-                @Override
-                protected void populateItem(ListItem<ToolbarButton> item) {
-                    item.add(item.getModelObject());
-                }
-            };
-            toolbar.add(commonPart);
-
-            //application-wide toolbar buttons.
-            List<? extends ToolbarButton> applicationButtons = getTemplateWebApplication().
-                    getApplicationToolbarButtons("applicationButton");
-            if (applicationButtons == null) {
-                applicationButtons = Collections.emptyList();
-            }
-            ListView<ToolbarButton> applicationPart = new ListView<ToolbarButton>("applicationPart", applicationButtons) {
-
-                @Override
-                protected void populateItem(ListItem<ToolbarButton> item) {
-                    item.add(item.getModelObject());
-                }
-            };
-            toolbar.add(applicationPart);
-
-            //page-wide toolbar buttons.
-            List<? extends ToolbarButton> pageButtons = getToolbarButtons("pageButton");
-            if (pageButtons == null) {
-                pageButtons = Collections.emptyList();
-            }
-            ListView<ToolbarButton> pagePart = new ListView<ToolbarButton>("pagePart", pageButtons) {
-
-                @Override
-                protected void populateItem(ListItem<ToolbarButton> item) {
-                    item.add(item.getModelObject());
-                }
-            };
-            toolbar.add(pagePart);
+        } else {
+            add(new EmptyPanel("profile"));
         }
+
+        //toolbar
+        WebMarkupContainer toolbar = new WebMarkupContainer("toolbar");
+        add(toolbar);
+        //common toolbar buttons.
+        ListView<ToolbarButton> commonPart = new ListView<ToolbarButton>("commonPart", getCommonButtons("commonButton")) {
+
+            @Override
+            protected void populateItem(ListItem<ToolbarButton> item) {
+                item.add(item.getModelObject());
+            }
+        };
+        toolbar.add(commonPart);
+
+        //application-wide toolbar buttons.
+        List<? extends ToolbarButton> applicationButtons = getTemplateWebApplication().
+                getApplicationToolbarButtons("applicationButton");
+        if (applicationButtons == null) {
+            applicationButtons = Collections.emptyList();
+        }
+        ListView<ToolbarButton> applicationPart = new ListView<ToolbarButton>("applicationPart", applicationButtons) {
+
+            @Override
+            protected void populateItem(ListItem<ToolbarButton> item) {
+                item.add(item.getModelObject());
+            }
+        };
+        toolbar.add(applicationPart);
+
+        //page-wide toolbar buttons.
+        List<? extends ToolbarButton> pageButtons = getToolbarButtons("pageButton");
+        if (pageButtons == null) {
+            pageButtons = Collections.emptyList();
+        }
+        ListView<ToolbarButton> pagePart = new ListView<ToolbarButton>("pagePart", pageButtons) {
+
+            @Override
+            protected void populateItem(ListItem<ToolbarButton> item) {
+                item.add(item.getModelObject());
+            }
+        };
+        toolbar.add(pagePart);
     }
 
     private List<? extends ToolbarButton> getCommonButtons(String id) {
