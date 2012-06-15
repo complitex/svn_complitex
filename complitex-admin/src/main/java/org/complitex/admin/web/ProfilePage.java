@@ -27,9 +27,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.web.component.back.BackInfo;
 import org.complitex.dictionary.web.component.back.BackInfoManager;
+import org.complitex.template.web.component.MainUserOrganizationPicker;
 import org.complitex.template.web.template.MenuManager;
 import static org.complitex.dictionary.web.DictionaryFwSession.*;
 
@@ -68,6 +70,15 @@ public class ProfilePage extends FormTemplatePage {
 
         final PasswordTextField password2 = new PasswordTextField("password2", new Model<String>(""));
         form.add(password2.setRequired(false));
+
+        //Главная организация пользователя
+        WebMarkupContainer mainUserOrganizationContainer = new WebMarkupContainer("mainUserOrganizationContainer");
+        final IModel<DomainObject> mainUserOrganizationModel = new Model<>(sessionBean.loadMainUserOrganization());
+        MainUserOrganizationPicker mainUserOrganizationPicker =
+                new MainUserOrganizationPicker("mainUserOrganizationPicker", mainUserOrganizationModel);
+        mainUserOrganizationContainer.setVisible(mainUserOrganizationPicker.visible());
+        mainUserOrganizationContainer.add(mainUserOrganizationPicker);
+        form.add(mainUserOrganizationContainer);
 
         //Адрес по умолчанию
         final List<String> searchFilters = Arrays.asList("country", "region", "city", "street");
@@ -110,6 +121,12 @@ public class ProfilePage extends FormTemplatePage {
                 //Локаль
                 getSession().setLocale(localeModel.getObject());
 
+                //Главная организация пользователя
+                final DomainObject mainUserOrganization = mainUserOrganizationModel.getObject();
+                if (mainUserOrganization != null && mainUserOrganization.getId() != null) {
+                    sessionBean.updateMainUserOrganization(getTemplateSession(), mainUserOrganization);
+                }
+
                 //Адрес по умолчанию
                 for (String s : searchFilters) {
                     DomainObject domainObject = defaultSearchComponentState.get(s);
@@ -148,7 +165,7 @@ public class ProfilePage extends FormTemplatePage {
                 setResponsePage(getApplication().getHomePage());
             }
         });
-        
+
         MenuManager.removeMenuItem();
     }
 }

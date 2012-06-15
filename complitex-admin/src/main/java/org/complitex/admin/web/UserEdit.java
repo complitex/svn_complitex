@@ -70,7 +70,7 @@ public class UserEdit extends FormTemplatePage {
         init(null, false);
     }
 
-    public UserEdit(final PageParameters parameters) {
+    public UserEdit(PageParameters parameters) {
         super();
         init(parameters.get("user_id").toOptionalLong(), "copy".equals(parameters.get("action").toString()));
     }
@@ -262,7 +262,7 @@ public class UserEdit extends FormTemplatePage {
                     if (UserEdit.this.validate(user)) {
 
                         //Сохранение пользователя
-                        userBean.save(user);
+                        userBean.save(user, getTemplateSession());
 
                         //Локаль
                         preferenceBean.save(user.getId(), GLOBAL_PAGE, LOCALE_KEY, localeModel.getObject().getLanguage());
