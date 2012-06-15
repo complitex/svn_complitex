@@ -14,6 +14,8 @@ import javax.ejb.Stateless;
 import java.util.*;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.UserGroup.GROUP_NAME;
+import org.complitex.dictionary.mybatis.Transactional;
+import org.complitex.dictionary.web.DictionaryFwSession;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -38,7 +40,6 @@ public class SessionBean extends AbstractBean {
         return userGroups.contains(GROUP_NAME.ADMINISTRATORS);
     }
 
-    @SuppressWarnings("unchecked")
     private Set<GROUP_NAME> getCurrentUserGroups() {
         final String login = sessionContext.getCallerPrincipal().getName();
         List<String> ugs = sqlSession().selectList(MAPPING_NAMESPACE + ".getUserGroups", login);
@@ -66,12 +67,10 @@ public class SessionBean extends AbstractBean {
         return sessionContext.getCallerPrincipal().getName();
     }
 
-    @SuppressWarnings("unchecked")
     public List<Long> getUserOrganizationObjectIds() {
         return sqlSession().selectList(MAPPING_NAMESPACE + ".selectOrganizationObjectIds", getCurrentUserLogin());
     }
 
-    @SuppressWarnings("unchecked")
     private List<Long> getOrganizationChildrenObjectId(Long parentObjectId) {
         return sqlSession().selectList(MAPPING_NAMESPACE + ".selectOrganizationChildrenObjectIds", parentObjectId);
     }
@@ -96,7 +95,6 @@ public class SessionBean extends AbstractBean {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private List<Long> getUserOrganizationTreePermissionIds(String table) {
         String s = "";
         String d = "";
@@ -113,11 +111,15 @@ public class SessionBean extends AbstractBean {
         return sqlSession().selectList(MAPPING_NAMESPACE + ".selectUserOrganizationTreePermissionIds", parameter);
     }
 
+    /**
+     * Loads main user's organization id from database.
+     * 
+     * @return 
+     */
     private Long getMainUserOrganizationObjectId() {
         return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectMainOrganizationObjectId", getCurrentUserLogin());
     }
 
-    @SuppressWarnings("unchecked")
     private List<Long> getUserOrganizationPermissionIds(final String table) {
         return sqlSession().selectList(MAPPING_NAMESPACE + ".selectUserOrganizationPermissionIds",
                 new HashMap<String, String>() {
@@ -150,22 +152,29 @@ public class SessionBean extends AbstractBean {
         return userProfileBean.getFullName(getCurrentUserId(), locale);
     }
 
-    public String getMainUserOrganizationName(Locale locale) {
+    public String getMainUserOrganizationName(DictionaryFwSession session) {
         try {
             IStrategy strategy = strategyFactory.getStrategy(ORGANIZATION_ENTITY);
-            Long oId = getMainUserOrganizationObjectId();
-            return oId != null ? strategy.displayDomainObject(strategy.findById(oId, false), locale) : "";
+            DomainObject mainUserOrganization = getMainUserOrganization(session);
+            return mainUserOrganization != null && mainUserOrganization.getId() != null
+                    ? strategy.displayDomainObject(mainUserOrganization, session.getLocale()) : "";
         } catch (Exception e) {
             return "[NA]";
         }
     }
 
-    public DomainObject getMainUserOrganization() {
+    /**
+     * Loads main user's organization from database.
+     * 
+     * @return 
+     */
+    public DomainObject loadMainUserOrganization() {
         IStrategy strategy = strategyFactory.getStrategy(ORGANIZATION_ENTITY);
         Long oId = getMainUserOrganizationObjectId();
         return oId != null ? strategy.findById(oId, true) : null;
     }
 
+    @Transactional
     public void updatePassword(String currentPassword, final String password) throws WrongCurrentPasswordException {
         userProfileBean.updatePassword(currentPassword, password);
     }
@@ -173,5 +182,31 @@ public class SessionBean extends AbstractBean {
     public boolean isBlockedUser(String login) {
         int userGroupCount = (Integer) sqlSession().selectOne(MAPPING_NAMESPACE + ".getUserGroupCount", login);
         return userGroupCount == 0;
+    }
+
+    /**
+     * Loads main user's organization from session at first and if it doesn't find then fallbacks to loading from database.
+     * 
+     * @param session
+     * @return 
+     */
+    public DomainObject getMainUserOrganization(DictionaryFwSession session) {
+        DomainObject sessionOrganization = session.getMainUserOrganization();
+        if (sessionOrganization != null && sessionOrganization.getId() != null) {
+            return sessionOrganization;
+        } else {
+            DomainObject mainUserOrganization = loadMainUserOrganization();
+            session.setMainUserOrganization(mainUserOrganization);
+            return mainUserOrganization;
+        }
+    }
+
+    /**
+     * Updates main user's organization in database and session.
+     */
+    @Transactional
+    public void updateMainUserOrganization(DictionaryFwSession session, DomainObject mainUserOrganization) {
+        userProfileBean.updateMainUserOrganization(mainUserOrganization.getId());
+        session.setMainUserOrganization(mainUserOrganization);
     }
 }

@@ -30,6 +30,7 @@ public class DictionaryFwSession extends WebSession {
     private Map<String, SearchComponentState> searchComponentSessionState = new HashMap<String, SearchComponentState>();
     private Map<String, Map<String, Preference>> preferences = new HashMap<String, Map<String, Preference>>();
     private ISessionStorage sessionStorage;
+    private DomainObject mainUserOrganization;
 
     public DictionaryFwSession(Request request, ISessionStorage sessionStorage) {
         super(request);
@@ -251,5 +252,13 @@ public class DictionaryFwSession extends WebSession {
     public void setLocale(Locale locale) {
         putPreference(GLOBAL_PAGE, LOCALE_KEY, locale.getLanguage(), true);
         super.setLocale(locale);
+    }
+
+    public DomainObject getMainUserOrganization() {
+        return mainUserOrganization;
+    }
+
+    public void setMainUserOrganization(DomainObject mainUserOrganization) {
+        this.mainUserOrganization = mainUserOrganization;
     }
 }

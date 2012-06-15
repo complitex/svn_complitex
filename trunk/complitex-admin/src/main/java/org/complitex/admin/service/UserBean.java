@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.complitex.dictionary.web.DictionaryFwSession;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -60,7 +61,7 @@ public class UserBean extends AbstractBean {
     }
 
     @Transactional
-    public void save(User user) {
+    public void save(User user, DictionaryFwSession session) {
         //удаление дубликатов организаций
         Map<Long, UserOrganization> userOrganizationMap = new HashMap<Long, UserOrganization>();
         for (UserOrganization userOrganization : user.getUserOrganizations()) {
@@ -150,9 +151,10 @@ public class UserBean extends AbstractBean {
                     if (userOrganization.getOrganizationObjectId().equals(dbUserOrganization.getOrganizationObjectId())) {
                         contain = true;
 
-                        //обновление основной организации
+                        //обновление главной организации пользователя
                         if (dbUserOrganization.isMain() != userOrganization.isMain()) {
                             sqlSession().update(STATEMENT_PREFIX + ".updateUserOrganization", userOrganization);
+                            session.setMainUserOrganization(null);
                         }
 
                         break;
@@ -205,7 +207,6 @@ public class UserBean extends AbstractBean {
         }
     }
 
-    @SuppressWarnings({"unchecked"})
     @Transactional
     public List<User> getUsers(UserFilter filter) {
         List<User> users = sqlSession().selectList(STATEMENT_PREFIX + ".selectUsers", filter);

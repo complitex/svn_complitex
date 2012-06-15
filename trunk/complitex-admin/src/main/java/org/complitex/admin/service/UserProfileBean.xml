@@ -11,4 +11,12 @@
     <update id="updatePassword" parameterType="map">
         update `user` set `password` = #{password} where `login` = #{login}
     </update>
+    
+    <update id="clearMainOrganizationStatus" parameterType="long">
+        UPDATE `user_organization` SET `main` = 0 WHERE `user_id` = #{userId}
+    </update>
+    
+    <update id="updateMainUserOrganization" parameterType="map">
+        UPDATE `user_organization` SET `main` = 1 WHERE `user_id` = #{userId} AND `organization_object_id` = #{mainUserOrganizationId}
+    </update>
 </mapper>
