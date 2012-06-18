@@ -20,7 +20,8 @@ public final class MaskedDateInputPanel extends Panel {
     public MaskedDateInputPanel(String id, IModel<Date> model, boolean required, IModel<String> labelModel, boolean enabled) {
         super(id);
 
-        MaskedDateInput input = new MaskedDateInput(DATE_INPUT_ID, model, enabled);
+        MaskedDateInput input = new MaskedDateInput(DATE_INPUT_ID, model);
+        input.setEnabled(enabled);
         input.setLabel(labelModel);
         input.setRequired(required);
         add(input);

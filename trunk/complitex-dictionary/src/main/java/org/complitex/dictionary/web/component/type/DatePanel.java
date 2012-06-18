@@ -19,7 +19,8 @@ public final class DatePanel extends Panel {
     public DatePanel(String id, IModel<Date> model, boolean required, IModel<String> labelModel, boolean enabled) {
         super(id);
 
-        DatePicker<Date> dateField = new DatePicker<Date>("dateField", model, Date.class, enabled);
+        DatePicker<Date> dateField = new DatePicker<Date>("dateField", model, Date.class);
+        dateField.setEnabled(enabled);
         dateField.setLabel(labelModel);
         dateField.setRequired(required);
         add(dateField);

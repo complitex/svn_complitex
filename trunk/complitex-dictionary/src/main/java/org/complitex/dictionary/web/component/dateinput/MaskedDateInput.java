@@ -26,25 +26,15 @@ public class MaskedDateInput extends DatePicker<Date> {
         options = new MaskedDateInputOptions(this);
     }
 
-    public MaskedDateInput(String id, IModel<Date> model, boolean enabled) {
-        super(id, model, Date.class, enabled);
-        options = new MaskedDateInputOptions(this);
-    }
-
     public MaskedDateInput(String id) {
         super(id, Date.class);
         options = new MaskedDateInputOptions(this);
     }
 
-    public MaskedDateInput(String id, boolean enabled) {
-        super(id, Date.class, enabled);
-        options = new MaskedDateInputOptions(this);
-    }
-
     @Override
-    protected void init(boolean enabled) {
-        super.init(enabled);
-        if (enabled) {
+    protected void onInitialize() {
+        super.onInitialize();
+        if (isEnabled()) {
             setShowOn(ShowOnEnum.BUTTON);
         }
     }
