@@ -28,7 +28,6 @@ public final class HintTextFieldPanel<T> extends Panel {
             + "});";
     private TextField<T> textField;
     private Label script;
-    private boolean postbackRequest;
 
     public HintTextFieldPanel(String id, IModel<T> model, Class<T> type, IModel<String> placeholderModel) {
         super(id);
@@ -92,18 +91,16 @@ public final class HintTextFieldPanel<T> extends Panel {
     }
 
     @Override
-    protected void onBeforeRender() {
-        super.onBeforeRender();
-        if (!postbackRequest) {
-            postbackRequest = true;
-            final String markupId = textField.getMarkupId();
-            script.setDefaultModel(new AbstractReadOnlyModel<String>() {
+    protected void onInitialize() {
+        super.onInitialize();
 
-                @Override
-                public String getObject() {
-                    return MessageFormat.format(INIT_HINT_JAVASCRIPT, markupId);
-                }
-            });
-        }
+        final String markupId = textField.getMarkupId();
+        script.setDefaultModel(new AbstractReadOnlyModel<String>() {
+
+            @Override
+            public String getObject() {
+                return MessageFormat.format(INIT_HINT_JAVASCRIPT, markupId);
+            }
+        });
     }
 }
