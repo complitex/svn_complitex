@@ -17,6 +17,5 @@ public class HelpButton extends ToolbarButton {
 
     @Override
     public void onClick() {
-        //TODO: add redirect to help page.
     }
 }

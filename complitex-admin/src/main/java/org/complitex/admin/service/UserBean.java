@@ -210,7 +210,6 @@ public class UserBean extends AbstractBean {
     @Transactional
     public List<User> getUsers(UserFilter filter) {
         List<User> users = sqlSession().selectList(STATEMENT_PREFIX + ".selectUsers", filter);
-        //todo change to db load
         for (User user : users) {
             if (user.getUserInfoObjectId() != null) {
                 user.setUserInfo(userInfoStrategy.findById(user.getUserInfoObjectId(), false));
