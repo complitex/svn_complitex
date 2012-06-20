@@ -12,7 +12,7 @@ $(function(){
             } */
 
             var $field = $(field);
-            if($field.is(":visible:enabled:not(:hidden):not(.form-template-page-unfocusable)")){
+            if($field.is(":visible:enabled:not(:hidden)")){
                 $(field).focus();
                 return false;
             }

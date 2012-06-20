@@ -14,21 +14,17 @@ import org.complitex.dictionary.web.component.DomainObjectInputPanel;
  */
 public abstract class AbstractComplexAttributesPanel extends Panel {
 
-    private boolean disabled;
-    private boolean firstRendering = true;
-
-    @Override
-    protected void onBeforeRender() {
-        super.onBeforeRender();
-        if (firstRendering) {
-            firstRendering = false;
-            init();
-        }
-    }
+    private final boolean disabled;
 
     public AbstractComplexAttributesPanel(String id, boolean disabled) {
         super(id);
         this.disabled = disabled;
+    }
+
+    @Override
+    protected void onInitialize() {
+        super.onInitialize();
+        init();
     }
 
     protected boolean isDisabled() {

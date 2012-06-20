@@ -41,7 +41,6 @@ public class DomainObjectPermissionsPanel extends Panel implements IWiQueryPlugi
     static {
         VISIBLE_BY_ALL.setId(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID);
     }
-    private boolean isPostBack;
     private Set<Long> subjectIds;
     private Set<Long> parentSubjectIds;
 
@@ -53,12 +52,9 @@ public class DomainObjectPermissionsPanel extends Panel implements IWiQueryPlugi
     }
 
     @Override
-    protected void onBeforeRender() {
-        if (!isPostBack) {
-            isPostBack = true;
-            init();
-        }
-        super.onBeforeRender();
+    protected void onInitialize() {
+        super.onInitialize();
+        init();
     }
 
     protected Set<Long> getParentSubjectIds() {

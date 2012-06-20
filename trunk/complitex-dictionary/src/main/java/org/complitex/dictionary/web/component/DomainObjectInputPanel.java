@@ -88,7 +88,6 @@ public class DomainObjectInputPanel extends Panel {
     private String parentEntity;
     private Date date;
     private final Entity description;
-    private boolean isPostBack;
 
     /**
      * For use in history components
@@ -200,19 +199,14 @@ public class DomainObjectInputPanel extends Panel {
     }
 
     @Override
-    protected void onBeforeRender() {
-        super.onBeforeRender();
+    protected void onInitialize() {
+        super.onInitialize();
 
-        //complex attributes
-        if (!isPostBack) {
-            isPostBack = true;
+        //before simple attributes:
+        addComplexAttributesPanelBefore("complexAttributesBefore");
 
-            //before simple attributes:
-            addComplexAttributesPanelBefore("complexAttributesBefore");
-
-            //after simple attributes:
-            addComplexAttributesPanelAfter("complexAttributesAfter");
-        }
+        //after simple attributes:
+        addComplexAttributesPanelAfter("complexAttributesAfter");
     }
 
     protected void addComplexAttributesPanelBefore(String id) {
