@@ -173,4 +173,8 @@ public class StringUtil {
 
         return wrappedLine.toString();
     }
+
+    public static String emptyOnNull(Object o){
+        return o != null ? o.toString() : "";
+    }
 }
