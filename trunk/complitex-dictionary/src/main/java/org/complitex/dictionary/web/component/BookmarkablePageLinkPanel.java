@@ -30,4 +30,8 @@ public class BookmarkablePageLinkPanel<T> extends Panel {
         link.add(new Label("label", label));
         add(link);
     }
+
+    public <C extends Page> BookmarkablePageLinkPanel(String id, String label, Class<C> page, final Long objectId){
+        this(id, label, page, new PageParameters(){{add("id", objectId);}});
+    }
 }
