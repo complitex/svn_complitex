@@ -72,6 +72,20 @@
             <name>wiQuery repository</name>
             <url>http://wiquery.googlecode.com/svn/repo/</url>
         </repository>
+        <repository>
+            <id>wicketstuff-core-releases</id>
+            <name>wicketstuff-core-releases</name>
+            <url>https://oss.sonatype.org/content/repositories/releases</url>
+        </repository>
+
+        <repository>
+            <id>wicketstuff-core-snapshots</id>
+            <name>wicketstuff-core-snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
     </repositories>
 
     <dependencyManagement>
