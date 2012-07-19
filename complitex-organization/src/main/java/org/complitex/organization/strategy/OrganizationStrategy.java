@@ -264,8 +264,9 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
     }
 
     @Override
-    public String getDistrictCode(DomainObject organization) {
+    public String getDistrictCode(long organizationId) {
         String districtCode = null;
+        DomainObject organization = findById(organizationId, true);
         Attribute districtAttribute = organization.getAttribute(DISTRICT);
         if (districtAttribute != null) {
             districtCode = districtStrategy.getDistrictCode(districtAttribute.getValueId());
