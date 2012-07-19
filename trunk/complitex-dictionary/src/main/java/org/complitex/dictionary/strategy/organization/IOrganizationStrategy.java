@@ -60,13 +60,13 @@ public interface IOrganizationStrategy extends IStrategy {
     Set<Long> getTreeChildrenOrganizationIds(long parentOrganizationId);
 
     /**
-     * Returns code of district object associated with given {@code organization} 
-     * or <code>null</code> if {@code organization} doesn't support reference to district.
+     * Returns code of district object associated with given organization
+     * or <code>null</code> if organization doesn't has reference to district.
      * 
-     * @param organization Organization object.
+     * @param organizationId Organization id.
      * @return District code of organization or <code>null</code>.
      */
-    String getDistrictCode(DomainObject organization);
+    String getDistrictCode(long organizationId);
 
     /**
      * Calculates whether given {@code organization} play role of user organization, i.e. has user organization type
