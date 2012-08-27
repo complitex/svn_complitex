@@ -212,7 +212,6 @@ public class StreetStrategy extends TemplateStrategy {
         return new String[]{"city"};
     }
 
-    @SuppressWarnings({"EjbClassBasicInspection"})
     public static Long getStreetType(DomainObject streetObject) {
         return streetObject.getAttribute(STREET_TYPE).getValueId();
     }

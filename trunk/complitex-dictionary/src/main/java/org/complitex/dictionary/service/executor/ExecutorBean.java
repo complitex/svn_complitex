@@ -1,15 +1,11 @@
 package org.complitex.dictionary.service.executor;
 
 import org.complitex.dictionary.entity.IExecutorObject;
-import org.complitex.dictionary.entity.ILoggable;
 import org.complitex.dictionary.service.LogBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.*;
-import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -19,13 +15,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class ExecutorBean {
     private static final Logger log = LoggerFactory.getLogger(ExecutorBean.class);
 
-    @EJB(beanName = "AsyncTaskBean")
+    @EJB
     private AsyncTaskBean asyncTaskBean;
 
-    @EJB(beanName = "LogBean")
+    @EJB
     private LogBean logBean;
 
-    @SuppressWarnings({"unchecked"})
     public void executeNext(final ExecutorCommand executorCommand){
         IExecutorObject object = executorCommand.getQueue().poll();
         IExecutorListener listener = executorCommand.getListener();

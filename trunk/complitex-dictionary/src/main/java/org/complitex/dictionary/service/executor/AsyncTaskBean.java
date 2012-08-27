@@ -2,7 +2,6 @@ package org.complitex.dictionary.service.executor;
 
 import java.util.Map;
 import org.complitex.dictionary.entity.IExecutorObject;
-import org.complitex.dictionary.entity.ILoggable;
 import org.complitex.dictionary.service.LogBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +17,7 @@ import javax.ejb.*;
 public class AsyncTaskBean {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    @EJB(beanName = "LogBean")
+    @EJB
     protected LogBean logBean;
 
     @Asynchronous
