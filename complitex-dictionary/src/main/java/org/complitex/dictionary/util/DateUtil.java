@@ -53,8 +53,9 @@ public class DateUtil {
      * @return месяц
      */
     public static String displayMonth(int month, Locale locale) {
-        Calendar c = Calendar.getInstance();
+        Calendar c = Calendar.getInstance(locale);
         c.set(Calendar.MONTH, month - 1);
+        c.set(Calendar.DAY_OF_MONTH, 1);
         return c.getDisplayName(Calendar.MONTH, Calendar.LONG, locale);
     }
 
