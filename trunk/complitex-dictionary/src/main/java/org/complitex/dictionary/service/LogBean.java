@@ -13,6 +13,7 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import javax.ejb.EJB;
@@ -181,9 +182,14 @@ public class LogBean extends AbstractBean {
         log.setEvent(event);
         log.setStatus(status);
         log.setLogChanges(logChanges);
-        log.setDescription(descriptionPattern != null && descriptionArguments != null
-                ? MessageFormat.format(descriptionPattern, descriptionArguments)
-                : descriptionPattern);
+
+        try {
+            log.setDescription(descriptionPattern != null && descriptionArguments != null
+                    ? MessageFormat.format(descriptionPattern, descriptionArguments)
+                    : descriptionPattern);
+        } catch (Exception e) {
+            log.setDescription(descriptionPattern + " " + Arrays.toString(descriptionArguments));
+        }
 
         if (log.getDescription() != null && log.getDescription().length() > MAX_DESCRIPTION_LENGTH) {
             log.setDescription(log.getDescription().substring(0, MAX_DESCRIPTION_LENGTH));
