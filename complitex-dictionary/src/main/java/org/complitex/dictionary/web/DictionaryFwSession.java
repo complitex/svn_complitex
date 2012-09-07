@@ -1,13 +1,17 @@
 package org.complitex.dictionary.web;
 
+import org.apache.wicket.Page;
 import org.apache.wicket.protocol.http.WebSession;
 import org.complitex.dictionary.entity.DomainObject;
+import org.complitex.dictionary.entity.FilterWrapper;
 import org.complitex.dictionary.entity.Preference;
+import org.complitex.dictionary.entity.PreferenceKey;
 import org.complitex.dictionary.service.LocaleBean;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.util.EjbBeanLocator;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -173,6 +177,19 @@ public class DictionaryFwSession extends WebSession {
 
     public Object getPreferenceObject(String page, Enum key, Object _default) {
         return getNotNullOrDefault(getPreference(page, key.name()).getObject(), _default);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Serializable> FilterWrapper<T> getPreferenceFilter(String page, FilterWrapper<T> _default) {
+        FilterWrapper<T> filterWrapper =  (FilterWrapper<T>) getPreference(page, PreferenceKey.FILTER_OBJECT.name()).getObject();
+
+        if (filterWrapper == null){
+            putPreferenceObject(page, PreferenceKey.FILTER_OBJECT, _default);
+
+            return _default;
+        }
+
+        return filterWrapper;
     }
 
     public String getPreferenceString(String page, Enum key, String _default) {

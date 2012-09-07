@@ -1,8 +1,12 @@
 package org.complitex.template.web.template;
 
+import org.apache.wicket.Page;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -12,6 +16,8 @@ import java.util.ResourceBundle;
  */
 public abstract class ResourceTemplateMenu implements ITemplateMenu {
     private static final Logger log = LoggerFactory.getLogger(ResourceTemplateMenu.class);
+
+    private List<ITemplateLink> templateLinks = new ArrayList<>();
 
      /**
      * Используется ResourceBundle для локализации
@@ -38,5 +44,32 @@ public abstract class ResourceTemplateMenu implements ITemplateMenu {
 
     protected String getString(Class base, Locale locale, String key){
         return getString(base.getName(), locale, key);
+    }
+
+    protected String getString(String key, Locale locale){
+        return getString(getClass().getName(), locale, key);
+    }
+
+    @Override
+    public String getTagId() {
+        return getClass().getSimpleName();
+    }
+
+    @Override
+    public String getTitle(Locale locale) {
+        return getString("title", locale);
+    }
+
+    @Override
+    public List<ITemplateLink> getTemplateLinks(Locale locale) {
+        return templateLinks;
+    }
+
+    protected void add(String key, Class<? extends Page> page){
+        templateLinks.add(new ResourceTemplateLink(key, this, page));
+    }
+
+    protected void add(String key, Class<? extends Page> page, PageParameters pageParameters){
+        templateLinks.add(new ResourceTemplateLink(key, this, page, pageParameters, null));
     }
 }
