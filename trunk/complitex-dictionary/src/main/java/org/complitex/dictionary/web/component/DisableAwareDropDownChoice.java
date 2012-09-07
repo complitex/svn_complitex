@@ -15,6 +15,10 @@ import java.util.List;
  */
 public class DisableAwareDropDownChoice<T> extends DropDownChoice<T> {
 
+    public DisableAwareDropDownChoice(String id) {
+        super(id);
+    }
+
     /**
      * @see org.apache.wicket.markup.html.form.AbstractChoice#AbstractChoice(String,
      *      List, org.apache.wicket.markup.html.form.IChoiceRenderer)
