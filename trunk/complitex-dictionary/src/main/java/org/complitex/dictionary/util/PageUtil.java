@@ -47,4 +47,18 @@ public class PageUtil {
 
         return textFields;
     }
+
+    public static TextField[] newTextFields(String... properties){
+        return newTextFields("", properties);
+    }
+
+    public static TextField[] newRequiredTextFields(String... properties){
+        TextField[] textFields = newTextFields(properties);
+
+        for (TextField textField : textFields){
+            textField.setRequired(true);
+        }
+
+        return textFields;
+    }
 }
