@@ -177,4 +177,8 @@ public class StringUtil {
     public static String emptyOnNull(Object o){
         return o != null ? o.toString() : "";
     }
+
+    public static Integer parseInt(String s){
+        return s != null && !s.isEmpty() ? Integer.parseInt(s) : null;
+    }
 }
