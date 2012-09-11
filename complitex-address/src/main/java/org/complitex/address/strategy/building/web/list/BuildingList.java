@@ -40,6 +40,7 @@ import java.util.List;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.web.component.search.CollapsibleSearchPanel;
 import org.complitex.template.web.component.toolbar.search.CollapsibleSearchToolbarButton;
 import org.complitex.template.web.pages.DomainObjectList;
@@ -49,10 +50,10 @@ import org.complitex.template.web.pages.DomainObjectList;
  * @author Artem
  */
 @AuthorizeInstantiation(SecurityRole.ADDRESS_MODULE_VIEW)
-public final class BuildingList extends ScrollListPage {
+public class BuildingList extends ScrollListPage {
 
     @EJB
-    private BuildingStrategy buildingStrategy;
+    private StrategyFactory strategyFactory;
     @EJB
     private LocaleBean localeBean;
     private DomainObjectExample example;
@@ -86,7 +87,7 @@ public final class BuildingList extends ScrollListPage {
 
             @Override
             public String getObject() {
-                return buildingStrategy.getPluralEntityLabel(getLocale());
+                return getBuildingStrategy().getPluralEntityLabel(getLocale());
             }
         };
 
@@ -100,13 +101,13 @@ public final class BuildingList extends ScrollListPage {
         example = (DomainObjectExample) getFilterObject(new DomainObjectExample());
 
         //Search
-        final List<String> searchFilters = buildingStrategy.getSearchFilters();
+        final List<String> searchFilters = getBuildingStrategy().getSearchFilters();
         content.setVisible(searchFilters == null || searchFilters.isEmpty());
         add(content);
 
         final IModel<ShowMode> showModeModel = new Model<ShowMode>(ShowMode.ACTIVE);
         searchPanel = new CollapsibleSearchPanel("searchPanel", getTemplateSession().getGlobalSearchComponentState(),
-                searchFilters, buildingStrategy.getSearchCallback(), ShowMode.ALL, true, showModeModel);
+                searchFilters, getBuildingStrategy().getSearchCallback(), ShowMode.ALL, true, showModeModel);
         add(searchPanel);
         searchPanel.initialize();
 
@@ -140,17 +141,17 @@ public final class BuildingList extends ScrollListPage {
                 example.setAsc(asc);
                 example.setStart(first);
                 example.setSize(count);
-                return buildingStrategy.find(example);
+                return getBuildingStrategy().find(example);
             }
 
             @Override
             protected int getSize() {
                 example.setStatus(showModeModel.getObject().name());
                 example.setLocaleId(localeBean.convert(getLocale()).getId());
-                return buildingStrategy.count(example);
+                return getBuildingStrategy().count(example);
             }
         };
-        dataProvider.setSort(String.valueOf(buildingStrategy.getDefaultSortAttributeTypeId()), SortOrder.ASCENDING);
+        dataProvider.setSort(String.valueOf(getBuildingStrategy().getDefaultSortAttributeTypeId()), SortOrder.ASCENDING);
 
         //Filters
         filterForm.add(new TextField<String>("numberFilter", new Model<String>() {
@@ -202,8 +203,10 @@ public final class BuildingList extends ScrollListPage {
                 item.add(new Label("corp", building.getAccompaniedCorp(getLocale())));
                 item.add(new Label("structure", building.getAccompaniedStructure(getLocale())));
 
-                ScrollBookmarkablePageLink<WebPage> detailsLink = new ScrollBookmarkablePageLink<WebPage>("detailsLink", buildingStrategy.getEditPage(),
-                        buildingStrategy.getEditPageParams(building.getId(), null, null), String.valueOf(building.getId()));
+                ScrollBookmarkablePageLink<WebPage> detailsLink = new ScrollBookmarkablePageLink<WebPage>("detailsLink",
+                        getBuildingStrategy().getEditPage(),
+                        getBuildingStrategy().getEditPageParams(building.getId(), null, null),
+                        String.valueOf(building.getId()));
                 detailsLink.add(new Label("editMessage", new AbstractReadOnlyModel<String>() {
 
                     @Override
@@ -261,18 +264,26 @@ public final class BuildingList extends ScrollListPage {
         content.add(new PagingNavigator("navigator", dataView, getPreferencesPage(), content));
     }
 
+    private BuildingStrategy getBuildingStrategy() {
+        return (BuildingStrategy) strategyFactory.getStrategy(getBuildingStrategyName(), "building");
+    }
+
+    protected String getBuildingStrategyName() {
+        return null;
+    }
+
     @Override
     protected List<? extends ToolbarButton> getToolbarButtons(String id) {
         return ImmutableList.of(new AddItemButton(id) {
 
             @Override
             protected void onClick() {
-                DomainObjectList.onAddObject(this.getPage(), buildingStrategy, getTemplateSession());
+                DomainObjectList.onAddObject(this.getPage(), getBuildingStrategy(), getTemplateSession());
             }
 
             @Override
             protected void onBeforeRender() {
-                if (!DomainObjectAccessUtil.canAddNew(null, "building")) {
+                if (!DomainObjectAccessUtil.canAddNew(getBuildingStrategyName(), "building")) {
                     setVisible(false);
                 }
                 super.onBeforeRender();
