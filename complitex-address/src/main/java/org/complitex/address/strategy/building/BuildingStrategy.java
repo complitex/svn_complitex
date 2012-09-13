@@ -586,7 +586,7 @@ public class BuildingStrategy extends TemplateStrategy {
 
     @Transactional
     @Override
-    public DomainObject findHistoryObject(long objectId, Date date) {
+    public Building findHistoryObject(long objectId, Date date) {
         DomainObjectExample example = new DomainObjectExample();
         example.setTable(getEntityTable());
         example.setId(objectId);

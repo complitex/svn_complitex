@@ -35,7 +35,7 @@ import org.complitex.dictionary.web.component.search.CollapsibleInputSearchCompo
  *
  * @author Artem
  */
-public final class BuildingEditComponent extends AbstractComplexAttributesPanel {
+public class BuildingEditComponent extends AbstractComplexAttributesPanel {
 
     @EJB
     private StrategyFactory strategyFactory;
@@ -59,6 +59,10 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
         return messages;
     }
 
+    protected String getBuildingStrategyName() {
+        return null;
+    }
+
     @Override
     protected void init() {
         final FeedbackPanel feedbackPanel = findFeedbackPanel();
@@ -66,12 +70,13 @@ public final class BuildingEditComponent extends AbstractComplexAttributesPanel 
         attributesContainer.setOutputMarkupId(true);
         add(attributesContainer);
 
-        IStrategy buildingStrategy = strategyFactory.getStrategy("building");
+        IStrategy buildingStrategy = strategyFactory.getStrategy(getBuildingStrategyName(), "building");
         IStrategy districtStrategy = strategyFactory.getStrategy("district");
 
         final Building building = (Building) getDomainObject();
 
-        final boolean enabled = !isDisabled() && DomainObjectAccessUtil.canEdit(null, "building", building);
+        final boolean enabled = !isDisabled() && DomainObjectAccessUtil.canEdit(getBuildingStrategyName(),
+                "building", building);
 
         final SearchComponentState parentSearchComponentState = getInputPanel().getParentSearchComponentState();
 

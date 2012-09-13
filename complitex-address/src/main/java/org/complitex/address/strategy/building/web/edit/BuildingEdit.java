@@ -27,6 +27,5 @@ public class BuildingEdit extends DomainObjectEdit {
         toolbarButtons.addAll(super.getToolbarButtons(id));
         toolbarButtons.add(new CollapsibleInputSearchToolbarButton(id));
         return toolbarButtons;
-
     }
 }
