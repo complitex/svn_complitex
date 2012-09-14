@@ -8,6 +8,7 @@ import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.session.SqlSessionManager;
+import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +57,9 @@ public class SqlSessionFactoryBean {
             //XmlMapper
             addAnnotationMappers(configuration);
 
+            //FixedIdType
+            addFixedIdTypeHandlers(configuration.getTypeHandlerRegistry());
+
             sqlSessionManager = SqlSessionManager.newInstance(builder.build(configuration));
         } catch (Exception e) {
             throw ExceptionFactory.wrapException("Error building SqlSession.", e);
@@ -88,6 +92,17 @@ public class SqlSessionFactoryBean {
             } catch (IOException e) {
                 log.error("Ресурс не найден", e);
             }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void addFixedIdTypeHandlers(TypeHandlerRegistry typeHandlerRegistry){
+        Reflections reflections = new Reflections("org.complitex");
+
+        Set<Class<?>> set = reflections.getTypesAnnotatedWith(FixedIdTypeHandler.class);
+
+        for (Class<?> c : set){
+            typeHandlerRegistry.register(c, new FixedIdBaseTypeHandler(c));
         }
     }
 }
