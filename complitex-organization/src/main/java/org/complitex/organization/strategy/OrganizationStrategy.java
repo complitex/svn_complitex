@@ -1,10 +1,6 @@
 package org.complitex.organization.strategy;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.address.strategy.district.DistrictStrategy;
@@ -15,25 +11,25 @@ import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.mybatis.Transactional;
 import org.complitex.dictionary.service.LocaleBean;
+import org.complitex.dictionary.service.PermissionBean;
+import org.complitex.dictionary.service.SequenceBean;
 import org.complitex.dictionary.strategy.DeleteException;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionary.strategy.web.validate.IValidator;
+import org.complitex.dictionary.util.AttributeUtil;
 import org.complitex.dictionary.util.Numbers;
 import org.complitex.dictionary.util.ResourceUtil;
+import org.complitex.organization.strategy.web.edit.OrganizationEdit;
 import org.complitex.organization.strategy.web.edit.OrganizationEditComponent;
 import org.complitex.organization.strategy.web.edit.OrganizationValidator;
+import org.complitex.organization_type.strategy.OrganizationTypeStrategy;
 import org.complitex.template.strategy.TemplateStrategy;
 import org.complitex.template.web.security.SecurityRole;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.util.*;
-import org.complitex.dictionary.service.PermissionBean;
-import org.complitex.dictionary.service.SequenceBean;
-import org.complitex.dictionary.util.AttributeUtil;
-import org.complitex.organization.strategy.web.edit.OrganizationEdit;
-import org.complitex.organization_type.strategy.OrganizationTypeStrategy;
 
 /**
  *
@@ -378,5 +374,10 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
     @Override
     public String getUniqueCode(DomainObject organization) {
         return AttributeUtil.getStringValue(organization, CODE);
+    }
+
+    @Override
+    public Long getObjectId(String code) {
+        return sqlSession().selectOne(ORGANIZATION_NAMESPACE + ".selectOrganizationObjectIdByCode", code);
     }
 }

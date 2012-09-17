@@ -109,4 +109,10 @@
                 </choose>
     </update>
 
+    <select id="selectOrganizationObjectIdByCode" parameterType="string" resultType="long">
+        SELECT oa.`object_id` FROM `organization_attribute` oa LEFT JOIN `organization_string_culture` osc
+            ON (oa.`value_id` = osc.`id`) WHERE oa.`attribute_type_id` = 901 AND oa.`status` = 'ACTIVE'
+                AND osc.`value` = #{code};
+    </select>
+
 </mapper>

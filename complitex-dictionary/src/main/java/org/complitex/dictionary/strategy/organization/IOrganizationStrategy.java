@@ -1,12 +1,12 @@
 package org.complitex.dictionary.strategy.organization;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.mybatis.Transactional;
 import org.complitex.dictionary.strategy.IStrategy;
+
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 /**
  *
@@ -100,4 +100,11 @@ public interface IOrganizationStrategy extends IStrategy {
      * @return Organization's code.
      */
     String getUniqueCode(DomainObject organization);
+
+    /**
+     * Return object id of organization by code
+     * @param code Code
+     * @return Organization object id
+     */
+    Long getObjectId(String code);
 }
