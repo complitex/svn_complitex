@@ -54,11 +54,11 @@ public class SqlSessionFactoryBean {
 
             Configuration configuration = parser.parse();
 
-            //XmlMapper
-            addAnnotationMappers(configuration);
-
             //FixedIdType
             addFixedIdTypeHandlers(configuration.getTypeHandlerRegistry());
+
+            //XmlMapper
+            addAnnotationMappers(configuration);
 
             sqlSessionManager = SqlSessionManager.newInstance(builder.build(configuration));
         } catch (Exception e) {
