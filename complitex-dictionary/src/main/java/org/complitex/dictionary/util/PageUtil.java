@@ -7,9 +7,6 @@ import org.complitex.dictionary.web.component.TextLabel;
 import org.complitex.dictionary.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionary.web.component.datatable.DataProvider;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 06.09.12 18:22
@@ -48,12 +45,8 @@ public class PageUtil {
         return textFields;
     }
 
-    public static TextField[] newTextFields(String... properties){
-        return newTextFields("", properties);
-    }
-
     public static TextField[] newRequiredTextFields(String... properties){
-        TextField[] textFields = newTextFields(properties);
+        TextField[] textFields = newTextFields("", properties);
 
         for (TextField textField : textFields){
             textField.setRequired(true);
