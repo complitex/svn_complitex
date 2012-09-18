@@ -128,7 +128,7 @@ public class AddressImportService extends AbstractImportService {
     }
 
     public <T extends IImportFile> void process(T importFile, IImportListener listener)
-            throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
+            throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException, ImportDuplicateException {
         switch ((AddressImportFile) importFile) {
             case COUNTRY:
                 importCountry(listener);
@@ -214,18 +214,21 @@ public class AddressImportService extends AbstractImportService {
             while ((line = reader.readNext()) != null) {
                 recordIndex++;
 
-                DomainObject domainObject = countryStrategy.newInstance();
-                Attribute name = domainObject.getAttribute(CountryStrategy.NAME);
+                final long externalId = Long.parseLong(line[0].trim());
+                final Long existingId = countryStrategy.getObjectId(externalId);
+                if (existingId == null) {
+                    DomainObject domainObject = countryStrategy.newInstance();
+                    Attribute name = domainObject.getAttribute(CountryStrategy.NAME);
 
-                //COUNTRY_ID
-                domainObject.setExternalId(Long.parseLong(line[0].trim()));
+                    //COUNTRY_ID
+                    domainObject.setExternalId(externalId);
 
-                //Название страны
-                stringBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[1].trim());
+                    //Название страны
+                    stringBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[1].trim());
 
-                countryStrategy.insert(domainObject, DateUtil.getCurrentDate());
-
-                listener.recordProcessed(COUNTRY, recordIndex);
+                    countryStrategy.insert(domainObject, DateUtil.getCurrentDate());
+                    listener.recordProcessed(COUNTRY, recordIndex);
+                }
             }
 
             listener.completeImport(COUNTRY, recordIndex);
@@ -262,26 +265,29 @@ public class AddressImportService extends AbstractImportService {
             while ((line = reader.readNext()) != null) {
                 recordIndex++;
 
-                DomainObject domainObject = regionStrategy.newInstance();
+                final long externalId = Long.parseLong(line[0].trim());
+                final Long existingId = regionStrategy.getObjectId(externalId);
+                if (existingId == null) {
+                    DomainObject domainObject = regionStrategy.newInstance();
 
-                //REGION_ID
-                domainObject.setExternalId(Long.parseLong(line[0].trim()));
+                    //REGION_ID
+                    domainObject.setExternalId(externalId);
 
-                //COUNTRY_ID
-                Long countryId = countryStrategy.getObjectId(Long.parseLong(line[1].trim()));
-                if (countryId == null) {
-                    throw new ImportObjectLinkException(REGION.getFileName(), recordIndex, line[1]);
+                    //COUNTRY_ID
+                    Long countryId = countryStrategy.getObjectId(Long.parseLong(line[1].trim()));
+                    if (countryId == null) {
+                        throw new ImportObjectLinkException(REGION.getFileName(), recordIndex, line[1]);
+                    }
+                    domainObject.setParentEntityId(RegionStrategy.PARENT_ENTITY_ID);
+                    domainObject.setParentId(countryId);
+
+                    //Название региона
+                    Attribute name = domainObject.getAttribute(RegionStrategy.NAME);
+                    stringBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[2].trim());
+
+                    regionStrategy.insert(domainObject, DateUtil.getCurrentDate());
+                    listener.recordProcessed(REGION, recordIndex);
                 }
-                domainObject.setParentEntityId(RegionStrategy.PARENT_ENTITY_ID);
-                domainObject.setParentId(countryId);
-
-                //Название региона
-                Attribute name = domainObject.getAttribute(RegionStrategy.NAME);
-                stringBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[2].trim());
-
-                regionStrategy.insert(domainObject, DateUtil.getCurrentDate());
-
-                listener.recordProcessed(REGION, recordIndex);
             }
 
             listener.completeImport(REGION, recordIndex);
@@ -317,22 +323,27 @@ public class AddressImportService extends AbstractImportService {
             while ((line = reader.readNext()) != null) {
                 recordIndex++;
 
-                DomainObject domainObject = cityTypeStrategy.newInstance();
+                final long externalId = Long.parseLong(line[0].trim());
+                final Long existingId = cityTypeStrategy.getObjectId(externalId);
+                if (existingId == null) {
 
-                //CITY_TYPE_ID
-                domainObject.setExternalId(Long.parseLong(line[0].trim()));
+                    DomainObject domainObject = cityTypeStrategy.newInstance();
 
-                //Название типа населенного пункта
-                Attribute name = domainObject.getAttribute(CityTypeStrategy.NAME);
-                stringBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[2].trim());
+                    //CITY_TYPE_ID
+                    domainObject.setExternalId(externalId);
 
-                //Короткое название типа населенного пункта
-                Attribute shortName = domainObject.getAttribute(CityTypeStrategy.SHORT_NAME);
-                stringBean.getSystemStringCulture(shortName.getLocalizedValues()).setValue(line[1].trim());
+                    //Название типа населенного пункта
+                    Attribute name = domainObject.getAttribute(CityTypeStrategy.NAME);
+                    stringBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[2].trim());
 
-                cityTypeStrategy.insert(domainObject, DateUtil.getCurrentDate());
+                    //Короткое название типа населенного пункта
+                    Attribute shortName = domainObject.getAttribute(CityTypeStrategy.SHORT_NAME);
+                    stringBean.getSystemStringCulture(shortName.getLocalizedValues()).setValue(line[1].trim());
 
-                listener.recordProcessed(CITY_TYPE, recordIndex);
+                    cityTypeStrategy.insert(domainObject, DateUtil.getCurrentDate());
+
+                    listener.recordProcessed(CITY_TYPE, recordIndex);
+                }
             }
 
             listener.completeImport(CITY_TYPE, recordIndex);
@@ -368,33 +379,37 @@ public class AddressImportService extends AbstractImportService {
             while ((line = reader.readNext()) != null) {
                 recordIndex++;
 
-                DomainObject domainObject = cityStrategy.newInstance();
+                final long externalId = Long.parseLong(line[0].trim());
+                final Long existingId = cityStrategy.getObjectId(externalId);
+                if (existingId == null) {
+                    DomainObject domainObject = cityStrategy.newInstance();
 
-                //CITY_ID
-                domainObject.setExternalId(Long.parseLong(line[0].trim()));
+                    //CITY_ID
+                    domainObject.setExternalId(externalId);
 
-                //REGION_ID
-                Long regionId = regionStrategy.getObjectId(Long.parseLong(line[1].trim()));
-                if (regionId == null) {
-                    throw new ImportObjectLinkException(CITY.getFileName(), recordIndex, line[1]);
+                    //REGION_ID
+                    Long regionId = regionStrategy.getObjectId(Long.parseLong(line[1].trim()));
+                    if (regionId == null) {
+                        throw new ImportObjectLinkException(CITY.getFileName(), recordIndex, line[1]);
+                    }
+                    domainObject.setParentEntityId(CityStrategy.PARENT_ENTITY_ID);
+                    domainObject.setParentId(regionId);
+
+                    //CITY_TYPE_ID
+                    Long cityTypeId = cityTypeStrategy.getObjectId(Long.parseLong(line[2].trim()));
+                    if (cityTypeId == null) {
+                        throw new ImportObjectLinkException(CITY.getFileName(), recordIndex, line[2]);
+                    }
+                    domainObject.getAttribute(CityStrategy.CITY_TYPE).setValueId(cityTypeId);
+
+                    //Название населенного пункта
+                    Attribute name = domainObject.getAttribute(CityStrategy.NAME);
+                    stringBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[3].trim());
+
+                    cityStrategy.insert(domainObject, DateUtil.getCurrentDate());
+
+                    listener.recordProcessed(CITY, recordIndex);
                 }
-                domainObject.setParentEntityId(CityStrategy.PARENT_ENTITY_ID);
-                domainObject.setParentId(regionId);
-
-                //CITY_TYPE_ID
-                Long cityTypeId = cityTypeStrategy.getObjectId(Long.parseLong(line[2].trim()));
-                if (cityTypeId == null) {
-                    throw new ImportObjectLinkException(CITY.getFileName(), recordIndex, line[2]);
-                }
-                domainObject.getAttribute(CityStrategy.CITY_TYPE).setValueId(cityTypeId);
-
-                //Название населенного пункта
-                Attribute name = domainObject.getAttribute(CityStrategy.NAME);
-                stringBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[3].trim());
-
-                cityStrategy.insert(domainObject, DateUtil.getCurrentDate());
-
-                listener.recordProcessed(CITY, recordIndex);
             }
 
             listener.completeImport(CITY, recordIndex);
@@ -430,30 +445,34 @@ public class AddressImportService extends AbstractImportService {
             while ((line = reader.readNext()) != null) {
                 recordIndex++;
 
-                DomainObject domainObject = districtStrategy.newInstance();
+                final long externalId = Long.parseLong(line[0].trim());
+                final Long existingId = districtStrategy.getObjectId(externalId);
+                if (existingId == null) {
+                    DomainObject domainObject = districtStrategy.newInstance();
 
-                //DISTRICT_ID
-                domainObject.setExternalId(Long.parseLong(line[0].trim()));
+                    //DISTRICT_ID
+                    domainObject.setExternalId(externalId);
 
-                //CITY_ID
-                Long cityId = cityStrategy.getObjectId(Long.parseLong(line[1].trim()));
-                if (cityId == null) {
-                    throw new ImportObjectLinkException(DISTRICT.getFileName(), recordIndex, line[1]);
+                    //CITY_ID
+                    Long cityId = cityStrategy.getObjectId(Long.parseLong(line[1].trim()));
+                    if (cityId == null) {
+                        throw new ImportObjectLinkException(DISTRICT.getFileName(), recordIndex, line[1]);
+                    }
+                    domainObject.setParentEntityId(DistrictStrategy.PARENT_ENTITY_ID);
+                    domainObject.setParentId(cityId);
+
+                    //Код района
+                    Attribute code = domainObject.getAttribute(DistrictStrategy.CODE);
+                    stringBean.getSystemStringCulture(code.getLocalizedValues()).setValue(line[2].trim());
+
+                    //Название района
+                    Attribute name = domainObject.getAttribute(DistrictStrategy.NAME);
+                    stringBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[3].trim());
+
+                    districtStrategy.insert(domainObject, DateUtil.getCurrentDate());
+
+                    listener.recordProcessed(DISTRICT, recordIndex);
                 }
-                domainObject.setParentEntityId(DistrictStrategy.PARENT_ENTITY_ID);
-                domainObject.setParentId(cityId);
-
-                //Код района
-                Attribute code = domainObject.getAttribute(DistrictStrategy.CODE);
-                stringBean.getSystemStringCulture(code.getLocalizedValues()).setValue(line[2].trim());
-
-                //Название района
-                Attribute name = domainObject.getAttribute(DistrictStrategy.NAME);
-                stringBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[3].trim());
-
-                districtStrategy.insert(domainObject, DateUtil.getCurrentDate());
-
-                listener.recordProcessed(DISTRICT, recordIndex);
             }
 
             listener.completeImport(DISTRICT, recordIndex);
@@ -489,22 +508,26 @@ public class AddressImportService extends AbstractImportService {
             while ((line = reader.readNext()) != null) {
                 recordIndex++;
 
-                DomainObject domainObject = streetTypeStrategy.newInstance();
+                final long externalId = Long.parseLong(line[0].trim());
+                final Long existingId = streetTypeStrategy.getObjectId(externalId);
+                if (existingId == null) {
+                    DomainObject domainObject = streetTypeStrategy.newInstance();
 
-                //STREET_TYPE_ID
-                domainObject.setExternalId(Long.parseLong(line[0].trim()));
+                    //STREET_TYPE_ID
+                    domainObject.setExternalId(externalId);
 
-                //Название типа улицы
-                Attribute name = domainObject.getAttribute(StreetTypeStrategy.NAME);
-                stringBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[2].trim());
+                    //Название типа улицы
+                    Attribute name = domainObject.getAttribute(StreetTypeStrategy.NAME);
+                    stringBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[2].trim());
 
-                //Короткое название улицы
-                Attribute shortName = domainObject.getAttribute(StreetTypeStrategy.SHORT_NAME);
-                stringBean.getSystemStringCulture(shortName.getLocalizedValues()).setValue(line[1].trim());
+                    //Короткое название улицы
+                    Attribute shortName = domainObject.getAttribute(StreetTypeStrategy.SHORT_NAME);
+                    stringBean.getSystemStringCulture(shortName.getLocalizedValues()).setValue(line[1].trim());
 
-                streetTypeStrategy.insert(domainObject, DateUtil.getCurrentDate());
+                    streetTypeStrategy.insert(domainObject, DateUtil.getCurrentDate());
 
-                listener.recordProcessed(STREET_TYPE, recordIndex);
+                    listener.recordProcessed(STREET_TYPE, recordIndex);
+                }
             }
 
             listener.completeImport(STREET_TYPE, recordIndex);
@@ -527,7 +550,7 @@ public class AddressImportService extends AbstractImportService {
      * @throws ImportFileReadException
      */
     public void importStreet(IImportListener listener)
-            throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
+            throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException, ImportDuplicateException {
         listener.beginImport(STREET, getRecordCount(STREET));
 
         CSVReader reader = getCsvReader(STREET);
@@ -540,36 +563,41 @@ public class AddressImportService extends AbstractImportService {
             while ((line = reader.readNext()) != null) {
                 recordIndex++;
 
-                DomainObject domainObject = streetStrategy.newInstance();
+                final long externalId = Long.parseLong(line[0].trim());
+                final Long existingId = streetStrategy.getObjectId(externalId);
+                if (existingId == null) {
+                    DomainObject domainObject = streetStrategy.newInstance();
 
-                //STREET_ID
-                domainObject.setExternalId(Long.parseLong(line[0].trim()));
+                    //STREET_ID
+                    domainObject.setExternalId(externalId);
 
-                //CITY_ID
-                Long cityId = cityStrategy.getObjectId(Long.parseLong(line[1].trim()));
-                if (cityId == null) {
-                    throw new ImportObjectLinkException(STREET.getFileName(), recordIndex, line[1]);
-                }
-                domainObject.setParentEntityId(StreetStrategy.PARENT_ENTITY_ID);
-                domainObject.setParentId(cityId);
+                    //CITY_ID
+                    Long cityId = cityStrategy.getObjectId(Long.parseLong(line[1].trim()));
+                    if (cityId == null) {
+                        throw new ImportObjectLinkException(STREET.getFileName(), recordIndex, line[1]);
+                    }
+                    domainObject.setParentEntityId(StreetStrategy.PARENT_ENTITY_ID);
+                    domainObject.setParentId(cityId);
 
-                //STREET_TYPE_ID
-                Long streetTypeId = streetTypeStrategy.getObjectId(Long.parseLong(line[2].trim()));
-                if (streetTypeId == null) {
-                    throw new ImportObjectLinkException(STREET.getFileName(), recordIndex, line[2]);
-                }
-                domainObject.getAttribute(StreetStrategy.STREET_TYPE).setValueId(streetTypeId);
+                    //STREET_TYPE_ID
+                    Long streetTypeId = streetTypeStrategy.getObjectId(Long.parseLong(line[2].trim()));
+                    if (streetTypeId == null) {
+                        throw new ImportObjectLinkException(STREET.getFileName(), recordIndex, line[2]);
+                    }
+                    domainObject.getAttribute(StreetStrategy.STREET_TYPE).setValueId(streetTypeId);
 
-                //Название улицы
-                Attribute name = domainObject.getAttribute(StreetStrategy.NAME);
-                stringBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[3].trim());
+                    //Название улицы
+                    Attribute name = domainObject.getAttribute(StreetStrategy.NAME);
+                    stringBean.getSystemStringCulture(name.getLocalizedValues()).setValue(line[3].trim());
 
-                // сначала ищем улицу в системе с таким названием, типом и родителем(городом)
-                final Long existingStreetId = streetStrategy.performDefaultValidation(domainObject, localeBean.getSystemLocale());
-                if (existingStreetId != null) { // нашли, пропускаем улицу
-                } else { // не нашли, сохраняем улицу
-                    streetStrategy.insert(domainObject, DateUtil.getCurrentDate());
-                    listener.recordProcessed(STREET, recordIndex);
+                    // сначала ищем улицу в системе с таким названием, типом и родителем(городом)
+                    final Long existingStreetId = streetStrategy.performDefaultValidation(domainObject, localeBean.getSystemLocale());
+                    if (existingStreetId != null) { // нашли дубликат
+                        throw new ImportDuplicateException(STREET.getFileName(), recordIndex, externalId, existingStreetId);
+                    } else { // не нашли, сохраняем улицу
+                        streetStrategy.insert(domainObject, DateUtil.getCurrentDate());
+                        listener.recordProcessed(STREET, recordIndex);
+                    }
                 }
             }
 
