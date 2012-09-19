@@ -993,11 +993,11 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
         Attribute attribute = object.getAttribute(attributeTypeId);
         if (attribute == null) {
-            throw new RuntimeException("Domain object(entity = " + getEntityTable() + ", id = " + object.getId()
+            throw new IllegalStateException("Domain object(entity = " + getEntityTable() + ", id = " + object.getId()
                     + ") has no attribute with attribute type id = " + attributeTypeId + "!");
         }
         if (attribute.getLocalizedValues() == null) {
-            throw new RuntimeException("Attribute of domain object(entity = " + getEntityTable() + ", id = " + object.getId()
+            throw new IllegalStateException("Attribute of domain object(entity = " + getEntityTable() + ", id = " + object.getId()
                     + ") with attribute type id = " + attributeTypeId + " and attribute id = " + attribute.getAttributeId()
                     + " has null lozalized values.");
         }
