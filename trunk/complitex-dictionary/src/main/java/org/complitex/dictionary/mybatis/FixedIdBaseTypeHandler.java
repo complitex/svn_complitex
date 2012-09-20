@@ -1,7 +1,7 @@
 package org.complitex.dictionary.mybatis;
 
-import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
+import org.apache.ibatis.type.TypeHandler;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
@@ -12,7 +12,7 @@ import java.sql.SQLException;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 14.09.12 18:21
  */
-public class FixedIdBaseTypeHandler<T extends Enum & IFixedIdType> extends BaseTypeHandler<T>{
+public class FixedIdBaseTypeHandler<T extends Enum & IFixedIdType> implements TypeHandler<T> {
     private Class<T> _class;
     private final T[] enums;
 
@@ -36,22 +36,28 @@ public class FixedIdBaseTypeHandler<T extends Enum & IFixedIdType> extends BaseT
     }
 
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, T parameter, JdbcType jdbcType) throws SQLException {
+    public void setParameter(PreparedStatement ps, int i, T parameter, JdbcType jdbcType) throws SQLException {
         ps.setLong(i, parameter.getId());
     }
 
     @Override
-    public T getNullableResult(ResultSet rs, String columnName) throws SQLException {
-        return getType(rs.getLong(columnName));
+    public T getResult(ResultSet rs, String columnName) throws SQLException {
+        Long l = rs.getLong(columnName);
+
+        return !rs.wasNull() ? getType(l) : null;
     }
 
     @Override
-    public T getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
-        return getType(rs.getLong(columnIndex));
+    public T getResult(ResultSet rs, int columnIndex) throws SQLException {
+        Long l = rs.getLong(columnIndex);
+
+        return !rs.wasNull() ? getType(l) : null;
     }
 
     @Override
-    public T getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
-        return getType(cs.getLong(columnIndex));
+    public T getResult(CallableStatement cs, int columnIndex) throws SQLException {
+        Long l = cs.getLong(columnIndex);
+
+        return !cs.wasNull() ? getType(l) : null;
     }
 }
