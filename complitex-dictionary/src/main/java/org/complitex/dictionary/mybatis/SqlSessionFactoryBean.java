@@ -52,13 +52,17 @@ public class SqlSessionFactoryBean {
             SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
             XMLConfigBuilder parser = new XMLConfigBuilder(reader,  ENVIRONMENT);
 
+            //Configuration
             Configuration configuration = parser.parse();
 
+            //Reflections
+            Reflections reflections = new Reflections("org.complitex");
+
             //FixedIdType
-            addFixedIdTypeHandlers(configuration.getTypeHandlerRegistry());
+            addFixedIdTypeHandlers(reflections, configuration.getTypeHandlerRegistry());
 
             //XmlMapper
-            addAnnotationMappers(configuration);
+            addAnnotationMappers(reflections, configuration);
 
             sqlSessionManager = SqlSessionManager.newInstance(builder.build(configuration));
         } catch (Exception e) {
@@ -75,9 +79,7 @@ public class SqlSessionFactoryBean {
         }
     }
 
-    private void addAnnotationMappers(Configuration configuration){
-        Reflections reflections = new Reflections("org.complitex");
-
+    private void addAnnotationMappers(Reflections reflections, Configuration configuration){
         Set<Class<?>> set = reflections.getTypesAnnotatedWith(XmlMapper.class);
 
         for (Class<?> c : set){
@@ -96,9 +98,7 @@ public class SqlSessionFactoryBean {
     }
 
     @SuppressWarnings("unchecked")
-    private void addFixedIdTypeHandlers(TypeHandlerRegistry typeHandlerRegistry){
-        Reflections reflections = new Reflections("org.complitex");
-
+    private void addFixedIdTypeHandlers(Reflections reflections, TypeHandlerRegistry typeHandlerRegistry){
         Set<Class<?>> set = reflections.getTypesAnnotatedWith(FixedIdTypeHandler.class);
 
         for (Class<?> c : set){
