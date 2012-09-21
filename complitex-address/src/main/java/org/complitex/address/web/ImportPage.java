@@ -24,8 +24,12 @@ import javax.ejb.EJB;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.complitex.dictionary.service.LocaleBean;
+import org.complitex.template.web.component.LocalePicker;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -36,8 +40,11 @@ public class ImportPage extends TemplatePage {
 
     @EJB
     private AddressImportService addressImportService;
+    @EJB
+    private LocaleBean localeBean;
     private int stopTimer = 0;
     private final IModel<List<IImportFile>> dictionaryModel;
+    private final IModel<Locale> localeModel;
 
     public ImportPage() {
         add(new Label("title", new ResourceModel("title")));
@@ -70,6 +77,8 @@ public class ImportPage extends TemplatePage {
                     }
                 }));
 
+        localeModel = new Model<Locale>(localeBean.getSystemLocale());
+        form.add(new LocalePicker("localePicker", localeModel, false));
 
         //Кнопка импортировать
         Button process = new Button("process") {
@@ -77,7 +86,8 @@ public class ImportPage extends TemplatePage {
             @Override
             public void onSubmit() {
                 if (!addressImportService.isProcessing()) {
-                    addressImportService.process(dictionaryModel.getObject());
+                    addressImportService.process(dictionaryModel.getObject(),
+                            localeBean.convert(localeModel.getObject()).getId());
                     container.add(newTimer());
                 }
             }

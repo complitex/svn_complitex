@@ -19,11 +19,14 @@
                     </ul>
 
                     <form action="#" wicket:id="form">
-                        <h2><wicket:message key="import"/></h2>
+                        <div wicket:id="localePicker"></div>
+                        
+                        <h2 style="margin-bottom: 5px;"><wicket:message key="import"/></h2>
                         <span wicket:id="address"></span>
-                        <br/>
 
-                        <input type="submit" class="btnBig" wicket:id="process" wicket:message="value:process"/>
+                        <div style="margin-top: 15px;">
+                            <input type="submit" class="btnBig" wicket:id="process" wicket:message="value:process"/>
+                        </div>
                     </form>
                 </div>
             </div>

@@ -1,12 +1,13 @@
-package org.complitex.dictionary.entity;
+package org.complitex.dictionary.service;
 
 import au.com.bytecode.opencsv.CSVReader;
-import org.complitex.dictionary.service.ConfigBean;
 import org.complitex.dictionary.service.exception.ImportFileNotFoundException;
 import org.complitex.dictionary.service.exception.ImportFileReadException;
 import org.complitex.dictionary.util.ImportStorageUtil;
 
 import javax.ejb.EJB;
+import org.complitex.dictionary.entity.DictionaryConfig;
+import org.complitex.dictionary.entity.IImportFile;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
