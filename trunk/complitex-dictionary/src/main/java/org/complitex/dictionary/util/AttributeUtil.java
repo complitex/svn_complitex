@@ -14,6 +14,7 @@ import org.complitex.dictionary.converter.IntegerConverter;
 import org.complitex.dictionary.converter.StringConverter;
 import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.DomainObject;
+import org.complitex.dictionary.entity.StringCulture;
 import org.complitex.dictionary.service.StringCultureBean;
 
 /**
@@ -48,6 +49,10 @@ public final class AttributeUtil {
         return value;
     }
 
+    public static String getSystemStringCultureValue(Attribute attribute) {
+        return stringBean().getSystemStringCulture(attribute.getLocalizedValues()).getValue();
+    }
+
     public static Integer getIntegerValue(DomainObject object, long attributeTypeId) {
         return getAttributeValue(object, attributeTypeId, new IntegerConverter());
     }
@@ -67,5 +72,13 @@ public final class AttributeUtil {
 
     private static StringCultureBean stringBean() {
         return EjbBeanLocator.getBean(StringCultureBean.class);
+    }
+
+    public static void setStringValue(Attribute attribute, String value, long localeId) {
+        for (StringCulture string : attribute.getLocalizedValues()) {
+            if (string.getLocaleId().equals(localeId)) {
+                string.setValue(value);
+            }
+        }
     }
 }
