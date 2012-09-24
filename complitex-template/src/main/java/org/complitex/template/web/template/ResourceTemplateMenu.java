@@ -72,4 +72,8 @@ public abstract class ResourceTemplateMenu implements ITemplateMenu {
     protected void add(String key, Class<? extends Page> page, PageParameters pageParameters){
         templateLinks.add(new ResourceTemplateLink(key, this, page, pageParameters, null));
     }
+    
+    protected final void add(ITemplateLink menuItemLink){
+        templateLinks.add(menuItemLink);
+    }
 }
