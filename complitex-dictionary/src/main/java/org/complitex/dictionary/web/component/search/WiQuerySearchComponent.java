@@ -8,6 +8,7 @@ import static com.google.common.collect.Maps.*;
 import static com.google.common.collect.Sets.*;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
@@ -35,6 +36,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.form.FormComponent;
+import org.apache.wicket.request.resource.PackageResourceReference;
 import org.apache.wicket.util.string.Strings;
 import org.odlabs.wiquery.ui.autocomplete.AbstractAutocompleteComponent;
 
@@ -136,6 +138,12 @@ public class WiQuerySearchComponent extends Panel {
         this.enabled = false;
         this.showMode = null;
         init();
+    }
+
+    @Override
+    public void renderHead(IHeaderResponse response) {
+        response.renderCSSReference(new PackageResourceReference(WiQuerySearchComponent.class,
+                WiQuerySearchComponent.class.getSimpleName() + ".css"));
     }
 
     protected void init() {

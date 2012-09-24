@@ -22,7 +22,7 @@ import java.util.List;
  *
  * @author Artem
  */
-public class StringCulturePanel extends Panel {
+public final class StringCulturePanel extends Panel {
 
     @EJB
     private LocaleBean localeBean;
@@ -55,7 +55,7 @@ public class StringCulturePanel extends Panel {
         init(model, required, labelModel, enabled, toUpdate);
     }
 
-    protected void init(IModel<List<StringCulture>> model, final boolean required, final IModel<String> labelModel, final boolean enabled,
+    private void init(IModel<List<StringCulture>> model, final boolean required, final IModel<String> labelModel, final boolean enabled,
             final MarkupContainer[] toUpdate) {
         add(new ListView<StringCulture>("strings", model) {
 
@@ -71,7 +71,7 @@ public class StringCulturePanel extends Panel {
                     isSystemLocale = true;
                 }
 
-                InputPanel<String> inputPanel = new InputPanel("inputPanel", new PropertyModel<String>(string, "value"),
+                InputPanel<String> inputPanel = new InputPanel<String>("inputPanel", new PropertyModel<String>(string, "value"),
                         String.class, required && isSystemLocale, labelModel, enabled, toUpdate);
                 item.add(inputPanel);
 
