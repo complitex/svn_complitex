@@ -237,6 +237,7 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
         if (!example.isAdmin()) {
             prepareExampleForPermissionCheck(example);
         }
+        extendOrderBy(example);
 
         @SuppressWarnings("unchecked")
         List<DomainObject> organizations = sqlSession().selectList(ORGANIZATION_NAMESPACE + "." + FIND_OPERATION, example);
