@@ -18,4 +18,9 @@
             <class name="org.complitex.dictionary.util.DateUtilTest"/>
         </classes>
     </test>
+    <test name="BuildingNumberConverterTest">
+        <classes>
+            <class name="org.complitex.dictionary.util.BuildingNumberConverterTest"/>
+        </classes>
+    </test>
 </suite>
