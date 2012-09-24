@@ -4,9 +4,6 @@
  */
 package org.complitex.address.service;
 
-import java.util.Locale;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.mybatis.Transactional;
@@ -14,6 +11,10 @@ import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.IStrategy.SimpleObjectInfo;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
+
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
+import java.util.Locale;
 
 /**
  *
@@ -68,5 +69,9 @@ public class AddressRendererBean {
     @Transactional
     public String displayAddress(String addressEntity, long addressId, Locale locale) {
         return displayAddress(addressEntity, addressId, locale, new String[]{"city", "street", "building", "apartment", "room"});
+    }
+
+    public String displayBuildingSimple(long buildingId, Locale locale) {
+        return displayAddress("building", buildingId, locale, new String[]{"street", "building"});
     }
 }
