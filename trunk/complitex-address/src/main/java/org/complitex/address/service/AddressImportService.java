@@ -97,6 +97,10 @@ public class AddressImportService extends AbstractImportService {
             logBean.info(Module.NAME, AddressImportService.class, importFile.getClass(), null, Log.EVENT.CREATE,
                     "Имя файла: {0}, количество записей: {1}", importFile.getFileName(), recordCount);
         }
+
+        @Override
+        public void warn(IImportFile importFile, String message) {
+        }
     };
 
     public boolean isProcessing() {
