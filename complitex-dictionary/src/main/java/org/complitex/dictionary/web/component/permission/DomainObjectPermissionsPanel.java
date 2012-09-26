@@ -213,6 +213,8 @@ public class DomainObjectPermissionsPanel extends Panel implements IWiQueryPlugi
         response.renderJavaScriptReference(
                 new PackageResourceReference(DomainObjectPermissionsPanel.class,
                 DomainObjectPermissionsPanel.class.getSimpleName() + ".js"));
+        response.renderCSSReference(new PackageResourceReference(DomainObjectPermissionsPanel.class,
+                DomainObjectPermissionsPanel.class.getSimpleName() + ".css"));
 
     }
 
