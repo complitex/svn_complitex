@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -30,6 +31,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.request.resource.PackageResourceReference;
 import org.complitex.dictionary.entity.StatusType;
 import org.complitex.dictionary.strategy.web.DomainObjectEditPanel;
 
@@ -53,6 +55,13 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
 
     public OrganizationEditComponent(String id, boolean disabled) {
         super(id, disabled);
+    }
+
+    @Override
+    public void renderHead(IHeaderResponse response) {
+        super.renderHead(response);
+        response.renderCSSReference(new PackageResourceReference(OrganizationEditComponent.class,
+                OrganizationEditComponent.class.getSimpleName() + ".css"));
     }
 
     protected boolean isNew() {
