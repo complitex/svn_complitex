@@ -11,6 +11,7 @@ public class ImportMessage implements Serializable {
     private final IImportFile importFile;
     private final int count;
     private volatile int index;
+    private volatile int processed;
     private volatile boolean completed;
 
     public ImportMessage(IImportFile importFile, int count, int index) {
@@ -41,5 +42,17 @@ public class ImportMessage implements Serializable {
 
     public void setIndex(int index) {
         this.index = index;
+    }
+
+    public int getProcessed() {
+        return processed;
+    }
+
+    public void setProcessed(int processed) {
+        this.processed = processed;
+    }
+
+    public void incProcessed(){
+        processed++;
     }
 }
