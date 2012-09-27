@@ -1,10 +1,5 @@
 package org.complitex.dictionary;
 
-import org.complitex.dictionary.entity.DictionaryConfig;
-import org.complitex.dictionary.service.ConfigBean;
-
-import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 
@@ -16,12 +11,4 @@ import javax.ejb.Startup;
 @Startup
 public class Module {
     public final static String NAME = "org.complitex.dictionary";
-
-    @EJB
-    private ConfigBean configBean;
-
-    @PostConstruct
-    public void init(){
-        configBean.init(DictionaryConfig.class.getCanonicalName(), DictionaryConfig.values());
-    }
 }

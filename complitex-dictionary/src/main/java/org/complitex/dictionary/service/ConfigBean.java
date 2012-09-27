@@ -2,16 +2,20 @@ package org.complitex.dictionary.service;
 
 import org.complitex.dictionary.entity.IConfig;
 import org.complitex.dictionary.mybatis.Transactional;
+import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
+import javax.ejb.Startup;
 import java.util.*;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 04.10.2010 10:54:14
  */
+@Startup
 @Singleton(name = "ConfigBean")
 public class ConfigBean extends AbstractBean{
     private static final Logger log = LoggerFactory.getLogger(ConfigBean.class);
@@ -22,7 +26,22 @@ public class ConfigBean extends AbstractBean{
 
     private Set<String> resourceBundle = new HashSet<String>();
 
-    public void init(String bundle, IConfig... configs){
+    @PostConstruct
+    public void init(){
+        Reflections reflections = new Reflections("org.complitex");
+
+        Set<Class<? extends IConfig>> configs = reflections.getSubTypesOf(IConfig.class);
+
+        for (Class<? extends IConfig> c : configs){
+            try {
+                init(c.getCanonicalName(),c.getEnumConstants());
+            } catch (Exception e) {
+                log.error("Ошибка создания конфигурации", e);
+            }
+        }
+    }
+
+    private void init(String bundle, IConfig... configs){
         resourceBundle.add(bundle);
 
         for (IConfig config : configs){
