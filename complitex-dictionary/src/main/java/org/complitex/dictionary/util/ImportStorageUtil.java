@@ -28,6 +28,14 @@ public final class ImportStorageUtil {
         }
     }
 
+    public static InputStream getInputStream(String dir, IImportFile file) throws ImportFileNotFoundException {
+        try {
+            return new BufferedInputStream(new FileInputStream(new File(dir, file.getFileName())));
+        } catch (FileNotFoundException e) {
+            throw new ImportFileNotFoundException(e, file.getFileName());
+        }
+    }
+
     public static Table getDbfTable(String dir, IImportFile file, String charsetName)
             throws ImportFileNotFoundException, ImportFileReadException {
         try {

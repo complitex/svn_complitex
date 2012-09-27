@@ -9,6 +9,7 @@ import org.complitex.dictionary.service.exception.ImportFileReadException;
 import org.complitex.dictionary.util.ImportStorageUtil;
 
 import javax.ejb.EJB;
+import java.io.InputStream;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -47,5 +48,9 @@ public abstract class AbstractImportService {
 
     protected String[] getFileList(String dir, String extension){
         return ImportStorageUtil.getFileList(dir, extension);
+    }
+
+    protected InputStream getInputStream(IImportFile file) throws ImportFileNotFoundException {
+        return ImportStorageUtil.getInputStream(getDir(), file);
     }
 }
