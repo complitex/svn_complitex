@@ -6,6 +6,8 @@ package org.complitex.dictionary.web.component;
 
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.model.IModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -14,42 +16,27 @@ import java.util.List;
  * @author Artem
  */
 public class DisableAwareDropDownChoice<T> extends DropDownChoice<T> {
+    private static final Logger logger = LoggerFactory.getLogger(DisableAwareDropDownChoice.class);
 
     public DisableAwareDropDownChoice(String id) {
         super(id);
     }
 
-    /**
-     * @see org.apache.wicket.markup.html.form.AbstractChoice#AbstractChoice(String,
-     *      List, org.apache.wicket.markup.html.form.IChoiceRenderer)
-     */
     public DisableAwareDropDownChoice(final String id, final List<? extends T> data,
             final IDisableAwareChoiceRenderer<? super T> renderer) {
         super(id, data, renderer);
     }
 
-    /**
-     * @see org.apache.wicket.markup.html.form.AbstractChoice#AbstractChoice(String, IModel, List,
-     *      org.apache.wicket.markup.html.form.IChoiceRenderer)
-     */
     public DisableAwareDropDownChoice(final String id, IModel<T> model, final List<? extends T> data,
             final IDisableAwareChoiceRenderer<? super T> renderer) {
         super(id, model, data, renderer);
     }
 
-    /**
-     * @see org.apache.wicket.markup.html.form.AbstractChoice#AbstractChoice(String,
-     *      IModel,org.apache.wicket.markup.html.form.IChoiceRenderer)
-     */
     public DisableAwareDropDownChoice(String id, IModel<? extends List<? extends T>> choices,
             IDisableAwareChoiceRenderer<? super T> renderer) {
         super(id, choices, renderer);
     }
 
-    /**
-     * @see org.apache.wicket.markup.html.form.AbstractChoice#AbstractChoice(String, IModel,
-     *      IModel, org.apache.wicket.markup.html.form.IChoiceRenderer)
-     */
     public DisableAwareDropDownChoice(String id, IModel<T> model, IModel<? extends List<? extends T>> choices,
             IDisableAwareChoiceRenderer<? super T> renderer) {
         super(id, model, choices, renderer);
@@ -58,5 +45,16 @@ public class DisableAwareDropDownChoice<T> extends DropDownChoice<T> {
     @Override
     protected boolean isDisabled(T object, int index, String selected) {
         return ((IDisableAwareChoiceRenderer) getChoiceRenderer()).isDisabled(object);
+    }
+
+    @Override
+    public String getModelValue(){
+        final T object = getModelObject();
+
+        if (object != null){
+            return getChoiceRenderer().getIdValue(object, getChoices().indexOf(object));
+        } else {
+            return "";
+        }
     }
 }
