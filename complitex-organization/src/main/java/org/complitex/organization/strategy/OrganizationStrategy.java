@@ -378,6 +378,12 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
     }
 
     @Override
+    public String getUniqueCode(long organizationId) {
+        DomainObject organization = findById(organizationId, true);
+        return organization != null ? getUniqueCode(organization) : null;
+    }
+
+    @Override
     public Long getObjectId(String code) {
         return sqlSession().selectOne(ORGANIZATION_NAMESPACE + ".selectOrganizationObjectIdByCode", code);
     }
