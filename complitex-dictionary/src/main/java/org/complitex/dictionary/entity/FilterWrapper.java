@@ -56,6 +56,14 @@ public class FilterWrapper<T extends Serializable> implements Serializable{
     public Map<String, Object> getMap() {
         return map;
     }
+    
+    public FilterWrapper<T> addMapEntry(String key, Object value) {
+        if (map == null) {
+            map = new HashMap<>();
+        }
+        map.put(key, value);
+        return this;
+    }
 
     public void setMap(Map<String, Object> map) {
         this.map = map;
