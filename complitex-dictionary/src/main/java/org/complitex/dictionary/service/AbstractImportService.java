@@ -24,33 +24,35 @@ public abstract class AbstractImportService {
         return configBean.getString(DictionaryConfig.IMPORT_FILE_STORAGE_DIR, false);
     }
 
-    protected int getRecordCount(IImportFile file) throws ImportFileNotFoundException, ImportFileReadException {
-        return ImportStorageUtil.getRecordCount(getDir(), file);
+    protected int getRecordCount(String fileName) throws ImportFileNotFoundException, ImportFileReadException {
+        return ImportStorageUtil.getRecordCount(getDir(), fileName);
     }
 
-    /**
-     * Uses comma as default separator char and 'cp1251' as default charset.
-     * @param file File
-     * @return
-     * @throws ImportFileNotFoundException
-     */
-    protected CSVReader getCsvReader(IImportFile file) throws ImportFileNotFoundException {
-        return getCsvReader(file, "cp1251", ',');
+    protected CSVReader getCsvReader(String fileName) throws ImportFileNotFoundException {
+        return getCsvReader(fileName, "cp1251", ',');
     }
 
-    protected CSVReader getCsvReader(IImportFile file, String charsetName, char separator) throws ImportFileNotFoundException {
-        return ImportStorageUtil.getCsvReader(getDir(), file, charsetName, separator);
+    protected CSVReader getCsvReader(String fileName, String charsetName, char separator) throws ImportFileNotFoundException {
+        return ImportStorageUtil.getCsvReader(getDir(), fileName, charsetName, separator);
     }
 
-    protected Table getDbfTable(IImportFile file) throws ImportFileNotFoundException, ImportFileReadException {
-        return ImportStorageUtil.getDbfTable(getDir(), file, "cp1251");
+    protected Table getDbfTable(String fileName) throws ImportFileNotFoundException, ImportFileReadException {
+        return ImportStorageUtil.getDbfTable(getDir(), fileName, "cp1251");
     }
 
     protected String[] getFileList(String dir, String extension){
         return ImportStorageUtil.getFileList(dir, extension);
     }
 
-    protected InputStream getInputStream(IImportFile file) throws ImportFileNotFoundException {
-        return ImportStorageUtil.getInputStream(getDir(), file);
+    protected InputStream getInputStream(String fileName) throws ImportFileNotFoundException {
+        return ImportStorageUtil.getInputStream(getDir(), fileName);
+    }
+
+    protected int getRecordCount(IImportFile file) throws ImportFileNotFoundException, ImportFileReadException {
+        return getRecordCount(file.getFileName());
+    }
+
+    protected CSVReader getCsvReader(IImportFile file) throws ImportFileNotFoundException {
+        return getCsvReader(file.getFileName());
     }
 }
