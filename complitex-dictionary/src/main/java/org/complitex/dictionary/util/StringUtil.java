@@ -1,6 +1,7 @@
 package org.complitex.dictionary.util;
 
 import com.google.common.collect.ImmutableMap;
+
 import java.util.Map;
 
 /**

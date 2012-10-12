@@ -1,5 +1,6 @@
 package org.complitex.dictionary.util;
 
+import com.google.common.base.CaseFormat;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.repeater.data.DataView;
@@ -13,16 +14,25 @@ import org.complitex.dictionary.web.component.datatable.DataProvider;
  */
 public class PageUtil {
     public static ArrowOrderByBorder[] newSorting(String prefix, DataProvider dataProvider, DataView dataView,
-                                                  Component refreshComponent, String... properties){
+                                                  Component refreshComponent, boolean camelToUnderscore, String... properties){
         ArrowOrderByBorder[] arrowOrderByBorders = new ArrowOrderByBorder[properties.length];
 
         for (int i = 0; i < properties.length; i++) {
             String p = properties[i];
 
+            if(camelToUnderscore){
+                p = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, p);
+            }
+
             arrowOrderByBorders[i] = new ArrowOrderByBorder(prefix + p, p, dataProvider, dataView, refreshComponent);
         }
 
         return arrowOrderByBorders;
+    }
+
+    public static ArrowOrderByBorder[] newSorting(String prefix, DataProvider dataProvider, DataView dataView,
+                                                  Component refreshComponent, String... properties){
+        return newSorting(prefix, dataProvider, dataView, refreshComponent, false, properties);
     }
 
     public static TextLabel[] newTextLabels(String... properties){
@@ -54,4 +64,6 @@ public class PageUtil {
 
         return textFields;
     }
+
+
 }
