@@ -16,7 +16,13 @@ public class EnumDropDownChoice<T extends Enum<T>> extends DropDownChoice<T> {
         setChoiceRenderer(new IChoiceRenderer<T>() {
             @Override
             public Object getDisplayValue(T object) {
-                String s = getString(object.name());
+                String s = object.name();
+
+                try {
+                    s = getString(object.name());
+                } catch (Exception e) {
+                    //missing resource
+                }
 
                 return s != null ? s : object.name();
             }

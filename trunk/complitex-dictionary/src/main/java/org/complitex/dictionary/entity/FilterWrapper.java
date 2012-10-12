@@ -11,8 +11,8 @@ import java.util.Map;
 public class FilterWrapper<T extends Serializable> implements Serializable{
     private T object;
 
-    protected int first;
-    protected int count;
+    protected int first = 0;
+    protected int count = 0;
     protected String sortProperty = "id";
     protected boolean ascending;
 

@@ -37,7 +37,7 @@ public abstract class AbstractImportService {
     }
 
     protected Table getDbfTable(String fileName) throws ImportFileNotFoundException, ImportFileReadException {
-        return ImportStorageUtil.getDbfTable(getDir(), fileName, "cp1251");
+        return ImportStorageUtil.getDbfTable(getDir(), fileName, "cp866");
     }
 
     protected String[] getFileList(String dir, String extension){
