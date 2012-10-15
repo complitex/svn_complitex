@@ -22,7 +22,7 @@ public class ConfigBean extends AbstractBean{
 
     private static final String MAPPING_NAMESPACE = ConfigBean.class.getName();
 
-    private Map<IConfig, String> configMap = new LinkedHashMap<IConfig, String>();
+    private Map<IConfig, String> configMap = new LinkedHashMap<>();
 
     private Set<String> resourceBundle = new HashSet<String>();
 
@@ -66,7 +66,7 @@ public class ConfigBean extends AbstractBean{
     }
 
     public Map<String, List<IConfig>> getConfigGroups(){
-        Map<String, List<IConfig>> map = new LinkedHashMap<String, List<IConfig>>();
+        Map<String, List<IConfig>> map = new LinkedHashMap<>();
 
         for (IConfig c : getConfigs()){
             if (!map.containsKey(c.getGroupKey())){

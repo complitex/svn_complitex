@@ -1,5 +1,7 @@
 package org.complitex.template.web.pages;
 
+import com.google.common.collect.Ordering;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
@@ -19,7 +21,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -37,7 +38,7 @@ public class ConfigEdit extends FormTemplatePage {
         add(new Label("title", getString("title")));
         add(new FeedbackPanel("messages"));
 
-        Form<Void> form = new Form<Void>("form");
+        Form form = new Form<>("form");
         add(form);
 
         final List<IConfig> configs = new ArrayList<IConfig>(configBean.getConfigs());
@@ -53,7 +54,8 @@ public class ConfigEdit extends FormTemplatePage {
 
         final Map<String, List<IConfig>> configGroupMap = configBean.getConfigGroups();
 
-        ListView<String> groupNames = new ListView<String>("groupNames", new ArrayList<String>(configGroupMap.keySet())) {
+        ListView<String> groupNames = new ListView<String>("groupNames",
+                Ordering.natural().immutableSortedCopy(configGroupMap.keySet())) {
 
             @Override
             protected void populateItem(ListItem<String> item) {
