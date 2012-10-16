@@ -4,6 +4,8 @@ import com.google.common.base.CaseFormat;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.repeater.data.DataView;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.complitex.dictionary.web.component.DatePicker;
 import org.complitex.dictionary.web.component.TextLabel;
 import org.complitex.dictionary.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionary.web.component.datatable.DataProvider;
@@ -63,6 +65,24 @@ public class PageUtil {
         }
 
         return textFields;
+    }
+
+    public static DatePicker[] newDatePickers(boolean required, String... properties){
+        DatePicker[] datePickers = new DatePicker[properties.length];
+
+        for (int i = 0; i < properties.length; i++){
+            datePickers[i] = new DatePicker(properties[i]);
+            datePickers[i].setRequired(required);
+        }
+
+        return datePickers;
+    }
+
+    public static PageParameters newPageParameters(String key, Object value){
+        PageParameters pageParameters = new PageParameters();
+        pageParameters.add(key, value);
+
+        return pageParameters;
     }
 
 
