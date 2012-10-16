@@ -194,7 +194,6 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
         }
     }
 
-    @SuppressWarnings({"unchecked"})
     @Transactional
     protected List<DomainObjectPermissionInfo> getTreeChildrenPermissionInfo(long parentId) {
         List<DomainObjectPermissionInfo> childrenPermissionInfo = sqlSession().selectList(ORGANIZATION_NAMESPACE
@@ -239,7 +238,6 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
         }
         extendOrderBy(example);
 
-        @SuppressWarnings("unchecked")
         List<DomainObject> organizations = sqlSession().selectList(ORGANIZATION_NAMESPACE + "." + FIND_OPERATION, example);
         for (DomainObject object : organizations) {
             loadAttributes(object);
@@ -263,7 +261,6 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
     @Transactional
     @Override
     public Long validateCode(Long id, String code) {
-        @SuppressWarnings("unchecked")
         List<Long> results = sqlSession().selectList(ORGANIZATION_NAMESPACE + ".validateCode", code);
         for (Long result : results) {
             if (!result.equals(id)) {
@@ -279,7 +276,6 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
         Map<String, Object> params = Maps.newHashMap();
         params.put("name", name);
         params.put("localeId", localeBean.convert(locale).getId());
-        @SuppressWarnings("unchecked")
         List<Long> results = sqlSession().selectList(ORGANIZATION_NAMESPACE + ".validateName", params);
         for (Long result : results) {
             if (!result.equals(id)) {
