@@ -26,6 +26,7 @@ public abstract class ContextProcessListener<T> implements IProcessListener<T> {
     @Override
     public void skip(T object) {
         restoreContext() ;
+        skipped++;
 
         onSkip(object);
     }
@@ -35,6 +36,7 @@ public abstract class ContextProcessListener<T> implements IProcessListener<T> {
     @Override
     public void error(T object, Exception e) {
         restoreContext() ;
+        errors++;
 
         onError(object, e);
     }
