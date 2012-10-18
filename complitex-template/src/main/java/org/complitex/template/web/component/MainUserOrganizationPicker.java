@@ -14,6 +14,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.service.SessionBean;
+import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.web.component.DisableAwareDropDownChoice;
 import org.complitex.dictionary.web.component.DomainObjectDisableAwareRenderer;
@@ -22,12 +23,12 @@ import org.complitex.dictionary.web.component.DomainObjectDisableAwareRenderer;
  *
  * @author Artem
  */
-public class MainUserOrganizationPicker extends Panel {
+public class MainUserOrganizationPicker extends Panel implements IMainUserOrganizationPicker {
 
     @EJB
     private SessionBean sessionBean;
-    @EJB(name = "OrganizationStrategy")
-    private IOrganizationStrategy organizationStrategy;
+    @EJB
+    private StrategyFactory strategyFactory;
     private final boolean visible;
 
     public MainUserOrganizationPicker(String id, final IModel<DomainObject> model) {
@@ -61,7 +62,7 @@ public class MainUserOrganizationPicker extends Panel {
 
                     @Override
                     public Object getDisplayValue(DomainObject userOrganization) {
-                        return organizationStrategy.displayDomainObject(userOrganization, getLocale());
+                        return displayOrganization(userOrganization);
                     }
                 });
 
@@ -81,15 +82,27 @@ public class MainUserOrganizationPicker extends Panel {
         add(mainUserOrganizationPicker);
     }
 
+    protected String displayOrganization(DomainObject organization) {
+        return getOrgaizationStrategy().displayDomainObject(organization, getLocale());
+    }
+
     private List<DomainObject> getUserOrganizationObjects() {
         List<DomainObject> results = new ArrayList<>();
         List<Long> ids = sessionBean.getUserOrganizationObjectIds();
         if (!ids.isEmpty()) {
             for (long id : ids) {
-                results.add(organizationStrategy.findById(id, true));
+                results.add(getOrgaizationStrategy().findById(id, true));
             }
         }
         return results;
+    }
+
+    protected String getOrganizationStrategyName() {
+        return "OrganizationStrategy";
+    }
+
+    protected final IOrganizationStrategy getOrgaizationStrategy() {
+        return (IOrganizationStrategy) strategyFactory.getStrategy(getOrganizationStrategyName(), "organization");
     }
 
     public boolean visible() {
