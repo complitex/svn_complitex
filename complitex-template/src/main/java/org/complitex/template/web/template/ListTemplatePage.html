@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"  xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+<head>
+    <wicket:head>
+        <title wicket:id="title"></title>
+    </wicket:head>
+</head>
+<body>
+<wicket:extend>
+    <h1><wicket:message key="title"/></h1>
+    <div wicket:id="messages"></div>
+
+    <form action="#" wicket:id="filter_form">
+        <table border="0" cellspacing="0" cellpadding="0" class="tbColor table_input">
+            <thead>
+            <tr>
+                <th wicket:id="header_list">
+                    <div wicket:id="header_border">
+                        <span wicket:id="header_label"></span>
+                    </div>
+                </th>
+
+                <th class="center">
+                    <input class="btnSmall" wicket:id="filter_reset" type="button" wicket:message="value:reset"/>
+                </th>
+            </tr>
+            <tr>
+                <th wicket:id="filter_list">
+                    <span wicket:id="filter_field"></span>
+                </th>
+
+                <th class="center">
+                    <input wicket:id="filter_find" class="btnSmall" type="submit" wicket:message="value:filter" tabindex="0"/>
+                </th>
+            </tr>
+            </thead>
+            <tbody wicket:id="data_container">
+            <tr wicket:id="data_view">
+                <td wicket:id="data_list">
+                    <span wicket:id="data"></span>
+                </td>
+                <td>
+                    <div wicket:id="data_action_list">
+                        <span wicket:id="data_action"></span>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div wicket:id="paging"></div>
+    </form>
+</wicket:extend>
+</body>
+</html>

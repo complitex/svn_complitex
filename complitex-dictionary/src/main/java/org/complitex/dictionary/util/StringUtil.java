@@ -1,5 +1,6 @@
 package org.complitex.dictionary.util;
 
+import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Map;
@@ -181,5 +182,9 @@ public class StringUtil {
 
     public static Integer parseInt(String s){
         return s != null && !s.isEmpty() ? Integer.parseInt(s) : null;
+    }
+
+    public static String lowerCamelToUnderscore(String s){
+        return CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, s);
     }
 }
