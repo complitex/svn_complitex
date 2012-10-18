@@ -11,6 +11,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+import org.w3c.dom.Node;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -23,9 +28,9 @@ public class TemplateLoader {
     private static final String SIDEBAR_ELEMENT_NAME = "sidebar";
     private static final String MENU_ELEMENT_NAME = "menu";
     private static final String CLASS_ATTRIBUTE_NAME = "class";
-    private static final String HOME_PAGE_CLASS_ELEMENT_NAME = "homepage-class";
     private final Collection<String> menuClassNames;
     private final String homePageClassName;
+    private final String mainUserOrganizationPickerComponentClassName;
 
     public TemplateLoader(InputStream inputStream) {
         try {
@@ -33,7 +38,11 @@ public class TemplateLoader {
             Document document = documentBuilder.parse(inputStream);
 
             this.menuClassNames = Collections.unmodifiableCollection(getMenuClassNames(document));
-            this.homePageClassName = getHomePageClassName(document);
+
+            XPath xpath = XPathFactory.newInstance().newXPath();
+            this.homePageClassName = getHomePageClassName(xpath, document);
+            this.mainUserOrganizationPickerComponentClassName =
+                    getMainUserOrganizationPickerComponentClassName(xpath, document);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -64,19 +73,30 @@ public class TemplateLoader {
         return menuClassNamesList;
     }
 
-    private String getHomePageClassName(Document document) {
-        NodeList homePageClassElements = document.getElementsByTagName(HOME_PAGE_CLASS_ELEMENT_NAME);
-
-        if (homePageClassElements.getLength() > 1) {
-            throw new IllegalStateException("There are more one " + HOME_PAGE_CLASS_ELEMENT_NAME + " elements.");
+    private String getHomePageClassName(XPath xpath, Document doc) {
+        try {
+            Node text = (Node) xpath.evaluate("//homepage-class/text()",
+                    doc, XPathConstants.NODE);
+            if (text != null) {
+                return text.getNodeValue().trim();
+            }
+            return null;
+        } catch (XPathExpressionException e) {
+            throw new RuntimeException(e);
         }
+    }
 
-        if (homePageClassElements.getLength() == 1) {
-            Element homePageClassElement = (Element) homePageClassElements.item(0);
-            String result = homePageClassElement.getTextContent();
-            return result != null ? result.trim() : null;
+    private String getMainUserOrganizationPickerComponentClassName(XPath xpath, Document doc) {
+        try {
+            Node text = (Node) xpath.evaluate("//web-components/main-user-organization-picker-component/text()",
+                    doc, XPathConstants.NODE);
+            if (text != null) {
+                return text.getNodeValue().trim();
+            }
+            return null;
+        } catch (XPathExpressionException e) {
+            throw new RuntimeException(e);
         }
-        return null;
     }
 
     public Collection<String> getMenuClassNames() {
@@ -85,5 +105,9 @@ public class TemplateLoader {
 
     public String getHomePageClassName() {
         return homePageClassName;
+    }
+
+    public String getMainUserOrganizationPickerClassName() {
+        return mainUserOrganizationPickerComponentClassName;
     }
 }

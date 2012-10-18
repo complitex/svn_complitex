@@ -27,11 +27,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.web.component.back.BackInfo;
 import org.complitex.dictionary.web.component.back.BackInfoManager;
-import org.complitex.template.web.component.MainUserOrganizationPicker;
+import org.complitex.template.web.component.IMainUserOrganizationPicker;
+import org.complitex.template.web.component.MainUserOrganizationPickerFactory;
 import org.complitex.template.web.template.MenuManager;
 import static org.complitex.dictionary.web.DictionaryFwSession.*;
 
@@ -74,9 +76,9 @@ public class ProfilePage extends FormTemplatePage {
         //Главная организация пользователя
         WebMarkupContainer mainUserOrganizationContainer = new WebMarkupContainer("mainUserOrganizationContainer");
         final IModel<DomainObject> mainUserOrganizationModel = new Model<>(sessionBean.loadMainUserOrganization());
-        MainUserOrganizationPicker mainUserOrganizationPicker =
-                new MainUserOrganizationPicker("mainUserOrganizationPicker", mainUserOrganizationModel);
-        mainUserOrganizationContainer.setVisible(mainUserOrganizationPicker.visible());
+        Component mainUserOrganizationPicker =
+                MainUserOrganizationPickerFactory.create("mainUserOrganizationPicker", mainUserOrganizationModel);
+        mainUserOrganizationContainer.setVisible(((IMainUserOrganizationPicker) mainUserOrganizationPicker).visible());
         mainUserOrganizationContainer.add(mainUserOrganizationPicker);
         form.add(mainUserOrganizationContainer);
 

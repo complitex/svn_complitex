@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.wicket.Component;
 import org.apache.wicket.IApplicationListener;
 import org.apache.wicket.Page;
 import org.apache.wicket.application.IClassResolver;
@@ -34,6 +35,8 @@ import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.mybatis.inject.JavaEE6ModuleNamingStrategy;
 import org.complitex.dictionary.web.component.image.markup.WicketStaticImageResolver;
+import org.complitex.template.web.component.IMainUserOrganizationPicker;
+import org.complitex.template.web.component.MainUserOrganizationPicker;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
 import org.complitex.template.web.pages.access.AccessDeniedPage;
 import org.complitex.template.web.pages.welcome.WelcomePage;
@@ -49,6 +52,7 @@ public abstract class TemplateWebApplication extends ServletAuthWebApplication i
     private static final ThemeResourceReference theme = new ThemeResourceReference();
     private volatile Collection<Class<ITemplateMenu>> menuClasses;
     private volatile static Class<? extends Page> homePageClass;
+    private static volatile Class<? extends Component> mainUserOrganizationPickerComponentClass;
 
     @Override
     protected void init() {
@@ -119,7 +123,7 @@ public abstract class TemplateWebApplication extends ServletAuthWebApplication i
             final String homePageClassName = templateLoader.getHomePageClassName();
             if (!Strings.isEmpty(homePageClassName)) {
                 try {
-                    homePageClass = (Class<? extends Page>) wicketClassResolver.resolveClass(homePageClassName);
+                    homePageClass = (Class) wicketClassResolver.resolveClass(homePageClassName);
                 } catch (ClassNotFoundException e) {
                     log.warn("Домашняя страница не найдена: {}, будет использована страница {}", homePageClassName,
                             WelcomePage.class);
@@ -127,6 +131,30 @@ public abstract class TemplateWebApplication extends ServletAuthWebApplication i
             }
             if (homePageClass == null) {
                 homePageClass = WelcomePage.class;
+            }
+
+            //main user organization picker component class
+            final String mainUserOrganizationPickerComponentClassName = 
+                    templateLoader.getMainUserOrganizationPickerClassName();
+            
+            if (!Strings.isEmpty(mainUserOrganizationPickerComponentClassName)) {
+                try {
+                    mainUserOrganizationPickerComponentClass = 
+                            (Class) wicketClassResolver.resolveClass(mainUserOrganizationPickerComponentClassName);
+                    if (!IMainUserOrganizationPicker.class.isAssignableFrom(mainUserOrganizationPickerComponentClass)) {
+                        log.warn("Компонент для выбора основной пользовательской организации не наследует нитерфейс {}."
+                                + " Будет использован компонент по умолчанию {}",
+                                IMainUserOrganizationPicker.class, MainUserOrganizationPicker.class);
+                        mainUserOrganizationPickerComponentClass = null;
+                    }
+                } catch (ClassNotFoundException e) {
+                    log.warn("Компонент для выбора основной пользовательской организации не найден: {}, "
+                            + "будет использован компонент по умолчанию {}", mainUserOrganizationPickerComponentClassName,
+                            MainUserOrganizationPicker.class);
+                }
+            }
+            if (mainUserOrganizationPickerComponentClass == null) {
+                mainUserOrganizationPickerComponentClass = MainUserOrganizationPicker.class;
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -143,6 +171,10 @@ public abstract class TemplateWebApplication extends ServletAuthWebApplication i
 
     public static Class<? extends Page> getHomePageClass() {
         return homePageClass;
+    }
+
+    public static Class<? extends Component> getMainUserOrganizationPickerComponentClass() {
+        return mainUserOrganizationPickerComponentClass;
     }
 
     @Override

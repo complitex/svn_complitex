@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.EJB;
 import java.text.MessageFormat;
 import java.util.*;
+import org.apache.wicket.Component;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -34,6 +35,7 @@ import org.apache.wicket.request.resource.PackageResourceReference;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.PreferenceKey;
 import org.complitex.template.web.component.MainUserOrganizationPicker;
+import org.complitex.template.web.component.MainUserOrganizationPickerFactory;
 import org.odlabs.wiquery.core.resources.CoreJavaScriptResourceReference;
 
 /**
@@ -108,7 +110,9 @@ public abstract class TemplatePage extends WebPage {
                 return sessionBean.getMainUserOrganization(getTemplateSession());
             }
         };
-        add(new MainUserOrganizationPicker("mainUserOrganizationPicker", mainUserOrganizationModel));
+        
+        //main user organization picker component
+        add(MainUserOrganizationPickerFactory.create("mainUserOrganizationPicker", mainUserOrganizationModel));
 
         add(new Form<Void>("exit") {
 
