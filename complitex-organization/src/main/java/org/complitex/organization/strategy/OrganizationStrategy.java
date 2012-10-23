@@ -156,8 +156,8 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
             Set<Long> subjectIds = Sets.newHashSet(organizationId);
             Attribute oldDistrictAttribute = oldOrganization.getAttribute(DISTRICT);
             Attribute newDistrictAttribute = newOrganization.getAttribute(DISTRICT);
-            Long oldDistrictId = oldDistrictAttribute.getValueId();
-            Long newDistrictId = newDistrictAttribute.getValueId();
+            Long oldDistrictId = oldDistrictAttribute != null ? oldDistrictAttribute.getValueId() : null;
+            Long newDistrictId = newDistrictAttribute != null ? newDistrictAttribute.getValueId() : null;
             if (!Numbers.isEqual(oldDistrictId, newDistrictId)) {
                 //district reference has changed
                 if (oldDistrictId != null) {
