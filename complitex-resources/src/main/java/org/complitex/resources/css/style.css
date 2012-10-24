@@ -117,7 +117,11 @@ ul { margin: 0px; padding: 5px 0px 15px 30px; list-style-type: square; }
 .formFrame h2 a, .formFrame h2 a:visited, .formFrame h2 a:hover { padding: 4px 5px 5px 5px; color: #FFFFFF; font-size: 16px; text-decoration: none;}
 .formFrame .line { padding: 0px; margin: 0px 0px 12px 0px; background-color: #ABB4BC; border-bottom: 1px solid #E9EDEF; }
 
-.tbForm { margin-bottom: 12px; }
+.tbForm {
+    margin-bottom: 12px;
+    border-spacing: 0;
+    border: 0;
+}
 .tbForm > tbody > tr > th { padding: 4px 6px 5px 8px; text-align:left;}
 .tbForm > tbody > tr > td { padding: 2px 8px 2px 0px; text-align:left;}
 .btnSmall {
