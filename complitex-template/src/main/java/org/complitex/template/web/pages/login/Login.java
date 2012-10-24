@@ -43,7 +43,18 @@ public final class Login extends WebPage {
     private LogBean logBean;
 
     public Login() {
+        checkIfLoggedIn();
         init();
+    }
+
+    /**
+     * Redirect to home page if the user is already logged in (this might happen on "Back" browser action).
+     */
+    private void checkIfLoggedIn() {
+        final HttpServletRequest servletRequest = (HttpServletRequest) getRequest().getContainerRequest();
+        if (servletRequest.getUserPrincipal() != null) {
+            setResponsePage(getApplication().getHomePage());
+        }
     }
 
     @Override
