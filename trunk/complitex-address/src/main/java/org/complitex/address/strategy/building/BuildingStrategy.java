@@ -37,7 +37,7 @@ import java.text.MessageFormat;
 import java.util.*;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.complitex.address.strategy.building.web.edit.BuildingEdit;
-import org.complitex.dictionary.Module;
+import org.complitex.address.Module;
 import org.complitex.dictionary.entity.Log;
 import org.complitex.dictionary.service.LogBean;
 import org.complitex.dictionary.strategy.DeleteException;

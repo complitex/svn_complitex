@@ -12,7 +12,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.PackageResourceReference;
 import org.complitex.address.strategy.apartment.ApartmentStrategy;
-import org.complitex.dictionary.Module;
+import org.complitex.address.Module;
 import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.Log;
