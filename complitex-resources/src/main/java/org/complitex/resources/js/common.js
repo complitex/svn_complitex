@@ -148,4 +148,27 @@ Complitex.Common = {
          */
         SELECTED_MENU_ITEM_COOKIE : "SelectedMenuItem"
     }
-}
+};
+
+/**
+ * Resize table headers to set the same width for corresponding columns
+ * of multiple tables on the same page.
+ *
+ * --------------               -----------------
+ * |xxx|  ??    |               |xxx   |  ??    |
+ * --------------               -----------------
+ * ...                  ==>     ...
+ * -----------------            -----------------
+ * |yyyyyy|  ??    |            |yyyyyy|  ??    |
+ * -----------------            -----------------
+ */
+var alignTableColumns = function() {
+    var largest = 0;
+    $('table.tbForm th').each(function() {
+        var width = $(this)[0].offsetWidth;
+        if(width > largest) {
+            largest = width;
+        }
+    }).width(largest);
+};
+$(document).ready(alignTableColumns);
