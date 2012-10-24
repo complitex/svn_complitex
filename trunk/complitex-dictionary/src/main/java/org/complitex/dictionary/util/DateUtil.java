@@ -7,6 +7,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import static java.util.Calendar.*;
+
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 14.01.2010 0:30:49
@@ -26,8 +28,8 @@ public class DateUtil {
         c.setTime(date);
         c.set(Calendar.HOUR_OF_DAY, 23);
         c.set(Calendar.MINUTE, 59);
-        c.set(Calendar.SECOND, 59);
-        c.set(Calendar.MILLISECOND, 999);
+        c.set(SECOND, 59);
+        c.set(MILLISECOND, 999);
 
         return c.getTime();
     }
@@ -55,8 +57,8 @@ public class DateUtil {
     public static String displayMonth(int month, Locale locale) {
         Calendar c = Calendar.getInstance(locale);
         c.set(Calendar.MONTH, month - 1);
-        c.set(Calendar.DAY_OF_MONTH, 1);
-        return c.getDisplayName(Calendar.MONTH, Calendar.LONG, locale);
+        c.set(DAY_OF_MONTH, 1);
+        return c.getDisplayName(MONTH, LONG, locale);
     }
 
     public static boolean isTheSameDay(Date date1, Date date2) {
@@ -72,8 +74,8 @@ public class DateUtil {
         Calendar c2 = Calendar.getInstance();
         c2.setTime(date2);
 
-        return c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR)
-                && c1.get(Calendar.DAY_OF_YEAR) == c2.get(Calendar.DAY_OF_YEAR);
+        return c1.get(YEAR) == c2.get(YEAR)
+                && c1.get(DAY_OF_YEAR) == c2.get(DAY_OF_YEAR);
     }
 
     public static Date getMax(Date date1, Date date2) {
@@ -94,36 +96,55 @@ public class DateUtil {
         return calendar.getTime();
     }
 
+    public static Date getFirstDayOfCurrentMonth(){
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.set(DAY_OF_MONTH, 1);
+        calendar.set(HOUR_OF_DAY, 0);
+        calendar.set(MINUTE, 0);
+        calendar.set(SECOND, 0);
+        calendar.set(MILLISECOND, 0);
+
+        return calendar.getTime();
+    }
+
+    public static boolean isSameMonth(Date d1, Date d2){
+        Calendar c1 = newCalendar(d1);
+        Calendar c2 = newCalendar(d2);
+
+        return c1.get(YEAR) == c2.get(YEAR) && c1.get(MONTH) == c2.get(MONTH);
+    }
+
     public static Date justBefore(Date current) {
         Calendar c = Calendar.getInstance();
         c.setTime(current);
-        c.add(Calendar.SECOND, -1);
+        c.add(SECOND, -1);
         return c.getTime();
     }
 
     public static Date justAfter(Date current) {
         Calendar c = Calendar.getInstance();
         c.setTime(current);
-        c.add(Calendar.SECOND, 1);
+        c.add(SECOND, 1);
         return c.getTime();
     }
 
     public static int getDay(Date date) {
         Calendar c = Calendar.getInstance();
         c.setTime(date);
-        return c.get(Calendar.DAY_OF_MONTH);
+        return c.get(DAY_OF_MONTH);
     }
 
     public static int getMonth(Date date) {
         Calendar c = Calendar.getInstance();
         c.setTime(date);
-        return c.get(Calendar.MONTH);
+        return c.get(MONTH);
     }
 
     public static int getYear(Date date) {
         Calendar c = Calendar.getInstance();
         c.setTime(date);
-        return c.get(Calendar.YEAR);
+        return c.get(YEAR);
     }
 
     /**
@@ -146,14 +167,14 @@ public class DateUtil {
     public static boolean isValidDateInterval(Date d1, Date d2, int years) {
         Calendar c = Calendar.getInstance();
         c.setTime(d2);
-        c.add(Calendar.YEAR, years);
+        c.add(YEAR, years);
         return d1.after(c.getTime());
     }
 
     public static Date add(Date date, int years) {
         Calendar c = Calendar.getInstance();
         c.setTime(date);
-        c.add(Calendar.YEAR, years);
+        c.add(YEAR, years);
         return c.getTime();
     }
 
@@ -167,5 +188,19 @@ public class DateUtil {
         } catch (ParseException e) {
         }
         return null;
+    }
+
+    public static Calendar newCalendar(Date date){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+
+        return calendar;
+    }
+
+    public static Date addMonth(Date date, int amount){
+        Calendar calendar = newCalendar(date);
+        calendar.add(MONTH, amount);
+
+        return calendar.getTime();
     }
 }
