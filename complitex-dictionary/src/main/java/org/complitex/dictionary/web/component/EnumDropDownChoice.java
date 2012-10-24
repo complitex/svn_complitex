@@ -2,6 +2,7 @@ package org.complitex.dictionary.web.component;
 
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
+import org.apache.wicket.model.IModel;
 
 import java.util.Arrays;
 
@@ -13,6 +14,20 @@ public class EnumDropDownChoice<T extends Enum<T>> extends DropDownChoice<T> {
     public EnumDropDownChoice(String id, Class<T> enumClass) {
         super(id, Arrays.asList(enumClass.getEnumConstants()));
 
+        init();
+
+        setNullValid(true);
+    }
+
+    public EnumDropDownChoice(String id, Class<T> enumClass, IModel<T> model) {
+        super(id, model, Arrays.asList(enumClass.getEnumConstants()));
+
+        init();
+
+        setNullValid(true);
+    }
+
+    private void init(){
         setChoiceRenderer(new IChoiceRenderer<T>() {
             @Override
             public Object getDisplayValue(T object) {
@@ -32,7 +47,5 @@ public class EnumDropDownChoice<T extends Enum<T>> extends DropDownChoice<T> {
                 return object.ordinal() + "";
             }
         });
-
-        setNullValid(true);
     }
 }
