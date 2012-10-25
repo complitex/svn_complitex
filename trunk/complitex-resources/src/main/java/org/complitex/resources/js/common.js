@@ -164,7 +164,7 @@ Complitex.Common = {
  */
 var alignTableColumns = function() {
     var largest = 0;
-    $('table.tbForm th').each(function() {
+    $('table.same-width th').each(function() {
         var width = $(this)[0].offsetWidth;
         if(width > largest) {
             largest = width;
