@@ -11,20 +11,20 @@ import java.util.Arrays;
  *         Date: 21.09.12 15:07
  */
 public class EnumDropDownChoice<T extends Enum<T>> extends DropDownChoice<T> {
-    public EnumDropDownChoice(String id, Class<T> enumClass) {
+    public EnumDropDownChoice(String id, Class<T> enumClass, boolean nullValid) {
         super(id, Arrays.asList(enumClass.getEnumConstants()));
 
         init();
 
-        setNullValid(true);
+        setNullValid(nullValid);
     }
 
-    public EnumDropDownChoice(String id, Class<T> enumClass, IModel<T> model) {
+    public EnumDropDownChoice(String id, Class<T> enumClass, IModel<T> model, boolean nullValid) {
         super(id, model, Arrays.asList(enumClass.getEnumConstants()));
 
         init();
 
-        setNullValid(true);
+        setNullValid(nullValid);
     }
 
     private void init(){
