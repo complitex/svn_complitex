@@ -2,9 +2,8 @@ package org.complitex.dictionary.web.component;
 
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.util.convert.IConverter;
 
-import java.util.Locale;
+import java.math.BigDecimal;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -24,31 +23,24 @@ public class TextLabel extends Label {
     }
 
     public TextLabel(String id, Object label) {
-        super(id, label != null ? label.toString() : "");
-    }
+        super(id);
 
-    @Override
-    public <C> IConverter<C> getConverter(final Class<C> type) {
-        if (type.isEnum()){
-            return new IConverter<C>() {
-                @Override
-                public C convertToObject(String value, Locale locale) {
-                    return null;
+        String s = "";
+
+        if (label != null){
+            if (label instanceof Enum){
+                try {
+                    s = getString(((Enum) label).name());
+                } catch (Exception e) {
+                    s = label.toString();
                 }
-
-                @Override
-                public String convertToString(C value, Locale locale) {
-                    try {
-                        return getString(value.toString());
-                    } catch (Exception e) {
-                        //missing resource
-                    }
-
-                    return value.toString();
-                }
-            };
+            }else if (label instanceof BigDecimal){
+                s = ((BigDecimal) label).toPlainString();
+            }else {
+                s = label.toString();
+            }
         }
 
-        return super.getConverter(type);
+        setDefaultModelObject(s);
     }
 }
