@@ -2,6 +2,7 @@ package org.complitex.dictionary.web.component;
 
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 
 import java.math.BigDecimal;
 
@@ -23,7 +24,7 @@ public class TextLabel extends Label {
     }
 
     public TextLabel(String id, Object label) {
-        super(id);
+        super(id, Model.of(""));
 
         String s = "";
 
