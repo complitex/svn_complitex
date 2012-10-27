@@ -312,3 +312,7 @@ fieldset.collapsible_fs > legend .fs_image {
 .table_input input[type="text"], .table_input select{
     width:100%;
 }
+
+.ui-datepicker-trigger{
+    cursor: pointer;
+}
