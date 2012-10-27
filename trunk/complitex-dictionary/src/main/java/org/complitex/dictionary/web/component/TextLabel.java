@@ -3,6 +3,7 @@ package org.complitex.dictionary.web.component;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 
 import java.math.BigDecimal;
 
@@ -26,22 +27,14 @@ public class TextLabel extends Label {
     public TextLabel(String id, Object label) {
         super(id, Model.of(""));
 
-        String s = "";
-
         if (label != null){
             if (label instanceof Enum){
-                try {
-                    s = getString(((Enum) label).name());
-                } catch (Exception e) {
-                    s = label.toString();
-                }
+                setDefaultModel(new ResourceModel(((Enum) label).name()));
             }else if (label instanceof BigDecimal){
-                s = ((BigDecimal) label).toPlainString();
+                setDefaultModelObject(((BigDecimal) label).toPlainString());
             }else {
-                s = label.toString();
+                setDefaultModelObject(label);
             }
         }
-
-        setDefaultModelObject(s);
     }
 }
