@@ -17,7 +17,7 @@ import org.apache.wicket.util.convert.IConverter;
  */
 public class DatePicker<T> extends org.odlabs.wiquery.ui.datepicker.DatePicker<T> {
 
-    private static final String RELATIVE_IMAGE_SRC = "images/calendar.gif";
+    private static final String RELATIVE_IMAGE_SRC = "images/calendar2.png";
     private static IConverter<Date> CONVERTER = new PatternDateConverter("dd.MM.yyyy", true);
 
     public DatePicker(String id) {
