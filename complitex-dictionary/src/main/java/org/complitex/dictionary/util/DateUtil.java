@@ -14,8 +14,17 @@ import static java.util.Calendar.*;
  *         Date: 14.01.2010 0:30:49
  */
 public class DateUtil {
+    private static ThreadLocal<SimpleDateFormat> DATE_FORMAT = new ThreadLocal<>();
 
     private DateUtil() {
+    }
+
+    public static SimpleDateFormat getDateFormat(){
+        if (DATE_FORMAT.get() == null){
+            DATE_FORMAT.set(new SimpleDateFormat("dd.MM.yyyy"));
+        }
+
+        return DATE_FORMAT.get();
     }
 
     public static Date getCurrentDate() {
@@ -202,5 +211,9 @@ public class DateUtil {
         calendar.add(MONTH, amount);
 
         return calendar.getTime();
+    }
+
+    public static String format(Date date){
+        return date != null ? getDateFormat().format(date) : "";
     }
 }
