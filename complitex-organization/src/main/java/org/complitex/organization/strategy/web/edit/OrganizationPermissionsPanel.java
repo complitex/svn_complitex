@@ -11,6 +11,7 @@ import java.util.Set;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.request.resource.PackageResourceReference;
 import org.complitex.dictionary.entity.DomainObject;
+import org.complitex.dictionary.web.component.permission.DomainObjectPermissionParameters;
 import org.complitex.dictionary.web.component.permission.DomainObjectPermissionsPanel;
 import org.odlabs.wiquery.core.javascript.JsStatement;
 
@@ -22,8 +23,8 @@ class OrganizationPermissionsPanel extends DomainObjectPermissionsPanel {
 
     private Long organizationId;
 
-    OrganizationPermissionsPanel(String id, Set<Long> subjectIds, Set<Long> parentSubjectIds, boolean enabled, Long organizationId) {
-        super(id, subjectIds, parentSubjectIds, enabled);
+    OrganizationPermissionsPanel(String id, DomainObjectPermissionParameters parameters, Long organizationId) {
+        super(id, parameters);
         this.organizationId = organizationId;
     }
 

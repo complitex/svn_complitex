@@ -48,7 +48,6 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
     private PermissionBean permissionBean;
     @EJB
     private SequenceBean sequenceBean;
-    protected static final String ORGANIZATION_TYPE_PARAMETER = "organizationTypeIds";
 
     @Override
     public String getEntityTable() {

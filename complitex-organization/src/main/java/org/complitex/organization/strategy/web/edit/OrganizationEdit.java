@@ -8,6 +8,7 @@ import java.util.Set;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
 import org.complitex.dictionary.strategy.web.DomainObjectEditPanel;
+import org.complitex.dictionary.web.component.permission.DomainObjectPermissionParameters;
 import org.complitex.dictionary.web.component.permission.DomainObjectPermissionsPanel;
 import org.complitex.template.web.pages.DomainObjectEdit;
 
@@ -29,8 +30,9 @@ public final class OrganizationEdit extends DomainObjectEdit {
 
             @Override
             protected DomainObjectPermissionsPanel newPermissionsPanel(String id, Set<Long> parentSubjectIds) {
-                return new OrganizationPermissionsPanel(id, getNewObject().getSubjectIds(), parentSubjectIds,
-                        DomainObjectAccessUtil.canEdit(strategy, entity, getNewObject()), getNewObject().getId());
+                return new OrganizationPermissionsPanel(id,
+                        new DomainObjectPermissionParameters(getNewObject().getSubjectIds(), parentSubjectIds,
+                        DomainObjectAccessUtil.canEdit(strategy, entity, getNewObject())), getNewObject().getId());
             }
 
             @Override

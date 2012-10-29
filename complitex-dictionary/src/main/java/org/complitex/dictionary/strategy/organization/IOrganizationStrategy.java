@@ -37,6 +37,11 @@ public interface IOrganizationStrategy extends IStrategy {
      * Organization type.
      */
     long ORGANIZATION_TYPE = 904;
+    
+    /**
+     * Filter parameter to filter out organizations by organization types.
+     */
+    String ORGANIZATION_TYPE_PARAMETER = "organizationTypeIds";
 
     /**
      * Returns user organizations that current user can see (at least to read).

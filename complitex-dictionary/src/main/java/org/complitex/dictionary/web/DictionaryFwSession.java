@@ -1,6 +1,5 @@
 package org.complitex.dictionary.web;
 
-import org.apache.wicket.Page;
 import org.apache.wicket.protocol.http.WebSession;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.FilterWrapper;
