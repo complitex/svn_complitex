@@ -8,8 +8,10 @@ import java.util.Set;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
 import org.complitex.dictionary.strategy.web.DomainObjectEditPanel;
+import org.complitex.dictionary.web.component.permission.AbstractDomainObjectPermissionPanel;
 import org.complitex.dictionary.web.component.permission.DomainObjectPermissionParameters;
-import org.complitex.dictionary.web.component.permission.DomainObjectPermissionsPanel;
+import org.complitex.dictionary.web.component.permission.organization.OrganizationPermissionParameters;
+import org.complitex.dictionary.web.component.permission.organization.OrganizationPermissionPanelFactory;
 import org.complitex.template.web.pages.DomainObjectEdit;
 
 /**
@@ -29,10 +31,11 @@ public final class OrganizationEdit extends DomainObjectEdit {
                 scrollListPageParameterName, backInfoSessionKey) {
 
             @Override
-            protected DomainObjectPermissionsPanel newPermissionsPanel(String id, Set<Long> parentSubjectIds) {
-                return new OrganizationPermissionsPanel(id,
+            protected AbstractDomainObjectPermissionPanel newPermissionsPanel(String id, Set<Long> parentSubjectIds) {
+                return OrganizationPermissionPanelFactory.create(id, new OrganizationPermissionParameters(
                         new DomainObjectPermissionParameters(getNewObject().getSubjectIds(), parentSubjectIds,
-                        DomainObjectAccessUtil.canEdit(strategy, entity, getNewObject())), getNewObject().getId());
+                        DomainObjectAccessUtil.canEdit(strategy, entity, getNewObject())),
+                        getNewObject().getId()));
             }
 
             @Override

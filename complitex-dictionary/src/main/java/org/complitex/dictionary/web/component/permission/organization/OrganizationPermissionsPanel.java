@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.complitex.organization.strategy.web.edit;
+package org.complitex.dictionary.web.component.permission.organization;
 
 import com.google.common.collect.Maps;
 import java.util.HashMap;
@@ -11,7 +11,6 @@ import java.util.Set;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.request.resource.PackageResourceReference;
 import org.complitex.dictionary.entity.DomainObject;
-import org.complitex.dictionary.web.component.permission.DomainObjectPermissionParameters;
 import org.complitex.dictionary.web.component.permission.DomainObjectPermissionsPanel;
 import org.odlabs.wiquery.core.javascript.JsStatement;
 
@@ -19,13 +18,13 @@ import org.odlabs.wiquery.core.javascript.JsStatement;
  *
  * @author Artem
  */
-class OrganizationPermissionsPanel extends DomainObjectPermissionsPanel {
+public class OrganizationPermissionsPanel extends DomainObjectPermissionsPanel {
 
-    private Long organizationId;
+    private final Long organizationId;
 
-    OrganizationPermissionsPanel(String id, DomainObjectPermissionParameters parameters, Long organizationId) {
-        super(id, parameters);
-        this.organizationId = organizationId;
+    public OrganizationPermissionsPanel(String id, OrganizationPermissionParameters organizationPermissionParameters) {
+        super(id, organizationPermissionParameters.getParameters());
+        this.organizationId = organizationPermissionParameters.getOrganizationId();
     }
 
     @Override
