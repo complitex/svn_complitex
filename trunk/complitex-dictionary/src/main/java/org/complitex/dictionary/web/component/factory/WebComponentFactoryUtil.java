@@ -13,7 +13,7 @@ import org.complitex.dictionary.web.IWebComponentResolver;
  *
  * @author Artem
  */
-public final class WebComponentFactoryUtil {
+public class WebComponentFactoryUtil {
 
     public static Class<? extends Component> getComponentClass(String componentName) {
         IWebComponentResolvableApplication application =

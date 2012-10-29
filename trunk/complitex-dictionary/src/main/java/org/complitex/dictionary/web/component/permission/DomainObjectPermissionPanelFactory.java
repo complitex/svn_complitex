@@ -29,6 +29,6 @@ public class DomainObjectPermissionPanelFactory {
         }
     }
 
-    public DomainObjectPermissionPanelFactory() {
+    private DomainObjectPermissionPanelFactory() {
     }
 }

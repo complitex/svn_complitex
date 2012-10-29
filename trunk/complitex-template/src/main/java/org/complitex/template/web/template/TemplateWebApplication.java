@@ -40,6 +40,9 @@ import org.complitex.dictionary.web.component.permission.AbstractDomainObjectPer
 import org.complitex.dictionary.web.component.permission.DomainObjectPermissionPanelFactory;
 import org.complitex.dictionary.web.component.permission.DomainObjectPermissionParameters;
 import org.complitex.dictionary.web.component.permission.DomainObjectPermissionsPanel;
+import org.complitex.dictionary.web.component.permission.organization.OrganizationPermissionPanelFactory;
+import org.complitex.dictionary.web.component.permission.organization.OrganizationPermissionParameters;
+import org.complitex.dictionary.web.component.permission.organization.OrganizationPermissionsPanel;
 import org.complitex.template.web.component.IMainUserOrganizationPicker;
 import org.complitex.template.web.component.MainUserOrganizationPicker;
 import org.complitex.template.web.component.MainUserOrganizationPickerFactory;
@@ -203,13 +206,13 @@ public abstract class TemplateWebApplication extends ServletAuthWebApplication
                             if (!hasConstructor) {
                                 String constructor = "(" + String.class.getName() + ", "
                                         + DomainObjectPermissionParameters.class.getName() + ")";
-                                log.warn("Компонент для редактирования прав доступа объектов не имеет обязательного "
+                                log.warn("Компонент для редактирования прав доступа к объекту не имеет обязательного "
                                         + "конструктора {}. Будет использован компонент по умолчанию {}",
                                         constructor, DomainObjectPermissionsPanel.class);
                                 domainObjectPermissionPanelClass = null;
                             }
                         } catch (ClassNotFoundException e) {
-                            log.warn("Компонент ддля редактирования прав доступа объектов не найден: {}. "
+                            log.warn("Компонент для редактирования прав доступа к объекту не найден: {}. "
                                     + "Будет использован компонент по умолчанию {}", domainObjectPermissionPanelClassName,
                                     DomainObjectPermissionsPanel.class);
                         }
@@ -220,6 +223,47 @@ public abstract class TemplateWebApplication extends ServletAuthWebApplication
 
                     webComponentResolverBuilder.addComponentMapping(
                             DomainObjectPermissionPanelFactory.WEB_COMPONENT_NAME, domainObjectPermissionPanelClass);
+                }
+
+                //Organization permission panel class
+                {
+                    final String organizationPermissionPanelClassName =
+                            templateLoader.getOrganizationPermissionPanelClassName();
+
+                    Class<? extends AbstractDomainObjectPermissionPanel> organizationPermissionPanelClass = null;
+                    if (!Strings.isEmpty(organizationPermissionPanelClassName)) {
+                        try {
+                            organizationPermissionPanelClass =
+                                    (Class) classResolver.resolveClass(organizationPermissionPanelClassName);
+                            boolean hasConstructor = true;
+                            try {
+                                hasConstructor =
+                                        organizationPermissionPanelClass.getConstructor(
+                                        String.class, OrganizationPermissionParameters.class) != null;
+                            } catch (NoSuchMethodException | SecurityException e) {
+                                hasConstructor = false;
+                            }
+
+                            if (!hasConstructor) {
+                                String constructor = "(" + String.class.getName() + ", "
+                                        + OrganizationPermissionParameters.class.getName() + ")";
+                                log.warn("Компонент для редактирования прав доступа к организации не имеет обязательного "
+                                        + "конструктора {}. Будет использован компонент по умолчанию {}",
+                                        constructor, OrganizationPermissionParameters.class);
+                                organizationPermissionPanelClass = null;
+                            }
+                        } catch (ClassNotFoundException e) {
+                            log.warn("Компонент для редактирования прав доступа к организации не найден: {}. "
+                                    + "Будет использован компонент по умолчанию {}", organizationPermissionPanelClassName,
+                                    OrganizationPermissionsPanel.class);
+                        }
+                    }
+                    if (organizationPermissionPanelClass == null) {
+                        organizationPermissionPanelClass = OrganizationPermissionsPanel.class;
+                    }
+
+                    webComponentResolverBuilder.addComponentMapping(
+                            OrganizationPermissionPanelFactory.WEB_COMPONENT_NAME, organizationPermissionPanelClass);
                 }
 
                 //build template web component resolver
