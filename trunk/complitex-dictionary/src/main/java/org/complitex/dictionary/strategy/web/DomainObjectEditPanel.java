@@ -36,7 +36,6 @@ import static org.complitex.dictionary.util.CloneUtil.*;
 import static org.complitex.dictionary.util.DateUtil.*;
 import org.complitex.dictionary.web.component.ChildrenContainer;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
-import org.complitex.dictionary.web.component.permission.DomainObjectPermissionsPanel;
 import org.complitex.dictionary.web.component.permission.PermissionPropagationDialogPanel;
 import static org.complitex.dictionary.web.component.scroll.ScrollToElementUtil.*;
 import static org.complitex.resources.WebCommonResourceInitializer.*;
@@ -51,6 +50,9 @@ import org.apache.wicket.util.visit.IVisitor;
 import org.complitex.dictionary.service.SessionBean;
 import org.complitex.dictionary.web.component.back.BackInfo;
 import org.complitex.dictionary.web.component.back.BackInfoManager;
+import org.complitex.dictionary.web.component.permission.AbstractDomainObjectPermissionPanel;
+import org.complitex.dictionary.web.component.permission.DomainObjectPermissionPanelFactory;
+import org.complitex.dictionary.web.component.permission.DomainObjectPermissionParameters;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
 
 /**
@@ -265,9 +267,10 @@ public class DomainObjectEditPanel extends Panel {
         add(form);
     }
 
-    protected DomainObjectPermissionsPanel newPermissionsPanel(String id, Set<Long> parentSubjectIds) {
-        return new DomainObjectPermissionsPanel(id, newObject.getSubjectIds(), parentSubjectIds,
-                DomainObjectAccessUtil.canEdit(strategyName, entity, newObject));
+    protected AbstractDomainObjectPermissionPanel newPermissionsPanel(String id, Set<Long> parentSubjectIds) {
+        return DomainObjectPermissionPanelFactory.create(id,
+                new DomainObjectPermissionParameters(newObject.getSubjectIds(), parentSubjectIds,
+                DomainObjectAccessUtil.canEdit(strategyName, entity, newObject)));
     }
 
     protected DomainObjectInputPanel newInputPanel(String id, DomainObject newObject, String entity,

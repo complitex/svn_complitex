@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 import javax.ejb.EJB;
 import org.apache.wicket.markup.html.IHeaderResponse;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.request.resource.PackageResourceReference;
@@ -32,7 +31,7 @@ import org.odlabs.wiquery.ui.commons.WiQueryUIPlugin;
  * @author Artem
  */
 @WiQueryUIPlugin
-public class DomainObjectPermissionsPanel extends Panel implements IWiQueryPlugin {
+public class DomainObjectPermissionsPanel extends AbstractDomainObjectPermissionPanel implements IWiQueryPlugin {
 
     @EJB(name = "OrganizationStrategy")
     private IOrganizationStrategy organizationStrategy;
@@ -44,25 +43,17 @@ public class DomainObjectPermissionsPanel extends Panel implements IWiQueryPlugi
     private Set<Long> subjectIds;
     private Set<Long> parentSubjectIds;
 
-    public DomainObjectPermissionsPanel(String id, Set<Long> subjectIds, Set<Long> parentSubjectIds, boolean enabled) {
-        super(id);
-        setEnabled(enabled);
-        this.subjectIds = subjectIds;
-        this.parentSubjectIds = parentSubjectIds;
+    public DomainObjectPermissionsPanel(String id, DomainObjectPermissionParameters parameters) {
+        super(id, parameters);
+        setEnabled(parameters.isEnabled());
+        this.subjectIds = parameters.getSubjectIds();
+        this.parentSubjectIds = parameters.getParentSubjectIds();
     }
 
     @Override
     protected void onInitialize() {
         super.onInitialize();
         init();
-    }
-
-    protected Set<Long> getParentSubjectIds() {
-        return parentSubjectIds;
-    }
-
-    protected Set<Long> getSubjectIds() {
-        return subjectIds;
     }
 
     private void init() {

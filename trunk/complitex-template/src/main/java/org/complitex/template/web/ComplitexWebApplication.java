@@ -1,6 +1,7 @@
 package org.complitex.template.web;
 
-import org.apache.wicket.Page;
+import org.apache.wicket.markup.html.WebPage;
+import org.complitex.template.web.pages.HomePageFactory;
 import org.complitex.template.web.template.TemplateWebApplication;
 
 /**
@@ -15,7 +16,7 @@ public class ComplitexWebApplication extends TemplateWebApplication {
     }
 
     @Override
-    public Class<? extends Page> getHomePage() {
-        return TemplateWebApplication.getHomePageClass();
+    public Class<? extends WebPage> getHomePage() {
+        return (Class) getWebComponentResolver().getComponentClass(HomePageFactory.WEB_COMPONENT_NAME);
     }
 }

@@ -31,6 +31,7 @@ public class TemplateLoader {
     private final Collection<String> menuClassNames;
     private final String homePageClassName;
     private final String mainUserOrganizationPickerComponentClassName;
+    private final String domainObjectPermissionPanelClassName;
 
     public TemplateLoader(InputStream inputStream) {
         try {
@@ -43,6 +44,7 @@ public class TemplateLoader {
             this.homePageClassName = getHomePageClassName(xpath, document);
             this.mainUserOrganizationPickerComponentClassName =
                     getMainUserOrganizationPickerComponentClassName(xpath, document);
+            this.domainObjectPermissionPanelClassName = getDomainObjectPermissionPanelClassName(xpath, document);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -74,22 +76,20 @@ public class TemplateLoader {
     }
 
     private String getHomePageClassName(XPath xpath, Document doc) {
-        try {
-            Node text = (Node) xpath.evaluate("//homepage-class/text()",
-                    doc, XPathConstants.NODE);
-            if (text != null) {
-                return text.getNodeValue().trim();
-            }
-            return null;
-        } catch (XPathExpressionException e) {
-            throw new RuntimeException(e);
-        }
+        return getPathValue("//homepage-class/text()", xpath, doc);
     }
 
     private String getMainUserOrganizationPickerComponentClassName(XPath xpath, Document doc) {
+        return getPathValue("//web-components/main-user-organization-picker-component/text()", xpath, doc);
+    }
+
+    private String getDomainObjectPermissionPanelClassName(XPath xpath, Document doc) {
+        return getPathValue("//web-components/domain-object-permission-panel/text()", xpath, doc);
+    }
+
+    private String getPathValue(String expression, XPath xpath, Document doc) {
         try {
-            Node text = (Node) xpath.evaluate("//web-components/main-user-organization-picker-component/text()",
-                    doc, XPathConstants.NODE);
+            Node text = (Node) xpath.evaluate(expression, doc, XPathConstants.NODE);
             if (text != null) {
                 return text.getNodeValue().trim();
             }
@@ -109,5 +109,9 @@ public class TemplateLoader {
 
     public String getMainUserOrganizationPickerClassName() {
         return mainUserOrganizationPickerComponentClassName;
+    }
+
+    public String getDomainObjectPermissionPanelClassName() {
+        return domainObjectPermissionPanelClassName;
     }
 }
