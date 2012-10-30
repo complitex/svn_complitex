@@ -216,4 +216,9 @@ public class DateUtil {
     public static String format(Date date){
         return date != null ? getDateFormat().format(date) : "";
     }
+
+    public static String format(Date date1, Date date2){
+        return (date1 != null ? getDateFormat().format(date1) : "")
+                + " - " + (date2 != null ? getDateFormat().format(date2) : "");
+    }
 }
