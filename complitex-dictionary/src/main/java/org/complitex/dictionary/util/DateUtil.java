@@ -14,13 +14,14 @@ import static java.util.Calendar.*;
  *         Date: 14.01.2010 0:30:49
  */
 public class DateUtil {
+
     private static ThreadLocal<SimpleDateFormat> DATE_FORMAT = new ThreadLocal<>();
 
     private DateUtil() {
     }
 
-    public static SimpleDateFormat getDateFormat(){
-        if (DATE_FORMAT.get() == null){
+    public static SimpleDateFormat getDateFormat() {
+        if (DATE_FORMAT.get() == null) {
             DATE_FORMAT.set(new SimpleDateFormat("dd.MM.yyyy"));
         }
 
@@ -105,7 +106,7 @@ public class DateUtil {
         return calendar.getTime();
     }
 
-    public static Date getFirstDayOfCurrentMonth(){
+    public static Date getFirstDayOfCurrentMonth() {
         Calendar calendar = Calendar.getInstance();
 
         calendar.set(DAY_OF_MONTH, 1);
@@ -117,7 +118,7 @@ public class DateUtil {
         return calendar.getTime();
     }
 
-    public static boolean isSameMonth(Date d1, Date d2){
+    public static boolean isSameMonth(Date d1, Date d2) {
         Calendar c1 = newCalendar(d1);
         Calendar c2 = newCalendar(d2);
 
@@ -154,6 +155,12 @@ public class DateUtil {
         Calendar c = Calendar.getInstance();
         c.setTime(date);
         return c.get(YEAR);
+    }
+
+    public static Date previousDay(Date date) {
+        Calendar c = newCalendar(date);
+        c.add(Calendar.DAY_OF_YEAR, -1);
+        return c.getTime();
     }
 
     /**
@@ -199,25 +206,25 @@ public class DateUtil {
         return null;
     }
 
-    public static Calendar newCalendar(Date date){
+    public static Calendar newCalendar(Date date) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
 
         return calendar;
     }
 
-    public static Date addMonth(Date date, int amount){
+    public static Date addMonth(Date date, int amount) {
         Calendar calendar = newCalendar(date);
         calendar.add(MONTH, amount);
 
         return calendar.getTime();
     }
 
-    public static String format(Date date){
+    public static String format(Date date) {
         return date != null ? getDateFormat().format(date) : "";
     }
 
-    public static String format(Date date1, Date date2){
+    public static String format(Date date1, Date date2) {
         return (date1 != null ? getDateFormat().format(date1) : "..")
                 + " - " + (date2 != null ? getDateFormat().format(date2) : "..");
     }
