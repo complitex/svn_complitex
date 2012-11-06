@@ -106,6 +106,13 @@ public class DateUtil {
         return calendar.getTime();
     }
 
+    public static Date getFirstDayOfMonth(Date date){
+        Calendar calendar = newCalendar(date);
+        calendar.set(DAY_OF_MONTH, 1);
+
+        return calendar.getTime();
+    }
+
     public static Date getFirstDayOfCurrentMonth() {
         Calendar calendar = Calendar.getInstance();
 
@@ -228,4 +235,9 @@ public class DateUtil {
         return (date1 != null ? getDateFormat().format(date1) : "..")
                 + " - " + (date2 != null ? getDateFormat().format(date2) : "..");
     }
+
+    public static int getDaysDiff(Date date1, Date date2){
+        return (int) Math.abs((date1.getTime() - date2.getTime())/1000/60/60/24);
+    }
+
 }
