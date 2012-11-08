@@ -37,7 +37,11 @@ public class FixedIdBaseTypeHandler<T extends Enum & IFixedIdType> implements Ty
 
     @Override
     public void setParameter(PreparedStatement ps, int i, T parameter, JdbcType jdbcType) throws SQLException {
-        ps.setLong(i, parameter.getId());
+        if (parameter != null) {
+            ps.setLong(i, parameter.getId());
+        }else {
+            ps.setNull(i, jdbcType.TYPE_CODE);
+        }
     }
 
     @Override
