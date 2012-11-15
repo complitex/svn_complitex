@@ -32,15 +32,15 @@
     <!--select id by name -->
 
     <select id="selectFirstNameId" parameterType="string" resultType="long">
-        select `id` from `first_name` where `name` like #{name}
+        select `id` from `first_name` where `name` = #{name}
     </select>
 
     <select id="selectMiddleNameId" parameterType="string" resultType="long">
-        select `id` from `middle_name` where `name` like #{name}
+        select `id` from `middle_name` where `name` = #{name}
     </select>
 
     <select id="selectLastNameId" parameterType="string" resultType="long">
-        select `id` from `last_name` where `name` like #{name}
+        select `id` from `last_name` where `name` = #{name}
     </select>
 
     <!--insert name-->
