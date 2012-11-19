@@ -4,8 +4,10 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.util.convert.IConverter;
 
 import java.math.BigDecimal;
+import java.util.Locale;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -36,5 +38,27 @@ public class TextLabel extends Label {
                 setDefaultModelObject(label);
             }
         }
+    }
+
+    @Override
+    public <C> IConverter<C> getConverter(final Class<C> type) {
+        return new IConverter<C>() {
+            @Override
+            public C convertToObject(String value, Locale locale) {
+                return TextLabel.super.getConverter(type).convertToObject(value, locale);
+            }
+
+            @Override
+            public String convertToString(C value, Locale locale) {
+                //Enum converter
+                if (type.isEnum()){
+                    return getString(((Enum)value).name());
+                }else if (type.isAssignableFrom(BigDecimal.class)){
+                    return ((BigDecimal) value).toPlainString();
+                }
+
+                return TextLabel.super.getConverter(type).convertToString(value, locale);
+            }
+        };
     }
 }
