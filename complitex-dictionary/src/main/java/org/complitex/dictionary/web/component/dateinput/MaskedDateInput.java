@@ -12,6 +12,7 @@ import org.apache.wicket.request.resource.PackageResourceReference;
 import org.complitex.dictionary.web.component.DatePicker;
 import org.odlabs.wiquery.core.javascript.JsStatement;
 import org.odlabs.wiquery.ui.datepicker.DateOption;
+import static org.complitex.dictionary.util.DateUtil.*;
 
 /**
  *
@@ -40,14 +41,16 @@ public class MaskedDateInput extends DatePicker<Date> {
     }
 
     public MaskedDateInput setMaxDate(Date maxDate) {
-        DateOption maxDateOption = new DateOption(maxDate);
+        Date max = getEndOfDay(maxDate);
+        DateOption maxDateOption = new DateOption(max);
         super.setMaxDate(maxDateOption);
         options.setMaxDate(maxDateOption);
         return this;
     }
 
     public MaskedDateInput setMinDate(Date minDate) {
-        DateOption minDateOption = new DateOption(minDate);
+        Date min = getBeginOfDay(minDate);
+        DateOption minDateOption = new DateOption(min);
         super.setMinDate(minDateOption);
         options.setMinDate(minDateOption);
         return this;

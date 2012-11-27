@@ -44,6 +44,18 @@ public class DateUtil {
         return c.getTime();
     }
 
+    public static Date getBeginOfDay(Date date) {
+        Calendar c = Calendar.getInstance();
+
+        c.setTime(date);
+        c.set(Calendar.HOUR_OF_DAY, 0);
+        c.set(Calendar.MINUTE, 0);
+        c.set(SECOND, 0);
+        c.set(MILLISECOND, 0);
+
+        return c.getTime();
+    }
+
     public static String getTimeDiff(long start, long end) {
         long time = end - start;
 
@@ -111,6 +123,13 @@ public class DateUtil {
     public static Date getFirstDayOfMonth(int year, int month) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(year, month - 1, 1);
+        return calendar.getTime();
+    }
+
+    public static Date getLastDayOfMonth(int year, int month) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year, month, 1);
+        calendar.add(DAY_OF_YEAR, -1);
         return calendar.getTime();
     }
 
