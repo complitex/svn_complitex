@@ -37,4 +37,26 @@ public class IdListUtil {
 
         return list;
     }
+
+    public static <T extends ILongId> List<Long> getIdDiff(List<Long> list1, List<T> list2){
+        List<Long> list = new ArrayList<>();
+
+        for (Long o1 : list1){
+            boolean found = false;
+
+            for (T o2 : list2){
+                if (o1 != null && o1.equals(o2.getId())){
+                    found = true;
+
+                    break;
+                }
+            }
+
+            if (!found){
+                list.add(o1);
+            }
+        }
+
+        return list;
+    }
 }
