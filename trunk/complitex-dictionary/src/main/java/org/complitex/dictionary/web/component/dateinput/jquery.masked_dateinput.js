@@ -91,10 +91,10 @@
                                 log("Date object: "+date);
                                 if(date.getMonth() == month-1 && date.getDate() == day && date.getFullYear() == year){
                                     isValidDate = true;
-                                    if(local_settings.min_date && date < local_settings.min_date){
+                                    if(local_settings.min_date && (date < local_settings.min_date)){
                                         isValidDate = false;
                                     }
-                                    if(local_settings.max_date && date > local_settings.max_date){
+                                    if(local_settings.max_date && (date > local_settings.max_date)){
                                         isValidDate = false;
                                     }
                                 }
