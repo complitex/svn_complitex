@@ -1,4 +1,3 @@
-/* Designer's style */
 body { margin:0; padding: 0px 25px 20px 25px; background:url('../images/pageBg.jpg') repeat-x #E0E4E9; }
 
 body, td, p, li, ol, ul, input, select, textarea, div {	font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #273540; }
@@ -89,7 +88,7 @@ h2 { color: #273540; font-size: 16px; font-weight: bold; margin: 0px; padding: 5
 p { margin: 0px; padding: 0px 0px 10px 0px;}
 ul { margin: 0px; padding: 5px 0px 15px 30px; list-style-type: square; }
 
-.tbColor { width: 100%; border-top: 1px solid #667584; margin-bottom: 5px;}
+.tbColor { width: 100%; border-top: 1px solid #667584; margin-bottom: 5px; border-spacing: 0}
 .tbColor th { color: #007AAE; background-color:#CBD2D8; border-bottom: 1px solid #667584; padding: 4px 8px 5px 8px; text-align:left;}
 .tbColor th a { color: #007AAE; }
 .tbColor tr.subTitle1 th { background:url('../images/arrow1top.gif') no-repeat 8px 7px #F4F6F8; color: #007AAE; border-bottom: 1px solid #C2CBD3; padding: 4px 8px 5px 22px; text-align:left; font-weight: normal; font-size: 13px;}
