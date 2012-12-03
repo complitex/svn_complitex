@@ -2,6 +2,7 @@ package org.complitex.address.web;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.AjaxSelfUpdatingTimerBehavior;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
@@ -11,12 +12,17 @@ import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.util.time.Duration;
 import org.complitex.address.entity.AddressImportFile;
 import org.complitex.address.service.AddressImportService;
 import org.complitex.dictionary.entity.IImportFile;
 import org.complitex.dictionary.entity.ImportMessage;
+import org.complitex.dictionary.service.LocaleBean;
+import org.complitex.dictionary.util.DateUtil;
+import org.complitex.template.web.component.LocalePicker;
 import org.complitex.template.web.security.SecurityRole;
 import org.complitex.template.web.template.TemplatePage;
 
@@ -25,11 +31,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
-import org.apache.wicket.model.Model;
-import org.apache.wicket.model.ResourceModel;
-import org.complitex.dictionary.service.LocaleBean;
-import org.complitex.template.web.component.LocalePicker;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -63,7 +64,7 @@ public class ImportPage extends TemplatePage {
         List<IImportFile> dictionaryList = new ArrayList<IImportFile>();
         Collections.addAll(dictionaryList, AddressImportFile.values());
 
-        form.add(new CheckBoxMultipleChoice<IImportFile>("address", dictionaryModel, dictionaryList,
+        form.add(new CheckBoxMultipleChoice<>("address", dictionaryModel, dictionaryList,
                 new IChoiceRenderer<IImportFile>() {
 
                     @Override
@@ -77,7 +78,7 @@ public class ImportPage extends TemplatePage {
                     }
                 }));
 
-        localeModel = new Model<Locale>(localeBean.getSystemLocale());
+        localeModel = new Model<>(localeBean.getSystemLocale());
         form.add(new LocalePicker("localePicker", localeModel, false));
 
         //Кнопка импортировать
@@ -87,7 +88,7 @@ public class ImportPage extends TemplatePage {
             public void onSubmit() {
                 if (!addressImportService.isProcessing()) {
                     addressImportService.process(dictionaryModel.getObject(),
-                            localeBean.convert(localeModel.getObject()).getId());
+                            localeBean.convert(localeModel.getObject()).getId(), DateUtil.getCurrentDate());
                     container.add(newTimer());
                 }
             }
