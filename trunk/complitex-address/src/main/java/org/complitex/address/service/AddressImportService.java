@@ -1,7 +1,5 @@
 package org.complitex.address.service;
 
-import org.complitex.dictionary.service.AbstractImportService;
-import java.util.Set;
 import au.com.bytecode.opencsv.CSVReader;
 import org.complitex.address.Module;
 import org.complitex.address.entity.AddressImportFile;
@@ -16,26 +14,20 @@ import org.complitex.address.strategy.region.RegionStrategy;
 import org.complitex.address.strategy.street.StreetStrategy;
 import org.complitex.address.strategy.street_type.StreetTypeStrategy;
 import org.complitex.dictionary.entity.*;
-import org.complitex.dictionary.service.ConfigBean;
-import org.complitex.dictionary.service.IImportListener;
-import org.complitex.dictionary.service.LogBean;
+import org.complitex.dictionary.service.*;
 import org.complitex.dictionary.service.exception.*;
-import org.complitex.dictionary.util.DateUtil;
+import org.complitex.dictionary.util.AttributeUtil;
+import org.complitex.dictionary.util.CloneUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Resource;
 import javax.ejb.*;
-import javax.transaction.*;
+import javax.transaction.SystemException;
+import javax.transaction.UserTransaction;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import org.complitex.dictionary.service.LocaleBean;
-import org.complitex.dictionary.util.AttributeUtil;
-import org.complitex.dictionary.util.CloneUtil;
 import static org.complitex.address.entity.AddressImportFile.*;
 
 /**
@@ -78,7 +70,7 @@ public class AddressImportService extends AbstractImportService {
     private boolean error;
     private boolean success;
     private String errorMessage;
-    private Map<IImportFile, ImportMessage> messages = new LinkedHashMap<IImportFile, ImportMessage>();
+    private Map<IImportFile, ImportMessage> messages = new LinkedHashMap();
     private IImportListener listener = new IImportListener() {
 
         @Override
@@ -131,38 +123,38 @@ public class AddressImportService extends AbstractImportService {
         errorMessage = null;
     }
 
-    public <T extends IImportFile> void process(T importFile, IImportListener listener, long localeId)
+    public <T extends IImportFile> void process(T importFile, IImportListener listener, long localeId, Date beginDate)
             throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException, ImportDuplicateException {
         switch ((AddressImportFile) importFile) {
             case COUNTRY:
-                importCountry(listener, localeId);
+                importCountry(listener, localeId, beginDate);
                 break;
             case REGION:
-                importRegion(listener, localeId);
+                importRegion(listener, localeId, beginDate);
                 break;
             case CITY_TYPE:
-                importCityType(listener, localeId);
+                importCityType(listener, localeId, beginDate);
                 break;
             case CITY:
-                importCity(listener, localeId);
+                importCity(listener, localeId, beginDate);
                 break;
             case DISTRICT:
-                importDistrict(listener, localeId);
+                importDistrict(listener, localeId, beginDate);
                 break;
             case STREET_TYPE:
-                importStreetType(listener, localeId);
+                importStreetType(listener, localeId, beginDate);
                 break;
             case STREET:
-                importStreet(listener, localeId);
+                importStreet(listener, localeId, beginDate);
                 break;
             case BUILDING:
-                importBuilding(listener, localeId);
+                importBuilding(listener, localeId, beginDate);
                 break;
         }
     }
 
     @Asynchronous
-    public <T extends IImportFile> void process(List<T> addressFiles, long localeId) {
+    public <T extends IImportFile> void process(List<T> addressFiles, long localeId, Date beginDate) {
         if (processing) {
             return;
         }
@@ -175,7 +167,7 @@ public class AddressImportService extends AbstractImportService {
             for (T t : addressFiles) {
                 userTransaction.begin();
 
-                process(t, listener, localeId);
+                process(t, listener, localeId, beginDate);
 
                 userTransaction.commit();
             }
@@ -204,7 +196,7 @@ public class AddressImportService extends AbstractImportService {
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    public void importCountry(IImportListener listener, long localeId)
+    public void importCountry(IImportListener listener, long localeId, Date beginDate)
             throws ImportFileNotFoundException, ImportFileReadException {
         listener.beginImport(COUNTRY, getRecordCount(COUNTRY));
 
@@ -245,18 +237,16 @@ public class AddressImportService extends AbstractImportService {
                 }
 
                 if (oldObject == null) {
-                    countryStrategy.insert(newObject, DateUtil.getCurrentDate());
+                    countryStrategy.insert(newObject, beginDate);
                 } else {
-                    countryStrategy.update(oldObject, newObject, DateUtil.getCurrentDate());
+                    countryStrategy.update(oldObject, newObject, beginDate);
                 }
 
                 listener.recordProcessed(COUNTRY, recordIndex);
             }
 
             listener.completeImport(COUNTRY, recordIndex);
-        } catch (IOException e) {
-            throw new ImportFileReadException(e, COUNTRY.getFileName(), recordIndex);
-        } catch (NumberFormatException e) {
+        } catch (IOException | NumberFormatException e) {
             throw new ImportFileReadException(e, COUNTRY.getFileName(), recordIndex);
         } finally {
             try {
@@ -273,7 +263,7 @@ public class AddressImportService extends AbstractImportService {
      * @throws ImportFileReadException
      * @throws ImportObjectLinkException
      */
-    public void importRegion(IImportListener listener, long localeId)
+    public void importRegion(IImportListener listener, long localeId, Date beginDate)
             throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
         listener.beginImport(REGION, getRecordCount(REGION));
 
@@ -322,18 +312,16 @@ public class AddressImportService extends AbstractImportService {
                 newObject.setParentId(countryId);
 
                 if (oldObject == null) {
-                    regionStrategy.insert(newObject, DateUtil.getCurrentDate());
+                    regionStrategy.insert(newObject, beginDate);
                 } else {
-                    regionStrategy.update(oldObject, newObject, DateUtil.getCurrentDate());
+                    regionStrategy.update(oldObject, newObject, beginDate);
                 }
 
                 listener.recordProcessed(REGION, recordIndex);
             }
 
             listener.completeImport(REGION, recordIndex);
-        } catch (IOException e) {
-            throw new ImportFileReadException(e, REGION.getFileName(), recordIndex);
-        } catch (NumberFormatException e) {
+        } catch (IOException | NumberFormatException e) {
             throw new ImportFileReadException(e, REGION.getFileName(), recordIndex);
         } finally {
             try {
@@ -349,7 +337,7 @@ public class AddressImportService extends AbstractImportService {
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    public void importCityType(IImportListener listener, long localeId)
+    public void importCityType(IImportListener listener, long localeId, Date beginDate)
             throws ImportFileNotFoundException, ImportFileReadException {
         listener.beginImport(CITY_TYPE, getRecordCount(CITY_TYPE));
 
@@ -398,18 +386,16 @@ public class AddressImportService extends AbstractImportService {
                 }
 
                 if (oldObject == null) {
-                    cityTypeStrategy.insert(newObject, DateUtil.getCurrentDate());
+                    cityTypeStrategy.insert(newObject, beginDate);
                 } else {
-                    cityTypeStrategy.update(oldObject, newObject, DateUtil.getCurrentDate());
+                    cityTypeStrategy.update(oldObject, newObject, beginDate);
                 }
 
                 listener.recordProcessed(CITY_TYPE, recordIndex);
             }
 
             listener.completeImport(CITY_TYPE, recordIndex);
-        } catch (IOException e) {
-            throw new ImportFileReadException(e, CITY_TYPE.getFileName(), recordIndex);
-        } catch (NumberFormatException e) {
+        } catch (IOException | NumberFormatException e) {
             throw new ImportFileReadException(e, CITY_TYPE.getFileName(), recordIndex);
         } finally {
             try {
@@ -425,7 +411,7 @@ public class AddressImportService extends AbstractImportService {
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    public void importCity(IImportListener listener, long localeId)
+    public void importCity(IImportListener listener, long localeId, Date beginDate)
             throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
         listener.beginImport(CITY, getRecordCount(CITY));
 
@@ -481,18 +467,16 @@ public class AddressImportService extends AbstractImportService {
                 newObject.getAttribute(CityStrategy.CITY_TYPE).setValueId(cityTypeId);
 
                 if (oldObject == null) {
-                    cityStrategy.insert(newObject, DateUtil.getCurrentDate());
+                    cityStrategy.insert(newObject, beginDate);
                 } else {
-                    cityStrategy.update(oldObject, newObject, DateUtil.getCurrentDate());
+                    cityStrategy.update(oldObject, newObject, beginDate);
                 }
 
                 listener.recordProcessed(CITY, recordIndex);
             }
 
             listener.completeImport(CITY, recordIndex);
-        } catch (IOException e) {
-            throw new ImportFileReadException(e, CITY.getFileName(), recordIndex);
-        } catch (NumberFormatException e) {
+        } catch (IOException | NumberFormatException e) {
             throw new ImportFileReadException(e, CITY.getFileName(), recordIndex);
         } finally {
             try {
@@ -508,7 +492,7 @@ public class AddressImportService extends AbstractImportService {
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    public void importDistrict(IImportListener listener, long localeId)
+    public void importDistrict(IImportListener listener, long localeId, Date beginDate)
             throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
         listener.beginImport(DISTRICT, getRecordCount(DISTRICT));
 
@@ -561,18 +545,16 @@ public class AddressImportService extends AbstractImportService {
                         line[2].trim().toUpperCase(), systemLocaleId);
 
                 if (oldObject == null) {
-                    districtStrategy.insert(newObject, DateUtil.getCurrentDate());
+                    districtStrategy.insert(newObject, beginDate);
                 } else {
-                    districtStrategy.update(oldObject, newObject, DateUtil.getCurrentDate());
+                    districtStrategy.update(oldObject, newObject, beginDate);
                 }
 
                 listener.recordProcessed(DISTRICT, recordIndex);
             }
 
             listener.completeImport(DISTRICT, recordIndex);
-        } catch (IOException e) {
-            throw new ImportFileReadException(e, DISTRICT.getFileName(), recordIndex);
-        } catch (NumberFormatException e) {
+        } catch (IOException | NumberFormatException e) {
             throw new ImportFileReadException(e, DISTRICT.getFileName(), recordIndex);
         } finally {
             try {
@@ -588,7 +570,7 @@ public class AddressImportService extends AbstractImportService {
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    public void importStreetType(IImportListener listener, long localeId)
+    public void importStreetType(IImportListener listener, long localeId, Date beginDate)
             throws ImportFileNotFoundException, ImportFileReadException {
         listener.beginImport(STREET_TYPE, getRecordCount(STREET_TYPE));
 
@@ -636,18 +618,16 @@ public class AddressImportService extends AbstractImportService {
                 }
 
                 if (oldObject == null) {
-                    streetTypeStrategy.insert(newObject, DateUtil.getCurrentDate());
+                    streetTypeStrategy.insert(newObject, beginDate);
                 } else {
-                    streetTypeStrategy.update(oldObject, newObject, DateUtil.getCurrentDate());
+                    streetTypeStrategy.update(oldObject, newObject, beginDate);
                 }
 
                 listener.recordProcessed(STREET_TYPE, recordIndex);
             }
 
             listener.completeImport(STREET_TYPE, recordIndex);
-        } catch (IOException e) {
-            throw new ImportFileReadException(e, STREET_TYPE.getFileName(), recordIndex);
-        } catch (NumberFormatException e) {
+        } catch (IOException | NumberFormatException e) {
             throw new ImportFileReadException(e, STREET_TYPE.getFileName(), recordIndex);
         } finally {
             try {
@@ -663,7 +643,7 @@ public class AddressImportService extends AbstractImportService {
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    public void importStreet(IImportListener listener, long localeId)
+    public void importStreet(IImportListener listener, long localeId, Date beginDate)
             throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException, ImportDuplicateException {
         listener.beginImport(STREET, getRecordCount(STREET));
 
@@ -724,18 +704,16 @@ public class AddressImportService extends AbstractImportService {
                     throw new ImportDuplicateException(STREET.getFileName(), recordIndex, externalId, existingStreetId);
                 } else {
                     if (oldObject == null) {
-                        streetStrategy.insert(newObject, DateUtil.getCurrentDate());
+                        streetStrategy.insert(newObject, beginDate);
                     } else {
-                        streetStrategy.update(oldObject, newObject, DateUtil.getCurrentDate());
+                        streetStrategy.update(oldObject, newObject, beginDate);
                     }
                     listener.recordProcessed(STREET, recordIndex);
                 }
             }
 
             listener.completeImport(STREET, recordIndex);
-        } catch (IOException e) {
-            throw new ImportFileReadException(e, STREET.getFileName(), recordIndex);
-        } catch (NumberFormatException e) {
+        } catch (IOException | NumberFormatException e) {
             throw new ImportFileReadException(e, STREET.getFileName(), recordIndex);
         } finally {
             try {
@@ -751,7 +729,7 @@ public class AddressImportService extends AbstractImportService {
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    public void importBuilding(IImportListener listener, long localeId)
+    public void importBuilding(IImportListener listener, long localeId, Date beginDate)
             throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
         listener.beginImport(BUILDING, getRecordCount(BUILDING));
 
@@ -770,7 +748,7 @@ public class AddressImportService extends AbstractImportService {
 
                 Long buildingId = buildingStrategy.getObjectId(externalId);
 
-                Building newBuilding = null;
+                Building newBuilding;
                 Building oldBuilding = null;
                 DomainObject buildingAddress;
 
@@ -836,7 +814,7 @@ public class AddressImportService extends AbstractImportService {
                     final int addressCount = newBuilding.getAllAddresses().size();
 
                     //кол-во улиц:
-                    Set<Long> streetIds = new HashSet<Long>();
+                    Set<Long> streetIds = new HashSet<>();
                     for (DomainObject address : newBuilding.getAllAddresses()) {
                         final Long currentStreetId = address.getParentId();
                         if (currentStreetId != null) {
@@ -858,10 +836,10 @@ public class AddressImportService extends AbstractImportService {
                         } else {
                             // не нашли, сохраняем дом и адрес
                             if (oldBuilding == null) { // новый дом
-                                buildingStrategy.insert(newBuilding, DateUtil.getCurrentDate());
+                                buildingStrategy.insert(newBuilding, beginDate);
                             } else {
                                 // существующий дом, доп. адрес
-                                buildingStrategy.update(oldBuilding, newBuilding, DateUtil.getCurrentDate());
+                                buildingStrategy.update(oldBuilding, newBuilding, beginDate);
                             }
                             listener.recordProcessed(BUILDING, recordIndex);
                         }
@@ -870,9 +848,7 @@ public class AddressImportService extends AbstractImportService {
             }
 
             listener.completeImport(BUILDING, recordIndex);
-        } catch (IOException e) {
-            throw new ImportFileReadException(e, BUILDING.getFileName(), recordIndex);
-        } catch (NumberFormatException e) {
+        } catch (IOException | NumberFormatException e) {
             throw new ImportFileReadException(e, BUILDING.getFileName(), recordIndex);
         } finally {
             try {
