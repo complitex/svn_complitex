@@ -52,11 +52,6 @@ public class CollapsibleFieldset extends Border implements IWiQueryPlugin {
         init(titleComponent, true, listener);
     }
 
-    /**
-     * Collapsed by default.
-     * @param id
-     * @param titleComponent
-     */
     public CollapsibleFieldset(String id, IModel<String> titleModel, ICollapsibleFieldsetListener listener) {
         this(id, newTitleComponent(titleModel), listener);
     }
@@ -70,7 +65,7 @@ public class CollapsibleFieldset extends Border implements IWiQueryPlugin {
         addToBorder(legend);
 
         if (listener != null) {
-            final IModel<Boolean> stateModel = new Model<Boolean>(!collapsed);
+            final IModel<Boolean> stateModel = new Model<>(!collapsed);
             legend.add(new AjaxEventBehavior("onclick") {
 
                 @Override
