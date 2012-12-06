@@ -2,9 +2,13 @@ package org.complitex.dictionary.service;
 
 import com.google.common.collect.ImmutableSet;
 import org.apache.wicket.util.string.Strings;
+import org.complitex.dictionary.entity.DomainObject;
+import org.complitex.dictionary.entity.UserGroup.GROUP_NAME;
+import org.complitex.dictionary.mybatis.Transactional;
 import org.complitex.dictionary.service.exception.WrongCurrentPasswordException;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
+import org.complitex.dictionary.web.DictionaryFwSession;
 
 import javax.annotation.Resource;
 import javax.annotation.security.DeclareRoles;
@@ -12,10 +16,6 @@ import javax.ejb.EJB;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import java.util.*;
-import org.complitex.dictionary.entity.DomainObject;
-import org.complitex.dictionary.entity.UserGroup.GROUP_NAME;
-import org.complitex.dictionary.mybatis.Transactional;
-import org.complitex.dictionary.web.DictionaryFwSession;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -76,7 +76,7 @@ public class SessionBean extends AbstractBean {
     }
 
     public List<Long> getUserOrganizationTreeObjectIds() {
-        List<Long> objectIds = new ArrayList<Long>();
+        List<Long> objectIds = new ArrayList<>();
 
         for (Long objectId : getUserOrganizationObjectIds()) {
             addChildOrganizations(objectIds, objectId);
@@ -96,6 +96,14 @@ public class SessionBean extends AbstractBean {
     }
 
     private List<Long> getUserOrganizationTreePermissionIds(String table) {
+        Map<String, String> parameter = new HashMap<>();
+        parameter.put("table", table);
+        parameter.put("organizations", getOrganizationString());
+
+        return sqlSession().selectList(MAPPING_NAMESPACE + ".selectUserOrganizationTreePermissionIds", parameter);
+    }
+
+    public String getOrganizationString(){
         String s = "";
         String d = "";
 
@@ -104,17 +112,13 @@ public class SessionBean extends AbstractBean {
             d = ", ";
         }
 
-        Map<String, String> parameter = new HashMap<String, String>();
-        parameter.put("table", table);
-        parameter.put("organizations", !Strings.isEmpty(s) ? "(" + s + ")" : null);
-
-        return sqlSession().selectList(MAPPING_NAMESPACE + ".selectUserOrganizationTreePermissionIds", parameter);
+        return !Strings.isEmpty(s) ? "(" + s + ")" : null;
     }
 
     /**
      * Loads main user's organization id from database.
-     * 
-     * @return 
+     *
+     * @return main organization id
      */
     private Long getMainUserOrganizationObjectId() {
         return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectMainOrganizationObjectId", getCurrentUserLogin());
@@ -165,8 +169,8 @@ public class SessionBean extends AbstractBean {
 
     /**
      * Loads main user's organization from database.
-     * 
-     * @return 
+     *
+     * @return
      */
     public DomainObject loadMainUserOrganization() {
         IStrategy strategy = strategyFactory.getStrategy(ORGANIZATION_ENTITY);
@@ -186,9 +190,9 @@ public class SessionBean extends AbstractBean {
 
     /**
      * Loads main user's organization from session at first and if it doesn't find then fallbacks to loading from database.
-     * 
+     *
      * @param session
-     * @return 
+     * @return
      */
     public DomainObject getMainUserOrganization(DictionaryFwSession session) {
         DomainObject sessionOrganization = session.getMainUserOrganization();
