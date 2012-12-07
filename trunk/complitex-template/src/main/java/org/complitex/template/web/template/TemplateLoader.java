@@ -33,6 +33,7 @@ public class TemplateLoader {
     private final String mainUserOrganizationPickerComponentClassName;
     private final String domainObjectPermissionPanelClassName;
     private final String organizationPermissionPanelClassName;
+    private final String userOrganizationPickerClassName;
 
     public TemplateLoader(InputStream inputStream) {
         try {
@@ -47,6 +48,7 @@ public class TemplateLoader {
                     getMainUserOrganizationPickerComponentClassName(xpath, document);
             this.domainObjectPermissionPanelClassName = getDomainObjectPermissionPanelClassName(xpath, document);
             this.organizationPermissionPanelClassName = getOrganizationPermissionPanelClassName(xpath, document);
+            this.userOrganizationPickerClassName = getUserOrganizationPickerClassName(xpath, document);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -93,6 +95,10 @@ public class TemplateLoader {
         return getPathValue("//web-components/organization-permission-panel/text()", xpath, doc);
     }
 
+    private String getUserOrganizationPickerClassName(XPath xpath, Document doc) {
+        return getPathValue("//web-components/user-organization-picker/text()", xpath, doc);
+    }
+
     private String getPathValue(String expression, XPath xpath, Document doc) {
         try {
             Node text = (Node) xpath.evaluate(expression, doc, XPathConstants.NODE);
@@ -123,5 +129,9 @@ public class TemplateLoader {
 
     public String getOrganizationPermissionPanelClassName() {
         return organizationPermissionPanelClassName;
+    }
+
+    public String getUserOrganizationPickerClassName() {
+        return userOrganizationPickerClassName;
     }
 }
