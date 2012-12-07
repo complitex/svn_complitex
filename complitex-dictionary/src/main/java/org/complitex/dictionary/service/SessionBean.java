@@ -112,7 +112,22 @@ public class SessionBean extends AbstractBean {
             d = ", ";
         }
 
-        return !Strings.isEmpty(s) ? "(" + s + ")" : null;
+        return !Strings.isEmpty(s) ? "(" + s + ")" : "(0)";
+    }
+
+    public String getOrganizationString(Long organizationId){
+        String s = "";
+        String d = "";
+
+        List<Long> ids = new ArrayList<>();
+        addChildOrganizations(ids, organizationId);
+
+        for (Long p : ids) {
+            s += d + p;
+            d = ", ";
+        }
+
+        return !Strings.isEmpty(s) ? "(" + s + ")" : "(0)";
     }
 
     /**
