@@ -29,13 +29,18 @@ import org.apache.wicket.application.IClassResolver;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.IHeaderResponseDecorator;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.request.Request;
 import org.apache.wicket.request.Response;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.mybatis.inject.JavaEE6ModuleNamingStrategy;
 import org.complitex.dictionary.web.IWebComponentResolvableApplication;
+import org.complitex.dictionary.web.component.UserOrganizationPicker;
 import org.complitex.dictionary.web.component.image.markup.WicketStaticImageResolver;
+import org.complitex.dictionary.web.component.organization.user.UserOrganizationPickerFactory;
+import org.complitex.dictionary.web.component.organization.user.UserOrganizationPickerParameters;
 import org.complitex.dictionary.web.component.permission.AbstractDomainObjectPermissionPanel;
 import org.complitex.dictionary.web.component.permission.DomainObjectPermissionPanelFactory;
 import org.complitex.dictionary.web.component.permission.DomainObjectPermissionParameters;
@@ -264,6 +269,47 @@ public abstract class TemplateWebApplication extends ServletAuthWebApplication
 
                     webComponentResolverBuilder.addComponentMapping(
                             OrganizationPermissionPanelFactory.WEB_COMPONENT_NAME, organizationPermissionPanelClass);
+                }
+
+                //User organization picker class
+                {
+                    final String userOrganizationPickerClassName =
+                            templateLoader.getUserOrganizationPickerClassName();
+
+                    Class<? extends Panel> userOrganizationPickerClass = null;
+                    if (!Strings.isEmpty(userOrganizationPickerClassName)) {
+                        try {
+                            userOrganizationPickerClass =
+                                    (Class) classResolver.resolveClass(userOrganizationPickerClassName);
+                            boolean hasConstructor = true;
+                            try {
+                                hasConstructor =
+                                        userOrganizationPickerClass.getConstructor(
+                                        String.class, IModel.class, UserOrganizationPickerParameters.class) != null;
+                            } catch (NoSuchMethodException | SecurityException e) {
+                                hasConstructor = false;
+                            }
+
+                            if (!hasConstructor) {
+                                String constructor = "(" + String.class.getName() + ", " + IModel.class + ", "
+                                        + OrganizationPermissionParameters.class.getName() + ")";
+                                log.warn("Компонент для выбора пользовательской организации не имеет обязательного "
+                                        + "конструктора {}. Будет использован компонент по умолчанию {}",
+                                        constructor, UserOrganizationPicker.class);
+                                userOrganizationPickerClass = null;
+                            }
+                        } catch (ClassNotFoundException e) {
+                            log.warn("Компонент для выбора пользовательской организации не найден: {}. "
+                                    + "Будет использован компонент по умолчанию {}", userOrganizationPickerClassName,
+                                    UserOrganizationPicker.class);
+                        }
+                    }
+                    if (userOrganizationPickerClass == null) {
+                        userOrganizationPickerClass = UserOrganizationPicker.class;
+                    }
+
+                    webComponentResolverBuilder.addComponentMapping(
+                            UserOrganizationPickerFactory.WEB_COMPONENT_NAME, userOrganizationPickerClass);
                 }
 
                 //build template web component resolver
