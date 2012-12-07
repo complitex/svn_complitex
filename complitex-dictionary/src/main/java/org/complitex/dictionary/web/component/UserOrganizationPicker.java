@@ -18,6 +18,7 @@ import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 
 import javax.ejb.EJB;
 import java.util.List;
+import org.complitex.dictionary.web.component.organization.user.UserOrganizationPickerParameters;
 
 /**
  *
@@ -35,6 +36,10 @@ public class UserOrganizationPicker extends Panel {
     public UserOrganizationPicker(String id, IModel<Long> organizationIdModel, boolean updating, Long... excludeOrganizationsId) {
         super(id);
         init(organizationIdModel, updating, excludeOrganizationsId);
+    }
+
+    public UserOrganizationPicker(String id, IModel<Long> organizationIdModel, UserOrganizationPickerParameters parameters) {
+        this(id, organizationIdModel, parameters.isUpdating());
     }
 
     private void init(final IModel<Long> organizationIdModel, boolean updating, final Long... excludeOrganizationsId) {

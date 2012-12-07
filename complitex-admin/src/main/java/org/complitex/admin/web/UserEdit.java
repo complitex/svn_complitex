@@ -25,7 +25,6 @@ import org.complitex.dictionary.service.PreferenceBean;
 import org.complitex.dictionary.util.CloneUtil;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.ShowMode;
-import org.complitex.dictionary.web.component.UserOrganizationPicker;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
 import org.complitex.dictionary.web.component.search.WiQuerySearchComponent;
 import org.complitex.template.web.component.LocalePicker;
@@ -40,6 +39,8 @@ import java.util.Locale;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 
+import org.complitex.dictionary.web.component.organization.user.UserOrganizationPickerFactory;
+import org.complitex.dictionary.web.component.organization.user.UserOrganizationPickerParameters;
 import static org.complitex.dictionary.entity.UserGroup.GROUP_NAME.*;
 import static org.complitex.dictionary.web.DictionaryFwSession.*;
 
@@ -212,7 +213,8 @@ public class UserEdit extends FormTemplatePage {
                 final ListView listView = this;
 
                 item.add(new Radio<Integer>("radio", new Model<Integer>(item.getIndex())));
-                item.add(new UserOrganizationPicker("picker", new PropertyModel<Long>(userOrganization, "organizationObjectId"), true));
+                item.add(UserOrganizationPickerFactory.create("picker", 
+                        new PropertyModel<Long>(userOrganization, "organizationObjectId"), new UserOrganizationPickerParameters(true)));
                 item.add(new AjaxLink<Void>("delete") {
 
                     @Override
