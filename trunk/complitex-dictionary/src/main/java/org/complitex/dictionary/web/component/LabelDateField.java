@@ -13,9 +13,9 @@ import java.util.Date;
  *         Date: 28.11.12 16:17
  */
 public class LabelDateField extends Panel {
-    private MaskedDateInput dateInput;
+    private Component dateInput;
 
-    public LabelDateField(String id, IModel<Date> model) {
+    public LabelDateField(String id, IModel<Date> model, boolean nullable) {
         super(id, model);
 
         add(new TextLabel("label", model){
@@ -30,7 +30,7 @@ public class LabelDateField extends Panel {
             public boolean isVisible() {
                 return LabelDateField.this.isEnabled();
             }
-        });
+        }.setNullable(nullable));
     }
 
     @Override

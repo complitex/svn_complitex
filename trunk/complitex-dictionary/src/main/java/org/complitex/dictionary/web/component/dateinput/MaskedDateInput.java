@@ -4,22 +4,24 @@
  */
 package org.complitex.dictionary.web.component.dateinput;
 
-import java.util.Date;
-import java.util.Locale;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.request.resource.PackageResourceReference;
 import org.complitex.dictionary.web.component.DatePicker;
 import org.odlabs.wiquery.core.javascript.JsStatement;
 import org.odlabs.wiquery.ui.datepicker.DateOption;
-import static org.complitex.dictionary.util.DateUtil.*;
+
+import java.util.Date;
+import java.util.Locale;
+
+import static org.complitex.dictionary.util.DateUtil.getBeginOfDay;
+import static org.complitex.dictionary.util.DateUtil.getEndOfDay;
 
 /**
  *
  * @author Artem
  */
 public class MaskedDateInput extends DatePicker<Date> {
-
     private final MaskedDateInputOptions options;
 
     public MaskedDateInput(String id, IModel<Date> model) {
