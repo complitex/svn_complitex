@@ -6,6 +6,7 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigationIncrementLink;
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigationLink;
+import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -23,17 +24,18 @@ import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.request.resource.SharedResourceReference;
 import org.apache.wicket.util.string.Strings;
+import org.complitex.dictionary.entity.PreferenceKey;
 import org.complitex.dictionary.web.DictionaryFwSession;
+import org.complitex.dictionary.web.component.image.StaticImage;
+import org.complitex.resources.WebCommonResourceInitializer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.apache.wicket.behavior.Behavior;
-import org.apache.wicket.request.resource.SharedResourceReference;
-import org.complitex.dictionary.entity.PreferenceKey;
-import org.complitex.dictionary.web.component.image.StaticImage;
-import org.complitex.resources.WebCommonResourceInitializer;
+
+import static org.complitex.dictionary.entity.PreferenceKey.CURRENT_PAGE;
 
 /**
  *
@@ -84,7 +86,7 @@ public class PagingNavigator extends Panel {
         this.dataView = dataView;
         this.toUpdate = toUpdate;
 
-        rowsPerPagePropertyModel = new PropertyModel<Integer>(dataView, "itemsPerPage");
+        rowsPerPagePropertyModel = new PropertyModel<>(dataView, "itemsPerPage");
 
         //retrieve table page size from preferences.
         Integer rowsPerPage;
@@ -93,9 +95,18 @@ public class PagingNavigator extends Panel {
         } else {
             rowsPerPage = SUPPORTED_PAGE_SIZES.get(0);
         }
-        rowsPerPagePropertyModel.setObject(rowsPerPage);
 
-        dataView.setCurrentPage(0);
+        rowsPerPagePropertyModel.setObject(rowsPerPage);
+        dataView.setCurrentPage(getSession().getPreferenceInteger(page, CURRENT_PAGE, 0));
+
+        //preference
+        addListener(new IPagingNavigatorListener() {
+            @Override
+            public void onChangePage() {
+                //preference
+                getSession().putPreference(page, CURRENT_PAGE, dataView.getCurrentPage(), true);
+            }
+        });
 
         WebMarkupContainer pageNavigator = new WebMarkupContainer("pageNavigator");
         add(pageNavigator);
@@ -121,7 +132,7 @@ public class PagingNavigator extends Panel {
 
             @Override
             public List<Integer> getObject() {
-                List<Integer> result = new ArrayList<Integer>();
+                List<Integer> result = new ArrayList<>();
 
                 int currentPage = dataView.getCurrentPage();
                 for (int i = LEFT_OFFSET; i > 0; i--) {
@@ -139,7 +150,7 @@ public class PagingNavigator extends Panel {
 
             @Override
             public List<Integer> getObject() {
-                List<Integer> result = new ArrayList<Integer>();
+                List<Integer> result = new ArrayList<>();
 
                 int currentPage = dataView.getCurrentPage();
                 for (int i = 1; i <= RIGHT_OFFSET; i++) {
@@ -162,9 +173,8 @@ public class PagingNavigator extends Panel {
         };
         pageBar.add(newNavigation("navigationCurrent", "pageLinkCurrent", "pageNumberCurrent", dataView, navigationCurrentModel));
 
-
         //new page form
-        newPageForm = new Form<Void>("newPageForm");
+        newPageForm = new Form<>("newPageForm");
         IModel<String> newPageNumberModel = new Model<String>() {
 
             @Override
@@ -185,11 +195,13 @@ public class PagingNavigator extends Panel {
                         } else {
                             dataView.setCurrentPage(newPageNumber - 1);
                         }
+
+                        getSession().putPreference(page, CURRENT_PAGE, dataView.getCurrentPage(), true);
                     }
                 }
             }
         };
-        TextField<String> newPageNumber = new TextField<String>("newPageNumber", newPageNumberModel);
+        TextField<String> newPageNumber = new TextField<>("newPageNumber", newPageNumberModel);
         AjaxButton goToPage = new AjaxButton("goToPage", newPageForm) {
 
             @Override
@@ -223,7 +235,7 @@ public class PagingNavigator extends Panel {
                 rowsPerPagePropertyModel.setObject(rowsPerPage);
             }
         };
-        DropDownChoice<Integer> pageSize = new DropDownChoice<Integer>("pageSize", pageSizeModel, SUPPORTED_PAGE_SIZES);
+        DropDownChoice<Integer> pageSize = new DropDownChoice<>("pageSize", pageSizeModel, SUPPORTED_PAGE_SIZES);
         pageSize.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
             @Override
@@ -252,8 +264,8 @@ public class PagingNavigator extends Panel {
         return (DictionaryFwSession) super.getSession();
     }
 
-    protected ListView<Integer> newNavigation(String navigationId, final String pageLinkId, final String pageNumberId, final IPageable pageable,
-            IModel<List<Integer>> navigationModel) {
+    protected ListView<Integer> newNavigation(String navigationId, final String pageLinkId, final String pageNumberId,
+                                              final IPageable pageable, IModel<List<Integer>> navigationModel) {
         return new ListView<Integer>(navigationId, navigationModel) {
 
             @Override
