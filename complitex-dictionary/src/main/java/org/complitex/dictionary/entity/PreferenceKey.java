@@ -6,5 +6,5 @@ package org.complitex.dictionary.entity;
  */
 public enum PreferenceKey {
 
-    ROWS_PER_PAGE, FILTER_OBJECT
+    ROWS_PER_PAGE, FILTER_OBJECT, CURRENT_PAGE
 }
