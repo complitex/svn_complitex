@@ -34,14 +34,15 @@ public class ConfigBean extends AbstractBean{
 
         for (Class<? extends IConfig> c : configs){
             try {
-                init(c.getCanonicalName(),c.getEnumConstants());
+                init2(c.getCanonicalName(),c.getEnumConstants());
             } catch (Exception e) {
                 log.error("Ошибка создания конфигурации", e);
             }
         }
     }
 
-    private void init(String bundle, IConfig... configs){
+    //OpenJDK bug: deployment exception on method overriding
+    private void init2(String bundle, IConfig... configs){
         resourceBundle.add(bundle);
 
         for (IConfig config : configs){
