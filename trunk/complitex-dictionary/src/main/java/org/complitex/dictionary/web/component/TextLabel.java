@@ -7,13 +7,18 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.util.convert.IConverter;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.Locale;
+
+import static org.complitex.dictionary.util.DateUtil.newDate;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 06.09.12 18:10
  */
 public class TextLabel extends Label {
+    public final static Date DEFAULT_END_DATE = newDate(31, 12, 2054);
+
     public TextLabel(String id) {
         super(id);
     }
@@ -50,11 +55,12 @@ public class TextLabel extends Label {
 
             @Override
             public String convertToString(C value, Locale locale) {
-                //Enum converter
                 if (type.isEnum()){
                     return getString(((Enum)value).name());
                 }else if (type.isAssignableFrom(BigDecimal.class)){
                     return ((BigDecimal) value).toPlainString();
+                }else if (DEFAULT_END_DATE.equals(value)){
+                    return "—";
                 }
 
                 return TextLabel.super.getConverter(type).convertToString(value, locale);

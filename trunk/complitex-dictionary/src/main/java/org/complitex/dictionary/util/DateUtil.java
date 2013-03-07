@@ -260,6 +260,10 @@ public class DateUtil {
         return calendar.getTime();
     }
 
+    public static Date previousMonth(Date date) {
+        return addMonth(date, -1);
+    }
+
     public static String format(Date date) {
         return date != null ? getDateFormat().format(date) : "";
     }
