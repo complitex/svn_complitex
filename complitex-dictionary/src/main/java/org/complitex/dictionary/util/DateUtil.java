@@ -274,6 +274,8 @@ public class DateUtil {
     }
 
     public static int getDaysDiff(Date date1, Date date2) {
-        return (int) Math.abs((date1.getTime() - date2.getTime()) / 1000 / 60 / 60 / 24);
+
+
+        return (int) Math.abs((date1.getTime() - date2.getTime()) / 86400000);
     }
 }
