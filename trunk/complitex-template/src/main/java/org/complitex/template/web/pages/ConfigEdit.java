@@ -46,7 +46,7 @@ public class ConfigEdit extends FormTemplatePage {
         final Map<IConfig, IModel<String>> model = new HashMap<IConfig, IModel<String>>();
 
         for (IConfig config : configs) {
-            model.put(config, new Model<String>(configBean.getString(config, true)));
+            model.put(config, new Model<>(configBean.getString(config, true)));
         }
 
         //add localization bundles
@@ -74,7 +74,7 @@ public class ConfigEdit extends FormTemplatePage {
                         IConfig config = item.getModelObject();
 
                         item.add(new Label("label", getStringOrKey(config.name())));
-                        item.add(new TextField<String>("config", model.get(config)));
+                        item.add(new TextField<>("config", model.get(config)));
                     }
                 });
             }
@@ -89,7 +89,7 @@ public class ConfigEdit extends FormTemplatePage {
                 for (IConfig configName : configs) {
                     String value = model.get(configName).getObject();
 
-                    if (!configBean.getString(configName, true).equals(value)) {
+                    if (!configBean.getString(configName, true).equals(value) && value != null) {
                         configBean.update(configName, value);
                     }
                 }
