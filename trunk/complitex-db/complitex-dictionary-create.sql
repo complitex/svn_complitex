@@ -16,7 +16,7 @@ CREATE TABLE `string_culture` (
   PRIMARY KEY (`pk_id`),
   UNIQUE KEY `unique_id__locale` (`id`, `locale_id`),
   KEY `key_locale` (`locale_id`),
-  KEY `key_value` (`value`),
+  KEY `key_value` (`value`(128)),
   CONSTRAINT `fk_string_culture__locales` FOREIGN KEY (`locale_id`) REFERENCES `locales` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Локализация';
 
@@ -130,7 +130,7 @@ CREATE TABLE `apartment_string_culture` (
   PRIMARY KEY (`pk_id`),
   UNIQUE KEY `unique_id__locale` (`id`,`locale_id`),
   KEY `key_locale` (`locale_id`),
-  KEY `key_value` (`value`),
+  KEY `key_value` (`value`(128)),
   CONSTRAINT `fk_apartment_string_culture__locales` FOREIGN KEY (`locale_id`) REFERENCES `locales` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Локализация атрибутов квартиры';
 
@@ -201,7 +201,7 @@ CREATE TABLE `room_string_culture` (
   PRIMARY KEY (`pk_id`),
   UNIQUE KEY `unique_id__locale` (`id`,`locale_id`),
   KEY `key_locale` (`locale_id`),
-  KEY `key_value` (`value`),
+  KEY `key_value` (`value`(128)),
   CONSTRAINT `fk_room_string_culture__locales` FOREIGN KEY (`locale_id`) REFERENCES `locales` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Локализация атрибутов комнаты';
 
@@ -272,7 +272,7 @@ CREATE TABLE `street_string_culture` (
   PRIMARY KEY (`pk_id`),
   UNIQUE KEY `unique_id__locale` (`id`,`locale_id`),
   KEY `key_locale` (`locale_id`),
-  KEY `key_value` (`value`),
+  KEY `key_value` (`value`(128)),
   CONSTRAINT `fk_street_string_culture__locales` FOREIGN KEY (`locale_id`) REFERENCES `locales` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Локализация атрибутов улицы';
 
@@ -344,7 +344,7 @@ CREATE TABLE `street_type_string_culture` (
   PRIMARY KEY (`pk_id`),
   UNIQUE KEY `unique_id__locale` (`id`,`locale_id`),
   KEY `key_locale` (`locale_id`),
-  KEY `key_value` (`value`),
+  KEY `key_value` (`value`(128)),
   CONSTRAINT `fk_street_type_string_culture__locales` FOREIGN KEY (`locale_id`) REFERENCES `locales` (`id`)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8 COMMENT 'Локализация атрибутов типа улицы';
 
@@ -415,7 +415,7 @@ CREATE TABLE `city_string_culture` (
   PRIMARY KEY (`pk_id`),
   UNIQUE KEY `unique_id__locale` (`id`,`locale_id`),
   KEY `key_locale` (`locale_id`),
-  KEY `key_value` (`value`),
+  KEY `key_value` (`value`(128)),
   CONSTRAINT `fk_city_string_culture__locales` FOREIGN KEY (`locale_id`) REFERENCES `locales` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Локализация атрибутов населенного пункта';
 
@@ -487,7 +487,7 @@ CREATE TABLE `city_type_string_culture` (
   PRIMARY KEY (`pk_id`),
   UNIQUE KEY `unique_id__locale` (`id`,`locale_id`),
   KEY `key_locale` (`locale_id`),
-  KEY `key_value` (`value`),
+  KEY `key_value` (`value`(128)),
   CONSTRAINT `fk_city_type_string_culture__locales` FOREIGN KEY (`locale_id`) REFERENCES `locales` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Локализация атрибутов типа населенного пункта';
 
@@ -558,7 +558,7 @@ CREATE TABLE `building_address_string_culture` (
   PRIMARY KEY (`pk_id`),
   UNIQUE KEY `unique_id__locale` (`id`,`locale_id`),
   KEY `key_locale` (`locale_id`),
-  KEY `key_value` (`value`),
+  KEY `key_value` (`value`(128)),
   CONSTRAINT `fk_building_address_string_culture__locales` FOREIGN KEY (`locale_id`) REFERENCES `locales` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Локализация атрибутов адреса дома';
 
@@ -629,7 +629,7 @@ CREATE TABLE `building_string_culture` (
   PRIMARY KEY (`pk_id`),
   UNIQUE KEY `unique_id__locale` (`id`,`locale_id`),
   KEY `key_locale` (`locale_id`),
-  KEY `key_value` (`value`),
+  KEY `key_value` (`value`(128)),
   CONSTRAINT `fk_building_string_culture__locales` FOREIGN KEY (`locale_id`) REFERENCES `locales` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Локализация атрибутов дома ';
 
@@ -700,7 +700,7 @@ CREATE TABLE `district_string_culture` (
   PRIMARY KEY (`pk_id`),
   UNIQUE KEY `unique_id__locale` (`id`,`locale_id`),
   KEY `key_locale` (`locale_id`),
-  KEY `key_value` (`value`),
+  KEY `key_value` (`value`(128)),
   CONSTRAINT `fk_district_string_culture__locales` FOREIGN KEY (`locale_id`) REFERENCES `locales` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Локализация атрибутов района';
 
@@ -771,7 +771,7 @@ CREATE TABLE `region_string_culture` (
   PRIMARY KEY (`pk_id`),
   UNIQUE KEY `unique_id__locale` (`id`,`locale_id`),
   KEY `key_locale` (`locale_id`),
-  KEY `key_value` (`value`),
+  KEY `key_value` (`value`(128)),
   CONSTRAINT `fk_region_string_culture__locales` FOREIGN KEY (`locale_id`) REFERENCES `locales` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Локализация атрибутов региона';
 
@@ -842,7 +842,7 @@ CREATE TABLE `country_string_culture` (
   PRIMARY KEY (`pk_id`),
   UNIQUE KEY `unique_id__locale` (`id`,`locale_id`),
   KEY `key_locale` (`locale_id`),
-  KEY `key_value` (`value`),
+  KEY `key_value` (`value`(128)),
   CONSTRAINT `fk_country_string_culture__locales` FOREIGN KEY (`locale_id`) REFERENCES `locales` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Локализация атрибутов страны';
 
@@ -913,7 +913,7 @@ CREATE TABLE `organization_type_string_culture` (
   PRIMARY KEY (`pk_id`),
   UNIQUE KEY `unique_id__locale` (`id`,`locale_id`),
   KEY `key_locale` (`locale_id`),
-  KEY `key_value` (`value`),
+  KEY `key_value` (`value`(128)),
   CONSTRAINT `fk_organization_type_string_culture__locales` FOREIGN KEY (`locale_id`) REFERENCES `locales` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Локализация атрибутов типа организации';
 
@@ -984,7 +984,7 @@ CREATE TABLE `organization_string_culture` (
   PRIMARY KEY (`pk_id`),
   UNIQUE KEY `unique_id__locale` (`id`,`locale_id`),
   KEY `key_locale` (`locale_id`),
-  KEY `key_value` (`value`),
+  KEY `key_value` (`value`(128)),
   CONSTRAINT `fk_organization_string_culture__locales` FOREIGN KEY (`locale_id`) REFERENCES `locales` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Локализация атрибутов организации';
 
@@ -1056,7 +1056,7 @@ CREATE TABLE `user_info_string_culture` (
   PRIMARY KEY (`pk_id`),
   UNIQUE KEY `unique_id__locale` (`id`,`locale_id`),
   KEY `key_locale` (`locale_id`),
-  KEY `key_value` (`value`),
+  KEY `key_value` (`value`(128)),
   CONSTRAINT `fk_user_info_string_culture__locales` FOREIGN KEY (`locale_id`) REFERENCES `locales` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Локализация атрибутов информации о пользователе';
 

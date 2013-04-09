@@ -3,6 +3,8 @@ package org.complitex.dictionary.util;
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableMap;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -186,5 +188,18 @@ public class StringUtil {
 
     public static String lowerCamelToUnderscore(String s){
         return CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, s);
+    }
+
+    public static List<String> asList(String prefix, Class en){
+        List<String> list = new ArrayList<>();
+        Object[] objects = en.getEnumConstants();
+
+        if (objects != null) {
+            for (Object o : objects){
+                list.add(prefix + o.toString());
+            }
+        }
+
+        return list;
     }
 }
