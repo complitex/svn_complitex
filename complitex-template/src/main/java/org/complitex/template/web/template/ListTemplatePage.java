@@ -12,24 +12,20 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
-import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.*;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.complitex.dictionary.entity.FilterWrapper;
 import org.complitex.dictionary.entity.ILongId;
-import org.complitex.dictionary.service.IListBean;
-import org.complitex.dictionary.util.EjbBeanLocator;
 import org.complitex.dictionary.web.component.AjaxFeedbackPanel;
 import org.complitex.dictionary.web.component.TextLabel;
 import org.complitex.dictionary.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionary.web.component.datatable.DataProvider;
 import org.complitex.dictionary.web.component.paging.PagingNavigator;
 import org.complitex.template.web.component.InputPanel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.complitex.dictionary.util.StringUtil.lowerCamelToUnderscore;
@@ -39,34 +35,33 @@ import static org.complitex.dictionary.util.StringUtil.lowerCamelToUnderscore;
  *         Date: 17.10.12 15:39
  */
 public abstract class ListTemplatePage<T extends ILongId> extends TemplatePage{
-    private final Class<? extends IListBean<T>> beanClass;
+    protected transient Logger log;
 
     protected abstract T newFilterObject(PageParameters pageParameters);
 
-    protected void onPopulateFilter(ListItem<String> item){
-    }
+    protected abstract List<T> getList(FilterWrapper<T> filterWrapper);
 
-    protected void onPopulateData(ListItem<String> item){
-    }
+    protected abstract int getCount(FilterWrapper<T> filterWrapper);
 
-    private transient IListBean<T> listBean;
+    protected abstract List<String> getProperties();
 
-    protected IListBean<T> getListBean(){
-        if (listBean == null){
-            listBean = EjbBeanLocator.getBean(beanClass);
+    protected void onPopulateFilter(ListItem<String> item){}
+
+    protected void onPopulateData(ListItem<String> item){}
+
+    public Logger getLog(){
+        if (log == null){
+            log = LoggerFactory.getLogger(getClass());
         }
 
-        return listBean;
+        return log;
     }
 
     protected List<? extends Component> getActionComponents(String id, T object){
         return new ArrayList<>();
     }
 
-    public ListTemplatePage(final PageParameters pageParameters, Class<? extends IListBean<T>> beanClass,
-                            final String... properties) {
-        this.beanClass = beanClass;
-
+    public ListTemplatePage(final PageParameters pageParameters) {
         //Title
         add(new Label("title", new ResourceModel("title")));
 
@@ -77,7 +72,7 @@ public abstract class ListTemplatePage<T extends ILongId> extends TemplatePage{
         //Filter Model
         String pageKey = pageParameters.toString();
 
-        final IModel<FilterWrapper<T>> filterModel = new CompoundPropertyModel<>(
+        final IModel<FilterWrapper<T>> filterModel = Model.of(
                 getTemplateSession().getPreferenceFilter(getClass().getName() + pageKey,
                         FilterWrapper.of(newFilterObject(pageParameters))));
 
@@ -112,7 +107,7 @@ public abstract class ListTemplatePage<T extends ILongId> extends TemplatePage{
         filterForm.add(filterFind);
 
         //Filter Fields
-        filterForm.add(new ListView<String>("filter_list", Arrays.asList(properties)){
+        filterForm.add(new ListView<String>("filter_list", getProperties()){
             @Override
             protected void populateItem(ListItem<String> item) {
                 String p = "object." + item.getModelObject();
@@ -134,17 +129,17 @@ public abstract class ListTemplatePage<T extends ILongId> extends TemplatePage{
                 filterWrapper.setSortProperty(getSort().getProperty());
                 filterWrapper.setAscending(getSort().isAscending());
 
-                return getListBean().getList(filterWrapper);
+                return getList(filterWrapper);
             }
 
             @Override
             protected int getSize() {
-                return getListBean().getCount(filterModel.getObject());
+                return getCount(filterModel.getObject());
             }
 
             @Override
             public IModel<T> model(T object) {
-                return new CompoundPropertyModel<>(object);
+                return Model.of(object);
             }
         };
         dataProvider.setSort("id", SortOrder.DESCENDING);
@@ -158,7 +153,7 @@ public abstract class ListTemplatePage<T extends ILongId> extends TemplatePage{
         final DataView dataView = new DataView<T>("data_view", dataProvider) {
             @Override
             protected void populateItem(final Item<T> item) {
-                item.add(new ListView<String>("data_list", Arrays.asList(properties)) {
+                item.add(new ListView<String>("data_list", getProperties()) {
 
                     @Override
                     protected void populateItem(ListItem<String> column) {
@@ -184,7 +179,7 @@ public abstract class ListTemplatePage<T extends ILongId> extends TemplatePage{
         filterForm.add(paging);
 
         //Headers
-        filterForm.add(new ListView<String>("header_list", Arrays.asList(properties)) {
+        filterForm.add(new ListView<String>("header_list", getProperties()) {
             @Override
             protected void populateItem(ListItem<String> item) {
                 String property = item.getModelObject();
