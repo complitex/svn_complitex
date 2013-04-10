@@ -190,13 +190,13 @@ public class StringUtil {
         return CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, s);
     }
 
-    public static List<String> asList(String prefix, Class en){
+    public static List<String> asList(Class en){
         List<String> list = new ArrayList<>();
         Object[] objects = en.getEnumConstants();
 
         if (objects != null) {
             for (Object o : objects){
-                list.add(prefix + o.toString());
+                list.add(o.toString());
             }
         }
 

@@ -1,6 +1,7 @@
 package org.complitex.template.web.template;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -8,11 +9,15 @@ import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
-import org.apache.wicket.model.*;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.complitex.dictionary.entity.FilterWrapper;
 import org.complitex.dictionary.entity.ILongId;
@@ -37,6 +42,12 @@ import static org.complitex.dictionary.util.StringUtil.lowerCamelToUnderscore;
 public abstract class ListTemplatePage<T extends ILongId> extends TemplatePage{
     protected transient Logger log;
 
+    private String prefix = "";
+
+    private boolean camelToUnderscore = false;
+
+    private Class<? extends Page> backPage;
+
     protected abstract T newFilterObject(PageParameters pageParameters);
 
     protected abstract List<T> getList(FilterWrapper<T> filterWrapper);
@@ -48,18 +59,6 @@ public abstract class ListTemplatePage<T extends ILongId> extends TemplatePage{
     protected void onPopulateFilter(ListItem<String> item){}
 
     protected void onPopulateData(ListItem<String> item){}
-
-    public Logger getLog(){
-        if (log == null){
-            log = LoggerFactory.getLogger(getClass());
-        }
-
-        return log;
-    }
-
-    protected List<? extends Component> getActionComponents(String id, T object){
-        return new ArrayList<>();
-    }
 
     public ListTemplatePage(final PageParameters pageParameters) {
         //Title
@@ -110,7 +109,7 @@ public abstract class ListTemplatePage<T extends ILongId> extends TemplatePage{
         filterForm.add(new ListView<String>("filter_list", getProperties()){
             @Override
             protected void populateItem(ListItem<String> item) {
-                String p = "object." + item.getModelObject();
+                String p = "object." + prefix + item.getModelObject();
 
                 item.add(new InputPanel<>("filter_field", new PropertyModel<>(filterModel, p)));
 
@@ -157,7 +156,7 @@ public abstract class ListTemplatePage<T extends ILongId> extends TemplatePage{
 
                     @Override
                     protected void populateItem(ListItem<String> column) {
-                        column.add(new TextLabel("data", new PropertyModel<>(item.getModel(), column.getModelObject())));
+                        column.add(new TextLabel("data", new PropertyModel<>(item.getModel(), prefix + column.getModelObject())));
 
                         onPopulateData(column);
                     }
@@ -184,12 +183,69 @@ public abstract class ListTemplatePage<T extends ILongId> extends TemplatePage{
             protected void populateItem(ListItem<String> item) {
                 String property = item.getModelObject();
 
-                ArrowOrderByBorder border = new ArrowOrderByBorder("header_border", lowerCamelToUnderscore(property),
+                ArrowOrderByBorder border = new ArrowOrderByBorder("header_border",
+                        camelToUnderscore ? lowerCamelToUnderscore(property) : property,
                         dataProvider, dataView, filterForm);
                 border.add(new Label("header_label", getString(property)));
 
                 item.add(border);
             }
         });
+
+        //Назад
+        filterForm.add(new Link("back") {
+            @Override
+            public void onClick() {
+                setResponsePage(backPage);
+            }
+
+            @Override
+            public boolean isVisible() {
+                return backPage != null;
+            }
+        });
+    }
+
+    public ListTemplatePage(final PageParameters pageParameters, String prefix, Class<? extends Page> backPage) {
+        this(pageParameters);
+
+        setPrefix(prefix);
+        setBackPage(backPage);
+    }
+
+    public String getPrefix() {
+        return prefix;
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
+
+    public boolean isCamelToUnderscore() {
+        return camelToUnderscore;
+    }
+
+    public void setCamelToUnderscore(boolean camelToUnderscore) {
+        this.camelToUnderscore = camelToUnderscore;
+    }
+
+    public Logger getLog(){
+        if (log == null){
+            log = LoggerFactory.getLogger(getClass());
+        }
+
+        return log;
+    }
+
+    public Class<? extends Page> getBackPage() {
+        return backPage;
+    }
+
+    public void setBackPage(Class<? extends Page> backPage) {
+        this.backPage = backPage;
+    }
+
+    protected List<? extends Component> getActionComponents(String id, T object){
+        return new ArrayList<>();
     }
 }
