@@ -186,7 +186,7 @@ public abstract class ListTemplatePage<T extends ILongId> extends TemplatePage{
                 ArrowOrderByBorder border = new ArrowOrderByBorder("header_border",
                         camelToUnderscore ? lowerCamelToUnderscore(property) : property,
                         dataProvider, dataView, filterForm);
-                border.add(new Label("header_label", getString(property)));
+                border.add(new Label("header_label", getStringOrKey(property)));
 
                 item.add(border);
             }
