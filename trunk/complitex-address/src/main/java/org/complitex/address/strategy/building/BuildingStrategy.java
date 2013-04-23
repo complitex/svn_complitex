@@ -300,7 +300,7 @@ public class BuildingStrategy extends TemplateStrategy {
         }
     }
 
-    private static void configureExampleImpl(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
+    private void configureExampleImpl(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
         if (!Strings.isEmpty(searchTextInput)) {
             example.addAdditionalParam("number", searchTextInput);
         }
@@ -320,7 +320,21 @@ public class BuildingStrategy extends TemplateStrategy {
 
     @Override
     public void configureExample(DomainObjectExample example, Map<String, Long> ids, String searchTextInput) {
-        configureExampleImpl(example, ids, searchTextInput);
+        if (!Strings.isEmpty(searchTextInput)) {
+            example.addAdditionalParam("number", searchTextInput);
+        }
+        Long streetId = ids.get("street");
+        if (streetId != null && streetId > 0) {
+            example.addAdditionalParam(STREET, streetId);
+        } else {
+            example.addAdditionalParam(STREET, null);
+            Long cityId = ids.get("city");
+            if (cityId != null && cityId > 0) {
+                example.addAdditionalParam(CITY, cityId);
+            } else {
+                example.addAdditionalParam(CITY, null);
+            }
+        }
     }
 
     private static class SearchCallback implements ISearchCallback, Serializable {
@@ -328,7 +342,22 @@ public class BuildingStrategy extends TemplateStrategy {
         @Override
         public void found(Component component, Map<String, Long> ids, AjaxRequestTarget target) {
             BuildingList list = component.findParent(BuildingList.class);
-            configureExampleImpl(list.getExample(), ids, null);
+
+            DomainObjectExample example = list.getExample();
+
+            Long streetId = ids.get("street");
+            if (streetId != null && streetId > 0) {
+                example.addAdditionalParam(STREET, streetId);
+            } else {
+                example.addAdditionalParam(STREET, null);
+                Long cityId = ids.get("city");
+                if (cityId != null && cityId > 0) {
+                    example.addAdditionalParam(CITY, cityId);
+                } else {
+                    example.addAdditionalParam(CITY, null);
+                }
+            }
+
             list.refreshContent(target);
         }
     }

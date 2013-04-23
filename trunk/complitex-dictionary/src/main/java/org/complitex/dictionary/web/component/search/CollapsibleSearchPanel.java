@@ -4,13 +4,14 @@
  */
 package org.complitex.dictionary.web.component.search;
 
-import java.util.List;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.complitex.dictionary.web.component.ShowMode;
 import org.complitex.dictionary.web.component.ShowModePanel;
+
+import java.util.List;
 
 /**
  *
@@ -36,7 +37,7 @@ public class CollapsibleSearchPanel extends Panel {
 
         showModePanel = new ShowModePanel("showModePanel", showModelModel);
         showModePanel.setOutputMarkupPlaceholderTag(true);
-        showModePanel.setVisible(collapsibleSearchComponent != null ? collapsibleSearchComponent.isTopPartVisible() : false);
+        showModePanel.setVisible(collapsibleSearchComponent != null && collapsibleSearchComponent.isTopPartVisible());
         add(showModePanel);
     }
 

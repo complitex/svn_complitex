@@ -2,15 +2,13 @@ package org.complitex.dictionary.web.component.search;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import static com.google.common.collect.Iterables.*;
-import static com.google.common.collect.Lists.*;
-import static com.google.common.collect.Maps.*;
-import static com.google.common.collect.Sets.*;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -18,6 +16,8 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.request.resource.PackageResourceReference;
+import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.ComparisonType;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
@@ -26,6 +26,7 @@ import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.web.component.ShowMode;
+import org.odlabs.wiquery.ui.autocomplete.AbstractAutocompleteComponent;
 import org.odlabs.wiquery.ui.autocomplete.AutocompleteAjaxComponent;
 
 import javax.ejb.EJB;
@@ -34,11 +35,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.markup.html.form.FormComponent;
-import org.apache.wicket.request.resource.PackageResourceReference;
-import org.apache.wicket.util.string.Strings;
-import org.odlabs.wiquery.ui.autocomplete.AbstractAutocompleteComponent;
+
+import static com.google.common.collect.Iterables.find;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Maps.transformValues;
+import static com.google.common.collect.Sets.newHashSet;
 
 /**
  *
@@ -102,6 +104,10 @@ public class WiQuerySearchComponent extends Panel {
     private final WebMarkupContainer searchContainer = new WebMarkupContainer("searchContainer");
     private final Map<String, Component> filterInputFieldMap = newHashMap();
 
+    private boolean showColumns = true;
+
+    private String userPermissionString;
+
     public WiQuerySearchComponent(String id, SearchComponentState searchComponentState, List<String> searchFilters,
             ISearchCallback callback, ShowMode showMode, boolean enabled) {
         super(id);
@@ -115,10 +121,15 @@ public class WiQuerySearchComponent extends Panel {
         init();
     }
 
+    public WiQuerySearchComponent(String id, SearchComponentState searchComponentState, List<String> searchFilters,
+                                  ISearchCallback callback, ShowMode showMode, boolean enabled, boolean showColumns){
+        this(id, searchComponentState, searchFilters, callback, showMode, enabled);
+
+        this.showColumns = showColumns;
+    }
     /**
      * Used where some filters must have distinct from others settings. For example, some filters must be disabled but others not.
      * @param id
-     * @param searchComponentState
      * @param searchFilterSettings
      * @param callback
      */
@@ -137,6 +148,7 @@ public class WiQuerySearchComponent extends Panel {
         this.callback = callback;
         this.enabled = false;
         this.showMode = null;
+
         init();
     }
 
@@ -186,6 +198,7 @@ public class WiQuerySearchComponent extends Panel {
             @Override
             protected void populateItem(ListItem<String> item) {
                 final String entityTable = item.getModelObject();
+
                 IModel<String> entityLabelModel = new AbstractReadOnlyModel<String>() {
 
                     @Override
@@ -194,8 +207,15 @@ public class WiQuerySearchComponent extends Panel {
                                 getEntityNames(), getLocale());
                     }
                 };
+
                 Label column = new Label("column", entityLabelModel);
-                setVisibility(entityTable, column);
+
+                if (showColumns) {
+                    setVisibility(entityTable, column);
+                }else {
+                    column.setVisible(false);
+                }
+
                 item.add(column);
             }
         };
@@ -250,6 +270,7 @@ public class WiQuerySearchComponent extends Panel {
             }
         };
         filterComponent.setAutoUpdate(true);
+
         return filterComponent;
     }
 
@@ -378,7 +399,7 @@ public class WiQuerySearchComponent extends Panel {
         return getModel(index).getObject();
     }
 
-    protected final DomainObject getModelObject(final String entity) {
+    public final DomainObject getModelObject(final String entity) {
         return getModel(getIndex(entity)).getObject();
     }
 
@@ -414,15 +435,18 @@ public class WiQuerySearchComponent extends Panel {
         return enabled;
     }
 
-    protected final Map<String, DomainObject> getState(int index) {
+    protected Map<String, DomainObject> getState(int index) {
         Map<String, DomainObject> objects = newHashMap();
+
         int idx = index;
+
         while (idx > -1) {
             DomainObject object = getModelObject(idx);
-            objects.put(getSearchFilters().get(idx), object);
+            objects.put(searchFilters.get(idx), object);
             idx--;
 
         }
+
         return objects;
     }
 
@@ -433,9 +457,11 @@ public class WiQuerySearchComponent extends Panel {
     protected final void invokeCallback(int index, AjaxRequestTarget target) {
         Map<String, DomainObject> finalState = getState(index);
         Map<String, Long> ids = transformToIds(finalState);
-        getSearchComponentState().updateState(finalState);
+
+        searchComponentState.updateState(finalState);
+
         if (getCallback() != null) {
-            getCallback().found(this, ids, target);
+            callback.found(this, ids, target);
         }
     }
 
@@ -499,6 +525,7 @@ public class WiQuerySearchComponent extends Panel {
         IStrategy strategy = strategyFactory.getStrategy(entity);
 
         DomainObjectExample example = new DomainObjectExample();
+
         strategy.configureExample(example, WiQuerySearchComponent.<Long>transformToIds(previousInfo), searchTextInput);
         example.setOrderByAttributeTypeId(strategy.getDefaultOrderByAttributeId());
         example.setAsc(true);
@@ -506,15 +533,32 @@ public class WiQuerySearchComponent extends Panel {
         example.setLocaleId(localeBean.convert(getLocale()).getId());
         example.setComparisonType(comparisonType.name());
         example.setStatus(showMode.name());
+        example.setUserPermissionString(userPermissionString);
+
         return strategy.find(example);
     }
 
     public void reinitialize(AjaxRequestTarget target) {
         for (int i = 0; i < getSearchFilters().size(); i++) {
             String filterEntity = getSearchFilters().get(i);
-            DomainObject object = getSearchComponentState().get(filterEntity);
+            DomainObject object = searchComponentState.get(filterEntity);
             setModelObject(i, object);
         }
+
         invokeCallback(getSearchFilters().size() - 1, target);
+    }
+
+    public boolean isShowColumns() {
+        return showColumns;
+    }
+
+    public String getUserPermissionString() {
+        return userPermissionString;
+    }
+
+    public WiQuerySearchComponent setUserPermissionString(String userPermissionString) {
+        this.userPermissionString = userPermissionString;
+
+        return this;
     }
 }
