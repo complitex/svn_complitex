@@ -16,7 +16,7 @@ public class FilterWrapper<T extends Serializable> implements Serializable{
     protected String sortProperty = "id";
     protected boolean ascending;
 
-    private Map<String, Object> map;
+    private Map<String, Object> map = new HashMap<>();
 
     public FilterWrapper() {
     }
@@ -40,10 +40,6 @@ public class FilterWrapper<T extends Serializable> implements Serializable{
     }
 
     public FilterWrapper<T> add(String key, Object value){
-        if (map == null){
-            map = new HashMap<>();
-        }
-
         map.put(key, value);
 
         return this;
@@ -55,14 +51,6 @@ public class FilterWrapper<T extends Serializable> implements Serializable{
 
     public Map<String, Object> getMap() {
         return map;
-    }
-    
-    public FilterWrapper<T> addMapEntry(String key, Object value) {
-        if (map == null) {
-            map = new HashMap<>();
-        }
-        map.put(key, value);
-        return this;
     }
 
     public void setMap(Map<String, Object> map) {

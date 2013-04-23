@@ -1,6 +1,8 @@
 package org.complitex.dictionary.web;
 
 import org.apache.wicket.protocol.http.WebSession;
+import org.apache.wicket.request.Request;
+import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.FilterWrapper;
 import org.complitex.dictionary.entity.Preference;
@@ -15,8 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import org.apache.wicket.request.Request;
-import org.apache.wicket.util.string.Strings;
 
 /**
  *
@@ -183,12 +183,16 @@ public class DictionaryFwSession extends WebSession {
         FilterWrapper<T> filterWrapper =  (FilterWrapper<T>) getPreference(page, PreferenceKey.FILTER_OBJECT.name()).getObject();
 
         if (filterWrapper == null){
-            putPreferenceObject(page, PreferenceKey.FILTER_OBJECT, _default);
+            putPreferenceFilter(page, _default);
 
             return _default;
         }
 
         return filterWrapper;
+    }
+
+    public void putPreferenceFilter(String page, FilterWrapper filterWrapper){
+        putPreferenceObject(page, PreferenceKey.FILTER_OBJECT, filterWrapper);
     }
 
     public String getPreferenceString(String page, Enum key, String _default) {
