@@ -83,6 +83,13 @@ public class DateUtil {
         return c.getDisplayName(MONTH, LONG, locale);
     }
 
+    public static String displayMonth(Date date, Locale locale) {
+        Calendar c = Calendar.getInstance(locale);
+        c.setTime(date);
+
+        return c.getDisplayName(MONTH, LONG, locale);
+    }
+
     public static boolean isTheSameDay(Date date1, Date date2) {
         if (date1 == null && date2 == null) {
             return true;
@@ -120,7 +127,7 @@ public class DateUtil {
         return isTheSameDay(date, getCurrentDate());
     }
 
-    public static Date getFirstDayOfMonth(int year, int month) {
+    public static Date newDate(int year, int month) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(year, month - 1, 1);
         return calendar.getTime();
@@ -188,6 +195,7 @@ public class DateUtil {
     public static int getYear(Date date) {
         Calendar c = Calendar.getInstance();
         c.setTime(date);
+
         return c.get(YEAR);
     }
 
