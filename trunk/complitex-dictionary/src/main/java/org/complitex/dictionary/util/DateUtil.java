@@ -129,7 +129,10 @@ public class DateUtil {
 
     public static Date newDate(int year, int month) {
         Calendar calendar = Calendar.getInstance();
+        calendar.clear();
+
         calendar.set(year, month - 1, 1);
+
         return calendar.getTime();
     }
 
