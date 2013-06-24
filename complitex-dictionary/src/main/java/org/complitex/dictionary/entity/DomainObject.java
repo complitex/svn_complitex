@@ -24,8 +24,8 @@ public class DomainObject implements Serializable {
     private Long parentId;
     private Long parentEntityId;
     private Long permissionId;
-    private Long externalId;
-    private List<Attribute> attributes = new ArrayList<Attribute>();
+    private String externalId;
+    private List<Attribute> attributes = new ArrayList<>();
     private Set<Long> subjectIds;
 
     public DomainObject() {
@@ -145,11 +145,11 @@ public class DomainObject implements Serializable {
         this.permissionId = permissionId;
     }
 
-    public Long getExternalId() {
+    public String getExternalId() {
         return externalId;
     }
 
-    public void setExternalId(Long externalId) {
+    public void setExternalId(String externalId) {
         this.externalId = externalId;
     }
 
