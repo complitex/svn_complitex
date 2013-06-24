@@ -211,13 +211,13 @@ public class AddressImportService extends AbstractImportService {
             while ((line = reader.readNext()) != null) {
                 recordIndex++;
 
-                final long externalId = Long.parseLong(line[0].trim());
+                final String externalId = line[0].trim();
 
                 DomainObject newObject = null;
                 DomainObject oldObject = null;
 
                 // Ищем по externalId в базе.
-                Long objectId = countryStrategy.getObjectId(externalId);
+                Long objectId = countryStrategy.getObjectId(Long.valueOf(externalId));
                 if (objectId != null) {
                     oldObject = countryStrategy.findById(objectId, true);
                     if (oldObject != null) {
@@ -278,13 +278,13 @@ public class AddressImportService extends AbstractImportService {
             while ((line = reader.readNext()) != null) {
                 recordIndex++;
 
-                final long externalId = Long.parseLong(line[0].trim());
+                final String externalId = line[0].trim();
 
                 DomainObject newObject = null;
                 DomainObject oldObject = null;
 
                 // Ищем по externalId в базе.
-                Long objectId = regionStrategy.getObjectId(externalId);
+                Long objectId = regionStrategy.getObjectId(Long.valueOf(externalId));
                 if (objectId != null) {
                     oldObject = regionStrategy.findById(objectId, true);
                     if (oldObject != null) {
@@ -352,13 +352,13 @@ public class AddressImportService extends AbstractImportService {
             while ((line = reader.readNext()) != null) {
                 recordIndex++;
 
-                final long externalId = Long.parseLong(line[0].trim());
+                final String externalId = line[0].trim();
 
                 DomainObject newObject = null;
                 DomainObject oldObject = null;
 
                 // Ищем по externalId в базе.
-                Long objectId = cityTypeStrategy.getObjectId(externalId);
+                Long objectId = cityTypeStrategy.getObjectId(Long.valueOf(externalId));
                 if (objectId != null) {
                     oldObject = cityTypeStrategy.findById(objectId, true);
                     if (oldObject != null) {
@@ -426,13 +426,13 @@ public class AddressImportService extends AbstractImportService {
             while ((line = reader.readNext()) != null) {
                 recordIndex++;
 
-                final long externalId = Long.parseLong(line[0].trim());
+                final String externalId = line[0].trim();
 
                 DomainObject newObject = null;
                 DomainObject oldObject = null;
 
                 // Ищем по externalId в базе.
-                Long objectId = cityStrategy.getObjectId(externalId);
+                Long objectId = cityStrategy.getObjectId(Long.valueOf(externalId));
                 if (objectId != null) {
                     oldObject = cityStrategy.findById(objectId, true);
                     if (oldObject != null) {
@@ -507,13 +507,13 @@ public class AddressImportService extends AbstractImportService {
             while ((line = reader.readNext()) != null) {
                 recordIndex++;
 
-                final long externalId = Long.parseLong(line[0].trim());
+                final String externalId = line[0].trim();
 
                 DomainObject newObject = null;
                 DomainObject oldObject = null;
 
                 // Ищем по externalId в базе.
-                Long objectId = districtStrategy.getObjectId(externalId);
+                Long objectId = districtStrategy.getObjectId(Long.valueOf(externalId));
                 if (objectId != null) {
                     oldObject = districtStrategy.findById(objectId, true);
                     if (oldObject != null) {
@@ -585,13 +585,13 @@ public class AddressImportService extends AbstractImportService {
             while ((line = reader.readNext()) != null) {
                 recordIndex++;
 
-                final long externalId = Long.parseLong(line[0].trim());
+                final String externalId = line[0].trim();
 
                 DomainObject newObject = null;
                 DomainObject oldObject = null;
 
                 // Ищем по externalId в базе.
-                Long objectId = streetTypeStrategy.getObjectId(externalId);
+                Long objectId = streetTypeStrategy.getObjectId(Long.valueOf(externalId));
                 if (objectId != null) {
                     oldObject = streetTypeStrategy.findById(objectId, true);
                     if (oldObject != null) {
@@ -658,13 +658,13 @@ public class AddressImportService extends AbstractImportService {
             while ((line = reader.readNext()) != null) {
                 recordIndex++;
 
-                final long externalId = Long.parseLong(line[0].trim());
+                final String externalId = line[0].trim();
 
                 DomainObject newObject = null;
                 DomainObject oldObject = null;
 
                 // Ищем по externalId в базе.
-                Long objectId = streetStrategy.getObjectId(externalId);
+                Long objectId = streetStrategy.getObjectId(Long.valueOf(externalId));
                 if (objectId != null) {
                     oldObject = streetStrategy.findById(objectId, true);
                     if (oldObject != null) {
@@ -701,7 +701,7 @@ public class AddressImportService extends AbstractImportService {
                 // сначала ищем улицу в системе с таким названием, типом и родителем(городом)
                 final Long existingStreetId = streetStrategy.performDefaultValidation(newObject, localeBean.getSystemLocale());
                 if (existingStreetId != null) { // нашли дубликат
-                    throw new ImportDuplicateException(STREET.getFileName(), recordIndex, externalId, existingStreetId);
+                    throw new ImportDuplicateException(STREET.getFileName(), recordIndex, externalId, existingStreetId + "");
                 } else {
                     if (oldObject == null) {
                         streetStrategy.insert(newObject, beginDate);
@@ -744,9 +744,9 @@ public class AddressImportService extends AbstractImportService {
             while ((line = reader.readNext()) != null) {
                 recordIndex++;
 
-                final long externalId = Long.parseLong(line[0].trim());
+                final String externalId = line[0].trim();
 
-                Long buildingId = buildingStrategy.getObjectId(externalId);
+                Long buildingId = buildingStrategy.getObjectId(Long.valueOf(externalId));
 
                 Building newBuilding;
                 Building oldBuilding = null;

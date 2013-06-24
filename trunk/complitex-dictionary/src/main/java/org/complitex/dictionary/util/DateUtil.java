@@ -14,8 +14,10 @@ import static java.util.Calendar.*;
  *         Date: 14.01.2010 0:30:49
  */
 public class DateUtil {
-
     private static ThreadLocal<SimpleDateFormat> DATE_FORMAT = new ThreadLocal<>();
+
+    public static final Date MIN_BEGIN_DATE =  newDate(1, 1, 1970);
+    public static final Date MAX_END_DATE =  newDate(31, 1, 2054);
 
     private DateUtil() {
     }
