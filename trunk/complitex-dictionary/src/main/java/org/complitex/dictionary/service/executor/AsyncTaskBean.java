@@ -1,18 +1,18 @@
 package org.complitex.dictionary.service.executor;
 
-import java.util.Map;
 import org.complitex.dictionary.entity.IExecutorObject;
 import org.complitex.dictionary.service.LogBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.*;
+import java.util.Map;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 29.10.10 18:56
  */
-@Stateless(name = "AsyncTaskBean")
+@Stateless
 @TransactionManagement(TransactionManagementType.BEAN)
 public class AsyncTaskBean {
     private final Logger log = LoggerFactory.getLogger(getClass());

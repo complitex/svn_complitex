@@ -4,8 +4,10 @@ import com.google.common.collect.ImmutableMap;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.complitex.admin.strategy.UserInfoStrategy;
 import org.complitex.dictionary.entity.DomainObject;
+import org.complitex.dictionary.mybatis.Transactional;
 import org.complitex.dictionary.service.AbstractBean;
 import org.complitex.dictionary.service.IUserProfileBean;
+import org.complitex.dictionary.service.SessionBean;
 import org.complitex.dictionary.service.exception.WrongCurrentPasswordException;
 
 import javax.annotation.Resource;
@@ -13,14 +15,12 @@ import javax.ejb.EJB;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import java.util.Locale;
-import org.complitex.dictionary.mybatis.Transactional;
-import org.complitex.dictionary.service.SessionBean;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 02.02.11 17:47
  */
-@Stateless(name = "UserProfileBean")
+@Stateless
 public class UserProfileBean extends AbstractBean implements IUserProfileBean {
 
     public static final String NS = UserProfileBean.class.getName();

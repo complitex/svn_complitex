@@ -4,12 +4,6 @@
  */
 package org.complitex.dictionary.web.component.permission;
 
-import static com.google.common.collect.ImmutableMap.*;
-import static com.google.common.collect.Lists.*;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.ejb.EJB;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -18,13 +12,21 @@ import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.service.PermissionBean;
+import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.web.component.DisableAwareListMultipleChoice;
 import org.complitex.dictionary.web.component.DomainObjectDisableAwareRenderer;
-import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.odlabs.wiquery.core.IWiQueryPlugin;
 import org.odlabs.wiquery.core.javascript.JsQuery;
 import org.odlabs.wiquery.core.javascript.JsStatement;
 import org.odlabs.wiquery.ui.commons.WiQueryUIPlugin;
+
+import javax.ejb.EJB;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static com.google.common.collect.ImmutableMap.of;
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  *
@@ -35,6 +37,7 @@ public class DomainObjectPermissionsPanel extends AbstractDomainObjectPermission
 
     @EJB(name = "OrganizationStrategy")
     private IOrganizationStrategy organizationStrategy;
+
     protected static final DomainObject VISIBLE_BY_ALL = new DomainObject();
 
     static {

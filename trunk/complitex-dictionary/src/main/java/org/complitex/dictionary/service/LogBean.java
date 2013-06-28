@@ -1,33 +1,29 @@
 package org.complitex.dictionary.service;
 
 import org.apache.ibatis.session.SqlSession;
+import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.entity.*;
+import org.complitex.dictionary.entity.description.EntityAttributeType;
+import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.util.DateUtil;
+import org.complitex.dictionary.util.Numbers;
+import org.complitex.dictionary.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Resource;
-import javax.ejb.SessionContext;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
+import javax.ejb.*;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import javax.ejb.EJB;
-import org.apache.wicket.util.string.Strings;
-import org.complitex.dictionary.entity.description.EntityAttributeType;
-import org.complitex.dictionary.strategy.IStrategy;
-import org.complitex.dictionary.util.Numbers;
-import org.complitex.dictionary.util.StringUtil;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 22.07.2010 17:50:26
  */
-@Stateless(name = "LogBean")
+@Stateless
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 public class LogBean extends AbstractBean {
 

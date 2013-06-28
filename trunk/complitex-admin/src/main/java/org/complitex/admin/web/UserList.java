@@ -1,6 +1,11 @@
 package org.complitex.admin.web;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
@@ -8,9 +13,12 @@ import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.complitex.admin.service.UserBean;
 import org.complitex.admin.service.UserFilter;
 import org.complitex.admin.strategy.UserInfoStrategy;
@@ -20,6 +28,7 @@ import org.complitex.dictionary.entity.UserGroup;
 import org.complitex.dictionary.entity.UserOrganization;
 import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
+import org.complitex.dictionary.util.StringUtil;
 import org.complitex.dictionary.web.component.*;
 import org.complitex.dictionary.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionary.web.component.datatable.DataProvider;
@@ -34,15 +43,6 @@ import javax.ejb.EJB;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
-import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
-import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.complitex.dictionary.util.StringUtil;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -53,8 +53,10 @@ public class UserList extends ScrollListPage {
 
     @EJB(name = "OrganizationStrategy")
     private IOrganizationStrategy organizationStrategy;
+
     @EJB
     private UserInfoStrategy userInfoStrategy;
+
     @EJB
     private UserBean userBean;
 

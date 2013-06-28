@@ -1,6 +1,7 @@
 package org.complitex.dictionary.service;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.UserGroup.GROUP_NAME;
@@ -8,6 +9,7 @@ import org.complitex.dictionary.mybatis.Transactional;
 import org.complitex.dictionary.service.exception.WrongCurrentPasswordException;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
+import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.web.DictionaryFwSession;
 
 import javax.annotation.Resource;
@@ -28,12 +30,18 @@ public class SessionBean extends AbstractBean {
     private static final String MAPPING_NAMESPACE = SessionBean.class.getName();
     private static final String ORGANIZATION_ENTITY = "organization";
     public static final String CHILD_ORGANIZATION_VIEW_ROLE = "CHILD_ORGANIZATION_VIEW";
+
     @Resource
     private SessionContext sessionContext;
+
     @EJB
     private IUserProfileBean userProfileBean;
+
     @EJB
     private StrategyFactory strategyFactory;
+
+    @EJB(lookup = IOrganizationStrategy.BEAN_LOOKUP)
+    private IOrganizationStrategy organizationStrategy;
 
     public boolean isAdmin() {
         final Set<GROUP_NAME> userGroups = getCurrentUserGroups();
@@ -60,7 +68,7 @@ public class SessionBean extends AbstractBean {
     }
 
     public Long getCurrentUserId() {
-        return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectUserId", getCurrentUserLogin());
+        return sqlSession().selectOne(MAPPING_NAMESPACE + ".selectUserId", getCurrentUserLogin());
     }
 
     public String getCurrentUserLogin() {
@@ -98,12 +106,12 @@ public class SessionBean extends AbstractBean {
     private List<Long> getUserOrganizationTreePermissionIds(String table) {
         Map<String, String> parameter = new HashMap<>();
         parameter.put("table", table);
-        parameter.put("organizations", getOrganizationString());
+        parameter.put("organizations", getUserOrganizationString());
 
         return sqlSession().selectList(MAPPING_NAMESPACE + ".selectUserOrganizationTreePermissionIds", parameter);
     }
 
-    public String getOrganizationString(){
+    public String getUserOrganizationString(){
         String s = "";
         String d = "";
 
@@ -136,7 +144,7 @@ public class SessionBean extends AbstractBean {
      * @return main organization id
      */
     private Long getMainUserOrganizationObjectId() {
-        return (Long) sqlSession().selectOne(MAPPING_NAMESPACE + ".selectMainOrganizationObjectId", getCurrentUserLogin());
+            return sqlSession().selectOne(MAPPING_NAMESPACE + ".selectMainOrganizationObjectId", getCurrentUserLogin());
     }
 
     private List<Long> getUserOrganizationPermissionIds(final String table) {
@@ -190,6 +198,7 @@ public class SessionBean extends AbstractBean {
     public DomainObject loadMainUserOrganization() {
         IStrategy strategy = strategyFactory.getStrategy(ORGANIZATION_ENTITY);
         Long oId = getMainUserOrganizationObjectId();
+
         return oId != null ? strategy.findById(oId, true) : null;
     }
 
@@ -211,11 +220,13 @@ public class SessionBean extends AbstractBean {
      */
     public DomainObject getMainUserOrganization(DictionaryFwSession session) {
         DomainObject sessionOrganization = session.getMainUserOrganization();
+
         if (sessionOrganization != null && sessionOrganization.getId() != null) {
             return sessionOrganization;
         } else {
             DomainObject mainUserOrganization = loadMainUserOrganization();
             session.setMainUserOrganization(mainUserOrganization);
+
             return mainUserOrganization;
         }
     }
@@ -228,4 +239,93 @@ public class SessionBean extends AbstractBean {
         userProfileBean.updateMainUserOrganization(mainUserOrganization.getId());
         session.setMainUserOrganization(mainUserOrganization);
     }
+
+    public String getAllOuterOrganizationsString() {
+        String s = "";
+        String d = "";
+
+        for (long id : getAllOuterOrganizationObjectIds()) {
+            s += d + id;
+            d = ",";
+        }
+
+        return "(" + s + ")";
+    }
+
+    private List<Long> getAllOuterOrganizationObjectIds() {
+        List<Long> objectIds = new ArrayList<>();
+
+        for (DomainObject o : organizationStrategy.getAllOuterOrganizations(null)) {
+            objectIds.add(o.getId());
+        }
+
+        return objectIds;
+    }
+
+    private boolean hasOuterOrganization(Long objectId) {
+        return getAllOuterOrganizationObjectIds().contains(objectId);
+    }
+
+    public boolean isAuthorized(Long outerOrganizationObjectId, Long userOrganizationId) {
+        return isAdmin()
+                || (hasOuterOrganization(outerOrganizationObjectId) && isUserOrganizationVisibleToCurrentUser(userOrganizationId));
+    }
+
+    /**
+     * Returns main user's organization by means
+     *  of {@link SessionBean#getMainUserOrganization(DictionaryFwSession)}
+     *
+     * @param session dictionary session.
+     * @return
+     */
+    public Long getCurrentUserOrganizationId(DictionaryFwSession session) {
+        DomainObject mainUserOrganization = getMainUserOrganization(session);
+
+        return mainUserOrganization != null && mainUserOrganization.getId() != null
+                && mainUserOrganization.getId() > 0 ? mainUserOrganization.getId() : null;
+    }
+
+    public void prepareFilterForPermissionCheck(AbstractFilter filter) {
+        filter.setAdmin(isAdmin());
+
+        if (!isAdmin()) {
+            filter.setOuterOrganizationsString(getAllOuterOrganizationsString());
+            filter.setUserOrganizationsString(getCurrentUserOrganizationsString());
+        }
+    }
+
+    private String getCurrentUserOrganizationsString() {
+        return getUserOrganizationsString(getUserOrganizationIdsVisibleToCurrentUser());
+    }
+
+    private String getUserOrganizationsString(Set<Long> userOrganizationIds) {
+        String s = "";
+        String d = "";
+
+        for (long p : userOrganizationIds) {
+            s += d + p;
+            d = ", ";
+        }
+
+        return "(" + s + ")";
+    }
+
+    private Set<Long> getUserOrganizationIdsVisibleToCurrentUser() {
+        return sessionContext.isCallerInRole(SessionBean.CHILD_ORGANIZATION_VIEW_ROLE)
+                ? Sets.newHashSet(getUserOrganizationTreeObjectIds())
+                : Sets.newHashSet(getUserOrganizationObjectIds());
+    }
+
+    public String getMainUserOrganizationString(Long userOrganizationId) {
+        return getUserOrganizationsString(Sets.newHashSet(userOrganizationId));
+    }
+
+    public String getMainUserOrganizationString(Long userOrganizationId, boolean nullOnAdmin) {
+        return nullOnAdmin && isAdmin() ? null : getUserOrganizationsString(Sets.newHashSet(userOrganizationId));
+    }
+
+    private boolean isUserOrganizationVisibleToCurrentUser(Long userOrganizationId) {
+        return userOrganizationId == null || getUserOrganizationIdsVisibleToCurrentUser().contains(userOrganizationId);
+    }
+
 }

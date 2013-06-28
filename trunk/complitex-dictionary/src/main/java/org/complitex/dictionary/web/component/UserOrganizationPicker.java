@@ -15,10 +15,10 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
+import org.complitex.dictionary.web.component.organization.user.UserOrganizationPickerParameters;
 
 import javax.ejb.EJB;
 import java.util.List;
-import org.complitex.dictionary.web.component.organization.user.UserOrganizationPickerParameters;
 
 /**
  *

@@ -3,6 +3,7 @@ package org.complitex.template.web.template;
 import com.google.common.collect.ImmutableList;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
@@ -14,29 +15,26 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.Fragment;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.request.resource.PackageResourceReference;
 import org.apache.wicket.util.string.Strings;
+import org.complitex.dictionary.entity.DomainObject;
+import org.complitex.dictionary.entity.PreferenceKey;
 import org.complitex.dictionary.service.SessionBean;
 import org.complitex.dictionary.util.ResourceUtil;
 import org.complitex.resources.WebCommonResourceInitializer;
+import org.complitex.template.web.component.MainUserOrganizationPickerFactory;
 import org.complitex.template.web.component.toolbar.HelpButton;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
 import org.complitex.template.web.security.SecurityRole;
+import org.odlabs.wiquery.core.resources.CoreJavaScriptResourceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import java.text.MessageFormat;
 import java.util.*;
-import org.apache.wicket.Component;
-import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
-import org.apache.wicket.request.resource.PackageResourceReference;
-import org.complitex.dictionary.entity.DomainObject;
-import org.complitex.dictionary.entity.PreferenceKey;
-import org.complitex.template.web.component.MainUserOrganizationPicker;
-import org.complitex.template.web.component.MainUserOrganizationPickerFactory;
-import org.odlabs.wiquery.core.resources.CoreJavaScriptResourceReference;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -228,7 +226,7 @@ public abstract class TemplatePage extends WebPage {
     }
 
     private List<ITemplateMenu> newTemplateMenus() {
-        List<ITemplateMenu> templateMenus = new ArrayList<ITemplateMenu>();
+        List<ITemplateMenu> templateMenus = new ArrayList<>();
         for (Class<ITemplateMenu> menuClass : getTemplateWebApplication().getMenuClasses()) {
             if (isTemplateMenuAuthorized(menuClass)) {
                 try {

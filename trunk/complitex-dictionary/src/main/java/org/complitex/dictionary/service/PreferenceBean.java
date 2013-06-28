@@ -15,7 +15,7 @@ import java.util.List;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 29.11.10 17:53
  */
-@Stateless(name = "PreferenceBean")
+@Stateless
 public class PreferenceBean extends AbstractBean{
     private static final String MAPPING_NAMESPACE = PreferenceBean.class.getName();
 

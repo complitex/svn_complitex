@@ -13,10 +13,9 @@ import java.util.Set;
  * @author Artem
  */
 public interface IOrganizationStrategy extends IStrategy {
+    String BEAN_NAME = "OrganizationStrategy";
+    String BEAN_LOOKUP = "java:module/OrganizationStrategy";
 
-    /*
-     * Attribute type ids
-     */
     /**
      * Organization name.
      */
@@ -120,4 +119,18 @@ public interface IOrganizationStrategy extends IStrategy {
      * @return Organization object id
      */
     Long getObjectId(String code);
+
+    /**
+     * Figures out all outer (OSZNs and calculation centers) organizations visible to current user
+     * and returns them sorted by organization's name in given {@code locale}.
+     *
+     * @param locale Locale. It is used in sorting of organizations by name.
+     * @return All outer organizations visible to user.
+     */
+    @Transactional
+    List<? extends DomainObject> getAllOuterOrganizations(Locale locale);
+
+    Long getModuleId();
+
+    DomainObject getModule();
 }
