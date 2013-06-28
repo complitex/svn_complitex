@@ -28,6 +28,7 @@
 
     <modules>
         <module>complitex-address</module>
+        <module>complitex-correction</module>
         <module>complitex-admin</module>
         <module>complitex-dictionary</module>
         <module>complitex-images</module>
@@ -43,7 +44,7 @@
         <wicket.version>1.5.10</wicket.version>
 
         <!-- wicketstuff inject -->
-        <wicket-inject.version>1.5.5</wicket-inject.version>
+        <wicket-inject.version>1.5.7</wicket-inject.version>
 
         <!-- wiquery version -->
         <wiquery.version>1.5.7</wiquery.version>

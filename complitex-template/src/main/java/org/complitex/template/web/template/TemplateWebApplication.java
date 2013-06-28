@@ -1,30 +1,9 @@
 package org.complitex.template.web.template;
 
 import org.apache.wicket.Application;
-import org.apache.wicket.Session;
-import org.complitex.dictionary.entity.Preference;
-import org.complitex.dictionary.service.PreferenceBean;
-import org.complitex.dictionary.service.SessionBean;
-import org.complitex.dictionary.util.EjbBeanLocator;
-import org.complitex.dictionary.web.ISessionStorage;
-import org.complitex.dictionary.web.IWebComponentResolver;
-import org.complitex.resources.theme.ThemeResourceReference;
-import org.complitex.template.web.pages.expired.SessionExpiredPage;
-import org.complitex.template.web.security.ServletAuthWebApplication;
-import org.odlabs.wiquery.ui.themes.IThemableApplication;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.wicketstuff.javaee.injection.JavaEEComponentInjector;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
 import org.apache.wicket.Component;
 import org.apache.wicket.IApplicationListener;
+import org.apache.wicket.Session;
 import org.apache.wicket.application.IClassResolver;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.IHeaderResponseDecorator;
@@ -35,8 +14,14 @@ import org.apache.wicket.request.Request;
 import org.apache.wicket.request.Response;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.util.string.Strings;
+import org.complitex.dictionary.entity.Preference;
 import org.complitex.dictionary.mybatis.inject.JavaEE6ModuleNamingStrategy;
+import org.complitex.dictionary.service.PreferenceBean;
+import org.complitex.dictionary.service.SessionBean;
+import org.complitex.dictionary.util.EjbBeanLocator;
+import org.complitex.dictionary.web.ISessionStorage;
 import org.complitex.dictionary.web.IWebComponentResolvableApplication;
+import org.complitex.dictionary.web.IWebComponentResolver;
 import org.complitex.dictionary.web.component.UserOrganizationPicker;
 import org.complitex.dictionary.web.component.image.markup.WicketStaticImageResolver;
 import org.complitex.dictionary.web.component.organization.user.UserOrganizationPickerFactory;
@@ -48,14 +33,26 @@ import org.complitex.dictionary.web.component.permission.DomainObjectPermissions
 import org.complitex.dictionary.web.component.permission.organization.OrganizationPermissionPanelFactory;
 import org.complitex.dictionary.web.component.permission.organization.OrganizationPermissionParameters;
 import org.complitex.dictionary.web.component.permission.organization.OrganizationPermissionsPanel;
+import org.complitex.resources.theme.ThemeResourceReference;
 import org.complitex.template.web.component.IMainUserOrganizationPicker;
 import org.complitex.template.web.component.MainUserOrganizationPicker;
 import org.complitex.template.web.component.MainUserOrganizationPickerFactory;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
 import org.complitex.template.web.pages.HomePageFactory;
 import org.complitex.template.web.pages.access.AccessDeniedPage;
+import org.complitex.template.web.pages.expired.SessionExpiredPage;
 import org.complitex.template.web.pages.welcome.WelcomePage;
+import org.complitex.template.web.security.ServletAuthWebApplication;
 import org.complitex.template.web.template.TemplateWebComponentResolver.TemplateWebComponentResolverBuilder;
+import org.odlabs.wiquery.ui.themes.IThemableApplication;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wicketstuff.javaee.injection.JavaEEComponentInjector;
+
+import java.io.InputStream;
+import java.io.Serializable;
+import java.net.URL;
+import java.util.*;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru

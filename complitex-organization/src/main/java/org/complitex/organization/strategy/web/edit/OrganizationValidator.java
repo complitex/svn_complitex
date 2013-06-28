@@ -1,17 +1,16 @@
 package org.complitex.organization.strategy.web.edit;
 
 import org.apache.wicket.util.visit.IVisit;
+import org.apache.wicket.util.visit.IVisitor;
 import org.complitex.dictionary.entity.DomainObject;
+import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.strategy.web.DomainObjectEditPanel;
 import org.complitex.dictionary.strategy.web.validate.IValidator;
+import org.complitex.dictionary.util.AttributeUtil;
 import org.complitex.dictionary.util.EjbBeanLocator;
-import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
-import org.complitex.organization.strategy.OrganizationStrategy;
 
 import java.text.MessageFormat;
 import java.util.Locale;
-import org.apache.wicket.util.visit.IVisitor;
-import org.complitex.dictionary.util.AttributeUtil;
 
 /**
  *
@@ -61,7 +60,7 @@ public class OrganizationValidator implements IValidator {
     }
 
     private boolean checkUniqueness(DomainObject object, OrganizationEditComponent editComponent) {
-        IOrganizationStrategy organizationStrategy = EjbBeanLocator.getBean(OrganizationStrategy.class);
+        IOrganizationStrategy organizationStrategy = EjbBeanLocator.getBean(IOrganizationStrategy.BEAN_NAME);
 
         boolean valid = true;
 

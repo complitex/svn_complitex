@@ -28,24 +28,25 @@ import org.complitex.template.strategy.TemplateStrategy;
 import org.complitex.template.web.security.SecurityRole;
 
 import javax.ejb.EJB;
-import javax.ejb.Stateless;
 import java.util.*;
 
 /**
  *
  * @author Artem
  */
-@Stateless
-public class OrganizationStrategy extends TemplateStrategy implements IOrganizationStrategy {
+public abstract class AbstractOrganizationStrategy extends TemplateStrategy implements IOrganizationStrategy {
+    private static final String NS = AbstractOrganizationStrategy.class.getPackage().getName() + ".Organization";
+    private static final String RESOURCE_BUNDLE = AbstractOrganizationStrategy.class.getName();
 
-    private static final String ORGANIZATION_NAMESPACE = OrganizationStrategy.class.getPackage().getName() + ".Organization";
-    private static final String RESOURCE_BUNDLE = OrganizationStrategy.class.getName();
     @EJB
     private DistrictStrategy districtStrategy;
+
     @EJB
     private LocaleBean localeBean;
+
     @EJB
     private PermissionBean permissionBean;
+
     @EJB
     private SequenceBean sequenceBean;
 
@@ -93,7 +94,7 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
         return organizationTypeIds != null && organizationTypeIds.contains(OrganizationTypeStrategy.USER_ORGANIZATION_TYPE);
     }
 
-    protected final List<Long> getOrganizationTypeIds(DomainObject organization) {
+    protected List<Long> getOrganizationTypeIds(DomainObject organization) {
         List<Long> organizationTypeIds = Lists.newArrayList();
         List<Attribute> organizationTypeAttributes = organization.getAttributes(ORGANIZATION_TYPE);
         if (organizationTypeAttributes != null && !organizationTypeAttributes.isEmpty()) {
@@ -195,7 +196,7 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
 
     @Transactional
     protected List<DomainObjectPermissionInfo> getTreeChildrenPermissionInfo(long parentId) {
-        List<DomainObjectPermissionInfo> childrenPermissionInfo = sqlSession().selectList(ORGANIZATION_NAMESPACE
+        List<DomainObjectPermissionInfo> childrenPermissionInfo = sqlSession().selectList(NS
                 + ".findOrganizationChildrenPermissionInfo", parentId);
         List<DomainObjectPermissionInfo> treeChildrenPermissionInfo = Lists.newArrayList(childrenPermissionInfo);
         for (DomainObjectPermissionInfo childPermissionInfo : childrenPermissionInfo) {
@@ -237,7 +238,7 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
         }
         extendOrderBy(example);
 
-        List<DomainObject> organizations = sqlSession().selectList(ORGANIZATION_NAMESPACE + "." + FIND_OPERATION, example);
+        List<DomainObject> organizations = sqlSession().selectList(NS + "." + FIND_OPERATION, example);
         for (DomainObject object : organizations) {
             loadAttributes(object);
             //load subject ids
@@ -254,13 +255,13 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
         }
         example.setTable(getEntityTable());
         prepareExampleForPermissionCheck(example);
-        return (Integer) sqlSession().selectOne(ORGANIZATION_NAMESPACE + "." + COUNT_OPERATION, example);
+        return sqlSession().selectOne(NS + "." + COUNT_OPERATION, example);
     }
 
     @Transactional
     @Override
     public Long validateCode(Long id, String code) {
-        List<Long> results = sqlSession().selectList(ORGANIZATION_NAMESPACE + ".validateCode", code);
+        List<Long> results = sqlSession().selectList(NS + ".validateCode", code);
         for (Long result : results) {
             if (!result.equals(id)) {
                 return result;
@@ -275,7 +276,7 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
         Map<String, Object> params = Maps.newHashMap();
         params.put("name", name);
         params.put("localeId", localeBean.convert(locale).getId());
-        List<Long> results = sqlSession().selectList(ORGANIZATION_NAMESPACE + ".validateName", params);
+        List<Long> results = sqlSession().selectList(NS + ".validateName", params);
         for (Long result : results) {
             if (!result.equals(id)) {
                 return result;
@@ -313,7 +314,7 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
     @Transactional
     @Override
     public Set<Long> getTreeChildrenOrganizationIds(long parentOrganizationId) {
-        List<Long> results = sqlSession().selectList(ORGANIZATION_NAMESPACE + ".findOrganizationChildrenObjectIds",
+        List<Long> results = sqlSession().selectList(NS + ".findOrganizationChildrenObjectIds",
                 parentOrganizationId);
         Set<Long> childrenIds = Sets.newHashSet(results);
         Set<Long> treeChildrenIds = Sets.newHashSet(childrenIds);
@@ -350,7 +351,7 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
         params.put("childrenIds", childrenIds);
         params.put("enabled", enabled);
         params.put("status", enabled ? StatusType.INACTIVE : StatusType.ACTIVE);
-        sqlSession().update(ORGANIZATION_NAMESPACE + "." + UPDATE_CHILDREN_ACTIVITY_OPERATION, params);
+        sqlSession().update(NS + "." + UPDATE_CHILDREN_ACTIVITY_OPERATION, params);
     }
 
     @Transactional
@@ -380,6 +381,20 @@ public class OrganizationStrategy extends TemplateStrategy implements IOrganizat
 
     @Override
     public Long getObjectId(String code) {
-        return sqlSession().selectOne(ORGANIZATION_NAMESPACE + ".selectOrganizationObjectIdByCode", code);
+        return sqlSession().selectOne(NS + ".selectOrganizationObjectIdByCode", code);
+    }
+
+    @Override
+    @Transactional
+    public List<? extends DomainObject> getAllOuterOrganizations(Locale locale) {
+        return null;
+    }
+
+    @Override
+    public abstract Long getModuleId();
+
+    @Override
+    public DomainObject getModule(){
+        return findById(getModuleId(), true);
     }
 }

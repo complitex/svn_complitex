@@ -11,7 +11,7 @@ import java.util.List;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 19.08.2010 13:07:35
  */
-@Stateless(name = "LogListBean")
+@Stateless
 public class LogListBean extends AbstractBean {
     public static final String STATEMENT_PREFIX = LogListBean.class.getCanonicalName();
 

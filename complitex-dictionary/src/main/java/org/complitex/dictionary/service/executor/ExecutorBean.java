@@ -11,7 +11,7 @@ import javax.ejb.*;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 01.11.10 12:50
  */
-@Stateless(name = "ExecutorBean")
+@Stateless
 public class ExecutorBean {
     private static final Logger log = LoggerFactory.getLogger(ExecutorBean.class);
 

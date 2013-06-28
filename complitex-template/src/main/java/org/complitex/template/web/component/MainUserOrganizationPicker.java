@@ -4,9 +4,6 @@
  */
 package org.complitex.template.web.component;
 
-import java.util.ArrayList;
-import java.util.List;
-import javax.ejb.EJB;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -19,6 +16,10 @@ import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.web.component.DisableAwareDropDownChoice;
 import org.complitex.dictionary.web.component.DomainObjectDisableAwareRenderer;
 
+import javax.ejb.EJB;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author Artem
@@ -27,8 +28,13 @@ public class MainUserOrganizationPicker extends Panel implements IMainUserOrgani
 
     @EJB
     private SessionBean sessionBean;
+
     @EJB
     private StrategyFactory strategyFactory;
+
+    @EJB(name = "OrganizationStrategy")
+    private IOrganizationStrategy organizationStrategy;
+
     private final boolean visible;
 
     public MainUserOrganizationPicker(String id, final IModel<DomainObject> model) {
@@ -83,7 +89,7 @@ public class MainUserOrganizationPicker extends Panel implements IMainUserOrgani
     }
 
     protected String displayOrganization(DomainObject organization) {
-        return getOrgaizationStrategy().displayDomainObject(organization, getLocale());
+        return organizationStrategy.displayDomainObject(organization, getLocale());
     }
 
     private List<DomainObject> getUserOrganizationObjects() {
@@ -91,19 +97,13 @@ public class MainUserOrganizationPicker extends Panel implements IMainUserOrgani
         List<Long> ids = sessionBean.getUserOrganizationObjectIds();
         if (!ids.isEmpty()) {
             for (long id : ids) {
-                results.add(getOrgaizationStrategy().findById(id, true));
+                results.add(organizationStrategy.findById(id, true));
             }
         }
+
         return results;
     }
 
-    protected String getOrganizationStrategyName() {
-        return "OrganizationStrategy";
-    }
-
-    protected final IOrganizationStrategy getOrgaizationStrategy() {
-        return (IOrganizationStrategy) strategyFactory.getStrategy(getOrganizationStrategyName(), "organization");
-    }
 
     public boolean visible() {
         return visible;

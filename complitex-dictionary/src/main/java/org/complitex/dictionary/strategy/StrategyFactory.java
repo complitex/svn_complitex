@@ -1,11 +1,12 @@
 package org.complitex.dictionary.strategy;
 
-import static org.apache.wicket.util.string.Strings.*;
+import org.complitex.dictionary.util.EjbBeanLocator;
 
 import javax.ejb.ConcurrencyManagement;
 import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.Singleton;
-import org.complitex.dictionary.util.EjbBeanLocator;
+
+import static org.apache.wicket.util.string.Strings.isEmpty;
 
 /**
  *
@@ -21,6 +22,7 @@ public class StrategyFactory {
 
     public IStrategy getStrategy(String entityTable, boolean suppressException) {
         String strategyName = getStrategyName(entityTable);
+
         return EjbBeanLocator.getBean(strategyName, suppressException);
     }
 

@@ -1,5 +1,7 @@
 package org.complitex.dictionary.service;
 
+import org.complitex.dictionary.entity.DomainObject;
+
 import java.io.Serializable;
 
 /**
@@ -13,6 +15,9 @@ public class AbstractFilter implements Serializable {
     private boolean ascending;
 
     private boolean admin;
+    private DomainObject userOrganization;
+    private String userOrganizationsString;
+    private String outerOrganizationsString;
 
     public int getFirst() {
         return first;
@@ -52,5 +57,29 @@ public class AbstractFilter implements Serializable {
 
     public void setAdmin(boolean admin) {
         this.admin = admin;
+    }
+
+    public String getUserOrganizationsString() {
+        return userOrganizationsString;
+    }
+
+    public void setUserOrganizationsString(String userOrganizationsString) {
+        this.userOrganizationsString = userOrganizationsString;
+    }
+
+    public String getOuterOrganizationsString() {
+        return outerOrganizationsString;
+    }
+
+    public void setOuterOrganizationsString(String outerOrganizationsString) {
+        this.outerOrganizationsString = outerOrganizationsString;
+    }
+
+    public DomainObject getUserOrganization() {
+        return userOrganization;
+    }
+
+    public void setUserOrganization(DomainObject userOrganization) {
+        this.userOrganization = userOrganization;
     }
 }

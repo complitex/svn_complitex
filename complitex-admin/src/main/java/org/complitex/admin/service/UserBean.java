@@ -21,7 +21,7 @@ import org.complitex.dictionary.web.DictionaryFwSession;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 22.07.2010 15:05:09
  */
-@Stateless(name = "UserBean")
+@Stateless
 public class UserBean extends AbstractBean {
 
     public static final String STATEMENT_PREFIX = UserBean.class.getCanonicalName();

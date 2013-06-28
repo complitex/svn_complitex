@@ -14,7 +14,7 @@ import java.util.*;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 26.01.11 16:11
  */
-@Stateless(name = "PermissionBean")
+@Stateless
 public class PermissionBean extends AbstractBean{
     private static final String MAPPING_NAMESPACE = PermissionBean.class.getName();
     private static final String ENTITY_TABLE = "permission";

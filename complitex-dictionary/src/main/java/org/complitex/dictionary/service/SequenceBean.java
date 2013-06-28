@@ -8,7 +8,7 @@ import javax.ejb.Stateless;
  *
  * @author Artem
  */
-@Stateless(name = "SequenceBean")
+@Stateless
 public class SequenceBean extends AbstractBean{
 
     private static final String MAPPING_NAMESPACE = "org.complitex.dictionary.entity.Sequence";
