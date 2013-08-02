@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"  xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+    <head>
+        <wicket:head>
+            <title wicket:id="title"></title>
+        </wicket:head>
+    </head>
+    <body>
+        <wicket:extend>
+            <div>
+                <h1><wicket:message key="title"/></h1>
+
+                <div wicket:id="container">
+                    <div wicket:id="messages"></div>
+                    <ul>
+                        <li wicket:id="error" class="feedbackPanelERROR"></li>
+                    </ul>
+
+                    <form action="#" wicket:id="form">
+                        <div wicket:id="localePicker"></div>
+                        
+                        <h2 style="margin-bottom: 5px;"><wicket:message key="import"/></h2>
+                        <span wicket:id="address"></span>
+
+                        <div style="margin-top: 15px;">
+                            <input type="submit" class="btnBig" wicket:id="process" wicket:message="value:process"/>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </wicket:extend>
+    </body>
+</html>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.complitex.dictionary.entity.StringCulture">
+
+    <resultMap id="StringCulture" type="StringCulture">
+        <constructor>
+            <idArg column="locale_id" javaType="Long"/>
+            <arg column="value" javaType="String"/>
+        </constructor>
+        <id column="id" property="id"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="Parameter">
+        insert into `${table}_string_culture`(`id`, `locale_id`, `value`) values (#{object.id}, #{object.localeId}, #{object.value})
+    </insert>
+
+    <select id="find" parameterType="map" resultMap="org.complitex.dictionary.entity.StringCulture.StringCulture">
+        SELECT sc.* FROM `${table}_string_culture` sc WHERE sc.`id` = #{id}
+    </select>
+
+    <insert id="insertDescriptionData" parameterType="StringCulture">
+        insert into `string_culture`(`id`, `locale_id`, `value`) values (#{id}, #{localeId}, #{value})
+    </insert>
+
+    <!-- deletion -->
+    <delete id="delete" parameterType="map">
+        DELETE FROM `${table}_string_culture` WHERE `id` IN
+           (SELECT a.`value_id` FROM `${table}_attribute` a WHERE a.`object_id` = #{objectId}
+                AND a.`value_type_id` IN
+                    <foreach open="(" separator="," close=")" collection="localizedValueTypeIds" item="id">
+                        #{id}
+                    </foreach>
+            )
+    </delete>
+
+</mapper>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.complitex.dictionary.service.SessionBean">
+    <select id="selectUserId" parameterType="string" resultType="long">
+        select `id` from `user` where `login` = #{login}
+    </select>
+
+    <select id="selectOrganizationObjectIds" parameterType="string" resultType="long">
+        select uo.`organization_object_id` from `user_organization` uo left join `user` u on uo.`user_id` = u.`id`
+            where u.`login` = #{login}
+    </select>
+
+    <select id="selectMainOrganizationObjectId" parameterType="string" resultType="long">
+        select uo.`organization_object_id` from `user_organization` uo left join `user` u on uo.`user_id` = u.`id`
+            where u.`login` = #{login} and uo.`main` = true limit 1
+    </select>
+
+    <select id="selectUserOrganizationPermissionIds" parameterType="map" resultType="long">
+        select p.`permission_id` from `user` u
+            left join `user_organization` uo on uo.`user_id` = u.`id`
+            left join `permission` p on (p.`object_id` = uo.`organization_object_id` and p.`entity` = 'organization')
+            <where>
+                <if test="table != null">p.`table` = #{table, javaType=string}</if>
+                and u.`login` = #{login}
+            </where>
+    </select>
+
+    <select id="selectUserOrganizationTreePermissionIds" parameterType="map" resultType="long">
+        <choose>
+            <when test="organizations != null">
+                select p.`permission_id` from `permission` p where p.`entity` = 'organization'
+                    and p.`object_id` in ${organizations} and p.`table` = #{table, javaType=string}
+            </when>
+            <otherwise>
+                select null
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectOrganizationChildrenObjectIds" parameterType="long" resultType="long">
+        select o.`object_id` from `organization` o left join organization_attribute oa
+            on oa.`object_id` = o.`object_id` and oa.`attribute_type_id` = 903
+            where oa.`value_id` = #{parentObjectId}
+    </select>
+
+    <select id="hasPermission" parameterType="map" resultType="boolean">
+        select count(1) > 0 from `permission` p where p.`permission_id` = #{permissionId} and p.`entity` = 'organization'
+            and  p.`object_id` in ${organizations}
+    </select>
+
+    <select id="getUserGroupCount" parameterType="string" resultType="int">
+        SELECT COUNT(1) FROM `usergroup` WHERE `login` = #{login}
+    </select>
+    
+    <select id="getUserGroups" parameterType="string" resultType="string">
+        SELECT `group_name` FROM `usergroup` WHERE `login` = #{login}
+    </select>
+</mapper>

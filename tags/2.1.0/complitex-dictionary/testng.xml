@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="DictionarySuite" verbose="1">
+    <test name="StringUtilTest">
+        <groups>
+            <run>
+                <exclude name="checkCharacterCodes"/>
+                <exclude name="performance"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="org.complitex.dictionary.util.StringUtilTest"/>
+        </classes>
+    </test>
+    <test name="DateUtilTest">
+        <classes>
+            <class name="org.complitex.dictionary.util.DateUtilTest"/>
+        </classes>
+    </test>
+    <test name="BuildingNumberConverterTest">
+        <classes>
+            <class name="org.complitex.dictionary.util.BuildingNumberConverterTest"/>
+        </classes>
+    </test>
+</suite>
