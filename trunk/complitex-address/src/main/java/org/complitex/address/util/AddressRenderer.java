@@ -35,6 +35,13 @@ public final class AddressRenderer {
         return "";
     }
 
+    public static String displayRoom(String room, Locale locale) {
+        if (!Strings.isEmpty(room)) {
+            return ResourceUtil.getString(RESOURCE_BUNDLE, "room", locale) + " " + room;
+        }
+        return "";
+    }
+
     public static String displayStreet(String streetType, String street, Locale locale) {
         if (Strings.isEmpty(streetType)) {
             return street;
@@ -60,6 +67,14 @@ public final class AddressRenderer {
         String displayBuilding = displayBuilding(buildingNumber, buildingCorp, locale);
         String displayApartment = displayApartment(apartment, locale);
         return displayStrings(displayStreet, displayBuilding, displayApartment);
+    }
+
+    public static String displayAddress(String streetType, String street, String buildingNumber, String buildingCorp, String apartment, String room, Locale locale) {
+        String displayStreet = displayStreet(streetType, street, locale);
+        String displayBuilding = displayBuilding(buildingNumber, buildingCorp, locale);
+        String displayApartment = displayApartment(apartment, locale);
+        String displayRoom = displayRoom(room, locale);
+        return displayStrings(displayStreet, displayBuilding, displayApartment, displayRoom);
     }
 
     public static String displayAddress(String cityType, String city, String streetType, String street, String buildingNumber,
