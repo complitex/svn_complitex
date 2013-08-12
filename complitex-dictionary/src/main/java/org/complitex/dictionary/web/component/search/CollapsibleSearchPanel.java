@@ -22,6 +22,7 @@ public class CollapsibleSearchPanel extends Panel {
     private static final String SEARCH_COMPONENT_WICKET_ID = "collapsibleSearchComponent";
     private CollapsibleSearchComponent collapsibleSearchComponent;
     private final ShowModePanel showModePanel;
+    private IToggleCallback visibleCallback;
 
     public CollapsibleSearchPanel(String id, SearchComponentState searchComponentState, List<String> searchFilters,
             ISearchCallback callback, ShowMode showMode, boolean enabled, IModel<ShowMode> showModelModel) {
@@ -39,6 +40,13 @@ public class CollapsibleSearchPanel extends Panel {
         showModePanel.setOutputMarkupPlaceholderTag(true);
         showModePanel.setVisible(collapsibleSearchComponent != null && collapsibleSearchComponent.isTopPartVisible());
         add(showModePanel);
+    }
+
+    public CollapsibleSearchPanel(String id, SearchComponentState searchComponentState, List<String> searchFilters,
+                                  ISearchCallback callback, ShowMode showMode, boolean enabled, IModel<ShowMode> showModelModel,
+                                  IToggleCallback visibleCallback) {
+        this(id, searchComponentState, searchFilters, callback, showMode, enabled, showModelModel);
+        this.visibleCallback = visibleCallback;
     }
 
     public CollapsibleSearchPanel(String id, IModel<ShowMode> showModelModel) {
@@ -66,5 +74,8 @@ public class CollapsibleSearchPanel extends Panel {
         }
         showModePanel.setVisible(!showModePanel.isVisible());
         target.add(showModePanel);
+        if (visibleCallback != null) {
+            visibleCallback.visible(showModePanel.isVisible(), target);
+        }
     }
 }
