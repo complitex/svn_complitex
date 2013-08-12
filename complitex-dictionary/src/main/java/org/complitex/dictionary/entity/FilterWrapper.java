@@ -18,6 +18,8 @@ public class FilterWrapper<T extends Serializable> implements Serializable{
 
     private Map<String, Object> map = new HashMap<>();
 
+    private Locale locale;
+
     public FilterWrapper() {
     }
 
@@ -95,5 +97,13 @@ public class FilterWrapper<T extends Serializable> implements Serializable{
 
     public void setAscending(boolean ascending) {
         this.ascending = ascending;
+    }
+
+    public Locale getLocale() {
+        return locale;
+    }
+
+    public void setLocale(Locale locale) {
+        this.locale = locale;
     }
 }
