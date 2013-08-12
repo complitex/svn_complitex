@@ -86,6 +86,16 @@ public final class AddressRenderer {
         return displayStrings(displayCity, displayStreet, displayBuilding, displayApartment);
     }
 
+    public static String displayAddress(String cityType, String city, String streetType, String street, String buildingNumber,
+            String buildingCorp, String apartment, String room, Locale locale) {
+        String displayCity = displayCity(cityType, city, locale);
+        String displayStreet = displayStreet(streetType, street, locale);
+        String displayBuilding = displayBuilding(buildingNumber, buildingCorp, locale);
+        String displayApartment = displayApartment(apartment, locale);
+        String displayRoom = displayRoom(room, locale);
+        return displayStrings(displayCity, displayStreet, displayBuilding, displayApartment, displayRoom);
+    }
+
     public static String displayAddress(String cityType, String city, String district, Locale locale) {
         String displayCity = displayCity(cityType, city, locale);
         String displayDistrict = displayDistrict(district, locale);
