@@ -11,10 +11,16 @@ import java.util.Map;
 public class FilterWrapper<T extends Serializable> implements Serializable{
     private T object;
 
-    protected int first = 0;
-    protected int count = 0;
-    protected String sortProperty = "id";
-    protected boolean ascending;
+    private int first = 0;
+    private int count = 0;
+    private String sortProperty = "id";
+    private boolean ascending = false;
+
+    private boolean like = false;
+
+    private boolean admin = false;
+    private String userOrganizationsString;
+    private String outerOrganizationsString;
 
     private Map<String, Object> map = new HashMap<>();
 
@@ -105,5 +111,37 @@ public class FilterWrapper<T extends Serializable> implements Serializable{
 
     public void setLocale(Locale locale) {
         this.locale = locale;
+    }
+
+    public boolean isLike() {
+        return like;
+    }
+
+    public void setLike(boolean like) {
+        this.like = like;
+    }
+
+    public boolean isAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
+    }
+
+    public String getUserOrganizationsString() {
+        return userOrganizationsString;
+    }
+
+    public void setUserOrganizationsString(String userOrganizationsString) {
+        this.userOrganizationsString = userOrganizationsString;
+    }
+
+    public String getOuterOrganizationsString() {
+        return outerOrganizationsString;
+    }
+
+    public void setOuterOrganizationsString(String outerOrganizationsString) {
+        this.outerOrganizationsString = outerOrganizationsString;
     }
 }
