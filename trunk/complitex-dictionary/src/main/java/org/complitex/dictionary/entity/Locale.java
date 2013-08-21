@@ -15,6 +15,9 @@ import java.io.Serializable;
  */
 public class Locale implements Serializable {
 
+    public static final Locale RU = new Locale(1L, "ru", true);
+    public static final Locale UK = new Locale(2L, "uk", false);
+
     private Long id;
     private String language;
     private boolean system;
