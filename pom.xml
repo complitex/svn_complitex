@@ -53,7 +53,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!--skip test-->
-        <maven.test.skip>false</maven.test.skip>
+        <maven.test.skip>true</maven.test.skip>
         <compiler.showDeprecation>true</compiler.showDeprecation>
     </properties>
 
@@ -273,7 +273,7 @@
             <dependency>
                 <groupId>org.mybatis</groupId>
                 <artifactId>mybatis</artifactId>
-                <version>3.1.1</version>
+                <version>3.2.2</version>
             </dependency>
 
             <!-- google guava -->
@@ -318,6 +318,14 @@
                 <version>2.2</version>
             </dependency>
 
+
+            <!--Commons Lang-->
+            <dependency>
+                <groupId>commons-lang</groupId>
+                <artifactId>commons-lang</artifactId>
+                <version>2.6</version>
+            </dependency>
+
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
@@ -346,6 +354,8 @@
     </dependencies>
 
     <build>
+        <directory>c:\Anatoly\Java\target\${pom.artifactId}</directory>
+
         <resources>
             <resource>
                 <filtering>false</filtering>
