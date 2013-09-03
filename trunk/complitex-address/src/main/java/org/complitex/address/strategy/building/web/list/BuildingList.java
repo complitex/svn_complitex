@@ -1,13 +1,11 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.address.strategy.building.web.list;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
@@ -18,11 +16,13 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.address.strategy.building.BuildingStrategy;
 import org.complitex.address.strategy.building.entity.Building;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.service.LocaleBean;
+import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
 import org.complitex.dictionary.util.StringUtil;
 import org.complitex.dictionary.web.component.ShowMode;
@@ -30,20 +30,16 @@ import org.complitex.dictionary.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionary.web.component.datatable.DataProvider;
 import org.complitex.dictionary.web.component.paging.PagingNavigator;
 import org.complitex.dictionary.web.component.scroll.ScrollBookmarkablePageLink;
+import org.complitex.dictionary.web.component.search.CollapsibleSearchPanel;
 import org.complitex.template.web.component.toolbar.AddItemButton;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
+import org.complitex.template.web.component.toolbar.search.CollapsibleSearchToolbarButton;
+import org.complitex.template.web.pages.DomainObjectList;
 import org.complitex.template.web.pages.ScrollListPage;
 import org.complitex.template.web.security.SecurityRole;
 
 import javax.ejb.EJB;
 import java.util.List;
-import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
-import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.complitex.dictionary.strategy.StrategyFactory;
-import org.complitex.dictionary.web.component.search.CollapsibleSearchPanel;
-import org.complitex.template.web.component.toolbar.search.CollapsibleSearchToolbarButton;
-import org.complitex.template.web.pages.DomainObjectList;
 
 /**
  *
@@ -105,14 +101,14 @@ public class BuildingList extends ScrollListPage {
         content.setVisible(searchFilters == null || searchFilters.isEmpty());
         add(content);
 
-        final IModel<ShowMode> showModeModel = new Model<ShowMode>(ShowMode.ACTIVE);
+        final IModel<ShowMode> showModeModel = new Model<>(ShowMode.ACTIVE);
         searchPanel = new CollapsibleSearchPanel("searchPanel", getTemplateSession().getGlobalSearchComponentState(),
                 searchFilters, getBuildingStrategy().getSearchCallback(), ShowMode.ALL, true, showModeModel);
         add(searchPanel);
         searchPanel.initialize();
 
         //Form
-        final Form<Void> filterForm = new Form<Void>("filterForm");
+        final Form<Void> filterForm = new Form<>("filterForm");
         content.add(filterForm);
 
         //Data Provider
@@ -141,6 +137,7 @@ public class BuildingList extends ScrollListPage {
                 example.setAsc(asc);
                 example.setStart(first);
                 example.setSize(count);
+
                 return getBuildingStrategy().find(example);
             }
 
@@ -154,7 +151,7 @@ public class BuildingList extends ScrollListPage {
         dataProvider.setSort(String.valueOf(getBuildingStrategy().getDefaultSortAttributeTypeId()), SortOrder.ASCENDING);
 
         //Filters
-        filterForm.add(new TextField<String>("numberFilter", new Model<String>() {
+        filterForm.add(new TextField<>("numberFilter", new Model<String>() {
 
             @Override
             public String getObject() {
@@ -166,7 +163,7 @@ public class BuildingList extends ScrollListPage {
                 example.addAdditionalParam(BuildingStrategy.NUMBER, number);
             }
         }));
-        filterForm.add(new TextField<String>("corpFilter", new Model<String>() {
+        filterForm.add(new TextField<>("corpFilter", new Model<String>() {
 
             @Override
             public String getObject() {
@@ -178,7 +175,7 @@ public class BuildingList extends ScrollListPage {
                 example.addAdditionalParam(BuildingStrategy.CORP, corp);
             }
         }));
-        filterForm.add(new TextField<String>("structureFilter", new Model<String>() {
+        filterForm.add(new TextField<>("structureFilter", new Model<String>() {
 
             @Override
             public String getObject() {
@@ -197,6 +194,8 @@ public class BuildingList extends ScrollListPage {
             @Override
             protected void populateItem(Item<Building> item) {
                 Building building = item.getModelObject();
+
+
 
                 item.add(new Label("order", StringUtil.valueOf(getFirstItemOffset() + item.getIndex() + 1)));
                 item.add(new Label("number", building.getAccompaniedNumber(getLocale())));

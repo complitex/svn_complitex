@@ -4,22 +4,36 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.complitex.address.util.AddressRenderer;
 import org.complitex.correction.entity.BuildingCorrection;
-import org.complitex.correction.entity.BuildingCorrectionExample;
-import org.complitex.correction.entity.Correction;
-import org.complitex.correction.entity.CorrectionExample;
 import org.complitex.correction.service.AddressCorrectionBean;
+import org.complitex.dictionary.entity.Correction;
+import org.complitex.dictionary.entity.DomainObject;
+import org.complitex.dictionary.entity.FilterWrapper;
+import org.complitex.dictionary.service.LocaleBean;
+import org.complitex.dictionary.service.SessionBean;
+import org.complitex.dictionary.strategy.IStrategy;
+import org.complitex.dictionary.web.component.search.SearchComponentState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Список коррекций домов.
  * @author Artem
  */
-public class BuildingCorrectionList extends AddressCorrectionList {
+public class BuildingCorrectionList extends AddressCorrectionList<BuildingCorrection> {
+    private final static Logger log = LoggerFactory.getLogger(BuildingCorrectionList.class);
 
     @EJB
     private AddressCorrectionBean addressCorrectionBean;
+
+    @EJB
+    private SessionBean sessionBean;
+
+    @EJB
+    private LocaleBean localeBean;
 
     public BuildingCorrectionList() {
         super("building");
@@ -31,20 +45,50 @@ public class BuildingCorrectionList extends AddressCorrectionList {
     }
 
     @Override
-    protected CorrectionExample newExample() {
-        BuildingCorrectionExample correctionExample = new BuildingCorrectionExample();
-        correctionExample.setEntity(this.getEntity());
-        return correctionExample;
+    protected BuildingCorrection newCorrection() {
+        return new BuildingCorrection();
     }
 
     @Override
-    protected List<BuildingCorrection> find(CorrectionExample example) {
-        return addressCorrectionBean.findBuildings(example);
+    protected List<BuildingCorrection> getCorrections(FilterWrapper<BuildingCorrection> filterWrapper) {
+        sessionBean.prepareFilterForPermissionCheck(filterWrapper);
+
+        List<BuildingCorrection> list = addressCorrectionBean.getBuildingCorrections(filterWrapper);
+
+        IStrategy cityStrategy = strategyFactory.getStrategy("city");
+        IStrategy streetStrategy = strategyFactory.getStrategy("street");
+        IStrategy buildingStrategy = strategyFactory.getStrategy("building");
+
+        Locale locale = getLocale();
+
+        for (Correction c : list) {
+            try {
+                DomainObject building = buildingStrategy.findById(c.getObjectId(), false);
+
+                if (building == null) {
+                    building = buildingStrategy.findById(c.getObjectId(), true);
+                    c.setEditable(false);
+                }
+                SearchComponentState state = buildingStrategy.getSearchComponentStateForParent(building.getParentId(), "building_address", null);
+                DomainObject street = state.get("street");
+                DomainObject city = state.get("city");
+                String displayBuilding = buildingStrategy.displayDomainObject(building, locale);
+                String displayStreet = streetStrategy.displayDomainObject(street, locale);
+                String displayCity = cityStrategy.displayDomainObject(city, locale);
+                c.setDisplayObject(displayCity + ", " + displayStreet + ", " + displayBuilding);
+            } catch (Exception e) {
+                log.warn("[Полный адрес не найден]", e);
+                c.setDisplayObject("[Полный адрес не найден]");
+                c.setEditable(false);
+            }
+        }
+
+        return list;
     }
 
     @Override
-    protected int count(CorrectionExample example) {
-        return addressCorrectionBean.countBuildings(example);
+    protected Integer getCorrectionsCount(FilterWrapper<BuildingCorrection> filterWrapper) {
+        return addressCorrectionBean.getBuildingCorrectionsCount(filterWrapper);
     }
 
     @Override

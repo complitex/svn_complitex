@@ -1,9 +1,7 @@
 package org.complitex.address.strategy.street;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
+import com.google.common.collect.*;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.util.string.Strings;
@@ -20,6 +18,7 @@ import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionary.strategy.web.DomainObjectListPanel;
+import org.complitex.dictionary.util.BuildingNumberConverter;
 import org.complitex.dictionary.util.ResourceUtil;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
@@ -30,6 +29,9 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.io.Serializable;
 import java.util.*;
+
+import static org.complitex.dictionary.util.StringUtil.removeWhiteSpaces;
+import static org.complitex.dictionary.util.StringUtil.toCyrillic;
 
 /**
  * Street strategy.
@@ -47,7 +49,7 @@ import java.util.*;
 @Stateless
 public class StreetStrategy extends TemplateStrategy {
 
-    private static final String STREET_NAMESPACE = StreetStrategy.class.getPackage().getName() + ".Street";
+    private static final String NS = StreetStrategy.class.getPackage().getName() + ".Street";
     @EJB
     private StringCultureBean stringBean;
     @EJB
@@ -78,7 +80,7 @@ public class StreetStrategy extends TemplateStrategy {
         example.setTable(getEntityTable());
         prepareExampleForPermissionCheck(example);
 
-        List<DomainObject> objects = sqlSession().selectList(STREET_NAMESPACE + "." + FIND_OPERATION, example);
+        List<DomainObject> objects = sqlSession().selectList(NS + "." + FIND_OPERATION, example);
         for (DomainObject object : objects) {
             loadAttributes(object);
             //load subject ids
@@ -97,7 +99,7 @@ public class StreetStrategy extends TemplateStrategy {
         example.setTable(getEntityTable());
         prepareExampleForPermissionCheck(example);
 
-        return (Integer) sqlSession().selectOne(STREET_NAMESPACE + "." + COUNT_OPERATION, example);
+        return (Integer) sqlSession().selectOne(NS + "." + COUNT_OPERATION, example);
     }
 
     @Override
@@ -225,7 +227,7 @@ public class StreetStrategy extends TemplateStrategy {
         params.put("streetTypeAT", STREET_TYPE);
         Long streetTypeId = getStreetType(streetObject);
         params.put("streetTypeId", streetTypeId);
-        List<Long> results = sqlSession().selectList(STREET_NAMESPACE + ".defaultValidation", params);
+        List<Long> results = sqlSession().selectList(NS + ".defaultValidation", params);
         for (Long result : results) {
             if (!result.equals(streetObject.getId())) {
                 return result;
@@ -279,4 +281,28 @@ public class StreetStrategy extends TemplateStrategy {
     public String[] getListRoles() {
         return new String[]{SecurityRole.ADDRESS_MODULE_VIEW};
     }
+
+    public List<Long> getStreetObjectIds(Long cityObjectId, Long streetTypeObjectId, String streetName){
+        return sqlSession().selectList(NS + ".selectStreetObjectIds",
+                ImmutableMap.of("cityObjectId", cityObjectId, "streetTypeObjectId", streetTypeObjectId,
+                        "streetName", streetName));
+    }
+
+    public List<Long> getStreetObjectIdsByDistrict(Long cityObjectId, String street, Long osznId) {
+        return sqlSession().selectList(NS + ".selectStreetObjectIdsByDistrict",
+                ImmutableMap.of("street", toCyrillic(street), "cityId", cityObjectId, "osznId", osznId));
+    }
+
+    public List<Long> getStreetObjectIdsByBuilding(Long cityId, String street, String buildingNumber, String buildingCorp) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("street", toCyrillic(street));
+        params.put("cityId", cityId);
+        String preparedNumber = BuildingNumberConverter.convert(buildingNumber);
+        params.put("number", preparedNumber == null ? "" : preparedNumber);
+        String preparedCorp = removeWhiteSpaces(toCyrillic(buildingCorp));
+        params.put("corp", Strings.isEmpty(preparedCorp) ? null : preparedCorp);
+
+        return sqlSession().selectList(NS + ".selectStreetObjectIdsByBuilding", params);
+    }
+
 }

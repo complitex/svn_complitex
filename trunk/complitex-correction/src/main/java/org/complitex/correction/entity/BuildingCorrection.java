@@ -1,19 +1,28 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.correction.entity;
+
+import org.complitex.address.entity.AddressEntity;
+import org.complitex.dictionary.entity.Correction;
 
 /**
  * Объект коррекции дома
  * @author Artem
  */
 public class BuildingCorrection extends Correction {
-
     private String correctionCorp;
 
     public BuildingCorrection() {
-        setEntity("building");
+    }
+
+    public BuildingCorrection(String externalId, Long objectId, String correction, String correctionCorp,
+                              Long organizationId, Long userOrganizationId, Long moduleId) {
+        super(externalId, objectId, correction, organizationId, userOrganizationId, moduleId);
+
+        this.correctionCorp = correctionCorp;
+    }
+
+    @Override
+    public String getEntity() {
+        return AddressEntity.BUILDING.getEntityTable();
     }
 
     public String getCorrectionCorp() {
@@ -23,4 +32,5 @@ public class BuildingCorrection extends Correction {
     public void setCorrectionCorp(String correctionCorp) {
         this.correctionCorp = correctionCorp;
     }
+
 }

@@ -13,7 +13,6 @@ import org.complitex.dictionary.web.component.scroll.ScrollListBehavior;
  * @author Artem
  */
 public class ScrollListPage extends ListPage {
-
     public static final String SCROLL_PARAMETER = "idToScroll";
 
     public ScrollListPage() {

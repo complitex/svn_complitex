@@ -10,7 +10,8 @@ import java.util.Locale;
  *
  * @author Artem
  */
-public final class AddressRenderer {
+public final class
+        AddressRenderer {
 
     private static final String RESOURCE_BUNDLE = AddressRenderer.class.getName();
 

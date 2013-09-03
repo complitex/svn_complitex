@@ -2,19 +2,22 @@ package org.complitex.address.strategy.building;
 
 import com.google.common.base.Function;
 import com.google.common.collect.*;
-import java.io.Serializable;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.Strings;
+import org.complitex.address.Module;
 import org.complitex.address.resource.CommonResources;
 import org.complitex.address.strategy.building.entity.Building;
+import org.complitex.address.strategy.building.web.edit.BuildingEdit;
 import org.complitex.address.strategy.building.web.edit.BuildingEditComponent;
 import org.complitex.address.strategy.building.web.edit.BuildingValidator;
 import org.complitex.address.strategy.building.web.list.BuildingList;
 import org.complitex.address.strategy.building_address.BuildingAddressStrategy;
 import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.DomainObject;
+import org.complitex.dictionary.entity.Log;
 import org.complitex.dictionary.entity.StatusType;
 import org.complitex.dictionary.entity.description.EntityAttributeType;
 import org.complitex.dictionary.entity.description.EntityAttributeValueType;
@@ -22,10 +25,14 @@ import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.mybatis.Transactional;
 import org.complitex.dictionary.service.LocaleBean;
+import org.complitex.dictionary.service.LogBean;
 import org.complitex.dictionary.service.SessionBean;
 import org.complitex.dictionary.service.StringCultureBean;
+import org.complitex.dictionary.strategy.DeleteException;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
+import org.complitex.dictionary.strategy.web.DomainObjectEditPanel;
 import org.complitex.dictionary.strategy.web.validate.IValidator;
+import org.complitex.dictionary.util.BuildingNumberConverter;
 import org.complitex.dictionary.util.ResourceUtil;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
 import org.complitex.template.strategy.TemplateStrategy;
@@ -33,15 +40,12 @@ import org.complitex.template.web.security.SecurityRole;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.*;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.complitex.address.strategy.building.web.edit.BuildingEdit;
-import org.complitex.address.Module;
-import org.complitex.dictionary.entity.Log;
-import org.complitex.dictionary.service.LogBean;
-import org.complitex.dictionary.strategy.DeleteException;
-import org.complitex.dictionary.strategy.web.DomainObjectEditPanel;
+
+import static org.complitex.dictionary.util.StringUtil.removeWhiteSpaces;
+import static org.complitex.dictionary.util.StringUtil.toCyrillic;
 
 /**
  *
@@ -703,5 +707,23 @@ public class BuildingStrategy extends TemplateStrategy {
     @Override
     public long getDefaultSortAttributeTypeId() {
         return OrderBy.NUMBER.getOrderByAttributeId();
+    }
+
+    /**
+     * Найти дом в локальной адресной базе.
+     * При поиске к значению номера(buildingNumber) и корпуса(buildingCorp) дома применяются SQL функции TRIM() и TO_CYRILLIC()
+     */
+    public List<Long> getBuildingObjectIds(Long cityId, Long streetId, String buildingNumber, String buildingCorp) {
+        Map<String, Object> params = Maps.newHashMap();
+
+        String preparedNumber = BuildingNumberConverter.convert(buildingNumber);
+        params.put("number", preparedNumber == null ? "" : preparedNumber);
+        String preparedCorp = removeWhiteSpaces(toCyrillic(buildingCorp));
+        params.put("corp", Strings.isEmpty(preparedCorp) ? null : preparedCorp);
+
+        params.put("parentId", streetId != null ? streetId : cityId);
+        params.put("parentEntityId", streetId != null ? 300 : 400);
+
+        return sqlSession().selectList(BUILDING_NAMESPACE + ".selectBuildingObjectIds", params);
     }
 }

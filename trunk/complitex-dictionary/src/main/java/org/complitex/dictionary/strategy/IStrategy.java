@@ -4,7 +4,9 @@
  */
 package org.complitex.dictionary.strategy;
 
+import org.apache.wicket.Page;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.History;
@@ -18,8 +20,6 @@ import org.complitex.dictionary.web.component.search.ISearchCallback;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
 
 import java.util.*;
-import org.apache.wicket.Page;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 /**
  *
@@ -91,7 +91,7 @@ public interface IStrategy {
     @Transactional
     DomainObject findById(long id, boolean runAsAdmin);
 
-    public Long getObjectId(final Long externalId);
+    public Long getObjectId(String externalId);
 
     @Transactional
     DomainObject findHistoryObject(long objectId, Date date);

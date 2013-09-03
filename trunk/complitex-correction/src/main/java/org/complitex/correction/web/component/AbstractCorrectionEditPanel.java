@@ -16,8 +16,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.*;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.Strings;
-import org.complitex.correction.entity.Correction;
-import org.complitex.correction.service.CorrectionBean;
+import org.complitex.dictionary.entity.Correction;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.service.SessionBean;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
@@ -36,7 +35,7 @@ import java.util.Locale;
  * Абстрактная панель для редактирования коррекций.
  * @author Artem
  */
-public abstract class AbstractCorrectionEditPanel extends Panel {
+public abstract class AbstractCorrectionEditPanel<T extends Correction> extends Panel {
     private static final Logger log = LoggerFactory.getLogger(AbstractCorrectionEditPanel.class);
 
     @EJB
@@ -45,29 +44,20 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
     @EJB(name = "OrganizationStrategy")
     private IOrganizationStrategy organizationStrategy;
 
-    @EJB
-    private CorrectionBean correctionBean;
-
     private Long correctionId;
-    private Correction correction;
+
+    private T correction;
+
     private WebMarkupContainer form;
     private Panel correctionInputPanel;
     private IModel<List<DomainObject>> allOuterOrganizationsModel;
 
-    public AbstractCorrectionEditPanel(String id, String entity, Long correctionId) {
+    public AbstractCorrectionEditPanel(String id, Long correctionId) {
         super(id);
-        this.correctionId = correctionId;
-        if (isNew()) {
-            correction = newObjectCorrection(entity);
-        } else {
-            correction = initObjectCorrection(entity, this.correctionId);
-            correction.setEntity(entity);
 
-            //Проверка доступа к данным todo organization chech
-//            if (!osznSessionBean.isAuthorized(correction.getOrganizationId(), correction.getUserOrganizationId())) {
-//                throw new UnauthorizedInstantiationException(this.getClass());
-//            }
-        }
+        this.correctionId = correctionId;
+
+        correction = isNew() ? newCorrection() : getCorrection(correctionId);
 
         init();
     }
@@ -76,23 +66,16 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
         return correctionId == null;
     }
 
-    protected Correction initObjectCorrection(String entity, Long correctionId) {
-        return correctionBean.findById(entity, correctionId);
-    }
+    protected abstract T getCorrection(Long correctionId);
 
-    protected Correction newObjectCorrection(String entity) {
-        Correction c = new Correction(entity);
-        c.setUserOrganizationId(sessionBean.getCurrentUserOrganizationId(getSession()));
-
-        return c;
-    }
+    protected abstract T newCorrection();
 
     @Override
     public TemplateSession getSession() {
         return (TemplateSession) super.getSession();
     }
 
-    protected Correction getModel() {
+    protected T getCorrection() {
         return correction;
     }
 
@@ -120,12 +103,12 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
 
     protected final boolean validate() {
         boolean valid = preValidate();
-        if (checkCorrectionEmptiness() && Strings.isEmpty(getModel().getCorrection())) {
+        if (checkCorrectionEmptiness() && Strings.isEmpty(getCorrection().getCorrection())) {
             error(getNullCorrectionErrorMessage());
             valid = false;
         }
 
-        if (getModel().getObjectId() == null) {
+        if (getCorrection().getObjectId() == null) {
             error(getNullObjectErrorMessage());
             valid = false;
         }
@@ -166,9 +149,7 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
         return true;
     }
 
-    protected boolean validateExistence() {
-        return correctionBean.checkExistence(getModel());
-    }
+    protected abstract boolean validateExistence();
 
     protected void back(boolean useScrolling) {
         PageParameters backPageParameters = getBackPageParameters();
@@ -189,31 +170,9 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
 
     protected abstract PageParameters getBackPageParameters();
 
-    protected void saveOrUpdate() {
-        try {
-            if (isNew()) {
-                save();
-            } else {
-                update();
-            }
-            back(true);
-        } catch (Exception e) {
-            error(getString("db_error"));
-            log.error("", e);
-        }
-    }
+    protected abstract void save();
 
-    protected void save() {
-        correctionBean.insert(correction);
-    }
-
-    protected void update() {
-        correctionBean.update(correction);
-    }
-
-    protected void delete() {
-        correctionBean.delete(correction);
-    }
+    protected abstract void delete();
 
     public void executeDeletion() {
         try {
@@ -234,7 +193,7 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
     }
 
     protected Panel getCorrectionInputPanel(String id) {
-        return new DefaultCorrectionInputPanel(id, new PropertyModel<String>(getModel(), "correction"));
+        return new DefaultCorrectionInputPanel(id, new PropertyModel<String>(getCorrection(), "correction"));
     }
 
     protected abstract IModel<String> getTitleModel();
@@ -257,7 +216,7 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
 
         codeRequiredContainer.setVisible(isOrganizationCodeRequired);
 
-        TextField<String> code = new TextField<String>("code", new PropertyModel<String>(correction, "code"));
+        TextField<String> code = new TextField<>("code", new PropertyModel<String>(correction, "code"));
         code.setRequired(isOrganizationCodeRequired);
 
         form.add(code);
@@ -294,7 +253,7 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
                 return organizationStrategy.displayDomainObject(object, getLocale());
             }
         };
-        final DisableAwareDropDownChoice<DomainObject> organization = new DisableAwareDropDownChoice<DomainObject>("organization",
+        final DisableAwareDropDownChoice<DomainObject> organization = new DisableAwareDropDownChoice<>("organization",
                 outerOrganizationModel, allOuterOrganizationsModel, organizationRenderer);
         if (freezeOrganization()) {
             organization.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -339,7 +298,7 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
                 return allUserOrganizationsModel.getObject();
             }
         };
-        final DisableAwareDropDownChoice<DomainObject> userOrganization = new DisableAwareDropDownChoice<DomainObject>("userOrganization",
+        final DisableAwareDropDownChoice<DomainObject> userOrganization = new DisableAwareDropDownChoice<>("userOrganization",
                 userOrganizationModel, allUserOrganizationsModel, organizationRenderer);
         userOrganization.setNullValid(true);
         userOrganization.setEnabled(isNew() && sessionBean.isAdmin());
@@ -367,7 +326,7 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
                 return internalOrganizations;
             }
         };
-        DisableAwareDropDownChoice<DomainObject> internalOrganization = new DisableAwareDropDownChoice<DomainObject>("internalOrganization",
+        DisableAwareDropDownChoice<DomainObject> internalOrganization = new DisableAwareDropDownChoice<>("internalOrganization",
                 internalOrganizationModel, internalOrganizations, organizationRenderer);
         internalOrganization.setEnabled(false);
         form.add(internalOrganization);
@@ -391,7 +350,7 @@ public abstract class AbstractCorrectionEditPanel extends Panel {
             @Override
             public void onSubmit() {
                 if (AbstractCorrectionEditPanel.this.validate()) {
-                    saveOrUpdate();
+                    save();
                 }
             }
         };

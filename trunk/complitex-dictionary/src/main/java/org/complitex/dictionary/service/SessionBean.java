@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.entity.DomainObject;
+import org.complitex.dictionary.entity.FilterWrapper;
 import org.complitex.dictionary.entity.UserGroup.GROUP_NAME;
 import org.complitex.dictionary.mybatis.Transactional;
 import org.complitex.dictionary.service.exception.WrongCurrentPasswordException;
@@ -286,6 +287,15 @@ public class SessionBean extends AbstractBean {
     }
 
     public void prepareFilterForPermissionCheck(AbstractFilter filter) {
+        filter.setAdmin(isAdmin());
+
+        if (!isAdmin()) {
+            filter.setOuterOrganizationsString(getAllOuterOrganizationsString());
+            filter.setUserOrganizationsString(getCurrentUserOrganizationsString());
+        }
+    }
+
+    public void prepareFilterForPermissionCheck(FilterWrapper filter) {
         filter.setAdmin(isAdmin());
 
         if (!isAdmin()) {

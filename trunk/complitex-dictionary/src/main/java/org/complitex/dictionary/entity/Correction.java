@@ -1,4 +1,4 @@
-package org.complitex.correction.entity;
+package org.complitex.dictionary.entity;
 
 import org.complitex.dictionary.util.DateUtil;
 
@@ -9,11 +9,29 @@ import java.util.Date;
  * Объект коррекции
  * @author Artem
  */
-public class Correction implements Serializable {
+public abstract class Correction implements Serializable {
+    public static enum OrderBy {
+        CORRECTION("correction"),
+        EXTERNAL_ID("external_id"),
+        ORGANIZATION("organization"),
+        MODULE("module"),
+        OBJECT("object"),
+        USER_ORGANIZATION("userOrganization");
+
+        private String orderBy;
+
+        private OrderBy(String orderBy) {
+            this.orderBy = orderBy;
+        }
+
+        public String getOrderBy() {
+            return orderBy;
+        }
+    }
+
     private Long id;
-    private Long parentId;
-    private Long objectId;
     private String externalId;
+    private Long objectId;
     private String correction;
     private Date beginDate = DateUtil.MIN_BEGIN_DATE;
     private Date endDate = DateUtil.MAX_END_DATE;
@@ -21,13 +39,13 @@ public class Correction implements Serializable {
     private Long userOrganizationId;
     private Long moduleId;
 
+    private Long parentObjectId;
+
     //todo correction status
 
     private String organization;
     private String userOrganization;
-    private Long internalParentId;
-
-    private String entity;
+    private String internalObject;
 
     private String displayObject;
     private String module;
@@ -36,11 +54,19 @@ public class Correction implements Serializable {
 
     private Correction parent;
 
-    public Correction() {
+    public abstract String getEntity();
+
+    protected Correction() {
     }
 
-    public Correction(String entity) {
-        this.entity = entity;
+    public Correction(String externalId, Long objectId, String correction, Long organizationId, Long userOrganizationId,
+                      Long moduleId) {
+        this.externalId = externalId;
+        this.objectId = objectId;
+        this.correction = correction;
+        this.organizationId = organizationId;
+        this.userOrganizationId = userOrganizationId;
+        this.moduleId = moduleId;
     }
 
     public Long getId() {
@@ -49,14 +75,6 @@ public class Correction implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Long getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(Long parentId) {
-        this.parentId = parentId;
     }
 
     public Long getObjectId() {
@@ -115,6 +133,14 @@ public class Correction implements Serializable {
         this.moduleId = moduleId;
     }
 
+    public Long getParentObjectId() {
+        return parentObjectId;
+    }
+
+    public void setParentObjectId(Long parentObjectId) {
+        this.parentObjectId = parentObjectId;
+    }
+
     public String getOrganization() {
         return organization;
     }
@@ -131,12 +157,12 @@ public class Correction implements Serializable {
         this.userOrganization = userOrganization;
     }
 
-    public Long getInternalParentId() {
-        return internalParentId;
+    public String getInternalObject() {
+        return internalObject;
     }
 
-    public void setInternalParentId(Long internalParentId) {
-        this.internalParentId = internalParentId;
+    public void setInternalObject(String internalObject) {
+        this.internalObject = internalObject;
     }
 
     public Long getUserOrganizationId() {
@@ -145,14 +171,6 @@ public class Correction implements Serializable {
 
     public void setUserOrganizationId(Long userOrganizationId) {
         this.userOrganizationId = userOrganizationId;
-    }
-
-    public String getEntity() {
-        return entity;
-    }
-
-    public void setEntity(String entity) {
-        this.entity = entity;
     }
 
     public String getDisplayObject() {

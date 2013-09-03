@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.complitex.correction.service.CorrectionBean">
-
-    <resultMap id="correction" type="org.complitex.correction.entity.Correction">
+<mapper namespace="org.complitex.dictionary.entity.Correction">
+    <resultMap id="correction" type="org.complitex.dictionary.entity.Correction">
         <result column="id" property="id"/>
         <result column="parent_id" property="parentId"/>
         <result column="external_id" property="externalId"/>
@@ -20,16 +19,51 @@
         <result column="userOrganization" property="userOrganization"/>
     </resultMap>
 
-    <insert id="insert" parameterType="org.complitex.correction.entity.Correction"
+    <insert id="insertCorrection" parameterType="org.complitex.dictionary.entity.Correction"
             keyProperty="id" useGeneratedKeys="true">
-        INSERT INTO `${entity}_correction`
-            (`parent_id`, `external_id`, `object_id`, `correction`, `begin_date`, `end_date`, `organization_id`,
-              `user_organization_id`, `module_id`)
-         VALUES
-            (#{parentId}, #{externalId}, #{objectId}, #{correction}, #{beginDate}, #{endDate}, #{organizationId},
-              #{userOrganizationId}, #{moduleId})
+        insert into `${entity}_correction` (`parent_id`, `external_id`, `object_id`, `correction`,
+          `begin_date`, `end_date`, `organization_id`, `user_organization_id`, `module_id`)
+            values (#{parentId}, #{externalId}, #{objectId}, #{correction}, #{beginDate}, #{endDate},
+              #{organizationId}, #{userOrganizationId}, #{moduleId})
     </insert>
 
+    <update id="updateCorrection" parameterType="org.complitex.dictionary.entity.Correction">
+        update `${entity}_correction` set `organization_id` = #{organizationId}, `correction` = #{correction},
+            `object_id` = #{objectId}, `external_id` = #{externalId}, `parent_id` = #{parentId},
+            `user_organization_id` = #{userOrganizationId}, `begin_date` = #{beginDate}, `end_date` = #{endDate}
+        where `id` = #{id}
+    </update>
+
+    <delete id="deleteCorrection" parameterType="org.complitex.dictionary.entity.Correction">
+        delete from `${entity}_correction` where `id` = #{id}
+    </delete>
+
+    <sql id="selectCorrectionWhereIf">
+        <if test="object.objectId != null">c.`object_id` = #{object.objectId}</if>
+        <if test="object.correction != null">
+            <choose>
+                <when test="not like">and c.`correction` = #{object.correction}</when>
+                <otherwise>and c.`correction` like concat('%', #{object.correction},'%')</otherwise>
+            </choose>
+        </if>
+        <if test="object.organizationId != null">and c.`organization_id` = #{object.organizationId}</if>
+        <if test="object.userOrganizationId != null">and c.`user_organization_id` = #{object.userOrganizationId}</if>
+        <if test="userOrganizationsString != null">and c.`user_organization_id` in #{userOrganizationsString}</if>
+    </sql>
+
+    <sql id="selectCorrectionOrderLimit">
+        <if test="sortProperty != null">order by #{sortProperty} #{asc}</if>
+        <if test="count > 0">limit #{first}, #{count}</if>
+    </sql>
+
+    <sql id="selectCorrectionWhere">
+        <where>
+            <include refid="org.complitex.dictionary.entity.Correction.selectCorrectionWhereIf"/>
+        </where>
+        <include refid="org.complitex.dictionary.entity.Correction.selectCorrectionOrderLimit"/>
+    </sql>
+
+    <!--deprecated-->
     <sql id="filter">
         <where>
             <if test="internalObject != null">
@@ -65,17 +99,17 @@
 
     <sql id="join">
         left join `organization_attribute` oa on (oa.`object_id` = c.`organization_id`
-            and oa.`status` = 'ACTIVE' and oa.`attribute_type_id` = 900)
+        and oa.`status` = 'ACTIVE' and oa.`attribute_type_id` = 900)
         left join `organization_string_culture` osc on (osc.`id` = oa.`value_id` and osc.`locale_id` = #{localeId})
         LEFT JOIN `organization_string_culture` osc_sys ON (osc_sys.`id` = oa.`value_id` and osc_sys.`locale_id` = (SELECT l.`id` FROM `locales` l WHERE l.`system` = 1))
 
         left join `organization_attribute` oa_i on (oa_i.`object_id` = c.`module_id`
-            and oa_i.`status` = 'ACTIVE' and oa_i.`attribute_type_id` = 900)
+        and oa_i.`status` = 'ACTIVE' and oa_i.`attribute_type_id` = 900)
         left join `organization_string_culture` osc_i on (osc_i.`id` = oa_i.`value_id` and osc_i.`locale_id` = #{localeId})
         LEFT JOIN `organization_string_culture` osc_i_sys ON (osc_i_sys.`id` = oa_i.`value_id` and osc_i_sys.`locale_id` = (SELECT l.`id` FROM `locales` l WHERE l.`system` = 1))
-        
+
         left join `organization_attribute` uoa on (uoa.`object_id` = c.`user_organization_id`
-            and uoa.`status` = 'ACTIVE' and uoa.`attribute_type_id` = 900)
+        and uoa.`status` = 'ACTIVE' and uoa.`attribute_type_id` = 900)
         left join `organization_string_culture` uosc on (uosc.`id` = uoa.`value_id` and uosc.`locale_id` = #{localeId})
         LEFT JOIN `organization_string_culture` uosc_sys ON (uosc_sys.`id` = uoa.`value_id` and uosc_sys.`locale_id` = (SELECT l.`id` FROM `locales` l WHERE l.`system` = 1))
 
@@ -97,8 +131,8 @@
 
     <sql id="find">
         SELECT
-            distinct c.*, IFNULL(osc.`value`, osc_sys.`value`) organization, IFNULL(osc_i.`value`, osc_i_sys.`value`) module,
-            IFNULL(uosc.`value`, uosc_sys.`value`) userOrganization
+        distinct c.*, IFNULL(osc.`value`, osc_sys.`value`) organization, IFNULL(osc_i.`value`, osc_i_sys.`value`) module,
+        IFNULL(uosc.`value`, uosc_sys.`value`) userOrganization
         FROM `${entity}_correction` c
 
         <include refid="org.complitex.correction.service.CorrectionBean.join"/>
@@ -110,13 +144,13 @@
             <choose>
                 <when test="orderByClause == 'object'">
                     <if test="parentEntity != null">
-                        psc.`value` <include refid="org.complitex.correction.service.CorrectionBean.asc"/>,
+                        psc.`value` <include refid="org.complitex.dictionary.service.CorrectionBean.asc"/>,
                     </if>
                     esc.`value`
                 </when>
                 <when test="orderByClause == 'correction'">
                     <if test="parentEntity != null">
-                        ec.`correction` <include refid="org.complitex.correction.service.CorrectionBean.asc"/>,
+                        ec.`correction` <include refid="org.complitex.dictionary.service.CorrectionBean.asc"/>,
                     </if>
                     c.`correction`
                 </when>
@@ -128,83 +162,11 @@
                 </otherwise>
             </choose>
 
-            <include refid="org.complitex.correction.service.CorrectionBean.asc"/>
+            <include refid="org.complitex.dictionary.service.CorrectionBean.asc"/>
         </if>
 
         LIMIT #{start},#{size}
     </sql>
 
-    <select id="find" parameterType="org.complitex.correction.entity.CorrectionExample"
-            resultMap="correction">
-        <include refid="org.complitex.correction.service.CorrectionBean.find"/>
-    </select>
 
-    <sql id="asc">
-        <choose><when test="asc">ASC</when><otherwise>DESC</otherwise></choose>
-    </sql>
-
-    <select id="count" resultType="int" parameterType="org.complitex.correction.entity.CorrectionExample">
-        SELECT COUNT(distinct c.`id`) FROM `${entity}_correction` c
-        <include refid="org.complitex.correction.service.CorrectionBean.join"/>
-        <include refid="org.complitex.correction.service.CorrectionBean.filter"/>
-    </select>
-
-    <select id="findById" parameterType="map" resultMap="correction">
-        SELECT * FROM `${entity}_correction` c WHERE c.`id` = #{id}
-    </select>
-
-    <select id="findByObjectId" parameterType="map" resultType="long">
-        SELECT c.`id` FROM `${entity}_correction` c
-        WHERE c.`object_id` = #{objectId} and `organization_id` = #{organizationId}
-            and `module_id` = #{moduleId} limit 1
-    </select>
-
-    <update id="update" parameterType="org.complitex.correction.entity.Correction">
-        UPDATE `${entity}_correction` SET `organization_id` = #{organizationId}, `correction` = #{correction},
-            `object_id` = #{objectId}, `external_id` = #{externalId}, `parent_id` = #{parentId},
-            `user_organization_id` = #{userOrganizationId}, `begin_date` = #{beginDate}, `end_date` = #{endDate}
-        WHERE `id` = #{id}
-    </update>
-
-    <delete id="delete" parameterType="org.complitex.correction.entity.Correction">
-        DELETE FROM `${entity}_correction` WHERE `id` = #{id}
-    </delete>
-
-    <select id="checkExistence" resultType="int" parameterType="org.complitex.correction.entity.Correction">
-        SELECT COUNT(1) FROM `${entity}_correction` WHERE
-        <if test="id != null">
-            `id` != #{id} AND
-        </if>
-        `object_id` = #{objectId} AND `module_id` = #{moduleId}
-        AND
-        <choose>
-            <when test="parentId != null">
-                `parent_id` = #{parentId}
-            </when>
-            <otherwise>
-                `parent_id` IS NULL
-            </otherwise>
-        </choose>
-        AND `correction` = #{correction} AND `organization_id` = #{organizationId}
-        
-        AND `user_organization_id`
-        <choose>
-            <when test="userOrganizationId != null">
-                = #{userOrganizationId}
-            </when>
-            <otherwise>
-                IS NULL
-            </otherwise>
-        </choose>
-        
-        AND
-        <choose>
-            <when test="code != null">
-                `external_id` = #{externalId}
-            </when>
-            <otherwise>
-                `external_id` IS NULL
-            </otherwise>
-        </choose>
-    </select>
 </mapper>
