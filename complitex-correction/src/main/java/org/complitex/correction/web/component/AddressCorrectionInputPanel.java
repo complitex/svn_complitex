@@ -12,10 +12,12 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.address.util.AddressRenderer;
-import org.complitex.correction.entity.Correction;
-import org.complitex.correction.entity.CorrectionExample;
+import org.complitex.correction.entity.CityCorrection;
 import org.complitex.correction.entity.StreetCorrection;
+import org.complitex.correction.entity.StreetTypeCorrection;
 import org.complitex.correction.service.AddressCorrectionBean;
+import org.complitex.dictionary.entity.Correction;
+import org.complitex.dictionary.entity.FilterWrapper;
 import org.complitex.dictionary.service.EntityBean;
 import org.complitex.dictionary.service.StringCultureBean;
 import org.odlabs.wiquery.ui.autocomplete.AutocompleteAjaxComponent;
@@ -51,7 +53,6 @@ public class AddressCorrectionInputPanel extends Panel {
             return String.valueOf(object.getId());
         }
     }
-    private static final int AUTO_COMPLETE_SIZE = 10;
 
     public AddressCorrectionInputPanel(String id, final Correction correction) {
         super(id);
@@ -102,7 +103,7 @@ public class AddressCorrectionInputPanel extends Panel {
         final WebMarkupContainer districtContainer = new WebMarkupContainer("districtContainer");
         districtContainer.setVisible(isDistrict);
         add(districtContainer);
-        districtContainer.add(new TextField<String>("district", new PropertyModel<String>(correction, "correction")).setOutputMarkupId(true));
+        districtContainer.add(new TextField<>("district", new PropertyModel<String>(correction, "correction")).setOutputMarkupId(true));
 
         final WebMarkupContainer streetContainer = new WebMarkupContainer("streetContainer");
         streetContainer.setVisible(isStreet || isBuilding);
@@ -112,25 +113,25 @@ public class AddressCorrectionInputPanel extends Panel {
         buildingContainer.setVisible(isBuilding);
         add(buildingContainer);
 
-        final IModel<Correction> cityModel = new Model<Correction>();
+        final IModel<CityCorrection> cityModel = new Model<>();
 
-        add(new AutocompleteAjaxComponent<Correction>("city", cityModel, new CorrectionRenderer<Correction>()) {
+        add(new AutocompleteAjaxComponent<CityCorrection>("city", cityModel, new CorrectionRenderer<CityCorrection>()) {
 
             {
                 setAutoUpdate(true);
             }
 
             @Override
-            public List<Correction> getValues(String term) {
+            public List<CityCorrection> getValues(String term) {
                 if (correction.getOrganizationId() != null) {
-                    CorrectionExample example = createExample(term, correction.getOrganizationId(), null);
-                    return addressCorrectionBean.findCityCorrections(example, correction.getUserOrganizationId());
+                    return addressCorrectionBean.getCityCorrections(FilterWrapper.of(new CityCorrection(null, null, term,
+                            correction.getOrganizationId(), correction.getUserOrganizationId(), correction.getModuleId())));
                 }
                 return Collections.emptyList();
             }
 
             @Override
-            public Correction getValueOnSearchFail(String input) {
+            public CityCorrection getValueOnSearchFail(String input) {
                 return null;
             }
 
@@ -138,7 +139,6 @@ public class AddressCorrectionInputPanel extends Panel {
             protected void onUpdate(AjaxRequestTarget target) {
                 if (isStreet || isDistrict) {
                     Long cityId = cityModel.getObject() != null ? cityModel.getObject().getId() : null;
-                    correction.setParentId(cityId);
                 }
 
                 if (districtContainer.isVisible()) {
@@ -149,18 +149,19 @@ public class AddressCorrectionInputPanel extends Panel {
             }
         });
 
-        final IModel<List<Correction>> allStreetTypeCorrectionsModel = new AbstractReadOnlyModel<List<Correction>>() {
+        final IModel<List<StreetTypeCorrection>> allStreetTypeCorrectionsModel = new AbstractReadOnlyModel<List<StreetTypeCorrection>>() {
 
-            List<Correction> streetTypeCorrections;
+            List<StreetTypeCorrection> streetTypeCorrections;
 
             @Override
-            public List<Correction> getObject() {
+            public List<StreetTypeCorrection> getObject() {
                 if (correction.getOrganizationId() != null) {
                     if (streetTypeCorrections == null) {
                         streetTypeCorrections =
-                                addressCorrectionBean.findStreetTypeCorrections(correction.getOrganizationId(),
-                                correction.getUserOrganizationId());
+                                addressCorrectionBean.getStreetTypeCorrections(FilterWrapper.of(new StreetTypeCorrection(
+                                        null, null, null, correction.getOrganizationId(), correction.getUserOrganizationId(), null)));
                     }
+
                     return streetTypeCorrections;
                 } else {
                     return Collections.emptyList();
@@ -175,7 +176,7 @@ public class AddressCorrectionInputPanel extends Panel {
             }
         };
 
-        final DropDownChoice<Correction> streetType = new DropDownChoice<Correction>("streetType", streetTypeModel, allStreetTypeCorrectionsModel,
+        final DropDownChoice<Correction> streetType = new DropDownChoice<>("streetType", streetTypeModel, allStreetTypeCorrectionsModel,
                 new ChoiceRenderer<Correction>("correction", "id"));
         streetType.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
@@ -222,9 +223,10 @@ public class AddressCorrectionInputPanel extends Panel {
                 public List<StreetCorrection> getValues(String term) {
                     Correction cityCorrection = cityModel.getObject();
                     if (cityCorrection != null && correction.getOrganizationId() != null) {
-                        CorrectionExample example = createExample(term, correction.getOrganizationId(), cityCorrection.getId());
-
-                        return addressCorrectionBean.findStreetCorrections(example, correction.getUserOrganizationId());
+                        return addressCorrectionBean.getStreetCorrections(FilterWrapper.of(
+                                new StreetCorrection(null, null, term,
+                                        correction.getOrganizationId(), correction.getUserOrganizationId(),
+                                        correction.getModuleId())));
                     }
                     return Collections.emptyList();
                 }
@@ -237,7 +239,6 @@ public class AddressCorrectionInputPanel extends Panel {
                 @Override
                 protected void onUpdate(AjaxRequestTarget target) {
                     Long streetId = streetModel.getObject() != null ? streetModel.getObject().getId() : null;
-                    correction.setParentId(streetId);
 
                     if (buildingContainer.isVisible()) {
                         target.focusComponent(buildingContainer.get(0));
@@ -251,12 +252,12 @@ public class AddressCorrectionInputPanel extends Panel {
                 public List<String> getValues(String term) {
                     Correction cityCorrection = cityModel.getObject();
                     if (cityCorrection != null && correction.getOrganizationId() != null) {
-                        CorrectionExample example = createExample(term, correction.getOrganizationId(), cityCorrection.getId());
+                        List<String> list = new ArrayList<>();
 
-                        List<String> list = new ArrayList<String>();
-
-                        for (StreetCorrection c : addressCorrectionBean.findStreetCorrections(example,
-                                correction.getUserOrganizationId())) {
+                        for (StreetCorrection c : addressCorrectionBean.getStreetCorrections(FilterWrapper.of(
+                                new StreetCorrection(null, null, term,
+                                        correction.getOrganizationId(), correction.getUserOrganizationId(),
+                                        correction.getModuleId())))) {
                             list.add(c.getCorrection());
                         }
 
@@ -274,18 +275,9 @@ public class AddressCorrectionInputPanel extends Panel {
         streetContainer.add(streetType);
         streetContainer.add(street);
 
-        TextField<String> building = new TextField<String>("building", new PropertyModel<String>(correction, "correction"));
+        TextField<String> building = new TextField<>("building", new PropertyModel<String>(correction, "correction"));
         building.setOutputMarkupId(true);
         buildingContainer.add(building);
-        buildingContainer.add(new TextField<String>("buildingCorp", new PropertyModel<String>(correction, "correctionCorp")));
-    }
-
-    private CorrectionExample createExample(String correction, long organizationId, Long parentId) {
-        CorrectionExample example = new CorrectionExample();
-        example.setCorrection(correction);
-        example.setOrganizationId(organizationId);
-        example.setParentId(parentId);
-        example.setSize(AUTO_COMPLETE_SIZE);
-        return example;
+        buildingContainer.add(new TextField<>("buildingCorp", new PropertyModel<String>(correction, "correctionCorp")));
     }
 }

@@ -14,12 +14,15 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.address.util.AddressRenderer;
 import org.complitex.correction.entity.BuildingCorrection;
-import org.complitex.correction.entity.Correction;
+import org.complitex.correction.entity.CityCorrection;
+import org.complitex.correction.entity.DistrictCorrection;
 import org.complitex.correction.entity.StreetCorrection;
 import org.complitex.correction.service.AddressCorrectionBean;
 import org.complitex.correction.web.component.AbstractCorrectionEditPanel;
 import org.complitex.correction.web.component.AddressCorrectionInputPanel;
+import org.complitex.dictionary.entity.Correction;
 import org.complitex.dictionary.entity.DomainObject;
+import org.complitex.dictionary.entity.FilterWrapper;
 import org.complitex.dictionary.service.SessionBean;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.IStrategy.SimpleObjectInfo;
@@ -76,13 +79,13 @@ public class AddressCorrectionEdit extends FormTemplatePage {
     /**
      * Стандартная панель редактирования коррекции элемента адреса.
      */
-    private abstract class AddressCorrectionEditPanel extends AbstractCorrectionEditPanel {
+    private abstract class AddressCorrectionEditPanel<T extends Correction> extends AbstractCorrectionEditPanel<T> {
 
         @EJB
         private AddressCorrectionBean addressCorrectionBean;
 
-        private AddressCorrectionEditPanel(String id, String entity, Long correctionId) {
-            super(id, entity, correctionId);
+        private AddressCorrectionEditPanel(String id, Long correctionId) {
+            super(id, correctionId);
         }
 
         @Override
@@ -92,7 +95,7 @@ public class AddressCorrectionEdit extends FormTemplatePage {
 
         @Override
         protected Panel internalObjectPanel(String id) {
-            Correction correction = getModel();
+            Correction correction = getCorrection();
             String entity = correction.getEntity();
             SearchComponentState componentState = new SearchComponentState();
             if (!isNew()) {
@@ -127,31 +130,39 @@ public class AddressCorrectionEdit extends FormTemplatePage {
         }
 
         @Override
-        protected boolean validateExistence() {
-            return addressCorrectionBean.checkAddressExistence(getModel());
-        }
+        protected abstract boolean validateExistence();
     }
 
     /**
      * Панель редактирования коррекции населенного пункта.
      */
-    private class CityCorrectionEditPanel extends AddressCorrectionEditPanel {
+    private class CityCorrectionEditPanel extends AddressCorrectionEditPanel<CityCorrection> {
 
         @EJB
         private AddressCorrectionBean addressCorrectionBean;
 
         private CityCorrectionEditPanel(String id, Long correctionId) {
-            super(id, "city", correctionId);
+            super(id, correctionId);
         }
 
         @Override
-        protected Correction initObjectCorrection(String entity, Long correctionId) {
-            return addressCorrectionBean.findCityCorrectionById(correctionId);
+        protected CityCorrection getCorrection(Long correctionId) {
+            return addressCorrectionBean.getCityCorrection(correctionId);
+        }
+
+        @Override
+        protected CityCorrection newCorrection() {
+            return new CityCorrection();
         }
 
         @Override
         protected List<String> getSearchFilters() {
             return ImmutableList.of("city");
+        }
+
+        @Override
+        protected boolean validateExistence() {
+            return addressCorrectionBean.getCityCorrectionsCount(FilterWrapper.of(getCorrection())) > 0;
         }
 
         @Override
@@ -163,28 +174,48 @@ public class AddressCorrectionEdit extends FormTemplatePage {
         protected Class<? extends Page> getBackPageClass() {
             return CityCorrectionList.class;
         }
+
+        @Override
+        protected void save() {
+            addressCorrectionBean.save(getCorrection());
+        }
+
+        @Override
+        protected void delete() {
+            addressCorrectionBean.delete(getCorrection());
+        }
     }
 
     /**
      * Панель редактирования коррекции района.
      */
-    private class DistrictCorrectionEditPanel extends AddressCorrectionEditPanel {
+    private class DistrictCorrectionEditPanel extends AddressCorrectionEditPanel<DistrictCorrection> {
 
         @EJB
         private AddressCorrectionBean addressCorrectionBean;
 
         private DistrictCorrectionEditPanel(String id, Long correctionId) {
-            super(id, "district", correctionId);
+            super(id, correctionId);
         }
 
         @Override
-        protected Correction initObjectCorrection(String entity, Long correctionId) {
-            return addressCorrectionBean.findDistrictCorrectionById(correctionId);
+        protected DistrictCorrection getCorrection(Long correctionId) {
+            return addressCorrectionBean.getDistrictCorrection(correctionId);
+        }
+
+        @Override
+        protected DistrictCorrection newCorrection() {
+            return new DistrictCorrection();
         }
 
         @Override
         protected List<String> getSearchFilters() {
             return ImmutableList.of("city", "district");
+        }
+
+        @Override
+        protected boolean validateExistence() {
+            return addressCorrectionBean.getDistrictCorrectionsCount(FilterWrapper.of(getCorrection())) > 0;
         }
 
         @Override
@@ -198,13 +229,23 @@ public class AddressCorrectionEdit extends FormTemplatePage {
         }
 
         @Override
+        protected void save() {
+            addressCorrectionBean.save(getCorrection());
+        }
+
+        @Override
+        protected void delete() {
+            addressCorrectionBean.delete(getCorrection());
+        }
+
+        @Override
         protected boolean checkCorrectionEmptiness() {
             return false;
         }
 
         @Override
         protected boolean preValidate() {
-            if (Strings.isEmpty(getModel().getCorrection()) || getModel().getParentId() == null) {
+            if (Strings.isEmpty(getCorrection().getCorrection())) {
                 error(getString("correction_required"));
                 return false;
             }
@@ -213,7 +254,7 @@ public class AddressCorrectionEdit extends FormTemplatePage {
 
         @Override
         protected String displayCorrection() {
-            Correction correction = getModel();
+            Correction correction = getCorrection();
             String city = null;
             if (correction.getParent() != null) {
                 city = correction.getParent().getCorrection();
@@ -223,7 +264,7 @@ public class AddressCorrectionEdit extends FormTemplatePage {
 
         @Override
         protected Panel getCorrectionInputPanel(String id) {
-            return new AddressCorrectionInputPanel(id, getModel());
+            return new AddressCorrectionInputPanel(id, getCorrection());
         }
 
         @Override
@@ -235,7 +276,7 @@ public class AddressCorrectionEdit extends FormTemplatePage {
     /**
      * Панель редактирования коррекции улицы.
      */
-    private class StreetCorrectionEditPanel extends AddressCorrectionEditPanel {
+    private class StreetCorrectionEditPanel extends AddressCorrectionEditPanel<StreetCorrection> {
         @EJB
         private AddressCorrectionBean addressCorrectionBean;
 
@@ -243,29 +284,22 @@ public class AddressCorrectionEdit extends FormTemplatePage {
         private SessionBean sessionBean;
 
         private StreetCorrectionEditPanel(String id, Long correctionId) {
-            super(id, "street", correctionId);
+            super(id, correctionId);
         }
 
         @Override
-        protected StreetCorrection getModel() {
-            return (StreetCorrection) super.getModel();
+        protected StreetCorrection getCorrection(Long correctionId) {
+            return addressCorrectionBean.getStreetCorrection(correctionId);
         }
 
         @Override
-        protected StreetCorrection newObjectCorrection(String entity) {
-            StreetCorrection c = new StreetCorrection();
-            c.setUserOrganizationId(sessionBean.getCurrentUserOrganizationId(getTemplateSession()));
-            return c;
-        }
-
-        @Override
-        protected StreetCorrection initObjectCorrection(String entity, Long correctionId) {
-            return addressCorrectionBean.findStreetCorrectionById(correctionId);
+        protected StreetCorrection newCorrection() {
+            return new StreetCorrection();
         }
 
         @Override
         protected String displayCorrection() {
-            StreetCorrection correction = getModel();
+            StreetCorrection correction = getCorrection();
 
             String city = null;
             if (correction.getParent() != null) {
@@ -288,27 +322,22 @@ public class AddressCorrectionEdit extends FormTemplatePage {
 
         @Override
         protected void save() {
-            addressCorrectionBean.insertStreet(getModel());
-        }
-
-        @Override
-        protected void update() {
-            addressCorrectionBean.updateStreet(getModel());
+            addressCorrectionBean.save(getCorrection());
         }
 
         @Override
         protected void delete() {
-            addressCorrectionBean.delete(getModel());
+            addressCorrectionBean.delete(getCorrection());
         }
 
         @Override
         protected boolean validateExistence() {
-            return addressCorrectionBean.checkStreetExistence(getModel());
+            return addressCorrectionBean.getStreetCorrectionsCount(FilterWrapper.of(getCorrection())) > 0;
         }
 
         @Override
         protected Panel getCorrectionInputPanel(String id) {
-            return new AddressCorrectionInputPanel(id, getModel());
+            return new AddressCorrectionInputPanel(id, getCorrection());
         }
 
         @Override
@@ -328,7 +357,7 @@ public class AddressCorrectionEdit extends FormTemplatePage {
 
         @Override
         protected boolean preValidate() {
-            if (Strings.isEmpty(getModel().getCorrection()) || getModel().getParentId() == null) {
+            if (Strings.isEmpty(getCorrection().getCorrection())) {
                 error(getString("correction_required"));
                 return false;
             }
@@ -344,7 +373,7 @@ public class AddressCorrectionEdit extends FormTemplatePage {
     /**
      * Панель редактирования коррекции дома.
      */
-    private class BuildingCorrectionEditPanel extends AddressCorrectionEditPanel {
+    private class BuildingCorrectionEditPanel extends AddressCorrectionEditPanel<BuildingCorrection> {
 
         @EJB
         private AddressCorrectionBean addressCorrectionBean;
@@ -352,29 +381,22 @@ public class AddressCorrectionEdit extends FormTemplatePage {
         private SessionBean sessionBean;
 
         private BuildingCorrectionEditPanel(String id, Long correctionId) {
-            super(id, "building", correctionId);
+            super(id, correctionId);
         }
 
         @Override
-        protected BuildingCorrection getModel() {
-            return (BuildingCorrection) super.getModel();
+        protected BuildingCorrection getCorrection(Long correctionId) {
+            return addressCorrectionBean.getBuildingCorrection(correctionId);
         }
 
         @Override
-        protected BuildingCorrection initObjectCorrection(String entity, Long correctionId) {
-            return addressCorrectionBean.findBuildingCorrectionById(correctionId);
-        }
-
-        @Override
-        protected BuildingCorrection newObjectCorrection(String entity) {
-            BuildingCorrection c = new BuildingCorrection();
-            c.setUserOrganizationId(sessionBean.getCurrentUserOrganizationId(getTemplateSession()));
-            return c;
+        protected BuildingCorrection newCorrection() {
+            return new BuildingCorrection();
         }
 
         @Override
         protected String displayCorrection() {
-            BuildingCorrection correction = getModel();
+            BuildingCorrection correction = getCorrection();
 
             String city = null;
             String street = null;
@@ -382,8 +404,8 @@ public class AddressCorrectionEdit extends FormTemplatePage {
                 city = correction.getParent().getParent().getCorrection();
                 street = correction.getParent().getCorrection();
             }
-            return AddressRenderer.displayAddress(null, city, null, street, correction.getCorrection(), correction.getCorrectionCorp(), null,
-                    getLocale());
+            return AddressRenderer.displayAddress(null, city, null, street, correction.getCorrection(),
+                    correction.getCorrectionCorp(), null, getLocale());
         }
 
         @Override
@@ -393,27 +415,22 @@ public class AddressCorrectionEdit extends FormTemplatePage {
 
         @Override
         protected void save() {
-            addressCorrectionBean.insertBuilding(getModel());
-        }
-
-        @Override
-        protected void update() {
-            addressCorrectionBean.updateBuilding(getModel());
+            addressCorrectionBean.save(getCorrection());
         }
 
         @Override
         protected void delete() {
-            addressCorrectionBean.delete(getModel());
+            addressCorrectionBean.delete(getCorrection());
         }
 
         @Override
         protected boolean validateExistence() {
-            return addressCorrectionBean.checkBuildingExistence(getModel());
+            return addressCorrectionBean.getBuildingCorrectionsCount(FilterWrapper.of(getCorrection())) > 0;
         }
 
         @Override
         protected Panel getCorrectionInputPanel(String id) {
-            return new AddressCorrectionInputPanel(id, getModel());
+            return new AddressCorrectionInputPanel(id, getCorrection());
         }
 
         @Override
@@ -433,7 +450,7 @@ public class AddressCorrectionEdit extends FormTemplatePage {
 
         @Override
         protected boolean preValidate() {
-            if (Strings.isEmpty(getModel().getCorrection()) || getModel().getParentId() == null) {
+            if (Strings.isEmpty(getCorrection().getCorrection())) {
                 error(getString("correction_required"));
                 return false;
             }
@@ -450,14 +467,19 @@ public class AddressCorrectionEdit extends FormTemplatePage {
     public AddressCorrectionEdit(PageParameters params) {
         String entity = params.get(CORRECTED_ENTITY).toString();
         Long correctionId = params.get(CORRECTION_ID).toOptionalLong();
-        if ("city".equals(entity)) {
-            addressEditPanel = new CityCorrectionEditPanel("addressEditPanel", correctionId);
-        } else if ("district".equals(entity)) {
-            addressEditPanel = new DistrictCorrectionEditPanel("addressEditPanel", correctionId);
-        } else if ("street".equals(entity)) {
-            addressEditPanel = new StreetCorrectionEditPanel("addressEditPanel", correctionId);
-        } else if ("building".equals(entity)) {
-            addressEditPanel = new BuildingCorrectionEditPanel("addressEditPanel", correctionId);
+        switch (entity) {
+            case "city":
+                addressEditPanel = new CityCorrectionEditPanel("addressEditPanel", correctionId);
+                break;
+            case "district":
+                addressEditPanel = new DistrictCorrectionEditPanel("addressEditPanel", correctionId);
+                break;
+            case "street":
+                addressEditPanel = new StreetCorrectionEditPanel("addressEditPanel", correctionId);
+                break;
+            case "building":
+                addressEditPanel = new BuildingCorrectionEditPanel("addressEditPanel", correctionId);
+                break;
         }
         add(addressEditPanel);
     }

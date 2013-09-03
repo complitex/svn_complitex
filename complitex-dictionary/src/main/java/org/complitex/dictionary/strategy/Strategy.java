@@ -217,7 +217,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
             example.setAdmin(true);
         }
 
-        DomainObject object = (DomainObject) sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + "." + FIND_BY_ID_OPERATION, example);
+        DomainObject object = sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + "." + FIND_BY_ID_OPERATION, example);
 
         if (object != null) {
             loadAttributes(object);
@@ -232,15 +232,9 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     }
 
     @Override
-    public Long getObjectId(final Long externalId) {
+    public Long getObjectId(String externalId) {
         return (Long) sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + ".selectObjectIdByExternalId",
-                new HashMap<String, Object>() {
-
-                    {
-                        put("table", getEntityTable());
-                        put("externalId", externalId);
-                    }
-                });
+                ImmutableMap.of("table", getEntityTable(), "externalId", externalId));
     }
 
     @Transactional

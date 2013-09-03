@@ -217,7 +217,7 @@ public class AddressImportService extends AbstractImportService {
                 DomainObject oldObject = null;
 
                 // Ищем по externalId в базе.
-                Long objectId = countryStrategy.getObjectId(Long.valueOf(externalId));
+                Long objectId = countryStrategy.getObjectId(externalId);
                 if (objectId != null) {
                     oldObject = countryStrategy.findById(objectId, true);
                     if (oldObject != null) {
@@ -284,7 +284,7 @@ public class AddressImportService extends AbstractImportService {
                 DomainObject oldObject = null;
 
                 // Ищем по externalId в базе.
-                Long objectId = regionStrategy.getObjectId(Long.valueOf(externalId));
+                Long objectId = regionStrategy.getObjectId(externalId);
                 if (objectId != null) {
                     oldObject = regionStrategy.findById(objectId, true);
                     if (oldObject != null) {
@@ -304,7 +304,7 @@ public class AddressImportService extends AbstractImportService {
                 }
 
                 //COUNTRY_ID
-                Long countryId = countryStrategy.getObjectId(Long.parseLong(line[1].trim()));
+                Long countryId = countryStrategy.getObjectId(line[1].trim());
                 if (countryId == null) {
                     throw new ImportObjectLinkException(REGION.getFileName(), recordIndex, line[1]);
                 }
@@ -358,7 +358,7 @@ public class AddressImportService extends AbstractImportService {
                 DomainObject oldObject = null;
 
                 // Ищем по externalId в базе.
-                Long objectId = cityTypeStrategy.getObjectId(Long.valueOf(externalId));
+                Long objectId = cityTypeStrategy.getObjectId(externalId);
                 if (objectId != null) {
                     oldObject = cityTypeStrategy.findById(objectId, true);
                     if (oldObject != null) {
@@ -432,7 +432,7 @@ public class AddressImportService extends AbstractImportService {
                 DomainObject oldObject = null;
 
                 // Ищем по externalId в базе.
-                Long objectId = cityStrategy.getObjectId(Long.valueOf(externalId));
+                Long objectId = cityStrategy.getObjectId(externalId);
                 if (objectId != null) {
                     oldObject = cityStrategy.findById(objectId, true);
                     if (oldObject != null) {
@@ -452,7 +452,7 @@ public class AddressImportService extends AbstractImportService {
                 }
 
                 //REGION_ID
-                Long regionId = regionStrategy.getObjectId(Long.parseLong(line[1].trim()));
+                Long regionId = regionStrategy.getObjectId(line[1].trim());
                 if (regionId == null) {
                     throw new ImportObjectLinkException(CITY.getFileName(), recordIndex, line[1]);
                 }
@@ -460,7 +460,7 @@ public class AddressImportService extends AbstractImportService {
                 newObject.setParentId(regionId);
 
                 //CITY_TYPE_ID
-                Long cityTypeId = cityTypeStrategy.getObjectId(Long.parseLong(line[2].trim()));
+                Long cityTypeId = cityTypeStrategy.getObjectId(line[2].trim());
                 if (cityTypeId == null) {
                     throw new ImportObjectLinkException(CITY.getFileName(), recordIndex, line[2]);
                 }
@@ -513,7 +513,7 @@ public class AddressImportService extends AbstractImportService {
                 DomainObject oldObject = null;
 
                 // Ищем по externalId в базе.
-                Long objectId = districtStrategy.getObjectId(Long.valueOf(externalId));
+                Long objectId = districtStrategy.getObjectId(externalId);
                 if (objectId != null) {
                     oldObject = districtStrategy.findById(objectId, true);
                     if (oldObject != null) {
@@ -533,7 +533,7 @@ public class AddressImportService extends AbstractImportService {
                 }
 
                 //CITY_ID
-                Long cityId = cityStrategy.getObjectId(Long.parseLong(line[1].trim()));
+                Long cityId = cityStrategy.getObjectId(line[1].trim());
                 if (cityId == null) {
                     throw new ImportObjectLinkException(DISTRICT.getFileName(), recordIndex, line[1]);
                 }
@@ -591,7 +591,7 @@ public class AddressImportService extends AbstractImportService {
                 DomainObject oldObject = null;
 
                 // Ищем по externalId в базе.
-                Long objectId = streetTypeStrategy.getObjectId(Long.valueOf(externalId));
+                Long objectId = streetTypeStrategy.getObjectId(externalId);
                 if (objectId != null) {
                     oldObject = streetTypeStrategy.findById(objectId, true);
                     if (oldObject != null) {
@@ -664,7 +664,7 @@ public class AddressImportService extends AbstractImportService {
                 DomainObject oldObject = null;
 
                 // Ищем по externalId в базе.
-                Long objectId = streetStrategy.getObjectId(Long.valueOf(externalId));
+                Long objectId = streetStrategy.getObjectId(externalId);
                 if (objectId != null) {
                     oldObject = streetStrategy.findById(objectId, true);
                     if (oldObject != null) {
@@ -684,7 +684,7 @@ public class AddressImportService extends AbstractImportService {
                 }
 
                 //CITY_ID
-                Long cityId = cityStrategy.getObjectId(Long.parseLong(line[1].trim()));
+                Long cityId = cityStrategy.getObjectId(line[1].trim());
                 if (cityId == null) {
                     throw new ImportObjectLinkException(STREET.getFileName(), recordIndex, line[1]);
                 }
@@ -692,7 +692,7 @@ public class AddressImportService extends AbstractImportService {
                 newObject.setParentId(cityId);
 
                 //STREET_TYPE_ID
-                Long streetTypeId = streetTypeStrategy.getObjectId(Long.parseLong(line[2].trim()));
+                Long streetTypeId = streetTypeStrategy.getObjectId(line[2].trim());
                 if (streetTypeId == null) {
                     throw new ImportObjectLinkException(STREET.getFileName(), recordIndex, line[2]);
                 }
@@ -746,13 +746,13 @@ public class AddressImportService extends AbstractImportService {
 
                 final String externalId = line[0].trim();
 
-                Long buildingId = buildingStrategy.getObjectId(Long.valueOf(externalId));
+                Long buildingId = buildingStrategy.getObjectId(externalId);
 
                 Building newBuilding;
                 Building oldBuilding = null;
                 DomainObject buildingAddress;
 
-                final Long streetId = streetStrategy.getObjectId(Long.parseLong(line[2].trim()));
+                final Long streetId = streetStrategy.getObjectId(line[2].trim());
                 if (streetId == null) {
                     throw new ImportObjectLinkException(BUILDING.getFileName(), recordIndex, line[2]);
                 }
@@ -776,7 +776,7 @@ public class AddressImportService extends AbstractImportService {
                 }
 
                 //DISTRICT_ID
-                Long districtId = districtStrategy.getObjectId(Long.parseLong(line[1].trim()));
+                Long districtId = districtStrategy.getObjectId(line[1].trim());
                 if (districtId == null) {
                     throw new ImportObjectLinkException(BUILDING.getFileName(), recordIndex, line[1]);
                 }
@@ -801,7 +801,7 @@ public class AddressImportService extends AbstractImportService {
                 }
 
                 //Строение
-                final String structure = line[5].trim().toUpperCase();
+                final String structure = ""; //todo check import file
                 AttributeUtil.setStringValue(buildingAddress.getAttribute(BuildingAddressStrategy.STRUCTURE),
                         structure, localeId);
                 if (AttributeUtil.getSystemStringCultureValue(buildingAddress.getAttribute(BuildingAddressStrategy.STRUCTURE)) == null) {

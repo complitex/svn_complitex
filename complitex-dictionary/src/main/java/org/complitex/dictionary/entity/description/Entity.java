@@ -6,14 +6,13 @@ package org.complitex.dictionary.entity.description;
 
 import org.complitex.dictionary.entity.StringCulture;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
  *
  * @author Artem
  */
-public class Entity implements Serializable {
+public class Entity implements IEntity {
 
     private Long id;
     private String entityTable;

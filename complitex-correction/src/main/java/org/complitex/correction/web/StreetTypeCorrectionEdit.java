@@ -10,13 +10,17 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.complitex.address.strategy.street_type.StreetTypeStrategy;
+import org.complitex.correction.entity.StreetTypeCorrection;
+import org.complitex.correction.service.AddressCorrectionBean;
 import org.complitex.correction.web.component.AbstractCorrectionEditPanel;
+import org.complitex.dictionary.entity.FilterWrapper;
 import org.complitex.dictionary.web.component.EntityTypePanel;
 import org.complitex.template.web.component.toolbar.DeleteItemButton;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
 import org.complitex.template.web.security.SecurityRole;
 import org.complitex.template.web.template.FormTemplatePage;
 
+import javax.ejb.EJB;
 import java.util.List;
 import java.util.Locale;
 
@@ -26,13 +30,25 @@ import java.util.Locale;
  */
 @AuthorizeInstantiation(SecurityRole.AUTHORIZED)
 public class StreetTypeCorrectionEdit extends FormTemplatePage {
+    @EJB
+    private AddressCorrectionBean addressCorrectionBean;
 
     public static final String CORRECTION_ID = "correction_id";
     private AbstractCorrectionEditPanel correctionEditPanel;
 
     public StreetTypeCorrectionEdit(PageParameters params) {
         Long correctionId = params.get(CORRECTION_ID).toOptionalLong();
-        add(correctionEditPanel = new AbstractCorrectionEditPanel("correctionEditPanel", "street_type", correctionId) {
+        add(correctionEditPanel = new AbstractCorrectionEditPanel<StreetTypeCorrection>("correctionEditPanel",  correctionId) {
+
+            @Override
+            protected StreetTypeCorrection getCorrection(Long correctionId) {
+                return addressCorrectionBean.getStreetTypeCorrection(correctionId);
+            }
+
+            @Override
+            protected StreetTypeCorrection newCorrection() {
+                return new StreetTypeCorrection();
+            }
 
             @Override
             protected IModel<String> internalObjectLabel(Locale locale) {
@@ -45,12 +61,12 @@ public class StreetTypeCorrectionEdit extends FormTemplatePage {
 
                     @Override
                     public Long getObject() {
-                        return getModel().getObjectId();
+                        return getCorrection().getObjectId();
                     }
 
                     @Override
                     public void setObject(Long streetTypeId) {
-                        getModel().setObjectId(streetTypeId);
+                        getCorrection().setObjectId(streetTypeId);
 
                     }
                 };
@@ -64,6 +80,11 @@ public class StreetTypeCorrectionEdit extends FormTemplatePage {
             }
 
             @Override
+            protected boolean validateExistence() {
+                return addressCorrectionBean.getStreetTypeCorrectionsCount(FilterWrapper.of(getCorrection())) > 0;
+            }
+
+            @Override
             protected Class<? extends Page> getBackPageClass() {
                 return StreetTypeCorrectionList.class;
             }
@@ -71,6 +92,16 @@ public class StreetTypeCorrectionEdit extends FormTemplatePage {
             @Override
             protected PageParameters getBackPageParameters() {
                 return new PageParameters();
+            }
+
+            @Override
+            protected void save() {
+                addressCorrectionBean.save(getCorrection());
+            }
+
+            @Override
+            protected void delete() {
+                addressCorrectionBean.delete(getCorrection());
             }
 
             @Override

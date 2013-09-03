@@ -1,36 +1,34 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.correction.entity;
 
-/**
- *
- * @author Artem
- */
-public class StreetCorrection extends Correction {
+import org.complitex.address.entity.AddressEntity;
+import org.complitex.dictionary.entity.Correction;
 
-    private Long streetTypeCorrectionId;
-    private Correction streetTypeCorrection;
+public class StreetCorrection extends Correction {
+    private Long streetTypeObjectId;
 
     public StreetCorrection() {
-        super("street");
     }
 
+    public StreetCorrection(String externalId, Long objectId, String correction, Long organizationId,
+                            Long userOrganizationId, Long moduleId) {
+        super(externalId, objectId, correction, organizationId, userOrganizationId, moduleId);
+    }
+
+    @Override
+    public String getEntity() {
+        return AddressEntity.STREET.getEntityTable();
+    }
+
+    @Deprecated
     public Correction getStreetTypeCorrection() {
-        return streetTypeCorrection;
+        return null;
     }
 
-    public void setStreetTypeCorrection(Correction streetTypeCorrection) {
-        this.streetTypeCorrection = streetTypeCorrection;
-        this.streetTypeCorrectionId = streetTypeCorrection.getId();
+    public Long getStreetTypeObjectId() {
+        return streetTypeObjectId;
     }
 
-    public Long getStreetTypeCorrectionId() {
-        return streetTypeCorrectionId;
-    }
-
-    public void setStreetTypeCorrectionId(Long streetTypeId) {
-        this.streetTypeCorrectionId = streetTypeId;
+    public void setStreetTypeObjectId(Long streetTypeObjectId) {
+        this.streetTypeObjectId = streetTypeObjectId;
     }
 }

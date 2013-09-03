@@ -86,5 +86,29 @@
                     </otherwise>
                 </choose>
     </update>
+
+    <select id="selectBuildingObjectIds" parameterType="map" resultType="long">
+        select distinct b.`object_id` from `building` b
+          join `building_address` addr on (((b.`parent_id` = addr.`object_id`) or
+            exists(select 1 from `building_attribute` ba where ba.`object_id` = b.`object_id` and ba.`status` = 'ACTIVE'
+              and ba.`attribute_type_id` = 501 and ba.`value_id` = addr.`object_id`)) and addr.`status` = 'ACTIVE')
+          join `building_address_attribute` num on (num.`object_id` = addr.`object_id` and num.`status` = 'ACTIVE'
+            and num.`attribute_type_id` = 1500)
+          join `building_address_string_culture` num_sc on (num_sc.`id` = num.`value_id`)
+          left join `building_address_attribute` corp on (corp.`object_id` = addr.`object_id` and corp.`status` = 'ACTIVE'
+            and corp.`attribute_type_id` = 1501)
+          left join `building_address_string_culture` corp_sc on (corp_sc.`id` = corp.`value_id`)
+        where b.`status` = 'ACTIVE' and num_sc.`value` = #{number}
+        and
+        <choose>
+            <when test="corp == null">
+                corp_sc.`value` is null
+            </when>
+            <otherwise>
+                corp_sc.`value` = #{corp}
+            </otherwise>
+        </choose>
+        and addr.`parent_entity_id` = #{parentEntityId} and addr.`parent_id` = #{parentId}
+    </select>
     
 </mapper>

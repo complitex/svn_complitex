@@ -18,16 +18,16 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.PackageResourceReference;
 import org.apache.wicket.util.string.Strings;
-import org.complitex.correction.entity.Correction;
-import org.complitex.correction.entity.CorrectionExample;
-import org.complitex.correction.service.CorrectionBean;
+import org.complitex.dictionary.entity.Correction;
 import org.complitex.dictionary.entity.DomainObject;
+import org.complitex.dictionary.entity.FilterWrapper;
 import org.complitex.dictionary.service.LocaleBean;
+import org.complitex.dictionary.strategy.IStrategy;
+import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.util.StringUtil;
 import org.complitex.dictionary.web.component.DisableAwareDropDownChoice;
@@ -48,9 +48,9 @@ import java.util.List;
  * Абстрактный класс для списка коррекций.
  * @author Artem
  */
-public abstract class AbstractCorrectionList extends ScrollListPage {
+public abstract class AbstractCorrectionList<T extends Correction> extends ScrollListPage {
     @EJB
-    private CorrectionBean correctionBean;
+    protected StrategyFactory strategyFactory;
 
     @EJB
     private LocaleBean localeBean;
@@ -59,7 +59,7 @@ public abstract class AbstractCorrectionList extends ScrollListPage {
     private IOrganizationStrategy organizationStrategy;
 
     private String entity;
-    private IModel<CorrectionExample> example;
+    private FilterWrapper<T> filterWrapper;
 
     public AbstractCorrectionList(String entity) {
         this.entity = entity;
@@ -78,24 +78,33 @@ public abstract class AbstractCorrectionList extends ScrollListPage {
         return entity;
     }
 
-    protected void clearExample() {
-        example.setObject(newExample());
+    protected void clearFilter() {
+        filterWrapper.setObject(newCorrection());
     }
 
-    protected CorrectionExample newExample() {
-        CorrectionExample correctionExample = new CorrectionExample();
-        correctionExample.setEntity(entity);
+    protected abstract T newCorrection();
 
-        return correctionExample;
+    protected void setUpDisplayObject(List<? extends Correction> corrections, String entity) {
+        Long localeId = localeBean.convert(getLocale()).getId();
+
+        if (corrections != null && !corrections.isEmpty()) {
+            IStrategy strategy = strategyFactory.getStrategy(entity);
+            for (Correction correction : corrections) {
+                DomainObject object = strategy.findById(correction.getObjectId(), false);
+
+                if (object == null) { //объект доступен только для просмотра
+                    object = strategy.findById(correction.getObjectId(), true);
+                    correction.setEditable(false);
+                }
+
+                correction.setDisplayObject(strategy.displayDomainObject(object, localeBean.convert(localeBean.getLocaleObject(localeId))));
+            }
+        }
     }
 
-    protected List<? extends Correction> find(CorrectionExample example) {
-        return correctionBean.find(example);
-    }
+    protected abstract List<T> getCorrections(FilterWrapper<T> filterWrapper);
 
-    protected int count(CorrectionExample example) {
-        return correctionBean.count(example);
-    }
+    protected abstract Integer getCorrectionsCount(FilterWrapper<T> filterWrapper);
 
     protected String displayCorrection(Correction correction) {
         return correction.getCorrection();
@@ -122,36 +131,32 @@ public abstract class AbstractCorrectionList extends ScrollListPage {
         final Form filterForm = new Form("filterForm");
         content.add(filterForm);
 
-        example = new Model<>((CorrectionExample) getFilterObject(newExample()));
+        filterWrapper = FilterWrapper.of((T)getFilterObject(newCorrection()));
 
         final DataProvider<Correction> dataProvider = new DataProvider<Correction>() {
 
             @Override
             protected Iterable<? extends Correction> getData(int first, int count) {
-                final CorrectionExample exampleObject = example.getObject();
-
                 //store preference, but before clear data order related properties.
                 {
-                    exampleObject.setAsc(false);
-                    exampleObject.setOrderByClause(null);
-                    setFilterObject(exampleObject);
+                    filterWrapper.setAscending(false);
+                    filterWrapper.setSortProperty(null);
+                    setFilterObject(filterWrapper.getObject());
                 }
 
-                exampleObject.setAsc(getSort().isAscending());
+                filterWrapper.setAscending(getSort().isAscending());
                 if (!Strings.isEmpty(getSort().getProperty())) {
-                    exampleObject.setOrderByClause(getSort().getProperty());
+                    filterWrapper.setSortProperty(getSort().getProperty());
                 }
-                exampleObject.setStart(first);
-                exampleObject.setSize(count);
-                exampleObject.setLocaleId(localeBean.convert(getLocale()).getId());
+                filterWrapper.setFirst(first);
+                filterWrapper.setCount(count);
 
-                return find(exampleObject);
+                return getCorrections(filterWrapper);
             }
 
             @Override
             protected int getSize() {
-                example.getObject().setAsc(getSort().isAscending());
-                return count(example.getObject());
+                return getCorrectionsCount(filterWrapper);
             }
         };
         dataProvider.setSort("", SortOrder.ASCENDING);
@@ -167,12 +172,12 @@ public abstract class AbstractCorrectionList extends ScrollListPage {
 
             @Override
             public Long getOrganizationId() {
-                return example.getObject().getOrganizationId();
+                return filterWrapper.getObject().getOrganizationId();
             }
 
             @Override
             public void setOrganizationId(Long organizationId) {
-                example.getObject().setOrganizationId(organizationId);
+                filterWrapper.getObject().setOrganizationId(organizationId);
             }
 
             @Override
@@ -202,12 +207,12 @@ public abstract class AbstractCorrectionList extends ScrollListPage {
 
             @Override
             public Long getOrganizationId() {
-                return example.getObject().getUserOrganizationId();
+                return filterWrapper.getObject().getUserOrganizationId();
             }
 
             @Override
             public void setOrganizationId(Long userOrganizationId) {
-                example.getObject().setUserOrganizationId(userOrganizationId);
+                filterWrapper.getObject().setUserOrganizationId(userOrganizationId);
             }
 
             @Override
@@ -219,21 +224,21 @@ public abstract class AbstractCorrectionList extends ScrollListPage {
         filterForm.add(new DisableAwareDropDownChoice<>("userOrganizationFilter",
                 userOrganizationModel, allUserOrganizationsModel, organizationRenderer).setNullValid(true));
 
-        filterForm.add(new TextField<>("correctionFilter", new PropertyModel<String>(example, "correction")));
-        filterForm.add(new TextField<>("codeFilter", new PropertyModel<String>(example, "externalId")));
-        filterForm.add(new TextField<>("internalObjectFilter", new PropertyModel<String>(example, "internalObject")));
+        filterForm.add(new TextField<>("correctionFilter", new PropertyModel<String>(filterWrapper, "object.correction")));
+        filterForm.add(new TextField<>("codeFilter", new PropertyModel<String>(filterWrapper, "object.externalId")));
+        filterForm.add(new TextField<>("internalObjectFilter", new PropertyModel<String>(filterWrapper, "object.internalObject")));
 
         final List<DomainObject> internalOrganizations = Lists.newArrayList(organizationStrategy.getModule());
         IModel<DomainObject> internalOrganizationModel = new OrganizationModel() {
 
             @Override
             public Long getOrganizationId() {
-                return example.getObject().getModuleId();
+                return filterWrapper.getObject().getModuleId();
             }
 
             @Override
             public void setOrganizationId(Long organizationId) {
-                example.getObject().setModuleId(organizationId);
+                filterWrapper.getObject().setModuleId(organizationId);
             }
 
             @Override
@@ -250,7 +255,7 @@ public abstract class AbstractCorrectionList extends ScrollListPage {
             @Override
             public void onClick(AjaxRequestTarget target) {
                 filterForm.clearInput();
-                clearExample();
+                clearFilter();
                 target.add(content);
             }
         };
@@ -295,12 +300,12 @@ public abstract class AbstractCorrectionList extends ScrollListPage {
         };
         filterForm.add(data);
 
-        filterForm.add(new ArrowOrderByBorder("organizationHeader", CorrectionBean.OrderBy.ORGANIZATION.getOrderBy(), dataProvider, data, content));
-        filterForm.add(new ArrowOrderByBorder("correctionHeader", CorrectionBean.OrderBy.CORRECTION.getOrderBy(), dataProvider, data, content));
-        filterForm.add(new ArrowOrderByBorder("codeHeader", CorrectionBean.OrderBy.EXTERNAL_ID.getOrderBy(), dataProvider, data, content));
-        filterForm.add(new ArrowOrderByBorder("internalObjectHeader", CorrectionBean.OrderBy.OBJECT.getOrderBy(), dataProvider, data, content));
-        filterForm.add(new ArrowOrderByBorder("userOrganizationHeader", CorrectionBean.OrderBy.USER_ORGANIZATION.getOrderBy(), dataProvider, data, content));
-        filterForm.add(new ArrowOrderByBorder("internalOrganizationHeader", CorrectionBean.OrderBy.MODULE.getOrderBy(), dataProvider,
+        filterForm.add(new ArrowOrderByBorder("organizationHeader", Correction.OrderBy.ORGANIZATION.getOrderBy(), dataProvider, data, content));
+        filterForm.add(new ArrowOrderByBorder("correctionHeader", Correction.OrderBy.CORRECTION.getOrderBy(), dataProvider, data, content));
+        filterForm.add(new ArrowOrderByBorder("codeHeader", Correction.OrderBy.EXTERNAL_ID.getOrderBy(), dataProvider, data, content));
+        filterForm.add(new ArrowOrderByBorder("internalObjectHeader", Correction.OrderBy.OBJECT.getOrderBy(), dataProvider, data, content));
+        filterForm.add(new ArrowOrderByBorder("userOrganizationHeader", Correction.OrderBy.USER_ORGANIZATION.getOrderBy(), dataProvider, data, content));
+        filterForm.add(new ArrowOrderByBorder("internalOrganizationHeader", Correction.OrderBy.MODULE.getOrderBy(), dataProvider,
                 data, content));
 
         content.add(new PagingNavigator("navigator", data, getPreferencesPage() + "#" + entity, content));
