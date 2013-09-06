@@ -354,7 +354,7 @@
     </dependencies>
 
     <build>
-        <directory>c:\Anatoly\Java\target\${pom.artifactId}</directory>
+        <!--<directory>c:\Anatoly\Java\target\${pom.artifactId}</directory>-->
 
         <resources>
             <resource>
