@@ -41,8 +41,6 @@ public abstract class Correction implements Serializable {
 
     private Long parentObjectId;
 
-    //todo correction status
-
     private String organization;
     private String userOrganization;
     private String internalObject;
@@ -53,6 +51,9 @@ public abstract class Correction implements Serializable {
     private boolean editable = true;
 
     private Correction parent;
+
+    //todo correction status
+    private Integer status;
 
     public abstract String getEntity();
 
@@ -203,5 +204,13 @@ public abstract class Correction implements Serializable {
 
     public void setParent(Correction parent) {
         this.parent = parent;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 }

@@ -3,7 +3,6 @@
 <mapper namespace="org.complitex.dictionary.entity.Correction">
     <resultMap id="correction" type="org.complitex.dictionary.entity.Correction">
         <result column="id" property="id"/>
-        <result column="parent_id" property="parentId"/>
         <result column="external_id" property="externalId"/>
         <result column="object_id" property="objectId"/>
         <result column="correction" property="correction"/>
@@ -14,23 +13,22 @@
         <result column="user_organization_id" property="userOrganizationId"/>
         <result column="module_id" property="moduleId"/>
 
-        <result column="module" property="module"/>
-        <result column="organization" property="organization"/>
-        <result column="userOrganization" property="userOrganization"/>
+        <result column="status" property="status"/>
     </resultMap>
 
     <insert id="insertCorrection" parameterType="org.complitex.dictionary.entity.Correction"
             keyProperty="id" useGeneratedKeys="true">
-        insert into `${entity}_correction` (`parent_id`, `external_id`, `object_id`, `correction`,
-          `begin_date`, `end_date`, `organization_id`, `user_organization_id`, `module_id`)
-            values (#{parentId}, #{externalId}, #{objectId}, #{correction}, #{beginDate}, #{endDate},
-              #{organizationId}, #{userOrganizationId}, #{moduleId})
+        insert into `${entity}_correction` (`external_id`, `object_id`, `correction`,
+          `begin_date`, `end_date`, `organization_id`, `user_organization_id`, `module_id`, `status`)
+            values (#{externalId}, #{objectId}, #{correction}, #{beginDate}, #{endDate},
+              #{organizationId}, #{userOrganizationId}, #{moduleId}, #{status})
     </insert>
 
     <update id="updateCorrection" parameterType="org.complitex.dictionary.entity.Correction">
         update `${entity}_correction` set `organization_id` = #{organizationId}, `correction` = #{correction},
             `object_id` = #{objectId}, `external_id` = #{externalId}, `parent_id` = #{parentId},
-            `user_organization_id` = #{userOrganizationId}, `begin_date` = #{beginDate}, `end_date` = #{endDate}
+            `user_organization_id` = #{userOrganizationId}, `begin_date` = #{beginDate}, `end_date` = #{endDate},
+             `status` = #{status}
         where `id` = #{id}
     </update>
 
