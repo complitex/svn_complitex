@@ -66,11 +66,11 @@ public final class ImportStorageUtil {
         try {
             LineNumberReader reader = new LineNumberReader(new FileReader(new File(dir, fileName)));
 
-            String line;
-            int index = -1;
+            int index = reader.readLine() != null ? 0 : -1;
 
+            String line;
             while ((line = reader.readLine()) != null) {
-                if (line.trim().length() > 0) {
+                if (line.trim().length() > 1) {
                     index++;
                 }
             }

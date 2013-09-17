@@ -47,13 +47,13 @@
 
     <select id="selectCityCorrections" resultMap="cityCorrectionResultMap"
             parameterType="org.complitex.dictionary.entity.FilterWrapper">
-        select * from `city_correction`
+        select * from `city_correction` c
         <include refid="org.complitex.dictionary.entity.Correction.selectCorrectionWhere"/>
     </select>
 
     <select id="selectCityCorrectionsCount" resultType="int"
             parameterType="org.complitex.dictionary.entity.FilterWrapper">
-        select count(*) from `city_correction`
+        select count(*) from `city_correction` c
         <include refid="org.complitex.dictionary.entity.Correction.selectCorrectionWhere"/>
     </select>
 
@@ -65,13 +65,13 @@
 
     <select id="selectDistrictCorrections" parameterType="org.complitex.dictionary.entity.FilterWrapper"
             resultMap="districtCorrectionResultMap">
-        select * from `district_correction`
+        select * from `district_correction` c
         <include refid="org.complitex.dictionary.entity.Correction.selectCorrectionWhere"/>
     </select>
 
     <select id="selectDistrictCorrectionsCount" parameterType="org.complitex.dictionary.entity.FilterWrapper"
             resultType="int">
-        select count(*) from `district_correction`
+        select count(*) from `district_correction` c
         <include refid="org.complitex.dictionary.entity.Correction.selectCorrectionWhere"/>
     </select>
 
@@ -83,13 +83,13 @@
 
     <select id="selectStreetTypeCorrections" resultMap="streetTypeCorrectionResultMap"
             parameterType="org.complitex.dictionary.entity.FilterWrapper">
-        select * from `street_type_correction`
+        select * from `street_type_correction` c
         <include refid="org.complitex.dictionary.entity.Correction.selectCorrectionWhere"/>
     </select>
 
     <select id="selectStreetTypeCorrectionsCount" resultType="int"
             parameterType="org.complitex.dictionary.entity.FilterWrapper">
-        select count(*) from `street_type_correction`
+        select count(*) from `street_type_correction` c
         <include refid="org.complitex.dictionary.entity.Correction.selectCorrectionWhere"/>
     </select>
 
