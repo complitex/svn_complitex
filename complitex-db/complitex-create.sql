@@ -96,7 +96,8 @@ CREATE TABLE `config` (
     `id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'Идентификатор настройки',
     `name` VARCHAR(64) NOT NULL COMMENT 'Имя',
     `value` VARCHAR(255) NOT NULL COMMENT 'Значение',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_key` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Настройки';
 
 -- ------------------------------

@@ -216,7 +216,7 @@ public abstract class AbstractCorrectionEditPanel<T extends Correction> extends 
 
         codeRequiredContainer.setVisible(isOrganizationCodeRequired);
 
-        TextField<String> code = new TextField<>("code", new PropertyModel<String>(correction, "code"));
+        TextField<String> code = new TextField<>("code", new PropertyModel<String>(correction, "externalId"));
         code.setRequired(isOrganizationCodeRequired);
 
         form.add(code);
