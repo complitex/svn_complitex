@@ -283,9 +283,13 @@ public class StreetStrategy extends TemplateStrategy {
     }
 
     public List<Long> getStreetObjectIds(Long cityObjectId, Long streetTypeObjectId, String streetName){
-        return sqlSession().selectList(NS + ".selectStreetObjectIds",
-                ImmutableMap.of("cityObjectId", cityObjectId, "streetTypeObjectId", streetTypeObjectId,
-                        "streetName", streetName));
+        Map<String, Object> parameter = new HashMap<>();
+
+        parameter.put("cityObjectId", cityObjectId);
+        parameter.put("streetTypeObjectId", streetTypeObjectId);
+        parameter.put("streetName", streetName);
+
+        return sqlSession().selectList(NS + ".selectStreetObjectIds", parameter);
     }
 
     public List<Long> getStreetObjectIdsByDistrict(Long cityObjectId, String street, Long osznId) {

@@ -11,11 +11,8 @@
 
     <resultMap id="streetCorrectionResultMap" type="org.complitex.correction.entity.StreetCorrection"
                extends="org.complitex.dictionary.entity.Correction.correction">
-        <result column="street_type_correction_id" property="streetTypeCorrectionId"/>
         <association property="parent" column="parent_id" select="selectCityCorrection"
                 javaType="org.complitex.dictionary.entity.Correction"/>
-        <association property="streetTypeCorrection" column="street_type_correction_id" select="selectStreetTypeCorrection"
-                javaType="org.complitex.correction.entity.StreetTypeCorrection"/>
     </resultMap>
 
     <resultMap id="districtCorrectionResultMap" type="org.complitex.correction.entity.DistrictCorrection"
@@ -116,7 +113,6 @@
             parameterType="org.complitex.dictionary.entity.FilterWrapper">
         select count(*) from `street_correction` c
         <where>
-            <if test="object.streetTypeCorrectionId != null">and `street_type_correction_id` = #{object.streetTypeCorrectionId}</if>
             <include refid="org.complitex.dictionary.entity.Correction.selectCorrectionWhereIf"/>
         </where>
         <include refid="org.complitex.dictionary.entity.Correction.selectCorrectionOrderLimit"/>
@@ -124,25 +120,24 @@
 
     <insert id="insertStreetCorrection" parameterType="org.complitex.correction.entity.StreetCorrection"
             keyProperty="id" useGeneratedKeys="true">
-        INSERT INTO `street_correction`(`parent_id`, `object_id`, `external_id`,  `correction`, `street_type_correction_id`,
-                                        `begin_date`, `end_date`, `organization_id`, `user_organization_id`, `module_id`)
-            VALUES (#{parentId}, #{objectId}, #{externalId}, #{correction}, #{streetTypeCorrectionId},
-                    #{beginDate}, #{endDate}, #{organizationId}, #{userOrganizationId}, #{moduleId})
+        INSERT INTO `street_correction`(`object_id`, `external_id`,  `correction`, `begin_date`, `end_date`,
+                                        `organization_id`, `user_organization_id`, `module_id`, `status`)
+            VALUES (#{objectId}, #{externalId}, #{correction}, #{beginDate}, #{endDate},
+                    #{organizationId}, #{userOrganizationId}, #{moduleId}, #{status})
     </insert>
 
 
     <update id="updateStreetCorrection" parameterType="org.complitex.correction.entity.StreetCorrection">
         UPDATE `street_correction` SET `organization_id` = #{organizationId}, `correction` = #{correction},
             `object_id` = #{objectId}, `external_id` = #{externalId}, `module_id` = #{moduleId},
-            `street_type_correction_id` = #{streetTypeCorrectionId}, `user_organization_id` = #{userOrganizationId}
+            `user_organization_id` = #{userOrganizationId}
         WHERE `id` = #{id}
     </update>
 
     <select id="selectStreetCorrectionsByBuilding" resultMap="streetCorrectionResultMap"
             parameterType="map">
         SELECT c.* FROM `street_correction` c
-            JOIN `building_correction` b ON (b.`object_id` = #{buildingId} AND b.`parent_id` = c.`id`
-              AND b.`organization_id` = #{calcCenterId})
+            JOIN `building_correction` b ON (b.`object_id` = #{buildingId} AND b.`organization_id` = #{calcCenterId})
         WHERE c.`organization_id` = #{calcCenterId} AND c.`object_id` = #{streetId}
     </select>
 
@@ -179,10 +174,10 @@
 
     <insert id="insertBuildingCorrection" parameterType="org.complitex.correction.entity.BuildingCorrection"
             keyProperty="id" useGeneratedKeys="true">
-        insert into `building_correction`(`parent_id`, `object_id`, `external_id`,  `correction`, `correction_corp`,
-          `begin_date`, `end_date`, `organization_id`, `user_organization_id`, `module_id`)
-        values (#{parentId}, #{objectId}, #{externalId}, #{correction}, #{correctionCorp}, #{beginDate}, #{endDate},
-           #{organizationId}, #{userOrganizationId}, #{moduleId})
+        insert into `building_correction`(`object_id`, `external_id`,  `correction`, `correction_corp`,
+          `begin_date`, `end_date`, `organization_id`, `user_organization_id`, `module_id`, `status`)
+        values (#{objectId}, #{externalId}, #{correction}, #{correctionCorp}, #{beginDate}, #{endDate},
+           #{organizationId}, #{userOrganizationId}, #{moduleId}, #{status})
     </insert>
 
     <update id="updateBuildingCorrection" parameterType="org.complitex.correction.entity.BuildingCorrection">
@@ -307,38 +302,5 @@
             left join `street_correction` sc on (sc.`id` = c.`parent_id`)
             left join `city_correction` cc on (cc.`id` = sc.`parent_id`)
         </if>
-    </sql>
-
-    <!--deprecated-->
-    <select id="findBuildings" parameterType="org.complitex.dictionary.entity.FilterWrapper"
-            resultMap="org.complitex.correction.service.AddressCorrectionBean.buildingCorrectionResultMap">
-        SELECT DISTINCT c.`id`, c.*, IFNULL(osc.`value`, osc_sys.`value`) organization, IFNULL(osc_i.`value`, osc_i_sys.`value`) module,
-        IFNULL(uosc.`value`, uosc_sys.`value`) userOrganization
-
-        FROM `building_correction` c
-
-        <include refid="buildingJoin"/>
-
-        <include refid="buildingFilter"/>
-
-        <if test="orderByClause != null">
-            ORDER BY
-            <choose>
-                <when test="orderByClause == 'object'">
-                    csc.`value` <include refid="asc"/>, ssc.`value` <include refid="asc"/>, basc.`value` + 0 <include refid="asc"/>
-                </when>
-                <when test="orderByClause == 'correction'">
-                    cc.`correction` <include refid="asc"/>, sc.`correction` <include refid="asc"/>, c.`correction` + 0 <include refid="asc"/>
-                </when>
-                <otherwise>
-                    ${orderByClause} <include refid="asc"/>
-                </otherwise>
-            </choose>
-        </if>
-        LIMIT #{start},#{size}
-    </select>
-
-    <sql id="asc">
-        <choose><when test="asc">ASC</when><otherwise>DESC</otherwise></choose>
     </sql>
 </mapper>
