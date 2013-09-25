@@ -24,8 +24,6 @@
     <resultMap id="buildingCorrectionResultMap" type="org.complitex.correction.entity.BuildingCorrection"
                extends="org.complitex.dictionary.entity.Correction.correction">
         <result column="correction_corp" property="correctionCorp"/>
-        <association property="parent" column="parent_id" select="findStreetCorrectionById"
-                     javaType="org.complitex.correction.entity.StreetCorrection"/>
     </resultMap>
 
     <select id="selectObjectIds" parameterType="map" resultType="long">
@@ -188,7 +186,7 @@
     </update>
 
     <select id="selectBuildingObjectExists" parameterType="map" resultType="boolean">
-        select count (b.`object_id`) > 0 from `building` b
+        select count(b.`object_id`) > 0 from `building` b
         join `building_address` addr on (((b.`parent_id` = addr.`object_id`) or
           exists(select 1 from `building_attribute` ba where ba.`object_id` = b.`object_id` and ba.`status` = 'ACTIVE'
             and ba.`attribute_type_id` = 501 and ba.`value_id` = addr.`object_id`)) and addr.`status` = 'ACTIVE')
