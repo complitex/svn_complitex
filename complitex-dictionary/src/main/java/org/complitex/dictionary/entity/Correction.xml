@@ -26,9 +26,8 @@
 
     <update id="updateCorrection" parameterType="org.complitex.dictionary.entity.Correction">
         update `${entity}_correction` set `organization_id` = #{organizationId}, `correction` = #{correction},
-            `object_id` = #{objectId}, `external_id` = #{externalId}, `parent_id` = #{parentId},
-            `user_organization_id` = #{userOrganizationId}, `begin_date` = #{beginDate}, `end_date` = #{endDate},
-             `status` = #{status}
+            `object_id` = #{objectId}, `external_id` = #{externalId}, `user_organization_id` = #{userOrganizationId},
+            `begin_date` = #{beginDate}, `end_date` = #{endDate}, `status` = #{status}
         where `id` = #{id}
     </update>
 
