@@ -265,7 +265,7 @@ public class AddressCorrectionBean extends AbstractBean {
                 return false;
             }
         }else {
-            sqlSession().insert(NS + ".updateBuildingCorrection", buildingCorrection);
+            sqlSession().update(NS + ".updateBuildingCorrection", buildingCorrection);
         }
 
         return true;

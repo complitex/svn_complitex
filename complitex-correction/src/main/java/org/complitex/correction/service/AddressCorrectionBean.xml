@@ -200,7 +200,7 @@
         and num_sc.`value` = #{buildingNumber}
         and
         <choose>
-            <when test="corp == null">
+            <when test="buildingCorp == null">
                 corp_sc.`value` IS NULL
             </when>
             <otherwise>
