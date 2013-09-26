@@ -4,8 +4,6 @@
  */
 package org.complitex.address.strategy.street_type;
 
-import static com.google.common.collect.Lists.*;
-import static org.apache.wicket.util.string.Strings.*;
 import org.complitex.address.resource.CommonResources;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.AttributeExample;
@@ -20,6 +18,9 @@ import javax.ejb.Stateless;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static org.apache.wicket.util.string.Strings.isEmpty;
 
 /**
  *
@@ -50,6 +51,10 @@ public class StreetTypeStrategy extends TemplateStrategy {
     public String displayDomainObject(DomainObject object, Locale locale) {
         String streetType = stringBean.displayValue(object.getAttribute(SHORT_NAME).getLocalizedValues(), locale);
         return streetType.toLowerCase(locale) + ".";
+    }
+
+    public String getShortName(DomainObject object, Locale locale){
+        return stringBean.displayValue(object.getAttribute(SHORT_NAME).getLocalizedValues(), locale);
     }
 
     public String displayFullName(DomainObject streetTypeObject, Locale locale) {

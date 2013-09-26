@@ -71,6 +71,10 @@ public class CityStrategy extends TemplateStrategy {
         return cityName;
     }
 
+    public String getName(DomainObject object, Locale locale){
+        return stringBean.displayValue(object.getAttribute(NAME).getLocalizedValues(), locale);
+    }
+
     @Override
     public ISearchCallback getSearchCallback() {
         return new SearchCallback();
