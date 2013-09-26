@@ -45,7 +45,7 @@
         </if>
         <if test="object.organizationId != null">and c.`organization_id` = #{object.organizationId}</if>
         <if test="object.userOrganizationId != null">and c.`user_organization_id` = #{object.userOrganizationId}</if>
-        <if test="userOrganizationsString != null">and c.`user_organization_id` in #{userOrganizationsString}</if>
+        <if test="userOrganizationsString != null">and c.`user_organization_id` in ${userOrganizationsString}</if>
     </sql>
 
     <sql id="selectCorrectionOrderLimit">
