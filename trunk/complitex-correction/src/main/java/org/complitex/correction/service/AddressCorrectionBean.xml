@@ -28,10 +28,9 @@
 
     <select id="selectObjectIds" parameterType="map" resultType="long">
         select distinct e.`object_id` from `${entity}` e
-            join `${entity}_attribute` attr on (attr.`status` = 'ACTIVE' and e.`object_id` = attr.`object_id`
-              and attr.`attribute_type_id` = #{attributeTypeId})
-            join `${entity}_string_culture` sc on (sc.`id` = attr.`value_id` and sc.`value` = #{correction})
-        where e.`status` = 'ACTIVE'
+            left join `${entity}_attribute` attr on (attr.`status` = 'ACTIVE' and e.`object_id` = attr.`object_id`)
+            left join `${entity}_string_culture` sc on (sc.`id` = attr.`value_id`)
+        where e.`status` = 'ACTIVE' and attr.`attribute_type_id` = #{attributeTypeId} and sc.`value` = #{correction}
     </select>
 
     <!--City-->
