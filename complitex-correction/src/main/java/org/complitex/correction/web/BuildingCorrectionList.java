@@ -2,6 +2,8 @@ package org.complitex.correction.web;
 
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.complitex.address.strategy.city.CityStrategy;
+import org.complitex.address.strategy.street.StreetStrategy;
 import org.complitex.address.util.AddressRenderer;
 import org.complitex.correction.entity.BuildingCorrection;
 import org.complitex.correction.service.AddressCorrectionBean;
@@ -31,6 +33,12 @@ public class BuildingCorrectionList extends AddressCorrectionList<BuildingCorrec
 
     @EJB
     private SessionBean sessionBean;
+
+    @EJB
+    private CityStrategy cityStrategy;
+
+    @EJB
+    private StreetStrategy streetStrategy;
 
     @EJB
     private LocaleBean localeBean;
@@ -92,13 +100,12 @@ public class BuildingCorrectionList extends AddressCorrectionList<BuildingCorrec
     }
 
     @Override
-    protected String displayCorrection(Correction correction) {
-        String city = null;
-        String street = null;
-        if (correction.getParent() != null && correction.getParent().getParent() != null) {
-            city = correction.getParent().getParent().getCorrection();
-            street = correction.getParent().getCorrection();
-        }
+    protected String displayCorrection(BuildingCorrection correction) {
+        DomainObject streetDomainObject = streetStrategy.findById(correction.getStreetObjectId(), true);
+
+        String city = ""; //todo display city
+
+        String street = streetStrategy.displayDomainObject(streetDomainObject, getLocale());
 
         BuildingCorrection bc = (BuildingCorrection) correction;
         return AddressRenderer.displayAddress(null, city, null, street, bc.getCorrection(), bc.getCorrectionCorp(), null, getLocale());

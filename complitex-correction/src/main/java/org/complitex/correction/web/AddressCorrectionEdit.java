@@ -12,6 +12,9 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.Strings;
+import org.complitex.address.strategy.city.CityStrategy;
+import org.complitex.address.strategy.street.StreetStrategy;
+import org.complitex.address.strategy.street_type.StreetTypeStrategy;
 import org.complitex.address.util.AddressRenderer;
 import org.complitex.correction.entity.BuildingCorrection;
 import org.complitex.correction.entity.CityCorrection;
@@ -54,6 +57,15 @@ public class AddressCorrectionEdit extends FormTemplatePage {
 
     @EJB
     private StrategyFactory strategyFactory;
+
+    @EJB
+    private CityStrategy cityStrategy;
+
+    @EJB
+    private StreetTypeStrategy streetTypeStrategy;
+
+    @EJB
+    private StreetStrategy streetStrategy;
 
     private class Callback implements ISearchCallback, Serializable {
 
@@ -254,11 +266,10 @@ public class AddressCorrectionEdit extends FormTemplatePage {
 
         @Override
         protected String displayCorrection() {
-            Correction correction = getCorrection();
-            String city = null;
-            if (correction.getParent() != null) {
-                city = correction.getParent().getCorrection();
-            }
+            DistrictCorrection correction = getCorrection();
+
+            String city = cityStrategy.displayDomainObject(cityStrategy.findById(correction.getCityObjectId(), true), getLocale());
+
             return AddressRenderer.displayAddress(null, city, correction.getCorrection(), getLocale());
         }
 
@@ -301,10 +312,8 @@ public class AddressCorrectionEdit extends FormTemplatePage {
         protected String displayCorrection() {
             StreetCorrection correction = getCorrection();
 
-            String city = null;
-            if (correction.getParent() != null) {
-                city = correction.getParent().getCorrection();
-            }
+            String city = cityStrategy.displayDomainObject(cityStrategy.findById(correction.getCityObjectId(), true), getLocale());
+
             String streetType = null;
             if (correction.getStreetTypeCorrection() != null) {
                 streetType = correction.getStreetTypeCorrection().getCorrection();
@@ -398,12 +407,12 @@ public class AddressCorrectionEdit extends FormTemplatePage {
         protected String displayCorrection() {
             BuildingCorrection correction = getCorrection();
 
-            String city = null;
-            String street = null;
-            if (correction.getParent() != null && correction.getParent().getParent() != null) {
-                city = correction.getParent().getParent().getCorrection();
-                street = correction.getParent().getCorrection();
-            }
+            String city = ""; //todo display city
+
+            DomainObject streetDomainObject = streetStrategy.findById(correction.getStreetObjectId(), true);
+
+            String street = streetStrategy.displayDomainObject(streetDomainObject, getLocale());
+
             return AddressRenderer.displayAddress(null, city, null, street, correction.getCorrection(),
                     correction.getCorrectionCorp(), null, getLocale());
         }

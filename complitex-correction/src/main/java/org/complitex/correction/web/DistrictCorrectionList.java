@@ -2,6 +2,7 @@ package org.complitex.correction.web;
 
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.complitex.address.strategy.city.CityStrategy;
 import org.complitex.address.util.AddressRenderer;
 import org.complitex.correction.entity.DistrictCorrection;
 import org.complitex.correction.service.AddressCorrectionBean;
@@ -25,6 +26,9 @@ public class DistrictCorrectionList extends AddressCorrectionList<DistrictCorrec
 
     @EJB
     private AddressCorrectionBean addressCorrectionBean;
+
+    @EJB
+    private CityStrategy cityStrategy;
 
     public DistrictCorrectionList() {
         super("district");
@@ -78,11 +82,8 @@ public class DistrictCorrectionList extends AddressCorrectionList<DistrictCorrec
     }
 
     @Override
-    protected String displayCorrection(Correction correction) {
-        String city = null;
-        if (correction.getParent() != null) {
-            city = correction.getParent().getCorrection();
-        }
+    protected String displayCorrection(DistrictCorrection correction) {
+        String city = cityStrategy.displayDomainObject(cityStrategy.findById(correction.getCityObjectId(), true), getLocale());
 
         return AddressRenderer.displayAddress(null, city, correction.getCorrection(), getLocale());
     }
