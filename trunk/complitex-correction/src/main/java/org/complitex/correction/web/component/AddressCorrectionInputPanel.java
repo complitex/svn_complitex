@@ -221,10 +221,11 @@ public class AddressCorrectionInputPanel extends Panel {
 
                 @Override
                 public List<StreetCorrection> getValues(String term) {
-                    Correction cityCorrection = cityModel.getObject();
+                    Correction cityCorrection = cityModel.getObject(); //todo city correction from address dictionary
+
                     if (cityCorrection != null && correction.getOrganizationId() != null) {
                         return addressCorrectionBean.getStreetCorrections(FilterWrapper.of(
-                                new StreetCorrection(null, null, term,
+                                new StreetCorrection(null, null, null, null, term,
                                         correction.getOrganizationId(), correction.getUserOrganizationId(),
                                         correction.getModuleId())));
                     }
@@ -255,7 +256,7 @@ public class AddressCorrectionInputPanel extends Panel {
                         List<String> list = new ArrayList<>();
 
                         for (StreetCorrection c : addressCorrectionBean.getStreetCorrections(FilterWrapper.of(
-                                new StreetCorrection(null, null, term,
+                                new StreetCorrection(null, null, null, null, term,
                                         correction.getOrganizationId(), correction.getUserOrganizationId(),
                                         correction.getModuleId())))) {
                             list.add(c.getCorrection());

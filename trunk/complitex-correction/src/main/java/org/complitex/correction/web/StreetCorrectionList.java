@@ -2,7 +2,8 @@ package org.complitex.correction.web;
 
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.util.string.Strings;
+import org.complitex.address.strategy.city.CityStrategy;
+import org.complitex.address.strategy.street_type.StreetTypeStrategy;
 import org.complitex.address.util.AddressRenderer;
 import org.complitex.correction.entity.StreetCorrection;
 import org.complitex.correction.service.AddressCorrectionBean;
@@ -28,6 +29,12 @@ public class StreetCorrectionList extends AddressCorrectionList<StreetCorrection
 
     @EJB
     private AddressCorrectionBean addressCorrectionBean;
+
+    @EJB
+    private CityStrategy cityStrategy;
+
+    @EJB
+    private StreetTypeStrategy streetTypeStrategy;
 
     public StreetCorrectionList() {
         super("street");
@@ -81,20 +88,12 @@ public class StreetCorrectionList extends AddressCorrectionList<StreetCorrection
     }
 
     @Override
-    protected String displayCorrection(Correction correction) {
-        StreetCorrection streetCorrection = (StreetCorrection) correction;
-        String city = null;
-        if (streetCorrection.getParent() != null) {
-            city = streetCorrection.getParent().getCorrection();
-        }
-        String streetType = null;
-        if (streetCorrection.getStreetTypeCorrection() != null) {
-            streetType = streetCorrection.getStreetTypeCorrection().getCorrection();
-        }
-        if (Strings.isEmpty(streetType)) {
-            streetType = null;
-        }
+    protected String displayCorrection(StreetCorrection streetCorrection) {
+        String city = cityStrategy.displayDomainObject(cityStrategy.findById(streetCorrection.getCityObjectId(), true),
+                getLocale());
 
+        String streetType = streetTypeStrategy.displayDomainObject(
+                streetTypeStrategy.findById(streetCorrection.getStreetTypeObjectId(), true), getLocale());
 
         return AddressRenderer.displayAddress(null, city, streetType, streetCorrection.getCorrection(), null, null, null, getLocale());
     }

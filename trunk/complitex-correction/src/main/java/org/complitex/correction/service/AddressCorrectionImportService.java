@@ -218,16 +218,20 @@ public class AddressCorrectionImportService extends AbstractImportService {
                 Long streetId = streetStrategy.getObjectId(externalId);
 
                 //CITY_ID
-                if (cityStrategy.getObjectId(externalId) == null) {
+                Long cityObjectId = cityStrategy.getObjectId(externalId);
+
+                if (cityObjectId == null) {
                     throw new ImportObjectLinkException(AddressImportFile.STREET.getFileName(), recordIndex, line[1]);
                 }
 
                 //STREET_TYPE_ID
-                if (streetTypeStrategy.getObjectId(line[2].trim()) == null) {
+                Long streetTypeObjectId = streetTypeStrategy.getObjectId(line[2].trim());
+                if (streetTypeObjectId == null) {
                     throw new ImportObjectLinkException(AddressImportFile.STREET.getFileName(), recordIndex, line[2]);
                 }
 
-                addressCorrectionBean.save(new StreetCorrection(externalId, streetId, line[3].trim(), orgId, null, intOrgId));
+                addressCorrectionBean.save(new StreetCorrection(cityObjectId, streetTypeObjectId, externalId, streetId,
+                        line[3].trim(), orgId, null, intOrgId));
 
                 listener.recordProcessed(AddressImportFile.STREET, recordIndex);
             }
@@ -271,11 +275,12 @@ public class AddressCorrectionImportService extends AbstractImportService {
                 }
 
                 //STREET_ID
-                if (streetStrategy.getObjectId(line[2].trim()) == null) {
+                Long streetObjectId = streetStrategy.getObjectId(line[2].trim());
+                if (streetObjectId == null) {
                     throw new ImportObjectLinkException(AddressImportFile.BUILDING.getFileName(), recordIndex, line[2]);
                 }
 
-                addressCorrectionBean.save(new BuildingCorrection(externalId, buildingId, line[3].trim(),
+                addressCorrectionBean.save(new BuildingCorrection(streetObjectId, externalId, buildingId, line[3].trim(),
                         line[4].trim(), orgId, null, intOrgId));
 
                 listener.recordProcessed(AddressImportFile.BUILDING, recordIndex);

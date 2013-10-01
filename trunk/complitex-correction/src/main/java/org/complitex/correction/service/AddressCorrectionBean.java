@@ -89,10 +89,10 @@ public class AddressCorrectionBean extends AbstractBean {
         return sqlSession().selectList(NS + ".selectDistrictCorrections", filterWrapper);
     }
 
-    public List<DistrictCorrection> getDistrictCorrections(Long objectId, String correction,
+    public List<DistrictCorrection> getDistrictCorrections(Long cityObjectId, String externalId, Long objectId, String correction,
                                                            Long organizationId, Long userOrganizationId){
-        return getDistrictCorrections(FilterWrapper.of(new DistrictCorrection(null, objectId, correction,
-                organizationId, userOrganizationId, null)));
+        return getDistrictCorrections(FilterWrapper.of(new DistrictCorrection(cityObjectId, externalId, objectId,
+                correction, organizationId, userOrganizationId, null)));
     }
 
     public Integer getDistrictCorrectionsCount(FilterWrapper<DistrictCorrection> filterWrapper){
@@ -180,7 +180,6 @@ public class AddressCorrectionBean extends AbstractBean {
         return sqlSession().selectOne(NS + ".selectStreetCorrection", id);
     }
 
-    //todo implement parent
     public List<StreetCorrection> getStreetCorrections(FilterWrapper<StreetCorrection> filterWrapper) {
         return sqlSession().selectList(NS + ".selectStreetCorrections", filterWrapper);
     }
@@ -189,13 +188,11 @@ public class AddressCorrectionBean extends AbstractBean {
         return sqlSession().selectOne(NS + ".selectStreetCorrectionsCount", filterWrapper);
     }
 
-    public List<StreetCorrection> getStreetCorrections(String externalId, Long objectId, Long cityObjectId, Long streetTypeObjectId, String street,
-                                                       Long osznId, Long userOrganizationId) {
-        StreetCorrection correction = new StreetCorrection(externalId, objectId, street, osznId, userOrganizationId, null);
-        correction.setParentObjectId(cityObjectId);
-        correction.setStreetTypeObjectId(streetTypeObjectId);
+    public List<StreetCorrection> getStreetCorrections(Long cityObjectId, Long streetTypeObjectId, String externalId,
+                                                       Long objectId,  String street, Long osznId, Long userOrganizationId) {
 
-        return getStreetCorrections(FilterWrapper.of(correction));
+        return getStreetCorrections(FilterWrapper.of(new StreetCorrection(cityObjectId, streetTypeObjectId, externalId,
+                objectId, street, osznId, userOrganizationId, null)));
     }
 
     @Transactional
@@ -244,11 +241,8 @@ public class AddressCorrectionBean extends AbstractBean {
 
     public List<BuildingCorrection> getBuildingCorrections(Long streetObjectId, Long objectId, String buildingNumber,
                                                            String buildingCorp, Long osznId, Long userOrganizationId) {
-        BuildingCorrection buildingCorrection = new BuildingCorrection(null, objectId,
-                buildingNumber, buildingCorp, osznId, userOrganizationId, null);
-        buildingCorrection.setParentObjectId(streetObjectId);
-
-        return getBuildingCorrections(FilterWrapper.of(buildingCorrection));
+        return getBuildingCorrections(FilterWrapper.of(new BuildingCorrection(streetObjectId, null, objectId,
+                buildingNumber, buildingCorp, osznId, userOrganizationId, null)));
     }
 
     @Transactional

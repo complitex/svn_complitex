@@ -106,7 +106,7 @@ public abstract class AbstractCorrectionList<T extends Correction> extends Scrol
 
     protected abstract Integer getCorrectionsCount(FilterWrapper<T> filterWrapper);
 
-    protected String displayCorrection(Correction correction) {
+    protected String displayCorrection(T correction) {
         return correction.getCorrection();
     }
 
@@ -133,10 +133,10 @@ public abstract class AbstractCorrectionList<T extends Correction> extends Scrol
 
         filterWrapper = FilterWrapper.of((T)getFilterObject(newCorrection()));
 
-        final DataProvider<Correction> dataProvider = new DataProvider<Correction>() {
+        final DataProvider<T> dataProvider = new DataProvider<T>() {
 
             @Override
-            protected Iterable<? extends Correction> getData(int first, int count) {
+            protected Iterable<T> getData(int first, int count) {
                 //store preference, but before clear data order related properties.
                 {
                     filterWrapper.setAscending(false);
@@ -273,11 +273,11 @@ public abstract class AbstractCorrectionList<T extends Correction> extends Scrol
         };
         filterForm.add(submit);
 
-        DataView<Correction> data = new DataView<Correction>("data", dataProvider, 1) {
+        DataView<T> data = new DataView<T>("data", dataProvider, 1) {
 
             @Override
-            protected void populateItem(Item<Correction> item) {
-                Correction correction = item.getModelObject();
+            protected void populateItem(Item<T> item) {
+                T correction = item.getModelObject();
 
                 item.add(new Label("organization", correction.getOrganization()));
                 item.add(new Label("correction", displayCorrection(correction)));
