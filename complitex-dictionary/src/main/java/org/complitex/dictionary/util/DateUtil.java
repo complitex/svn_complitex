@@ -17,7 +17,7 @@ public class DateUtil {
     private static ThreadLocal<SimpleDateFormat> DATE_FORMAT = new ThreadLocal<>();
 
     public static final Date MIN_BEGIN_DATE =  newDate(1, 1, 1970);
-    public static final Date MAX_END_DATE =  newDate(31, 1, 2054);
+    public static final Date MAX_END_DATE =  newDate(31, 12, 2054);
 
     private DateUtil() {
     }
