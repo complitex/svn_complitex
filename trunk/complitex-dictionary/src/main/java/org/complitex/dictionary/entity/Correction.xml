@@ -14,7 +14,16 @@
         <result column="module_id" property="moduleId"/>
 
         <result column="status" property="status"/>
+
+        <association property="organizationName" select="org.complitex.organization.strategy.Organization.selectOrganizationName"
+                     column="organization_id"/>
+        <association property="userOrganizationName" select="org.complitex.organization.strategy.Organization.selectOrganizationName"
+                     column="user_organization_id"/>
+        <association property="moduleName" select="org.complitex.organization.strategy.Organization.selectOrganizationName"
+                     column="module_id"/>
     </resultMap>
+
+
 
     <insert id="insertCorrection" parameterType="org.complitex.dictionary.entity.Correction"
             keyProperty="id" useGeneratedKeys="true">

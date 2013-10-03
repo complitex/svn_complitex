@@ -115,4 +115,9 @@
                 AND osc.`value` = #{code};
     </select>
 
+    <select id="selectOrganizationName" parameterType="long" resultType="string">
+        select osc.`value` from `organization_attribute` oa
+            left join `organization_string_culture` osc on (oa.`value_id` = osc.`id` and oa.`value_type_id` = 900)
+        where oa.`object_id` = #{id} and osc.`locale_id` = (select l.id from locales l where l.system is true)
+    </select>
 </mapper>

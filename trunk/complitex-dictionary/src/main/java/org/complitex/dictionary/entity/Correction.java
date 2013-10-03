@@ -39,12 +39,12 @@ public abstract class Correction implements Serializable {
     private Long userOrganizationId;
     private Long moduleId;
 
-    private String organization;
-    private String userOrganization;
-    private String internalObject;
+    private String organizationName;
+    private String userOrganizationName;
+    private String moduleName;
 
+    private String internalObject;
     private String displayObject;
-    private String module;
 
     private boolean editable = true;
 
@@ -74,20 +74,20 @@ public abstract class Correction implements Serializable {
         this.id = id;
     }
 
-    public Long getObjectId() {
-        return objectId;
-    }
-
-    public void setObjectId(Long objectId) {
-        this.objectId = objectId;
-    }
-
     public String getExternalId() {
         return externalId;
     }
 
     public void setExternalId(String externalId) {
         this.externalId = externalId;
+    }
+
+    public Long getObjectId() {
+        return objectId;
+    }
+
+    public void setObjectId(Long objectId) {
+        this.objectId = objectId;
     }
 
     public String getCorrection() {
@@ -122,6 +122,14 @@ public abstract class Correction implements Serializable {
         this.organizationId = organizationId;
     }
 
+    public Long getUserOrganizationId() {
+        return userOrganizationId;
+    }
+
+    public void setUserOrganizationId(Long userOrganizationId) {
+        this.userOrganizationId = userOrganizationId;
+    }
+
     public Long getModuleId() {
         return moduleId;
     }
@@ -130,20 +138,28 @@ public abstract class Correction implements Serializable {
         this.moduleId = moduleId;
     }
 
-    public String getOrganization() {
-        return organization;
+    public String getOrganizationName() {
+        return organizationName;
     }
 
-    public void setOrganization(String organization) {
-        this.organization = organization;
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
     }
 
-    public String getUserOrganization() {
-        return userOrganization;
+    public String getUserOrganizationName() {
+        return userOrganizationName;
     }
 
-    public void setUserOrganization(String userOrganization) {
-        this.userOrganization = userOrganization;
+    public void setUserOrganizationName(String userOrganizationName) {
+        this.userOrganizationName = userOrganizationName;
+    }
+
+    public String getModuleName() {
+        return moduleName;
+    }
+
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
     }
 
     public String getInternalObject() {
@@ -154,28 +170,12 @@ public abstract class Correction implements Serializable {
         this.internalObject = internalObject;
     }
 
-    public Long getUserOrganizationId() {
-        return userOrganizationId;
-    }
-
-    public void setUserOrganizationId(Long userOrganizationId) {
-        this.userOrganizationId = userOrganizationId;
-    }
-
     public String getDisplayObject() {
         return displayObject;
     }
 
     public void setDisplayObject(String displayObject) {
         this.displayObject = displayObject;
-    }
-
-    public String getModule() {
-        return module;
-    }
-
-    public void setModule(String module) {
-        this.module = module;
     }
 
     public boolean isEditable() {

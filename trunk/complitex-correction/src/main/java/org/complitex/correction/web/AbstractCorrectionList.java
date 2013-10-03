@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
@@ -40,6 +41,7 @@ import org.complitex.dictionary.web.model.OrganizationModel;
 import org.complitex.template.web.component.toolbar.AddItemButton;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
 import org.complitex.template.web.pages.ScrollListPage;
+import org.complitex.template.web.security.SecurityRole;
 
 import javax.ejb.EJB;
 import java.util.List;
@@ -48,6 +50,7 @@ import java.util.List;
  * Абстрактный класс для списка коррекций.
  * @author Artem
  */
+@AuthorizeInstantiation(SecurityRole.AUTHORIZED)
 public abstract class AbstractCorrectionList<T extends Correction> extends ScrollListPage {
     @EJB
     protected StrategyFactory strategyFactory;
@@ -279,7 +282,7 @@ public abstract class AbstractCorrectionList<T extends Correction> extends Scrol
             protected void populateItem(Item<T> item) {
                 T correction = item.getModelObject();
 
-                item.add(new Label("organization", correction.getOrganization()));
+                item.add(new Label("organization", correction.getOrganizationName()));
                 item.add(new Label("correction", displayCorrection(correction)));
 
                 item.add(new Label("code", StringUtil.emptyOnNull(correction.getExternalId())));
@@ -287,9 +290,9 @@ public abstract class AbstractCorrectionList<T extends Correction> extends Scrol
                 item.add(new Label("internalObject", displayInternalObject(correction)));
 
                 //user organization
-                item.add(new Label("userOrganization", correction.getUserOrganization()));
+                item.add(new Label("userOrganization", correction.getUserOrganizationName()));
 
-                item.add(new Label("internalOrganization", correction.getModule()));
+                item.add(new Label("internalOrganization", correction.getModuleName()));
 
                 ScrollBookmarkablePageLink link = new ScrollBookmarkablePageLink<WebPage>("edit", getEditPage(),
                         getEditPageParams(correction.getId()), String.valueOf(correction.getId()));
