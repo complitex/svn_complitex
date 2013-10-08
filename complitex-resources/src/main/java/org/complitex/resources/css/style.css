@@ -100,6 +100,8 @@ ul { margin: 0px; padding: 5px 0px 15px 30px; list-style-type: square; }
 .tbColor > tbody > tr > td, .tbColor > thead > tr > td {border-bottom: 1px solid #C2CBD3; padding: 3px 8px 4px 8px; text-align:left; font-size: 12px;}
 .noBorder > td {border-bottom: none !important;  padding: 3px 8px 2px 8px !important;}
 
+.contentBorder > tbody > tr > td {border-bottom: 1px solid #667584;}
+
 .tbColor td.left, .tbColor th.left { text-align: left;}
 .tbColor td.right, .tbColor th.right { text-align: right;}
 .tbColor td.center, .tbColor th.center { text-align: center;}
@@ -315,4 +317,10 @@ fieldset.collapsible_fs > legend .fs_image {
 .ui-datepicker-trigger{
     cursor: pointer;
     margin-bottom: -3px;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
