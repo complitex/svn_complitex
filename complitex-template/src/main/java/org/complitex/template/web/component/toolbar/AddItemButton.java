@@ -12,6 +12,10 @@ public abstract class AddItemButton extends ToolbarButton {
     private static final String TITLE_KEY = "image.title.addItem";
 
     public AddItemButton(String id) {
-        super(id, new SharedResourceReference(IMAGE_SRC), TITLE_KEY);
+        this(id, false);
+    }
+
+    public AddItemButton(String id, boolean useAjax) {
+        super(id, new SharedResourceReference(IMAGE_SRC), TITLE_KEY, useAjax);
     }
 }
