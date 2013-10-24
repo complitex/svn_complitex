@@ -13,7 +13,8 @@
         <result column="user_organization_id" property="userOrganizationId"/>
         <result column="module_id" property="moduleId"/>
 
-        <result column="status" property="status"/>
+        <!--wtf with status-->
+        <result column="status" property="status" typeHandler="org.complitex.dictionary.mybatis.FixedIdBaseTypeHandler"/>
 
         <association property="organizationName" select="org.complitex.organization.strategy.Organization.selectOrganizationName"
                      column="organization_id"/>
