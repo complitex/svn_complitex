@@ -14,6 +14,8 @@ import javax.interceptor.Interceptors;
  */
 @Interceptors(TransactionalMethodInterceptor.class)
 public abstract class AbstractBean {
+    protected final static String DEFAULT_ENVIRONMENT = "remote";
+
     @EJB(beanName = "SqlSessionFactoryBean")
     private SqlSessionFactoryBean sqlSessionFactoryBean;
 
@@ -23,5 +25,13 @@ public abstract class AbstractBean {
 
     protected SqlSession sqlSession(){
         return sqlSessionFactoryBean.getSqlSessionManager();
+    }
+
+    protected SqlSession sqlSession(String environment, String dataSource){
+        return sqlSessionFactoryBean.getSqlSessionManager(environment, dataSource);
+    }
+
+    protected SqlSession sqlSession(String dataSource){
+        return sqlSessionFactoryBean.getSqlSessionManager(dataSource, DEFAULT_ENVIRONMENT);
     }
 }

@@ -13,44 +13,59 @@ import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
 import javax.ejb.ConcurrencyManagement;
 import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.Singleton;
-import javax.ejb.Startup;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  *
  * @author Artem
  * @author Anatoly A. Ivanov java@inheaven.ru
  */
-@Startup
 @Singleton(name = "SqlSessionFactoryBean")
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 public class SqlSessionFactoryBean {
     private static final Logger log = LoggerFactory.getLogger(SqlSessionFactoryBean.class);
 
     public static final String CONFIGURATION_FILE = "mybatis-config.xml";
-    public static final String ENVIRONMENT = "local";
+    public static final String LOCAL_ENVIRONMENT = "local";
 
-    private SqlSessionManager sqlSessionManager;
+    private ConcurrentMap<JdbcEnvironment, SqlSessionManager> sqlSessionManagerMap = new ConcurrentHashMap<>();
 
     public SqlSessionManager getSqlSessionManager() {
+        return getSqlSessionManager(null, LOCAL_ENVIRONMENT);
+    }
+
+    public SqlSessionManager getSqlSessionManager(String dataSource, String environment){
+        JdbcEnvironment jdbcEnvironment = new JdbcEnvironment(dataSource, environment);
+
+        SqlSessionManager sqlSessionManager = sqlSessionManagerMap.get(jdbcEnvironment);
+
+        if (sqlSessionManager == null){
+            sqlSessionManager = newSqlSessionManager(jdbcEnvironment);
+            sqlSessionManagerMap.put(jdbcEnvironment, sqlSessionManager);
+        }
+
         return sqlSessionManager;
     }
 
-    @PostConstruct
-    private void init() {
-        Reader reader = null;
+    private SqlSessionManager newSqlSessionManager(JdbcEnvironment jdbcEnvironment){
+        try(Reader reader = Resources.getResourceAsReader(CONFIGURATION_FILE)){
+            Properties properties = new Properties();
 
-        try {
-            reader = Resources.getResourceAsReader(CONFIGURATION_FILE);
+            if (jdbcEnvironment.getDataSource() != null) {
+                properties.setProperty("remoteDataSource", jdbcEnvironment.getDataSource());
+            }
+
             SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
-            XMLConfigBuilder parser = new XMLConfigBuilder(reader,  ENVIRONMENT);
+            XMLConfigBuilder parser = new XMLConfigBuilder(reader, jdbcEnvironment.getEnvironment(), properties);
 
             //Configuration
             Configuration configuration = parser.parse();
@@ -64,18 +79,11 @@ public class SqlSessionFactoryBean {
             //XmlMapper
             addAnnotationMappers(reflections, configuration);
 
-            sqlSessionManager = SqlSessionManager.newInstance(builder.build(configuration));
+            return SqlSessionManager.newInstance(builder.build(configuration));
         } catch (Exception e) {
             throw ExceptionFactory.wrapException("Error building SqlSession.", e);
         } finally {
             ErrorContext.instance().reset();
-            try {
-                if (reader != null){
-                    reader.close();
-                }
-            } catch (IOException e) {
-                //nothing
-            }
         }
     }
 
