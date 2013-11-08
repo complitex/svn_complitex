@@ -35,6 +35,7 @@ public class SecurityWebListener implements HttpSessionListener, ServletRequestL
     private final static String USER_LOGIN = SecurityWebListener.class.getName() + ".USER_LOGIN";
     public static final String LOGGED_IN = SecurityWebListener.class.getName() + ".LOGGED_IN";
     private final static ConcurrentHashMap<String, HttpSession> activeSessions = new ConcurrentHashMap<String, HttpSession>();
+
     @EJB
     private LogBean logBean;
 
