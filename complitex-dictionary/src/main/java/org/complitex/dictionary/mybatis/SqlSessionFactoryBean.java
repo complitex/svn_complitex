@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.ConcurrencyManagement;
 import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.Singleton;
+import javax.ejb.Startup;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -29,6 +30,7 @@ import java.util.concurrent.ConcurrentMap;
  * @author Artem
  * @author Anatoly A. Ivanov java@inheaven.ru
  */
+@Startup
 @Singleton(name = "SqlSessionFactoryBean")
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 public class SqlSessionFactoryBean {
@@ -71,7 +73,7 @@ public class SqlSessionFactoryBean {
             Configuration configuration = parser.parse();
 
             //Reflections
-            Reflections reflections = new Reflections("org.complitex");
+            Reflections reflections = new Reflections("org.complitex", "ru.flexpay");
 
             //FixedIdType
             addFixedIdTypeHandlers(reflections, configuration.getTypeHandlerRegistry());

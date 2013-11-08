@@ -1,5 +1,7 @@
 package org.complitex.correction.web;
 
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.complitex.dictionary.entity.Correction;
@@ -12,6 +14,13 @@ public abstract class AddressCorrectionList<T extends Correction> extends Abstra
 
     public AddressCorrectionList(String entity) {
         super(entity);
+
+        add(new AjaxLink("sync"){
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+
+            }
+        });
     }
 
     @Override

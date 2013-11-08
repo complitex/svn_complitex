@@ -28,7 +28,7 @@ public class ConfigBean extends AbstractBean{
 
     @PostConstruct
     public void init(){
-        Reflections reflections = new Reflections("org.complitex");
+        Reflections reflections = new Reflections("org.complitex", "ru.flexpay");
 
         Set<Class<? extends IConfig>> configs = reflections.getSubTypesOf(IConfig.class);
 

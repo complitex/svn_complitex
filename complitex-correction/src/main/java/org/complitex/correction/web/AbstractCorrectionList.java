@@ -64,9 +64,12 @@ public abstract class AbstractCorrectionList<T extends Correction> extends Scrol
     private String entity;
     private FilterWrapper<T> filterWrapper;
 
+    private WebMarkupContainer actionContainer;
+
     public AbstractCorrectionList(String entity) {
         this.entity = entity;
         setPreferencesPage(getClass().getName() + "#" + entity);
+
         init();
     }
 
