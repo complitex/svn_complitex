@@ -11,16 +11,15 @@ import org.complitex.dictionary.entity.Correction;
  * @author Artem
  */
 public abstract class AddressCorrectionList<T extends Correction> extends AbstractCorrectionList<T> {
-
     public AddressCorrectionList(String entity) {
         super(entity);
 
         add(new AjaxLink("sync"){
             @Override
             public void onClick(AjaxRequestTarget target) {
-
+                onSync(target);
             }
-        });
+        }.setVisible(isSyncVisible()));
     }
 
     @Override
@@ -36,5 +35,12 @@ public abstract class AddressCorrectionList<T extends Correction> extends Abstra
             parameters.set(AddressCorrectionEdit.CORRECTION_ID, objectCorrectionId);
         }
         return parameters;
+    }
+
+    protected boolean isSyncVisible() {
+        return true;
+    }
+
+    protected void onSync(AjaxRequestTarget target){
     }
 }

@@ -26,8 +26,7 @@ import java.util.Locale;
 @Stateless
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 public class LogBean extends AbstractBean {
-
-    private static final Logger log = LoggerFactory.getLogger(LogBean.class);
+    private final Logger log = LoggerFactory.getLogger(LogBean.class);
 
     public static final String STATEMENT_PREFIX = LogBean.class.getCanonicalName();
 
@@ -208,7 +207,7 @@ public class LogBean extends AbstractBean {
             session.commit();
             session.close();
         } catch (Exception e) {
-            LogBean.log.error("Ошибка записи журнала событий в базу данных", e);
+            this.log.error("Ошибка записи журнала событий в базу данных", e);
         }
     }
 
