@@ -51,4 +51,9 @@ public class CityCorrectionList extends AddressCorrectionList<CityCorrection> {
         // todo tune getName
         return cityStrategy.displayDomainObject(cityStrategy.findById(correction.getObjectId(), true), getLocale());
     }
+
+    @Override
+    protected boolean isSyncVisible() {
+        return false;
+    }
 }
