@@ -1,31 +1,25 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.address.strategy.building.entity;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
-import java.util.List;
-import java.util.Locale;
+import org.complitex.address.strategy.building.BuildingStrategy;
+import org.complitex.address.strategy.building_address.BuildingAddressStrategy;
 import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.util.EjbBeanLocator;
-import org.complitex.address.strategy.building.BuildingStrategy;
-import org.complitex.address.strategy.building_address.BuildingAddressStrategy;
 
-/**
- *
- * @author Artem
- */
+import java.util.List;
+import java.util.Locale;
+
 public class Building extends DomainObject {
 
     private DomainObject primaryAddress;
     private List<DomainObject> alternativeAddresses = Lists.newArrayList();
     private DomainObject district;
     private DomainObject accompaniedAddress;
+    private BuildingCodeList buildingCodeList = new BuildingCodeList();
 
     public Building(DomainObject copy) {
         super(copy);
@@ -68,6 +62,14 @@ public class Building extends DomainObject {
 
     public DomainObject getPrimaryAddress() {
         return primaryAddress;
+    }
+
+    public BuildingCodeList getBuildingCodeList() {
+        return buildingCodeList;
+    }
+
+    public void setBuildingCodeList(BuildingCodeList buildingCodeList) {
+        this.buildingCodeList = buildingCodeList;
     }
 
     public Long getPrimaryStreetId() {

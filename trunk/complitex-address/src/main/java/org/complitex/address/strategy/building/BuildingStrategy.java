@@ -10,6 +10,8 @@ import org.apache.wicket.util.string.Strings;
 import org.complitex.address.Module;
 import org.complitex.address.resource.CommonResources;
 import org.complitex.address.strategy.building.entity.Building;
+import org.complitex.address.strategy.building.entity.BuildingCode;
+import org.complitex.address.strategy.building.entity.BuildingCodeList;
 import org.complitex.address.strategy.building.web.edit.BuildingEdit;
 import org.complitex.address.strategy.building.web.edit.BuildingEditComponent;
 import org.complitex.address.strategy.building.web.edit.BuildingValidator;
@@ -47,20 +49,18 @@ import java.util.*;
 import static org.complitex.dictionary.util.StringUtil.removeWhiteSpaces;
 import static org.complitex.dictionary.util.StringUtil.toCyrillic;
 
-/**
- *
- * @author Artem
- */
 @Stateless
 public class BuildingStrategy extends TemplateStrategy {
-
     private static final String RESOURCE_BUNDLE = BuildingStrategy.class.getPackage().getName() + ".Building";
+    private static final String NS = BuildingStrategy.class.getPackage().getName() + ".Building";
+
     /**
      * Attribute ids
      */
     public static final long DISTRICT = 500;
     public static final long BUILDING_ADDRESS = 501;
-    private static final String BUILDING_NAMESPACE = BuildingStrategy.class.getPackage().getName() + ".Building";
+    private static final long BUILDING_CODE = 502;
+
 
     /**
      * Order by related constants
@@ -146,7 +146,7 @@ public class BuildingStrategy extends TemplateStrategy {
             List<? extends DomainObject> addresses = buildingAddressStrategy.find(addressExample);
             for (DomainObject address : addresses) {
                 example.addAdditionalParam("buildingAddressId", address.getId());
-                List<Building> result = sqlSession().selectList(BUILDING_NAMESPACE + "." + FIND_OPERATION, example);
+                List<Building> result = sqlSession().selectList(NS + "." + FIND_OPERATION, example);
                 if (result.size() == 1) {
                     Building building = result.get(0);
                     building.setAccompaniedAddress(address);
@@ -258,7 +258,7 @@ public class BuildingStrategy extends TemplateStrategy {
             example.setAdmin(true);
         }
 
-        Building building = (Building) sqlSession().selectOne(BUILDING_NAMESPACE + "." + FIND_BY_ID_OPERATION, example);
+        Building building = (Building) sqlSession().selectOne(NS + "." + FIND_BY_ID_OPERATION, example);
         if (building != null) {
             loadAttributes(building);
             DomainObject primaryAddress = findBuildingAddress(building.getParentId(), null);
@@ -270,7 +270,11 @@ public class BuildingStrategy extends TemplateStrategy {
 
             //load subject ids
             building.setSubjectIds(loadSubjects(building.getPermissionId()));
+
+            //load building codes
+            building.setBuildingCodeList(loadBuildingCodes(building));
         }
+
         return building;
     }
 
@@ -278,6 +282,8 @@ public class BuildingStrategy extends TemplateStrategy {
     public Building newInstance() {
         Building building = new Building(super.newInstance());
         building.setPrimaryAddress(buildingAddressStrategy.newInstance());
+
+
         return building;
     }
 
@@ -433,6 +439,11 @@ public class BuildingStrategy extends TemplateStrategy {
             logBean.log(Log.STATUS.OK, Module.NAME, DomainObjectEditPanel.class,
                     Log.EVENT.CREATE, buildingAddressStrategy, null, buildingAddress, null);
         }
+
+        //building codes
+        if (!building.getBuildingCodeList().isEmpty() && !building.getBuildingCodeList().hasNulls()) {
+            addBuildingCode(building);
+        }
     }
 
     @Transactional
@@ -454,7 +465,7 @@ public class BuildingStrategy extends TemplateStrategy {
         params.put("parentEntityId", parentEntityId);
         params.put("parentId", parentId);
         params.put("localeId", localeBean.convert(locale).getId());
-        List<Long> buildingIds = sqlSession().selectList(BUILDING_NAMESPACE + ".checkBuildingAddress", params);
+        List<Long> buildingIds = sqlSession().selectList(NS + ".checkBuildingAddress", params);
         for (Long buildingId : buildingIds) {
             if (!buildingId.equals(id)) {
                 return buildingId;
@@ -496,6 +507,15 @@ public class BuildingStrategy extends TemplateStrategy {
     public void update(DomainObject oldObject, DomainObject newObject, Date updateDate) {
         Building oldBuilding = (Building) oldObject;
         Building newBuilding = (Building) newObject;
+
+        //building codes
+        if (!newBuilding.getBuildingCodeList().isEmpty() && !newBuilding.getBuildingCodeList().hasNulls()) {
+            if (!newBuilding.getBuildingCodeList().equals(oldBuilding.getBuildingCodeList())) {
+                addBuildingCode(newBuilding);
+            }
+        } else {
+            newBuilding.removeAttribute(BUILDING_CODE);
+        }
 
         List<DomainObject> removedAddresses = determineRemovedAddresses(oldBuilding, newBuilding);
         List<DomainObject> addedAddresses = determineAddedAddresses(newBuilding);
@@ -613,7 +633,7 @@ public class BuildingStrategy extends TemplateStrategy {
 
     @Transactional
     private Set<Long> findBuildingAddresses(long buildingId) {
-        List<Long> results = sqlSession().selectList(BUILDING_NAMESPACE + ".findBuildingAddresses", buildingId);
+        List<Long> results = sqlSession().selectList(NS + ".findBuildingAddresses", buildingId);
         return Sets.newHashSet(results);
     }
 
@@ -625,7 +645,7 @@ public class BuildingStrategy extends TemplateStrategy {
         example.setId(objectId);
         example.setStartDate(date);
 
-        Building building = (Building) sqlSession().selectOne(BUILDING_NAMESPACE + "." + FIND_HISTORY_OBJECT_OPERATION, example);
+        Building building = (Building) sqlSession().selectOne(NS + "." + FIND_HISTORY_OBJECT_OPERATION, example);
         if (building == null) {
             return null;
         }
@@ -639,6 +659,10 @@ public class BuildingStrategy extends TemplateStrategy {
         setAlternativeAddresses(building, date);
 
         updateStringsForNewLocales(building);
+
+        //building codes
+        building.setBuildingCodeList(loadBuildingCodes(building));
+
         return building;
     }
 
@@ -664,7 +688,7 @@ public class BuildingStrategy extends TemplateStrategy {
         params.put("buildingId", buildingId);
         params.put("enabled", enabled);
         params.put("status", enabled ? StatusType.INACTIVE : StatusType.ACTIVE);
-        sqlSession().update(BUILDING_NAMESPACE + ".updateBuildingActivity", params);
+        sqlSession().update(NS + ".updateBuildingActivity", params);
     }
 
     @Override
@@ -676,6 +700,9 @@ public class BuildingStrategy extends TemplateStrategy {
     @Override
     public void delete(long objectId, Locale locale) throws DeleteException {
         deleteChecks(objectId, locale);
+
+        sqlSession().delete(NS + ".deleteBuildingCodes", ImmutableMap.of("objectId", objectId,
+                "buildingCodesAT", BUILDING_CODE));
 
         Set<Long> addressIds = findBuildingAddresses(objectId);
 
@@ -724,6 +751,78 @@ public class BuildingStrategy extends TemplateStrategy {
         params.put("parentId", streetId != null ? streetId : cityId);
         params.put("parentEntityId", streetId != null ? 300 : 400);
 
-        return sqlSession().selectList(BUILDING_NAMESPACE + ".selectBuildingObjectIds", params);
+        return sqlSession().selectList(NS + ".selectBuildingObjectIds", params);
+    }
+
+    public BuildingCodeList loadBuildingCodes(Building building) {
+        List<Attribute> buildingCodeAttributes = building.getAttributes(BUILDING_CODE);
+        Set<Long> buildingCodeIds = Sets.newHashSet();
+        for (Attribute associationAttribute : buildingCodeAttributes) {
+            buildingCodeIds.add(associationAttribute.getValueId());
+        }
+
+        List<BuildingCode> buildingCodes = new ArrayList<>();
+        if (!buildingCodeIds.isEmpty()) {
+            buildingCodes = getBuildingCodes(buildingCodeIds);
+            Collections.sort(buildingCodes, new Comparator<BuildingCode>() {
+
+                @Override
+                public int compare(BuildingCode o1, BuildingCode o2) {
+                    return o1.getId().compareTo(o2.getId());
+                }
+            });
+        }
+
+        return new BuildingCodeList(buildingCodes);
+    }
+
+    public List<BuildingCode> getBuildingCodes(Set<Long> buildingCodeIds) {
+        return sqlSession().selectList(NS + ".getBuildingCodes", ImmutableMap.of("ids", buildingCodeIds));
+    }
+
+    public Long getBuildingCodeId(final Long organizationId, final String buildingCode) {
+        return sqlSession().selectOne(NS + ".selectBuildingCodeIdByCode",
+                ImmutableMap.of("organizationId", organizationId, "buildingCode", buildingCode));
+    }
+
+    public Long getBuildingCodeId(final Long organizationId, final Long buildingId) {
+        return sqlSession().selectOne(NS + ".selectBuildingCodeIdByBuilding",
+                ImmutableMap.of("organizationId", organizationId, "buildingId", buildingId));
+    }
+
+    public BuildingCode getBuildingCodeById(long buildingCodeId) {
+        List<BuildingCode> codes = getBuildingCodes(Collections.singleton(buildingCodeId));
+        if (codes == null || codes.size() > 1) {
+            throw new IllegalStateException("There are more one building code for id: " + buildingCodeId);
+        }
+        return codes.get(0);
+    }
+
+    @Transactional
+    private void addBuildingCode(Building building) {
+        building.removeAttribute(BUILDING_CODE);
+
+        long i = 1;
+        for (BuildingCode association : building.getBuildingCodeList()) {
+            association.setBuildingId(building.getId());
+            saveBuildingCode(association);
+
+            building.addAttribute(newBuildingCodeAttribute(i++, association.getId()));
+        }
+    }
+
+    private Attribute newBuildingCodeAttribute(long attributeId, long buildingAssociationId) {
+        Attribute a = new Attribute();
+        a.setAttributeTypeId(BUILDING_CODE);
+        a.setValueId(buildingAssociationId);
+        a.setValueTypeId(BUILDING_CODE);
+        a.setAttributeId(attributeId);
+
+        return a;
+    }
+
+    @Transactional
+    private void saveBuildingCode(BuildingCode buildingCode) {
+        sqlSession().insert(NS + ".insertBuildingCode", buildingCode);
     }
 }

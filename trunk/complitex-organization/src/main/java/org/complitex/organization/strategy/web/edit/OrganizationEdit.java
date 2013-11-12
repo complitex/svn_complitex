@@ -1,18 +1,15 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.organization.strategy.web.edit;
 
-import java.util.Set;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
 import org.complitex.dictionary.strategy.web.DomainObjectEditPanel;
 import org.complitex.dictionary.web.component.permission.AbstractDomainObjectPermissionPanel;
 import org.complitex.dictionary.web.component.permission.DomainObjectPermissionParameters;
-import org.complitex.dictionary.web.component.permission.organization.OrganizationPermissionParameters;
 import org.complitex.dictionary.web.component.permission.organization.OrganizationPermissionPanelFactory;
+import org.complitex.dictionary.web.component.permission.organization.OrganizationPermissionParameters;
 import org.complitex.template.web.pages.DomainObjectEdit;
+
+import java.util.Set;
 
 /**
  *

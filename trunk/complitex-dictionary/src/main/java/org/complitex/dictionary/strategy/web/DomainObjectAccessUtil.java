@@ -39,6 +39,10 @@ public final class DomainObjectAccessUtil {
         return getApplication().hasAnyRole(new Roles(getEditRoles(strategyName, entity)));
     }
 
+    public static boolean canAddNew(IStrategy strategy, String entity) {
+        return getApplication().hasAnyRole(new Roles(strategy.getEditRoles()));
+    }
+
     public static boolean canEdit(String strategyName, String entity, DomainObject object) {
         return (isNew(object) || object.getStatus() == StatusType.ACTIVE)
                 && getApplication().hasAnyRole(new Roles(getEditRoles(strategyName, entity)));

@@ -1,35 +1,43 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.address.strategy.building.web.edit;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.util.visit.IVisit;
+import org.apache.wicket.util.visit.IVisitor;
 import org.complitex.address.strategy.building.BuildingStrategy;
 import org.complitex.address.strategy.building.entity.Building;
+import org.complitex.address.strategy.building.entity.BuildingCode;
+import org.complitex.address.strategy.building.entity.BuildingCodeList;
 import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
+import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
+import org.complitex.dictionary.web.component.DisableAwareDropDownChoice;
+import org.complitex.dictionary.web.component.DomainObjectDisableAwareRenderer;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.ShowMode;
 import org.complitex.dictionary.web.component.list.AjaxRemovableListView;
+import org.complitex.dictionary.web.component.search.CollapsibleInputSearchComponent;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
 
 import javax.ejb.EJB;
-import org.apache.wicket.util.visit.IVisitor;
-import org.complitex.dictionary.web.component.search.CollapsibleInputSearchComponent;
+import java.util.List;
 
 /**
  *
@@ -39,8 +47,12 @@ public class BuildingEditComponent extends AbstractComplexAttributesPanel {
 
     @EJB
     private StrategyFactory strategyFactory;
+
     private SearchComponentState districtSearchComponentState;
     private FeedbackPanel messages;
+
+    @EJB(name = IOrganizationStrategy.BEAN_NAME, beanInterface = IOrganizationStrategy.class)
+    private IOrganizationStrategy organizationStrategy;
 
     public BuildingEditComponent(String id, boolean disabled) {
         super(id, disabled);
@@ -86,7 +98,7 @@ public class BuildingEditComponent extends AbstractComplexAttributesPanel {
 
         Label districtLabel = new Label("districtLabel",
                 DomainObjectInputPanel.labelModel(buildingStrategy.getEntity().getAttributeType(BuildingStrategy.DISTRICT).
-                getAttributeNames(), getLocale()));
+                        getAttributeNames(), getLocale()));
         districtContainer.add(districtLabel);
         districtSearchComponentState = new SearchComponentState() {
 
@@ -182,6 +194,123 @@ public class BuildingEditComponent extends AbstractComplexAttributesPanel {
         };
         add.setVisible(enabled);
         add(add);
+
+        //
+        //Building Code
+        //
+
+        final BuildingCodeList associationList = building.getBuildingCodeList();
+        if (building.getId() == null) { // new building
+            associationList.addNew();
+        }
+
+        final List<? extends DomainObject> allServicingOrganizations = organizationStrategy.getAllOuterOrganizations(getLocale());
+        final DomainObjectDisableAwareRenderer organizationRenderer = new DomainObjectDisableAwareRenderer() {
+
+            @Override
+            public Object getDisplayValue(DomainObject object) {
+                return organizationStrategy.displayDomainObject(object, getLocale());
+            }
+        };
+
+        final WebMarkupContainer buildingOrganizationAssociationsContainer =
+                new WebMarkupContainer("buildingOrganizationAssociationsContainer");
+        buildingOrganizationAssociationsContainer.setVisible(!isDisabled() || !associationList.isEmpty());
+        add(buildingOrganizationAssociationsContainer);
+
+        final WebMarkupContainer associationsUpdateContainer = new WebMarkupContainer("associationsUpdateContainer");
+        associationsUpdateContainer.setOutputMarkupId(true);
+        buildingOrganizationAssociationsContainer.add(associationsUpdateContainer);
+
+        ListView<BuildingCode> associations =
+                new AjaxRemovableListView<BuildingCode>("associations",
+                        associationList) {
+
+                    @Override
+                    protected void populateItem(ListItem<BuildingCode> item) {
+                        final WebMarkupContainer fakeContainer = new WebMarkupContainer("fakeContainer");
+                        item.add(fakeContainer);
+
+                        final BuildingCode association = item.getModelObject();
+
+                        //organization
+                        IModel<DomainObject> organizationModel = new Model<DomainObject>() {
+
+                            @Override
+                            public DomainObject getObject() {
+                                Long organizationId = association.getOrganizationId();
+                                if (organizationId != null) {
+                                    for (DomainObject o : allServicingOrganizations) {
+                                        if (organizationId.equals(o.getId())) {
+                                            return o;
+                                        }
+                                    }
+                                }
+                                return null;
+                            }
+
+                            @Override
+                            public void setObject(DomainObject organization) {
+                                association.setOrganizationId(organization != null
+                                        ? organization.getId() : null);
+                            }
+                        };
+                        //initialize model:
+                        Long organizationId = association.getOrganizationId();
+                        if (organizationId != null) {
+                            for (DomainObject o : allServicingOrganizations) {
+                                if (organizationId.equals(o.getId())) {
+                                    organizationModel.setObject(o);
+                                }
+                            }
+                        }
+
+                        DisableAwareDropDownChoice<DomainObject> organization =
+                                new DisableAwareDropDownChoice<DomainObject>("organization", organizationModel,
+                                        allServicingOrganizations, organizationRenderer);
+                        organization.setEnabled(enabled);
+                        organization.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
+                            @Override
+                            protected void onUpdate(AjaxRequestTarget target) {
+                                target.add(associationsUpdateContainer);
+                            }
+                        });
+                        item.add(organization);
+
+                        //building code
+                        IModel<Integer> buildingCodeModel = new PropertyModel<Integer>(association, "buildingCode");
+                        TextField<Integer> buildingCode = new TextField<>("buildingCode", buildingCodeModel);
+                        buildingCode.setEnabled(enabled);
+                        buildingCode.add(new AjaxFormComponentUpdatingBehavior("onblur") {
+
+                            @Override
+                            protected void onUpdate(AjaxRequestTarget target) {
+                                target.add(associationsUpdateContainer);
+                            }
+                        });
+                        item.add(buildingCode);
+
+                        //remove link
+                        addRemoveLink("removeAssociation", item, null, associationsUpdateContainer).setVisible(enabled);
+                    }
+
+                    @Override
+                    protected boolean approveRemoval(ListItem<BuildingCode> item) {
+                        return associationList.size() > 1;
+                    }
+                };
+        associationsUpdateContainer.add(associations);
+        AjaxLink<Void> addAssociation = new AjaxLink<Void>("addAssociation") {
+
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                associationList.addNew();
+                target.add(associationsUpdateContainer);
+            }
+        };
+        addAssociation.setVisible(enabled);
+        buildingOrganizationAssociationsContainer.add(addAssociation);
     }
 
     @Override
@@ -202,5 +331,13 @@ public class BuildingEditComponent extends AbstractComplexAttributesPanel {
         } else {
             districtAttribute.setValueId(null);
         }
+    }
+
+    public boolean isBuildingOrganizationAssociationListEmpty() {
+        return ((Building)getDomainObject()).getBuildingCodeList().isEmpty();
+    }
+
+    public boolean isBuildingOrganizationAssociationListHasNulls() {
+        return ((Building)getDomainObject()).getBuildingCodeList().hasNulls();
     }
 }

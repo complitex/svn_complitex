@@ -110,5 +110,37 @@
         </choose>
         and addr.`parent_entity_id` = #{parentEntityId} and addr.`parent_id` = #{parentId}
     </select>
+
+    <!--Building Codes-->
+
+    <select id="getBuildingCodes" parameterType="map"
+            resultType="org.complitex.address.strategy.building.entity.BuildingCode">
+        SELECT `id` id, `organization_id` organizationId, `code` buildingCode, `building_id` buildingId
+        FROM `building_code` WHERE `id` IN
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
+    <insert id="insertBuildingCode"
+            parameterType="org.complitex.address.strategy.building.entity.BuildingCode"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO `building_code` (`organization_id`, `code`, `building_id`)
+        VALUES (#{organizationId}, #{buildingCode}, #{buildingId})
+    </insert>
+
+    <delete id="deleteBuildingCodes" parameterType="map">
+        DELETE FROM `building_code` WHERE `id` IN
+          (SELECT a.`value_id` FROM `building_attribute` a WHERE a.`object_id` = #{objectId}
+            AND a.`attribute_type_id` = #{buildingCodesAT})
+    </delete>
+
+    <select id="selectBuildingCodeIdByCode" parameterType="map" resultType="long">
+        select `id` from `building_code` where `organization_id` = #{organizationId} and `code` = #{buildingCode}
+    </select>
+
+    <select id="selectBuildingCodeIdByBuilding" parameterType="map" resultType="long">
+        select `id` from `building_code` where `organization_id` = #{organizationId} and `building_id` = #{buildingId}
+    </select>
     
 </mapper>
