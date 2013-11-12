@@ -5,7 +5,7 @@ package org.complitex.dictionary.entity;
  *         Date: 02.03.11 16:31
  */
 public enum DictionaryConfig implements IConfig{
-    IMPORT_FILE_STORAGE_DIR("c:\\storage\\import");
+    IMPORT_FILE_STORAGE_DIR("c:\\storage\\import"), SYNC_DATA_SOURCE("jdbc/osznconnectionRemoteResource");
 
     private String defaultValue;
 

@@ -74,7 +74,7 @@ public class ConfigBean extends AbstractBean{
                 map.put(c.getGroupKey(), new ArrayList<IConfig>());
             }
 
-            map.get(c.getGroupKey()).add(0, c);
+            map.get(c.getGroupKey()).add(c);
         }
 
         return map;
@@ -100,6 +100,10 @@ public class ConfigBean extends AbstractBean{
         }
 
         return configMap.get(config);
+    }
+
+    public String getString(IConfig config){
+        return getString(config, false);
     }
 
     /**
