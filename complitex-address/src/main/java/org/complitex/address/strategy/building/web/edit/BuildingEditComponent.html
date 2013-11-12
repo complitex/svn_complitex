@@ -48,6 +48,53 @@
                     <wicket:message key="add"/>
                 </a>
             </div>
+
+            <div wicket:id="buildingOrganizationAssociationsContainer" style="margin-top: 10px;">
+                <table class="tbForm" cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                        <th style="vertical-align: top; padding-top: 20px;">
+                            <div style="width: 150px;">
+                                <wicket:message key="buildingOrganizationAssociationsLabel"/><b class="blue">*</b>:
+                            </div>
+                        </th>
+                        <td style="padding-top: 20px;">
+                            <table>
+                                <thead>
+                                <tr>
+                                    <td align="center">
+                                        <wicket:message key="organizationHeader"/>
+                                    </td>
+                                    <td align="center">
+                                        <wicket:message key="buildingCodeHeader"/>
+                                    </td>
+                                </tr>
+                                </thead>
+                                <tbody wicket:id="associationsUpdateContainer">
+                                <tr wicket:id="associations">
+                                    <wicket:container wicket:id="fakeContainer"/>
+                                    <td>
+                                        <select wicket:id="organization" style="width: 300px;"></select>
+                                    </td>
+                                    <td>
+                                        <input type="text" wicket:id="buildingCode"/>
+                                    </td>
+                                    <td>
+                                        <a wicket:id="removeAssociation">
+                                            <wicket:message key="removeAssociation"/>
+                                        </a>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <div>
+                                <a wicket:id="addAssociation">
+                                    <wicket:message key="addAssociation"/>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </wicket:panel>
     </body>
 </html>

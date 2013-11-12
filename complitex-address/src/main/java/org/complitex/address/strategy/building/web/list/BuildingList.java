@@ -210,7 +210,7 @@ public class BuildingList extends ScrollListPage {
 
                     @Override
                     public String getObject() {
-                        if (DomainObjectAccessUtil.canAddNew(null, "building")) {
+                        if (DomainObjectAccessUtil.canAddNew(getBuildingStrategy(), "building")) {
                             return getString("edit");
                         } else {
                             return getString("view");

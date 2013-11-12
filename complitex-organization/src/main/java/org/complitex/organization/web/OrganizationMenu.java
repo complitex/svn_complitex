@@ -2,17 +2,17 @@ package org.complitex.organization.web;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.wicket.Page;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.complitex.dictionary.strategy.IStrategy;
+import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
+import org.complitex.dictionary.util.EjbBeanLocator;
+import org.complitex.template.web.security.SecurityRole;
 import org.complitex.template.web.template.ITemplateLink;
 import org.complitex.template.web.template.ResourceTemplateMenu;
 
 import java.util.List;
 import java.util.Locale;
-import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.complitex.dictionary.strategy.IStrategy;
-import org.complitex.dictionary.strategy.StrategyFactory;
-import org.complitex.dictionary.util.EjbBeanLocator;
-import org.complitex.template.web.security.SecurityRole;
 
 /**
  *
@@ -24,7 +24,7 @@ public class OrganizationMenu extends ResourceTemplateMenu {
     public static final String ORGANIZATION_MENU_ITEM = "organization_item";
 
     protected IStrategy getStrategy() {
-        return EjbBeanLocator.getBean(StrategyFactory.class).getStrategy("organization");
+        return EjbBeanLocator.getBean(IOrganizationStrategy.BEAN_NAME);
     }
 
     @Override

@@ -1,32 +1,29 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.address.strategy.building.web.edit;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
-import java.text.MessageFormat;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
 import org.apache.wicket.Component;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.string.Strings;
 import org.apache.wicket.util.visit.IVisit;
 import org.apache.wicket.util.visit.IVisitor;
+import org.complitex.address.strategy.building.BuildingStrategy;
+import org.complitex.address.strategy.building.entity.Building;
+import org.complitex.address.strategy.building_address.BuildingAddressStrategy;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.service.StringCultureBean;
+import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.strategy.web.DomainObjectEditPanel;
 import org.complitex.dictionary.strategy.web.validate.IValidator;
 import org.complitex.dictionary.util.EjbBeanLocator;
 import org.complitex.dictionary.util.Numbers;
-import org.complitex.address.strategy.building.BuildingStrategy;
-import org.complitex.address.strategy.building.entity.Building;
-import org.complitex.address.strategy.building_address.BuildingAddressStrategy;
-import org.complitex.dictionary.strategy.IStrategy;
+
+import java.text.MessageFormat;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 /**
  *
@@ -40,11 +37,38 @@ public class BuildingValidator implements IValidator {
         this.systemLocale = systemLocale;
     }
 
+    private BuildingEditComponent getEditComponent(DomainObjectEditPanel editPanel) {
+        return editPanel.visitChildren(BuildingEditComponent.class,
+                    new IVisitor<BuildingEditComponent, BuildingEditComponent>() {
+
+                        @Override
+                        public void component(BuildingEditComponent object,
+                                              IVisit<BuildingEditComponent> visit) {
+                            visit.stop(object);
+                        }
+                    });
+    }
+
     @Override
     public boolean validate(DomainObject object, DomainObjectEditPanel editPanel) {
         Building building = (Building) object;
-        return validateParents(building, editPanel) && validateCity(building, editPanel) && validateStreets(building, editPanel)
-                && validateAdresses(building, editPanel);
+
+        boolean valid = validateParents(building, editPanel) && validateCity(building, editPanel)
+                && validateStreets(building, editPanel) && validateAdresses(building, editPanel);
+
+        if (valid) {
+            BuildingEditComponent editComponent = getEditComponent(editPanel);
+
+            if (editComponent.isBuildingOrganizationAssociationListEmpty()) {
+                valid = false;
+                editComponent.error(editComponent.getString("building_organization_associations_empty"));
+            } else if (editComponent.isBuildingOrganizationAssociationListHasNulls()) {
+                valid = false;
+                editComponent.error(editComponent.getString("building_organization_associations_has_nulls"));
+            }
+        }
+
+        return valid;
     }
 
     private boolean validateCity(Building building, DomainObjectEditPanel editPanel) {
