@@ -17,10 +17,7 @@ import org.complitex.template.web.security.SecurityRole;
 import org.complitex.template.web.template.FormTemplatePage;
 
 import javax.ejb.EJB;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -41,9 +38,9 @@ public class ConfigEdit extends FormTemplatePage {
         Form form = new Form<>("form");
         add(form);
 
-        final List<IConfig> configs = new ArrayList<IConfig>(configBean.getConfigs());
+        final List<IConfig> configs = new ArrayList<>(configBean.getConfigs());
 
-        final Map<IConfig, IModel<String>> model = new HashMap<IConfig, IModel<String>>();
+        final Map<IConfig, IModel<String>> model = new HashMap<>();
 
         for (IConfig config : configs) {
             model.put(config, new Model<>(configBean.getString(config, true)));
