@@ -44,11 +44,11 @@
             VALUES (#{id}, #{gek}, #{code}, #{buildingImportId})
     </insert>
 
-    <delete id="deleteBuildingSegmentImports">
+    <delete id="deleteBuildingSegmentImport">
         DELETE FROM `building_segment_import`
     </delete>
     
-    <delete id="deleteBuildingImports">
+    <delete id="deleteBuildingImport">
         DELETE FROM `building_import`
     </delete>
 
