@@ -11,7 +11,7 @@ public class BuildingSegmentImport implements Serializable {
     public BuildingSegmentImport() {
     }
 
-    public BuildingSegmentImport(long id, long gekId, String code, long buildingImportId) {
+    public BuildingSegmentImport(long id, Long gekId, String code, long buildingImportId) {
         this.id = id;
         this.gek = gekId;
         this.code = code;

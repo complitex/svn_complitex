@@ -16,7 +16,7 @@ public class BuildingImportBean extends AbstractBean {
     private static final String MAPPING_NAMESPACE = BuildingImportBean.class.getName();
 
     @Transactional
-    public void insert(long buildingSegmentId, long distrId, long streetId, String num, String part, long gekId, String code) {
+    public void insert(long buildingSegmentId, long distrId, long streetId, String num, String part, Long gekId, String code) {
         BuildingImport b = new BuildingImport(distrId, streetId, num, part);
 
         sqlSession().insert(MAPPING_NAMESPACE + ".insertBuildingImport", b);
@@ -31,7 +31,7 @@ public class BuildingImportBean extends AbstractBean {
 
     @Transactional
     public void saveOrUpdate(long buildingSegmentId, long distrId, long streetId, String num, String part,
-            long gekId, String code) {
+            Long gekId, String code) {
         if (part == null) {
             part = "";
         }
@@ -44,7 +44,7 @@ public class BuildingImportBean extends AbstractBean {
     }
 
     @Transactional
-    public void addBuildingSegment(long buildingPartId, long gekId, String code, long buildingImportId) {
+    public void addBuildingSegment(long buildingPartId, Long gekId, String code, long buildingImportId) {
         sqlSession().insert(MAPPING_NAMESPACE + ".insertBuildingSegmentImport",
                 new BuildingSegmentImport(buildingPartId, gekId, code, buildingImportId));
     }

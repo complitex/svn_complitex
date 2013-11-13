@@ -771,13 +771,18 @@ public class AddressImportService extends AbstractImportService {
             String[] line;
             while ((line = reader.readNext()) != null) {
                 recordIndex++;
-                final long buildingPartId = Long.parseLong(line[0].trim());
-                final long distrId = Long.parseLong(line[1].trim());
-                final long streetId = Long.parseLong(line[2].trim());
-                final String num = line[3].trim();
-                final String part = line[4].trim();
-                final long gek = Long.parseLong(line[5].trim());
-                final String code = line[6].trim();
+                long buildingPartId = Long.parseLong(line[0].trim());
+                long distrId = Long.parseLong(line[1].trim());
+                long streetId = Long.parseLong(line[2].trim());
+                String num = line[3].trim();
+                String part = line[4].trim();
+                Long gek = null;
+                try {
+                    gek = Long.parseLong(line[5].trim());
+                } catch (NumberFormatException e) {
+                    //skip
+                }
+                final String code = line.length > 6 ? line[6].trim() : null;
                 buildingImportBean.saveOrUpdate(buildingPartId, distrId, streetId, num, part, gek, code);
             }
         } catch (IOException | NumberFormatException e) {
@@ -848,6 +853,10 @@ public class AddressImportService extends AbstractImportService {
                     Set<Long> subjectIds = new HashSet<>();
 
                     for (BuildingSegmentImport part : b.getBuildingSegmentImports()) {
+                        if (part.getGek() == null){
+                            continue;
+                        }
+
                         String gekId = part.getGek().toString();
                         String buildingCode = part.getCode();
 
@@ -860,6 +869,7 @@ public class AddressImportService extends AbstractImportService {
                         try {
                             buildingCodeInt = StringUtil.parseInt(buildingCode);
                         } catch (NumberFormatException e) {
+                            //wtf
                         }
 
                         if (buildingCodeInt == null) {
@@ -873,7 +883,7 @@ public class AddressImportService extends AbstractImportService {
                             subjectIds.add(organizationId);
                         }
                     }
-                    building.setSubjectIds(subjectIds);
+                    //todo building.setSubjectIds(subjectIds);
                 }
                 buildingStrategy.insert(building, beginDate);
                 listener.recordProcessed(BUILDING, recordIndex);

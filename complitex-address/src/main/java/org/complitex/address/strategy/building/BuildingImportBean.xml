@@ -10,7 +10,7 @@
         <result column="num" property="num"/>
         <result column="part" property="part"/>
         <result column="processed" property="processed"/>
-        <collection property="buildingParts" ofType="org.complitex.keconnection.address.entity.BuildingPartImport">
+        <collection property="buildingSegmentImports" ofType="org.complitex.address.strategy.building.entity.BuildingSegmentImport">
             <id column="part_id" property="id"/>
             <result column="gek" property="gek"/>
             <result column="code" property="code"/>
