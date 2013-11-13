@@ -88,7 +88,7 @@ public class AddressImportService extends AbstractImportService {
     @EJB
     private LogBean logBean;
 
-    @EJB
+    @EJB(lookup = IOrganizationStrategy.BEAN_LOOKUP)
     private IOrganizationStrategy organizationStrategy;
 
     private boolean processing;
