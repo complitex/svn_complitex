@@ -7,7 +7,7 @@ CREATE TABLE `locales` (
   `system` TINYINT(1) NOT NULL default 0 COMMENT 'Является ли локаль системной',
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_key_locale` (`locale`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Локаль';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Локаль';
 
 -- ------------------------------
 -- User
@@ -23,7 +23,7 @@ CREATE TABLE  `user` (
   UNIQUE KEY `unique_key_login` (`login`),
   KEY `key_user_info_object_id` (`user_info_object_id`),
   CONSTRAINT `fk_user__user_info` FOREIGN KEY (`user_info_object_id`) REFERENCES `user_info` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Пользователь';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Пользователь';
 
 -- ------------------------------
 -- Usergroup
@@ -37,7 +37,7 @@ CREATE TABLE  `usergroup` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_login__group_name` (`login`, `group_name`),
   CONSTRAINT `fk_usergroup__user` FOREIGN KEY (`login`) REFERENCES `user` (`login`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Группа пользователей';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Группа пользователей';
 
 -- ------------------------------
 -- Log
@@ -65,7 +65,7 @@ CREATE TABLE  `log` (
   KEY `key_status` (`status`),
   KEY `key_description` (`description`),
   CONSTRAINT `fk_log__user` FOREIGN KEY (`login`) REFERENCES `user` (`login`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Журнал событий';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Журнал событий';
 
 -- ------------------------------
 -- Log change
@@ -84,7 +84,7 @@ CREATE TABLE `log_change` (
     PRIMARY KEY (`id`),
     KEY `key_log` (`log_id`),
     CONSTRAINT `fk_log_change__log` FOREIGN KEY (`log_id`) REFERENCES `log` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Изменения модели данных';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Изменения модели данных';
 
 -- ------------------------------
 -- Config
@@ -98,7 +98,7 @@ CREATE TABLE `config` (
     `value` VARCHAR(255) NOT NULL COMMENT 'Значение',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_key` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Настройки';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Настройки';
 
 -- ------------------------------
 -- Update
@@ -111,7 +111,7 @@ CREATE TABLE `update` (
     `version` VARCHAR(64) NOT NULL COMMENT 'Версия',
     `date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Дата обновления',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Обновление базы данных';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Обновление базы данных';
 
 -- ------------------------------
 -- Preference
@@ -129,6 +129,6 @@ CREATE TABLE `preference` (
     KEY `key_user_id` (`user_id`),
     UNIQUE KEY `unique_key` (`user_id`, `page`, `key`),
     CONSTRAINT `fk_preference__user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Предпочтения пользователя';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Предпочтения пользователя';
 
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
