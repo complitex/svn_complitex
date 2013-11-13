@@ -1,8 +1,5 @@
 package org.complitex.template.web.pages.login;
 
-import javax.ejb.EJB;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.feedback.IFeedbackMessageFilter;
@@ -29,6 +26,10 @@ import org.complitex.template.web.security.SecurityWebListener;
 import org.odlabs.wiquery.core.resources.CoreJavaScriptResourceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.ejb.EJB;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
