@@ -5,7 +5,7 @@ CREATE TABLE `sequence`(
    `sequence_name` VARCHAR(100) NOT NULL COMMENT 'Название таблицы сущности',
    `sequence_value` bigint UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Значение идентификатора',
    PRIMARY KEY (`sequence_name`)
- )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Последовательность генерации идентификаторов объектов';
+ )ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Последовательность генерации идентификаторов объектов';
 
 DROP TABLE IF EXISTS `string_culture`;
 CREATE TABLE `string_culture` (
@@ -18,7 +18,7 @@ CREATE TABLE `string_culture` (
   KEY `key_locale` (`locale_id`),
   KEY `key_value` (`value`(128)),
   CONSTRAINT `fk_string_culture__locales` FOREIGN KEY (`locale_id`) REFERENCES `locales` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Локализация';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Локализация';
 
 DROP TABLE IF EXISTS `entity`;
 
@@ -31,7 +31,7 @@ CREATE TABLE `entity` (
   UNIQUE KEY `unique_entity_table` (`entity_table`),
   KEY `key_entity_name_id` (`entity_name_id`),
   CONSTRAINT `fk_entity__string_culture` FOREIGN KEY (`entity_name_id`) REFERENCES `string_culture` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Сущность';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Сущность';
 
 DROP TABLE IF EXISTS `entity_attribute_type`;
 
@@ -48,7 +48,7 @@ CREATE TABLE `entity_attribute_type` (
   KEY `key_attribute_type_name_id` (`attribute_type_name_id`),
   CONSTRAINT `fk_entity_attribute_type__entity` FOREIGN KEY (`entity_id`) REFERENCES `entity` (`id`),
   CONSTRAINT `fk_entity_attribute_type__string_culture` FOREIGN KEY (`attribute_type_name_id`) REFERENCES `string_culture` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Тип атрибута сущности';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Тип атрибута сущности';
 
 DROP TABLE IF EXISTS `entity_attribute_value_type`;
 
@@ -59,7 +59,7 @@ CREATE TABLE `entity_attribute_value_type` (
   PRIMARY KEY  (`id`),
   KEY `key_attribute_type_id` (`attribute_type_id`),
   CONSTRAINT `fk_entity_attribute_value_type` FOREIGN KEY (`attribute_type_id`) REFERENCES `entity_attribute_type` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Тип значения атрибута';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Тип значения атрибута';
 
 /* Entities */
 
@@ -90,7 +90,7 @@ CREATE TABLE `apartment` (
   KEY `key_permission_id` (`permission_id`),
   CONSTRAINT `fk_apartment__entity` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`),
   CONSTRAINT `fk_apartment__permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`permission_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Квартира';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Квартира';
 
 DROP TABLE IF EXISTS `apartment_attribute`;
 
@@ -118,7 +118,7 @@ CREATE TABLE `apartment_attribute` (
     REFERENCES `entity_attribute_type` (`id`),
   CONSTRAINT `fk_apartment_attribute__entity_attribute_value_type` FOREIGN KEY (`value_type_id`)
     REFERENCES `entity_attribute_value_type` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Атрибуты квартиры';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Атрибуты квартиры';
 
 DROP TABLE IF EXISTS `apartment_string_culture`;
 
@@ -132,7 +132,7 @@ CREATE TABLE `apartment_string_culture` (
   KEY `key_locale` (`locale_id`),
   KEY `key_value` (`value`(128)),
   CONSTRAINT `fk_apartment_string_culture__locales` FOREIGN KEY (`locale_id`) REFERENCES `locales` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Локализация атрибутов квартиры';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Локализация атрибутов квартиры';
 
 -- ------------------------------
 -- Room --
@@ -161,7 +161,7 @@ CREATE TABLE `room` (
   KEY `key_permission_id` (`permission_id`),
   CONSTRAINT `fk_room__entity` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`),
   CONSTRAINT `fk_room__permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`permission_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Комната';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Комната';
 
 DROP TABLE IF EXISTS `room_attribute`;
 
@@ -189,7 +189,7 @@ CREATE TABLE `room_attribute` (
     FOREIGN KEY (`attribute_type_id`) REFERENCES `entity_attribute_type` (`id`),
   CONSTRAINT `fk_room_attribute__entity_attribute_value_type`
     FOREIGN KEY (`value_type_id`) REFERENCES `entity_attribute_value_type` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Атрибуты комнаты';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Атрибуты комнаты';
 
 DROP TABLE IF EXISTS `room_string_culture`;
 
@@ -203,7 +203,7 @@ CREATE TABLE `room_string_culture` (
   KEY `key_locale` (`locale_id`),
   KEY `key_value` (`value`(128)),
   CONSTRAINT `fk_room_string_culture__locales` FOREIGN KEY (`locale_id`) REFERENCES `locales` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Локализация атрибутов комнаты';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Локализация атрибутов комнаты';
 
 -- ------------------------------
 -- Street
@@ -232,7 +232,7 @@ CREATE TABLE `street` (
   KEY `key_permission_id` (`permission_id`),
   CONSTRAINT `fk_street__entity` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`),
   CONSTRAINT `fk_street__permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`permission_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Улица';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Улица';
 
 DROP TABLE IF EXISTS `street_attribute`;
 
@@ -260,7 +260,7 @@ CREATE TABLE `street_attribute` (
     REFERENCES `entity_attribute_type` (`id`),
   CONSTRAINT `fk_street_attribute__entity_attribute_value_type` FOREIGN KEY (`value_type_id`)
     REFERENCES `entity_attribute_value_type` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Атрибуты улицы';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Атрибуты улицы';
 
 DROP TABLE IF EXISTS `street_string_culture`;
 
@@ -274,7 +274,7 @@ CREATE TABLE `street_string_culture` (
   KEY `key_locale` (`locale_id`),
   KEY `key_value` (`value`(128)),
   CONSTRAINT `fk_street_string_culture__locales` FOREIGN KEY (`locale_id`) REFERENCES `locales` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Локализация атрибутов улицы';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Локализация атрибутов улицы';
 
 -- ------------------------------
 -- Street Type
@@ -304,7 +304,7 @@ CREATE TABLE `street_type` (
   KEY `key_permission_id` (`permission_id`),
   CONSTRAINT `fk_street_type__entity` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`),
   CONSTRAINT `fk_street_type__permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`permission_id`)
-) ENGINE=INNODB DEFAULT CHARSET=utf8 COMMENT 'Тип улицы';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Тип улицы';
 
 DROP TABLE IF EXISTS `street_type_attribute`;
 
@@ -332,7 +332,7 @@ CREATE TABLE `street_type_attribute` (
     REFERENCES `entity_attribute_type` (`id`),
   CONSTRAINT `fk_street_type_attribute__entity_attribute_value_type` FOREIGN KEY (`value_type_id`)
     REFERENCES `entity_attribute_value_type` (`id`)
-) ENGINE=INNODB DEFAULT CHARSET=utf8 COMMENT 'Атрибуты типа улицы';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Атрибуты типа улицы';
 
 DROP TABLE IF EXISTS `street_type_string_culture`;
 
@@ -346,7 +346,7 @@ CREATE TABLE `street_type_string_culture` (
   KEY `key_locale` (`locale_id`),
   KEY `key_value` (`value`(128)),
   CONSTRAINT `fk_street_type_string_culture__locales` FOREIGN KEY (`locale_id`) REFERENCES `locales` (`id`)
-) ENGINE=INNODB DEFAULT CHARSET=utf8 COMMENT 'Локализация атрибутов типа улицы';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Локализация атрибутов типа улицы';
 
 -- ------------------------------
 -- City
@@ -375,7 +375,7 @@ CREATE TABLE `city` (
   KEY `key_permission_id` (`permission_id`),
   CONSTRAINT `ft_city__entity` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`),
   CONSTRAINT `fk_city__permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`permission_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Населенный пункт';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Населенный пункт';
 
 DROP TABLE IF EXISTS `city_attribute`;
 
@@ -403,7 +403,7 @@ CREATE TABLE `city_attribute` (
     REFERENCES `entity_attribute_type` (`id`),
   CONSTRAINT `fk_city_attribute__entity_attribute_value_type` FOREIGN KEY (`value_type_id`)
     REFERENCES `entity_attribute_value_type` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Атрибуты населенного пункта';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Атрибуты населенного пункта';
 
 DROP TABLE IF EXISTS `city_string_culture`;
 
@@ -417,7 +417,7 @@ CREATE TABLE `city_string_culture` (
   KEY `key_locale` (`locale_id`),
   KEY `key_value` (`value`(128)),
   CONSTRAINT `fk_city_string_culture__locales` FOREIGN KEY (`locale_id`) REFERENCES `locales` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Локализация атрибутов населенного пункта';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Локализация атрибутов населенного пункта';
 
 -- ------------------------------
 -- City Type
@@ -447,7 +447,7 @@ CREATE TABLE `city_type` (
   KEY `key_permission_id` (`permission_id`),
   CONSTRAINT `fk_city_type__entity` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`),
   CONSTRAINT `fk_city_type__permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`permission_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Тип населенного пункта';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Тип населенного пункта';
 
 DROP TABLE IF EXISTS `city_type_attribute`;
 
@@ -475,7 +475,7 @@ CREATE TABLE `city_type_attribute` (
     REFERENCES `entity_attribute_type` (`id`),
   CONSTRAINT `fk_city_type_attribute__entity_attribute_value_type` FOREIGN KEY (`value_type_id`)
     REFERENCES `entity_attribute_value_type` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Атрибуты типа населенного пункта';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Атрибуты типа населенного пункта';
 
 DROP TABLE IF EXISTS `city_type_string_culture`;
 
@@ -489,7 +489,7 @@ CREATE TABLE `city_type_string_culture` (
   KEY `key_locale` (`locale_id`),
   KEY `key_value` (`value`(128)),
   CONSTRAINT `fk_city_type_string_culture__locales` FOREIGN KEY (`locale_id`) REFERENCES `locales` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Локализация атрибутов типа населенного пункта';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Локализация атрибутов типа населенного пункта';
 
 -- ------------------------------
 -- Building Address
@@ -518,7 +518,7 @@ CREATE TABLE `building_address` (
   KEY `key_permission_id` (`permission_id`),
   CONSTRAINT `fk_building_address__entity` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`),
   CONSTRAINT `fk_building_address__permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`permission_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Адрес дома';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Адрес дома';
 
 DROP TABLE IF EXISTS `building_address_attribute`;
 
@@ -546,7 +546,7 @@ CREATE TABLE `building_address_attribute` (
     REFERENCES `entity_attribute_type` (`id`),
   CONSTRAINT `fk_building_address_attribute__entity_attribute_value_type` FOREIGN KEY (`value_type_id`)
     REFERENCES `entity_attribute_value_type` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Атрибуты адреса дома';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Атрибуты адреса дома';
 
 DROP TABLE IF EXISTS `building_address_string_culture`;
 
@@ -560,7 +560,7 @@ CREATE TABLE `building_address_string_culture` (
   KEY `key_locale` (`locale_id`),
   KEY `key_value` (`value`(128)),
   CONSTRAINT `fk_building_address_string_culture__locales` FOREIGN KEY (`locale_id`) REFERENCES `locales` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Локализация атрибутов адреса дома';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Локализация атрибутов адреса дома';
 
 -- ------------------------------
 -- Building
@@ -589,7 +589,7 @@ CREATE TABLE `building` (
   KEY `key_permission_id` (`permission_id`),
   CONSTRAINT `fk_building__entity` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`),
   CONSTRAINT `fk_building__permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`permission_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Дом';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Дом';
 
 DROP TABLE IF EXISTS `building_attribute`;
 
@@ -617,7 +617,7 @@ CREATE TABLE `building_attribute` (
     REFERENCES `entity_attribute_type` (`id`),
   CONSTRAINT `fk_building_attribute__entity_attribute_value_type` FOREIGN KEY (`value_type_id`)
     REFERENCES `entity_attribute_value_type` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Атрибуты дома';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Атрибуты дома';
 
 DROP TABLE IF EXISTS `building_string_culture`;
 
@@ -631,7 +631,7 @@ CREATE TABLE `building_string_culture` (
   KEY `key_locale` (`locale_id`),
   KEY `key_value` (`value`(128)),
   CONSTRAINT `fk_building_string_culture__locales` FOREIGN KEY (`locale_id`) REFERENCES `locales` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Локализация атрибутов дома ';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Локализация атрибутов дома ';
 
 -- ------------------------------
 -- District --
@@ -660,7 +660,7 @@ CREATE TABLE `district` (
   KEY `key_permission_id` (`permission_id`),
   CONSTRAINT `fk_district__entity` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`),
   CONSTRAINT `fk_district__permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`permission_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Район';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Район';
 
 DROP TABLE IF EXISTS `district_attribute`;
 
@@ -688,7 +688,7 @@ CREATE TABLE `district_attribute` (
     REFERENCES `entity_attribute_type` (`id`),
   CONSTRAINT `fk_district_attribute__entity_attribute_value_type` FOREIGN KEY (`value_type_id`)
     REFERENCES `entity_attribute_value_type` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Атрибуты района';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Атрибуты района';
 
 DROP TABLE IF EXISTS `district_string_culture`;
 
@@ -702,7 +702,7 @@ CREATE TABLE `district_string_culture` (
   KEY `key_locale` (`locale_id`),
   KEY `key_value` (`value`(128)),
   CONSTRAINT `fk_district_string_culture__locales` FOREIGN KEY (`locale_id`) REFERENCES `locales` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Локализация атрибутов района';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Локализация атрибутов района';
 
 -- ------------------------------
 -- Region
@@ -731,7 +731,7 @@ CREATE TABLE `region` (
   KEY `key_permission_id` (`permission_id`),
   CONSTRAINT `fk_region__entity` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`),
   CONSTRAINT `fk_region__permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`permission_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Регион';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Регион';
 
 DROP TABLE IF EXISTS `region_attribute`;
 
@@ -759,7 +759,7 @@ CREATE TABLE `region_attribute` (
     REFERENCES `entity_attribute_type` (`id`),
   CONSTRAINT `fk_region_attribute__entity_attribute_value_type` FOREIGN KEY (`value_type_id`)
     REFERENCES `entity_attribute_value_type` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Атрибуты региона';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Атрибуты региона';
 
 DROP TABLE IF EXISTS `region_string_culture`;
 
@@ -773,7 +773,7 @@ CREATE TABLE `region_string_culture` (
   KEY `key_locale` (`locale_id`),
   KEY `key_value` (`value`(128)),
   CONSTRAINT `fk_region_string_culture__locales` FOREIGN KEY (`locale_id`) REFERENCES `locales` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Локализация атрибутов региона';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Локализация атрибутов региона';
 
 -- ------------------------------
 -- Country
@@ -802,7 +802,7 @@ CREATE TABLE `country` (
   KEY `key_permission_id` (`permission_id`),
   CONSTRAINT `fk_country__entity` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`),
   CONSTRAINT `fk_country__permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`permission_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Страна';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Страна';
 
 DROP TABLE IF EXISTS `country_attribute`;
 
@@ -830,7 +830,7 @@ CREATE TABLE `country_attribute` (
     REFERENCES `entity_attribute_type` (`id`),
   CONSTRAINT `fk_country_attribute__entity_attribute_value_type` FOREIGN KEY (`value_type_id`)
     REFERENCES `entity_attribute_value_type` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Атрибуты страны';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Атрибуты страны';
 
 DROP TABLE IF EXISTS `country_string_culture`;
 
@@ -844,7 +844,7 @@ CREATE TABLE `country_string_culture` (
   KEY `key_locale` (`locale_id`),
   KEY `key_value` (`value`(128)),
   CONSTRAINT `fk_country_string_culture__locales` FOREIGN KEY (`locale_id`) REFERENCES `locales` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Локализация атрибутов страны';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Локализация атрибутов страны';
 
 -- ------------------------------
 -- Organization type
@@ -873,7 +873,7 @@ CREATE TABLE `organization_type` (
   KEY `key_permission_id` (`permission_id`),
   CONSTRAINT `fk_organization_type__entity` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`),
   CONSTRAINT `fk_organization_type__permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`permission_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Тип организации';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Тип организации';
 
 DROP TABLE IF EXISTS `organization_type_attribute`;
 
@@ -901,7 +901,7 @@ CREATE TABLE `organization_type_attribute` (
     REFERENCES `entity_attribute_type` (`id`),
   CONSTRAINT `fk_organization_type_attribute__entity_attribute_value_type` FOREIGN KEY (`value_type_id`)
     REFERENCES `entity_attribute_value_type` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Атрибуты типа организации';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Атрибуты типа организации';
 
 DROP TABLE IF EXISTS `organization_type_string_culture`;
 
@@ -915,7 +915,7 @@ CREATE TABLE `organization_type_string_culture` (
   KEY `key_locale` (`locale_id`),
   KEY `key_value` (`value`(128)),
   CONSTRAINT `fk_organization_type_string_culture__locales` FOREIGN KEY (`locale_id`) REFERENCES `locales` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Локализация атрибутов типа организации';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Локализация атрибутов типа организации';
 
 -- ------------------------------
 -- Organization
@@ -944,7 +944,7 @@ CREATE TABLE `organization` (
   KEY `key_permission_id` (`permission_id`),
   CONSTRAINT `fk_organization__entity` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`),
   CONSTRAINT `fk_organization__permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`permission_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Организация';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Организация';
 
 DROP TABLE IF EXISTS `organization_attribute`;
 
@@ -972,7 +972,7 @@ CREATE TABLE `organization_attribute` (
     REFERENCES `entity_attribute_type` (`id`),
   CONSTRAINT `fk_organization_attribute__entity_attribute_value_type` FOREIGN KEY (`value_type_id`)
     REFERENCES `entity_attribute_value_type` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Атрибуты организации';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Атрибуты организации';
 
 DROP TABLE IF EXISTS `organization_string_culture`;
 
@@ -986,7 +986,7 @@ CREATE TABLE `organization_string_culture` (
   KEY `key_locale` (`locale_id`),
   KEY `key_value` (`value`(128)),
   CONSTRAINT `fk_organization_string_culture__locales` FOREIGN KEY (`locale_id`) REFERENCES `locales` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Локализация атрибутов организации';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Локализация атрибутов организации';
 
 
 -- ------------------------------
@@ -1016,7 +1016,7 @@ CREATE TABLE `user_info` (
   KEY `key_permission_id` (`permission_id`),
   CONSTRAINT `fk_user_info__entity` FOREIGN KEY (`parent_entity_id`) REFERENCES `entity` (`id`),
   CONSTRAINT `fk_user_info__permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`permission_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Информация о пользователе';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Информация о пользователе';
 
 DROP TABLE IF EXISTS `user_info_attribute`;
 
@@ -1044,7 +1044,7 @@ CREATE TABLE `user_info_attribute` (
     REFERENCES `entity_attribute_type` (`id`),
   CONSTRAINT `fk_user_info__entity_attribute_value_type` FOREIGN KEY (`value_type_id`)
     REFERENCES `entity_attribute_value_type` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Атрибуты информации о пользователе';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Атрибуты информации о пользователе';
 
 DROP TABLE IF EXISTS `user_info_string_culture`;
 
@@ -1058,7 +1058,7 @@ CREATE TABLE `user_info_string_culture` (
   KEY `key_locale` (`locale_id`),
   KEY `key_value` (`value`(128)),
   CONSTRAINT `fk_user_info_string_culture__locales` FOREIGN KEY (`locale_id`) REFERENCES `locales` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Локализация атрибутов информации о пользователе';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Локализация атрибутов информации о пользователе';
 
 
 -- ------------------------------
@@ -1076,7 +1076,7 @@ CREATE TABLE `user_organization` (
     CONSTRAINT `fk_user_organization__user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),
     CONSTRAINT `fk_user_organization__organization` FOREIGN KEY (`organization_object_id`)
       REFERENCES `organization` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Организация пользователей';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Организация пользователей';
 
 -- ------------------------------
 -- Permission
@@ -1096,7 +1096,7 @@ CREATE TABLE `permission` (
     KEY `key_table` (`table`),
     KEY `key_entity` (`entity`),
     KEY `key_object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Права доступа';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Права доступа';
 
 -- ------------------------------
 -- First Name
@@ -1109,7 +1109,7 @@ CREATE TABLE `first_name` (
   `name` VARCHAR(100) NOT NULL COMMENT 'Имя',
   PRIMARY KEY (`id`),
   UNIQUE KEY `key_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Имя';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Имя';
 
 -- ------------------------------
 -- Middle Name
@@ -1122,7 +1122,7 @@ CREATE TABLE `middle_name` (
   `name` VARCHAR(100) NOT NULL COMMENT 'Отчество',
   PRIMARY KEY (`id`),
   UNIQUE KEY `key_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Отчество';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Отчество';
 
 -- ------------------------------
 -- Last Name
@@ -1135,7 +1135,7 @@ CREATE TABLE `last_name` (
   `name` VARCHAR(100) NOT NULL COMMENT 'Фамилия',
   PRIMARY KEY (`id`),
   UNIQUE KEY `key_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Фамилия';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Фамилия';
 
 -- ------------------------------
 -- Building Code
@@ -1152,7 +1152,7 @@ CREATE TABLE `building_code` (
   KEY `key_building_id` (`building_id`),
   CONSTRAINT `fk_building_code__organization` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`object_id`),
   CONSTRAINT `fk_building_code__building` FOREIGN KEY (`building_id`) REFERENCES `building` (`object_id`)
-) ENGINE=InnoDB DEFAULT  CHARSET=utf8 COMMENT 'Код дома';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Код дома';
 
 -- ------------------------------
 -- Building Import
@@ -1168,7 +1168,7 @@ CREATE TABLE `building_import` (
   `processed` TINYINT(1) NOT NULL default 0 COMMENT 'Индикатор импорта',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_building_import` (`street_id`, `num`, `part`)
-) ENGINE=InnoDB DEFAULT  CHARSET=utf8 COMMENT 'Вспомогательная таблица для импорта домов';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Вспомогательная таблица для импорта домов';
 
 DROP TABLE IF EXISTS `building_segment_import`;
 CREATE TABLE `building_segment_import` (
@@ -1179,6 +1179,6 @@ CREATE TABLE `building_segment_import` (
   PRIMARY KEY (`id`),
   KEY `key_building_import_id` (`building_import_id`),
   CONSTRAINT `fk_building_segment_import__building_import` FOREIGN KEY (`building_import_id`) REFERENCES `building_import` (`id`)
-) ENGINE=InnoDB DEFAULT  CHARSET=utf8 COMMENT 'Вспомогательная таблица для импорта домов';
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Вспомогательная таблица для импорта домов';
 
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
