@@ -2,11 +2,13 @@ package org.complitex.address.strategy.apartment;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.address.resource.CommonResources;
+import org.complitex.address.strategy.apartment.web.edit.ApartmentEdit;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
@@ -24,7 +26,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import org.complitex.address.strategy.apartment.web.edit.ApartmentEdit;
 
 /**
  *
@@ -41,6 +42,7 @@ public class ApartmentStrategy extends TemplateStrategy {
      */
     public static final long NAME = 100L;
     public static final long PARENT_ENTITY_ID = 500L;
+    private static final String APARTMENT_NAMESPACE = ApartmentStrategy.class.getPackage().getName() + ".Apartment";
 
     @Override
     protected List<Long> getListAttributeTypes() {
@@ -169,5 +171,17 @@ public class ApartmentStrategy extends TemplateStrategy {
                 && example.getOrderByAttributeTypeId().equals(NAME)) {
             example.setOrderByNumber(true);
         }
+    }
+
+    /**
+     * Найти квартиру в локальной адресной базе.
+     */
+    public List<Long> getApartmentObjectIds(Long buildingId, String apartment) {
+        Map<String, Object> params = Maps.newHashMap();
+
+        params.put("buildingId", buildingId);
+        params.put("number", apartment);
+
+        return sqlSession().selectList(APARTMENT_NAMESPACE + ".selectApartmentObjectIds", params);
     }
 }

@@ -1,6 +1,7 @@
 package org.complitex.correction.service;
 
 import com.google.common.collect.ImmutableMap;
+import org.complitex.address.strategy.apartment.ApartmentStrategy;
 import org.complitex.address.strategy.city.CityStrategy;
 import org.complitex.address.strategy.district.DistrictStrategy;
 import org.complitex.address.strategy.street.StreetStrategy;
@@ -103,7 +104,7 @@ public class AddressCorrectionBean extends AbstractBean {
     public boolean save(DistrictCorrection districtCorrection){
         if (districtCorrection.getId() == null) {
             if (!isDistrictObjectExists(districtCorrection.getCorrection(), districtCorrection.getObjectId())) {
-                sqlSession().insert(NS_CORRECTION + ".insertCorrection", districtCorrection);
+                sqlSession().insert(NS_CORRECTION + ".insertDistrictCorrection", districtCorrection);
             }else {
                 return false;
             }
@@ -274,5 +275,53 @@ public class AddressCorrectionBean extends AbstractBean {
     public boolean isBuildingObjectExists(String buildingNumber, String buildingCorp, Long objectId){
         return sqlSession().selectOne(NS + ".selectBuildingObjectExists",
                 ImmutableMap.of("buildingNumber", buildingNumber, "buildingCorp", buildingCorp, "objectId", objectId));
+    }
+    
+     /* APARTMENT */
+
+    public ApartmentCorrection getApartmentCorrection(Long id) {
+        return sqlSession().selectOne(NS + ".selectApartmentCorrection", id);
+    }
+
+    public List<ApartmentCorrection> getApartmentCorrections(FilterWrapper<ApartmentCorrection> filterWrapper) {
+        return sqlSession().selectList(NS + ".selectApartmentCorrections", filterWrapper);
+    }
+
+    public List<ApartmentCorrection> getApartmentCorrections(Long buildingObjectId, String externalId, Long objectId, String correction,
+                                                           Long organizationId, Long userOrganizationId){
+        return getApartmentCorrections(FilterWrapper.of(new ApartmentCorrection(buildingObjectId, externalId, objectId,
+                correction, organizationId, userOrganizationId, null)));
+    }
+
+    public Integer getApartmentCorrectionsCount(FilterWrapper<ApartmentCorrection> filterWrapper){
+        return sqlSession().selectOne(NS + ".selectApartmentCorrectionsCount", filterWrapper);
+    }
+
+    @Transactional
+    public boolean save(ApartmentCorrection apartmentCorrection){
+        if (apartmentCorrection.getId() == null) {
+            if (!isApartmentObjectExists(apartmentCorrection.getCorrection(), apartmentCorrection.getObjectId())) {
+                sqlSession().insert(NS_CORRECTION + ".insertApartmentCorrection", apartmentCorrection);
+            }else {
+                return false;
+            }
+        } else{
+            sqlSession().update(NS_CORRECTION + ".updateCorrection", apartmentCorrection);
+        }
+
+        return true;
+    }
+
+    @Transactional
+    public void delete(ApartmentCorrection apartmentCorrection){
+        sqlSession().delete(NS_CORRECTION + ".deleteCorrection", apartmentCorrection);
+    }
+
+    public List<Long> getApartmentObjectIds(String apartment) {
+        return getObjectIds("apartment", apartment, ApartmentStrategy.NAME);
+    }
+
+    public boolean isApartmentObjectExists(String apartment, Long objectId){
+        return getApartmentObjectIds(apartment).contains(objectId);
     }
 }
