@@ -12,14 +12,13 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.Strings;
+import org.complitex.address.strategy.building.BuildingStrategy;
+import org.complitex.address.strategy.building.entity.Building;
 import org.complitex.address.strategy.city.CityStrategy;
 import org.complitex.address.strategy.street.StreetStrategy;
 import org.complitex.address.strategy.street_type.StreetTypeStrategy;
 import org.complitex.address.util.AddressRenderer;
-import org.complitex.correction.entity.BuildingCorrection;
-import org.complitex.correction.entity.CityCorrection;
-import org.complitex.correction.entity.DistrictCorrection;
-import org.complitex.correction.entity.StreetCorrection;
+import org.complitex.correction.entity.*;
 import org.complitex.correction.service.AddressCorrectionBean;
 import org.complitex.correction.web.component.AbstractCorrectionEditPanel;
 import org.complitex.correction.web.component.AddressCorrectionInputPanel;
@@ -66,6 +65,9 @@ public class AddressCorrectionEdit extends FormTemplatePage {
 
     @EJB
     private StreetStrategy streetStrategy;
+
+    @EJB
+    private BuildingStrategy buildingStrategy;
 
     private class Callback implements ISearchCallback, Serializable {
 
@@ -471,6 +473,102 @@ public class AddressCorrectionEdit extends FormTemplatePage {
             return new StringResourceModel("building_title", this, null);
         }
     }
+
+    /**
+     * Панель редактирования коррекции дома.
+     */
+    /**
+     * Панель редактирования коррекции района.
+     */
+    private class ApartmentCorrectionEditPanel extends AddressCorrectionEditPanel<ApartmentCorrection> {
+
+        @EJB
+        private AddressCorrectionBean addressCorrectionBean;
+
+        private ApartmentCorrectionEditPanel(String id, Long correctionId) {
+            super(id, correctionId);
+        }
+
+        @Override
+        protected ApartmentCorrection getCorrection(Long correctionId) {
+            return addressCorrectionBean.getApartmentCorrection(correctionId);
+        }
+
+        @Override
+        protected ApartmentCorrection newCorrection() {
+            return new ApartmentCorrection();
+        }
+
+        @Override
+        protected List<String> getSearchFilters() {
+            return ImmutableList.of("city", "street", "building", "apartment");
+        }
+
+        @Override
+        protected boolean validateExistence() {
+            return addressCorrectionBean.getApartmentCorrectionsCount(FilterWrapper.of(getCorrection())) > 0;
+        }
+
+        @Override
+        protected boolean freezeOrganization() {
+            return true;
+        }
+
+        @Override
+        protected Class<? extends Page> getBackPageClass() {
+            return ApartmentCorrectionList.class;
+        }
+
+        @Override
+        protected void save() {
+            addressCorrectionBean.save(getCorrection());
+        }
+
+        @Override
+        protected void delete() {
+            addressCorrectionBean.delete(getCorrection());
+        }
+
+        @Override
+        protected boolean checkCorrectionEmptiness() {
+            return false;
+        }
+
+        @Override
+        protected boolean preValidate() {
+            if (Strings.isEmpty(getCorrection().getCorrection())) {
+                error(getString("correction_required"));
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        protected String displayCorrection() {
+            ApartmentCorrection correction = getCorrection();
+
+            Building buildingDomainObject = buildingStrategy.findById(correction.getBuildingObjectId(), true);
+            String building = buildingStrategy.displayDomainObject(buildingDomainObject, getLocale());
+
+            DomainObject streetDomainObject = streetStrategy.findById(buildingDomainObject.getPrimaryStreetId(), true);
+            String street = streetStrategy.displayDomainObject(streetDomainObject, getLocale());
+
+            DomainObject cityDomainObject = cityStrategy.findById(streetDomainObject.getParentId(), true);
+            String city = cityStrategy.displayDomainObject(cityDomainObject, getLocale());
+
+            return AddressRenderer.displayAddress(null, city, null, street, building, null, correction.getCorrection(), getLocale());
+        }
+
+        @Override
+        protected Panel getCorrectionInputPanel(String id) {
+            return new AddressCorrectionInputPanel(id, getCorrection());
+        }
+
+        @Override
+        protected IModel<String> getTitleModel() {
+            return new StringResourceModel("apartment_title", this, null);
+        }
+    }
     private AbstractCorrectionEditPanel addressEditPanel;
 
     public AddressCorrectionEdit(PageParameters params) {
@@ -488,6 +586,9 @@ public class AddressCorrectionEdit extends FormTemplatePage {
                 break;
             case "building":
                 addressEditPanel = new BuildingCorrectionEditPanel("addressEditPanel", correctionId);
+                break;
+            case "apartment":
+                addressEditPanel = new ApartmentCorrectionEditPanel("addressEditPanel", correctionId);
                 break;
         }
         add(addressEditPanel);

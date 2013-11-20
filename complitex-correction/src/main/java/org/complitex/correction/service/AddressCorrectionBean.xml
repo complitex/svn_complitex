@@ -26,6 +26,11 @@
         <result column="correction_corp" property="correctionCorp"/>
     </resultMap>
 
+    <resultMap id="apartmentCorrectionResultMap" type="org.complitex.correction.entity.ApartmentCorrection"
+               extends="org.complitex.dictionary.entity.Correction.correction">
+        <result column="building_object_id" property="buildingObjectId"/>
+    </resultMap>
+
     <select id="selectObjectIds" parameterType="map" resultType="long">
         select distinct e.`object_id` from `${entity}` e
             left join `${entity}_attribute` attr on (attr.`status` = 'ACTIVE' and e.`object_id` = attr.`object_id`)
@@ -314,4 +319,39 @@
             left join `city_correction` cc on (cc.`id` = sc.`parent_id`)
         </if>
     </sql>
+
+    <!--Apartment-->
+
+    <select id="selectApartmentCorrection" resultMap="apartmentCorrectionResultMap" parameterType="long">
+        select * from `apartment_correction` where `id` = #{id}
+    </select>
+
+    <sql id="selectApartmentCorrectionsWhere">
+        <where>
+            <if test="object.buildingObjectId != null">c.`building_object_id` = #{object.buildingObjectId}</if>
+            <include refid="org.complitex.dictionary.entity.Correction.selectCorrectionWhereIf"/>
+        </where>
+    </sql>
+
+    <select id="selectApartmentCorrections" parameterType="org.complitex.dictionary.entity.FilterWrapper"
+            resultMap="apartmentCorrectionResultMap">
+        select * from `apartment_correction` c
+        <include refid="selectApartmentCorrectionsWhere"/>
+        <include refid="org.complitex.dictionary.entity.Correction.selectCorrectionOrderLimit"/>
+    </select>
+
+    <select id="selectApartmentCorrectionsCount" parameterType="org.complitex.dictionary.entity.FilterWrapper"
+            resultType="int">
+        select count(*) from `apartment_correction` c
+        <include refid="selectApartmentCorrectionsWhere"/>
+    </select>
+
+    <insert id="insertApartmentCorrection" parameterType="org.complitex.correction.entity.ApartmentCorrection"
+            keyProperty="id" useGeneratedKeys="true">
+        insert into `apartment_correction`(`building_object_id`, `object_id`, `external_id`, `correction`, `begin_date`, `end_date`,
+                                          `organization_id`, `user_organization_id`, `module_id`, `status`)
+          values (#{buildingObjectId}, #{objectId}, #{externalId}, #{correction}, #{beginDate}, #{endDate},
+                  #{organizationId}, #{userOrganizationId}, #{moduleId}, #{status})
+    </insert>
+    
 </mapper>

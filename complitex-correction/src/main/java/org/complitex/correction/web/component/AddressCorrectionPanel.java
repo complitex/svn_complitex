@@ -50,8 +50,6 @@ public abstract class AddressCorrectionPanel<T> extends Panel {
 
     @EJB
     private StrategyFactory strategyFactory;
-//    @EJB
-//    private StatusRenderService statusRenderService;
     @EJB
     private StreetTypeStrategy streetTypeStrategy;
     private AddressEntity correctedEntity;
@@ -74,6 +72,7 @@ public abstract class AddressCorrectionPanel<T> extends Panel {
     private Long streetTypeId;
     private Long streetId;
     private Long buildingId;
+    private Long apartmentId;
     private T request;
     private IModel<DomainObject> streetTypeModel;
 
@@ -170,18 +169,22 @@ public abstract class AddressCorrectionPanel<T> extends Panel {
                         }
                         closeDialog(target);
                         return;
-//                    } catch (DuplicateCorrectionException e) {
-//                        error(getString("duplicate_correction_error"));
-//                    } catch (MoreOneCorrectionException e) {
-//                        if ("city".equals(e.getEntity())) {
-//                            error(statusRenderService.displayStatus(RequestStatus.MORE_ONE_LOCAL_CITY_CORRECTION, getLocale()));
-//                        } else if ("street".equals(e.getEntity())) {
-//                            error(statusRenderService.displayStatus(RequestStatus.MORE_ONE_LOCAL_STREET_CORRECTION, getLocale()));
-//                        } else if ("street_type".equals(e.getEntity())) {
-//                            error(statusRenderService.displayStatus(RequestStatus.MORE_ONE_LOCAL_STREET_TYPE_CORRECTION, getLocale()));
-//                        }
-//                    } catch (NotFoundCorrectionException e) {
-//                        error(getString(e.getEntity() + "_not_found_correction"));
+                    } catch (DuplicateCorrectionException e) {
+                        error(getString("duplicate_correction_error"));
+                    } catch (MoreOneCorrectionException e) {
+                        switch (e.getEntity()) {
+                            case "city":
+                                error(getString("more_one_local_city_correction"));
+                                break;
+                            case "street":
+                                error(getString("more_one_local_street_correction"));
+                                break;
+                            case "street_type":
+                                error(getString("more_one_local_street_type_correction"));
+                                break;
+                        }
+                    } catch (NotFoundCorrectionException e) {
+                        error(getString(e.getEntity() + "_not_found_correction"));
                     } catch (Exception e) {
                         error(getString("db_error"));
                         log.error("", e);
@@ -218,6 +221,9 @@ public abstract class AddressCorrectionPanel<T> extends Panel {
         boolean validated = true;
         String errorMessageKey = null;
         switch (correctedEntity) {
+            case APARTMENT:
+                DomainObject apartmentObject = componentState.get("apartment");
+                validated &= apartmentObject != null && apartmentObject.getId() != null && apartmentObject.getId() > 0;
             case BUILDING:
                 DomainObject buildingObject = componentState.get("building");
                 validated &= buildingObject != null && buildingObject.getId() != null && buildingObject.getId() > 0;
@@ -270,6 +276,8 @@ public abstract class AddressCorrectionPanel<T> extends Panel {
                 return ImmutableList.of("city", "street");
             case BUILDING:
                 return ImmutableList.of("city", "street", "building");
+            case APARTMENT:
+                return ImmutableList.of("city", "street", "building", "apartment");
         }
         return ImmutableList.of("city", "street", "building");
     }
