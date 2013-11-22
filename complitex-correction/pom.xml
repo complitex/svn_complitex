@@ -9,8 +9,6 @@
     </parent>
 
     <artifactId>complitex-correction</artifactId>
-    <packaging>jar</packaging>
-
     <name>Complitex - Correction</name>
 
     <dependencies>
@@ -22,6 +20,11 @@
         <dependency>
             <groupId>org.complitex</groupId>
             <artifactId>complitex-address</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
         </dependency>
     </dependencies>
 </project>
