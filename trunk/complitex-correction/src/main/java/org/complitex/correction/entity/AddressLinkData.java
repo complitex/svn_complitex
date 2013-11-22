@@ -35,6 +35,8 @@ public interface AddressLinkData {
 
     String getStreetType();
 
+    String getStreetTypeCode();
+
     String getStreet();
 
     String getStreetCode();

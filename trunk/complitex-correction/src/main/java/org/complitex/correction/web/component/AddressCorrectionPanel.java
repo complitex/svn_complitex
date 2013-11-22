@@ -76,7 +76,7 @@ public abstract class AddressCorrectionPanel<T> extends Panel {
     private T request;
     private IModel<DomainObject> streetTypeModel;
 
-    public AddressCorrectionPanel(String id, final long userOrganizationId, final Component... toUpdate) {
+    public AddressCorrectionPanel(String id, final Long userOrganizationId, final Component... toUpdate) {
         super(id);
 
         //Диалог
