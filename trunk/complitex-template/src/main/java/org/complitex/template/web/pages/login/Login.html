@@ -20,23 +20,28 @@
                         <table border="0" cellspacing="0" cellpadding="0" class="formFrame"
                                style="width:300px;">
                             <tr valign="top">
-                                <td class="ff_l">
-                                    <wicket:image src="images/formFrame-tl.gif" width="4" height="180" alt=""/>
+                                <td class="ff_l"><wicket:image src="images/formFrame-tl.gif" width="4" height="180" alt=""/>
                                 </td>
                                 <td class="ff_t">
                                     <h2 style="text-align:center;">
                                         <span wicket:id="login.header"></span>
                                     </h2>
-                                    <div wicket:id="messages"></div>
+                                    <div wicket:id="errorPanel">
+                                        <ul>
+                                            <li>
+                                                <span style="color:orangered;"><wicket:message key="login.error.unauthorized"/></span>
+                                            </li>
+                                        </ul>
+                                    </div>
                                     <div align="center">
-                                        <form wicket:id="form">
+                                        <form id="formId"  method="POST" action="j_security_check">
                                             <table style="margin-bottom:20px">
                                                 <tr>
                                                     <th align="left">
                                                         <wicket:message key="login.loginLabel"/>:
                                                     </th>
                                                     <td>
-                                                        <input wicket:id="login" type="text" size="30" class="login_field"/>
+                                                        <input name="j_username" type="text" size="30"/>
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -44,11 +49,11 @@
                                                         <wicket:message key="login.passwordLabel"/>:
                                                     </th>
                                                     <td>
-                                                        <input wicket:id="password" type="password" size="30"/>
+                                                        <input name="j_password" type="password" size="30"/>
                                                     </td>
                                                 </tr>
                                             </table>
-                                            <input type="submit" wicket:id="submit" wicket:message="value:login.submit" class="btnBig"/>
+                                            <input type="submit" name="submit" wicket:message="value:login.submit" class="btnBig"/>
                                         </form>
                                     </div>
                                 </td>
