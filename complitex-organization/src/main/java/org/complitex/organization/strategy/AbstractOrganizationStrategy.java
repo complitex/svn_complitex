@@ -397,4 +397,12 @@ public abstract class AbstractOrganizationStrategy extends TemplateStrategy impl
     public DomainObject getModule(){
         return findById(getModuleId(), true);
     }
+
+    public String displayShortNameAndCode(DomainObject organization, Locale locale) {
+        final String fullName = AttributeUtil.getStringCultureValue(organization, NAME, locale);
+        final String shortName = AttributeUtil.getStringCultureValue(organization, SHORT_NAME, locale);
+        final String code = getUniqueCode(organization);
+        final String name = !com.google.common.base.Strings.isNullOrEmpty(shortName) ? shortName : fullName;
+        return name + " (" + code + ")";
+    }
 }

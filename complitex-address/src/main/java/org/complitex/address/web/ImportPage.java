@@ -53,7 +53,7 @@ public class ImportPage extends TemplatePage {
         final WebMarkupContainer container = new WebMarkupContainer("container");
         add(container);
 
-        dictionaryModel = new ListModel<IImportFile>();
+        dictionaryModel = new ListModel<>();
 
         container.add(new FeedbackPanel("messages"));
 

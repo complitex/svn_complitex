@@ -7,11 +7,6 @@ package org.complitex.organization_type.strategy;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import javax.ejb.Stateless;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.AttributeExample;
@@ -22,6 +17,12 @@ import org.complitex.dictionary.util.AttributeUtil;
 import org.complitex.dictionary.util.ResourceUtil;
 import org.complitex.template.strategy.TemplateStrategy;
 import org.complitex.template.web.security.SecurityRole;
+
+import javax.ejb.Stateless;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  *
@@ -39,6 +40,7 @@ public class OrganizationTypeStrategy extends TemplateStrategy {
      * Organization type ids
      */
     public static final long USER_ORGANIZATION_TYPE = 1;
+    public static final long SERVICING_ORGANIZATION = 4;
 
     @Override
     public String getEntityTable() {
@@ -73,10 +75,11 @@ public class OrganizationTypeStrategy extends TemplateStrategy {
     }
 
     @Transactional
-    public List<DomainObject> getAll() {
+    public List<? extends DomainObject> getAll() {
         DomainObjectExample example = new DomainObjectExample();
         configureExample(example, ImmutableMap.<String, Long>of(), null);
-        return (List<DomainObject>) find(example);
+
+        return find(example);
     }
 
     @Override
@@ -90,7 +93,7 @@ public class OrganizationTypeStrategy extends TemplateStrategy {
     }
 
     protected Collection<Long> getReservedInstanceIds() {
-        return ImmutableList.of(USER_ORGANIZATION_TYPE);
+        return ImmutableList.of(USER_ORGANIZATION_TYPE, SERVICING_ORGANIZATION);
     }
 
     @Transactional
