@@ -75,7 +75,7 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
         final DomainObject organization = getDomainObject();
 
         // organization type container
-        final List<DomainObject> allOrganizationTypes = organizationTypeStrategy.getAll();
+        final List<? extends DomainObject> allOrganizationTypes = organizationTypeStrategy.getAll();
         DomainObjectDisableAwareRenderer renderer = new DomainObjectDisableAwareRenderer() {
 
             @Override

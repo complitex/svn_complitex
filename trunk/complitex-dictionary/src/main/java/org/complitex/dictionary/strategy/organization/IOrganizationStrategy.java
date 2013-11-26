@@ -20,6 +20,12 @@ public interface IOrganizationStrategy extends IStrategy {
      * Organization name.
      */
     long NAME = 900;
+
+    /**
+     * Organization's short name.
+     */
+    public final static long SHORT_NAME = 920;
+
     /**
      * Organization's code.
      */
@@ -133,4 +139,6 @@ public interface IOrganizationStrategy extends IStrategy {
     Long getModuleId();
 
     DomainObject getModule();
+
+    String displayShortNameAndCode(DomainObject organization, Locale locale);
 }

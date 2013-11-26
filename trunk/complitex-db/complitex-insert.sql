@@ -215,9 +215,15 @@ INSERT INTO `entity`(`id`, `entity_table`, `entity_name_id`, `strategy_factory`)
 INSERT INTO `string_culture`(`id`, `locale_id`, `value`) VALUES (2301, 1, UPPER('Тип организации')), (2301, 2, UPPER('Тип организации'));
 INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (2300, 2300, 1, 2301, 1);
 INSERT INTO `entity_attribute_value_type`(`id`, `attribute_type_id`, `attribute_value_type`) VALUES (2300, 2300, UPPER('string_culture'));
+
 INSERT INTO `organization_type`(`object_id`) VALUES (1);
 INSERT INTO `organization_type_string_culture`(`id`, `locale_id`, `value`) VALUES (1, 1, UPPER('Организации пользователей')), (1, 2,UPPER('Организации пользователей'));
 INSERT INTO `organization_type_attribute`(`attribute_id`, `object_id`, `attribute_type_id`, `value_id`, `value_type_id`) VALUES (1,1,2300,1,2300);
+
+INSERT INTO `organization_type`(`object_id`) VALUES (4);
+INSERT INTO `organization_type_string_culture`(`id`, `locale_id`, `value`)
+VALUES (4, 1, UPPER('ОБСЛУЖИВАЮЩАЯ ОРГАНИЗАЦИЯ')), (4, 2, UPPER('ОБСЛУЖИВАЮЩАЯ ОРГАНИЗАЦИЯ'));
+INSERT INTO `organization_type_attribute`(`attribute_id`, `object_id`, `attribute_type_id`, `value_id`, `value_type_id`) VALUES (1, 4, 2300, 4, 2300);
 
 -- --------------------------------
 -- Organization

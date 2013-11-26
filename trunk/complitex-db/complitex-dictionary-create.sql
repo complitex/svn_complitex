@@ -1181,4 +1181,21 @@ CREATE TABLE `building_segment_import` (
   CONSTRAINT `fk_building_segment_import__building_import` FOREIGN KEY (`building_import_id`) REFERENCES `building_import` (`id`)
 ) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Вспомогательная таблица для импорта домов';
 
+-- ------------------------------
+--  Organization Import
+-- ------------------------------
+
+DROP TABLE IF EXISTS `organization_import`;
+CREATE TABLE `organization_import` (
+  `pk_id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'Суррогатный ключ',
+  `organization_id` BIGINT(20) NOT NULL COMMENT 'ID организации',
+  `code` VARCHAR(100) NOT NULL COMMENT 'Код организации',
+  `short_name` VARCHAR(100) NOT NULL COMMENT 'Короткое название организации',
+  `full_name` VARCHAR(500) NOT NULL COMMENT 'Полное название организации',
+  `hlevel` BIGINT(20) COMMENT 'Ссылка на вышестоящую организацию',
+  PRIMARY KEY (`pk_id`),
+  KEY `key_organization_id` (`organization_id`),
+  KEY `key_hlevel` (`hlevel`)
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Вспомогательная таблица для импорта организаций';
+
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
