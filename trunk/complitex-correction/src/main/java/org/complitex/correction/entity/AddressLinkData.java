@@ -5,10 +5,6 @@ package org.complitex.correction.entity;
  */
 public interface AddressLinkData {
 
-    Long getOrganizationId();
-
-    Long getUserOrganizationId();
-
     Long getCityTypeId();
     void setCityTypeId(Long id);
 

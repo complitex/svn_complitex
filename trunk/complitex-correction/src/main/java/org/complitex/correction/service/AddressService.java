@@ -362,7 +362,7 @@ public class AddressService extends AbstractBean {
         switch (entity) {
             case CITY: {
                 List<CityCorrection> cityCorrections = addressCorrectionBean.getCityCorrections(null, data.getCity(),
-                        organizationId, data.getUserOrganizationId());
+                        organizationId, userOrganizationId);
 
                 if (cityCorrections.isEmpty()) {
                     CityCorrection cityCorrection = new CityCorrection(null, cityObjectId, data.getCity().toUpperCase(),
