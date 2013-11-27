@@ -301,7 +301,7 @@ public class AddressCorrectionBean extends AbstractBean {
     public boolean save(ApartmentCorrection apartmentCorrection){
         if (apartmentCorrection.getId() == null) {
             if (!isApartmentObjectExists(apartmentCorrection.getCorrection(), apartmentCorrection.getObjectId())) {
-                sqlSession().insert(NS_CORRECTION + ".insertApartmentCorrection", apartmentCorrection);
+                sqlSession().insert(NS + ".insertApartmentCorrection", apartmentCorrection);
             }else {
                 return false;
             }

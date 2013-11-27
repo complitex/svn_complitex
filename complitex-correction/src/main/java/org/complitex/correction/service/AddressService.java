@@ -356,6 +356,7 @@ public class AddressService extends AbstractBean {
     @Transactional
     public void correctAddress(AddressLinkData data, AddressEntity entity, Long cityObjectId,
                                Long streetTypeObjectId, Long streetObjectId, Long buildingObjectId,
+                               Long apartmentObjectId,
                                Long userOrganizationId, Long organizationId)
             throws DuplicateCorrectionException, MoreOneCorrectionException, NotFoundCorrectionException {
 
@@ -422,6 +423,24 @@ public class AddressService extends AbstractBean {
                             organizationId, userOrganizationId, MODULE_ID);
 
                     addressCorrectionBean.save(buildingCorrection);
+                } else {
+                    throw new DuplicateCorrectionException();
+                }
+
+                break;
+
+            case APARTMENT:
+                List<ApartmentCorrection> apartmentCorrections = addressCorrectionBean.getApartmentCorrections(
+                        data.getBuildingId(), null, apartmentObjectId, data.getApartment(),
+                        organizationId, userOrganizationId);
+
+                if (apartmentCorrections.isEmpty()) {
+                    ApartmentCorrection apartmentCorrection = new ApartmentCorrection(data.getBuildingId(), null,
+                            apartmentObjectId,
+                            data.getApartment().toUpperCase(),
+                            organizationId, userOrganizationId, MODULE_ID);
+
+                    addressCorrectionBean.save(apartmentCorrection);
                 } else {
                     throw new DuplicateCorrectionException();
                 }
