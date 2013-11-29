@@ -23,6 +23,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.complitex</groupId>
+            <artifactId>complitex-organization</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
         </dependency>

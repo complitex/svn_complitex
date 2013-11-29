@@ -85,7 +85,7 @@ public abstract class AbstractCorrectionEditPanel<T extends Correction> extends 
 
     protected abstract IModel<String> internalObjectLabel(Locale locale);
 
-    protected abstract Panel internalObjectPanel(String id);
+    protected abstract WebMarkupContainer internalObjectPanel(String id);
 
     protected abstract String getNullObjectErrorMessage();
 
@@ -298,6 +298,7 @@ public abstract class AbstractCorrectionEditPanel<T extends Correction> extends 
                 return allUserOrganizationsModel.getObject();
             }
         };
+        //todo change select to organization picker
         final DisableAwareDropDownChoice<DomainObject> userOrganization = new DisableAwareDropDownChoice<>("userOrganization",
                 userOrganizationModel, allUserOrganizationsModel, organizationRenderer);
         userOrganization.setNullValid(true);
@@ -351,6 +352,7 @@ public abstract class AbstractCorrectionEditPanel<T extends Correction> extends 
             public void onSubmit() {
                 if (AbstractCorrectionEditPanel.this.validate()) {
                     save();
+                    back(true);
                 }
             }
         };
