@@ -19,7 +19,7 @@ public class OrganizationCorrectionBean extends AbstractBean{
     private static final String NS_CORRECTION = Correction.class.getName();
 
     public OrganizationCorrection geOrganizationCorrection(Long id){
-        return sqlSession().selectOne(NS + ".selectOrganizationCorrection");
+        return sqlSession().selectOne(NS + ".selectOrganizationCorrection", id);
     }
 
     public List<OrganizationCorrection> getOrganizationCorrections(FilterWrapper<OrganizationCorrection> filterWrapper){
