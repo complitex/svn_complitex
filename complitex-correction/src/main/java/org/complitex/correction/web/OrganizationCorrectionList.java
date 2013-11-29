@@ -7,7 +7,9 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.complitex.correction.entity.OrganizationCorrection;
 import org.complitex.correction.service.OrganizationCorrectionBean;
+import org.complitex.dictionary.entity.Correction;
 import org.complitex.dictionary.entity.FilterWrapper;
+import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.template.web.security.SecurityRole;
 
 import javax.ejb.EJB;
@@ -22,6 +24,9 @@ import java.util.List;
 public class OrganizationCorrectionList extends AbstractCorrectionList<OrganizationCorrection> {
     @EJB
     private OrganizationCorrectionBean organizationCorrectionBean;
+
+    @EJB(name = IOrganizationStrategy.BEAN_NAME, beanInterface = IOrganizationStrategy.class)
+    private IOrganizationStrategy organizationStrategy;
 
     public OrganizationCorrectionList() {
         super("organization");
@@ -61,5 +66,11 @@ public class OrganizationCorrectionList extends AbstractCorrectionList<Organizat
     @Override
     protected IModel<String> getTitleModel() {
         return new ResourceModel("title");
+    }
+
+    @Override
+    protected String displayInternalObject(Correction correction) {
+        return organizationStrategy.displayShortNameAndCode(organizationStrategy.findById(correction.getObjectId(), true),
+                getLocale());
     }
 }
