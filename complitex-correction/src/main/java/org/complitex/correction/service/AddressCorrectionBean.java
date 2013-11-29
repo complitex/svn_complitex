@@ -104,7 +104,7 @@ public class AddressCorrectionBean extends AbstractBean {
     public boolean save(DistrictCorrection districtCorrection){
         if (districtCorrection.getId() == null) {
             if (!isDistrictObjectExists(districtCorrection.getCorrection(), districtCorrection.getObjectId())) {
-                sqlSession().insert(NS_CORRECTION + ".insertDistrictCorrection", districtCorrection);
+                sqlSession().insert(NS_CORRECTION + ".insertCorrection", districtCorrection);
             }else {
                 return false;
             }
