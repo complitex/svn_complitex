@@ -11,7 +11,7 @@ import org.complitex.dictionary.entity.Correction;
  * @author Artem
  */
 public abstract class AddressCorrectionList<T extends Correction> extends AbstractCorrectionList<T> {
-    public AddressCorrectionList(String entity) {
+    public AddressCorrectionList(String entity) { //todo is it necessary to know entity?
         super(entity);
 
         add(new AjaxLink("sync"){
