@@ -380,7 +380,11 @@ public abstract class AbstractOrganizationStrategy extends TemplateStrategy impl
     }
 
     @Override
-    public Long getObjectId(String code) {
+    public Long getObjectId(String externalId) {
+        return sqlSession().selectOne(NS + ".selectOrganizationObjectId", externalId);
+    }
+
+    public Long getObjectIdByCode(String code) {
         return sqlSession().selectOne(NS + ".selectOrganizationObjectIdByCode", code);
     }
 

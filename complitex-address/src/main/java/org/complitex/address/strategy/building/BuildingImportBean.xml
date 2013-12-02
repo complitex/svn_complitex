@@ -25,7 +25,7 @@
     
     <select id="getBuildingImports" parameterType="int" resultMap="buildingImport">
         SELECT b.*, p.`id` part_id, p.`gek`, p.`code`, p.`building_import_id`
-            FROM (SELECT b.* FROM `building_import` b WHERE b.`processed` = 0 LIMIT 0, ${value}) b
+            FROM (SELECT b.* FROM `building_import` b WHERE b.`processed` = 0 LIMIT ${value}) b
         LEFT OUTER JOIN `building_segment_import` p ON p.`building_import_id` = b.`id`
     </select>
     
