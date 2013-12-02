@@ -32,10 +32,13 @@ public class BuildingImportBean extends AbstractBean {
     @Transactional
     public void saveOrUpdate(long buildingSegmentId, long distrId, long streetId, String num, String part,
             Long gekId, String code) {
+
         if (part == null) {
             part = "";
         }
+
         Long id = findId(streetId, num, part);
+
         if (id == null) {
             insert(buildingSegmentId, distrId, streetId, num, part, gekId, code);
         } else {

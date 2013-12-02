@@ -109,6 +109,11 @@
                 </choose>
     </update>
 
+    <select id="selectOrganizationObjectId" parameterType="string" resultType="long">
+        select `object_id` from `organization` where `external_id` = #{externalId}
+
+    </select>
+
     <select id="selectOrganizationObjectIdByCode" parameterType="string" resultType="long">
         SELECT oa.`object_id` FROM `organization_attribute` oa LEFT JOIN `organization_string_culture` osc
             ON (oa.`value_id` = osc.`id`) WHERE oa.`attribute_type_id` = 901 AND oa.`status` = 'ACTIVE'

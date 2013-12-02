@@ -800,9 +800,9 @@ public class AddressImportService extends AbstractImportService {
         final int batch = 100;
 
         List<BuildingImport> imports;
-        while ((imports = buildingImportBean.getBuildingImports(batch)) != null && !imports.isEmpty()) {
+        while (!(imports = buildingImportBean.getBuildingImports(batch)).isEmpty()) {
             for (BuildingImport b : imports) {
-                recordIndex++;
+                recordIndex += b.getBuildingSegmentImports().size();
 
                 String streetExternalId = b.getStreetId().toString();
 
@@ -861,6 +861,7 @@ public class AddressImportService extends AbstractImportService {
                         String buildingCode = part.getCode();
 
                         Long organizationId = organizationStrategy.getObjectId(gekId);
+
                         if (organizationId == null) {
                             throw new ImportObjectLinkException(BUILDING.getFileName(), recordIndex, String.valueOf(gekId));
                         }
@@ -883,11 +884,14 @@ public class AddressImportService extends AbstractImportService {
                             subjectIds.add(organizationId);
                         }
                     }
-                    //todo building.setSubjectIds(subjectIds);
+
+                    building.setSubjectIds(subjectIds);
+
                 }
                 buildingStrategy.insert(building, beginDate);
                 listener.recordProcessed(BUILDING, recordIndex);
             }
+
             buildingImportBean.markProcessed(imports);
         }
 
