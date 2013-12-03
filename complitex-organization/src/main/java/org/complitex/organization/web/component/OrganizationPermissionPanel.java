@@ -31,20 +31,24 @@ public class OrganizationPermissionPanel extends DomainObjectPermissionPanel {
     protected List<DomainObject> initializeSelectedSubjects(Set<Long> selectedSubjectIds) {
         final List<DomainObject> superSelectedSubjects = super.initializeSelectedSubjects(selectedSubjectIds);
 
-        DomainObject itself = organizationStrategy.findById(organizationId, true);
-        if (organizationStrategy.isUserOrganization(itself)) {
-            if (organizationId != null && organizationId > 0) {
-                List<DomainObject> selectedSubjects = new ArrayList<>();
+        if (organizationId != null) {
+            DomainObject itself = organizationStrategy.findById(organizationId, true);
 
-                for (DomainObject o : superSelectedSubjects) {
-                    if (!o.getId().equals(organizationId)) {
-                        selectedSubjects.add(o);
+            if (organizationStrategy.isUserOrganization(itself)) {
+                if (organizationId > 0) {
+                    List<DomainObject> selectedSubjects = new ArrayList<>();
+
+                    for (DomainObject o : superSelectedSubjects) {
+                        if (!o.getId().equals(organizationId)) {
+                            selectedSubjects.add(o);
+                        }
                     }
+                    selectedSubjects.add(0, itself);
+                    return selectedSubjects;
                 }
-                selectedSubjects.add(0, itself);
-                return selectedSubjects;
             }
         }
+
         return superSelectedSubjects;
     }
 }
