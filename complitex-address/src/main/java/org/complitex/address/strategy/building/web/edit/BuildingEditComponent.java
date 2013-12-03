@@ -28,13 +28,14 @@ import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
-import org.complitex.dictionary.web.component.DisableAwareDropDownChoice;
 import org.complitex.dictionary.web.component.DomainObjectDisableAwareRenderer;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.ShowMode;
 import org.complitex.dictionary.web.component.list.AjaxRemovableListView;
 import org.complitex.dictionary.web.component.search.CollapsibleInputSearchComponent;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
+import org.complitex.organization.web.component.OrganizationPicker;
+import org.complitex.organization_type.strategy.OrganizationTypeStrategy;
 
 import javax.ejb.EJB;
 import java.util.List;
@@ -52,7 +53,7 @@ public class BuildingEditComponent extends AbstractComplexAttributesPanel {
     private FeedbackPanel messages;
 
     @EJB(name = IOrganizationStrategy.BEAN_NAME, beanInterface = IOrganizationStrategy.class)
-    private IOrganizationStrategy organizationStrategy;
+    private IOrganizationStrategy<DomainObject> organizationStrategy;
 
     public BuildingEditComponent(String id, boolean disabled) {
         super(id, disabled);
@@ -204,7 +205,8 @@ public class BuildingEditComponent extends AbstractComplexAttributesPanel {
             associationList.addNew();
         }
 
-        final List<? extends DomainObject> allServicingOrganizations = organizationStrategy.getAllOuterOrganizations(getLocale());
+        final List<DomainObject> allServicingOrganizations = organizationStrategy.getAllOuterOrganizations(getLocale());
+
         final DomainObjectDisableAwareRenderer organizationRenderer = new DomainObjectDisableAwareRenderer() {
 
             @Override
@@ -265,18 +267,8 @@ public class BuildingEditComponent extends AbstractComplexAttributesPanel {
                             }
                         }
 
-                        DisableAwareDropDownChoice<DomainObject> organization =
-                                new DisableAwareDropDownChoice<DomainObject>("organization", organizationModel,
-                                        allServicingOrganizations, organizationRenderer);
-                        organization.setEnabled(enabled);
-                        organization.add(new AjaxFormComponentUpdatingBehavior("onchange") {
-
-                            @Override
-                            protected void onUpdate(AjaxRequestTarget target) {
-                                target.add(associationsUpdateContainer);
-                            }
-                        });
-                        item.add(organization);
+                        item.add(new OrganizationPicker("organization", organizationModel,
+                                OrganizationTypeStrategy.SERVICING_ORGANIZATION));
 
                         //building code
                         IModel<Integer> buildingCodeModel = new PropertyModel<Integer>(association, "buildingCode");

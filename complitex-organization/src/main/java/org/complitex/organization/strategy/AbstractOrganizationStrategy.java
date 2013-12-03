@@ -3,7 +3,6 @@ package org.complitex.organization.strategy;
 import com.google.common.collect.*;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.util.string.Strings;
-import org.complitex.address.strategy.district.DistrictStrategy;
 import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.StatusType;
@@ -14,6 +13,8 @@ import org.complitex.dictionary.service.LocaleBean;
 import org.complitex.dictionary.service.PermissionBean;
 import org.complitex.dictionary.service.SequenceBean;
 import org.complitex.dictionary.strategy.DeleteException;
+import org.complitex.dictionary.strategy.IStrategy;
+import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionary.strategy.web.validate.IValidator;
@@ -34,12 +35,10 @@ import java.util.*;
  *
  * @author Artem
  */
-public abstract class AbstractOrganizationStrategy extends TemplateStrategy implements IOrganizationStrategy {
+public abstract class AbstractOrganizationStrategy<T extends DomainObject> extends TemplateStrategy
+        implements IOrganizationStrategy<T> {
     private static final String NS = AbstractOrganizationStrategy.class.getPackage().getName() + ".Organization";
     private static final String RESOURCE_BUNDLE = AbstractOrganizationStrategy.class.getName();
-
-    @EJB
-    private DistrictStrategy districtStrategy;
 
     @EJB
     private LocaleBean localeBean;
@@ -49,6 +48,9 @@ public abstract class AbstractOrganizationStrategy extends TemplateStrategy impl
 
     @EJB
     private SequenceBean sequenceBean;
+
+    @EJB
+    private StrategyFactory strategyFactory;
 
     @Override
     public String getEntityTable() {
@@ -133,6 +135,8 @@ public abstract class AbstractOrganizationStrategy extends TemplateStrategy impl
             Attribute districtAttribute = newOrganization.getAttribute(DISTRICT);
             Long districtId = districtAttribute.getValueId();
             if (districtId != null) {
+                IStrategy districtStrategy = strategyFactory.getStrategy("district");
+
                 DomainObject districtObject = districtStrategy.findById(districtId, false);
                 if (districtObject != null) {
                     Set<Long> addSubjectIds = Sets.newHashSet(newOrganization.getId());
@@ -159,6 +163,8 @@ public abstract class AbstractOrganizationStrategy extends TemplateStrategy impl
             Long oldDistrictId = oldDistrictAttribute != null ? oldDistrictAttribute.getValueId() : null;
             Long newDistrictId = newDistrictAttribute != null ? newDistrictAttribute.getValueId() : null;
             if (!Numbers.isEqual(oldDistrictId, newDistrictId)) {
+                IStrategy districtStrategy = strategyFactory.getStrategy("district");
+
                 //district reference has changed
                 if (oldDistrictId != null) {
                     long oldDistrictPermissionId = districtStrategy.findById(oldDistrictId, true).getPermissionId();
@@ -227,7 +233,7 @@ public abstract class AbstractOrganizationStrategy extends TemplateStrategy impl
 
     @Transactional
     @Override
-    public List<? extends DomainObject> find(DomainObjectExample example) {
+    public List<T> find(DomainObjectExample example) {
         if (example.getId() != null && example.getId() <= 0) {
             return Collections.emptyList();
         }
@@ -238,12 +244,14 @@ public abstract class AbstractOrganizationStrategy extends TemplateStrategy impl
         }
         extendOrderBy(example);
 
-        List<DomainObject> organizations = sqlSession().selectList(NS + "." + FIND_OPERATION, example);
+        List<T> organizations = sqlSession().selectList(NS + "." + FIND_OPERATION, example);
+
         for (DomainObject object : organizations) {
             loadAttributes(object);
             //load subject ids
             object.setSubjectIds(loadSubjects(object.getPermissionId()));
         }
+
         return organizations;
     }
 
@@ -287,7 +295,7 @@ public abstract class AbstractOrganizationStrategy extends TemplateStrategy impl
 
     @Transactional
     @Override
-    public List<? extends DomainObject> getUserOrganizations(Locale locale, Long... excludeOrganizationsId) {
+    public List<T> getUserOrganizations(Locale locale, Long... excludeOrganizationsId) {
         DomainObjectExample example = new DomainObjectExample();
         example.addAdditionalParam(ORGANIZATION_TYPE_PARAMETER, ImmutableList.of(OrganizationTypeStrategy.USER_ORGANIZATION_TYPE));
         if (locale != null) {
@@ -296,18 +304,22 @@ public abstract class AbstractOrganizationStrategy extends TemplateStrategy impl
             example.setAsc(true);
         }
         configureExample(example, ImmutableMap.<String, Long>of(), null);
-        List<? extends DomainObject> userOrganizations = find(example);
+        List<T> userOrganizations = find(example);
+
         if (excludeOrganizationsId == null) {
             return userOrganizations;
         }
 
-        List<DomainObject> finalUserOrganizations = Lists.newArrayList();
+        List<T> finalUserOrganizations = Lists.newArrayList();
+
         Set<Long> excludeSet = Sets.newHashSet(excludeOrganizationsId);
-        for (DomainObject userOrganization : userOrganizations) {
+
+        for (T userOrganization : userOrganizations) {
             if (!excludeSet.contains(userOrganization.getId())) {
                 finalUserOrganizations.add(userOrganization);
             }
         }
+
         return finalUserOrganizations;
     }
 
@@ -390,8 +402,25 @@ public abstract class AbstractOrganizationStrategy extends TemplateStrategy impl
 
     @Override
     @Transactional
-    public List<? extends DomainObject> getAllOuterOrganizations(Locale locale) {
+    public List<T> getAllOuterOrganizations(Locale locale) {
         return null;
+    }
+
+    @Override
+    public List<T> getOrganizations(List<Long> types, Locale locale) {
+        DomainObjectExample example = new DomainObjectExample();
+
+        if (locale != null) {
+            example.setOrderByAttributeTypeId(NAME);
+            example.setLocaleId(localeBean.convert(locale).getId());
+            example.setAsc(true);
+        }
+
+        example.addAdditionalParam(ORGANIZATION_TYPE_PARAMETER, types);
+
+        configureExample(example, ImmutableMap.<String, Long>of(), null);
+
+        return find(example);
     }
 
     @Override

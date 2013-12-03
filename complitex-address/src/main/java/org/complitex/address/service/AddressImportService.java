@@ -885,7 +885,9 @@ public class AddressImportService extends AbstractImportService {
                         }
                     }
 
-                    building.setSubjectIds(subjectIds);
+                    if (!subjectIds.isEmpty()) {
+                        building.setSubjectIds(subjectIds);
+                    }
 
                 }
                 buildingStrategy.insert(building, beginDate);

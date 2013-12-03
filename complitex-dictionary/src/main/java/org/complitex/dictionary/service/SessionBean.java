@@ -42,7 +42,7 @@ public class SessionBean extends AbstractBean {
     private StrategyFactory strategyFactory;
 
     @EJB(lookup = IOrganizationStrategy.BEAN_LOOKUP)
-    private IOrganizationStrategy organizationStrategy;
+    private IOrganizationStrategy<DomainObject> organizationStrategy;
 
     public boolean isAdmin() {
         final Set<GROUP_NAME> userGroups = getCurrentUserGroups();
