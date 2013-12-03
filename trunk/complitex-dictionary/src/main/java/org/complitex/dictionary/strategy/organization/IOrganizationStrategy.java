@@ -12,7 +12,7 @@ import java.util.Set;
  *
  * @author Artem
  */
-public interface IOrganizationStrategy extends IStrategy {
+public interface IOrganizationStrategy<T extends DomainObject> extends IStrategy {
     String BEAN_NAME = "OrganizationStrategy";
     String BEAN_LOOKUP = "java:module/OrganizationStrategy";
 
@@ -57,7 +57,7 @@ public interface IOrganizationStrategy extends IStrategy {
      * @return User organizations that current user can see.
      */
     @Transactional
-    List<? extends DomainObject> getUserOrganizations(Locale locale, Long... excludeOrganizationsId);
+    List<T> getUserOrganizations(Locale locale, Long... excludeOrganizationsId);
 
     /**
      * Returns set of user organization object's ids that descendant of user organization with id of {@code parentOrganizationId}
@@ -134,7 +134,9 @@ public interface IOrganizationStrategy extends IStrategy {
      * @return All outer organizations visible to user.
      */
     @Transactional
-    List<? extends DomainObject> getAllOuterOrganizations(Locale locale);
+    List<T> getAllOuterOrganizations(Locale locale);
+
+    List<T> getOrganizations(List<Long> types,Locale locale);
 
     Long getModuleId();
 
