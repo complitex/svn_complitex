@@ -17,11 +17,11 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.util.time.Duration;
 import org.complitex.address.entity.AddressImportFile;
-import org.complitex.address.service.AddressImportService;
+import org.complitex.address.service.ImportService;
 import org.complitex.dictionary.entity.IImportFile;
 import org.complitex.dictionary.entity.ImportMessage;
 import org.complitex.dictionary.service.LocaleBean;
-import org.complitex.dictionary.util.DateUtil;
+import org.complitex.organization.entity.OrganizationImportFile;
 import org.complitex.template.web.component.LocalePicker;
 import org.complitex.template.web.security.SecurityRole;
 import org.complitex.template.web.template.TemplatePage;
@@ -40,7 +40,7 @@ import java.util.Locale;
 public class ImportPage extends TemplatePage {
 
     @EJB
-    private AddressImportService addressImportService;
+    private ImportService importService;
     @EJB
     private LocaleBean localeBean;
     private int stopTimer = 0;
@@ -62,6 +62,7 @@ public class ImportPage extends TemplatePage {
 
         //Справочники
         List<IImportFile> dictionaryList = new ArrayList<IImportFile>();
+        Collections.addAll(dictionaryList, OrganizationImportFile.values());
         Collections.addAll(dictionaryList, AddressImportFile.values());
 
         form.add(new CheckBoxMultipleChoice<>("address", dictionaryModel, dictionaryList,
@@ -69,7 +70,7 @@ public class ImportPage extends TemplatePage {
 
                     @Override
                     public Object getDisplayValue(IImportFile object) {
-                        return object.getFileName() + getStatus(addressImportService.getMessage(object));
+                        return object.getFileName() + getStatus(importService.getMessage(object));
                     }
 
                     @Override
@@ -86,16 +87,15 @@ public class ImportPage extends TemplatePage {
 
             @Override
             public void onSubmit() {
-                if (!addressImportService.isProcessing()) {
-                    addressImportService.process(dictionaryModel.getObject(),
-                            localeBean.convert(localeModel.getObject()).getId(), DateUtil.getCurrentDate());
+                if (!importService.isProcessing()) {
+                    importService.process(dictionaryModel.getObject(), localeBean.convert(localeModel.getObject()).getId());
                     container.add(newTimer());
                 }
             }
 
             @Override
             public boolean isVisible() {
-                return !addressImportService.isProcessing();
+                return !importService.isProcessing();
             }
         };
         form.add(process);
@@ -105,13 +105,13 @@ public class ImportPage extends TemplatePage {
 
             @Override
             protected Object load() {
-                return addressImportService.getErrorMessage();
+                return importService.getErrorMessage();
             }
         }) {
 
             @Override
             public boolean isVisible() {
-                return addressImportService.isError();
+                return importService.isError();
             }
         });
     }
@@ -123,7 +123,7 @@ public class ImportPage extends TemplatePage {
 
             @Override
             protected void onPostProcessTarget(AjaxRequestTarget target) {
-                if (!addressImportService.isProcessing()) {
+                if (!importService.isProcessing()) {
 
                     dictionaryModel.setObject(null);
 
@@ -131,7 +131,7 @@ public class ImportPage extends TemplatePage {
                 }
 
                 if (stopTimer > 2) {
-                    if (addressImportService.isSuccess()) {
+                    if (importService.isSuccess()) {
                         info(getString("success"));
                     }
                     stop();
@@ -142,7 +142,7 @@ public class ImportPage extends TemplatePage {
 
     private String getStatus(ImportMessage im) {
         if (im != null) {
-            if (im.getIndex() < 1 && !addressImportService.isProcessing()) {
+            if (im.getIndex() < 1 && !importService.isProcessing()) {
                 return " - " + getStringOrKey("error");
             } else if (im.getIndex() == im.getCount()) {
                 return " - " + getStringFormat("complete", im.getIndex());
