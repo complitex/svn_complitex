@@ -5,7 +5,7 @@
     
     <resultMap id="organizationImportResultMap" type="org.complitex.organization.entity.OrganizationImport">
         <id column="pk_id" property="pkId"/>
-        <result column="organizationId" property="organization_id"/>
+        <result column="organization_id" property="organizationId"/>
         <result column="code" property="code"/>
         <result column="short_name" property="shortName"/>
         <result column="full_name" property="fullName"/>
