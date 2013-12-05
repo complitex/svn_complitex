@@ -2,6 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.complitex.dictionary.entity.Sequence">
 
+    <insert id="create" parameterType="string">
+        insert into `sequence` (`sequence_name`, `sequence_value`) VALUES ('${value}', 1)
+    </insert>
+
+    <select id="exists" parameterType="string" resultType="integer">
+        select 1 from `sequence` where `sequence_name` = '${value}'
+    </select>
+
     <select id="nextId" resultType="long" parameterType="string">
         select s.`sequence_value` from `sequence` s where s.`sequence_name` = '${value}' for update
     </select>
