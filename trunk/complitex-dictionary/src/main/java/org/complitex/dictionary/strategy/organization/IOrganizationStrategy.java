@@ -24,7 +24,7 @@ public interface IOrganizationStrategy<T extends DomainObject> extends IStrategy
     /**
      * Organization's short name.
      */
-    public final static long SHORT_NAME = 920;
+    public final static long SHORT_NAME = 906;
 
     /**
      * Organization's code.
