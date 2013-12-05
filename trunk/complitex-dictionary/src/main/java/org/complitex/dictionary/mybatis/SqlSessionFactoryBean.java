@@ -34,7 +34,7 @@ import java.util.concurrent.ConcurrentMap;
 @Singleton(name = "SqlSessionFactoryBean")
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 public class SqlSessionFactoryBean {
-    private static final Logger log = LoggerFactory.getLogger(SqlSessionFactoryBean.class);
+    private final Logger log = LoggerFactory.getLogger(SqlSessionFactoryBean.class);
 
     public static final String CONFIGURATION_FILE = "mybatis-config.xml";
     public static final String LOCAL_ENVIRONMENT = "local";

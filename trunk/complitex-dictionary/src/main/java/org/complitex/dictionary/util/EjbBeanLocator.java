@@ -4,11 +4,12 @@
  */
 package org.complitex.dictionary.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -16,7 +17,7 @@ import org.slf4j.LoggerFactory;
  */
 public class EjbBeanLocator {
 
-    private static final Logger log = LoggerFactory.getLogger(EjbBeanLocator.class);
+    private final Logger log = LoggerFactory.getLogger(EjbBeanLocator.class);
 
     private EjbBeanLocator() {
     }
@@ -31,10 +32,10 @@ public class EjbBeanLocator {
             return (T) context.lookup("java:module/" + beanName);
         } catch (NamingException e) {
             if (!suppressException) {
-                log.error("Couldn't get ejb bean by name " + beanName);
+                LoggerFactory.getLogger(EjbBeanLocator.class).error("Couldn't get ejb bean by name " + beanName);
                 throw new RuntimeException(e);
             } else {
-                log.info("Couldn't get ejb bean by name {}", beanName);
+                LoggerFactory.getLogger(EjbBeanLocator.class).info("Couldn't get ejb bean by name {}", beanName);
             }
         }
         return null;

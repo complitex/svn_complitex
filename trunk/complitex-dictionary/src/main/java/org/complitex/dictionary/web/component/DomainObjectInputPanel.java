@@ -76,7 +76,7 @@ public class DomainObjectInputPanel extends Panel {
             }
         }
     }
-    private static final Logger log = LoggerFactory.getLogger(DomainObjectInputPanel.class);
+    private final Logger log = LoggerFactory.getLogger(DomainObjectInputPanel.class);
     public static final String INPUT_COMPONENT_ID = "input";
     @EJB
     private StrategyFactory strategyFactory;

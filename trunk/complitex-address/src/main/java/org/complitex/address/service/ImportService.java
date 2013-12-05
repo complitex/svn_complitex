@@ -34,7 +34,7 @@ import java.util.Map;
 @TransactionManagement(TransactionManagementType.BEAN)
 public class ImportService {
 
-    private final static Logger log = LoggerFactory.getLogger(ImportService.class);
+    private final Logger log = LoggerFactory.getLogger(ImportService.class);
     public static final long INT_ORG_ID = 0L;
 
     @Resource

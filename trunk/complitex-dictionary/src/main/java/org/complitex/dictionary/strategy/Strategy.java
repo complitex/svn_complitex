@@ -40,9 +40,9 @@ import static com.google.common.collect.Sets.newTreeSet;
  * @author Artem
  */
 public abstract class Strategy extends AbstractBean implements IStrategy {
-
     private static final String RESOURCE_BUNDLE = Strategy.class.getName();
-    private static final Logger log = LoggerFactory.getLogger(Strategy.class);
+    private final Logger log = LoggerFactory.getLogger(Strategy.class);
+
     private static final int PERMISSIONS_CHILDREN_BATCH = 500;
     private static final int ACTIVITY_CHILDREN_BATCH = 5000;
     @EJB

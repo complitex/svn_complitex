@@ -45,7 +45,7 @@ import java.util.*;
  */
 public abstract class TemplatePage extends WebPage {
 
-    private static final Logger log = LoggerFactory.getLogger(TemplatePage.class);
+    private final Logger log = LoggerFactory.getLogger(TemplatePage.class);
     public static final String BACK_INFO_SESSION_KEY = "back_info_session_key";
     @EJB
     private SessionBean sessionBean;

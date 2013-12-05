@@ -1,13 +1,11 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.dictionary.util;
 
-import java.util.Date;
+import org.testng.annotations.Test;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import org.testng.annotations.Test;
+import java.util.Date;
+
 import static org.complitex.dictionary.util.DateUtil.*;
 import static org.testng.Assert.*;
 

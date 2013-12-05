@@ -43,7 +43,7 @@ import static org.complitex.address.entity.AddressImportFile.*;
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 @TransactionManagement(TransactionManagementType.BEAN)
 public class AddressImportService extends AbstractImportService {
-    private final static Logger log = LoggerFactory.getLogger(AddressImportService.class);
+    private final Logger log = LoggerFactory.getLogger(AddressImportService.class);
     private static final String RESOURCE_BUNDLE = AddressImportService.class.getName();
 
     @Resource

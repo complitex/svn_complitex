@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  */
 public class RoomEdit extends DomainObjectEdit {
 
-    private static final Logger log = LoggerFactory.getLogger(RoomEdit.class);
+    private final Logger log = LoggerFactory.getLogger(RoomEdit.class);
 
     public RoomEdit(PageParameters parameters) {
         super(parameters);

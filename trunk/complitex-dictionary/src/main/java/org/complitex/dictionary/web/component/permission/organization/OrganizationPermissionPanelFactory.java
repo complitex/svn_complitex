@@ -14,8 +14,8 @@ import org.slf4j.LoggerFactory;
  * @author Artem
  */
 public class OrganizationPermissionPanelFactory {
+    private final Logger log = LoggerFactory.getLogger(OrganizationPermissionPanelFactory.class);
 
-    private static final Logger log = LoggerFactory.getLogger(OrganizationPermissionPanelFactory.class);
     public static final String WEB_COMPONENT_NAME = "OrganizationPermissionPanel";
 
     public static AbstractDomainObjectPermissionPanel create(String id, OrganizationPermissionParameters parameters) {
@@ -25,7 +25,8 @@ public class OrganizationPermissionPanelFactory {
             return organizationPermissionPanelClass.getConstructor(
                     String.class, OrganizationPermissionParameters.class).newInstance(id, parameters);
         } catch (Exception e) {
-            log.warn("Couldn't to instantiate organization permission panel. Default one will be used.", e);
+            LoggerFactory.getLogger(OrganizationPermissionPanelFactory.class)
+                    .warn("Couldn't to instantiate organization permission panel. Default one will be used.", e);
             return new OrganizationPermissionsPanel(id, parameters);
         }
     }

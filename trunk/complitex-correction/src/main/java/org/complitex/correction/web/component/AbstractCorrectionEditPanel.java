@@ -36,7 +36,7 @@ import java.util.Locale;
  * @author Artem
  */
 public abstract class AbstractCorrectionEditPanel<T extends Correction> extends Panel {
-    private static final Logger log = LoggerFactory.getLogger(AbstractCorrectionEditPanel.class);
+    private final Logger log = LoggerFactory.getLogger(AbstractCorrectionEditPanel.class);
 
     @EJB
     private SessionBean sessionBean;

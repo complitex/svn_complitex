@@ -18,7 +18,7 @@ import java.util.Arrays;
  *         Date: 31.08.2010 16:09:01
  */
 public class TransactionalMethodInterceptor {
-    private static Logger log = LoggerFactory.getLogger(TransactionalMethodInterceptor.class);
+    private final Logger log = LoggerFactory.getLogger(TransactionalMethodInterceptor.class);
 
     private static final Class<?>[] CAUSE_TYPES = new Class[]{ Throwable.class };
     private static final Class<?>[] MESSAGE_CAUSE_TYPES = new Class[]{ String.class, Throwable.class };

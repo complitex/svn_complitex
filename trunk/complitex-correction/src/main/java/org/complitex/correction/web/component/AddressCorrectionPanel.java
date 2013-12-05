@@ -46,7 +46,7 @@ import java.util.List;
  * @author Artem
  */
 public abstract class AddressCorrectionPanel<T> extends Panel {
-    private static final Logger log = LoggerFactory.getLogger(AddressCorrectionPanel.class);
+    private final Logger log = LoggerFactory.getLogger(AddressCorrectionPanel.class);
 
     @EJB
     private StrategyFactory strategyFactory;

@@ -29,7 +29,7 @@ import java.io.IOException;
  */
 @Stateless
 public class AddressCorrectionImportService extends AbstractImportService {
-    private final static Logger log = LoggerFactory.getLogger(AddressCorrectionImportService.class);
+    private final Logger log = LoggerFactory.getLogger(AddressCorrectionImportService.class);
 
     @EJB
     private AddressCorrectionBean addressCorrectionBean;

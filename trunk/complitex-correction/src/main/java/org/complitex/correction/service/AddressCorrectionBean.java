@@ -23,7 +23,7 @@ import java.util.List;
  */
 @Stateless
 public class AddressCorrectionBean extends AbstractBean {
-    private static final Logger log = LoggerFactory.getLogger(AddressCorrectionBean.class);
+    private final Logger log = LoggerFactory.getLogger(AddressCorrectionBean.class);
 
     private static final String NS = AddressCorrectionBean.class.getName();
     private static final String NS_CORRECTION = Correction.class.getName();

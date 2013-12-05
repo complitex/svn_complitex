@@ -53,7 +53,7 @@ import static org.complitex.dictionary.web.DictionaryFwSession.*;
 @AuthorizeInstantiation(SecurityRole.ADMIN_MODULE_EDIT)
 public class UserEdit extends FormTemplatePage {
 
-    private static final Logger log = LoggerFactory.getLogger(UserEdit.class);
+    private final Logger log = LoggerFactory.getLogger(UserEdit.class);
     private static final List<String> SEARCH_FILTERS = Arrays.asList("country", "region", "city", "street");
     @EJB
     private UserBean userBean;
