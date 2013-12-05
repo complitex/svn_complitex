@@ -32,4 +32,24 @@ public class SequenceBean extends AbstractBean{
         sqlSession().update(MAPPING_NAMESPACE + ".incrementId", entityTable);
         return nextId;
     }
+
+    @Transactional
+    public long nextIdOrInit(String entityTable) {
+        try {
+            return nextId(entityTable);
+        } catch (Throwable th) {
+            if (!create(entityTable)) {
+                throw th;
+            }
+            return nextId(entityTable);
+        }
+    }
+
+    private boolean create(String entityTable) {
+        if (sqlSession().selectOne(MAPPING_NAMESPACE + ".exists", entityTable) == null) {
+            sqlSession().insert(MAPPING_NAMESPACE + ".create", entityTable);
+            return true;
+        }
+        return false;
+    }
 }
