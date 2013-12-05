@@ -1,12 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.dictionary.util;
 
 import org.apache.wicket.Application;
 import org.apache.wicket.Component;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.MessageFormat;
@@ -14,14 +9,7 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-/**
- *
- * @author Artem
- */
 public final class ResourceUtil {
-
-    private static final Logger log = LoggerFactory.getLogger(ResourceUtil.class);
-
     private ResourceUtil() {
     }
 
@@ -45,7 +33,8 @@ public final class ResourceUtil {
         try {
             return ResourceBundle.getBundle(bundle, locale);
         } catch (MissingResourceException e) {
-            log.warn("Couldn't to find resource bundle. Bundle : '{}', Locale : '{}'", bundle, locale);
+            LoggerFactory.getLogger(ResourceUtil.class)
+                    .warn("Couldn't to find resource bundle. Bundle : '{}', Locale : '{}'", bundle, locale);
             throw e;
         }
     }

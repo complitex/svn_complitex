@@ -5,11 +5,8 @@
 package org.complitex.dictionary.strategy.web;
 
 import com.google.common.collect.Lists;
-import java.text.MessageFormat;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 import org.apache.wicket.Component;
+import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.markup.html.IHeaderResponse;
@@ -21,47 +18,51 @@ import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.Strings;
 import org.apache.wicket.util.visit.IVisit;
+import org.apache.wicket.util.visit.IVisitor;
 import org.complitex.dictionary.Module;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.Log;
 import org.complitex.dictionary.service.LogBean;
+import org.complitex.dictionary.service.SessionBean;
 import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.strategy.DeleteException;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.strategy.web.validate.IValidator;
-import static org.complitex.dictionary.util.CloneUtil.*;
-import static org.complitex.dictionary.util.DateUtil.*;
 import org.complitex.dictionary.web.component.ChildrenContainer;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
-import org.complitex.dictionary.web.component.permission.PermissionPropagationDialogPanel;
-import static org.complitex.dictionary.web.component.scroll.ScrollToElementUtil.*;
-import static org.complitex.resources.WebCommonResourceInitializer.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.ejb.EJB;
-import org.apache.wicket.RestartResponseException;
-import org.apache.wicket.model.LoadableDetachableModel;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.util.visit.IVisitor;
-import org.complitex.dictionary.service.SessionBean;
 import org.complitex.dictionary.web.component.back.BackInfo;
 import org.complitex.dictionary.web.component.back.BackInfoManager;
 import org.complitex.dictionary.web.component.permission.AbstractDomainObjectPermissionPanel;
 import org.complitex.dictionary.web.component.permission.DomainObjectPermissionPanelFactory;
 import org.complitex.dictionary.web.component.permission.DomainObjectPermissionParameters;
+import org.complitex.dictionary.web.component.permission.PermissionPropagationDialogPanel;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.ejb.EJB;
+import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
+import static org.complitex.dictionary.util.CloneUtil.cloneObject;
+import static org.complitex.dictionary.util.DateUtil.getCurrentDate;
+import static org.complitex.dictionary.web.component.scroll.ScrollToElementUtil.scrollTo;
+import static org.complitex.resources.WebCommonResourceInitializer.SCROLL_JS;
 
 /**
  *
  * @author Artem
  */
 public class DomainObjectEditPanel extends Panel {
+    private final Logger log = LoggerFactory.getLogger(DomainObjectEditPanel.class);
 
-    private static final Logger log = LoggerFactory.getLogger(DomainObjectEditPanel.class);
     @EJB
     private StrategyFactory strategyFactory;
     @EJB

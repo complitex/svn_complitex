@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.dictionary.web.component.organization.user;
 
 import org.apache.wicket.markup.html.panel.Panel;
@@ -11,13 +7,9 @@ import org.complitex.dictionary.web.component.factory.WebComponentFactoryUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- * @author Artem
- */
 public class UserOrganizationPickerFactory {
+    private final Logger log = LoggerFactory.getLogger(UserOrganizationPickerFactory.class);
 
-    private static final Logger log = LoggerFactory.getLogger(UserOrganizationPickerFactory.class);
     public static final String WEB_COMPONENT_NAME = "UserOrganizationPickerFactory";
 
     public static Panel create(String id, IModel<Long> userOrganizatioIdModel, UserOrganizationPickerParameters parameters) {
@@ -28,7 +20,8 @@ public class UserOrganizationPickerFactory {
                     String.class, IModel.class, UserOrganizationPickerParameters.class).
                     newInstance(id, userOrganizatioIdModel, parameters);
         } catch (Exception e) {
-            log.warn("Couldn't to instantiate user organization picker. Default one will be used.", e);
+            LoggerFactory.getLogger(UserOrganizationPickerFactory.class)
+                    .warn("Couldn't to instantiate user organization picker. Default one will be used.", e);
             return new UserOrganizationPicker(id, userOrganizatioIdModel, parameters);
         }
     }

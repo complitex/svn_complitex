@@ -13,8 +13,8 @@ import org.slf4j.LoggerFactory;
  * @author Artem
  */
 public class DomainObjectPermissionPanelFactory {
+    private final Logger log = LoggerFactory.getLogger(DomainObjectPermissionPanelFactory.class);
 
-    private static final Logger log = LoggerFactory.getLogger(DomainObjectPermissionPanelFactory.class);
     public static final String WEB_COMPONENT_NAME = "DomainObjectPermissionPanel";
 
     public static AbstractDomainObjectPermissionPanel create(String id, DomainObjectPermissionParameters parameters) {
@@ -24,7 +24,8 @@ public class DomainObjectPermissionPanelFactory {
             return domainObjectPermissionPanelClass.getConstructor(
                     String.class, DomainObjectPermissionParameters.class).newInstance(id, parameters);
         } catch (Exception e) {
-            log.warn("Couldn't to instantiate domain object permission panel. Default one will be used.", e);
+            LoggerFactory.getLogger(DomainObjectPermissionPanelFactory.class)
+                    .warn("Couldn't to instantiate domain object permission panel. Default one will be used.", e);
             return new DomainObjectPermissionsPanel(id, parameters);
         }
     }

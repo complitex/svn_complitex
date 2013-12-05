@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 public abstract class ServletAuthWebApplication extends WebApplication implements IRoleCheckingStrategy,
         IUnauthorizedComponentInstantiationListener {
 
-    private static final Logger log = LoggerFactory.getLogger(ServletAuthWebApplication.class);
+    private final Logger log = LoggerFactory.getLogger(ServletAuthWebApplication.class);
 
     @Override
     protected void init() {

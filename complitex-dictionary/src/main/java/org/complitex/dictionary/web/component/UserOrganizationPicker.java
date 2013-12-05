@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.dictionary.web.component;
 
 import com.google.common.base.Predicate;
@@ -20,10 +16,6 @@ import org.complitex.dictionary.web.component.organization.user.UserOrganization
 import javax.ejb.EJB;
 import java.util.List;
 
-/**
- *
- * @author Artem
- */
 public class UserOrganizationPicker extends Panel {
 
     @EJB(name = "OrganizationStrategy")

@@ -61,7 +61,7 @@ import java.util.*;
 public abstract class TemplateWebApplication extends ServletAuthWebApplication
         implements IThemableApplication, IWebComponentResolvableApplication {
 
-    private static final Logger log = LoggerFactory.getLogger(TemplateWebApplication.class);
+    private final Logger log = LoggerFactory.getLogger(TemplateWebApplication.class);
     private static final String TEMPLATE_CONFIG_FILE_NAME = "template-config.xml";
     private static final ThemeResourceReference theme = new ThemeResourceReference();
     private volatile Collection<Class<ITemplateMenu>> menuClasses;

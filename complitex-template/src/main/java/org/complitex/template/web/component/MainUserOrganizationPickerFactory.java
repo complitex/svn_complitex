@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MainUserOrganizationPickerFactory {
 
-    private static final Logger log = LoggerFactory.getLogger(MainUserOrganizationPickerFactory.class);
+    private final Logger log = LoggerFactory.getLogger(MainUserOrganizationPickerFactory.class);
     public static final String WEB_COMPONENT_NAME = "MainUserOrganizationPickerComponent";
 
     public static Component create(String id, IModel<DomainObject> model) {
@@ -26,7 +26,8 @@ public class MainUserOrganizationPickerFactory {
         try {
             return mainUserOrganizationPickerClass.getConstructor(String.class, IModel.class).newInstance(id, model);
         } catch (Exception e) {
-            log.warn("Couldn't to instantiate main user organization picker component. Default one will be used.", e);
+            LoggerFactory.getLogger(MainUserOrganizationPickerFactory.class)
+                    .warn("Couldn't to instantiate main user organization picker component. Default one will be used.", e);
             return new MainUserOrganizationPicker(id, model);
         }
     }

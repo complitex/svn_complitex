@@ -32,7 +32,7 @@ import static org.complitex.organization_type.strategy.OrganizationTypeStrategy.
 @Stateless
 public class OrganizationImportService extends AbstractImportService {
 
-    private static final Logger log = LoggerFactory.getLogger(OrganizationImportService.class);
+    private final Logger log = LoggerFactory.getLogger(OrganizationImportService.class);
 
     @EJB
     private OrganizationImportBean organizationImportBean;

@@ -32,7 +32,7 @@ import java.util.Set;
  */
 @Stateless(name = "AddressService")
 public class AddressService extends AbstractBean {
-    private static final Logger log = LoggerFactory.getLogger(AddressService.class);
+    private final Logger log = LoggerFactory.getLogger(AddressService.class);
 
     public final static Long MODULE_ID = 0L;
 

@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
  *         Date: 22.07.2010 16:16:45
  */
 public final class Login extends WebPage {
-    private static final Logger log = LoggerFactory.getLogger(Login.class);
+    private final Logger log = LoggerFactory.getLogger(Login.class);
 
     public Login() {
         init(false);

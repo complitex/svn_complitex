@@ -16,7 +16,7 @@ import java.util.List;
  * @author Artem
  */
 public class DisableAwareDropDownChoice<T> extends DropDownChoice<T> {
-    private static final Logger logger = LoggerFactory.getLogger(DisableAwareDropDownChoice.class);
+    private final Logger logger = LoggerFactory.getLogger(DisableAwareDropDownChoice.class);
 
     public DisableAwareDropDownChoice(String id) {
         super(id);

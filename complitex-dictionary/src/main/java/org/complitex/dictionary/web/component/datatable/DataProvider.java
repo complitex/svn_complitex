@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class DataProvider<T extends Serializable> extends SortableDataProvider<T> {
 
-    private static final Logger log = LoggerFactory.getLogger(DataProvider.class);
+    private final Logger log = LoggerFactory.getLogger(DataProvider.class);
     private Integer size;
 
     @Override

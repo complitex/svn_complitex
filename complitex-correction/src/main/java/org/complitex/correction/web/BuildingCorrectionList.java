@@ -26,7 +26,7 @@ import java.util.Locale;
  * @author Artem
  */
 public class BuildingCorrectionList extends AddressCorrectionList<BuildingCorrection> {
-    private final static Logger log = LoggerFactory.getLogger(BuildingCorrectionList.class);
+    private final Logger log = LoggerFactory.getLogger(BuildingCorrectionList.class);
 
     @EJB
     private AddressCorrectionBean addressCorrectionBean;

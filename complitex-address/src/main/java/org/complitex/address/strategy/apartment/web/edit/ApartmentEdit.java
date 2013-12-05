@@ -5,14 +5,12 @@
 package org.complitex.address.strategy.apartment.web.edit;
 
 import com.google.common.collect.Lists;
-import java.util.List;
-import java.util.Locale;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.PackageResourceReference;
-import org.complitex.address.strategy.apartment.ApartmentStrategy;
 import org.complitex.address.Module;
+import org.complitex.address.strategy.apartment.ApartmentStrategy;
 import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.Log;
@@ -33,13 +31,16 @@ import org.complitex.template.web.pages.DomainObjectEdit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.Locale;
+
 /**
  *
  * @author Artem
  */
 public final class ApartmentEdit extends DomainObjectEdit {
 
-    private static final Logger log = LoggerFactory.getLogger(ApartmentEdit.class);
+    private final Logger log = LoggerFactory.getLogger(ApartmentEdit.class);
 
     public ApartmentEdit(PageParameters parameters) {
         super(parameters);

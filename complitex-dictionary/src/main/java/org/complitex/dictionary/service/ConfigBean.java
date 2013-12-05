@@ -18,7 +18,7 @@ import java.util.*;
 @Startup
 @Singleton(name = "ConfigBean")
 public class ConfigBean extends AbstractBean{
-    private static final Logger log = LoggerFactory.getLogger(ConfigBean.class);
+    private final Logger log = LoggerFactory.getLogger(ConfigBean.class);
 
     private static final String MAPPING_NAMESPACE = ConfigBean.class.getName();
 

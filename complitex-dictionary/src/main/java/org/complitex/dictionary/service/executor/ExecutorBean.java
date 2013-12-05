@@ -13,7 +13,7 @@ import javax.ejb.*;
  */
 @Stateless
 public class ExecutorBean {
-    private static final Logger log = LoggerFactory.getLogger(ExecutorBean.class);
+    private final Logger log = LoggerFactory.getLogger(ExecutorBean.class);
 
     @EJB
     private AsyncTaskBean asyncTaskBean;

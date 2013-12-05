@@ -21,7 +21,7 @@ import java.util.Map;
 @Stateless
 public class AddressSyncAdapter extends AbstractBean {
     private final static String NS = AddressSyncAdapter.class.getName();
-    private final static Logger log = LoggerFactory.getLogger(AddressSyncAdapter.class);
+    private final Logger log = LoggerFactory.getLogger(AddressSyncAdapter.class);
 
     /**
      * function z$runtime_sz_utl.getDistricts(

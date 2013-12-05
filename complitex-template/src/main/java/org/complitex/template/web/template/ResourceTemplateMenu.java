@@ -15,7 +15,7 @@ import java.util.ResourceBundle;
  *         Date: 12.01.2010 12:14:04
  */
 public abstract class ResourceTemplateMenu implements ITemplateMenu {
-    private static final Logger log = LoggerFactory.getLogger(ResourceTemplateMenu.class);
+    private final Logger log = LoggerFactory.getLogger(ResourceTemplateMenu.class);
 
     private List<ITemplateLink> templateLinks = new ArrayList<>();
 
