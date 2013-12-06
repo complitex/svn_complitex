@@ -15,7 +15,9 @@ import java.util.ResourceBundle;
  *         Date: 12.01.2010 12:14:04
  */
 public abstract class ResourceTemplateMenu implements ITemplateMenu {
-    private final Logger log = LoggerFactory.getLogger(ResourceTemplateMenu.class);
+    private Logger log(){
+        return LoggerFactory.getLogger(ResourceTemplateMenu.class);
+    }
 
     private List<ITemplateLink> templateLinks = new ArrayList<>();
 
@@ -28,7 +30,7 @@ public abstract class ResourceTemplateMenu implements ITemplateMenu {
         try {
             return ResourceBundle.getBundle(baseName, locale);
         } catch (Exception e) {
-            log.error("Ресурс файла локализации не найден", e);
+            log().error("Ресурс файла локализации не найден", e);
         }
         return null;
     }
@@ -37,7 +39,7 @@ public abstract class ResourceTemplateMenu implements ITemplateMenu {
         try {
             return getResourceBundle(baseName, locale).getString(key);
         } catch (Exception e) {
-            log.error("Не найдено значение в файле локализации", e);
+            log().error("Не найдено значение в файле локализации", e);
         }
         return "[NO LOCALE]";
     }

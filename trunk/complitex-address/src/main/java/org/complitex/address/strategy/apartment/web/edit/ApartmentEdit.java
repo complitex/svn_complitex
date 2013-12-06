@@ -28,8 +28,6 @@ import org.complitex.dictionary.web.component.css.CssAttributeBehavior;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
 import org.complitex.template.web.component.toolbar.search.CollapsibleInputSearchToolbarButton;
 import org.complitex.template.web.pages.DomainObjectEdit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Locale;
@@ -39,9 +37,6 @@ import java.util.Locale;
  * @author Artem
  */
 public final class ApartmentEdit extends DomainObjectEdit {
-
-    private final Logger log = LoggerFactory.getLogger(ApartmentEdit.class);
-
     public ApartmentEdit(PageParameters parameters) {
         super(parameters);
     }
@@ -115,7 +110,7 @@ public final class ApartmentEdit extends DomainObjectEdit {
                                     getStrategy().insert(currentObject, DateUtil.getCurrentDate());
                                 } catch (Exception e) {
                                     bulkOperationSuccess = false;
-                                    log.error("", e);
+                                    log().error("", e);
                                     onFailBulkSave(Module.NAME, DomainObjectEditPanel.class, currentObject,
                                             numbersAsString, numbersList.asString(number), getLocale());
                                 }

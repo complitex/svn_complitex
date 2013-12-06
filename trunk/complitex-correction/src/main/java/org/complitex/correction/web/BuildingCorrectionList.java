@@ -14,8 +14,6 @@ import org.complitex.dictionary.service.LocaleBean;
 import org.complitex.dictionary.service.SessionBean;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import java.util.List;
@@ -26,8 +24,6 @@ import java.util.Locale;
  * @author Artem
  */
 public class BuildingCorrectionList extends AddressCorrectionList<BuildingCorrection> {
-    private final Logger log = LoggerFactory.getLogger(BuildingCorrectionList.class);
-
     @EJB
     private AddressCorrectionBean addressCorrectionBean;
 
@@ -85,7 +81,7 @@ public class BuildingCorrectionList extends AddressCorrectionList<BuildingCorrec
                 String displayCity = cityStrategy.displayDomainObject(city, locale);
                 c.setDisplayObject(displayCity + ", " + displayStreet + ", " + displayBuilding);
             } catch (Exception e) {
-                log.warn("[Полный адрес не найден]", e);
+                log().warn("[Полный адрес не найден]", e);
                 c.setDisplayObject("[Полный адрес не найден]");
                 c.setEditable(false);
             }

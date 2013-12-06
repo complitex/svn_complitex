@@ -1,10 +1,11 @@
 package org.complitex.admin.web;
 
-import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.*;
@@ -15,6 +16,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.complitex.admin.Module;
 import org.complitex.admin.service.UserBean;
 import org.complitex.admin.strategy.UserInfoStrategy;
@@ -25,22 +27,18 @@ import org.complitex.dictionary.service.PreferenceBean;
 import org.complitex.dictionary.util.CloneUtil;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.ShowMode;
+import org.complitex.dictionary.web.component.organization.user.UserOrganizationPickerFactory;
+import org.complitex.dictionary.web.component.organization.user.UserOrganizationPickerParameters;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
 import org.complitex.dictionary.web.component.search.WiQuerySearchComponent;
 import org.complitex.template.web.component.LocalePicker;
 import org.complitex.template.web.security.SecurityRole;
 import org.complitex.template.web.template.FormTemplatePage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import java.util.*;
 import java.util.Locale;
-import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 
-import org.complitex.dictionary.web.component.organization.user.UserOrganizationPickerFactory;
-import org.complitex.dictionary.web.component.organization.user.UserOrganizationPickerParameters;
 import static org.complitex.dictionary.entity.UserGroup.GROUP_NAME.*;
 import static org.complitex.dictionary.web.DictionaryFwSession.*;
 
@@ -52,8 +50,6 @@ import static org.complitex.dictionary.web.DictionaryFwSession.*;
  */
 @AuthorizeInstantiation(SecurityRole.ADMIN_MODULE_EDIT)
 public class UserEdit extends FormTemplatePage {
-
-    private final Logger log = LoggerFactory.getLogger(UserEdit.class);
     private static final List<String> SEARCH_FILTERS = Arrays.asList("country", "region", "city", "street");
     @EJB
     private UserBean userBean;
@@ -283,14 +279,14 @@ public class UserEdit extends FormTemplatePage {
                         logBean.info(Module.NAME, UserEdit.class, User.class, null, user.getId(),
                                 (user.getId() == null) ? Log.EVENT.CREATE : Log.EVENT.EDIT, getLogChanges(oldUser, user), null);
 
-                        log.info("Пользователь сохранен: {}", user);
+                        log().info("Пользователь сохранен: {}", user);
                         getSession().info(getString("info.saved"));
                         back(user.getId());
                     } else {
                         target.add(messages);
                     }
                 } catch (Exception e) {
-                    log.error("Ошибка сохранения пользователя", e);
+                    log().error("Ошибка сохранения пользователя", e);
                     error(getString("error.saved"));
                     target.add(messages);
                 }

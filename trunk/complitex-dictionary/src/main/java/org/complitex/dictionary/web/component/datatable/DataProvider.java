@@ -4,13 +4,13 @@
  */
 package org.complitex.dictionary.web.component.datatable;
 
-import java.io.Serializable;
-import java.util.Iterator;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
+import java.util.Iterator;
 
 /**
  * Facilitates data provider creation by implementing some contract methods.
@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class DataProvider<T extends Serializable> extends SortableDataProvider<T> {
 
-    private final Logger log = LoggerFactory.getLogger(DataProvider.class);
     private Integer size;
 
     @Override
@@ -38,7 +37,7 @@ public abstract class DataProvider<T extends Serializable> extends SortableDataP
 
     @Override
     public void detach() {
-        log.debug("Detach.");
+        LoggerFactory.getLogger(DataProvider.class).debug("Detach.");
         size = null;
     }
 

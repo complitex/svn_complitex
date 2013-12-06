@@ -9,8 +9,6 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.PackageResourceReference;
 import org.complitex.resources.WebCommonResourceInitializer;
 import org.odlabs.wiquery.core.resources.CoreJavaScriptResourceReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -18,7 +16,6 @@ import org.slf4j.LoggerFactory;
  *         Date: 22.07.2010 16:16:45
  */
 public final class Login extends WebPage {
-    private final Logger log = LoggerFactory.getLogger(Login.class);
 
     public Login() {
         init(false);
