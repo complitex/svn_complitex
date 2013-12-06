@@ -44,13 +44,16 @@ import java.util.*;
  * Для инициализации шаблона наследники должны вызывать метод super().
  */
 public abstract class TemplatePage extends WebPage {
-
-    private final Logger log = LoggerFactory.getLogger(TemplatePage.class);
     public static final String BACK_INFO_SESSION_KEY = "back_info_session_key";
+
     @EJB
     private SessionBean sessionBean;
     private String page = getClass().getName();
     private Set<String> resourceBundle = new HashSet<String>();
+
+    protected Logger getLog(){
+        return LoggerFactory.getLogger(getClass());
+    }
 
     @Override
     public void renderHead(IHeaderResponse response) {
@@ -140,7 +143,7 @@ public abstract class TemplatePage extends WebPage {
                     }
                 });
             } catch (ClassNotFoundException e) {
-                log.warn("Profile page class was not found: " + profilePageClassName, e);
+                getLog().warn("Profile page class was not found: " + profilePageClassName, e);
                 add(new EmptyPanel("profile"));
             }
         } else {
@@ -308,7 +311,7 @@ public abstract class TemplatePage extends WebPage {
         try {
             return MessageFormat.format(getString(key), args);
         } catch (Exception e) {
-            log.error("Ошибка форматирования файла свойств", e);
+            getLog().error("Ошибка форматирования файла свойств", e);
             return key;
         }
     }
