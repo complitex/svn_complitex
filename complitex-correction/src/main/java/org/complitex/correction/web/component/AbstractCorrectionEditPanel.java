@@ -24,7 +24,6 @@ import org.complitex.dictionary.web.component.DisableAwareDropDownChoice;
 import org.complitex.dictionary.web.component.DomainObjectDisableAwareRenderer;
 import org.complitex.dictionary.web.model.OrganizationModel;
 import org.complitex.template.web.template.TemplateSession;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
@@ -36,7 +35,6 @@ import java.util.Locale;
  * @author Artem
  */
 public abstract class AbstractCorrectionEditPanel<T extends Correction> extends Panel {
-    private final Logger log = LoggerFactory.getLogger(AbstractCorrectionEditPanel.class);
 
     @EJB
     private SessionBean sessionBean;
@@ -180,7 +178,7 @@ public abstract class AbstractCorrectionEditPanel<T extends Correction> extends 
             back(false);
         } catch (Exception e) {
             error(getString("db_error"));
-            log.error("", e);
+            LoggerFactory.getLogger(getClass()).error("", e);
         }
     }
 

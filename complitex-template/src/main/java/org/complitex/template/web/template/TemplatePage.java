@@ -51,7 +51,7 @@ public abstract class TemplatePage extends WebPage {
     private String page = getClass().getName();
     private Set<String> resourceBundle = new HashSet<String>();
 
-    protected Logger getLog(){
+    protected Logger log(){
         return LoggerFactory.getLogger(getClass());
     }
 
@@ -143,7 +143,7 @@ public abstract class TemplatePage extends WebPage {
                     }
                 });
             } catch (ClassNotFoundException e) {
-                getLog().warn("Profile page class was not found: " + profilePageClassName, e);
+                log().warn("Profile page class was not found: " + profilePageClassName, e);
                 add(new EmptyPanel("profile"));
             }
         } else {
@@ -311,7 +311,7 @@ public abstract class TemplatePage extends WebPage {
         try {
             return MessageFormat.format(getString(key), args);
         } catch (Exception e) {
-            getLog().error("Ошибка форматирования файла свойств", e);
+            log().error("Ошибка форматирования файла свойств", e);
             return key;
         }
     }

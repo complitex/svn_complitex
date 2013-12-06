@@ -4,12 +4,9 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.complitex.dictionary.web.component.UserOrganizationPicker;
 import org.complitex.dictionary.web.component.factory.WebComponentFactoryUtil;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class UserOrganizationPickerFactory {
-    private final Logger log = LoggerFactory.getLogger(UserOrganizationPickerFactory.class);
-
     public static final String WEB_COMPONENT_NAME = "UserOrganizationPickerFactory";
 
     public static Panel create(String id, IModel<Long> userOrganizatioIdModel, UserOrganizationPickerParameters parameters) {

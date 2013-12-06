@@ -8,7 +8,6 @@ import org.apache.wicket.Component;
 import org.apache.wicket.model.IModel;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.web.component.factory.WebComponentFactoryUtil;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -17,7 +16,6 @@ import org.slf4j.LoggerFactory;
  */
 public class MainUserOrganizationPickerFactory {
 
-    private final Logger log = LoggerFactory.getLogger(MainUserOrganizationPickerFactory.class);
     public static final String WEB_COMPONENT_NAME = "MainUserOrganizationPickerComponent";
 
     public static Component create(String id, IModel<DomainObject> model) {

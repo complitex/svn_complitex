@@ -12,7 +12,9 @@ import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.util.string.Strings;
 import org.apache.wicket.util.visit.IVisit;
+import org.apache.wicket.util.visit.IVisitor;
 import org.complitex.dictionary.converter.*;
 import org.complitex.dictionary.entity.*;
 import org.complitex.dictionary.entity.description.Entity;
@@ -22,10 +24,11 @@ import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.IStrategy.SimpleObjectInfo;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
+import org.complitex.dictionary.strategy.web.DomainObjectEditPanel;
+import org.complitex.dictionary.web.component.search.CollapsibleInputSearchComponent;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
 import org.complitex.dictionary.web.component.type.*;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
@@ -34,11 +37,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import org.apache.wicket.util.string.Strings;
-import org.apache.wicket.util.visit.IVisitor;
-import org.complitex.dictionary.strategy.web.DomainObjectEditPanel;
 
-import org.complitex.dictionary.web.component.search.CollapsibleInputSearchComponent;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 import static org.apache.wicket.util.string.Strings.isEmpty;
@@ -76,7 +75,7 @@ public class DomainObjectInputPanel extends Panel {
             }
         }
     }
-    private final Logger log = LoggerFactory.getLogger(DomainObjectInputPanel.class);
+
     public static final String INPUT_COMPONENT_ID = "input";
     @EJB
     private StrategyFactory strategyFactory;
@@ -354,7 +353,7 @@ public class DomainObjectInputPanel extends Panel {
                 complexAttributes = complexAttributesPanelClass.getConstructor(String.class, boolean.class).
                         newInstance(id, isHistory());
             } catch (Exception e) {
-                log.error("Couldn't instantiate complex attributes panel object.", e);
+                LoggerFactory.getLogger(getClass()).error("Couldn't instantiate complex attributes panel object.", e);
             }
         }
         if (complexAttributes == null) {

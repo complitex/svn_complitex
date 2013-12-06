@@ -42,7 +42,6 @@ import org.complitex.dictionary.web.component.permission.DomainObjectPermissionP
 import org.complitex.dictionary.web.component.permission.DomainObjectPermissionParameters;
 import org.complitex.dictionary.web.component.permission.PermissionPropagationDialogPanel;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
@@ -61,8 +60,6 @@ import static org.complitex.resources.WebCommonResourceInitializer.SCROLL_JS;
  * @author Artem
  */
 public class DomainObjectEditPanel extends Panel {
-    private final Logger log = LoggerFactory.getLogger(DomainObjectEditPanel.class);
-
     @EJB
     private StrategyFactory strategyFactory;
     @EJB
@@ -197,7 +194,7 @@ public class DomainObjectEditPanel extends Panel {
                         try {
                             save(propagate);
                         } catch (Exception e) {
-                            log.error("", e);
+                            LoggerFactory.getLogger(getClass()).error("", e);
                             error(getString("db_error"));
                         }
 
@@ -228,7 +225,7 @@ public class DomainObjectEditPanel extends Panel {
                         scrollToMessages(target);
                     }
                 } catch (Exception e) {
-                    log.error("", e);
+                    LoggerFactory.getLogger(getClass()).error("", e);
                     error(getString("db_error"));
                     target.add(messages);
                     scrollToMessages(target);
@@ -395,7 +392,7 @@ public class DomainObjectEditPanel extends Panel {
             getStrategy().disable(newObject);
             back();
         } catch (Exception e) {
-            log.error("", e);
+            LoggerFactory.getLogger(getClass()).error("", e);
             error(getString("db_error"));
         }
     }
@@ -405,7 +402,7 @@ public class DomainObjectEditPanel extends Panel {
             getStrategy().enable(newObject);
             back();
         } catch (Exception e) {
-            log.error("", e);
+            LoggerFactory.getLogger(getClass()).error("", e);
             error(getString("db_error"));
         }
     }
@@ -421,7 +418,7 @@ public class DomainObjectEditPanel extends Panel {
                 error(getString("delete_error"));
             }
         } catch (Exception e) {
-            log.error("", e);
+            LoggerFactory.getLogger(getClass()).error("", e);
             error(getString("db_error"));
         }
     }

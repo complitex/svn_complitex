@@ -35,7 +35,6 @@ import org.complitex.dictionary.web.component.search.WiQuerySearchComponent;
 import org.odlabs.wiquery.core.javascript.JsStatement;
 import org.odlabs.wiquery.ui.core.JsScopeUiEvent;
 import org.odlabs.wiquery.ui.dialog.Dialog;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
@@ -46,8 +45,6 @@ import java.util.List;
  * @author Artem
  */
 public abstract class AddressCorrectionPanel<T> extends Panel {
-    private final Logger log = LoggerFactory.getLogger(AddressCorrectionPanel.class);
-
     @EJB
     private StrategyFactory strategyFactory;
     @EJB
@@ -188,7 +185,7 @@ public abstract class AddressCorrectionPanel<T> extends Panel {
                         error(getString(e.getEntity() + "_not_found_correction"));
                     } catch (Exception e) {
                         error(getString("db_error"));
-                        log.error("", e);
+                        LoggerFactory.getLogger(getClass()).error("", e);
                     }
                 }
                 target.add(messages);

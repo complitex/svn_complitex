@@ -6,8 +6,6 @@ package org.complitex.dictionary.web.component;
 
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.model.IModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -16,8 +14,6 @@ import java.util.List;
  * @author Artem
  */
 public class DisableAwareDropDownChoice<T> extends DropDownChoice<T> {
-    private final Logger logger = LoggerFactory.getLogger(DisableAwareDropDownChoice.class);
-
     public DisableAwareDropDownChoice(String id) {
         super(id);
     }
