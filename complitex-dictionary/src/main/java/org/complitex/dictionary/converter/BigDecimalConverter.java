@@ -20,6 +20,10 @@ public class BigDecimalConverter extends org.apache.wicket.util.convert.converte
 
     @Override
     public String convertToString(BigDecimal value, Locale locale) {
+        if (value == null){
+            return "";
+        }
+
         NumberFormat fmt = getNumberFormat(locale);
         if (fmt != null){
             fmt.setMinimumFractionDigits(maximumFractionDigits);
@@ -27,7 +31,7 @@ public class BigDecimalConverter extends org.apache.wicket.util.convert.converte
 
             return fmt.format(value);
         }
-        return value.toString();
 
+        return value.toString();
     }
 }
