@@ -202,4 +202,8 @@ public class StringUtil {
 
         return list;
     }
+
+    public static String decimal(String d){
+        return d != null ? d.replace('.', ',') : "";
+    }
 }
