@@ -66,4 +66,14 @@ public class LabelTextField<T> extends Panel {
     public Component add(Behavior... behaviors) {
         return textField.add(behaviors);
     }
+
+    public LabelTextField setType(Class type){
+        textField.setType(type);
+
+        return this;
+    }
+
+    public TextField<T> getTextField() {
+        return textField;
+    }
 }
