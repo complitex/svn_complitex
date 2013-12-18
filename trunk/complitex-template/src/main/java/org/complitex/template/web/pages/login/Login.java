@@ -27,7 +27,7 @@ public final class Login extends WebPage {
 
     private void init(boolean isError) {
         add(new Label("login.title", new ResourceModel("login.title")));
-        add(new Label("login.header", new ResourceModel(isError ? "login.error.unauthorized" : "login.title")));
+        add(new Label("login.header", new ResourceModel("login.title")));
         WebMarkupContainer errorPanel = new WebMarkupContainer("errorPanel");
         errorPanel.setVisible(isError);
         add(errorPanel);
