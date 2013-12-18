@@ -38,6 +38,8 @@ import org.odlabs.wiquery.ui.dialog.Dialog;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -125,6 +127,14 @@ public abstract class AddressCorrectionPanel<T> extends Panel {
 
         DomainObjectExample example = new DomainObjectExample();
         List<? extends DomainObject> streetTypes = streetTypeStrategy.find(example);
+        Collections.sort(streetTypes, new Comparator<DomainObject>() {
+            @Override
+            public int compare(DomainObject o1, DomainObject o2) {
+                return streetTypeStrategy.displayFullName(o1, getLocale())
+                        .compareTo(streetTypeStrategy.displayFullName(o2, getLocale()));
+            }
+        });
+
         streetTypeModel = new Model<>();
         DomainObjectDisableAwareRenderer renderer = new DomainObjectDisableAwareRenderer() {
 
