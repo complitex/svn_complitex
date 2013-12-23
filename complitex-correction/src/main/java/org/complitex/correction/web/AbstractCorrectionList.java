@@ -162,7 +162,14 @@ public abstract class AbstractCorrectionList<T extends Correction> extends Scrol
 
             @Override
             protected int getSize() {
-                return getCorrectionsCount(filterWrapper);
+                int limitCount = filterWrapper.getCount();
+                filterWrapper.setCount(0);
+
+                int count = getCorrectionsCount(filterWrapper);
+
+                filterWrapper.setCount(limitCount);
+
+                return count;
             }
         };
         dataProvider.setSort("", SortOrder.ASCENDING);
