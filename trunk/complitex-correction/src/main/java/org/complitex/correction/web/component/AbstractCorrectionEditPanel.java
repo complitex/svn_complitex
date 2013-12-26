@@ -5,9 +5,9 @@ import com.google.common.collect.Lists;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.Link;
@@ -201,7 +201,8 @@ public abstract class AbstractCorrectionEditPanel<T extends Correction> extends 
         add(new Label("title", titleModel));
         add(new Label("label", titleModel));
 
-        FeedbackPanel messages = new FeedbackPanel("messages");
+        final FeedbackPanel messages = new FeedbackPanel("messages");
+        messages.setOutputMarkupId(true);
         add(messages);
 
         form = new Form<Void>("form");
@@ -341,20 +342,27 @@ public abstract class AbstractCorrectionEditPanel<T extends Correction> extends 
         }
         form.add(correctionInputPanel);
         //correction label
-        form.add(new Label("correctionLabel", displayCorrection()).setVisible(!isNew()));
+        form.add(new Label("correctionLabel", !isNew() ? displayCorrection() : "").setVisible(!isNew()));
 
         //save-cancel functional
-        Button submit = new Button("submit") {
-
+        AjaxSubmitLink submit = new AjaxSubmitLink("submit") {
             @Override
-            public void onSubmit() {
+            protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
                 if (AbstractCorrectionEditPanel.this.validate()) {
                     save();
                     back(true);
+                }else {
+                    target.add(messages);
                 }
+            }
+
+            @Override
+            protected void onError(AjaxRequestTarget target, Form<?> form) {
+                target.add(messages);
             }
         };
         form.add(submit);
+
         Link cancel = new Link("cancel") {
 
             @Override

@@ -90,6 +90,14 @@
                   #{organizationId}, #{userOrganizationId}, #{moduleId}, #{status})
     </insert>
 
+    <update id="updateDistrictCorrection" parameterType="org.complitex.correction.entity.DistrictCorrection">
+        update `district_correction` set `city_object_id` = #{cityObjectId}, `object_id` = #{objectId},
+            `external_id` = #{externalId}, `correction` = #{correction},
+            `begin_date` = #{beginDate}, `end_date` = #{endDate}, `organization_id` = #{organizationId},
+            `user_organization_id` = #{userOrganizationId}, `module_id` = #{moduleId}, `status` = #{status}
+        where `id` = #{id}
+    </update>
+
     <!--StreetType-->
 
     <select id="selectStreetTypeCorrection" resultMap="streetTypeCorrectionResultMap" parameterType="long">
