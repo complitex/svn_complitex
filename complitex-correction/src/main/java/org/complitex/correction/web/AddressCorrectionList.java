@@ -38,7 +38,7 @@ public abstract class AddressCorrectionList<T extends Correction> extends Abstra
     }
 
     protected boolean isSyncVisible() {
-        return true;
+        return false;
     }
 
     protected void onSync(AjaxRequestTarget target){

@@ -46,6 +46,7 @@
     </delete>
 
     <sql id="selectCorrectionWhereIf">
+        <if test="object.externalId != null">and c.`external_id` = #{object.externalId}</if>
         <if test="object.objectId != null">and c.`object_id` = #{object.objectId}</if>
         <if test="object.correction != null">
             <choose>
@@ -53,6 +54,8 @@
                 <otherwise>and c.`correction` like concat('%', #{object.correction},'%')</otherwise>
             </choose>
         </if>
+        <if test="object.beginDate != null">and c.`begin_date` = #{object.beginDate}</if>
+        <if test="object.endDate != null">and c.`end_date` = #{object.endDate}</if>
         <if test="object.organizationId != null">and c.`organization_id` = #{object.organizationId}</if>
         <if test="object.userOrganizationId != null">and c.`user_organization_id` = #{object.userOrganizationId}</if>
         <if test="userOrganizationsString != null">and c.`user_organization_id` in ${userOrganizationsString}</if>
