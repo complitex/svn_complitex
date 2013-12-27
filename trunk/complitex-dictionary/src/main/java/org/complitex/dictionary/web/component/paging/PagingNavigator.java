@@ -23,7 +23,6 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.request.resource.SharedResourceReference;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.entity.PreferenceKey;
@@ -50,7 +49,7 @@ public class PagingNavigator extends Panel {
     private WebMarkupContainer pageBar;
     private Form<Void> newPageForm;
     private WebMarkupContainer allPagesRegion;
-    private PropertyModel<Integer> rowsPerPagePropertyModel;
+    private IModel<Integer> rowsPerPagePropertyModel;
     private Component[] toUpdate;
     private List<IPagingNavigatorListener> listeners = new ArrayList<IPagingNavigatorListener>();
 
@@ -86,7 +85,21 @@ public class PagingNavigator extends Panel {
         this.dataView = dataView;
         this.toUpdate = toUpdate;
 
-        rowsPerPagePropertyModel = new PropertyModel<>(dataView, "itemsPerPage");
+        rowsPerPagePropertyModel = new IModel<Integer>() {
+            @Override
+            public Integer getObject() {
+                return dataView.getItemsPerPage();
+            }
+
+            @Override
+            public void setObject(Integer items) {
+                dataView.setItemsPerPage(items);
+            }
+
+            @Override
+            public void detach() {
+            }
+        };
 
         //retrieve table page size from preferences.
         Integer rowsPerPage;
@@ -236,6 +249,8 @@ public class PagingNavigator extends Panel {
             }
         };
         DropDownChoice<Integer> pageSize = new DropDownChoice<>("pageSize", pageSizeModel, SUPPORTED_PAGE_SIZES);
+        pageSize.setNullValid(false);
+
         pageSize.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
             @Override
