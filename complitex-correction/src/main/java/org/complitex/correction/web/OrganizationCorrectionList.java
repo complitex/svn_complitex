@@ -73,4 +73,14 @@ public class OrganizationCorrectionList extends AbstractCorrectionList<Organizat
         return organizationStrategy.displayShortNameAndCode(organizationStrategy.findById(correction.getObjectId(), true),
                 getLocale());
     }
+
+    @Override
+    protected void onDelete(OrganizationCorrection correction) {
+        organizationCorrectionBean.delete(correction);
+    }
+
+    @Override
+    protected boolean isDeleteVisible() {
+        return true;
+    }
 }

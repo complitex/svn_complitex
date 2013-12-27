@@ -15,6 +15,8 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.IModel;
@@ -132,9 +134,16 @@ public abstract class AbstractCorrectionList<T extends Correction> extends Scrol
         add(new Label("title", titleModel));
         add(new Label("label", titleModel));
 
+
+
         final WebMarkupContainer content = new WebMarkupContainer("content");
         content.setOutputMarkupId(true);
         add(content);
+
+        FeedbackPanel feedbackPanel = new FeedbackPanel("messages");
+        feedbackPanel.setOutputMarkupId(true);
+        content.add(feedbackPanel);
+
         final Form filterForm = new Form("filterForm");
         content.add(filterForm);
 
@@ -271,7 +280,7 @@ public abstract class AbstractCorrectionList<T extends Correction> extends Scrol
 
             @Override
             protected void populateItem(Item<T> item) {
-                T correction = item.getModelObject();
+                final T correction = item.getModelObject();
 
                 item.add(new Label("organization", correction.getOrganizationName()));
                 item.add(new Label("correction", displayCorrection(correction)));
@@ -288,6 +297,15 @@ public abstract class AbstractCorrectionList<T extends Correction> extends Scrol
                 ScrollBookmarkablePageLink link = new ScrollBookmarkablePageLink<WebPage>("edit", getEditPage(),
                         getEditPageParams(correction.getId()), String.valueOf(correction.getId()));
                 link.setVisible(correction.isEditable());
+
+                item.add(new Link("delete") {
+                    @Override
+                    public void onClick() {
+                        onDelete(correction);
+
+                        getSession().info(getStringFormat("info_deleted", correction.getCorrection()));
+                    }
+                }.setVisible(isDeleteVisible()));
 
                 item.add(link);
             }
@@ -314,5 +332,12 @@ public abstract class AbstractCorrectionList<T extends Correction> extends Scrol
                 setResponsePage(getEditPage(), getEditPageParams(null));
             }
         });
+    }
+
+    protected void onDelete(T correction){
+    }
+
+    protected boolean isDeleteVisible(){
+        return false;
     }
 }
