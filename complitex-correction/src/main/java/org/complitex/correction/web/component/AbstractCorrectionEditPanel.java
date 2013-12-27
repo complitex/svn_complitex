@@ -23,6 +23,8 @@ import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.web.component.DisableAwareDropDownChoice;
 import org.complitex.dictionary.web.component.DomainObjectDisableAwareRenderer;
 import org.complitex.dictionary.web.model.OrganizationModel;
+import org.complitex.organization.web.component.OrganizationPicker;
+import org.complitex.organization_type.strategy.OrganizationTypeStrategy;
 import org.complitex.template.web.template.TemplateSession;
 import org.slf4j.LoggerFactory;
 
@@ -220,40 +222,26 @@ public abstract class AbstractCorrectionEditPanel<T extends Correction> extends 
 
         form.add(code);
 
-        allOuterOrganizationsModel = new LoadableDetachableModel<List<DomainObject>>() {
-
+        //Organization
+        final OrganizationPicker organization = new OrganizationPicker("organization", new IModel<DomainObject>() {
             @Override
-            protected List<DomainObject> load() {
-                return (List<DomainObject>) organizationStrategy.getAllOuterOrganizations(getLocale());
-            }
-        };
-
-        final IModel<DomainObject> outerOrganizationModel = new OrganizationModel() {
-
-            @Override
-            public Long getOrganizationId() {
-                return correction.getOrganizationId();
+            public DomainObject getObject() {
+                return correction.getOrganizationId() != null
+                        ? organizationStrategy.findById(correction.getOrganizationId(), true)
+                        : null;
             }
 
             @Override
-            public void setOrganizationId(Long organizationId) {
-                correction.setOrganizationId(organizationId);
+            public void setObject(DomainObject object) {
+                correction.setOrganizationId(object.getId());
             }
 
             @Override
-            public List<DomainObject> getOrganizations() {
-                return allOuterOrganizationsModel.getObject();
-            }
-        };
-        final DomainObjectDisableAwareRenderer organizationRenderer = new DomainObjectDisableAwareRenderer() {
+            public void detach() {}
+        }, null);
+        organization.setEnabled(isNew()).add();
+        form.add(organization);
 
-            @Override
-            public Object getDisplayValue(DomainObject object) {
-                return organizationStrategy.displayDomainObject(object, getLocale());
-            }
-        };
-        final DisableAwareDropDownChoice<DomainObject> organization = new DisableAwareDropDownChoice<>("organization",
-                outerOrganizationModel, allOuterOrganizationsModel, organizationRenderer);
         if (freezeOrganization()) {
             organization.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
@@ -267,42 +255,24 @@ public abstract class AbstractCorrectionEditPanel<T extends Correction> extends 
                 }
             });
         }
-        organization.setRequired(true);
-        organization.setEnabled(isNew());
-        form.add(organization);
 
-        //user organization
-        final IModel<List<DomainObject>> allUserOrganizationsModel = new LoadableDetachableModel<List<DomainObject>>() {
-
+        //User Organization
+        form.add(new OrganizationPicker("userOrganization", new IModel<DomainObject>() {
             @Override
-            protected List<DomainObject> load() {
-                return (List<DomainObject>) organizationStrategy.getUserOrganizations(getLocale());
-            }
-        };
-
-        final IModel<DomainObject> userOrganizationModel = new OrganizationModel() {
-
-            @Override
-            public Long getOrganizationId() {
-                return correction.getUserOrganizationId();
+            public DomainObject getObject() {
+                return correction.getUserOrganizationId() != null
+                        ? organizationStrategy.findById(correction.getUserOrganizationId(), true)
+                        : null;
             }
 
             @Override
-            public void setOrganizationId(Long userOrganizationId) {
-                correction.setUserOrganizationId(userOrganizationId);
+            public void setObject(DomainObject object) {
+                correction.setUserOrganizationId(object.getId());
             }
 
             @Override
-            public List<DomainObject> getOrganizations() {
-                return allUserOrganizationsModel.getObject();
-            }
-        };
-        //todo change select to organization picker
-        final DisableAwareDropDownChoice<DomainObject> userOrganization = new DisableAwareDropDownChoice<>("userOrganization",
-                userOrganizationModel, allUserOrganizationsModel, organizationRenderer);
-        userOrganization.setNullValid(true);
-        userOrganization.setEnabled(isNew() && sessionBean.isAdmin());
-        form.add(userOrganization);
+            public void detach() {}
+        }, OrganizationTypeStrategy.USER_ORGANIZATION_TYPE).setEnabled(isNew() && sessionBean.isAdmin()));
 
         if (isNew()) {
             correction.setModuleId(organizationStrategy.getModuleId());
@@ -327,7 +297,13 @@ public abstract class AbstractCorrectionEditPanel<T extends Correction> extends 
             }
         };
         DisableAwareDropDownChoice<DomainObject> internalOrganization = new DisableAwareDropDownChoice<>("internalOrganization",
-                internalOrganizationModel, internalOrganizations, organizationRenderer);
+                internalOrganizationModel, internalOrganizations, new DomainObjectDisableAwareRenderer() {
+
+            @Override
+            public Object getDisplayValue(DomainObject object) {
+                return organizationStrategy.displayDomainObject(object, getLocale());
+            }
+        });
         internalOrganization.setEnabled(false);
         form.add(internalOrganization);
 
