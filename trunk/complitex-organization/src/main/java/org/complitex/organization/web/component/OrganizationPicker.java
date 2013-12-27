@@ -1,6 +1,5 @@
 package org.complitex.organization.web.component;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -32,6 +31,7 @@ import org.odlabs.wiquery.ui.core.JsScopeUiEvent;
 import org.odlabs.wiquery.ui.dialog.Dialog;
 
 import javax.ejb.EJB;
+import java.util.Arrays;
 import java.util.Collections;
 
 import static org.complitex.dictionary.strategy.organization.IOrganizationStrategy.*;
@@ -47,11 +47,11 @@ public class OrganizationPicker extends FormComponentPanel<DomainObject> {
 
     @EJB
     private LocaleBean localeBean;
-    private boolean showData;
+    private boolean showData = true;
     private final DomainObjectExample example;
 
     @EJB(name = IOrganizationStrategy.BEAN_NAME, beanInterface = IOrganizationStrategy.class)
-    private IOrganizationStrategy keConnectionOrganizationStrategy;
+    private IOrganizationStrategy organizationStrategy;
 
     @Override
     public void renderHead(IHeaderResponse response) {
@@ -61,12 +61,12 @@ public class OrganizationPicker extends FormComponentPanel<DomainObject> {
                 OrganizationPicker.class, OrganizationPicker.class.getSimpleName() + ".js"));
     }
 
-    public OrganizationPicker(String id, IModel<DomainObject> model, long organizationTypeId) {
-        this(id, model, false, null, true, organizationTypeId);
+    public OrganizationPicker(String id, IModel<DomainObject> model, Long... organizationTypeIds) {
+        this(id, model, false, null, true, organizationTypeIds);
     }
 
     public OrganizationPicker(String id, IModel<DomainObject> model, boolean required,
-            IModel<String> labelModel, boolean enabled, long organizationTypeId) {
+            IModel<String> labelModel, boolean enabled, Long... organizationTypeIds) {
         super(id, model);
 
         setRequired(required);
@@ -79,7 +79,7 @@ public class OrganizationPicker extends FormComponentPanel<DomainObject> {
                     public String getObject() {
                         DomainObject organization = getModelObject();
                         if (organization != null) {
-                            return keConnectionOrganizationStrategy.displayShortNameAndCode(organization, getLocale());
+                            return organizationStrategy.displayShortNameAndCode(organization, getLocale());
                         } else {
                             return getString("organization_not_selected");
                         }
@@ -111,7 +111,7 @@ public class OrganizationPicker extends FormComponentPanel<DomainObject> {
         final Form<Void> filterForm = new Form<Void>("filterForm");
         content.add(filterForm);
 
-        this.example = newExample(organizationTypeId);
+        this.example = newExample(organizationTypeIds);
 
         final DataProvider<DomainObject> dataProvider = new DataProvider<DomainObject>() {
 
@@ -123,7 +123,7 @@ public class OrganizationPicker extends FormComponentPanel<DomainObject> {
                 example.setLocaleId(localeBean.convert(getLocale()).getId());
                 example.setStart(first);
                 example.setSize(count);
-                return keConnectionOrganizationStrategy.find(example);
+                return organizationStrategy.find(example);
             }
 
             @Override
@@ -132,11 +132,11 @@ public class OrganizationPicker extends FormComponentPanel<DomainObject> {
                     return 0;
                 }
                 example.setLocaleId(localeBean.convert(getLocale()).getId());
-                return keConnectionOrganizationStrategy.count(example);
+                return organizationStrategy.count(example);
             }
         };
 
-        filterForm.add(new TextField<String>("nameFilter", new Model<String>() {
+        filterForm.add(new TextField<>("nameFilter", new Model<String>() {
 
             @Override
             public String getObject() {
@@ -198,7 +198,7 @@ public class OrganizationPicker extends FormComponentPanel<DomainObject> {
 
                 item.add(new Radio<>("radio", item.getModel(), radioGroup));
                 item.add(new Label("name", AttributeUtil.getStringCultureValue(organization, NAME, getLocale())));
-                item.add(new Label("code", keConnectionOrganizationStrategy.getUniqueCode(organization)));
+                item.add(new Label("code", organizationStrategy.getUniqueCode(organization)));
             }
         };
         radioGroup.add(data);
@@ -267,12 +267,13 @@ public class OrganizationPicker extends FormComponentPanel<DomainObject> {
         lookupDialog.close(target);
     }
 
-    private DomainObjectExample newExample(long organizationTypeId) {
+    private DomainObjectExample newExample(Long... organizationTypeIds) {
         DomainObjectExample e = new DomainObjectExample();
         e.addAttributeExample(new AttributeExample(NAME));
         e.addAttributeExample(new AttributeExample(CODE));
-        e.addAdditionalParam(ORGANIZATION_TYPE_PARAMETER,
-                ImmutableList.of(organizationTypeId));
+        if (organizationTypeIds != null && organizationTypeIds.length > 0) {
+            e.addAdditionalParam(ORGANIZATION_TYPE_PARAMETER, Arrays.asList(organizationTypeIds));
+        }
         return e;
     }
 

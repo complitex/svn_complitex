@@ -18,7 +18,6 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.PackageResourceReference;
@@ -38,6 +37,8 @@ import org.complitex.dictionary.web.component.datatable.DataProvider;
 import org.complitex.dictionary.web.component.paging.PagingNavigator;
 import org.complitex.dictionary.web.component.scroll.ScrollBookmarkablePageLink;
 import org.complitex.dictionary.web.model.OrganizationModel;
+import org.complitex.organization.web.component.OrganizationPicker;
+import org.complitex.organization_type.strategy.OrganizationTypeStrategy;
 import org.complitex.template.web.component.toolbar.AddItemButton;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
 import org.complitex.template.web.pages.ScrollListPage;
@@ -174,68 +175,42 @@ public abstract class AbstractCorrectionList<T extends Correction> extends Scrol
         };
         dataProvider.setSort("", SortOrder.ASCENDING);
 
-        final IModel<List<DomainObject>> allOuterOrganizationsModel = new LoadableDetachableModel<List<DomainObject>>() {
 
+        filterForm.add(new OrganizationPicker("organizationFilter", new IModel<DomainObject>() {
             @Override
-            protected List<DomainObject> load() {
-                return (List<DomainObject>) organizationStrategy.getAllOuterOrganizations(getLocale());
-            }
-        };
-        final IModel<DomainObject> outerOrganizationModel = new OrganizationModel() {
+            public DomainObject getObject() {
 
-            @Override
-            public Long getOrganizationId() {
-                return filterWrapper.getObject().getOrganizationId();
+                return filterWrapper.getObject().getOrganizationId() != null
+                        ? organizationStrategy.findById(filterWrapper.getObject().getOrganizationId(), true)
+                        : null;
             }
 
             @Override
-            public void setOrganizationId(Long organizationId) {
-                filterWrapper.getObject().setOrganizationId(organizationId);
+            public void setObject(DomainObject object) {
+                filterWrapper.getObject().setOrganizationId(object.getId());
             }
 
             @Override
-            public List<DomainObject> getOrganizations() {
-                return allOuterOrganizationsModel.getObject();
-            }
-        };
-        final DomainObjectDisableAwareRenderer organizationRenderer = new DomainObjectDisableAwareRenderer() {
+            public void detach() {}
+        }, null));
 
-            @Override
-            public Object getDisplayValue(DomainObject object) {
-                return organizationStrategy.displayDomainObject(object, getLocale());
-            }
-        };
+        filterForm.add(new OrganizationPicker("userOrganizationFilter",
+                new IModel<DomainObject>() {
+                    @Override
+                    public DomainObject getObject() {
+                        return filterWrapper.getObject().getUserOrganizationId() != null
+                                ? organizationStrategy.findById(filterWrapper.getObject().getUserOrganizationId(), true)
+                                : null;
+                    }
 
-        filterForm.add(new DisableAwareDropDownChoice<>("organizationFilter",
-                outerOrganizationModel, allOuterOrganizationsModel, organizationRenderer).setNullValid(true));
+                    @Override
+                    public void setObject(DomainObject object) {
+                        filterWrapper.getObject().setUserOrganizationId(object.getId());
+                    }
 
-        final IModel<List<DomainObject>> allUserOrganizationsModel = new LoadableDetachableModel<List<DomainObject>>() {
-
-            @Override
-            protected List<DomainObject> load() {
-                return (List<DomainObject>) organizationStrategy.getUserOrganizations(getLocale());
-            }
-        };
-        final IModel<DomainObject> userOrganizationModel = new OrganizationModel() {
-
-            @Override
-            public Long getOrganizationId() {
-                return filterWrapper.getObject().getUserOrganizationId();
-            }
-
-            @Override
-            public void setOrganizationId(Long userOrganizationId) {
-                filterWrapper.getObject().setUserOrganizationId(userOrganizationId);
-            }
-
-            @Override
-            public List<DomainObject> getOrganizations() {
-                return allUserOrganizationsModel.getObject();
-            }
-        };
-
-        filterForm.add(new DisableAwareDropDownChoice<>("userOrganizationFilter",
-                userOrganizationModel, allUserOrganizationsModel, organizationRenderer).setNullValid(true));
+                    @Override
+                    public void detach() {}
+                }, OrganizationTypeStrategy.USER_ORGANIZATION_TYPE));
 
         filterForm.add(new TextField<>("correctionFilter", new PropertyModel<String>(filterWrapper, "object.correction")));
         filterForm.add(new TextField<>("codeFilter", new PropertyModel<String>(filterWrapper, "object.externalId")));
@@ -261,7 +236,13 @@ public abstract class AbstractCorrectionList<T extends Correction> extends Scrol
         };
 
         filterForm.add(new DisableAwareDropDownChoice<>("internalOrganizationFilter",
-                internalOrganizationModel, internalOrganizations, organizationRenderer).setNullValid(true));
+                internalOrganizationModel, internalOrganizations, new DomainObjectDisableAwareRenderer() {
+
+            @Override
+            public Object getDisplayValue(DomainObject object) {
+                return organizationStrategy.displayDomainObject(object, getLocale());
+            }
+        }).setNullValid(true));
 
         AjaxLink reset = new IndicatingAjaxLink("reset") {
 
