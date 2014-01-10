@@ -47,7 +47,7 @@ public class OrganizationPicker extends FormComponentPanel<DomainObject> {
 
     @EJB
     private LocaleBean localeBean;
-    private boolean showData = true;
+    private boolean showData = false; //todo RadioGroup bug on showData = true
     private final DomainObjectExample example;
 
     @EJB(name = IOrganizationStrategy.BEAN_NAME, beanInterface = IOrganizationStrategy.class)

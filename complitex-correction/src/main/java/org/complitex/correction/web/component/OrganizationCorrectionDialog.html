@@ -1,0 +1,33 @@
+<wicket:panel xmlns:wicket="http://wicket.apache.org">
+    <div wicket:id="dialog">
+        <form wicket:id="form">
+            <table class="tbForm">
+                <tr>
+                    <th><wicket:message key="external_id"/></th>
+                    <td><span wicket:id="externalId"></span></td>
+                </tr>
+                <tr>
+                    <th><wicket:message key="organization_id"/></th>
+                    <td><span wicket:id="organizationId"></span></td>
+                </tr>
+                <tr>
+                    <th><wicket:message key="user_organization_id"/></th>
+                    <td><span wicket:id="userOrganizationId"></span></td>
+                </tr>
+                <tr>
+                    <th><wicket:message key="object_id"/></th>
+                    <td><span wicket:id="objectId"></span></td>
+                </tr>
+                <tr>
+                    <th><wicket:message key="correction"/></th>
+                    <td><input type="text" wicket:id="correction"/></td>
+                </tr>
+            </table>
+
+            <div style="margin-top: 30px;">
+                <button type="submit" wicket:id="save" class="btnMiddle"><wicket:message key="save"/></button>
+                <button type="button" wicket:id="cancel" class="btnMiddle"><wicket:message key="cancel"/></button>
+            </div>
+        </form>
+    </div>
+</wicket:panel>

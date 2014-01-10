@@ -143,4 +143,6 @@ public interface IOrganizationStrategy<T extends DomainObject> extends IStrategy
     DomainObject getModule();
 
     String displayShortNameAndCode(DomainObject organization, Locale locale);
+
+    String displayShortNameAndCode(Long organizationId, Locale locale);
 }
