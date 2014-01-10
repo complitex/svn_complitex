@@ -438,4 +438,13 @@ public abstract class AbstractOrganizationStrategy<T extends DomainObject> exten
         final String name = !com.google.common.base.Strings.isNullOrEmpty(shortName) ? shortName : fullName;
         return name + " (" + code + ")";
     }
+
+    @Override
+    public String displayShortNameAndCode(Long organizationId, Locale locale) {
+        if (organizationId == null){
+            return "";
+        }
+
+        return displayShortNameAndCode(findById(organizationId, true), locale);
+    }
 }

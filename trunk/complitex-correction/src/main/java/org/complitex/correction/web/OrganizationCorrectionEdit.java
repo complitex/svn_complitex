@@ -50,7 +50,7 @@ public class OrganizationCorrectionEdit extends FormTemplatePage {
 
             @Override
             protected IModel<String> internalObjectLabel(Locale locale) {
-                return new ResourceModel("organization");
+                return new ResourceModel("internal_object");
             }
 
             @Override

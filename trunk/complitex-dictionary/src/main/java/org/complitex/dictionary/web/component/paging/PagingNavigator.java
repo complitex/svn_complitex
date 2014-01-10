@@ -117,7 +117,9 @@ public class PagingNavigator extends Panel {
             @Override
             public void onChangePage() {
                 //preference
-                getSession().putPreference(page, CURRENT_PAGE, dataView.getCurrentPage(), true);
+                if (page != null) {
+                    getSession().putPreference(page, CURRENT_PAGE, dataView.getCurrentPage(), true);
+                }
             }
         });
 

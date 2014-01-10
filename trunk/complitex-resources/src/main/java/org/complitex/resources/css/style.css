@@ -135,7 +135,7 @@ ul { margin: 0px; padding: 5px 0px 15px 30px; list-style-type: square; }
     cursor:pointer;
 }
 
-input.btnBig {
+.btnBig {
     background:url('../images/btn-big.gif') no-repeat #007AAE;
     width:156px;
     height:26px;
@@ -147,7 +147,7 @@ input.btnBig {
     cursor:pointer;
 }
 
-input.btnMiddle {
+.btnMiddle {
     background:url('../images/btn-middle.gif') no-repeat #007AAE;
     width:126px;
     height:26px;

@@ -1,4 +1,4 @@
-package org.complitex.dictionary.web.component;
+package org.complitex.dictionary.web.component.ajax;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.IAjaxCallDecorator;
