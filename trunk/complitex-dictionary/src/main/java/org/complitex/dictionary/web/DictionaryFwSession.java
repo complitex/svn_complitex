@@ -174,8 +174,9 @@ public class DictionaryFwSession extends WebSession {
         return object != null ? object : _default;
     }
 
-    public Object getPreferenceObject(String page, Enum key, Object _default) {
-        return getNotNullOrDefault(getPreference(page, key.name()).getObject(), _default);
+    @SuppressWarnings("unchecked")
+    public <T> T getPreferenceObject(String page, Enum key, T _default) {
+        return getNotNullOrDefault((T) getPreference(page, key.name()).getObject(), _default);
     }
 
     @SuppressWarnings("unchecked")
