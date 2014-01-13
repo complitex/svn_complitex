@@ -69,7 +69,7 @@ public class OrganizationCorrectionEdit extends FormTemplatePage {
                     public void setObject(DomainObject object) {
                         getCorrection().setObjectId(object.getId());
                     }
-                }, OrganizationTypeStrategy.SERVICING_ORGANIZATION);
+                }, OrganizationTypeStrategy.SERVICING_ORGANIZATION_TYPE);
             }
 
             @Override

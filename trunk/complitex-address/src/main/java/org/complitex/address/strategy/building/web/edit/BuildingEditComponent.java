@@ -268,7 +268,7 @@ public class BuildingEditComponent extends AbstractComplexAttributesPanel {
                         }
 
                         item.add(new OrganizationPicker("organization", organizationModel,
-                                OrganizationTypeStrategy.SERVICING_ORGANIZATION));
+                                OrganizationTypeStrategy.SERVICING_ORGANIZATION_TYPE));
 
                         //building code
                         IModel<Integer> buildingCodeModel = new PropertyModel<Integer>(association, "buildingCode");

@@ -40,7 +40,7 @@ public class OrganizationTypeStrategy extends TemplateStrategy {
      * Organization type ids
      */
     public static final long USER_ORGANIZATION_TYPE = 1;
-    public static final long SERVICING_ORGANIZATION = 4;
+    public static final long SERVICING_ORGANIZATION_TYPE = 4;
 
     @Override
     public String getEntityTable() {
@@ -93,7 +93,7 @@ public class OrganizationTypeStrategy extends TemplateStrategy {
     }
 
     protected Collection<Long> getReservedInstanceIds() {
-        return ImmutableList.of(USER_ORGANIZATION_TYPE, SERVICING_ORGANIZATION);
+        return ImmutableList.of(USER_ORGANIZATION_TYPE, SERVICING_ORGANIZATION_TYPE);
     }
 
     @Transactional
