@@ -1,6 +1,5 @@
 a.organization_picker_choose_link, a.organization_picker_choose_link:visited {
-    color: #007AAE;
-    text-decoration: none;
+    color: #007AAE  !important;
 }
 
 .organization_picker_form table th {

@@ -6,7 +6,6 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -46,9 +45,6 @@ public class OrganizationCorrectionDialog extends Panel {
         form = new Form<>("form", new CompoundPropertyModel<>(Model.of(new OrganizationCorrection())));
         dialog.add(form);
 
-        //Код
-        form.add(new Label("externalId"));
-
         //Организация
         form.add(new Label("organizationId", new LoadableDetachableModel<String>() {
             @Override
@@ -81,7 +77,7 @@ public class OrganizationCorrectionDialog extends Panel {
             }
         }));
 
-        form.add(new TextField<>("correction"));
+        form.add(new Label("correction"));
 
         form.add(new AjaxSubmitLink("save") {
             @Override
@@ -101,8 +97,8 @@ public class OrganizationCorrectionDialog extends Panel {
         });
     }
 
-    public void open(AjaxRequestTarget target, String externalId, Long organizationId, Long userOrganizationId, Long moduleId){
-        form.setModelObject(new OrganizationCorrection(externalId, null, null, organizationId, userOrganizationId, moduleId));
+    public void open(AjaxRequestTarget target, String correction, Long organizationId, Long userOrganizationId, Long moduleId){
+        form.setModelObject(new OrganizationCorrection(null, null, correction, organizationId, userOrganizationId, moduleId));
 
         target.add(form);
 
