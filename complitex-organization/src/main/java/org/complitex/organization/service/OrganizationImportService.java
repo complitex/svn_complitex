@@ -27,7 +27,7 @@ import java.util.Queue;
 
 import static org.complitex.dictionary.strategy.organization.IOrganizationStrategy.*;
 import static org.complitex.organization.entity.OrganizationImportFile.ORGANIZATION;
-import static org.complitex.organization_type.strategy.OrganizationTypeStrategy.SERVICING_ORGANIZATION;
+import static org.complitex.organization_type.strategy.OrganizationTypeStrategy.SERVICING_ORGANIZATION_TYPE;
 
 @Stateless
 public class OrganizationImportService extends AbstractImportService {
@@ -175,7 +175,7 @@ public class OrganizationImportService extends AbstractImportService {
 
     private void addOrganizationTypes(DomainObject organization) {
         organization.removeAttribute(ORGANIZATION_TYPE);
-        organization.addAttribute(newOrganizationTypeAttribute(1L, SERVICING_ORGANIZATION));
+        organization.addAttribute(newOrganizationTypeAttribute(1L, SERVICING_ORGANIZATION_TYPE));
         //organization.addAttribute(newOrganizationTypeAttribute(2L, USER_ORGANIZATION_TYPE));
     }
 

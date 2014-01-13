@@ -273,7 +273,8 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
 
     protected boolean isParentVisible() {
         for (DomainObject organizationType : getOrganizationTypesModel().getObject()) {
-            if (organizationType.getId().equals(OrganizationTypeStrategy.USER_ORGANIZATION_TYPE)) {
+            if (organizationType.getId().equals(OrganizationTypeStrategy.USER_ORGANIZATION_TYPE)
+                    || organizationType.getId().equals(OrganizationTypeStrategy.SERVICING_ORGANIZATION_TYPE)) {
                 return true;
             }
         }
