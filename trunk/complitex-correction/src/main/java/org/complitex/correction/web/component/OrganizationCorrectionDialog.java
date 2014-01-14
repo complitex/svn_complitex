@@ -4,6 +4,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -14,11 +15,13 @@ import org.apache.wicket.model.ResourceModel;
 import org.complitex.correction.entity.OrganizationCorrection;
 import org.complitex.correction.service.OrganizationCorrectionBean;
 import org.complitex.dictionary.entity.DomainObject;
+import org.complitex.dictionary.entity.FilterWrapper;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.organization.web.component.OrganizationPicker;
 import org.odlabs.wiquery.ui.dialog.Dialog;
 
 import javax.ejb.EJB;
+import java.util.List;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -34,7 +37,7 @@ public class OrganizationCorrectionDialog extends Panel {
     private Dialog dialog;
     private Form<OrganizationCorrection> form;
 
-    public OrganizationCorrectionDialog(String id, final Component toUpdate) {
+    public OrganizationCorrectionDialog(String id, final List<WebMarkupContainer> toUpdate) {
         super(id);
 
         dialog = new Dialog("dialog");
@@ -82,10 +85,21 @@ public class OrganizationCorrectionDialog extends Panel {
         form.add(new AjaxSubmitLink("save") {
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-                organizationCorrectionBean.save(OrganizationCorrectionDialog.this.form.getModelObject());
+                OrganizationCorrection correction = OrganizationCorrectionDialog.this.form.getModelObject();
+
+                if (organizationCorrectionBean.getOrganizationCorrectionsCount(FilterWrapper.of(correction)) == 0){
+                    organizationCorrectionBean.save(correction);
+
+                    getSession().info(getString("info_correction_added"));
+                }else {
+                    getSession().error(getString("error_correction_exist"));
+                }
 
                 dialog.close(target);
-                target.add(toUpdate);
+
+                for (Component component : toUpdate) {
+                    target.add(component);
+                }
             }
         });
 
