@@ -33,6 +33,7 @@ import org.odlabs.wiquery.ui.dialog.Dialog;
 import javax.ejb.EJB;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.complitex.dictionary.strategy.organization.IOrganizationStrategy.*;
 
@@ -62,11 +63,15 @@ public class OrganizationPicker extends FormComponentPanel<DomainObject> {
     }
 
     public OrganizationPicker(String id, IModel<DomainObject> model, Long... organizationTypeIds) {
+        this(id, model, false, null, true, Arrays.asList(organizationTypeIds));
+    }
+
+    public OrganizationPicker(String id, IModel<DomainObject> model, List<Long> organizationTypeIds) {
         this(id, model, false, null, true, organizationTypeIds);
     }
 
     public OrganizationPicker(String id, IModel<DomainObject> model, boolean required,
-            IModel<String> labelModel, boolean enabled, Long... organizationTypeIds) {
+            IModel<String> labelModel, boolean enabled, List<Long> organizationTypeIds) {
         super(id, model);
 
         setRequired(required);
@@ -267,12 +272,12 @@ public class OrganizationPicker extends FormComponentPanel<DomainObject> {
         lookupDialog.close(target);
     }
 
-    private DomainObjectExample newExample(Long... organizationTypeIds) {
+    private DomainObjectExample newExample(List<Long> organizationTypeIds) {
         DomainObjectExample e = new DomainObjectExample();
         e.addAttributeExample(new AttributeExample(NAME));
         e.addAttributeExample(new AttributeExample(CODE));
-        if (organizationTypeIds != null && organizationTypeIds.length > 0) {
-            e.addAdditionalParam(ORGANIZATION_TYPE_PARAMETER, Arrays.asList(organizationTypeIds));
+        if (organizationTypeIds != null && !organizationTypeIds.isEmpty()) {
+            e.addAdditionalParam(ORGANIZATION_TYPE_PARAMETER, organizationTypeIds);
         }
         return e;
     }

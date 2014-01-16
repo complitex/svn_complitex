@@ -13,7 +13,10 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.*;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.entity.Correction;
@@ -238,7 +241,7 @@ public abstract class AbstractCorrectionEditPanel<T extends Correction> extends 
 
             @Override
             public void detach() {}
-        }, null);
+        }, getOrganizationTypeIds());
         organization.setEnabled(isNew()).add();
         form.add(organization);
 
@@ -347,5 +350,9 @@ public abstract class AbstractCorrectionEditPanel<T extends Correction> extends 
             }
         };
         form.add(cancel);
+    }
+
+    protected List<Long> getOrganizationTypeIds(){
+        return null;
     }
 }
