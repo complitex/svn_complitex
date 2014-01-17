@@ -206,8 +206,12 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
     @Transactional
     @Override
-    public DomainObject findById(long id, boolean runAsAdmin) {
-        DomainObjectExample example = new DomainObjectExample(id);
+    public DomainObject findById(Long objectId, boolean runAsAdmin) {
+        if (objectId == null){
+            return null;
+        }
+
+        DomainObjectExample example = new DomainObjectExample(objectId);
 
         example.setTable(getEntityTable());
 

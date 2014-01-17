@@ -66,6 +66,16 @@ public class DistrictStrategy extends TemplateStrategy {
         return stringBean.displayValue(object.getAttribute(NAME).getLocalizedValues(), locale);
     }
 
+    public String displayDomainObject(Long objectId, Locale locale) {
+        if (objectId == null){
+            return null;
+        }
+
+        DomainObject object = findById(objectId, true);
+
+        return stringBean.displayValue(object.getAttribute(NAME).getLocalizedValues(), locale);
+    }
+
     @Override
     public ISearchCallback getSearchCallback() {
         return new SearchCallback();
