@@ -201,7 +201,7 @@ public abstract class AbstractCorrectionList<T extends Correction> extends Scrol
 
             @Override
             public void detach() {}
-        }, null));
+        }, getOrganizationTypeIds()));
 
         filterForm.add(new OrganizationPicker("userOrganizationFilter",
                 new IModel<DomainObject>() {
@@ -339,5 +339,9 @@ public abstract class AbstractCorrectionList<T extends Correction> extends Scrol
 
     protected boolean isDeleteVisible(){
         return false;
+    }
+
+    protected List<Long> getOrganizationTypeIds(){
+        return null;
     }
 }
