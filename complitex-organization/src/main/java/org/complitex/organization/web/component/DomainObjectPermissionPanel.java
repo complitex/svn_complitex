@@ -144,7 +144,7 @@ public class DomainObjectPermissionPanel extends AbstractDomainObjectPermissionP
                         organization != null ? organization.getId() : null);
                 OrganizationPicker organizationPicker = new OrganizationPicker("organizationPicker",
                         organizationModel, false, null, parameters.isEnabled() && allowModifyOrganization,
-                        OrganizationTypeStrategy.USER_ORGANIZATION_TYPE);
+                        Arrays.asList(OrganizationTypeStrategy.USER_ORGANIZATION_TYPE));
                 item.add(organizationPicker);
                 
                 addRemoveLink("removeOrganization", item, null, organizationsContainer).

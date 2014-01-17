@@ -249,7 +249,7 @@ public class BuildingStrategy extends TemplateStrategy {
 
     @Override
     @Transactional
-    public Building findById(long id, boolean runAsAdmin) {
+    public Building findById(Long id, boolean runAsAdmin) {
         DomainObjectExample example = new DomainObjectExample(id);
         example.setTable(getEntityTable());
         if (!runAsAdmin) {

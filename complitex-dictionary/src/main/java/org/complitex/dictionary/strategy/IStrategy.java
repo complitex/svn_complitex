@@ -89,7 +89,7 @@ public interface IStrategy {
     List<? extends DomainObject> find(DomainObjectExample example);
 
     @Transactional
-    DomainObject findById(long id, boolean runAsAdmin);
+    DomainObject findById(Long id, boolean runAsAdmin);
 
     public Long getObjectId(String externalId);
 
