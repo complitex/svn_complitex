@@ -34,4 +34,8 @@ public abstract class AbstractBean {
     protected SqlSession sqlSession(String dataSource){
         return sqlSessionFactoryBean.getSqlSessionManager(dataSource, DEFAULT_ENVIRONMENT);
     }
+
+    public void setSqlSessionFactoryBean(SqlSessionFactoryBean sqlSessionFactoryBean) {
+        this.sqlSessionFactoryBean = sqlSessionFactoryBean;
+    }
 }
