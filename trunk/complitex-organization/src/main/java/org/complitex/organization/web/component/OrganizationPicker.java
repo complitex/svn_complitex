@@ -71,6 +71,11 @@ public class OrganizationPicker extends FormComponentPanel<DomainObject> {
     }
 
     public OrganizationPicker(String id, IModel<DomainObject> model, boolean required,
+                              IModel<String> labelModel, boolean enabled, Long... organizationTypeIds) {
+        this(id, model, required, labelModel, enabled, Arrays.asList(organizationTypeIds));
+    }
+
+    public OrganizationPicker(String id, IModel<DomainObject> model, boolean required,
             IModel<String> labelModel, boolean enabled, List<Long> organizationTypeIds) {
         super(id, model);
 
