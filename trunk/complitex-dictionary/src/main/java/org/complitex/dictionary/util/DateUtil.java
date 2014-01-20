@@ -152,6 +152,13 @@ public class DateUtil {
         return calendar.getTime();
     }
 
+    public static Date getLastDayOfMonth(Date date) {
+        Calendar calendar = newCalendar(date);
+        calendar.set(DAY_OF_MONTH, calendar.getActualMaximum(DAY_OF_MONTH));
+
+        return calendar.getTime();
+    }
+
     public static Date getFirstDayOfCurrentMonth() {
         Calendar calendar = Calendar.getInstance();
 
