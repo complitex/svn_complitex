@@ -50,7 +50,7 @@
         <if test="object.objectId != null">and c.`object_id` = #{object.objectId}</if>
         <if test="object.correction != null">
             <choose>
-                <when test="not like">and c.`correction` = #{object.correction}</when>
+                <when test="not like">and TO_CYRILLIC(c.`correction`) = #{object.correction}</when>
                 <otherwise>and c.`correction` like concat('%', #{object.correction},'%')</otherwise>
             </choose>
         </if>
