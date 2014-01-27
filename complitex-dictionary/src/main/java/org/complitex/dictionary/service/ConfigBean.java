@@ -28,9 +28,8 @@ public class ConfigBean extends AbstractBean{
 
     @PostConstruct
     public void init(){
-        Reflections reflections = new Reflections("org.complitex", "ru.flexpay");
 
-        Set<Class<? extends IConfig>> configs = reflections.getSubTypesOf(IConfig.class);
+        Set<Class<? extends IConfig>> configs = getIConfigClasses();
 
         for (Class<? extends IConfig> c : configs){
             try {
@@ -128,6 +127,11 @@ public class ConfigBean extends AbstractBean{
             put("name", config.name());
             put("value", value);
         }});
+    }
+
+    protected Set<Class<? extends IConfig>> getIConfigClasses() {
+        Reflections reflections = new Reflections("org.complitex", "ru.flexpay");
+        return reflections.getSubTypesOf(IConfig.class);
     }
 
     @Transactional

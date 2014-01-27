@@ -38,7 +38,7 @@ public class ConfigEdit extends FormTemplatePage {
         Form form = new Form<>("form");
         add(form);
 
-        final List<IConfig> configs = new ArrayList<>(configBean.getConfigs());
+        final List<IConfig> configs = new ArrayList<>(getConfigs());
 
         final Map<IConfig, IModel<String>> model = new HashMap<>();
 
@@ -49,7 +49,7 @@ public class ConfigEdit extends FormTemplatePage {
         //add localization bundles
         addAllResourceBundle(configBean.getResourceBundles());
 
-        final Map<String, List<IConfig>> configGroupMap = configBean.getConfigGroups();
+        final Map<String, List<IConfig>> configGroupMap = getConfigGroups();
 
         ListView<String> groupNames = new ListView<String>("groupNames",
                 Ordering.natural().immutableSortedCopy(configGroupMap.keySet())) {
@@ -94,5 +94,13 @@ public class ConfigEdit extends FormTemplatePage {
             }
         };
         form.add(save);
+    }
+    
+    protected Map<String, List<IConfig>> getConfigGroups() {
+        return configBean.getConfigGroups();
+    }
+
+    protected Set<IConfig> getConfigs() {
+        return configBean.getConfigs();
     }
 }
