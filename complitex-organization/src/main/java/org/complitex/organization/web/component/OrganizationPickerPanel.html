@@ -6,23 +6,23 @@
                 <tr>
                     <th></th>
                     <th>
-                        <wicket:message key="name"/>
+                        <wicket:message key="code"/>
                     </th>
                     <th>
-                        <wicket:message key="code"/>
+                        <wicket:message key="name"/>
                     </th>
                     <th></th>
                 </tr>
                 <tr>
                     <td class="filter-td"></td>
                     <td class="filter-td">
+                        <input type="text" wicket:id="codeFilter"/>
+                    </td>
+                    <td class="filter-td" style="width: 300px">
                         <input type="text" wicket:id="nameFilter"/>
                     </td>
                     <td class="filter-td">
-                        <input type="text" wicket:id="codeFilter"/>
-                    </td>
-                    <td class="filter-td">
-                        <div style="width: 152px;">
+                        <div style="width: 150px;">
                             <input wicket:id="find" type="submit" wicket:message="value:find" class="btnSmall"/>
                         </div>
                     </td>
@@ -34,14 +34,12 @@
                         <input type="radio" wicket:id="radio"/>
                     </td>
                     <td>
-                        <div wicket:id="name"
-                             style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 400px;">
-                        </div>
-                    </td>
-                    <td>
                         <div wicket:id="code"></div>
                     </td>
-                    <td></td>
+                    <td colspan="2">
+                        <div wicket:id="name" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 450px;">
+                        </div>
+                    </td>
                 </tr>
                 </tbody>
             </table>
