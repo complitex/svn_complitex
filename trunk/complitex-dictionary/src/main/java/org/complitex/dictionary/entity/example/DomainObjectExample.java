@@ -40,6 +40,12 @@ public class DomainObjectExample implements Serializable {
     public DomainObjectExample() {
     }
 
+    public DomainObjectExample(Long... attributeTypeIds) {
+        for (Long a : attributeTypeIds){
+            attributeExamples.add(new AttributeExample(a));
+        }
+    }
+
     public DomainObjectExample(Long id) {
         this.id = id;
     }

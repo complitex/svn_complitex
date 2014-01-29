@@ -307,7 +307,6 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         }
     }
 
-    @Transactional
     @Override
     public List<? extends DomainObject> find(DomainObjectExample example) {
         if (example.getId() != null && example.getId() <= 0) {
@@ -327,7 +326,13 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         return objects;
     }
 
-    @Transactional
+    public List<? extends DomainObject> find(DomainObjectExample example, int first, int count){
+        example.setStart(first);
+        example.setSize(count);
+
+        return find(example);
+    }
+
     @Override
     public int count(DomainObjectExample example) {
         if (example.getId() != null && example.getId() <= 0) {

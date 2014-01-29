@@ -48,6 +48,8 @@ public interface IOrganizationStrategy<T extends DomainObject> extends IStrategy
      */
     String ORGANIZATION_TYPE_PARAMETER = "organizationTypeIds";
 
+    String BALANCE_HOLDER_PARAMETER = "balanceHolder";
+
     /**
      * Returns user organizations that current user can see (at least to read).
      * That is, it returns all user organizations that accessed by user's organizations.
