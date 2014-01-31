@@ -159,6 +159,18 @@ ul { margin: 0px; padding: 5px 0px 15px 30px; list-style-type: square; }
     cursor:pointer;
 }
 
+.btnMiddleDisable {
+    background:url('../images/btn-middle-grey.gif') no-repeat #6b6b6b;
+    width:126px;
+    height:26px;
+    border:0;
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor:pointer;
+}
+
 .btnLeft{
     height:26px;
     width: 5px;
