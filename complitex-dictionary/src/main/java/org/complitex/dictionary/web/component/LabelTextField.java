@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 public class LabelTextField<T> extends Panel {
     private final static IConverter<BigDecimal> BIG_DECIMAL_CONVERTER_2 = new BigDecimalConverter(2);
     private final static IConverter<BigDecimal> BIG_DECIMAL_CONVERTER_7 = new BigDecimalConverter(7);
+    private int index = 0;
 
     public enum Converter {NONE, BIG_DECIMAL_CONVERTER_2, BIG_DECIMAL_CONVERTER_7}
 
@@ -62,6 +63,12 @@ public class LabelTextField<T> extends Panel {
         this(id, size, model, Converter.NONE);
     }
 
+    public LabelTextField(String id, int size, IModel<T> model, int index) {
+        this(id, size, model, Converter.NONE);
+
+        this.index = index;
+    }
+
     @Override
     public Component add(Behavior... behaviors) {
         return textField.add(behaviors);
@@ -75,5 +82,9 @@ public class LabelTextField<T> extends Panel {
 
     public TextField<T> getTextField() {
         return textField;
+    }
+
+    public int getIndex() {
+        return index;
     }
 }
