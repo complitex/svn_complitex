@@ -9,8 +9,8 @@
                     <th></th>
                 </tr>
                 <tr>
-                    <td><input type="text" wicket:id="codeFilter"/></td>
-                    <td><input type="text" wicket:id="nameFilter" style="width: 300px"/></td>
+                    <td><input type="text" wicket:id="code"/></td>
+                    <td><input type="text" wicket:id="name" style="width: 300px"/></td>
                     <td>
                         <div style="width: 150px;">
                             <input wicket:id="find" type="submit" wicket:message="value:find" class="btnSmall"/>
@@ -32,5 +32,8 @@
             </table>
         </form>
         <div wicket:id="navigator"></div>
+        <div>
+            <a wicket:id="cancel"><wicket:message key="cancel"/></a>
+        </div>
     </div>
 </wicket:panel>

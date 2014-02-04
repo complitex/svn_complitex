@@ -1,17 +1,18 @@
 <wicket:panel xmlns:wicket="http://wicket.apache.org">
     <form wicket:id="form" class="tbForm">
-        <table class="tbColor">
+        <table class="tbColor table_input">
             <thead>
             <tr>
-                <th></th>
+                <th style="width: 20px"></th>
                 <th><wicket:message key="code"/></th>
                 <th><wicket:message key="district_name"/></th>
-                <th><input type="button" wicket:id="filter" class="btnSmall" wicket:message="value:find"/></th>
+                <th></th>
             </tr>
             <tr>
                 <th></th>
-                <th><input type="text" wicket:id="code"/></th>
-                <th colspan="2"><input type="text" wicket:id="name"/></th>
+                <th style="width: 40px"><input type="text" wicket:id="code"/></th>
+                <th><input type="text" wicket:id="name"/></th>
+                <th><input type="button" wicket:id="filter" class="btnSmall" wicket:message="value:find"/></th>
             </tr>
             </thead>
 
