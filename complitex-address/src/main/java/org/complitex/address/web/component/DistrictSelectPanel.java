@@ -11,7 +11,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.Model;
 import org.complitex.address.strategy.district.DistrictStrategy;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
@@ -34,7 +34,7 @@ public class DistrictSelectPanel extends Panel {
     @EJB
     private DistrictStrategy districtStrategy;
 
-    public DistrictSelectPanel(String id, IModel<List<Long>> districtModel) {
+    public DistrictSelectPanel(String id, IModel<List<DomainObject>> districtModel) {
         super(id);
 
         final DomainObjectExample example = new DomainObjectExample(NAME, CODE);
@@ -66,7 +66,7 @@ public class DistrictSelectPanel extends Panel {
             protected void populateItem(Item<DomainObject> item) {
                 final DomainObject domainObject = item.getModelObject();
 
-                item.add(new Check<>("check", new PropertyModel<>(domainObject, "id")));
+                item.add(new Check<>("check", Model.of(domainObject)));
                 item.add(new Label("name", AttributeUtil.getStringCultureValue(domainObject, NAME, getLocale())));
                 item.add(new Label("code", AttributeUtil.getStringValue(domainObject, CODE)));
             }
