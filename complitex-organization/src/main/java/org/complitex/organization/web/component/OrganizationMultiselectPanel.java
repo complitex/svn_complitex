@@ -58,6 +58,16 @@ public class OrganizationMultiselectPanel extends Panel{
 
                 target.add(container.setVisible(true));
                 target.add(setVisible(false));
+
+                OrganizationMultiselectPanel.this.onSelect(target, domainObject);
+            }
+
+            @Override
+            protected void onCancel(AjaxRequestTarget target) {
+                target.add(container.setVisible(true));
+                target.add(setVisible(false));
+
+                OrganizationMultiselectPanel.this.onCancel(target);
             }
         };
         organizationSelectPanel.setOutputMarkupId(true);
@@ -70,6 +80,8 @@ public class OrganizationMultiselectPanel extends Panel{
             public void onClick(AjaxRequestTarget target) {
                 target.add(container.setVisible(false));
                 target.add(organizationSelectPanel.setVisible(true));
+
+                onAdd(target);
             }
         });
 
@@ -82,4 +94,14 @@ public class OrganizationMultiselectPanel extends Panel{
             }
         });
     }
+
+    protected void onAdd(AjaxRequestTarget target){
+    }
+
+    protected void onSelect(AjaxRequestTarget target, DomainObject domainObject){
+    }
+
+    protected void onCancel(AjaxRequestTarget target){
+    }
+
 }

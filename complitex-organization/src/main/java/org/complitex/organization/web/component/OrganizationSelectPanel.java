@@ -49,6 +49,14 @@ public class OrganizationSelectPanel extends Panel {
         final Form<Void> filterForm = new Form<>("filterForm");
         content.add(filterForm);
 
+        AjaxButton find = new AjaxButton("find", filterForm) {
+            @Override
+            protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+                target.add(content);
+            }
+        };
+        filterForm.add(find);
+
         //Example
         final DomainObjectExample example = new DomainObjectExample(NAME, CODE);
 
@@ -60,8 +68,8 @@ public class OrganizationSelectPanel extends Panel {
             example.addAdditionalParam(IOrganizationStrategy.BALANCE_HOLDER_PARAMETER, true);
         }
 
-        filterForm.add(new TextField<>("nameFilter", new AttributeExampleModel(example, NAME)));
-        filterForm.add(new TextField<>("codeFilter", new AttributeExampleModel(example, CODE)));
+        filterForm.add(new TextField<>("name", new AttributeExampleModel(example, NAME)));
+        filterForm.add(new TextField<>("code", new AttributeExampleModel(example, CODE)));
 
         DataView<DomainObject> dataView = new DataView<DomainObject>("dataView", getDataProvider(example)) {
 
@@ -84,13 +92,13 @@ public class OrganizationSelectPanel extends Panel {
         PagingNavigator pagingNavigator = new PagingNavigator("navigator", dataView, content);
         content.add(pagingNavigator);
 
-        AjaxButton find = new AjaxButton("find", filterForm) {
+        content.add(new AjaxLink("cancel") {
+
             @Override
-            protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-                target.add(content);
+            public void onClick(AjaxRequestTarget target) {
+                onCancel(target);
             }
-        };
-        filterForm.add(find);
+        });
     }
 
     protected DataProvider<DomainObject> getDataProvider(final DomainObjectExample example) {
@@ -114,6 +122,8 @@ public class OrganizationSelectPanel extends Panel {
     }
 
     protected void onSelect(AjaxRequestTarget target, DomainObject domainObject){
+    }
 
+    protected void onCancel(AjaxRequestTarget target){
     }
 }

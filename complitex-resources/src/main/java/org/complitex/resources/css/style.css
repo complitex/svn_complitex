@@ -5,7 +5,7 @@ body, td, p, li, ol, ul, input, select, textarea, div {	font-family: Arial, Helv
 form {margin:0px; padding:0px;}
 
 a, a:visited {
-    color: #007AAE;
+    color: #007AAE !important;
     text-decoration: none;
 }
 
