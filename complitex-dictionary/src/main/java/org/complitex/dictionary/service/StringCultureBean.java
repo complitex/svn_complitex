@@ -9,21 +9,17 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import java.util.Collections;
-import java.util.Comparator;
 import org.apache.wicket.util.string.Strings;
+import org.complitex.dictionary.entity.Locale;
 import org.complitex.dictionary.entity.Parameter;
 import org.complitex.dictionary.entity.StringCulture;
+import org.complitex.dictionary.mybatis.SqlSessionFactoryBean;
 import org.complitex.dictionary.mybatis.Transactional;
 
+import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import javax.annotation.PostConstruct;
-import org.complitex.dictionary.entity.Locale;
+import java.util.*;
 
 /**
  *
@@ -213,5 +209,12 @@ public class StringCultureBean extends AbstractBean {
         params.put("objectId", objectId);
         params.put("localizedValueTypeIds", localizedValueTypeIds);
         sqlSession().delete(MAPPING_NAMESPACE + ".delete", params);
+    }
+
+    @Override
+    public void setSqlSessionFactoryBean(SqlSessionFactoryBean sqlSessionFactoryBean) {
+        super.setSqlSessionFactoryBean(sqlSessionFactoryBean);
+        localeBean.setSqlSessionFactoryBean(sqlSessionFactoryBean);
+        sequenceBean.setSqlSessionFactoryBean(sqlSessionFactoryBean);
     }
 }
