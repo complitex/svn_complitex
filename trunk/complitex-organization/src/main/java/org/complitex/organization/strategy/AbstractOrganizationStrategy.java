@@ -8,6 +8,7 @@ import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.StatusType;
 import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
+import org.complitex.dictionary.mybatis.SqlSessionFactoryBean;
 import org.complitex.dictionary.mybatis.Transactional;
 import org.complitex.dictionary.service.LocaleBean;
 import org.complitex.dictionary.service.PermissionBean;
@@ -446,5 +447,13 @@ public abstract class AbstractOrganizationStrategy<T extends DomainObject> exten
         }
 
         return displayShortNameAndCode(findById(organizationId, true), locale);
+    }
+
+    @Override
+    public void setSqlSessionFactoryBean(SqlSessionFactoryBean sqlSessionFactoryBean) {
+        super.setSqlSessionFactoryBean(sqlSessionFactoryBean);
+        localeBean.setSqlSessionFactoryBean(sqlSessionFactoryBean);
+        permissionBean.setSqlSessionFactoryBean(sqlSessionFactoryBean);
+        sequenceBean.setSqlSessionFactoryBean(sqlSessionFactoryBean);
     }
 }

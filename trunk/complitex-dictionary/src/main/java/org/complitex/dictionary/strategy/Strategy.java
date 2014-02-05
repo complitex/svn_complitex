@@ -10,6 +10,7 @@ import org.complitex.dictionary.entity.description.Entity;
 import org.complitex.dictionary.entity.description.EntityAttributeType;
 import org.complitex.dictionary.entity.description.EntityAttributeValueType;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
+import org.complitex.dictionary.mybatis.SqlSessionFactoryBean;
 import org.complitex.dictionary.mybatis.Transactional;
 import org.complitex.dictionary.mysql.MySqlErrors;
 import org.complitex.dictionary.service.*;
@@ -1281,5 +1282,17 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     @Override
     public String[] getDescriptionRoles() {
         return getEditRoles();
+    }
+
+    @Override
+    public void setSqlSessionFactoryBean(SqlSessionFactoryBean sqlSessionFactoryBean) {
+        super.setSqlSessionFactoryBean(sqlSessionFactoryBean);
+        sequenceBean.setSqlSessionFactoryBean(sqlSessionFactoryBean);
+        stringBean.setSqlSessionFactoryBean(sqlSessionFactoryBean);
+        entityBean.setSqlSessionFactoryBean(sqlSessionFactoryBean);
+        localeBean.setSqlSessionFactoryBean(sqlSessionFactoryBean);
+        sessionBean.setSqlSessionFactoryBean(sqlSessionFactoryBean);
+        permissionBean.setSqlSessionFactoryBean(sqlSessionFactoryBean);
+        logBean.setSqlSessionFactoryBean(sqlSessionFactoryBean);
     }
 }

@@ -2,13 +2,17 @@ package org.complitex.dictionary.service;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.complitex.dictionary.entity.Subject;
 import org.complitex.dictionary.entity.Permission;
+import org.complitex.dictionary.entity.Subject;
+import org.complitex.dictionary.mybatis.SqlSessionFactoryBean;
 import org.complitex.dictionary.mybatis.Transactional;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -143,5 +147,11 @@ public class PermissionBean extends AbstractBean{
         params.put("organizationTable", organizationTable);
         params.put("organizationId", organizationId);
         return sqlSession().selectOne(MAPPING_NAMESPACE+".organizationPermissionExist", params) != null;
+    }
+
+    @Override
+    public void setSqlSessionFactoryBean(SqlSessionFactoryBean sqlSessionFactoryBean) {
+        super.setSqlSessionFactoryBean(sqlSessionFactoryBean);
+        sequenceBean.setSqlSessionFactoryBean(sqlSessionFactoryBean);
     }
 }
