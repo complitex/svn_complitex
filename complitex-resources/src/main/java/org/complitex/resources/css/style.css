@@ -1,6 +1,6 @@
 body { margin:0; padding: 0px 25px 20px 25px; background:url('../images/pageBg.jpg') repeat-x #E0E4E9; }
 
-body, td, p, li, ol, ul, input, select, textarea, div {	font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #273540; }
+body, tr, p, li, ol, ul, input, select, textarea, div {	font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #273540; }
 
 form {margin:0px; padding:0px;}
 
