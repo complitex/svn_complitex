@@ -42,5 +42,7 @@ public interface AddressLinkData {
     String getBuildingCorp();
 
     String getApartment();
+
+    String getRoom();
     
 }
