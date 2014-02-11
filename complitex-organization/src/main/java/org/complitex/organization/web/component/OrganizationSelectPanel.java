@@ -78,7 +78,7 @@ public class OrganizationSelectPanel extends Panel {
                 final DomainObject domainObject = item.getModelObject();
 
                 item.add(new Label("name", AttributeUtil.getStringCultureValue(domainObject, NAME, getLocale())));
-                item.add(new Label("code", organizationStrategy.getUniqueCode(domainObject)));
+                item.add(new Label("code", organizationStrategy.getCode(domainObject)));
                 item.add(new AjaxLink("select") {
                     @Override
                     public void onClick(AjaxRequestTarget target) {
