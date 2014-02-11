@@ -29,7 +29,12 @@ public class OrganizationMultiselectPanel extends Panel{
     @EJB(name = IOrganizationStrategy.BEAN_NAME, beanInterface = IOrganizationStrategy.class)
     private IOrganizationStrategy organizationStrategy;
 
-    public OrganizationMultiselectPanel(String id, final IModel<List<DomainObject>> model, List<Long> organizationTypeIds) {
+    public OrganizationMultiselectPanel(String id, final IModel<List<DomainObject>> model, List<Long> organizationTypeIds){
+        this(id, model, organizationTypeIds, false);
+    }
+
+    public OrganizationMultiselectPanel(String id, final IModel<List<DomainObject>> model, List<Long> organizationTypeIds,
+                                        boolean balanceHolder) {
         super(id);
 
         final WebMarkupContainer container = new WebMarkupContainer("container");
@@ -51,7 +56,8 @@ public class OrganizationMultiselectPanel extends Panel{
         };
         checkGroup.add(listView);
 
-        final OrganizationSelectPanel organizationSelectPanel = new OrganizationSelectPanel("organization_select", organizationTypeIds){
+        final OrganizationSelectPanel organizationSelectPanel = new OrganizationSelectPanel("organization_select",
+                organizationTypeIds, balanceHolder){
             @Override
             protected void onSelect(AjaxRequestTarget target, DomainObject domainObject) {
                 model.getObject().add(domainObject);

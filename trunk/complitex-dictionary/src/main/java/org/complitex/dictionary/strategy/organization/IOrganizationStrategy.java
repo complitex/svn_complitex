@@ -111,7 +111,7 @@ public interface IOrganizationStrategy<T extends DomainObject> extends IStrategy
      * @param organization Organization.
      * @return Organization's code.
      */
-    String getUniqueCode(DomainObject organization);
+    String getCode(DomainObject organization);
 
     /**
      * Returns code of organization with {@code organizationId}.
@@ -119,7 +119,7 @@ public interface IOrganizationStrategy<T extends DomainObject> extends IStrategy
      * @param organizationId Organization id.
      * @return Organization's code.
      */
-    String getUniqueCode(long organizationId);
+    String getCode(long organizationId);
 
     /**
      * Return object id of organization by code

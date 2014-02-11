@@ -208,7 +208,7 @@ public class OrganizationPicker extends FormComponentPanel<DomainObject> {
 
                 item.add(new Radio<>("radio", item.getModel(), radioGroup));
                 item.add(new Label("name", AttributeUtil.getStringCultureValue(organization, NAME, getLocale())));
-                item.add(new Label("code", organizationStrategy.getUniqueCode(organization)));
+                item.add(new Label("code", organizationStrategy.getCode(organization)));
             }
         };
         radioGroup.add(data);

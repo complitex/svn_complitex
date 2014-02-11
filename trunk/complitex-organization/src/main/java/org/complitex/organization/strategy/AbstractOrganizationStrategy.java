@@ -382,14 +382,14 @@ public abstract class AbstractOrganizationStrategy<T extends DomainObject> exten
     }
 
     @Override
-    public String getUniqueCode(DomainObject organization) {
+    public String getCode(DomainObject organization) {
         return AttributeUtil.getStringValue(organization, CODE);
     }
 
     @Override
-    public String getUniqueCode(long organizationId) {
+    public String getCode(long organizationId) {
         DomainObject organization = findById(organizationId, true);
-        return organization != null ? getUniqueCode(organization) : null;
+        return organization != null ? getCode(organization) : null;
     }
 
     @Override
@@ -435,7 +435,7 @@ public abstract class AbstractOrganizationStrategy<T extends DomainObject> exten
     public String displayShortNameAndCode(DomainObject organization, Locale locale) {
         final String fullName = AttributeUtil.getStringCultureValue(organization, NAME, locale);
         final String shortName = AttributeUtil.getStringCultureValue(organization, SHORT_NAME, locale);
-        final String code = getUniqueCode(organization);
+        final String code = getCode(organization);
         final String name = !com.google.common.base.Strings.isNullOrEmpty(shortName) ? shortName : fullName;
         return name + " (" + code + ")";
     }
