@@ -52,7 +52,9 @@
                       )
         </if>
         <if test="additionalParams != null and additionalParams['balanceHolder'] != null">
-            and e.`parent_id` is null
+            AND NOT EXISTS(SELECT 1 FROM `organization_attribute` attr WHERE attr.`object_id` = e.`object_id`
+                AND attr.`status` = 'ACTIVE' AND attr.`attribute_type_id` = 903
+                AND attr.`value_id` IS NOT NULL)
         </if>
     </sql>
 
