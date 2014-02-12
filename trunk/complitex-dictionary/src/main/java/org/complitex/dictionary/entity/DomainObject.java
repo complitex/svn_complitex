@@ -48,6 +48,8 @@ public class DomainObject implements Serializable {
         subjectIds = copy.subjectIds;
     }
 
+
+    //todo add return first actual attribute
     public Attribute getAttribute(Long attributeTypeId) {
         for (Attribute a : attributes) {
             if (a.getAttributeTypeId().equals(attributeTypeId)) {

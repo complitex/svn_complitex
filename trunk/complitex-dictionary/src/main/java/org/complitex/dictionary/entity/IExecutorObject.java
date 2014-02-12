@@ -9,4 +9,7 @@ public interface IExecutorObject extends ILoggable{
     boolean isCanceled();
     String getErrorMessage();
     void setErrorMessage(String message);
+    boolean isProcessing();
+    Enum getStatus();
+    String getObjectName();
 }
