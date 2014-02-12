@@ -5,6 +5,7 @@
 package org.complitex.correction.web.component;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -67,11 +68,13 @@ public abstract class AddressCorrectionPanel<T> extends Panel {
     private String buildingNumber;
     private String buildingCorp;
     private String apartment;
+    private String room;
     private Long cityId;
     private Long streetTypeId;
     private Long streetId;
     private Long buildingId;
     private Long apartmentId;
+    private Long roomId;
     private T request;
     private IModel<DomainObject> streetTypeModel;
 
@@ -116,7 +119,7 @@ public abstract class AddressCorrectionPanel<T> extends Panel {
 
             @Override
             public String getObject() {
-                return AddressRenderer.displayAddress(null, city, streetType, street, buildingNumber, buildingCorp, apartment, getLocale());
+                return AddressRenderer.displayAddress(null, city, streetType, street, buildingNumber, buildingCorp, apartment, room, getLocale());
             }
         }));
 
@@ -164,10 +167,11 @@ public abstract class AddressCorrectionPanel<T> extends Panel {
                             correctAddress(request, correctedEntity, getObjectId(componentState.get("city")),
                                     getStreetTypeId(componentState.get("street")), getObjectId(componentState.get("street")),
                                     getObjectId(componentState.get("building")), getObjectId(componentState.get("apartment")),
+                                    getObjectId(componentState.get("room")),
                                     userOrganizationId);
                         } else {
                             correctAddress(request, correctedEntity, null, getObjectId(streetTypeModel.getObject()),
-                                    null, null, null, userOrganizationId);
+                                    null, null, null, null, userOrganizationId);
                         }
 
                         if (toUpdate != null) {
@@ -222,16 +226,20 @@ public abstract class AddressCorrectionPanel<T> extends Panel {
     }
 
     protected abstract void correctAddress(T request, AddressEntity entity, Long cityId, Long streetTypeId,
-            Long streetId, Long buildingId, Long apartmentId, Long userOrganizationId)
+            Long streetId, Long buildingId, Long apartmentId, Long roomId, Long userOrganizationId)
             throws DuplicateCorrectionException, MoreOneCorrectionException, NotFoundCorrectionException;
 
     protected boolean validate(SearchComponentState componentState) {
         boolean validated = true;
         String errorMessageKey = null;
         switch (correctedEntity) {
+            case ROOM:
+                DomainObject roomObject = componentState.get("room");
+                validated = roomObject != null && roomObject.getId() != null && roomObject.getId() > 0;
             case APARTMENT:
                 DomainObject apartmentObject = componentState.get("apartment");
-                validated &= apartmentObject != null && apartmentObject.getId() != null && apartmentObject.getId() > 0;
+                validated &= StringUtils.isEmpty(apartment) && apartmentObject == null && correctedEntity == AddressEntity.ROOM ||
+                        apartmentObject != null && apartmentObject.getId() != null && apartmentObject.getId() > 0;
             case BUILDING:
                 DomainObject buildingObject = componentState.get("building");
                 validated &= buildingObject != null && buildingObject.getId() != null && buildingObject.getId() > 0;
@@ -273,6 +281,10 @@ public abstract class AddressCorrectionPanel<T> extends Panel {
         if (apartmentId != null) {
             componentState.put("apartment", findObject(apartmentId, "apartment"));
         }
+
+        if (roomId != null) {
+            componentState.put("room", findObject(roomId, "room"));
+        }
     }
 
     private DomainObject findObject(Long objectId, String entity) {
@@ -290,6 +302,8 @@ public abstract class AddressCorrectionPanel<T> extends Panel {
                 return ImmutableList.of("city", "street", "building");
             case APARTMENT:
                 return ImmutableList.of("city", "street", "building", "apartment");
+            case ROOM:
+                return ImmutableList.of("city", "street", "building", "apartment", "room");
         }
         return ImmutableList.of("city", "street", "building");
     }
@@ -311,7 +325,11 @@ public abstract class AddressCorrectionPanel<T> extends Panel {
             correctedEntity = AddressEntity.BUILDING;
             return;
         }
-        correctedEntity = AddressEntity.APARTMENT;
+        if (apartmentId == null && StringUtils.isNotEmpty(apartment)) {
+            correctedEntity = AddressEntity.APARTMENT;
+            return;
+        }
+        correctedEntity = AddressEntity.ROOM;
     }
 
     protected void closeDialog(AjaxRequestTarget target) {
@@ -325,19 +343,26 @@ public abstract class AddressCorrectionPanel<T> extends Panel {
             String street, String buildingNumber, String buildingCorp, String apartment, Long cityId, Long streetId, Long buildingId,
             Long apartmentId) {
         open(target, request, firstName, middleName, lastName, city, null, street, buildingNumber, buildingCorp,
-                apartment, cityId, null, streetId, buildingId, apartmentId, false);
+                apartment, null, cityId, null, streetId, buildingId, apartmentId, null, false);
     }
 
     public void open(AjaxRequestTarget target, T request, String firstName, String middleName, String lastName, String city,
             String streetType, String street, String buildingNumber, String buildingCorp, String apartment, Long cityId, Long streetTypeId,
             Long streetId, Long buildingId, Long apartmentId) {
         open(target, request, firstName, middleName, lastName, city, streetType, street, buildingNumber, buildingCorp,
-                apartment, cityId, streetTypeId, streetId, buildingId, apartmentId, true);
+                apartment, null, cityId, streetTypeId, streetId, buildingId, apartmentId, null, true);
+    }
+
+    public void open(AjaxRequestTarget target, T request, String firstName, String middleName, String lastName, String city,
+                     String streetType, String street, String buildingNumber, String buildingCorp, String apartment, String room, Long cityId, Long streetTypeId,
+                     Long streetId, Long buildingId, Long apartmentId, Long roomId) {
+        open(target, request, firstName, middleName, lastName, city, streetType, street, buildingNumber, buildingCorp,
+                apartment, room, cityId, streetTypeId, streetId, buildingId, apartmentId, roomId, true);
     }
 
     private void open(AjaxRequestTarget target, T request, String firstName, String middleName, String lastName, String city,
-            String streetType, String street, String buildingNumber, String buildingCorp, String apartment, Long cityId, Long streetTypeId,
-            Long streetId, Long buildingId, Long apartmentId, boolean streetTypeEnabled) {
+            String streetType, String street, String buildingNumber, String buildingCorp, String apartment, String room, Long cityId, Long streetTypeId,
+            Long streetId, Long buildingId, Long apartmentId, Long roomId, boolean streetTypeEnabled) {
         this.request = request;
 
         this.firstName = firstName;
@@ -349,11 +374,13 @@ public abstract class AddressCorrectionPanel<T> extends Panel {
         this.buildingNumber = buildingNumber;
         this.buildingCorp = buildingCorp;
         this.apartment = apartment;
+        this.room = room;
         this.cityId = cityId;
         this.streetTypeId = streetTypeId;
         this.streetId = streetId;
         this.buildingId = buildingId;
         this.apartmentId = apartmentId;
+        this.roomId = roomId;
 
         initCorrectedEntity(!streetTypeEnabled);
         if (correctedEntity != AddressEntity.STREET_TYPE) {

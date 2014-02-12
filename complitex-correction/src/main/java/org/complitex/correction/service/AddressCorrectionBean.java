@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import org.complitex.address.strategy.apartment.ApartmentStrategy;
 import org.complitex.address.strategy.city.CityStrategy;
 import org.complitex.address.strategy.district.DistrictStrategy;
+import org.complitex.address.strategy.room.RoomStrategy;
 import org.complitex.address.strategy.street.StreetStrategy;
 import org.complitex.address.strategy.street_type.StreetTypeStrategy;
 import org.complitex.correction.entity.*;
@@ -323,5 +324,54 @@ public class AddressCorrectionBean extends AbstractBean {
 
     public boolean isApartmentObjectExists(String apartment, Long objectId){
         return getApartmentObjectIds(apartment).contains(objectId);
+    }
+    
+    /* ROOM */
+
+    public RoomCorrection getRoomCorrection(Long id) {
+        return sqlSession().selectOne(NS + ".selectRoomCorrection", id);
+    }
+
+    public List<RoomCorrection> getRoomCorrections(FilterWrapper<RoomCorrection> filterWrapper) {
+        return sqlSession().selectList(NS + ".selectRoomCorrections", filterWrapper);
+    }
+
+    public List<RoomCorrection> getRoomCorrections(Long buildingObjectId, Long apartmentObjectId, String externalId,
+                                                   Long objectId, String correction,
+                                                   Long organizationId, Long userOrganizationId){
+        return getRoomCorrections(FilterWrapper.of(new RoomCorrection(buildingObjectId, apartmentObjectId, externalId, objectId,
+                correction, organizationId, userOrganizationId, null)));
+    }
+
+    public Integer getRoomCorrectionsCount(FilterWrapper<RoomCorrection> filterWrapper) {
+        return sqlSession().selectOne(NS + ".selectRoomCorrectionsCount", filterWrapper);
+    }
+
+    @Transactional
+    public boolean save(RoomCorrection roomCorrection) {
+        if (roomCorrection.getId() == null) {
+            if (!isRoomObjectExists(roomCorrection.getCorrection(), roomCorrection.getObjectId())) {
+                sqlSession().insert(NS + ".insertRoomCorrection", roomCorrection);
+            } else {
+                return false;
+            }
+        } else {
+            sqlSession().update(NS_CORRECTION + ".updateCorrection", roomCorrection);
+        }
+
+        return true;
+    }
+
+    @Transactional
+    public void delete(RoomCorrection roomCorrection) {
+        sqlSession().delete(NS_CORRECTION + ".deleteCorrection", roomCorrection);
+    }
+
+    public List<Long> getRoomObjectIds(String room) {
+        return getObjectIds("room", room, RoomStrategy.NAME);
+    }
+
+    public boolean isRoomObjectExists(String room, Long objectId) {
+        return getRoomObjectIds(room).contains(objectId);
     }
 }
