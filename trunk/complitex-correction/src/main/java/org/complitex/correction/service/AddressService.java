@@ -9,6 +9,7 @@ import org.complitex.address.strategy.apartment.ApartmentStrategy;
 import org.complitex.address.strategy.building.BuildingStrategy;
 import org.complitex.address.strategy.city.CityStrategy;
 import org.complitex.address.strategy.district.DistrictStrategy;
+import org.complitex.address.strategy.room.RoomStrategy;
 import org.complitex.address.strategy.street.StreetStrategy;
 import org.complitex.address.strategy.street_type.StreetTypeStrategy;
 import org.complitex.correction.entity.*;
@@ -59,6 +60,9 @@ public class AddressService extends AbstractBean {
 
     @EJB
     private ApartmentStrategy apartmentStrategy;
+
+    @EJB
+    private RoomStrategy roomStrategy;
 
     /**
      * Разрешить переход "ОСЗН адрес -> локальная адресная база"
@@ -334,6 +338,32 @@ public class AddressService extends AbstractBean {
             }
         }
 
+        //Связывание комнаты
+        if (StringUtils.isNotEmpty(data.getRoom())) {
+            List<RoomCorrection> roomCorrections = addressCorrectionBean.getRoomCorrections(
+                    data.getBuildingId(), data.getApartmentId(), null, null, data.getRoom(), organizationId, userOrganizationId);
+            if (roomCorrections.size() == 1) {
+                data.setRoomId(roomCorrections.get(0).getObjectId());
+            } else if (roomCorrections.size() > 1) {
+                data.setStatus(AddressLinkStatus.MORE_ONE_ROOM_CORRECTION);
+            } else {
+                List<Long> roomIds = roomStrategy.getRoomObjectIds(data.getBuildingId(), data.getApartmentId(),
+                        data.getRoom());
+
+                if (roomIds.size() == 1) {
+                    data.setRoomId(roomIds.get(0));
+                } else if (roomIds.size() > 1) {
+                    data.setStatus(AddressLinkStatus.MORE_ONE_ROOM);
+                } else if (roomIds.isEmpty()){
+                    data.setStatus(AddressLinkStatus.ROOM_UNRESOLVED);
+                }
+            }
+
+            if (data.getRoomId() == null) {
+                return;
+            }
+        }
+
         //Связанно с внутренней адресной базой
         data.setStatus(AddressLinkStatus.ADDRESS_LINKED);
     }
@@ -352,11 +382,13 @@ public class AddressService extends AbstractBean {
      * @param streetObjectId Откорректированная улица
      * @param streetTypeObjectId Откорректированный тип улицы
      * @param buildingObjectId Откорректированный дом
+     * @param apartmentObjectId Откорректированная квартира
+     * @param roomObjectId Откорректированная квартира
      */
     @Transactional
     public void correctAddress(AddressLinkData data, AddressEntity entity, Long cityObjectId,
                                Long streetTypeObjectId, Long streetObjectId, Long buildingObjectId,
-                               Long apartmentObjectId,
+                               Long apartmentObjectId, Long roomObjectId,
                                Long userOrganizationId, Long organizationId)
             throws DuplicateCorrectionException, MoreOneCorrectionException, NotFoundCorrectionException {
 
@@ -441,6 +473,24 @@ public class AddressService extends AbstractBean {
                             organizationId, userOrganizationId, MODULE_ID);
 
                     addressCorrectionBean.save(apartmentCorrection);
+                } else {
+                    throw new DuplicateCorrectionException();
+                }
+
+                break;
+            
+            case ROOM:
+                List<RoomCorrection> roomCorrections = addressCorrectionBean.getRoomCorrections(
+                        data.getBuildingId(), data.getApartmentId(), null, roomObjectId, data.getRoom(),
+                        organizationId, userOrganizationId);
+
+                if (roomCorrections.isEmpty()) {
+                    RoomCorrection roomCorrection = new RoomCorrection(data.getBuildingId(), data.getApartmentId(), null,
+                            roomObjectId,
+                            data.getRoom().toUpperCase(),
+                            organizationId, userOrganizationId, MODULE_ID);
+
+                    addressCorrectionBean.save(roomCorrection);
                 } else {
                     throw new DuplicateCorrectionException();
                 }

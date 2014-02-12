@@ -23,6 +23,9 @@ public interface AddressLinkData {
     Long getApartmentId();
     void setApartmentId(Long id);
 
+    Long getRoomId();
+    void setRoomId(Long id);
+
     <T extends LinkStatus> void setStatus(T status);
 
     String getCityType();

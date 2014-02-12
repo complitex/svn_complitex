@@ -6,11 +6,13 @@ package org.complitex.address.strategy.room;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.address.resource.CommonResources;
+import org.complitex.address.strategy.room.web.edit.RoomEdit;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
@@ -28,7 +30,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import org.complitex.address.strategy.room.web.edit.RoomEdit;
 
 /**
  *
@@ -44,6 +45,7 @@ public class RoomStrategy extends TemplateStrategy {
      * Attribute type ids
      */
     public static final Long NAME = 200L;
+    private static final String ROOM_NAMESPACE = RoomStrategy.class.getPackage().getName() + ".Room";
 
     @Override
     public String getEntityTable() {
@@ -179,5 +181,18 @@ public class RoomStrategy extends TemplateStrategy {
                 && example.getOrderByAttributeTypeId().equals(NAME)) {
             example.setOrderByNumber(true);
         }
+    }
+
+    /**
+     * Найти комнату в локальной адресной базе.
+     */
+    public List<Long> getRoomObjectIds(Long buildingId, Long apartmentId, String room) {
+        Map<String, Object> params = Maps.newHashMap();
+
+        params.put("buildingId", buildingId);
+        params.put("apartmentId", apartmentId);
+        params.put("number", room);
+
+        return sqlSession().selectList(ROOM_NAMESPACE + ".selectRoomObjectIds", params);
     }
 }

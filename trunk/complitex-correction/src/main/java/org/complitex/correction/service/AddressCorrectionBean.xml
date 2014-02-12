@@ -31,6 +31,12 @@
         <result column="building_object_id" property="buildingObjectId"/>
     </resultMap>
 
+    <resultMap id="roomCorrectionResultMap" type="org.complitex.correction.entity.RoomCorrection"
+               extends="org.complitex.dictionary.entity.Correction.correction">
+        <result column="building_object_id" property="buildingObjectId"/>
+        <result column="apartment_object_id" property="apartmentObjectId"/>
+    </resultMap>
+
     <select id="selectObjectIds" parameterType="map" resultType="long">
         select distinct e.`object_id` from `${entity}` e
             left join `${entity}_attribute` attr on (attr.`status` = 'ACTIVE' and e.`object_id` = attr.`object_id`)
@@ -359,6 +365,43 @@
         insert into `apartment_correction`(`building_object_id`, `object_id`, `external_id`, `correction`, `begin_date`, `end_date`,
                                           `organization_id`, `user_organization_id`, `module_id`, `status`)
           values (#{buildingObjectId}, #{objectId}, #{externalId}, #{correction}, #{beginDate}, #{endDate},
+                  #{organizationId}, #{userOrganizationId}, #{moduleId}, #{status})
+    </insert>
+
+    <!--Room-->
+
+    <select id="selectRoomCorrection" resultMap="roomCorrectionResultMap" parameterType="long">
+        select * from `room_correction` where `id` = #{id}
+    </select>
+
+    <sql id="selectRoomCorrectionsWhere">
+        <where>
+            <choose>
+                <when test="object.apartmentObjectId != null">c.`apartment_object_id` = #{object.apartmentObjectId}</when>
+                <when test="object.buildingObjectId != null">c.`building_object_id` = #{object.buildingObjectId}</when>
+            </choose>
+            <include refid="org.complitex.dictionary.entity.Correction.selectCorrectionWhereIf"/>
+        </where>
+    </sql>
+
+    <select id="selectRoomCorrections" parameterType="org.complitex.dictionary.entity.FilterWrapper"
+            resultMap="roomCorrectionResultMap">
+        select * from `room_correction` c
+        <include refid="selectRoomCorrectionsWhere"/>
+        <include refid="org.complitex.dictionary.entity.Correction.selectCorrectionOrderLimit"/>
+    </select>
+
+    <select id="selectRoomCorrectionsCount" parameterType="org.complitex.dictionary.entity.FilterWrapper"
+            resultType="int">
+        select count(*) from `room_correction` c
+        <include refid="selectRoomCorrectionsWhere"/>
+    </select>
+
+    <insert id="insertRoomCorrection" parameterType="org.complitex.correction.entity.RoomCorrection"
+            keyProperty="id" useGeneratedKeys="true">
+        insert into `room_correction`(`building_object_id`, `apartment_object_id`, `object_id`, `external_id`, `correction`, `begin_date`, `end_date`,
+                                          `organization_id`, `user_organization_id`, `module_id`, `status`)
+          values (#{buildingObjectId}, #{apartmentObjectId}, #{objectId}, #{externalId}, #{correction}, #{beginDate}, #{endDate},
                   #{organizationId}, #{userOrganizationId}, #{moduleId}, #{status})
     </insert>
     
