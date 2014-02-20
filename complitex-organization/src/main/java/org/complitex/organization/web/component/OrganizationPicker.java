@@ -49,7 +49,7 @@ public class OrganizationPicker extends FormComponentPanel<DomainObject> {
     @EJB
     private LocaleBean localeBean;
     private boolean showData = false; //todo RadioGroup bug on showData = true
-    private final DomainObjectExample example;
+    private DomainObjectExample example;
 
     @EJB(name = IOrganizationStrategy.BEAN_NAME, beanInterface = IOrganizationStrategy.class)
     private IOrganizationStrategy organizationStrategy;
@@ -60,6 +60,12 @@ public class OrganizationPicker extends FormComponentPanel<DomainObject> {
                 OrganizationPicker.class, OrganizationPicker.class.getSimpleName() + ".css"));
         response.renderJavaScriptReference(new PackageResourceReference(
                 OrganizationPicker.class, OrganizationPicker.class.getSimpleName() + ".js"));
+    }
+
+    public OrganizationPicker(String id, final IModel<String> model, final Long organizationTypeId) {
+        super(id);
+        setModel(new OrganizationModel(model));
+        init(false, null, true, Arrays.asList(organizationTypeId));
     }
 
     public OrganizationPicker(String id, IModel<DomainObject> model, Long... organizationTypeIds) {
@@ -78,6 +84,11 @@ public class OrganizationPicker extends FormComponentPanel<DomainObject> {
     public OrganizationPicker(String id, IModel<DomainObject> model, boolean required,
             IModel<String> labelModel, boolean enabled, List<Long> organizationTypeIds) {
         super(id, model);
+        init(required, labelModel, enabled, organizationTypeIds);
+    }
+
+    private void init(boolean required,
+                      IModel<String> labelModel, boolean enabled, List<Long> organizationTypeIds) {
 
         setRequired(required);
         setLabel(labelModel);
@@ -121,7 +132,7 @@ public class OrganizationPicker extends FormComponentPanel<DomainObject> {
         final Form<Void> filterForm = new Form<Void>("filterForm");
         content.add(filterForm);
 
-        this.example = newExample(organizationTypeIds);
+        example = newExample(organizationTypeIds);
 
         final DataProvider<DomainObject> dataProvider = new DataProvider<DomainObject>() {
 
@@ -295,5 +306,29 @@ public class OrganizationPicker extends FormComponentPanel<DomainObject> {
     @Override
     protected void convertInput() {
         setConvertedInput(getModelObject());
+    }
+
+    private class OrganizationModel extends Model<DomainObject> {
+
+        private IModel<String> model;
+
+        public OrganizationModel(IModel<String> model) {
+            this.model = model;
+        }
+
+        @Override
+        public DomainObject getObject() {
+            return model.getObject() == null? null : organizationStrategy.findById(Long.valueOf(model.getObject()), true);
+        }
+
+        @Override
+        public void setObject(DomainObject object) {
+            super.setObject(object);
+            if (object != null) {
+                model.setObject(String.valueOf(object.getId()));
+            } else {
+                model.setObject(null);
+            }
+        }
     }
 }
