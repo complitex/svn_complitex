@@ -1,6 +1,7 @@
 package org.complitex.dictionary.strategy.organization;
 
 import org.complitex.dictionary.entity.DomainObject;
+import org.complitex.dictionary.mybatis.SqlSessionFactoryBean;
 import org.complitex.dictionary.mybatis.Transactional;
 import org.complitex.dictionary.strategy.IStrategy;
 
@@ -147,4 +148,6 @@ public interface IOrganizationStrategy<T extends DomainObject> extends IStrategy
     String displayShortNameAndCode(DomainObject organization, Locale locale);
 
     String displayShortNameAndCode(Long organizationId, Locale locale);
+
+    void setSqlSessionFactoryBean(SqlSessionFactoryBean sqlSessionFactoryBean);
 }

@@ -52,7 +52,7 @@ public class OrganizationPicker extends FormComponentPanel<DomainObject> {
     private DomainObjectExample example;
 
     @EJB(name = IOrganizationStrategy.BEAN_NAME, beanInterface = IOrganizationStrategy.class)
-    private IOrganizationStrategy organizationStrategy;
+    protected IOrganizationStrategy organizationStrategy;
 
     @Override
     public void renderHead(IHeaderResponse response) {
