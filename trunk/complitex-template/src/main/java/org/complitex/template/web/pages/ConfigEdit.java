@@ -10,8 +10,10 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.complitex.dictionary.entity.IComponentConfig;
 import org.complitex.dictionary.entity.IConfig;
 import org.complitex.dictionary.service.ConfigBean;
+import org.complitex.dictionary.web.component.type.InputPanel;
 import org.complitex.template.web.security.SecurityRole;
 import org.complitex.template.web.template.FormTemplatePage;
 
@@ -70,7 +72,12 @@ public class ConfigEdit extends FormTemplatePage {
                         IConfig config = item.getModelObject();
 
                         item.add(new Label("label", getStringOrKey(config.name())));
-                        item.add(config.getContainer("config", model.get(config)));
+
+                        if (config instanceof IComponentConfig) {
+                            item.add(((IComponentConfig)config).getComponent("config", model.get(config)));
+                        }else {
+                            item.add(new InputPanel<>("config", model.get(config), String.class, false, null, true));
+                        }
                     }
                 });
             }

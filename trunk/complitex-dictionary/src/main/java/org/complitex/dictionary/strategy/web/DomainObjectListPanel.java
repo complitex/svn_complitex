@@ -2,9 +2,11 @@ package org.complitex.dictionary.strategy.web;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
@@ -22,6 +24,7 @@ import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.converter.*;
 import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.DomainObject;
+import org.complitex.dictionary.entity.PreferenceKey;
 import org.complitex.dictionary.entity.SimpleTypes;
 import org.complitex.dictionary.entity.description.EntityAttributeType;
 import org.complitex.dictionary.entity.example.AttributeExample;
@@ -36,6 +39,7 @@ import org.complitex.dictionary.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionary.web.component.datatable.DataProvider;
 import org.complitex.dictionary.web.component.paging.PagingNavigator;
 import org.complitex.dictionary.web.component.scroll.ScrollBookmarkablePageLink;
+import org.complitex.dictionary.web.component.search.CollapsibleSearchPanel;
 import org.complitex.dictionary.web.component.type.BooleanPanel;
 import org.complitex.dictionary.web.component.type.DatePanel;
 import org.complitex.dictionary.web.component.type.GenderPanel;
@@ -48,9 +52,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
-import org.complitex.dictionary.entity.PreferenceKey;
-import org.complitex.dictionary.web.component.search.CollapsibleSearchPanel;
 
 /**
  *
@@ -321,7 +322,8 @@ public final class DomainObjectListPanel extends Panel {
                     }
                 };
 
-                Panel filter = new EmptyPanel("filter");
+                Component filter = new EmptyPanel("filter");
+
                 SimpleTypes valueType = SimpleTypes.valueOf(attributeType.getEntityAttributeValueTypes().get(0).getValueType().toUpperCase());
                 switch (valueType) {
                     case STRING:
