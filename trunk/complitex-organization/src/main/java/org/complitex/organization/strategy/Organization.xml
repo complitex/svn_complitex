@@ -18,7 +18,7 @@
         </if>
         <foreach item="attrExample" collection="attributeExamples">
             <choose>
-                <when test="attrExample.attributeTypeId == 903">
+                <when test="attrExample.attributeTypeId == 903 and attrExample.value != null">
                     AND EXISTS(SELECT 1 FROM `organization_attribute` parent_attr WHERE parent_attr.`object_id` = e.`object_id`
                             AND parent_attr.`status` = 'ACTIVE' AND parent_attr.`attribute_type_id` = #{attrExample.attributeTypeId}
                             AND parent_attr.`value_id` = #{attrExample.value})
