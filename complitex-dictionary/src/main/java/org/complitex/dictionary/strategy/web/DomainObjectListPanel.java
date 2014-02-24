@@ -13,7 +13,6 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
@@ -115,7 +114,8 @@ public final class DomainObjectListPanel extends Panel {
         content.setOutputMarkupPlaceholderTag(true);
 
         //Example
-        example = (DomainObjectExample) getSession().getPreferenceObject(page, PreferenceKey.FILTER_OBJECT, null);
+        example = getSession().getPreferenceObject(page, PreferenceKey.FILTER_OBJECT, null);
+
         if (example == null) {
             example = new DomainObjectExample();
             example.setTable(entity);
@@ -219,45 +219,51 @@ public final class DomainObjectListPanel extends Panel {
                         String attributeValue = "";
                         if (!attr.getAttributeTypeId().equals(-1L)) {
                             EntityAttributeType attrType = attrToTypeMap.get(attr);
-                            String valueType = attrType.getEntityAttributeValueTypes().get(0).getValueType();
-                            SimpleTypes type = SimpleTypes.valueOf(valueType.toUpperCase());
-                            String systemLocaleValue = stringBean.getSystemStringCulture(attr.getLocalizedValues()).getValue();
-                            switch (type) {
-                                case STRING_CULTURE:
-                                    attributeValue = stringBean.displayValue(attr.getLocalizedValues(), getLocale());
-                                    break;
-                                case STRING:
-                                    attributeValue = systemLocaleValue;
-                                    break;
-                                case BIG_STRING:
-                                    if (!Strings.isEmpty(systemLocaleValue)) {
-                                        attributeValue = systemLocaleValue.substring(0, SimpleTypes.BIG_STRING_VIEW_LENGTH);
-                                    }
-                                    break;
-                                case DOUBLE:
-                                    attributeValue = new DoubleConverter().toObject(systemLocaleValue).toString();
-                                    break;
-                                case INTEGER:
-                                    attributeValue = new IntegerConverter().toObject(systemLocaleValue).toString();
-                                    break;
-                                case BOOLEAN:
-                                    attributeValue = BooleanPanel.display(new BooleanConverter().toObject(systemLocaleValue), getLocale());
-                                    break;
-                                case DATE:
-                                case DATE2:
-                                case MASKED_DATE:
-                                    DateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy", getLocale());
-                                    attributeValue = dateFormatter.format(new DateConverter().toObject(systemLocaleValue));
-                                    break;
-                                case GENDER:
-                                    attributeValue = GenderPanel.display(new GenderConverter().toObject(systemLocaleValue), getLocale());
-                                    break;
+                            String valueType = attrType.getEntityAttributeValueTypes().get(0).getValueType().toUpperCase();
+
+                            if (SimpleTypes.isSimpleType(valueType)) {
+                                String systemLocaleValue = stringBean.getSystemStringCulture(attr.getLocalizedValues()).getValue();
+
+                                switch (SimpleTypes.valueOf(valueType)) {
+                                    case STRING_CULTURE:
+                                        attributeValue = stringBean.displayValue(attr.getLocalizedValues(), getLocale());
+                                        break;
+                                    case STRING:
+                                        attributeValue = systemLocaleValue;
+                                        break;
+                                    case BIG_STRING:
+                                        if (!Strings.isEmpty(systemLocaleValue)) {
+                                            attributeValue = systemLocaleValue.substring(0, SimpleTypes.BIG_STRING_VIEW_LENGTH);
+                                        }
+                                        break;
+                                    case DOUBLE:
+                                        attributeValue = new DoubleConverter().toObject(systemLocaleValue).toString();
+                                        break;
+                                    case INTEGER:
+                                        attributeValue = new IntegerConverter().toObject(systemLocaleValue).toString();
+                                        break;
+                                    case BOOLEAN:
+                                        attributeValue = BooleanPanel.display(new BooleanConverter().toObject(systemLocaleValue), getLocale());
+                                        break;
+                                    case DATE:
+                                    case DATE2:
+                                    case MASKED_DATE:
+                                        DateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy", getLocale());
+                                        attributeValue = dateFormatter.format(new DateConverter().toObject(systemLocaleValue));
+                                        break;
+                                    case GENDER:
+                                        attributeValue = GenderPanel.display(new GenderConverter().toObject(systemLocaleValue), getLocale());
+                                        break;
+                                }
+                            }else{
+                                attributeValue = getStrategy().displayAttribute(attr, getLocale());
                             }
                         }
                         item.add(new Label("dataColumn", attributeValue));
                     }
                 };
                 item.add(dataColumns);
+
                 ScrollBookmarkablePageLink<WebPage> detailsLink = new ScrollBookmarkablePageLink<WebPage>("detailsLink",
                         getStrategy().getEditPage(), getStrategy().getEditPageParams(object.getId(), null, null),
                         String.valueOf(object.getId()));
@@ -322,66 +328,69 @@ public final class DomainObjectListPanel extends Panel {
                     }
                 };
 
-                Component filter = new EmptyPanel("filter");
+                Component filter = new StringPanel("filter", Model.of(""), false, null, true);
 
-                SimpleTypes valueType = SimpleTypes.valueOf(attributeType.getEntityAttributeValueTypes().get(0).getValueType().toUpperCase());
-                switch (valueType) {
-                    case STRING:
-                    case BIG_STRING:
-                    case STRING_CULTURE:
-                    case INTEGER:
-                    case DOUBLE: {
-                        filter = new StringPanel("filter", filterModel, false, null, true);
+                String name = attributeType.getEntityAttributeValueTypes().get(0).getValueType().toUpperCase();
+
+                if (SimpleTypes.isSimpleType(name)) {
+                    switch (SimpleTypes.valueOf(name)) {
+                        case STRING:
+                        case BIG_STRING:
+                        case STRING_CULTURE:
+                        case INTEGER:
+                        case DOUBLE: {
+                            filter = new StringPanel("filter", filterModel, false, null, true);
+                        }
+                        break;
+                        case DATE:
+                        case DATE2:
+                        case MASKED_DATE: {
+                            IModel<Date> dateModel = new Model<Date>() {
+
+                                DateConverter dateConverter = new DateConverter();
+
+                                @Override
+                                public void setObject(Date object) {
+                                    if (object != null) {
+                                        filterModel.setObject(dateConverter.toString(object));
+                                    }
+                                }
+
+                                @Override
+                                public Date getObject() {
+                                    if (!Strings.isEmpty(filterModel.getObject())) {
+                                        return dateConverter.toObject(filterModel.getObject());
+                                    }
+                                    return null;
+                                }
+                            };
+                            filter = new DatePanel("filter", dateModel, false, null, true);
+                        }
+                        break;
+                        case BOOLEAN: {
+                            IModel<Boolean> booleanModel = new Model<Boolean>() {
+
+                                BooleanConverter booleanConverter = new BooleanConverter();
+
+                                @Override
+                                public void setObject(Boolean object) {
+                                    if (object != null) {
+                                        filterModel.setObject(booleanConverter.toString(object));
+                                    }
+                                }
+
+                                @Override
+                                public Boolean getObject() {
+                                    if (!Strings.isEmpty(filterModel.getObject())) {
+                                        return booleanConverter.toObject(filterModel.getObject());
+                                    }
+                                    return null;
+                                }
+                            };
+                            filter = new BooleanPanel("filter", booleanModel, null, true);
+                        }
+                        break;
                     }
-                    break;
-                    case DATE:
-                    case DATE2:
-                    case MASKED_DATE: {
-                        IModel<Date> dateModel = new Model<Date>() {
-
-                            DateConverter dateConverter = new DateConverter();
-
-                            @Override
-                            public void setObject(Date object) {
-                                if (object != null) {
-                                    filterModel.setObject(dateConverter.toString(object));
-                                }
-                            }
-
-                            @Override
-                            public Date getObject() {
-                                if (!Strings.isEmpty(filterModel.getObject())) {
-                                    return dateConverter.toObject(filterModel.getObject());
-                                }
-                                return null;
-                            }
-                        };
-                        filter = new DatePanel("filter", dateModel, false, null, true);
-                    }
-                    break;
-                    case BOOLEAN: {
-                        IModel<Boolean> booleanModel = new Model<Boolean>() {
-
-                            BooleanConverter booleanConverter = new BooleanConverter();
-
-                            @Override
-                            public void setObject(Boolean object) {
-                                if (object != null) {
-                                    filterModel.setObject(booleanConverter.toString(object));
-                                }
-                            }
-
-                            @Override
-                            public Boolean getObject() {
-                                if (!Strings.isEmpty(filterModel.getObject())) {
-                                    return booleanConverter.toObject(filterModel.getObject());
-                                }
-                                return null;
-                            }
-                        };
-                        filter = new BooleanPanel("filter", booleanModel, null, true);
-                    }
-                    break;
                 }
                 item.add(filter);
             }

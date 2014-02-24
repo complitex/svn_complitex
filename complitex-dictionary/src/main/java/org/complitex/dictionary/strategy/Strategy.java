@@ -744,14 +744,15 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
      */
     @Override
     public List<EntityAttributeType> getListColumns() {
-        final List<Long> listAttributeTypes = getListAttributeTypes();
-        return newArrayList(filter(getEntity().getEntityAttributeTypes(), new Predicate<EntityAttributeType>() {
+        Entity entity = getEntity();
 
-            @Override
-            public boolean apply(EntityAttributeType attributeType) {
-                return listAttributeTypes.contains(attributeType.getId());
-            }
-        }));
+        List<EntityAttributeType> list = new ArrayList<>();
+
+        for (Long typeId : getListAttributeTypes()){
+            list.add(entity.getAttributeType(typeId));
+        }
+
+        return list;
     }
 
     /**
@@ -920,7 +921,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         example.setTable(getEntityTable());
         example.setStartDate(date);
 
-        DomainObject object = (DomainObject) sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + "." + FIND_HISTORY_OBJECT_OPERATION, example);
+        DomainObject object = sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + "." + FIND_HISTORY_OBJECT_OPERATION, example);
         if (object == null) {
             return null;
         }
@@ -1155,6 +1156,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         return getLogicalChildren() != null && getLogicalChildren().length > 0;
     }
 
+     //todo add display simple types
     @Override
     public String displayAttribute(Attribute attribute, Locale locale) {
         return stringBean.displayValue(attribute.getLocalizedValues(), locale);

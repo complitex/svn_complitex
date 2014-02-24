@@ -1,30 +1,26 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.template.web.pages;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import java.util.Collections;
-import org.complitex.dictionary.strategy.IStrategy;
-import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
-import org.complitex.dictionary.strategy.web.DomainObjectListPanel;
-import org.complitex.template.web.component.toolbar.AddItemButton;
-import org.complitex.template.web.component.toolbar.ToolbarButton;
-
-import java.util.List;
-import javax.ejb.EJB;
 import org.apache.wicket.Page;
 import org.apache.wicket.authorization.UnauthorizedInstantiationException;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.complitex.dictionary.entity.DomainObject;
+import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
+import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
+import org.complitex.dictionary.strategy.web.DomainObjectListPanel;
 import org.complitex.dictionary.web.DictionaryFwSession;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
+import org.complitex.template.web.component.toolbar.AddItemButton;
+import org.complitex.template.web.component.toolbar.ToolbarButton;
 import org.complitex.template.web.component.toolbar.search.CollapsibleSearchToolbarButton;
 import org.complitex.template.web.security.SecurityRole;
+
+import javax.ejb.EJB;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Artem
@@ -49,6 +45,7 @@ public final class DomainObjectList extends ScrollListPage {
         if (!hasAnyRole(strategyFactory.getStrategy(strategyName, entity).getListRoles())) {
             throw new UnauthorizedInstantiationException(getClass());
         }
+
         add(listPanel = new DomainObjectListPanel("listPanel", entity, strategyName));
     }
 
