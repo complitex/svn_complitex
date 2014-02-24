@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.dictionary.web.component.type;
 
 import org.apache.wicket.AttributeModifier;
@@ -18,60 +14,21 @@ import org.apache.wicket.model.IModel;
  */
 public class InputPanel<T> extends Panel {
 
-    /**
-     * For use in non-ajax environment
-     * @param id
-     * @param model
-     * @param type
-     * @param required
-     * @param labelModel
-     * @param enabled
-     */
     public InputPanel(String id, IModel<T> model, Class<T> type, boolean required, IModel<String> labelModel, boolean enabled) {
         super(id);
         init(model, type, required, labelModel, enabled, null);
     }
 
-    /**
-     * For use in non-ajax environment
-     * @param id
-     * @param model
-     * @param type
-     * @param required
-     * @param labelModel
-     * @param enabled
-     */
     public InputPanel(String id, IModel<T> model, Class<T> type, boolean required, IModel<String> labelModel, boolean enabled, Integer size) {
         super(id);
         init(model, type, required, labelModel, enabled, null, size);
     }
 
-    /**
-     * For use in ajax environment
-     * @param id
-     * @param model
-     * @param type
-     * @param required
-     * @param labelModel
-     * @param enabled
-     * @param toUpdate
-     */
     public InputPanel(String id, IModel<T> model, Class<T> type, boolean required, IModel<String> labelModel, boolean enabled, MarkupContainer[] toUpdate) {
         super(id);
         init(model, type, required, labelModel, enabled, toUpdate);
     }
 
-    /**
-     * For use in ajax environment
-     * @param id
-     * @param model
-     * @param type
-     * @param required
-     * @param labelModel
-     * @param enabled
-     * @param toUpdate
-     * @param size
-     */
     public InputPanel(String id, IModel<T> model, Class<T> type, boolean required, IModel<String> labelModel, boolean enabled, MarkupContainer[] toUpdate, Integer size) {
         super(id);
         init(model, type, required, labelModel, enabled, toUpdate, size);
