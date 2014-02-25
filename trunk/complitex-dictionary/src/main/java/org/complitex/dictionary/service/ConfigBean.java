@@ -33,7 +33,9 @@ public class ConfigBean extends AbstractBean{
 
         for (Class<? extends IConfig> c : configs){
             try {
-                init2(c.getCanonicalName(),c.getEnumConstants());
+                if (c.getEnumConstants() != null) {
+                    init2(c.getCanonicalName(),c.getEnumConstants());
+                }
             } catch (Exception e) {
                 log.error("Ошибка создания конфигурации", e);
             }
@@ -131,6 +133,7 @@ public class ConfigBean extends AbstractBean{
 
     protected Set<Class<? extends IConfig>> getIConfigClasses() {
         Reflections reflections = new Reflections("org.complitex", "ru.flexpay");
+
         return reflections.getSubTypesOf(IConfig.class);
     }
 
