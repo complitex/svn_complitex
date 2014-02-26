@@ -56,7 +56,7 @@ public class DictionaryFwSession extends WebSession {
         Map<String, Preference> map = preferences.get(page);
 
         if (map == null) {
-            map = new HashMap<String, Preference>();
+            map = new HashMap<>();
             preferences.put(page, map);
         }
 

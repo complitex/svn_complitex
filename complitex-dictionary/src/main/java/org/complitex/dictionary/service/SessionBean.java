@@ -290,7 +290,7 @@ public class SessionBean extends AbstractBean {
         filter.setAdmin(isAdmin());
 
         if (!isAdmin()) {
-            filter.setOuterOrganizationsString(getAllOuterOrganizationsString());
+            //filter.setOuterOrganizationsString(getAllOuterOrganizationsString());
             filter.setUserOrganizationsString(getCurrentUserOrganizationsString());
         }
     }
