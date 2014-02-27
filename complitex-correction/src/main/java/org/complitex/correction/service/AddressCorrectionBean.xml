@@ -291,7 +291,9 @@
                 and c.`module_id` = #{moduleId}
             </if>
             <if test="not admin">
-                and (c.`organization_id` in ${outerOrganizationsString})
+                <if test="outerOrganizationsString != null">
+                    and (c.`organization_id` in ${outerOrganizationsString})
+                </if>
                 and (c.`user_organization_id` is null or c.`user_organization_id` in ${userOrganizationsString})
             </if>
         </where>
