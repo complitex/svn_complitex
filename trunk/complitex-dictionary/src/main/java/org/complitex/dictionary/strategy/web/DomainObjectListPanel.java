@@ -199,7 +199,7 @@ public final class DomainObjectListPanel extends Panel {
             protected void populateItem(Item<DomainObject> item) {
                 DomainObject object = item.getModelObject();
 
-                item.add(new Label("order", String.valueOf(getFirstItemOffset() + item.getIndex() + 1)));
+                item.add(new Label("order", Model.of(object.getId())));
 
                 final Map<Attribute, EntityAttributeType> attrToTypeMap = Maps.newLinkedHashMap();
                 for (EntityAttributeType attrType : listAttributeTypes) {
