@@ -107,12 +107,12 @@ public class SessionBean extends AbstractBean {
     private List<Long> getUserOrganizationTreePermissionIds(String table) {
         Map<String, String> parameter = new HashMap<>();
         parameter.put("table", table);
-        parameter.put("organizations", getUserOrganizationString());
+        parameter.put("organizations", getUserOrganizationTreeString());
 
         return sqlSession().selectList(MAPPING_NAMESPACE + ".selectUserOrganizationTreePermissionIds", parameter);
     }
 
-    public String getUserOrganizationString(){
+    public String getUserOrganizationTreeString(){
         String s = "";
         String d = "";
 
@@ -304,7 +304,7 @@ public class SessionBean extends AbstractBean {
         }
     }
 
-    private String getCurrentUserOrganizationsString() {
+    public String getCurrentUserOrganizationsString() {
         return getUserOrganizationsString(getUserOrganizationIdsVisibleToCurrentUser());
     }
 
