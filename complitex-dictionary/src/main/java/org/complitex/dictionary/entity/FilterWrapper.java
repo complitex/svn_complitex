@@ -17,6 +17,7 @@ public class FilterWrapper<T extends Serializable> implements Serializable{
     private boolean ascending = false;
 
     private boolean like = false;
+    private boolean regexp = false;
 
     private boolean admin = false;
     private String userOrganizationsString;
@@ -119,6 +120,14 @@ public class FilterWrapper<T extends Serializable> implements Serializable{
 
     public void setLike(boolean like) {
         this.like = like;
+    }
+
+    public boolean isRegexp() {
+        return regexp;
+    }
+
+    public void setRegexp(boolean regexp) {
+        this.regexp = regexp;
     }
 
     public boolean isAdmin() {
