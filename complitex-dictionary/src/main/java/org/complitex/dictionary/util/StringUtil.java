@@ -206,4 +206,12 @@ public class StringUtil {
     public static String decimal(String d){
         return d != null ? d.replace('.', ',') : "";
     }
+
+    public static int compare(String s1, String s2, boolean asc){
+        if (s1 != null && s2 != null){
+            return asc ? s1.compareTo(s2) : s2.compareTo(s1);
+        }
+
+        return 0;
+    }
 }
