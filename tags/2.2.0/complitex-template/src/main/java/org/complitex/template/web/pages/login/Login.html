@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:wicket="http://wicket.apache.org">
+    <head>
+        <title wicket:id="login.title"></title>
+    </head>
+    <body>
+        <table border="0" cellspacing="0" cellpadding="0" width="100%">
+            <tr>
+                <td id="Header">
+                </td>
+            </tr>
+            <tr>
+                <td id="TopPanel">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div align="center">
+                        <table border="0" cellspacing="0" cellpadding="0" class="formFrame"
+                               style="width:300px;">
+                            <tr valign="top">
+                                <td class="ff_l"><wicket:image src="images/formFrame-tl.gif" width="4" height="180" alt=""/>
+                                </td>
+                                <td class="ff_t">
+                                    <h2 style="text-align:center;">
+                                        <span wicket:id="login.header"></span>
+                                    </h2>
+                                    <div wicket:id="errorPanel">
+                                        <ul>
+                                            <li>
+                                                <span style="color:orangered;"><wicket:message key="login.error.unauthorized"/></span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div align="center">
+                                        <form id="formId"  method="POST" action="j_security_check">
+                                            <table style="margin-bottom:20px">
+                                                <tr>
+                                                    <th align="left">
+                                                        <wicket:message key="login.loginLabel"/>:
+                                                    </th>
+                                                    <td>
+                                                        <input name="j_username" type="text" size="30"/>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th align="left">
+                                                        <wicket:message key="login.passwordLabel"/>:
+                                                    </th>
+                                                    <td>
+                                                        <input name="j_password" type="password" size="30"/>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <input type="submit" name="submit" wicket:message="value:login.submit" class="btnBig"/>
+                                        </form>
+                                    </div>
+                                </td>
+                                <td class="ff_r"><wicket:image src="images/formFrame-tr.gif" width="4" height="180" alt=""/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="ff_bl"><wicket:image src="images/formFrame-bl.gif" width="4" height="4" alt=""/>
+                                </td>
+                                <td class="ff_b"><wicket:image src="images/spacer.gif" width="4" height="4" alt=""/>
+                                </td>
+                                <td class="ff_br"><wicket:image src="images/formFrame-br.gif" width="4" height="4" alt=""/>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div><wicket:image src="images/spacer.gif" width="800" height="1" alt=""/></div>
+                </td>
+            </tr>
+        </table>
+    </body>
+</html>

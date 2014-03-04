@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.complitex.organization.service.OrganizationImportBean">
+    
+    <resultMap id="organizationImportResultMap" type="org.complitex.organization.entity.OrganizationImport">
+        <id column="pk_id" property="pkId"/>
+        <result column="organization_id" property="organizationId"/>
+        <result column="code" property="code"/>
+        <result column="short_name" property="shortName"/>
+        <result column="full_name" property="fullName"/>
+        <result column="hlevel" property="hlevel"/>
+    </resultMap>
+
+    <select id="selectOrganizationImports" parameterType="long" resultMap="organizationImportResultMap">
+        SELECT * FROM `organization_import` WHERE `hlevel`
+            <choose>
+                <when test="value != null">
+                    = #{value}
+                </when>
+                <otherwise>
+                    IS NULL
+                </otherwise>
+            </choose>
+    </select>
+    
+    <select id="selectOrganizationImport" parameterType="long" resultMap="organizationImportResultMap">
+        SELECT * FROM `organization_import` WHERE `organization_id` = #{id}
+    </select>
+    
+    <insert id="insertOrganizationImport" parameterType="org.complitex.organization.entity.OrganizationImport">
+        INSERT INTO `organization_import` (`organization_id`, `code`, `short_name`, `full_name`, `hlevel`) 
+            VALUES (#{organizationId}, #{code}, #{shortName}, #{fullName}, #{hlevel})
+    </insert>
+    
+    <delete id="deleteOrganizationImport">
+        DELETE FROM `organization_import`
+    </delete>
+
+</mapper>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.complitex.org/web/template"
+           xmlns="http://www.complitex.org/web/template">
+
+    <xs:element name="template">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="web-components" minOccurs="0"/>
+                <xs:element ref="sidebar"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="web-components">
+        <xs:complexType>
+            <xs:sequence >
+                <xs:element ref="main-user-organization-picker-component" minOccurs="0"/>
+                <xs:element ref="domain-object-permission-panel" minOccurs="0"/>
+                <xs:element ref="organization-permission-panel" minOccurs="0"/>
+                <xs:element ref="user-organization-picker" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="sidebar">
+        <xs:complexType>
+            <xs:sequence  maxOccurs="unbounded">
+                <xs:element ref="menu"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="menu">
+        <xs:complexType>
+            <xs:attribute name="class" use="required" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="main-user-organization-picker-component"/>
+    <xs:element name="domain-object-permission-panel"/>
+    <xs:element name="organization-permission-panel"/>
+    <xs:element name="user-organization-picker"/>
+
+</xs:schema>

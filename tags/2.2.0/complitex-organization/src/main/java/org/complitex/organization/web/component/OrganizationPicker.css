@@ -1,0 +1,11 @@
+a.organization_picker_choose_link, a.organization_picker_choose_link:visited {
+    color: #007AAE  !important;
+}
+
+.organization_picker_form table th {
+    text-align: center;
+}
+
+.ui-widget .btnSmall {
+    font-size: 10px;
+}

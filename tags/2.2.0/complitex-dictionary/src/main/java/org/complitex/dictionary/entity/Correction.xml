@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.complitex.dictionary.entity.Correction">
+    <resultMap id="correction" type="org.complitex.dictionary.entity.Correction">
+        <result column="id" property="id"/>
+        <result column="external_id" property="externalId"/>
+        <result column="object_id" property="objectId"/>
+        <result column="correction" property="correction"/>
+        <result column="begin_date" property="beginDate"/>
+        <result column="end_date" property="endDate"/>
+
+        <result column="organization_id" property="organizationId"/>
+        <result column="user_organization_id" property="userOrganizationId"/>
+        <result column="module_id" property="moduleId"/>
+
+        <!--wtf with status-->
+        <result column="status" property="status" typeHandler="org.complitex.dictionary.mybatis.FixedIdBaseTypeHandler"/>
+
+        <association property="organizationName" select="org.complitex.organization.strategy.Organization.selectOrganizationName"
+                     column="organization_id"/>
+        <association property="userOrganizationName" select="org.complitex.organization.strategy.Organization.selectOrganizationName"
+                     column="user_organization_id"/>
+        <association property="moduleName" select="org.complitex.organization.strategy.Organization.selectOrganizationName"
+                     column="module_id"/>
+    </resultMap>
+
+
+
+    <insert id="insertCorrection" parameterType="org.complitex.dictionary.entity.Correction"
+            keyProperty="id" useGeneratedKeys="true">
+        insert into `${entity}_correction` (`external_id`, `object_id`, `correction`,
+          `begin_date`, `end_date`, `organization_id`, `user_organization_id`, `module_id`, `status`)
+            values (#{externalId}, #{objectId}, #{correction}, #{beginDate}, #{endDate},
+              #{organizationId}, #{userOrganizationId}, #{moduleId}, #{status})
+    </insert>
+
+    <update id="updateCorrection" parameterType="org.complitex.dictionary.entity.Correction">
+        update `${entity}_correction` set `organization_id` = #{organizationId}, `correction` = #{correction},
+            `object_id` = #{objectId}, `external_id` = #{externalId}, `user_organization_id` = #{userOrganizationId},
+            `begin_date` = #{beginDate}, `end_date` = #{endDate}, `status` = #{status}
+        where `id` = #{id}
+    </update>
+
+    <delete id="deleteCorrection" parameterType="org.complitex.dictionary.entity.Correction">
+        delete from `${entity}_correction` where `id` = #{id}
+    </delete>
+
+    <sql id="selectCorrectionWhereIf">
+        <if test="object.externalId != null">and c.`external_id` = #{object.externalId}</if>
+        <if test="object.objectId != null">and c.`object_id` = #{object.objectId}</if>
+        <if test="object.correction != null">
+            <choose>
+                <when test="like">and c.`correction` like concat('%', #{object.correction},'%')</when>
+                <when test="regexp">and c.`correction` rlike #{object.correction}</when>
+                <otherwise>and c.`correction` = #{object.correction}</otherwise>
+            </choose>
+        </if>
+        <if test="object.beginDate != null">and c.`begin_date` = #{object.beginDate}</if>
+        <if test="object.endDate != null">and c.`end_date` = #{object.endDate}</if>
+        <if test="object.organizationId != null">and c.`organization_id` = #{object.organizationId}</if>
+        <if test="object.userOrganizationId != null">and c.`user_organization_id` = #{object.userOrganizationId}</if>
+        <if test="userOrganizationsString != null">and c.`user_organization_id` in ${userOrganizationsString}</if>
+    </sql>
+
+    <sql id="selectCorrectionOrderLimit">
+        <if test="sortProperty != null">order by #{sortProperty} #{asc}</if>
+        <if test="count > 0">limit #{first}, #{count}</if>
+    </sql>
+
+    <sql id="selectCorrectionWhere">
+        <where>
+            <include refid="org.complitex.dictionary.entity.Correction.selectCorrectionWhereIf"/>
+        </where>
+        <include refid="org.complitex.dictionary.entity.Correction.selectCorrectionOrderLimit"/>
+    </sql>
+</mapper>

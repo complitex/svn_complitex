@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.complitex.dictionary.service.PermissionBean">
+    <resultMap id="permissionResultMap" type="org.complitex.dictionary.entity.Permission">
+        <id column="pk_id" property="pkId"/>
+        <result column="permission_id" property="permissionId"/>
+        <result column="table" property="table"/>
+        <result column="entity" property="entity"/>
+        <result column="object_id" property="objectId"/>
+        <collection property="permissions" ofType="org.complitex.dictionary.entity.Permission">
+            <id column="c_pk_id" property="pkId"/>
+            <result column="c_permission_id" property="permissionId"/>
+            <result column="c_table" property="table"/>
+            <result column="c_entity" property="entity"/>
+            <result column="c_object_id" property="objectId"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectPermissions" parameterType="map" resultMap="permissionResultMap">
+        select p1.*, p2.`pk_id` as c_pk_id, p2.`permission_id` as c_permission_id, p2.`table` as c_table,
+            p2.`entity` as c_entity, p2.`object_id` as c_object_id
+        from `permission` p1
+            left join `permission` p2 on (p1.`permission_id` = p2.`permission_id` and p1.`pk_id` != p2.`pk_id`)
+        <where>
+            <!--bug: noTypeHandler found without javaType=string-->
+            <if test="table != null">p1.`table` = #{table, javaType=string}</if>
+            <if test="entity != null">and p1.`entity` = #{entity}</if>
+            <if test="objectId != null">and p1.`object_id` = #{objectId}</if>
+        </where>
+    </select>
+
+    <select id="findPermissionIds" parameterType="map" resultMap="permissionResultMap">
+        select `permission_id` from `permission`
+        <where>
+            <!--bug: noTypeHandler found without javaType=string-->
+            <if test="table != null">`table` = #{table, javaType=string}</if>
+            <if test="entity != null">and `entity` = #{entity}</if>
+            <if test="objectId != null">and `object_id` = #{objectId}</if>
+        </where>
+    </select>
+
+    <select id="selectPermissionsById" parameterType="long" resultMap="permissionResultMap">
+        select * from `permission` where `permission_id` = #{permissionId}
+    </select>
+
+    <insert id="insertPermission" parameterType="org.complitex.dictionary.entity.Permission">
+        insert into
+            `permission` (`permission_id`, `table`, `entity`, `object_id`)
+        value
+            (#{permissionId}, #{table}, #{entity}, #{objectId});
+    </insert>
+
+    <select id="organizationPermissionExist" parameterType="map" resultType="int">
+        SELECT 1 FROM DUAL WHERE EXISTS(SELECT 1 FROM `permission` WHERE `entity` = #{organizationTable} AND `object_id` = #{organizationId})
+    </select>
+</mapper>

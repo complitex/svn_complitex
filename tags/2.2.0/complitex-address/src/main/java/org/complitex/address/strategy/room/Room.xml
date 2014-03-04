@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.complitex.address.strategy.room.Room">
+
+    <select id="selectRoomObjectIds" parameterType="map" resultType="long">
+        select distinct a.`object_id` from `room` a
+
+        join `room_attribute` num on (num.`object_id` = a.`object_id` and num.`status` = 'ACTIVE'
+        and num.`attribute_type_id` = 200)
+        join `room_string_culture` num_sc on (num_sc.`id` = num.`value_id`)
+
+        where a.`status` = 'ACTIVE' and num_sc.`value` = #{number}
+        <choose>
+            <when test="apartmentId != null">
+                and a.`parent_entity_id` = 100 and a.`parent_id` = #{apartmentId}
+            </when>
+            <otherwise>
+                and a.`parent_entity_id` = 500 and a.`parent_id` = #{buildingId}
+            </otherwise>
+        </choose>
+    </select>
+
+</mapper>

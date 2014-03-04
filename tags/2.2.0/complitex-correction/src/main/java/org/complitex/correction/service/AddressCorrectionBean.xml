@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.complitex.correction.service.AddressCorrectionBean">
+    <resultMap id="cityCorrectionResultMap" type="org.complitex.correction.entity.CityCorrection"
+               extends="org.complitex.dictionary.entity.Correction.correction">
+    </resultMap>
+
+    <resultMap id="streetTypeCorrectionResultMap" type="org.complitex.correction.entity.StreetTypeCorrection"
+               extends="org.complitex.dictionary.entity.Correction.correction">
+    </resultMap>
+
+    <resultMap id="streetCorrectionResultMap" type="org.complitex.correction.entity.StreetCorrection"
+               extends="org.complitex.dictionary.entity.Correction.correction">
+        <result column="city_object_id" property="cityObjectId"/>
+        <result column="street_type_object_id" property="streetTypeObjectId"/>
+    </resultMap>
+
+    <resultMap id="districtCorrectionResultMap" type="org.complitex.correction.entity.DistrictCorrection"
+               extends="org.complitex.dictionary.entity.Correction.correction">
+        <result column="city_object_id" property="cityObjectId"/>
+    </resultMap>
+
+    <resultMap id="buildingCorrectionResultMap" type="org.complitex.correction.entity.BuildingCorrection"
+               extends="org.complitex.dictionary.entity.Correction.correction">
+        <result column="street_object_id" property="streetObjectId"/>
+        <result column="correction_corp" property="correctionCorp"/>
+    </resultMap>
+
+    <resultMap id="apartmentCorrectionResultMap" type="org.complitex.correction.entity.ApartmentCorrection"
+               extends="org.complitex.dictionary.entity.Correction.correction">
+        <result column="building_object_id" property="buildingObjectId"/>
+    </resultMap>
+
+    <resultMap id="roomCorrectionResultMap" type="org.complitex.correction.entity.RoomCorrection"
+               extends="org.complitex.dictionary.entity.Correction.correction">
+        <result column="building_object_id" property="buildingObjectId"/>
+        <result column="apartment_object_id" property="apartmentObjectId"/>
+    </resultMap>
+
+    <select id="selectObjectIds" parameterType="map" resultType="long">
+        select distinct e.`object_id` from `${entity}` e
+            left join `${entity}_attribute` attr on (attr.`status` = 'ACTIVE' and e.`object_id` = attr.`object_id`)
+            left join `${entity}_string_culture` sc on (sc.`id` = attr.`value_id`)
+        where e.`status` = 'ACTIVE' and attr.`attribute_type_id` = #{attributeTypeId} and sc.`value` = #{correction}
+    </select>
+
+    <!--City-->
+
+    <select id="selectCityCorrection" resultMap="cityCorrectionResultMap" parameterType="long">
+        select * from `city_correction` where `id` = #{id}
+    </select>
+
+    <select id="selectCityCorrections" resultMap="cityCorrectionResultMap"
+            parameterType="org.complitex.dictionary.entity.FilterWrapper">
+        select * from `city_correction` c
+        <include refid="org.complitex.dictionary.entity.Correction.selectCorrectionWhere"/>
+    </select>
+
+    <select id="selectCityCorrectionsCount" resultType="int"
+            parameterType="org.complitex.dictionary.entity.FilterWrapper">
+        select count(*) from `city_correction` c
+        <include refid="org.complitex.dictionary.entity.Correction.selectCorrectionWhere"/>
+    </select>
+
+    <!--District-->
+
+    <select id="selectDistrictCorrection" resultMap="districtCorrectionResultMap" parameterType="long">
+        select * from `district_correction` where `id` = #{id}
+    </select>
+
+    <sql id="selectDistrictCorrectionsWhere">
+        <where>
+            <if test="object.cityObjectId != null">c.`city_object_id` = #{object.cityObjectId}</if>
+            <include refid="org.complitex.dictionary.entity.Correction.selectCorrectionWhereIf"/>
+        </where>
+    </sql>
+
+    <select id="selectDistrictCorrections" parameterType="org.complitex.dictionary.entity.FilterWrapper"
+            resultMap="districtCorrectionResultMap">
+        select * from `district_correction` c
+        <include refid="selectDistrictCorrectionsWhere"/>
+        <include refid="org.complitex.dictionary.entity.Correction.selectCorrectionOrderLimit"/>
+    </select>
+
+    <select id="selectDistrictCorrectionsCount" parameterType="org.complitex.dictionary.entity.FilterWrapper"
+            resultType="int">
+        select count(*) from `district_correction` c
+        <include refid="selectDistrictCorrectionsWhere"/>
+    </select>
+
+    <insert id="insertDistrictCorrection" parameterType="org.complitex.correction.entity.DistrictCorrection"
+            keyProperty="id" useGeneratedKeys="true">
+        insert into `district_correction`(`city_object_id`, `object_id`, `external_id`, `correction`, `begin_date`, `end_date`,
+                                          `organization_id`, `user_organization_id`, `module_id`, `status`)
+          values (#{cityObjectId}, #{objectId}, #{externalId}, #{correction}, #{beginDate}, #{endDate},
+                  #{organizationId}, #{userOrganizationId}, #{moduleId}, #{status.id})
+    </insert>
+
+    <update id="updateDistrictCorrection" parameterType="org.complitex.correction.entity.DistrictCorrection">
+        update `district_correction` set `city_object_id` = #{cityObjectId}, `object_id` = #{objectId},
+            `external_id` = #{externalId}, `correction` = #{correction},
+            `begin_date` = #{beginDate}, `end_date` = #{endDate}, `organization_id` = #{organizationId},
+            `user_organization_id` = #{userOrganizationId}, `module_id` = #{moduleId}, `status` = #{status.id}
+        where `id` = #{id}
+    </update>
+
+    <!--StreetType-->
+
+    <select id="selectStreetTypeCorrection" resultMap="streetTypeCorrectionResultMap" parameterType="long">
+        select * from `street_type_correction` where `id` = #{id}
+    </select>
+
+    <select id="selectStreetTypeCorrections" resultMap="streetTypeCorrectionResultMap"
+            parameterType="org.complitex.dictionary.entity.FilterWrapper">
+        select * from `street_type_correction` c
+        <include refid="org.complitex.dictionary.entity.Correction.selectCorrectionWhere"/>
+    </select>
+
+    <select id="selectStreetTypeCorrectionsCount" resultType="int"
+            parameterType="org.complitex.dictionary.entity.FilterWrapper">
+        select count(*) from `street_type_correction` c
+        <include refid="org.complitex.dictionary.entity.Correction.selectCorrectionWhere"/>
+    </select>
+
+    <!--Street-->
+
+    <select id="selectStreetCorrection" resultMap="streetCorrectionResultMap" parameterType="long">
+        select * from `street_correction` where `id` = #{id}
+    </select>
+
+    <sql id="selectStreetCorrectionsWhere">
+        <where>
+            <if test="object.cityObjectId != null">and c.`city_object_id` = #{object.cityObjectId}</if>
+            <if test="object.streetTypeObjectId != null">and c.`street_type_object_id` = #{object.streetTypeObjectId}</if>
+            <include refid="org.complitex.dictionary.entity.Correction.selectCorrectionWhereIf"/>
+        </where>
+    </sql>
+    
+    <select id="selectStreetCorrections" resultMap="streetCorrectionResultMap"
+            parameterType="org.complitex.dictionary.entity.FilterWrapper">
+        select distinct c.* from `street_correction` c
+        <include refid="selectStreetCorrectionsWhere"/>
+        <include refid="org.complitex.dictionary.entity.Correction.selectCorrectionOrderLimit"/>
+    </select>
+
+    <select id="selectStreetCorrectionsCount" resultType="int"
+            parameterType="org.complitex.dictionary.entity.FilterWrapper">
+        select count(*) from `street_correction` c
+        <include refid="selectStreetCorrectionsWhere"/>
+    </select>
+
+    <insert id="insertStreetCorrection" parameterType="org.complitex.correction.entity.StreetCorrection"
+            keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO `street_correction`(`city_object_id`, `street_type_object_id`, `object_id`, `external_id`,
+                                        `correction`, `begin_date`, `end_date`, `organization_id`,
+                                        `user_organization_id`, `module_id`, `status`)
+            VALUES (#{cityObjectId}, #{streetTypeObjectId}, #{objectId}, #{externalId}, #{correction},
+                    #{beginDate}, #{endDate}, #{organizationId}, #{userOrganizationId}, #{moduleId}, #{status.id})
+    </insert>
+
+
+    <update id="updateStreetCorrection" parameterType="org.complitex.correction.entity.StreetCorrection">
+        UPDATE `street_correction` SET `city_object_id` = #{cityObjectId}, `street_type_object_id` = #{streetTypeObjectId},
+            `object_id` = #{objectId}, `external_id` = #{externalId}, `correction` = #{correction},
+            `organization_id` = #{organizationId}, `user_organization_id` = #{userOrganizationId},
+            `module_id` = #{moduleId}
+        WHERE `id` = #{id}
+    </update>
+
+    <select id="selectStreetCorrectionsByBuilding" resultMap="streetCorrectionResultMap"
+            parameterType="map">
+        SELECT c.* FROM `street_correction` c
+            JOIN `building_correction` b ON (b.`object_id` = #{buildingId} AND b.`organization_id` = #{calcCenterId})
+        WHERE c.`organization_id` = #{calcCenterId} AND c.`object_id` = #{streetId}
+    </select>
+
+
+    <!--Building-->
+
+    <select id="selectBuildingCorrection" resultMap="buildingCorrectionResultMap" parameterType="long">
+        select * from `building_correction` where `id` = #{id}
+    </select>
+
+    <sql id="selectBuildingCorrectionsWhere">
+        <where>
+            <if test="object.streetObjectId != null">and c.`street_object_id` = #{object.streetObjectId}</if>
+            <if test="object.correctionCorp != null">and c.`correction_corp` = #{object.correctionCorp}</if>
+            <include refid="org.complitex.dictionary.entity.Correction.selectCorrectionWhereIf"/>
+        </where>
+    </sql>
+
+    <select id="selectBuildingCorrections" resultMap="buildingCorrectionResultMap"
+            parameterType="org.complitex.dictionary.entity.FilterWrapper">
+        select * from `building_correction` c
+        <include refid="selectBuildingCorrectionsWhere"/>
+        <include refid="org.complitex.dictionary.entity.Correction.selectCorrectionOrderLimit"/>
+    </select>
+
+    <select id="selectBuildingCorrectionsCount" resultType="int"
+            parameterType="org.complitex.dictionary.entity.FilterWrapper">
+        select count(*) from `building_correction` c
+        <include refid="selectBuildingCorrectionsWhere"/>
+    </select>
+
+    <insert id="insertBuildingCorrection" parameterType="org.complitex.correction.entity.BuildingCorrection"
+            keyProperty="id" useGeneratedKeys="true">
+        insert into `building_correction`(`street_object_id`, `object_id`, `external_id`,  `correction`, `correction_corp`,
+          `begin_date`, `end_date`, `organization_id`, `user_organization_id`, `module_id`, `status`)
+        values (#{streetObjectId}, #{objectId}, #{externalId}, #{correction}, #{correctionCorp}, #{beginDate}, #{endDate},
+           #{organizationId}, #{userOrganizationId}, #{moduleId}, #{status.id})
+    </insert>
+
+    <update id="updateBuildingCorrection" parameterType="org.complitex.correction.entity.BuildingCorrection">
+        update `building_correction` set `street_object_id` = #{streetObjectId}, `organization_id` = #{organizationId}, `correction` = #{correction},
+            `correction_corp` = #{correctionCorp}, `object_id` = #{objectId}, `external_id` = #{externalId},
+            `module_id` = #{moduleId}, `user_organization_id` = #{userOrganizationId}
+        where `id` = #{id}
+    </update>
+
+    <select id="selectBuildingObjectExists" parameterType="map" resultType="boolean">
+        select count(b.`object_id`) > 0 from `building` b
+        join `building_address` addr on (((b.`parent_id` = addr.`object_id`) or
+          exists(select 1 from `building_attribute` ba where ba.`object_id` = b.`object_id` and ba.`status` = 'ACTIVE'
+            and ba.`attribute_type_id` = 501 and ba.`value_id` = addr.`object_id`)) and addr.`status` = 'ACTIVE')
+        join `building_address_attribute` num on (num.`object_id` = addr.`object_id` and num.`status` = 'ACTIVE'
+          and num.`attribute_type_id` = 1500)
+        join `building_address_string_culture` num_sc on (num_sc.`id` = num.`value_id`)
+        left join `building_address_attribute` corp on (corp.`object_id` = addr.`object_id` AND corp.`status` = 'ACTIVE'
+          and corp.`attribute_type_id` = 1501)
+        left join `building_address_string_culture` corp_sc on (corp_sc.`id` = corp.`value_id`)
+        where b.`status` = 'ACTIVE'
+        and num_sc.`value` = #{buildingNumber}
+        and
+        <choose>
+            <when test="buildingCorp == null">
+                corp_sc.`value` IS NULL
+            </when>
+            <otherwise>
+                corp_sc.`value` = #{buildingCorp}
+            </otherwise>
+        </choose>
+        AND
+        b.`object_id` = #{objectId}
+    </select>
+
+    <sql id="buildingFilter">
+        <where>
+            <if test="internalObject != null">
+                <if test="cityObject != null">
+                    and csc.`value` LIKE CONCAT('%', #{cityObject}, '%')
+                </if>
+                <if test="streetObject != null">
+                    and ssc.`value` LIKE CONCAT('%', #{streetObject}, '%')
+                </if>
+                <if test="buildingObject != null">
+                    and basc.`value` LIKE CONCAT('%', #{buildingObject}, '%')
+                </if>
+                <if test="smallObject">
+                    and (csc.`value` LIKE CONCAT('%', #{internalObject}, '%')
+                    or ssc.`value` LIKE CONCAT('%', #{internalObject}, '%')
+                    or basc.`value` LIKE CONCAT('%', #{internalObject}, '%'))
+                </if>
+            </if>
+            <if test="correction != null">
+                <if test="cityCorrection != null">
+                    and cc.`correction` LIKE CONCAT('%', #{cityCorrection}, '%')
+                </if>
+                <if test="streetCorrection != null">
+                    and sc.`correction` LIKE CONCAT('%', #{streetCorrection}, '%')
+                </if>
+                <if test="buildingCorrection != null">
+                    and c.`correction` LIKE CONCAT('%', #{buildingCorrection}, '%')
+                </if>
+                <if test="smallCorrection">
+                    and (cc.`correction` LIKE CONCAT('%', #{correction}, '%')
+                    or sc.`correction` LIKE CONCAT('%', #{correction}, '%')
+                    or c.`correction` LIKE CONCAT('%', #{correction}, '%'))
+                </if>
+            </if>
+
+            <if test="externalId != null">
+                and c.`external_id` LIKE CONCAT('%', #{externalId}, '%')
+            </if>
+            <if test="organizationId != null">
+                and c.`organization_id` = #{organizationId}
+            </if>
+            <if test="userOrganizationId != null">
+                and c.`user_organization_id` = #{userOrganizationId}
+            </if>
+            <if test="moduleId != null">
+                and c.`module_id` = #{moduleId}
+            </if>
+            <if test="not admin">
+                <if test="outerOrganizationsString != null">
+                    and (c.`organization_id` in ${outerOrganizationsString})
+                </if>
+                and (c.`user_organization_id` is null or c.`user_organization_id` in ${userOrganizationsString})
+            </if>
+        </where>
+    </sql>
+
+    <sql id="buildingJoin">
+        left join `organization_attribute` oa on (oa.`object_id` = c.`organization_id`
+        and oa.`status` = 'ACTIVE' and oa.`attribute_type_id` = 900)
+        left join `organization_string_culture` osc on (osc.`id` = oa.`value_id` and osc.`locale_id` = #{localeId})
+        LEFT JOIN `organization_string_culture` osc_sys ON (osc_sys.`id` = oa.`value_id` and osc_sys.`locale_id` = (SELECT l.`id` FROM `locales` l WHERE l.`system` = 1))
+
+        left join `organization_attribute` oa_i on (oa_i.`object_id` = c.`module_id`
+        and oa_i.`status` = 'ACTIVE' and oa_i.`attribute_type_id` = 900)
+        left join `organization_string_culture` osc_i on (osc_i.`id` = oa_i.`value_id` and osc_i.`locale_id` = #{localeId})
+        LEFT JOIN `organization_string_culture` osc_i_sys ON (osc_i_sys.`id` = oa_i.`value_id` and osc_i_sys.`locale_id` = (SELECT l.`id` FROM `locales` l WHERE l.`system` = 1))
+
+        left join `organization_attribute` uoa on (uoa.`object_id` = c.`user_organization_id`
+        and uoa.`status` = 'ACTIVE' and uoa.`attribute_type_id` = 900)
+        left join `organization_string_culture` uosc on (uosc.`id` = uoa.`value_id` and uosc.`locale_id` = #{localeId})
+        LEFT JOIN `organization_string_culture` uosc_sys ON (uosc_sys.`id` = uoa.`value_id` and uosc_sys.`locale_id` = (SELECT l.`id` FROM `locales` l WHERE l.`system` = 1))
+
+        <if test="orderByClause == 'object' or internalObject != null">
+            left join `building` b on (b.`object_id` = c.`object_id`)
+            left join `building_address` ba on (ba.`object_id` = b.`parent_id`)
+            left join `building_address_attribute` baa on (baa.`object_id` = ba.`object_id` and baa.`attribute_type_id` = 1500)
+            left join `building_address_string_culture` basc on (basc.`id` = baa.`value_id` and basc.`locale_id` = #{localeId})
+
+            left join `street` s on (s.`object_id` = ba.`parent_id`)
+            left join `street_attribute` sa on (sa.`object_id` = ba.`parent_id`)
+            left join `street_string_culture` ssc on (ssc.`id` = sa.`value_id` and ssc.`locale_id` = #{localeId})
+
+            left join `city` on (`city`.`object_id` = s.`parent_id`)
+            left join `city_attribute` ca on (ca.`object_id` = s.`parent_id`)
+            left join `city_string_culture` csc on (csc.`id` = ca.`value_id` and csc.`locale_id` = #{localeId})
+        </if>
+
+        <if test="orderByClause == 'correction' or correction != null">
+            left join `street_correction` sc on (sc.`id` = c.`parent_id`)
+            left join `city_correction` cc on (cc.`id` = sc.`parent_id`)
+        </if>
+    </sql>
+
+    <!--Apartment-->
+
+    <select id="selectApartmentCorrection" resultMap="apartmentCorrectionResultMap" parameterType="long">
+        select * from `apartment_correction` where `id` = #{id}
+    </select>
+
+    <sql id="selectApartmentCorrectionsWhere">
+        <where>
+            <if test="object.buildingObjectId != null">c.`building_object_id` = #{object.buildingObjectId}</if>
+            <include refid="org.complitex.dictionary.entity.Correction.selectCorrectionWhereIf"/>
+        </where>
+    </sql>
+
+    <select id="selectApartmentCorrections" parameterType="org.complitex.dictionary.entity.FilterWrapper"
+            resultMap="apartmentCorrectionResultMap">
+        select * from `apartment_correction` c
+        <include refid="selectApartmentCorrectionsWhere"/>
+        <include refid="org.complitex.dictionary.entity.Correction.selectCorrectionOrderLimit"/>
+    </select>
+
+    <select id="selectApartmentCorrectionsCount" parameterType="org.complitex.dictionary.entity.FilterWrapper"
+            resultType="int">
+        select count(*) from `apartment_correction` c
+        <include refid="selectApartmentCorrectionsWhere"/>
+    </select>
+
+    <insert id="insertApartmentCorrection" parameterType="org.complitex.correction.entity.ApartmentCorrection"
+            keyProperty="id" useGeneratedKeys="true">
+        insert into `apartment_correction`(`building_object_id`, `object_id`, `external_id`, `correction`, `begin_date`, `end_date`,
+                                          `organization_id`, `user_organization_id`, `module_id`, `status`)
+          values (#{buildingObjectId}, #{objectId}, #{externalId}, #{correction}, #{beginDate}, #{endDate},
+                  #{organizationId}, #{userOrganizationId}, #{moduleId}, #{status.id})
+    </insert>
+
+    <!--Room-->
+
+    <select id="selectRoomCorrection" resultMap="roomCorrectionResultMap" parameterType="long">
+        select * from `room_correction` where `id` = #{id}
+    </select>
+
+    <sql id="selectRoomCorrectionsWhere">
+        <where>
+            <choose>
+                <when test="object.apartmentObjectId != null">c.`apartment_object_id` = #{object.apartmentObjectId}</when>
+                <when test="object.buildingObjectId != null">c.`building_object_id` = #{object.buildingObjectId}</when>
+            </choose>
+            <include refid="org.complitex.dictionary.entity.Correction.selectCorrectionWhereIf"/>
+        </where>
+    </sql>
+
+    <select id="selectRoomCorrections" parameterType="org.complitex.dictionary.entity.FilterWrapper"
+            resultMap="roomCorrectionResultMap">
+        select * from `room_correction` c
+        <include refid="selectRoomCorrectionsWhere"/>
+        <include refid="org.complitex.dictionary.entity.Correction.selectCorrectionOrderLimit"/>
+    </select>
+
+    <select id="selectRoomCorrectionsCount" parameterType="org.complitex.dictionary.entity.FilterWrapper"
+            resultType="int">
+        select count(*) from `room_correction` c
+        <include refid="selectRoomCorrectionsWhere"/>
+    </select>
+
+    <insert id="insertRoomCorrection" parameterType="org.complitex.correction.entity.RoomCorrection"
+            keyProperty="id" useGeneratedKeys="true">
+        insert into `room_correction`(`building_object_id`, `apartment_object_id`, `object_id`, `external_id`, `correction`, `begin_date`, `end_date`,
+                                          `organization_id`, `user_organization_id`, `module_id`, `status`)
+          values (#{buildingObjectId}, #{apartmentObjectId}, #{objectId}, #{externalId}, #{correction}, #{beginDate}, #{endDate},
+                  #{organizationId}, #{userOrganizationId}, #{moduleId}, #{status.id})
+    </insert>
+    
+</mapper>

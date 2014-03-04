@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.complitex.address.strategy.building.Building">
+
+    <resultMap id="Building" type="org.complitex.address.strategy.building.entity.Building"
+                    extends="org.complitex.dictionary.entity.DomainObject.DomainObject">
+    </resultMap>
+
+    <select id="find" resultMap="org.complitex.address.strategy.building.Building.Building" parameterType="DomainObjectExample">
+        SELECT DISTINCT e.`object_id`, e.`start_date`, e.`end_date`, e.`status`, e.`parent_id`, e.`parent_entity_id`, e.`permission_id`
+        FROM `building` e WHERE
+        <include refid="org.complitex.dictionary.entity.DomainObject.statusFilter"/>
+        <include refid="org.complitex.dictionary.entity.DomainObject.permissionFilter"/>
+        AND (e.`parent_id` = #{additionalParams.buildingAddressId} OR EXISTS
+            (SELECT 1 FROM `building_attribute` ba WHERE ba.`object_id` = e.`object_id` AND ba.`status` = 'ACTIVE' AND ba.`attribute_type_id` = 501
+                AND ba.`value_id` = #{additionalParams.buildingAddressId}
+            )
+            )
+    </select>
+
+    <select id="findById" resultMap="org.complitex.address.strategy.building.Building.Building" parameterType="DomainObjectExample">
+        SELECT e.*
+        FROM `${table}` e WHERE (e.`status` IN ('ACTIVE', 'INACTIVE')) AND e.`object_id` = #{id}
+            <include refid="org.complitex.dictionary.entity.DomainObject.permissionFilter"/>
+    </select>
+
+    <select id="checkBuildingAddress" parameterType="map" resultType="long">
+        SELECT DISTINCT b.`object_id` FROM `building` b
+            JOIN `building_address` addr ON (addr.`status` IN ('ACTIVE', 'INACTIVE') AND ((b.`parent_id` = addr.`object_id`) OR
+                EXISTS(SELECT 1 FROM `building_attribute` ba WHERE ba.`object_id` = b.`object_id` AND ba.`status` = 'ACTIVE'
+                    AND ba.`attribute_type_id` = ${additionalAddressAT} AND ba.`value_id` = addr.`object_id`)))
+            JOIN `building_address_attribute` num ON (num.`object_id` = addr.`object_id` AND num.`status` = 'ACTIVE' 
+                    AND num.`attribute_type_id` = ${buildingAddressNumberAT})
+            LEFT JOIN `building_address_attribute` corp ON (corp.`object_id` = addr.`object_id` AND corp.`status` = 'ACTIVE' 
+                    AND corp.`attribute_type_id` = ${buildingAddressCorpAT})
+            LEFT JOIN `building_address_attribute` struc ON (struc.`object_id` = addr.`object_id` AND struc.`status` = 'ACTIVE' 
+                    AND struc.`attribute_type_id` = ${buildingAddressStructureAT})
+        WHERE b.`status` IN ('ACTIVE', 'INACTIVE') AND
+            num.`value_id` IN (SELECT sc.`id` FROM `building_address_string_culture` sc WHERE sc.`value` = #{number} AND sc.`locale_id` = #{localeId}) AND
+                <choose>
+                    <when test="corp == null">
+                        corp.`value_id` IS NULL
+                    </when>
+                    <otherwise>
+                        corp.`value_id` IN (SELECT sc.`id` FROM `building_address_string_culture` sc WHERE sc.`value` = #{corp} AND sc.`locale_id` = #{localeId})
+                    </otherwise>
+                </choose>
+            AND
+            <choose>
+                <when test="structure == null">
+                    struc.`value_id` IS NULL
+                </when>
+                <otherwise>
+                    struc.`value_id` IN (SELECT sc.`id` FROM `building_address_string_culture` sc WHERE sc.`value` = #{structure} AND sc.`locale_id` = #{localeId})
+                </otherwise>
+            </choose>
+            AND
+            addr.`parent_entity_id` = #{parentEntityId} AND addr.`parent_id` = #{parentId}
+    </select>
+
+    <!-- history -->
+
+    <select id="findBuildingAddresses" parameterType="long" resultType="long">
+        SELECT addr.`object_id` FROM `building_address` addr WHERE addr.`object_id` IN
+            (SELECT b.`parent_id` FROM `building` b WHERE b.`object_id` = #{buildingId})
+        UNION
+        SELECT addr.`object_id` FROM `building_address` addr WHERE
+            EXISTS(SELECT 1 FROM `building_attribute` ba WHERE ba.`object_id` = #{buildingId} AND ba.`attribute_type_id` = 501 AND ba.`value_id` = addr.`object_id`)
+    </select>
+
+    <select id="findHistoryObject" parameterType="DomainObjectExample" resultMap="org.complitex.address.strategy.building.Building.Building">
+        <include refid="org.complitex.dictionary.entity.DomainObject.findHistoryObject"/>
+    </select>
+
+    <!-- disable/enable functionality -->
+    <update id="updateBuildingActivity" parameterType="map">
+        UPDATE `building` e SET e.`status` = #{status} WHERE e.`object_id` = #{buildingId}
+                AND
+                <choose>
+                    <when test="enabled">
+                        e.`status` = 'ACTIVE'
+                    </when>
+                    <otherwise>
+                        e.`status` = 'INACTIVE'
+                    </otherwise>
+                </choose>
+    </update>
+
+    <select id="selectBuildingObjectIds" parameterType="map" resultType="long">
+        select distinct b.`object_id` from `building` b
+          join `building_address` addr on (((b.`parent_id` = addr.`object_id`) or
+            exists(select 1 from `building_attribute` ba where ba.`object_id` = b.`object_id` and ba.`status` = 'ACTIVE'
+              and ba.`attribute_type_id` = 501 and ba.`value_id` = addr.`object_id`)) and addr.`status` = 'ACTIVE')
+          join `building_address_attribute` num on (num.`object_id` = addr.`object_id` and num.`status` = 'ACTIVE'
+            and num.`attribute_type_id` = 1500)
+          join `building_address_string_culture` num_sc on (num_sc.`id` = num.`value_id`)
+          left join `building_address_attribute` corp on (corp.`object_id` = addr.`object_id` and corp.`status` = 'ACTIVE'
+            and corp.`attribute_type_id` = 1501)
+          left join `building_address_string_culture` corp_sc on (corp_sc.`id` = corp.`value_id`)
+        where b.`status` = 'ACTIVE' and num_sc.`value` = #{number}
+        and
+        <choose>
+            <when test="corp == null">
+                corp_sc.`value` is null
+            </when>
+            <otherwise>
+                corp_sc.`value` = #{corp}
+            </otherwise>
+        </choose>
+        and addr.`parent_entity_id` = #{parentEntityId} and addr.`parent_id` = #{parentId}
+    </select>
+
+    <!--Building Codes-->
+
+    <select id="getBuildingCodes" parameterType="map"
+            resultType="org.complitex.address.strategy.building.entity.BuildingCode">
+        SELECT `id` id, `organization_id` organizationId, `code` buildingCode, `building_id` buildingId
+        FROM `building_code` WHERE `id` IN
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
+    <insert id="insertBuildingCode"
+            parameterType="org.complitex.address.strategy.building.entity.BuildingCode"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO `building_code` (`organization_id`, `code`, `building_id`)
+        VALUES (#{organizationId}, #{buildingCode}, #{buildingId})
+    </insert>
+
+    <delete id="deleteBuildingCodes" parameterType="map">
+        DELETE FROM `building_code` WHERE `id` IN
+          (SELECT a.`value_id` FROM `building_attribute` a WHERE a.`object_id` = #{objectId}
+            AND a.`attribute_type_id` = #{buildingCodesAT})
+    </delete>
+
+    <select id="selectBuildingCodeIdByCode" parameterType="map" resultType="long">
+        select `id` from `building_code` where `organization_id` = #{organizationId} and `code` = #{buildingCode}
+    </select>
+
+    <select id="selectBuildingCodeIdByBuilding" parameterType="map" resultType="long">
+        select `id` from `building_code` where `organization_id` = #{organizationId} and `building_id` = #{buildingId}
+    </select>
+    
+</mapper>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.complitex.address.strategy.district.District">
+
+    <!-- permission -->
+    
+    <select id="findChildrenPermissionInfo" parameterType="map" resultMap="org.complitex.dictionary.entity.DomainObject.DomainObjectPermissionInfo">
+        SELECT e.`object_id`, e.`permission_id` FROM `street` e
+                JOIN `building_address` addr ON (addr.`parent_id` = e.`object_id` AND addr.`status` IN ('ACTIVE', 'INACTIVE') AND addr.`parent_entity_id` = 300)
+                JOIN `building` b ON (b.`parent_id` = addr.`object_id` AND b.`status` IN ('ACTIVE', 'INACTIVE'))
+                JOIN `building_attribute` district_attr ON (b.`object_id` = district_attr.`object_id` AND district_attr.`status` = 'ACTIVE' AND district_attr.`attribute_type_id` = 500
+                    AND district_attr.`value_id` = #{parentId})
+            WHERE e.`status` IN ('ACTIVE', 'INACTIVE')
+        UNION
+        SELECT e.`object_id`, e.`permission_id` FROM `street` e
+                JOIN `building_address` addr ON (addr.`parent_id` = e.`object_id` AND addr.`status` IN ('ACTIVE', 'INACTIVE') AND addr.`parent_entity_id` = 300)
+                JOIN `building_attribute` district_attr ON (district_attr.`status` = 'ACTIVE' AND district_attr.`attribute_type_id` = 500
+                    AND district_attr.`value_id` = #{parentId})
+                JOIN `building_attribute` ref_attr ON (ref_attr.`status` = 'ACTIVE' AND ref_attr.`attribute_type_id` = 501
+                    AND ref_attr.`value_id` = addr.`object_id`)
+                JOIN `building` b ON (b.`status` IN ('ACTIVE', 'INACTIVE') AND b.`object_id` = district_attr.`object_id` AND b.`object_id` = ref_attr.`object_id`)
+            WHERE e.`status` IN ('ACTIVE', 'INACTIVE')
+        
+        ORDER BY 1
+        <include refid="org.complitex.dictionary.entity.DomainObject.limit"/>
+    </select>
+
+    <!-- disable/enable functionality -->
+    <select id="findChildrenActivityInfo" parameterType="map" resultType="long">
+        SELECT e.`object_id` FROM `street` e
+                JOIN `building_address` addr ON (addr.`parent_id` = e.`object_id` AND addr.`status` IN ('ACTIVE', 'INACTIVE') AND addr.`parent_entity_id` = 300)
+                JOIN `building` b ON (b.`parent_id` = addr.`object_id` AND b.`status` IN ('ACTIVE', 'INACTIVE'))
+                JOIN `building_attribute` district_attr ON (b.`object_id` = district_attr.`object_id` AND district_attr.`status` = 'ACTIVE' AND district_attr.`attribute_type_id` = 500
+                    AND district_attr.`value_id` = #{districtId})
+            WHERE e.`status` IN ('ACTIVE', 'INACTIVE')
+        UNION
+        SELECT e.`object_id` FROM `street` e
+                JOIN `building_address` addr ON (addr.`parent_id` = e.`object_id` AND addr.`status` IN ('ACTIVE', 'INACTIVE') AND addr.`parent_entity_id` = 300)
+                JOIN `building_attribute` district_attr ON (district_attr.`status` = 'ACTIVE' AND district_attr.`attribute_type_id` = 500
+                    AND district_attr.`value_id` = #{districtId})
+                JOIN `building_attribute` ref_attr ON (ref_attr.`status` = 'ACTIVE' AND ref_attr.`attribute_type_id` = 501
+                    AND ref_attr.`value_id` = addr.`object_id`)
+                JOIN `building` b ON (b.`status` IN ('ACTIVE', 'INACTIVE') AND b.`object_id` = district_attr.`object_id` AND b.`object_id` = ref_attr.`object_id`)
+            WHERE e.`status` IN ('ACTIVE', 'INACTIVE')
+    </select>
+
+    <update id="updateChildrenActivity" parameterType="map">
+        UPDATE `street` e SET e.`status` = #{status} WHERE e.`object_id` IN
+                <foreach open="(" close=")" separator="," collection="streetIds" item="id">
+                    #{id}
+                </foreach>
+                AND
+                <choose>
+                    <when test="enabled">
+                        e.`status` = 'ACTIVE'
+                    </when>
+                    <otherwise>
+                        e.`status` = 'INACTIVE'
+                    </otherwise>
+                </choose>
+    </update>
+
+</mapper>

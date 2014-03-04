@@ -1,0 +1,30 @@
+<wicket:panel xmlns:wicket="http://wicket.apache.org">
+    <form wicket:id="form" class="tbForm">
+        <table class="tbColor table_input">
+            <thead>
+            <tr>
+                <th style="width: 20px"></th>
+                <th><wicket:message key="code"/></th>
+                <th><wicket:message key="district_name"/></th>
+                <th></th>
+            </tr>
+            <tr>
+                <th></th>
+                <th style="width: 40px"><input type="text" wicket:id="code"/></th>
+                <th><input type="text" wicket:id="name"/></th>
+                <th><input type="button" wicket:id="filter" class="btnSmall" wicket:message="value:find"/></th>
+            </tr>
+            </thead>
+
+            <tbody wicket:id="check_group">
+            <tr wicket:id="data_view">
+                <td><input type="checkbox" wicket:id="check"/></td>
+                <td><span wicket:id="code"></span></td>
+                <td colspan="2"><span wicket:id="name"></span></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div wicket:id="navigator"></div>
+    </form>
+</wicket:panel>

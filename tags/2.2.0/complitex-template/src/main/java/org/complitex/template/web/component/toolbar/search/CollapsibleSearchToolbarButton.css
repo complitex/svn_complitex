@@ -1,0 +1,12 @@
+a.collapsible_search_toolbar_button {
+    border-width: 2px;
+    border-style: solid;
+    border-color: #B0BAC3 #777777 #777777 #B0BAC3;
+    background-color: #ECEFF1;
+    border-radius: 4px 4px 4px 4px;
+}
+
+a.collapsible_search_toolbar_button.down {
+    border-color: #777777 #B0BAC3 #B0BAC3 #777777;
+    background-color: #DFE5EC;
+}

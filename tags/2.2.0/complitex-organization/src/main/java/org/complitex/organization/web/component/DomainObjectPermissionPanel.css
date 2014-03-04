@@ -1,0 +1,6 @@
+.permissions_fieldset fieldset.collapsible_fs > legend .fs_title {
+    font-size: 13px;
+}
+.permission_mode label {
+    margin-right: 12px;
+}

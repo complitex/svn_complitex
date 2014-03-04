@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.complitex.address.strategy.street.Street">
+
+    <select id="find" resultMap="org.complitex.dictionary.entity.DomainObject.DomainObject" parameterType="DomainObjectExample">
+        SELECT e.* FROM `street` e WHERE
+        <include refid="org.complitex.address.strategy.street.Street.streetFilter"/>
+        <include refid="org.complitex.dictionary.entity.DomainObject.orderBy"/>
+        <include refid="org.complitex.dictionary.entity.DomainObject.limit"/>
+    </select>
+    
+    <sql id="streetFilter">
+        <include refid="org.complitex.dictionary.entity.DomainObject.statusFilter"/>
+        <include refid="org.complitex.dictionary.entity.DomainObject.permissionFilter"/>
+        <include refid="org.complitex.dictionary.entity.DomainObject.filter"/>
+        
+        <if test="additionalParams != null and additionalParams['district'] != null">
+            AND (EXISTS(
+                    SELECT 1 FROM `building` b
+                        JOIN `building_attribute` district_attr ON (b.`object_id` = district_attr.`object_id` AND district_attr.`status` = 'ACTIVE' AND district_attr.`attribute_type_id` = 500
+                            AND district_attr.`value_id` = #{additionalParams.district})
+                        JOIN `building_address` addr ON (b.`parent_id` = addr.`object_id` AND addr.`parent_entity_id` = 300)
+                    WHERE b.`status` IN ('ACTIVE', 'INACTIVE') AND addr.`parent_id` = e.`object_id`
+                    )
+                 OR
+                 EXISTS(
+                    SELECT 1 FROM `building` b
+                        JOIN `building_address` addr ON (addr.`status` IN ('ACTIVE', 'INACTIVE') AND addr.`parent_entity_id` = 300)
+                        JOIN `building_attribute` district_attr ON (b.`object_id` = district_attr.`object_id` AND district_attr.`status` = 'ACTIVE' AND district_attr.`attribute_type_id` = 500
+                            AND district_attr.`value_id` = #{additionalParams.district})
+                        JOIN `building_attribute` ref_attr ON (b.`object_id` = ref_attr.`object_id` AND ref_attr.`status` = 'ACTIVE' AND ref_attr.`attribute_type_id` = 501
+                            AND ref_attr.`value_id` = addr.`object_id`)
+                    WHERE b.`status` IN ('ACTIVE', 'INACTIVE') AND addr.`parent_id` = e.`object_id`
+                    )
+            )
+        </if>
+    </sql>
+
+    <select id="count" resultType="integer" parameterType="DomainObjectExample">
+        SELECT COUNT(1) FROM `street` e WHERE
+        <include refid="org.complitex.address.strategy.street.Street.streetFilter"/>
+    </select>
+
+    <!-- Validation -->
+
+    <!-- Default validation -->
+    <select id="defaultValidation" resultType="long" parameterType="map">
+        SELECT DISTINCT s.`object_id` FROM `street` s
+                                    JOIN `street_attribute` a_name ON (s.`object_id` = a_name.`object_id` AND a_name.`status` = 'ACTIVE'
+                                        AND a_name.`attribute_type_id` = ${streetNameAT})
+                                    JOIN `street_attribute` a_type ON (s.`object_id` = a_type.`object_id` AND a_type.`status` = 'ACTIVE'
+                                        AND a_type.`attribute_type_id` = ${streetTypeAT})
+                                    JOIN `street_string_culture` sc ON (a_name.`value_id` = sc.`id` AND sc.`locale_id` = ${localeId})
+            WHERE (s.`status` IN ('ACTIVE', 'INACTIVE'))  
+                AND sc.`value` = #{text} AND a_type.`value_id` = #{streetTypeId}
+            <choose>
+                <when test="parentEntityId != null and parentId != null">
+                    AND s.`parent_entity_id` = #{parentEntityId} AND s.`parent_id` = #{parentId}
+                </when>
+                <otherwise>
+                    AND s.`parent_entity_id` IS NULL AND s.`parent_id` IS NULL
+                </otherwise>
+            </choose>
+    </select>
+
+    <select id="selectStreetObjectIds" parameterType="map" resultType="long">
+        select distinct s.`object_id` from `street` s
+          join `street_attribute` a_st on (a_st.`status` = 'ACTIVE'
+            and s.`object_id` = a_st.`object_id` and a_st.`value_type_id` = 301)
+          join `street_attribute` a on (a.`status` = 'ACTIVE'
+            and s.`object_id` = a.`object_id` and a.`value_type_id` = 300)
+          join `street_string_culture` sc on (sc.`id` = a.`value_id`)
+        where s.`status` = 'ACTIVE' and s.`parent_entity_id` = 400
+          <if test="cityObjectId != null">and s.`parent_id` = #{cityObjectId}</if>
+          <if test="streetTypeObjectId != null">and a_st.`value_id` = #{streetTypeObjectId}</if>
+          <if test="streetName != null">and sc.`value` = #{streetName}</if>
+    </select>
+
+    <select id="selectStreetObjectIdsByDistrict" parameterType="map" resultType="long">
+        select distinct s.`object_id` from `street` s
+          join `street_attribute` street_attr_name on (street_attr_name.`status` = 'ACTIVE'
+            and s.`object_id` = street_attr_name.`object_id` and street_attr_name.`attribute_type_id` = 300)
+          join `street_string_culture` street_name on (street_name.`id` = street_attr_name.`value_id`)
+        where s.`status` = 'ACTIVE' and s.`parent_entity_id` = 400
+          and s.`parent_id` = #{cityId} and street_name.`value` = #{street}
+          and exists(
+            select 1 from `building_address` addr
+              join `building` b on (b.`status` = 'ACTIVE' and ((b.`parent_id` = addr.`object_id` and b.`parent_entity_id` = 1500)
+                or exists(select 1 from `building_attribute` ba where ba.`object_id` = b.`object_id` and ba.`status` = 'ACTIVE'
+                  and ba.`attribute_type_id` = 501 and ba.`value_id` = addr.`object_id`)))
+              join `building_attribute` dstr on (dstr.`status` = 'ACTIVE' and dstr.`object_id` = b.`object_id`)
+              join `organization_attribute` oa on (oa.`status` = 'ACTIVE' and oa.`object_id` = #{osznId}
+                and oa.`attribute_type_id` = 902)
+            where addr.`status` = 'ACTIVE' and addr.`parent_id` = s.`object_id` and addr.`parent_entity_id` = 300
+              and dstr.`value_id` = oa.`value_id` )
+    </select>
+
+    <select id="selectStreetObjectIdsByBuilding" parameterType="map" resultType="long">
+        SELECT DISTINCT s.`object_id`
+        FROM `street` s
+        JOIN `street_attribute` street_attr_name ON (street_attr_name.`status` = 'ACTIVE' AND s.`object_id` = street_attr_name.`object_id`
+        AND street_attr_name.`attribute_type_id` = 300)
+        JOIN `street_string_culture` street_name ON (street_name.`id` = street_attr_name.`value_id` AND
+        street_name.`value` = #{street})
+        JOIN `building_address` addr ON (addr.`status` = 'ACTIVE' AND addr.`parent_id` = s.`object_id` AND addr.`parent_entity_id` = 300)
+        JOIN `building_address_attribute` num_attr ON (num_attr.`status` = 'ACTIVE' AND num_attr.`object_id` = addr.`object_id` AND num_attr.`attribute_type_id` = 1500)
+        JOIN `building_address_string_culture` num ON (num.`id` = num_attr.`value_id` AND num.`value` = #{number})
+        LEFT JOIN `building_address_attribute` corp_attr ON (corp_attr.`status` = 'ACTIVE' AND corp_attr.`object_id` = addr.`object_id` AND corp_attr.`attribute_type_id` = 1501)
+        LEFT JOIN `building_address_string_culture` corp ON (corp.`id` = corp_attr.`value_id`)
+        WHERE s.`status` = 'ACTIVE' AND s.`parent_id` = #{cityId} AND s.`parent_entity_id` = 400
+        AND
+        <choose>
+            <when test="corp == null">
+                corp.`value` IS NULL
+            </when>
+            <otherwise>
+                corp.`value` = #{corp}
+            </otherwise>
+        </choose>
+    </select>
+
+</mapper>
