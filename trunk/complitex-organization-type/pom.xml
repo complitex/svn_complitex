@@ -5,7 +5,7 @@
     <parent>
         <artifactId>complitex</artifactId>
         <groupId>org.complitex</groupId>
-        <version>2.0.3-SNAPSHOT</version>
+        <version>3.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>complitex-organization-type</artifactId>

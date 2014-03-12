@@ -327,7 +327,7 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
         return objects;
     }
 
-    public List<? extends DomainObject> find(DomainObjectExample example, int first, int count){
+    public List<? extends DomainObject> find(DomainObjectExample example, long first, long count){
         example.setStart(first);
         example.setSize(count);
 

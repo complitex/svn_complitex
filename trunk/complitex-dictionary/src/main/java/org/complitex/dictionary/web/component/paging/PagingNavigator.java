@@ -8,7 +8,8 @@ import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigation
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigationLink;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -44,12 +45,12 @@ public class PagingNavigator extends Panel {
 
     private static final int LEFT_OFFSET = 3;
     private static final int RIGHT_OFFSET = 3;
-    private static final List<Integer> SUPPORTED_PAGE_SIZES = Arrays.asList(10, 20, 30, 50, 100);
+    private static final List<Long> SUPPORTED_PAGE_SIZES = Arrays.asList(10L, 20L, 30L, 50L, 100L);
     private DataView<?> dataView;
     private WebMarkupContainer pageBar;
     private Form<Void> newPageForm;
     private WebMarkupContainer allPagesRegion;
-    private IModel<Integer> rowsPerPagePropertyModel;
+    private IModel<Long> rowsPerPagePropertyModel;
     private Component[] toUpdate;
     private List<IPagingNavigatorListener> listeners = new ArrayList<IPagingNavigatorListener>();
 
@@ -66,7 +67,7 @@ public class PagingNavigator extends Panel {
 
     @Override
     public void renderHead(IHeaderResponse response) {
-        response.renderJavaScriptReference(WebCommonResourceInitializer.SCROLL_JS);
+        response.render(JavaScriptHeaderItem.forReference(WebCommonResourceInitializer.SCROLL_JS));
     }
 
     /**
@@ -85,14 +86,14 @@ public class PagingNavigator extends Panel {
         this.dataView = dataView;
         this.toUpdate = toUpdate;
 
-        rowsPerPagePropertyModel = new IModel<Integer>() {
+        rowsPerPagePropertyModel = new IModel<Long>() {
             @Override
-            public Integer getObject() {
+            public Long getObject() {
                 return dataView.getItemsPerPage();
             }
 
             @Override
-            public void setObject(Integer items) {
+            public void setObject(Long items) {
                 dataView.setItemsPerPage(items);
             }
 
@@ -102,9 +103,9 @@ public class PagingNavigator extends Panel {
         };
 
         //retrieve table page size from preferences.
-        Integer rowsPerPage;
+        Long rowsPerPage;
         if (page != null) {
-            rowsPerPage = getSession().getPreferenceInteger(page, PreferenceKey.ROWS_PER_PAGE, SUPPORTED_PAGE_SIZES.get(0));
+            rowsPerPage = getSession().getPreferenceLong(page, PreferenceKey.ROWS_PER_PAGE, SUPPORTED_PAGE_SIZES.get(0));
         } else {
             rowsPerPage = SUPPORTED_PAGE_SIZES.get(0);
         }
@@ -143,14 +144,14 @@ public class PagingNavigator extends Panel {
                 add(new TitleResourceAppender("PagingNavigator.last")));
 
         //navigation before
-        IModel<List<Integer>> navigationBeforeModel = new AbstractReadOnlyModel<List<Integer>>() {
+        IModel<List<Long>> navigationBeforeModel = new AbstractReadOnlyModel<List<Long>>() {
 
             @Override
-            public List<Integer> getObject() {
-                List<Integer> result = new ArrayList<>();
+            public List<Long> getObject() {
+                List<Long> result = new ArrayList<>();
 
-                int currentPage = dataView.getCurrentPage();
-                for (int i = LEFT_OFFSET; i > 0; i--) {
+                long currentPage = dataView.getCurrentPage();
+                for (long i = LEFT_OFFSET; i > 0; i--) {
                     if ((currentPage - i) >= 0) {
                         result.add(currentPage - i);
                     }
@@ -161,13 +162,13 @@ public class PagingNavigator extends Panel {
         pageBar.add(newNavigation("navigationBefore", "pageLinkBefore", "pageNumberBefore", dataView, navigationBeforeModel));
 
         //navigation after
-        IModel<List<Integer>> navigationAfterModel = new AbstractReadOnlyModel<List<Integer>>() {
+        IModel<List<Long>> navigationAfterModel = new AbstractReadOnlyModel<List<Long>>() {
 
             @Override
-            public List<Integer> getObject() {
-                List<Integer> result = new ArrayList<>();
+            public List<Long> getObject() {
+                List<Long> result = new ArrayList<>();
 
-                int currentPage = dataView.getCurrentPage();
+                long currentPage = dataView.getCurrentPage();
                 for (int i = 1; i <= RIGHT_OFFSET; i++) {
                     if ((currentPage + i) < dataView.getPageCount()) {
                         result.add(currentPage + i);
@@ -179,10 +180,10 @@ public class PagingNavigator extends Panel {
         pageBar.add(newNavigation("navigationAfter", "pageLinkAfter", "pageNumberAfter", dataView, navigationAfterModel));
 
         //navigation current
-        IModel<List<Integer>> navigationCurrentModel = new AbstractReadOnlyModel<List<Integer>>() {
+        IModel<List<Long>> navigationCurrentModel = new AbstractReadOnlyModel<List<Long>>() {
 
             @Override
-            public List<Integer> getObject() {
+            public List<Long> getObject() {
                 return Arrays.asList(dataView.getCurrentPage());
             }
         };
@@ -235,22 +236,22 @@ public class PagingNavigator extends Panel {
         pageNavigator.add(newPageForm);
 
         //page size
-        IModel<Integer> pageSizeModel = new Model<Integer>() {
+        IModel<Long> pageSizeModel = new Model<Long>() {
 
             @Override
-            public Integer getObject() {
+            public Long getObject() {
                 return rowsPerPagePropertyModel.getObject();
             }
 
             @Override
-            public void setObject(Integer rowsPerPage) {
+            public void setObject(Long rowsPerPage) {
                 if (page != null) {
                     getSession().putPreference(page, PreferenceKey.ROWS_PER_PAGE, rowsPerPage, true);
                 }
                 rowsPerPagePropertyModel.setObject(rowsPerPage);
             }
         };
-        DropDownChoice<Integer> pageSize = new DropDownChoice<>("pageSize", pageSizeModel, SUPPORTED_PAGE_SIZES);
+        DropDownChoice<Long> pageSize = new DropDownChoice<>("pageSize", pageSizeModel, SUPPORTED_PAGE_SIZES);
         pageSize.setNullValid(false);
 
         pageSize.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -265,10 +266,10 @@ public class PagingNavigator extends Panel {
 
         //all pages region
         allPagesRegion = new WebMarkupContainer("allPagesRegion");
-        Label allPages = new Label("allPages", new AbstractReadOnlyModel<Integer>() {
+        Label allPages = new Label("allPages", new AbstractReadOnlyModel<Long>() {
 
             @Override
-            public Integer getObject() {
+            public Long getObject() {
                 return dataView.getPageCount();
             }
         });
@@ -281,13 +282,13 @@ public class PagingNavigator extends Panel {
         return (DictionaryFwSession) super.getSession();
     }
 
-    protected ListView<Integer> newNavigation(String navigationId, final String pageLinkId, final String pageNumberId,
-                                              final IPageable pageable, IModel<List<Integer>> navigationModel) {
-        return new ListView<Integer>(navigationId, navigationModel) {
+    protected ListView<Long> newNavigation(String navigationId, final String pageLinkId, final String pageNumberId,
+                                              final IPageable pageable, IModel<List<Long>> navigationModel) {
+        return new ListView<Long>(navigationId, navigationModel) {
 
             @Override
-            protected void populateItem(ListItem<Integer> item) {
-                Integer pageIndex = item.getModelObject();
+            protected void populateItem(ListItem<Long> item) {
+                Long pageIndex = item.getModelObject();
                 AbstractLink pageLink = newPagingNavigationLink(pageLinkId, pageable, pageIndex);
                 pageLink.add(new TitlePageNumberAppender(pageIndex));
                 Label pageNumber = new Label(pageNumberId, String.valueOf(pageIndex + 1));
@@ -315,7 +316,7 @@ public class PagingNavigator extends Panel {
             @Override
             public void onClick(AjaxRequestTarget target) {
                 super.onClick(target);
-                appendScrollupJavascript(target);
+                //appendScrollupJavascript(target);
                 updatePageComponents(target);
             }
         };
@@ -342,13 +343,13 @@ public class PagingNavigator extends Panel {
      *            the page to jump to
      * @return the pagenumber link
      */
-    protected AbstractLink newPagingNavigationLink(String id, IPageable pageable, int pageNumber) {
+    protected AbstractLink newPagingNavigationLink(String id, IPageable pageable, long pageNumber) {
         return new AjaxPagingNavigationLink(id, pageable, pageNumber) {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
                 super.onClick(target);
-                appendScrollupJavascript(target);
+                //appendScrollupJavascript(target);
                 updatePageComponents(target);
 
                 //listeners
@@ -413,7 +414,7 @@ public class PagingNavigator extends Panel {
 
         private static final long serialVersionUID = 1L;
         /** page number */
-        private final int page;
+        private final long page;
 
         /**
          * Constructor
@@ -421,13 +422,13 @@ public class PagingNavigator extends Panel {
          * @param page
          *            page number to use as the ${page} var
          */
-        TitlePageNumberAppender(int page) {
+        TitlePageNumberAppender(long page) {
             this.page = page;
         }
 
         @Override
         public void onComponentTag(Component component, ComponentTag tag) {
-            tag.put("title", page + 1);
+            tag.put("title", page + 1 + "");
         }
     }
 }

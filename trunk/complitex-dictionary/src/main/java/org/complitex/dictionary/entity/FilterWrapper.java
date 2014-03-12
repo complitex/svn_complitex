@@ -11,8 +11,8 @@ import java.util.Map;
 public class FilterWrapper<T extends Serializable> implements Serializable{
     private T object;
 
-    private int first = 0;
-    private int count = 0;
+    private long first = 0;
+    private long count = 0;
     private String sortProperty = "id";
     private boolean ascending = false;
 
@@ -34,7 +34,7 @@ public class FilterWrapper<T extends Serializable> implements Serializable{
         this.object = object;
     }
 
-    public FilterWrapper(T object, int first, int count) {
+    public FilterWrapper(T object, long first, long count) {
         this.object = object;
         this.first = first;
         this.count = count;
@@ -44,7 +44,7 @@ public class FilterWrapper<T extends Serializable> implements Serializable{
         return new FilterWrapper<>(object);
     }
 
-    public static <T extends Serializable> FilterWrapper<T> of(T object, int first, int count){
+    public static <T extends Serializable> FilterWrapper<T> of(T object, long first, long count){
         return new FilterWrapper<>(object, first, count);
     }
 
@@ -74,19 +74,19 @@ public class FilterWrapper<T extends Serializable> implements Serializable{
         this.object = object;
     }
 
-    public int getFirst() {
+    public long getFirst() {
         return first;
     }
 
-    public void setFirst(int first) {
+    public void setFirst(long first) {
         this.first = first;
     }
 
-    public int getCount() {
+    public long getCount() {
         return count;
     }
 
-    public void setCount(int count) {
+    public void setCount(long count) {
         this.count = count;
     }
 

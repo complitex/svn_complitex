@@ -51,7 +51,7 @@ public class DistrictSelectPanel extends Panel {
 
         DataProvider<DomainObject> dataProvider = new DataProvider<DomainObject>() {
             @Override
-            protected Iterable<? extends DomainObject> getData(int first, int count) {
+            protected Iterable<? extends DomainObject> getData(long first, long count) {
                 return districtStrategy.find(example, first, count);
             }
 

@@ -1,10 +1,8 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.dictionary.web.component.permission;
 
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.request.resource.PackageResourceReference;
@@ -15,10 +13,7 @@ import org.complitex.dictionary.service.PermissionBean;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.web.component.DisableAwareListMultipleChoice;
 import org.complitex.dictionary.web.component.DomainObjectDisableAwareRenderer;
-import org.odlabs.wiquery.core.IWiQueryPlugin;
 import org.odlabs.wiquery.core.javascript.JsQuery;
-import org.odlabs.wiquery.core.javascript.JsStatement;
-import org.odlabs.wiquery.ui.commons.WiQueryUIPlugin;
 
 import javax.ejb.EJB;
 import java.util.List;
@@ -32,8 +27,7 @@ import static com.google.common.collect.Lists.newArrayList;
  *
  * @author Artem
  */
-@WiQueryUIPlugin
-public class DomainObjectPermissionsPanel extends AbstractDomainObjectPermissionPanel implements IWiQueryPlugin {
+public class DomainObjectPermissionsPanel extends AbstractDomainObjectPermissionPanel {
 
     @EJB(name = "OrganizationStrategy")
     private IOrganizationStrategy organizationStrategy;
@@ -204,16 +198,11 @@ public class DomainObjectPermissionsPanel extends AbstractDomainObjectPermission
 
     @Override
     public void renderHead(IHeaderResponse response) {
-        response.renderJavaScriptReference(
-                new PackageResourceReference(DomainObjectPermissionsPanel.class,
-                DomainObjectPermissionsPanel.class.getSimpleName() + ".js"));
-        response.renderCSSReference(new PackageResourceReference(DomainObjectPermissionsPanel.class,
-                DomainObjectPermissionsPanel.class.getSimpleName() + ".css"));
+        response.render(JavaScriptHeaderItem.forReference(new PackageResourceReference(DomainObjectPermissionsPanel.class,
+                DomainObjectPermissionsPanel.class.getSimpleName() + ".js")));
+        response.render(JavaScriptHeaderItem.forReference(new PackageResourceReference(DomainObjectPermissionsPanel.class,
+                DomainObjectPermissionsPanel.class.getSimpleName() + ".css")));
 
-    }
-
-    @Override
-    public JsStatement statement() {
-        return new JsQuery(this).$().chain("permission_select");
+        response.render(OnDomReadyHeaderItem.forScript(new JsQuery(this).$().chain("permission_select").render()));
     }
 }

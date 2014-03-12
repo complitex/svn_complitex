@@ -1,11 +1,8 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.address.strategy.room.web.edit;
 
 import com.google.common.collect.Lists;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.head.CssHeaderItem;
+import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.PackageResourceReference;
@@ -45,7 +42,8 @@ public class RoomEdit extends DomainObjectEdit {
     @Override
     public void renderHead(IHeaderResponse response) {
         super.renderHead(response);
-        response.renderCSSReference(new PackageResourceReference(RoomEdit.class, RoomEdit.class.getSimpleName() + ".css"));
+
+        response.render(CssHeaderItem.forReference(new PackageResourceReference(RoomEdit.class, RoomEdit.class.getSimpleName() + ".css")));
     }
 
     @Override

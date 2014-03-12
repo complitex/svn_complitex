@@ -18,12 +18,12 @@ import java.util.Iterator;
  * 
  * @author Artem
  */
-public abstract class DataProvider<T extends Serializable> extends SortableDataProvider<T> {
+public abstract class DataProvider<T extends Serializable> extends SortableDataProvider<T, String> {
 
     private Integer size;
 
     @Override
-    public int size() {
+    public long size() {
         if (size == null) {
             size = getSize();
         }
@@ -32,7 +32,7 @@ public abstract class DataProvider<T extends Serializable> extends SortableDataP
 
     @Override
     public IModel<T> model(T object) {
-        return new Model<T>(object);
+        return Model.of(object);
     }
 
     @Override
@@ -42,11 +42,11 @@ public abstract class DataProvider<T extends Serializable> extends SortableDataP
     }
 
     @Override
-    public Iterator<? extends T> iterator(int first, int count) {
+    public Iterator<? extends T> iterator(long first, long count) {
         return getData(first, count).iterator();
     }
 
-    protected abstract Iterable<? extends T> getData(int first, int count);
+    protected abstract Iterable<? extends T> getData(long first, long count);
 
     protected abstract int getSize();
 }

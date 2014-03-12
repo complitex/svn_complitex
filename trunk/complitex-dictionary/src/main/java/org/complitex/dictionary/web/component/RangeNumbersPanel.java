@@ -1,15 +1,8 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.dictionary.web.component;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
@@ -29,7 +22,7 @@ import org.apache.wicket.util.string.Strings;
 import org.apache.wicket.validation.IValidatable;
 import org.apache.wicket.validation.IValidator;
 import org.apache.wicket.validation.ValidationError;
-import org.apache.wicket.validation.validator.MinimumValidator;
+import org.apache.wicket.validation.validator.RangeValidator;
 import org.complitex.dictionary.entity.StringCulture;
 import org.complitex.dictionary.service.LocaleBean;
 import org.complitex.dictionary.service.StringCultureBean;
@@ -37,6 +30,10 @@ import org.complitex.dictionary.strategy.web.DomainObjectEditPanel;
 import org.complitex.dictionary.util.EjbBeanLocator;
 import org.complitex.dictionary.web.component.list.AjaxRemovableListView;
 import org.complitex.dictionary.web.component.type.StringCulturePanel;
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -183,12 +180,12 @@ public class RangeNumbersPanel extends Panel {
         RangePanel(String id, IModel<Range> range) {
             super(id, range);
 
-            fromField = new TextField<Integer>("from", new PropertyModel<Integer>(this, "from"), Integer.class);
-            fromField.add(new MinimumValidator<Integer>(0));
+            fromField = new TextField<>("from", new PropertyModel<Integer>(this, "from"), Integer.class);
+            fromField.add(RangeValidator.minimum(0));
             add(fromField);
 
-            toField = new TextField<Integer>("to", new PropertyModel<Integer>(this, "to"), Integer.class);
-            toField.add(new MinimumValidator<Integer>(0));
+            toField = new TextField<>("to", new PropertyModel<Integer>(this, "to"), Integer.class);
+            toField.add(RangeValidator.minimum(0));
             add(toField);
 
             add(new IValidator<Range>() {
@@ -197,9 +194,9 @@ public class RangeNumbersPanel extends Panel {
                 public void validate(IValidatable<Range> validatable) {
                     final Range range = validatable.getValue();
                     if (range.from == null || range.to == null) {
-                        validatable.error(new ValidationError().addMessageKey("RangeRequiredError"));
+                        validatable.error(new ValidationError().addKey("RangeRequiredError"));
                     } else if (range.from > range.to) {
-                        validatable.error(new ValidationError().addMessageKey("RangeValidationError").
+                        validatable.error(new ValidationError().addKey("RangeValidationError").
                                 setVariable("from", range.from).
                                 setVariable("to", range.to));
                     }
@@ -254,7 +251,7 @@ public class RangeNumbersPanel extends Panel {
 
                 Component number;
                 if (entry.number != null) {
-                    number = new NumberPanel(NUMBER_CONTAINER_ID, new ListModel<StringCulture>(entry.number), labelModel);
+                    number = new NumberPanel(NUMBER_CONTAINER_ID, new ListModel<>(entry.number), labelModel);
                 } else {
                     number = new EmptyPanel(NUMBER_CONTAINER_ID);
                 }

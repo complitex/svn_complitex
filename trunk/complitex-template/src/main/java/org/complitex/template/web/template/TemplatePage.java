@@ -4,7 +4,9 @@ import com.google.common.collect.ImmutableList;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.head.CssHeaderItem;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
@@ -28,7 +30,6 @@ import org.complitex.template.web.component.MainUserOrganizationPickerFactory;
 import org.complitex.template.web.component.toolbar.HelpButton;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
 import org.complitex.template.web.security.SecurityRole;
-import org.odlabs.wiquery.core.resources.CoreJavaScriptResourceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,10 +58,14 @@ public abstract class TemplatePage extends WebPage {
 
     @Override
     public void renderHead(IHeaderResponse response) {
-        response.renderJavaScriptReference(new TemplateApplicationCommonResourceGroup(
-                CoreJavaScriptResourceReference.get(), WebCommonResourceInitializer.COMMON_JS,
-                new PackageResourceReference(TemplatePage.class, TemplatePage.class.getSimpleName() + ".js"),
-                WebCommonResourceInitializer.STYLE_CSS));
+        response.render(JavaScriptHeaderItem.forReference(WebCommonResourceInitializer.COMMON_JS));
+        response.render(JavaScriptHeaderItem.forReference(new PackageResourceReference(TemplatePage.class,
+                TemplatePage.class.getSimpleName() + ".js")));
+
+//        response.render(JavaScriptHeaderItem.forReference(CoreUIJavaScriptResourceReference.get()));
+//        response.render(JavaScriptHeaderItem.forReference(WidgetJavaScriptResourceReference.get()));
+
+        response.render(CssHeaderItem.forReference(WebCommonResourceInitializer.STYLE_CSS));
     }
 
     protected TemplatePage() {

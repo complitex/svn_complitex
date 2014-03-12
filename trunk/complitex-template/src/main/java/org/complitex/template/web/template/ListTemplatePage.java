@@ -120,7 +120,7 @@ public abstract class ListTemplatePage<T extends ILongId> extends TemplatePage{
         //Data Provider
         final DataProvider<T> dataProvider = new DataProvider<T>() {
             @Override
-            protected Iterable<T> getData(int first, int count) {
+            protected Iterable<T> getData(long first, long count) {
                 FilterWrapper<T> filterWrapper = filterModel.getObject();
 
                 filterWrapper.setFirst(first);

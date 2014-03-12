@@ -1,26 +1,22 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.dictionary.web.component.datatable.wicket;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
-import org.apache.wicket.IClusterable;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.ISortState;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.ISortStateLocator;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.OrderByLink;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.AbstractReadOnlyModel;
+import org.apache.wicket.util.io.IClusterable;
 import org.apache.wicket.util.string.Strings;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.apache.wicket.extensions.markup.html.repeater.data.sort.OrderByLink;
-import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 
 /**
  *
@@ -288,10 +284,6 @@ public class EnhancedOrderByLink extends AjaxLink<Void> {
             this.none = none;
         }
 
-        /**
-         * @see org.apache.wicket.extensions.markup.html.repeater.data.sort.OrderByLink.ICssProvider#getClassAttributeValue(org.apache.wicket.extensions.markup.html.repeater.data.sort.ISortState,
-         *      java.lang.String)
-         */
         @Override
         public String getClassAttributeValue(final ISortState state, final String property) {
             SortOrder dir = state.getPropertySortOrder(property);

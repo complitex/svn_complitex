@@ -1,10 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.dictionary.util;
 
-import org.apache.wicket.util.lang.WicketObjects;
+
+import org.apache.wicket.core.util.lang.WicketObjects;
 
 /**
  *
@@ -12,9 +9,7 @@ import org.apache.wicket.util.lang.WicketObjects;
  */
 public final class CloneUtil {
 
-    private CloneUtil() {
-    }
-
+    @SuppressWarnings("unchecked")
     public static <T> T cloneObject(T object) {
         return (T) WicketObjects.cloneObject(object);
     }

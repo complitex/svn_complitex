@@ -27,10 +27,6 @@ public final class WebCommonResourceInitializer implements IInitializer {
     public static final String IE_SELECT_FIX_RESOURCE_NAME = "js/ie_select_fix.js";
     public static final ResourceReference IE_SELECT_FIX_JS = newResourceReference(IE_SELECT_FIX_RESOURCE_NAME);
 
-    private static final String HIGHLIGHT_RELATIVE_PATH = "js/jquery-ui-1.7.3.highlight.min.js";
-    public static final String HIGHLIHT_RESOURCE_NAME = "js/jquery-ui-1.7.3.highlight.min.js";
-    public static final ResourceReference HIGHLIGHT_JS = newResourceReference(HIGHLIHT_RESOURCE_NAME);
-
     private static final String SCROLL_RELATIVE_PATH = "js/jquery.scrollTo-1.4.2-min.js";
     public static final String SCROLL_RESOURCE_NAME = "js/jquery.scrollTo-1.4.2-min.js";
     public static final ResourceReference SCROLL_JS = newResourceReference(SCROLL_RESOURCE_NAME);
@@ -45,7 +41,6 @@ public final class WebCommonResourceInitializer implements IInitializer {
         sharedResources.add(STYLE_RESOURCE_NAME, new PackageResourceReference(getClass(), STYLE_RELATIVE_PATH).getResource());
         sharedResources.add(COMMON_RESOURCE_NAME, new PackageResourceReference(getClass(), COMMON_RELATIVE_PATH).getResource());
         sharedResources.add(IE_SELECT_FIX_RESOURCE_NAME, new PackageResourceReference(getClass(), IE_SELECT_FIX_RELATIVE_PATH).getResource());
-        sharedResources.add(HIGHLIHT_RESOURCE_NAME, new PackageResourceReference(getClass(), HIGHLIGHT_RELATIVE_PATH).getResource());
         sharedResources.add(SCROLL_RESOURCE_NAME, new PackageResourceReference(getClass(), SCROLL_RELATIVE_PATH).getResource());
         sharedResources.add(PLACEHOLDER_RESOURCE_NAME, new PackageResourceReference(getClass(), PLACEHOLDER_RELATIVE_PATH).getResource());
     }

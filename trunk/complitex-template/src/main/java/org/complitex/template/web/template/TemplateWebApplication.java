@@ -5,14 +5,11 @@ import org.apache.wicket.Component;
 import org.apache.wicket.IApplicationListener;
 import org.apache.wicket.Session;
 import org.apache.wicket.application.IClassResolver;
-import org.apache.wicket.markup.html.IHeaderResponse;
-import org.apache.wicket.markup.html.IHeaderResponseDecorator;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.request.Request;
 import org.apache.wicket.request.Response;
-import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.entity.Preference;
 import org.complitex.dictionary.mybatis.inject.JavaEE6ModuleNamingStrategy;
@@ -44,7 +41,7 @@ import org.complitex.template.web.pages.expired.SessionExpiredPage;
 import org.complitex.template.web.pages.welcome.WelcomePage;
 import org.complitex.template.web.security.ServletAuthWebApplication;
 import org.complitex.template.web.template.TemplateWebComponentResolver.TemplateWebComponentResolverBuilder;
-import org.odlabs.wiquery.ui.themes.IThemableApplication;
+import org.odlabs.wiquery.ui.themes.WiQueryCoreThemeResourceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wicketstuff.javaee.injection.JavaEEComponentInjector;
@@ -59,7 +56,7 @@ import java.util.*;
  *         Date: 22.07.2010 18:36:29
  */
 public abstract class TemplateWebApplication extends ServletAuthWebApplication
-        implements IThemableApplication, IWebComponentResolvableApplication {
+        implements IWebComponentResolvableApplication {
 
     private final Logger log = LoggerFactory.getLogger(TemplateWebApplication.class);
     private static final String TEMPLATE_CONFIG_FILE_NAME = "template-config.xml";
@@ -81,12 +78,6 @@ public abstract class TemplateWebApplication extends ServletAuthWebApplication
 
             @Override
             public void onAfterInitialized(Application application) {
-                application.setHeaderResponseDecorator(new IHeaderResponseDecorator() {
-
-                    public IHeaderResponse decorate(IHeaderResponse response) {
-                        return new TemplateApplicationDecoratingHeaderResponse(response);
-                    }
-                });
 
                 application.getPageSettings().addComponentResolver(new WicketStaticImageResolver());
             }
@@ -95,11 +86,8 @@ public abstract class TemplateWebApplication extends ServletAuthWebApplication
             public void onBeforeDestroyed(Application application) {
             }
         });
-    }
 
-    @Override
-    public ResourceReference getTheme(Session session) {
-        return theme;
+        addResourceReplacement(WiQueryCoreThemeResourceReference.get(), theme);
     }
 
     private void initializeTemplateConfig() throws RuntimeException {

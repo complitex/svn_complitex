@@ -15,11 +15,11 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.util.visit.IVisit;
+import org.apache.wicket.util.visit.IVisitor;
 
 import java.io.Serializable;
 import java.util.List;
-import org.apache.wicket.util.visit.IVisit;
-import org.apache.wicket.util.visit.IVisitor;
 
 /**
  *
@@ -152,10 +152,10 @@ public abstract class AjaxRemovableListView<T extends Serializable> extends List
     }
 
     protected final ListItem<T> getCurrentItem(Component component) {
-        return component.visitParents(ListItem.class, new IVisitor<Component, ListItem<T>>() {
+        return component.visitParents(ListItem.class, new IVisitor<ListItem, ListItem<T>>() {
 
             @Override
-            public void component(Component object, IVisit<ListItem<T>> visit) {
+            public void component(ListItem object, IVisit<ListItem<T>> visit) {
                 visit.stop((ListItem<T>) object);
             }
         });

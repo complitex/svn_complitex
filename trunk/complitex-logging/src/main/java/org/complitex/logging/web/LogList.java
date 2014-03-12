@@ -3,7 +3,8 @@ package org.complitex.logging.web;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.datetime.markup.html.basic.DateLabel;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
@@ -57,7 +58,8 @@ public class LogList extends TemplatePage {
     @Override
     public void renderHead(IHeaderResponse response) {
         super.renderHead(response);
-        response.renderJavaScriptReference(WebCommonResourceInitializer.IE_SELECT_FIX_JS);
+
+        response.render(JavaScriptHeaderItem.forReference(WebCommonResourceInitializer.IE_SELECT_FIX_JS));
     }
 
     private void init() {
@@ -179,7 +181,7 @@ public class LogList extends TemplatePage {
         final DataProvider<Log> dataProvider = new DataProvider<Log>() {
 
             @Override
-            protected Iterable<? extends Log> getData(int first, int count) {
+            protected Iterable<? extends Log> getData(long first, long count) {
                 LogFilter filter = filterModel.getObject();
                 filter.setFirst(first);
                 filter.setCount(count);

@@ -180,11 +180,11 @@ public class DomainObjectInputPanel extends Panel {
                         DomainObject parent = getModelObject(entity);
                         if (parent != null && parent.getId() != null && parent.getId() > 0) {
                             DomainObjectEditPanel editPanel = visitParents(DomainObjectEditPanel.class,
-                                    new IVisitor<Component, DomainObjectEditPanel>() {
+                                    new IVisitor<DomainObjectEditPanel, DomainObjectEditPanel>() {
 
                                         @Override
-                                        public void component(Component object, IVisit<DomainObjectEditPanel> visit) {
-                                            visit.stop((DomainObjectEditPanel) object);
+                                        public void component(DomainObjectEditPanel object, IVisit<DomainObjectEditPanel> visit) {
+                                            visit.stop(object);
                                         }
                                     });
                             editPanel.updateParentPermissions(target, parent.getSubjectIds());

@@ -6,7 +6,9 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.head.CssHeaderItem;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.*;
@@ -56,10 +58,10 @@ public class OrganizationPicker extends FormComponentPanel<DomainObject> {
 
     @Override
     public void renderHead(IHeaderResponse response) {
-        response.renderCSSReference(new PackageResourceReference(
-                OrganizationPicker.class, OrganizationPicker.class.getSimpleName() + ".css"));
-        response.renderJavaScriptReference(new PackageResourceReference(
-                OrganizationPicker.class, OrganizationPicker.class.getSimpleName() + ".js"));
+        response.render(CssHeaderItem.forReference(new PackageResourceReference(
+                OrganizationPicker.class, OrganizationPicker.class.getSimpleName() + ".css")));
+        response.render(JavaScriptHeaderItem.forReference(new PackageResourceReference(
+                OrganizationPicker.class, OrganizationPicker.class.getSimpleName() + ".js")));
     }
 
     public OrganizationPicker(String id, final IModel<String> model, final Long organizationTypeId) {
@@ -141,7 +143,7 @@ public class OrganizationPicker extends FormComponentPanel<DomainObject> {
         final DataProvider<DomainObject> dataProvider = new DataProvider<DomainObject>() {
 
             @Override
-            protected Iterable<? extends DomainObject> getData(int first, int count) {
+            protected Iterable<? extends DomainObject> getData(long first, long count) {
                 if (!showData) {
                     return Collections.emptyList();
                 }
