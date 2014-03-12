@@ -20,8 +20,8 @@ import java.util.Map;
 public class DomainObjectExample implements Serializable {
 
     private String table;
-    private int start;
-    private int size;
+    private long start;
+    private long size;
     private Long localeId;
     private Long orderByAttributeTypeId;
     private boolean orderByNumber;
@@ -50,19 +50,19 @@ public class DomainObjectExample implements Serializable {
         this.id = id;
     }
 
-    public int getSize() {
+    public long getSize() {
         return size;
     }
 
-    public void setSize(int size) {
+    public void setSize(long size) {
         this.size = size;
     }
 
-    public int getStart() {
+    public long getStart() {
         return start;
     }
 
-    public void setStart(int start) {
+    public void setStart(long start) {
         this.start = start;
     }
 

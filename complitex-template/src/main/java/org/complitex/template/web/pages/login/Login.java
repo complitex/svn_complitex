@@ -1,6 +1,8 @@
 package org.complitex.template.web.pages.login;
 
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.head.CssHeaderItem;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
@@ -8,7 +10,6 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.PackageResourceReference;
 import org.complitex.resources.WebCommonResourceInitializer;
-import org.odlabs.wiquery.core.resources.CoreJavaScriptResourceReference;
 
 
 /**
@@ -36,10 +37,12 @@ public final class Login extends WebPage {
     @Override
     public void renderHead(IHeaderResponse response) {
         super.renderHead(response);
-        response.renderJavaScriptReference(CoreJavaScriptResourceReference.get());
-        response.renderJavaScriptReference(WebCommonResourceInitializer.COMMON_JS);
-        response.renderJavaScriptReference(new PackageResourceReference(Login.class, Login.class.getSimpleName() + ".js"));
-        response.renderCSSReference(WebCommonResourceInitializer.STYLE_CSS);
+
+        response.render(JavaScriptHeaderItem.forReference(WebCommonResourceInitializer.COMMON_JS));
+        response.render(JavaScriptHeaderItem.forReference(new PackageResourceReference(Login.class,
+                Login.class.getSimpleName() + ".js")));
+
+        response.render(CssHeaderItem.forReference(WebCommonResourceInitializer.STYLE_CSS));
     }
 }
 

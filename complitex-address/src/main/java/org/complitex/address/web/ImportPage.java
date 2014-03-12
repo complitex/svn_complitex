@@ -134,7 +134,8 @@ public class ImportPage extends TemplatePage {
                     if (importService.isSuccess()) {
                         info(getString("success"));
                     }
-                    stop();
+
+                    stop(target);
                 }
             }
         };

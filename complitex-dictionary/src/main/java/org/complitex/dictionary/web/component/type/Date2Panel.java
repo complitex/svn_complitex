@@ -4,7 +4,6 @@
  */
 package org.complitex.dictionary.web.component.type;
 
-import java.util.Date;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.form.FormComponentPanel;
 import org.apache.wicket.model.AbstractReadOnlyModel;
@@ -14,11 +13,12 @@ import org.apache.wicket.util.lang.Classes;
 import org.apache.wicket.util.string.Strings;
 import org.apache.wicket.validation.IValidationError;
 import org.apache.wicket.validation.ValidationError;
-import org.apache.wicket.validation.validator.MaximumValidator;
-import org.apache.wicket.validation.validator.MinimumValidator;
+import org.apache.wicket.validation.validator.RangeValidator;
 import org.complitex.dictionary.util.DateUtil;
 import org.complitex.dictionary.web.component.MonthDropDownChoice;
 import org.complitex.dictionary.web.component.hint.HintTextFieldPanel;
+
+import java.util.Date;
 
 /**
  *
@@ -48,7 +48,7 @@ public final class Date2Panel extends FormComponentPanel<Date> {
                         return getString("day.placeholder");
                     }
                 }, Date2Panel.class.getSimpleName() + ".day");
-        dayField.getTextField().setLabel(labelModel).add(new MinimumValidator<Integer>(1)).add(new MaximumValidator<Integer>(31)).
+        dayField.getTextField().setLabel(labelModel).add(RangeValidator.minimum(1)).add(RangeValidator.maximum(31)).
                 add(AttributeModifier.replace("size", String.valueOf(2))).
                 add(AttributeModifier.replace("maxlength", String.valueOf(2)));
         add(dayField);
@@ -71,7 +71,7 @@ public final class Date2Panel extends FormComponentPanel<Date> {
                         return getString("year.placeholder");
                     }
                 }, Date2Panel.class.getSimpleName() + ".year");
-        yearField.getTextField().setLabel(labelModel).add(new MinimumValidator<Integer>(1900)).
+        yearField.getTextField().setLabel(labelModel).add(RangeValidator.minimum(1900)).
                 add(AttributeModifier.replace("size", String.valueOf(4))).
                 add(AttributeModifier.replace("maxlength", String.valueOf(4)));
         add(yearField);

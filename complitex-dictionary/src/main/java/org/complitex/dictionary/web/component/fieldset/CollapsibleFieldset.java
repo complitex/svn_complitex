@@ -1,13 +1,12 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.dictionary.web.component.fieldset;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.head.CssHeaderItem;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.border.Border;
@@ -15,17 +14,13 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.resource.PackageResourceReference;
 import org.complitex.dictionary.web.component.css.CssAttributeBehavior;
-import org.odlabs.wiquery.core.IWiQueryPlugin;
 import org.odlabs.wiquery.core.javascript.JsQuery;
-import org.odlabs.wiquery.core.javascript.JsStatement;
-import org.odlabs.wiquery.ui.commons.WiQueryUIPlugin;
 
 /**
  *
  * @author Artem
  */
-@WiQueryUIPlugin
-public class CollapsibleFieldset extends Border implements IWiQueryPlugin {
+public class CollapsibleFieldset extends Border {
 
     public static final String TITLE_COMPONENT_ID = "collapsibleFieldsetTitle";
 
@@ -97,14 +92,11 @@ public class CollapsibleFieldset extends Border implements IWiQueryPlugin {
 
     @Override
     public void renderHead(IHeaderResponse response) {
-        response.renderJavaScriptReference(new PackageResourceReference(CollapsibleFieldset.class,
-                CollapsibleFieldset.class.getSimpleName() + ".js"));
-        response.renderCSSReference(new PackageResourceReference(CollapsibleFieldset.class,
-                CollapsibleFieldset.class.getSimpleName() + ".css"));
-    }
+        response.render(JavaScriptHeaderItem.forReference(new PackageResourceReference(CollapsibleFieldset.class,
+                CollapsibleFieldset.class.getSimpleName() + ".js")));
+        response.render(CssHeaderItem.forReference(new PackageResourceReference(CollapsibleFieldset.class,
+                CollapsibleFieldset.class.getSimpleName() + ".css")));
 
-    @Override
-    public JsStatement statement() {
-        return new JsQuery(this).$().chain("collapsible_fieldset");
+        response.render(OnDomReadyHeaderItem.forScript(new JsQuery(this).$().chain("collapsible_fieldset").render()));
     }
 }

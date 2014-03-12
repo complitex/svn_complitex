@@ -1,12 +1,8 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.dictionary.web.component.hint;
 
-import java.text.MessageFormat;
 import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -14,6 +10,8 @@ import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.resources.WebCommonResourceInitializer;
+
+import java.text.MessageFormat;
 
 /**
  *
@@ -41,7 +39,7 @@ public final class HintTextFieldPanel<T> extends Panel {
 
     @Override
     public void renderHead(IHeaderResponse response) {
-        response.renderJavaScriptReference(WebCommonResourceInitializer.PLACEHOLDER_JS);
+        response.render(JavaScriptHeaderItem.forReference(WebCommonResourceInitializer.PLACEHOLDER_JS));
     }
 
     private void init(IModel<T> model, Class<T> type, final IModel<String> placeholderModel, final String textFieldValidatorKeyPrefix) {

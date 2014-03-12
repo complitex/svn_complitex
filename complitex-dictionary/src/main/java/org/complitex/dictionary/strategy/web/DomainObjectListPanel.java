@@ -159,7 +159,7 @@ public final class DomainObjectListPanel extends Panel {
         final DataProvider<DomainObject> dataProvider = new DataProvider<DomainObject>() {
 
             @Override
-            protected Iterable<? extends DomainObject> getData(int first, int count) {
+            protected Iterable<? extends DomainObject> getData(long first, long count) {
                 //store preference, but before clear data order related properties.
                 {
                     example.setAsc(false);

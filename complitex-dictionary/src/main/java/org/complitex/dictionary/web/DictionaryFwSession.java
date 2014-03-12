@@ -104,7 +104,7 @@ public class DictionaryFwSession extends WebSession {
         putPreference(page, key.name(), value, null, store);
     }
 
-    public void putPreference(String page, Enum key, Integer value, boolean store) {
+    public void putPreference(String page, Enum key, Number value, boolean store) {
         putPreference(page, key.name(), value != null ? value.toString() : null, null, store);
     }
 
@@ -202,6 +202,10 @@ public class DictionaryFwSession extends WebSession {
 
     public Integer getPreferenceInteger(String page, Enum key, Integer _default) {
         return getNotNullOrDefault(getPreferenceInteger(page, key.name()), _default);
+    }
+
+    public Long getPreferenceLong(String page, Enum key, Long _default) {
+        return getNotNullOrDefault(getPreferenceLong(page, key.name()), _default);
     }
 
     public Boolean getPreferenceBoolean(String page, Enum key, Boolean _default) {

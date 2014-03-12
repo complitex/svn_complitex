@@ -1,11 +1,9 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.template.web.component.toolbar.search;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.head.CssHeaderItem;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.request.resource.PackageResourceReference;
 import org.apache.wicket.request.resource.SharedResourceReference;
 import org.complitex.dictionary.web.component.search.CollapsibleSearchPanel;
@@ -26,10 +24,10 @@ public class CollapsibleSearchToolbarButton extends ToolbarButton {
 
     @Override
     public void renderHead(IHeaderResponse response) {
-        response.renderCSSReference(new PackageResourceReference(CollapsibleSearchToolbarButton.class,
-                CollapsibleSearchToolbarButton.class.getSimpleName() + ".css"));
-        response.renderJavaScriptReference(new PackageResourceReference(CollapsibleSearchToolbarButton.class,
-                CollapsibleSearchToolbarButton.class.getSimpleName() + ".js"));
+        response.render(CssHeaderItem.forReference(new PackageResourceReference(CollapsibleSearchToolbarButton.class,
+                CollapsibleSearchToolbarButton.class.getSimpleName() + ".css")));
+        response.render(JavaScriptHeaderItem.forReference(new PackageResourceReference(CollapsibleSearchToolbarButton.class,
+                CollapsibleSearchToolbarButton.class.getSimpleName() + ".js")));
     }
 
     @Override

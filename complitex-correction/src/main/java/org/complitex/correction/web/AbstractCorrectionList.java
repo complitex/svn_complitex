@@ -9,7 +9,8 @@ import org.apache.wicket.authroles.authorization.strategies.role.annotations.Aut
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.head.CssHeaderItem;
+import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
@@ -79,8 +80,8 @@ public abstract class AbstractCorrectionList<T extends Correction> extends Scrol
     @Override
     public void renderHead(IHeaderResponse response) {
         super.renderHead(response);
-        response.renderCSSReference(new PackageResourceReference(AbstractCorrectionList.class,
-                AbstractCorrectionList.class.getSimpleName() + ".css"));
+        response.render(CssHeaderItem.forReference(new PackageResourceReference(AbstractCorrectionList.class,
+                AbstractCorrectionList.class.getSimpleName() + ".css")));
     }
 
     protected String getEntity() {
@@ -152,7 +153,7 @@ public abstract class AbstractCorrectionList<T extends Correction> extends Scrol
         final DataProvider<T> dataProvider = new DataProvider<T>() {
 
             @Override
-            protected Iterable<T> getData(int first, int count) {
+            protected Iterable<T> getData(long first, long count) {
                 //store preference, but before clear data order related properties.
                 {
                     filterWrapper.setAscending(false);
@@ -172,7 +173,7 @@ public abstract class AbstractCorrectionList<T extends Correction> extends Scrol
 
             @Override
             protected int getSize() {
-                int limitCount = filterWrapper.getCount();
+                long limitCount = filterWrapper.getCount();
                 filterWrapper.setCount(0);
 
                 int count = getCorrectionsCount(filterWrapper);

@@ -115,7 +115,7 @@ public class BuildingList extends ScrollListPage {
         final DataProvider<Building> dataProvider = new DataProvider<Building>() {
 
             @Override
-            protected Iterable<? extends Building> getData(int first, int count) {
+            protected Iterable<? extends Building> getData(long first, long count) {
                 //store preference, but before clear data order related properties.
                 {
                     example.setAsc(false);

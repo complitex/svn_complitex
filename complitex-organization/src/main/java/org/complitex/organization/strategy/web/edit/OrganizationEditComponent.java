@@ -6,7 +6,8 @@ import com.google.common.collect.Sets;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.head.CssHeaderItem;
+import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -62,8 +63,9 @@ public class OrganizationEditComponent extends AbstractComplexAttributesPanel {
     @Override
     public void renderHead(IHeaderResponse response) {
         super.renderHead(response);
-        response.renderCSSReference(new PackageResourceReference(OrganizationEditComponent.class,
-                OrganizationEditComponent.class.getSimpleName() + ".css"));
+
+        response.render(CssHeaderItem.forReference(new PackageResourceReference(OrganizationEditComponent.class,
+                OrganizationEditComponent.class.getSimpleName() + ".css")));
     }
 
     protected boolean isNew() {

@@ -5,14 +5,15 @@
 package org.complitex.dictionary.web.component.permission.organization;
 
 import com.google.common.collect.Maps;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.request.resource.PackageResourceReference;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.web.component.permission.DomainObjectPermissionsPanel;
-import org.odlabs.wiquery.core.javascript.JsStatement;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -49,12 +50,7 @@ public class OrganizationPermissionsPanel extends DomainObjectPermissionsPanel {
     @Override
     public void renderHead(IHeaderResponse response) {
         super.renderHead(response);
-        response.renderJavaScriptReference(new PackageResourceReference(
-                OrganizationPermissionsPanel.class, OrganizationPermissionsPanel.class.getSimpleName() + ".js"));
-    }
-
-    @Override
-    public JsStatement statement() {
-        return super.statement().chain("organization_permission_select");
+        response.render(JavaScriptHeaderItem.forReference(new PackageResourceReference(
+                OrganizationPermissionsPanel.class, OrganizationPermissionsPanel.class.getSimpleName() + ".js")));
     }
 }

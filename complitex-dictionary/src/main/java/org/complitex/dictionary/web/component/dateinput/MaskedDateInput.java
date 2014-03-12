@@ -1,14 +1,11 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.dictionary.web.component.dateinput;
 
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.head.CssHeaderItem;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.request.resource.PackageResourceReference;
 import org.complitex.dictionary.web.component.DatePicker;
-import org.odlabs.wiquery.core.javascript.JsStatement;
 import org.odlabs.wiquery.ui.datepicker.DateOption;
 
 import java.util.Date;
@@ -84,23 +81,26 @@ public class MaskedDateInput extends DatePicker<Date> {
         options.detach();
     }
 
-    @Override
-    public JsStatement statement() {
-        return super.statement().chain("mask_dateinput", options.getOptions().getJavaScriptOptions());
-    }
+
 
     @Override
     public void renderHead(IHeaderResponse response) {
         super.renderHead(response);
 
-        response.renderJavaScriptReference(new PackageResourceReference(MaskedDateInput.class, "jquery.masked_dateinput.js"));
+        response.render(JavaScriptHeaderItem.forReference(new PackageResourceReference(MaskedDateInput.class, "jquery.masked_dateinput.js")));
 
         // If locale is null or current locale is US: no translation is needed.
         Locale locale = getLocale();
         if (locale != null && !locale.equals(Locale.US)) {
-            response.renderJavaScriptReference(new MaskedDateInputLanguageResourceReference(locale));
+            response.render(JavaScriptHeaderItem.forReference(new MaskedDateInputLanguageResourceReference(locale)));
         }
 
-        response.renderCSSReference(new PackageResourceReference(MaskedDateInput.class, "jquery.masked_dateinput.css"));
+        response.render(CssHeaderItem.forReference(new PackageResourceReference(MaskedDateInput.class, "jquery.masked_dateinput.css")));
+
+        //todo fix masked date input
+//        @Override
+//        public JsStatement statement() {
+//            return super.statement().chain("mask_dateinput", options.getOptions().getJavaScriptOptions());
+//        }
     }
 }

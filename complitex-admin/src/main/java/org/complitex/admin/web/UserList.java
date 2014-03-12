@@ -133,7 +133,7 @@ public class UserList extends ScrollListPage {
         final DataProvider<User> dataProvider = new DataProvider<User>() {
 
             @Override
-            protected Iterable<? extends User> getData(int first, int count) {
+            protected Iterable<? extends User> getData(long first, long count) {
                 final UserFilter filter = filterModel.getObject();
 
                 //store preference, but before clear data order related properties.

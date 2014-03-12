@@ -1,11 +1,8 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.template.web.pages;
 
 import org.apache.wicket.Page;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.head.CssHeaderItem;
+import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -59,6 +56,6 @@ public class ObjectNotFoundPage extends WebPage {
 
     @Override
     public void renderHead(IHeaderResponse response) {
-        response.renderCSSReference(WebCommonResourceInitializer.STYLE_CSS);
+        response.render(CssHeaderItem.forReference(WebCommonResourceInitializer.STYLE_CSS));
     }
 }

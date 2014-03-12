@@ -9,8 +9,8 @@ import java.io.Serializable;
  *         Date: 15.08.2010 1:16:53
  */
 public class AbstractFilter implements Serializable {
-    private int first;
-    private int count;
+    private long first;
+    private long count;
     private String sortProperty;
     private boolean ascending;
 
@@ -19,19 +19,19 @@ public class AbstractFilter implements Serializable {
     private String userOrganizationsString;
     private String outerOrganizationsString;
 
-    public int getFirst() {
+    public long getFirst() {
         return first;
     }
 
-    public void setFirst(int first) {
+    public void setFirst(long first) {
         this.first = first;
     }
 
-    public int getCount() {
+    public long getCount() {
         return count;
     }
 
-    public void setCount(int count) {
+    public void setCount(long count) {
         this.count = count;
     }
 

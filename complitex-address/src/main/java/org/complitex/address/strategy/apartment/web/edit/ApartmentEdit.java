@@ -1,11 +1,8 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.address.strategy.apartment.web.edit;
 
 import com.google.common.collect.Lists;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.head.CssHeaderItem;
+import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.PackageResourceReference;
@@ -44,8 +41,9 @@ public final class ApartmentEdit extends DomainObjectEdit {
     @Override
     public void renderHead(IHeaderResponse response) {
         super.renderHead(response);
-        response.renderCSSReference(new PackageResourceReference(
-                ApartmentEdit.class, ApartmentEdit.class.getSimpleName() + ".css"));
+
+        response.render(CssHeaderItem.forReference(new PackageResourceReference(
+                ApartmentEdit.class, ApartmentEdit.class.getSimpleName() + ".css")));
     }
 
     @Override
