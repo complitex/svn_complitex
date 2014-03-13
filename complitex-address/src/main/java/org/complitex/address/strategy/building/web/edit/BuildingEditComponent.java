@@ -34,7 +34,7 @@ import org.complitex.dictionary.web.component.ShowMode;
 import org.complitex.dictionary.web.component.list.AjaxRemovableListView;
 import org.complitex.dictionary.web.component.search.CollapsibleInputSearchComponent;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
-import org.complitex.organization.web.component.OrganizationPicker;
+import org.complitex.dictionary.web.component.organization.OrganizationPicker;
 import org.complitex.organization_type.strategy.OrganizationTypeStrategy;
 
 import javax.ejb.EJB;

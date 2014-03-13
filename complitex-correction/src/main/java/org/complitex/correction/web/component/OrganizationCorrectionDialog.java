@@ -17,7 +17,7 @@ import org.complitex.correction.service.OrganizationCorrectionBean;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.FilterWrapper;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
-import org.complitex.organization.web.component.OrganizationPicker;
+import org.complitex.dictionary.web.component.organization.OrganizationPicker;
 import org.odlabs.wiquery.ui.dialog.Dialog;
 
 import javax.ejb.EJB;

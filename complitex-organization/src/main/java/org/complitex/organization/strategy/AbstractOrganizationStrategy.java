@@ -60,7 +60,7 @@ public abstract class AbstractOrganizationStrategy<T extends DomainObject> exten
 
     @Override
     protected List<Long> getListAttributeTypes() {
-        return Lists.newArrayList(USER_ORGANIZATION_PARENT, CODE, NAME);
+        return Lists.newArrayList(NAME, CODE, USER_ORGANIZATION_PARENT);
     }
 
     @Override

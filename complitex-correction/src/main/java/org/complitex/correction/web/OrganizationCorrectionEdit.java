@@ -12,7 +12,7 @@ import org.complitex.correction.web.component.AbstractCorrectionEditPanel;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.FilterWrapper;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
-import org.complitex.organization.web.component.OrganizationPicker;
+import org.complitex.dictionary.web.component.organization.OrganizationPicker;
 import org.complitex.organization_type.strategy.OrganizationTypeStrategy;
 import org.complitex.template.web.security.SecurityRole;
 import org.complitex.template.web.template.FormTemplatePage;

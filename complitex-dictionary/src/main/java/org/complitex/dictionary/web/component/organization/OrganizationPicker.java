@@ -1,4 +1,4 @@
-package org.complitex.organization.web.component;
+package org.complitex.dictionary.web.component.organization;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.wicket.Component;
@@ -67,7 +67,7 @@ public class OrganizationPicker extends FormComponentPanel<DomainObject> {
     public OrganizationPicker(String id, final IModel<String> model, final Long organizationTypeId) {
         super(id);
         setModel(new OrganizationModel(model));
-        init(false, null, true, Arrays.asList(organizationTypeId));
+        init(false, null, true, organizationTypeId != null ? Arrays.asList(organizationTypeId) : null);
     }
 
     public OrganizationPicker(String id, Long... organizationTypeIds) {

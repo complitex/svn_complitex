@@ -22,6 +22,7 @@ import org.complitex.dictionary.service.PermissionBean;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.web.component.fieldset.CollapsibleFieldset;
 import org.complitex.dictionary.web.component.list.AjaxRemovableListView;
+import org.complitex.dictionary.web.component.organization.OrganizationPicker;
 import org.complitex.dictionary.web.component.permission.AbstractDomainObjectPermissionPanel;
 import org.complitex.dictionary.web.component.permission.DomainObjectPermissionParameters;
 import org.complitex.organization_type.strategy.OrganizationTypeStrategy;
