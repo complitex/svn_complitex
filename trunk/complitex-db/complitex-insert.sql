@@ -237,7 +237,7 @@ INSERT INTO `string_culture`(`id`, `locale_id`, `value`) VALUES (902, 1, UPPER('
 INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (901, 900, 1, 902, 1);
 INSERT INTO `string_culture`(`id`, `locale_id`, `value`) VALUES (903, 1, UPPER('Район')), (903, 2, UPPER('Район'));
 INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (902, 900, 0, 903, 1);
-INSERT INTO `string_culture`(`id`, `locale_id`, `value`) VALUES (904, 1, UPPER('Принадлежит')), (904, 2, UPPER('Принадлежит'));
+INSERT INTO `string_culture`(`id`, `locale_id`, `value`) VALUES (904, 1, UPPER('Родительская организация')), (904, 2, UPPER('Родительская организация'));
 INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (903, 900, 0, 904, 1);
 INSERT INTO `string_culture`(`id`, `locale_id`, `value`) VALUES (905, 1, UPPER('Тип организации')), (905, 2, UPPER('Тип организации'));
 INSERT INTO `entity_attribute_type`(`id`, `entity_id`, `mandatory`, `attribute_type_name_id`, `system`) VALUES (904, 900, 0, 905, 1);

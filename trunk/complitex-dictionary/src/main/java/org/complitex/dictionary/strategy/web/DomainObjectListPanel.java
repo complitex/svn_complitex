@@ -36,6 +36,7 @@ import org.complitex.dictionary.web.DictionaryFwSession;
 import org.complitex.dictionary.web.component.ShowMode;
 import org.complitex.dictionary.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionary.web.component.datatable.DataProvider;
+import org.complitex.dictionary.web.component.organization.OrganizationPicker;
 import org.complitex.dictionary.web.component.paging.PagingNavigator;
 import org.complitex.dictionary.web.component.scroll.ScrollBookmarkablePageLink;
 import org.complitex.dictionary.web.component.search.CollapsibleSearchPanel;
@@ -391,7 +392,10 @@ public final class DomainObjectListPanel extends Panel {
                         }
                         break;
                     }
+                }else if ("ORGANIZATION".equals(name)){
+                    filter = new OrganizationPicker("filter", filterModel, null);
                 }
+
                 item.add(filter);
             }
         };
