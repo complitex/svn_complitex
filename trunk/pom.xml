@@ -4,7 +4,7 @@
 
     <groupId>org.complitex</groupId>
     <artifactId>complitex</artifactId>
-    <version>2.0.3-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Complitex</name>
@@ -41,20 +41,24 @@
 
     <properties>
         <!-- wicket version -->
-        <wicket.version>1.5.10</wicket.version>
+        <wicket.version>6.14.0</wicket.version>
 
         <!-- wicketstuff inject -->
-        <wicket-inject.version>1.5.7</wicket-inject.version>
+        <wicket-stuff.version>6.14.0</wicket-stuff.version>
 
         <!-- wiquery version -->
-        <wiquery.version>1.5.7</wiquery.version>
+        <wiquery.version>6.9.1</wiquery.version>
+
+        <!--skip test-->
+        <maven.test.skip>true</maven.test.skip>
 
         <!-- source encoding -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <!--skip test-->
-        <maven.test.skip>true</maven.test.skip>
         <compiler.showDeprecation>true</compiler.showDeprecation>
+
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
     </properties>
 
     <repositories>
@@ -147,12 +151,6 @@
             <!--Wicket-->
             <dependency>
                 <groupId>org.apache.wicket</groupId>
-                <artifactId>wicket</artifactId>
-                <version>${wicket.version}</version>
-                <type>pom</type>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.wicket</groupId>
                 <artifactId>wicket-core</artifactId>
                 <version>${wicket.version}</version>
             </dependency>
@@ -184,12 +182,12 @@
             <dependency>
                 <groupId>org.wicketstuff</groupId>
                 <artifactId>wicketstuff-javaee-inject</artifactId>
-                <version>${wicket-inject.version}</version>
+                <version>${wicket-stuff.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wicketstuff</groupId>
                 <artifactId>wicketstuff-tinymce</artifactId>
-                <version>1.5-SNAPSHOT</version>
+                <version>${wicket-stuff.version}</version>
             </dependency>
 
             <dependency>
@@ -208,35 +206,35 @@
             <dependency>
                 <groupId>javax</groupId>
                 <artifactId>javaee-api</artifactId>
-                <version>6.0</version>
+                <version>7.0</version>
             </dependency>
 
             <!-- slf4j logging -->
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.6.4</version>
+                <version>1.7.6</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jcl-over-slf4j</artifactId>
-                <version>1.6.4</version>
+                <version>1.7.6</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-jdk14</artifactId>
-                <version>1.6.4</version>
+                <version>1.7.6</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-core</artifactId>
-                <version>1.0.3</version>
+                <version>1.1.1</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
-                <version>1.0.3</version>
+                <version>1.1.1</version>
                 <scope>test</scope>
             </dependency>
 
@@ -245,35 +243,27 @@
                 <groupId>p6spy</groupId>
                 <artifactId>p6spy</artifactId>
                 <version>1.3</version>
-                <scope>test</scope>
-            </dependency>
-
-            <!-- EJB 3.1 API -->
-            <dependency>
-                <groupId>org.jboss.ejb3</groupId>
-                <artifactId>jboss-ejb3-api</artifactId>
-                <version>3.1.0</version>
             </dependency>
 
             <!-- commons codec -->
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
-                <version>1.4</version>
+                <version>1.9</version>
             </dependency>
 
             <!-- MyBatis -->
             <dependency>
                 <groupId>org.mybatis</groupId>
                 <artifactId>mybatis</artifactId>
-                <version>3.2.2</version>
+                <version>3.2.5</version>
             </dependency>
 
             <!-- google guava -->
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>15.0</version>
+                <version>16.0.1</version>
             </dependency>
 
             <!-- opencsv -->
@@ -319,16 +309,48 @@
             </dependency>
 
             <dependency>
+                <groupId>commons-validator</groupId>
+                <artifactId>commons-validator</artifactId>
+                <version>1.4.0</version>
+            </dependency>
+
+            <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.10</version>
+                <version>4.11</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.testng</groupId>
                 <artifactId>testng</artifactId>
-                <version>6.5.2</version>
+                <version>6.8.8</version>
                 <scope>test</scope>
+            </dependency>
+
+            <!-- Ehcache -->
+            <dependency>
+                <groupId>org.mybatis.caches</groupId>
+                <artifactId>mybatis-ehcache</artifactId>
+                <version>1.0.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.sf.ehcache</groupId>
+                <artifactId>ehcache</artifactId>
+                <version>2.7.5</version>
+            </dependency>
+
+            <!-- Oracle driver -->
+            <dependency>
+                <groupId>com.oracle</groupId>
+                <artifactId>ojdbc14_g</artifactId>
+                <version>10.2.0.3.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.oracle</groupId>
+                <artifactId>orai18n</artifactId>
+                <version>10.2.0.4.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -383,48 +405,5 @@
                 <directory>src/test/resources</directory>
             </testResource>
         </testResources>
-
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
-                <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
-                    <encoding>UTF-8</encoding>
-                    <showDeprecation>${compiler.showDeprecation}</showDeprecation>
-                </configuration>
-            </plugin>
-
-            <!--<plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <skipTests>true</skipTests>
-                </configuration>
-            </plugin>-->
-
-            <plugin>
-                <groupId>com.googlecode.maven-overview-plugin</groupId>
-                <artifactId>maven-overview-plugin</artifactId>
-                <version>1.6</version>
-                <configuration>
-                    <exclusions>
-                        <exclusion>
-                            <scope>test</scope>
-                        </exclusion>
-                    </exclusions>
-                </configuration>
-            </plugin>
-        </plugins>
-
-        <extensions>
-            <extension>
-                <groupId>com.google.code.maven-svn-wagon</groupId>
-                <artifactId>maven-svn-wagon</artifactId>
-                <version>1.3</version>
-            </extension>
-        </extensions>
     </build>
 </project>
