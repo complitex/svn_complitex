@@ -54,6 +54,8 @@ public class AddressCorrectionInputPanel extends Panel {
         final boolean isDistrict = "district".equals(correction.getEntity());
         final boolean isStreet = "street".equals(correction.getEntity());
         final boolean isBuilding = "building".equals(correction.getEntity());
+        final boolean isApartment = "apartment".equals(correction.getEntity());
+        final boolean isRoom = "room".equals(correction.getEntity());
 
         //District
         final WebMarkupContainer districtContainer = new WebMarkupContainer("districtContainer");
@@ -73,7 +75,7 @@ public class AddressCorrectionInputPanel extends Panel {
         //Street
         final WebMarkupContainer streetContainer = new WebMarkupContainer("streetContainer");
         streetContainer.setOutputMarkupId(true);
-        streetContainer.setVisible(isStreet || isBuilding);
+        streetContainer.setVisible(isStreet || isBuilding || isApartment || isRoom);
         add(streetContainer);
 
         streetContainer.add(new Label("streetTypeLabel", new AbstractReadOnlyModel<String>() {
@@ -94,7 +96,7 @@ public class AddressCorrectionInputPanel extends Panel {
 
         //Building
         final WebMarkupContainer buildingContainer = new WebMarkupContainer("buildingContainer");
-        buildingContainer.setVisible(isBuilding);
+        buildingContainer.setVisible(isBuilding || isApartment || isRoom);
         add(buildingContainer);
 
         buildingContainer.add(new Label("buildingLabel", new AbstractReadOnlyModel<String>() {
@@ -105,7 +107,38 @@ public class AddressCorrectionInputPanel extends Panel {
             }
         }));
 
-        List<String> filter = isBuilding ? Arrays.asList("city", "street") : Arrays.asList("city");
+        //Building corp
+        final WebMarkupContainer buildingCorpContainer = new WebMarkupContainer("buildingCorpContainer");
+        buildingCorpContainer.setVisible(isBuilding);
+        add(buildingCorpContainer);
+
+        //Apartment
+        final WebMarkupContainer apartmentContainer = new WebMarkupContainer("apartmentContainer");
+        apartmentContainer.setVisible(isApartment || isRoom);
+        add(apartmentContainer);
+
+        apartmentContainer.add(new Label("apartmentLabel", new AbstractReadOnlyModel<String>() {
+
+            @Override
+            public String getObject() {
+                return stringBean.displayValue(entityBean.getEntity("apartment").getEntityNames(), getLocale());
+            }
+        }));
+
+        //Room
+        final WebMarkupContainer roomContainer = new WebMarkupContainer("roomContainer");
+        roomContainer.setVisible(isRoom);
+        add(roomContainer);
+
+        roomContainer.add(new Label("roomLabel", new AbstractReadOnlyModel<String>() {
+
+            @Override
+            public String getObject() {
+                return stringBean.displayValue(entityBean.getEntity("room").getEntityNames(), getLocale());
+            }
+        }));
+
+        List<String> filter = isBuilding || isApartment || isRoom ? Arrays.asList("city", "street") : Arrays.asList("city");
 
         //City
         add(new WiQuerySearchComponent("search_component", new SearchComponentState(), filter, new ISearchCallback() {
@@ -163,6 +196,14 @@ public class AddressCorrectionInputPanel extends Panel {
 
         //Building
         buildingContainer.add(new TextField<>("building", new PropertyModel<String>(correction, "correction")));
-        buildingContainer.add(new TextField<>("buildingCorp", new PropertyModel<String>(correction, "correctionCorp")));
+
+        //Building corp
+        buildingCorpContainer.add(new TextField<>("buildingCorp", new PropertyModel<String>(correction, "correctionCorp")));
+
+        //Apartment
+        apartmentContainer.add(new TextField<>("apartment", new PropertyModel<String>(correction, "correction")));
+    
+        //Room
+        roomContainer.add(new TextField<>("room", new PropertyModel<String>(correction, "correction")));
     }
 }
