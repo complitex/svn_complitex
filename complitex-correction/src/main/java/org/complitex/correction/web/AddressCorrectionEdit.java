@@ -41,6 +41,9 @@ public class AddressCorrectionEdit extends FormTemplatePage {
             case "apartment":
                 addressEditPanel = new ApartmentCorrectionEditPanel("addressEditPanel", correctionId);
                 break;
+            case "room":
+                addressEditPanel = new RoomCorrectionEditPanel("addressEditPanel", correctionId);
+                break;
         }
         add(addressEditPanel);
     }

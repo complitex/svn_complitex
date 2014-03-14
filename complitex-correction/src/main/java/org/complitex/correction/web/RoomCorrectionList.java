@@ -2,12 +2,10 @@ package org.complitex.correction.web;
 
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.complitex.address.strategy.building.BuildingStrategy;
 import org.complitex.address.strategy.building.entity.Building;
 import org.complitex.address.util.AddressRenderer;
-import org.complitex.correction.entity.ApartmentCorrection;
+import org.complitex.correction.entity.RoomCorrection;
 import org.complitex.correction.service.AddressCorrectionBean;
-import org.complitex.dictionary.entity.Correction;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.FilterWrapper;
 import org.complitex.dictionary.service.SessionBean;
@@ -21,31 +19,29 @@ import java.util.Locale;
 /**
  * @author Pavel Sknar
  */
-public class ApartmentCorrectionList extends AddressCorrectionList<ApartmentCorrection> {
+public class RoomCorrectionList extends AddressCorrectionList<RoomCorrection> {
     @EJB
     private SessionBean sessionBean;
 
     @EJB
     private AddressCorrectionBean addressCorrectionBean;
 
-    @EJB
-    private BuildingStrategy buildingStrategy;
-
-    public ApartmentCorrectionList() {
-        super("apartment");
+    public RoomCorrectionList() {
+        super("room");
     }
 
     @Override
-    protected ApartmentCorrection newCorrection() {
-        return new ApartmentCorrection();
+    protected RoomCorrection newCorrection() {
+        return new RoomCorrection();
     }
 
     @Override
-    protected List<ApartmentCorrection> getCorrections(FilterWrapper<ApartmentCorrection> filterWrapper) {
+    protected List<RoomCorrection> getCorrections(FilterWrapper<RoomCorrection> filterWrapper) {
         sessionBean.prepareFilterForPermissionCheck(filterWrapper);
 
-        List<ApartmentCorrection> apartments = addressCorrectionBean.getApartmentCorrections(filterWrapper);
+        List<RoomCorrection> rooms = addressCorrectionBean.getRoomCorrections(filterWrapper);
 
+        IStrategy roomStrategy = strategyFactory.getStrategy("room");
         IStrategy apartmentStrategy = strategyFactory.getStrategy("apartment");
         IStrategy buildingStrategy = strategyFactory.getStrategy("building");
         IStrategy streetStrategy = strategyFactory.getStrategy("street");
@@ -53,35 +49,31 @@ public class ApartmentCorrectionList extends AddressCorrectionList<ApartmentCorr
 
         Locale locale = getLocale();
 
-        for (Correction c : apartments) {
-            DomainObject apartment = apartmentStrategy.findById(c.getObjectId(), false);
-            if (apartment == null) {
-                apartment = apartmentStrategy.findById(c.getObjectId(), true);
+        for (RoomCorrection c : rooms) {
+            DomainObject room = roomStrategy.findById(c.getObjectId(), false);
+            if (room == null) {
+                room = roomStrategy.findById(c.getObjectId(), true);
                 c.setEditable(false);
             }
-            DomainObject building = null;
-            if (c.isEditable()) {
-                building = buildingStrategy.findById(apartment.getParentId(), false);
-            }
-            if (building == null) {
-                building = buildingStrategy.findById(apartment.getParentId(), true);
-                c.setEditable(false);
-            }
-            SearchComponentState state = buildingStrategy.getSearchComponentStateForParent(building.getParentId(), "building_address", null);
+
+            SearchComponentState state = roomStrategy.getSearchComponentStateForParent(room.getParentId(), "room", null);
+            DomainObject apartment = state.get("apartment");
+            DomainObject building = state.get("building");
             DomainObject street = state.get("street");
             DomainObject city = state.get("city");
+            String displayRoom = roomStrategy.displayDomainObject(room, locale);
+            String displayApartment = apartment == null || apartment.getId() < 1? "" : apartmentStrategy.displayDomainObject(apartment, locale);
             String displayBuilding = buildingStrategy.displayDomainObject(building, locale);
-            String displayApartment = apartmentStrategy.displayDomainObject(apartment, locale);
             String displayStreet = streetStrategy.displayDomainObject(street, locale);
             String displayCity = cityStrategy.displayDomainObject(city, locale);
-            c.setDisplayObject(displayCity + ", " + displayStreet + ", " + displayBuilding + ", " + displayApartment);
+            c.setDisplayObject(displayCity + ", " + displayStreet + ", " + displayBuilding + ", " + displayApartment + ", " + displayRoom);
         }
-        return apartments;
+        return rooms;
     }
 
     @Override
-    protected Integer getCorrectionsCount(FilterWrapper<ApartmentCorrection> filterWrapper) {
-        return addressCorrectionBean.getApartmentCorrectionsCount(filterWrapper);
+    protected Integer getCorrectionsCount(FilterWrapper<RoomCorrection> filterWrapper) {
+        return addressCorrectionBean.getRoomCorrectionsCount(filterWrapper);
     }
 
     @Override
@@ -90,12 +82,22 @@ public class ApartmentCorrectionList extends AddressCorrectionList<ApartmentCorr
     }
 
     @Override
-    protected String displayCorrection(ApartmentCorrection correction) {
+    protected String displayCorrection(RoomCorrection correction) {
+        IStrategy apartmentStrategy = strategyFactory.getStrategy("apartment");
         IStrategy buildingStrategy = strategyFactory.getStrategy("building");
         IStrategy streetStrategy = strategyFactory.getStrategy("street");
         IStrategy cityStrategy = strategyFactory.getStrategy("city");
 
-        Building buildingDomainObject = (Building)buildingStrategy.findById(correction.getBuildingObjectId(), true);
+        String apartment = null;
+        Building buildingDomainObject;
+        if (correction.getApartmentObjectId() == null) {
+            buildingDomainObject = (Building)buildingStrategy.findById(correction.getBuildingObjectId(), true);
+        } else {
+            DomainObject apartmentDomainObject = apartmentStrategy.findById(correction.getApartmentObjectId(), true);
+            apartment = apartmentStrategy.displayDomainObject(apartmentDomainObject, getLocale());
+
+            buildingDomainObject = (Building)buildingStrategy.findById(apartmentDomainObject.getParentId(), true);
+        }
         String building = buildingStrategy.displayDomainObject(buildingDomainObject, getLocale());
 
         DomainObject streetDomainObject = streetStrategy.findById(buildingDomainObject.getPrimaryStreetId(), true);
@@ -104,7 +106,7 @@ public class ApartmentCorrectionList extends AddressCorrectionList<ApartmentCorr
         DomainObject cityDomainObject = cityStrategy.findById(streetDomainObject.getParentId(), true);
         String city = cityStrategy.displayDomainObject(cityDomainObject, getLocale());
 
-        return AddressRenderer.displayAddress(null, city, null, street, building, null, correction.getCorrection(), getLocale());
+        return AddressRenderer.displayAddress(null, city, null, street, building, null, apartment, correction.getCorrection(), getLocale());
     }
 }
 
