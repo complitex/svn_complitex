@@ -5,11 +5,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  *
@@ -26,7 +22,7 @@ public class DomainObject implements Serializable {
     private Long permissionId;
     private String externalId;
     private List<Attribute> attributes = new ArrayList<>();
-    private Set<Long> subjectIds;
+    private Set<Long> subjectIds = new HashSet<>();
 
     public DomainObject() {
     }

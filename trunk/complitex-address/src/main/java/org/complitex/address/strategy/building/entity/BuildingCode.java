@@ -10,6 +10,14 @@ public class BuildingCode implements Serializable {
     private Integer buildingCode;
     private Long buildingId;
 
+    public BuildingCode() {
+    }
+
+    public BuildingCode(Long organizationId, Integer buildingCode) {
+        this.organizationId = organizationId;
+        this.buildingCode = buildingCode;
+    }
+
     public Long getId() {
         return id;
     }

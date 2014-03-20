@@ -452,25 +452,33 @@ public class BuildingStrategy extends TemplateStrategy {
         super.insertDomainObject(object, updateDate);
     }
 
-    @Transactional
-    public Long checkForExistingAddress(Long id, String number, String corp, String structure, long parentEntityId, long parentId, Locale locale) {
+    public List<Long> getObjectIds(Long parentId, String number, String corp, String structure, long parentEntityId,
+                                    Locale locale) {
         Map<String, Object> params = Maps.newHashMap();
         params.put("additionalAddressAT", BUILDING_ADDRESS);
         params.put("buildingAddressNumberAT", BuildingAddressStrategy.NUMBER);
         params.put("buildingAddressCorpAT", BuildingAddressStrategy.CORP);
         params.put("buildingAddressStructureAT", BuildingAddressStrategy.STRUCTURE);
         params.put("number", number);
-        params.put("corp", corp);
+        params.put("corp", corp != null && corp.isEmpty() ? null : corp);
         params.put("structure", structure);
         params.put("parentEntityId", parentEntityId);
         params.put("parentId", parentId);
         params.put("localeId", localeBean.convert(locale).getId());
-        List<Long> buildingIds = sqlSession().selectList(NS + ".checkBuildingAddress", params);
+
+        return sqlSession().selectList(NS + ".checkBuildingAddress", params);
+    }
+
+    public Long checkForExistingAddress(Long id, String number, String corp, String structure, long parentEntityId,
+                                        long parentId, Locale locale) {
+        List<Long> buildingIds = getObjectIds(parentEntityId, number, corp, structure, parentId, locale);
+
         for (Long buildingId : buildingIds) {
             if (!buildingId.equals(id)) {
                 return buildingId;
             }
         }
+
         return null;
     }
 
@@ -509,13 +517,13 @@ public class BuildingStrategy extends TemplateStrategy {
         Building newBuilding = (Building) newObject;
 
         //building codes
-        if (!newBuilding.getBuildingCodeList().isEmpty() && !newBuilding.getBuildingCodeList().hasNulls()) {
-            if (!newBuilding.getBuildingCodeList().equals(oldBuilding.getBuildingCodeList())) {
-                addBuildingCode(newBuilding);
-            }
-        } else {
-            newBuilding.removeAttribute(BUILDING_CODE);
-        }
+//        if (!newBuilding.getBuildingCodeList().isEmpty() && !newBuilding.getBuildingCodeList().hasNulls()) {
+//            if (!newBuilding.getBuildingCodeList().equals(oldBuilding.getBuildingCodeList())) {
+//                addBuildingCode(newBuilding);
+//            }
+//        } else {
+//            newBuilding.removeAttribute(BUILDING_CODE);
+//        }
 
         List<DomainObject> removedAddresses = determineRemovedAddresses(oldBuilding, newBuilding);
         List<DomainObject> addedAddresses = determineAddedAddresses(newBuilding);
@@ -546,6 +554,7 @@ public class BuildingStrategy extends TemplateStrategy {
 
         super.update(oldBuilding, newBuilding, updateDate);
 
+        //log
         if (addedAddresses != null) {
             for (DomainObject newAddress : addedAddresses) {
                 logBean.log(Log.STATUS.OK, Module.NAME, DomainObjectEditPanel.class,

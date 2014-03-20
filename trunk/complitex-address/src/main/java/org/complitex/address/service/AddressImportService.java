@@ -1,16 +1,12 @@
 package org.complitex.address.service;
 
 import au.com.bytecode.opencsv.CSVReader;
-import com.google.common.base.Strings;
-import com.google.common.primitives.Longs;
+import com.google.common.primitives.Ints;
 import org.complitex.address.Module;
 import org.complitex.address.entity.AddressImportFile;
-import org.complitex.address.strategy.building.BuildingImportBean;
 import org.complitex.address.strategy.building.BuildingStrategy;
 import org.complitex.address.strategy.building.entity.Building;
 import org.complitex.address.strategy.building.entity.BuildingCode;
-import org.complitex.address.strategy.building.entity.BuildingImport;
-import org.complitex.address.strategy.building.entity.BuildingSegmentImport;
 import org.complitex.address.strategy.building_address.BuildingAddressStrategy;
 import org.complitex.address.strategy.city.CityStrategy;
 import org.complitex.address.strategy.city_type.CityTypeStrategy;
@@ -32,7 +28,10 @@ import javax.ejb.*;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.complitex.address.entity.AddressImportFile.*;
 
@@ -78,7 +77,7 @@ public class AddressImportService extends AbstractImportService {
     private BuildingStrategy buildingStrategy;
 
     @EJB
-    private BuildingImportBean buildingImportBean;
+    private BuildingAddressStrategy buildingAddressStrategy;
 
     @EJB
     private ConfigBean configBean;
@@ -755,168 +754,7 @@ public class AddressImportService extends AbstractImportService {
      * ID DISTR_ID STREET_ID NUM PART GEK CODE
      */
     private void importBuilding(IImportListener listener, long localeId, Date beginDate) throws ImportFileNotFoundException,
-            ImportFileReadException, ImportObjectLinkException {
-
-        buildingImportBean.delete();
-
-        listener.beginImport(BUILDING, getRecordCount(BUILDING));
-
-        CSVReader reader = getCsvReader(BUILDING);
-
-        int recordIndex = 0;
-
-        try {
-            String[] line;
-            while ((line = reader.readNext()) != null) {
-                recordIndex++;
-                long buildingPartId = Long.parseLong(line[0].trim());
-                long distrId = Long.parseLong(line[1].trim());
-                long streetId = Long.parseLong(line[2].trim());
-                String num = line[3].trim();
-                String part = line[4].trim();
-                Long gek = null;
-                try {
-                    gek = Long.parseLong(line[5].trim());
-                } catch (NumberFormatException e) {
-                    //skip
-                }
-                final String code = line.length > 6 ? line[6].trim() : null;
-                buildingImportBean.saveOrUpdate(buildingPartId, distrId, streetId, num, part, gek, code);
-            }
-        } catch (IOException | NumberFormatException e) {
-            throw new ImportFileReadException(e, BUILDING.getFileName(), recordIndex);
-        } finally {
-            try {
-                reader.close();
-            } catch (IOException e) {
-                log.error("Ошибка закрытия потока", e);
-            }
-        }
-
-        final long systemLocaleId = localeBean.getSystemLocaleObject().getId();
-        recordIndex = 0;
-        final int batch = 100;
-
-        List<BuildingImport> imports;
-        while (!(imports = buildingImportBean.getBuildingImports(batch)).isEmpty()) {
-            for (BuildingImport b : imports) {
-                recordIndex += b.getBuildingSegmentImports().size();
-
-                String streetExternalId = b.getStreetId().toString();
-
-                Long streetId = streetStrategy.getObjectId(streetExternalId);
-                if (streetId == null) {
-                    listener.warn(BUILDING, ResourceUtil.getFormatString(RESOURCE_BUNDLE, "building_street_not_found_warn",
-                            localeBean.getLocale(localeId), b.getNum(), b.getBuildingSegmentId(), streetExternalId));
-                    continue;
-                }
-
-                Building building = buildingStrategy.newInstance();
-
-                //DISTRICT_ID
-                String districtExternalId = b.getDistrId().toString();
-                Long districtId = districtStrategy.getObjectId(districtExternalId);
-                if (districtId == null) {
-                    throw new ImportObjectLinkException(BUILDING.getFileName(), recordIndex, String.valueOf(b.getDistrId()));
-                }
-                building.getAttribute(BuildingStrategy.DISTRICT).setValueId(districtId);
-
-                DomainObject buildingAddress = building.getPrimaryAddress();
-
-                //STREET_ID
-                buildingAddress.setParentEntityId(BuildingAddressStrategy.PARENT_STREET_ENTITY_ID);
-                buildingAddress.setParentId(streetId);
-
-
-                //Номер дома
-                final String number = prepareBuildingNumber(recordIndex, b.getNum());
-                final Attribute numberAttribute = buildingAddress.getAttribute(BuildingAddressStrategy.NUMBER);
-                AttributeUtil.setStringValue(numberAttribute, number, localeId);
-                if (AttributeUtil.getSystemStringCultureValue(numberAttribute) == null) {
-                    AttributeUtil.setStringValue(numberAttribute, number, systemLocaleId);
-                }
-
-                //Корпус дома
-                final String corp = prepareBuildingCorp(b.getPart());
-                if (corp != null) {
-                    final Attribute corpAttribute = buildingAddress.getAttribute(BuildingAddressStrategy.CORP);
-                    AttributeUtil.setStringValue(corpAttribute, corp, localeId);
-                    if (AttributeUtil.getSystemStringCultureValue(corpAttribute) == null) {
-                        AttributeUtil.setStringValue(corpAttribute, corp, systemLocaleId);
-                    }
-                }
-
-                //Обработка пар обсл. организация - код дома
-                {
-                    Set<Long> subjectIds = new HashSet<>();
-
-                    for (BuildingSegmentImport part : b.getBuildingSegmentImports()) {
-                        if (part.getGek() == null){
-                            continue;
-                        }
-
-                        String gekId = part.getGek().toString();
-                        String buildingCode = part.getCode();
-
-                        Long organizationId = organizationStrategy.getObjectId(gekId);
-
-                        if (organizationId == null) {
-                            throw new ImportObjectLinkException(BUILDING.getFileName(), recordIndex, String.valueOf(gekId));
-                        }
-
-                        Integer buildingCodeInt = null;
-                        try {
-                            buildingCodeInt = StringUtil.parseInt(buildingCode);
-                        } catch (NumberFormatException e) {
-                            //wtf
-                        }
-
-                        if (buildingCodeInt == null) {
-                            listener.warn(BUILDING, ResourceUtil.getFormatString(RESOURCE_BUNDLE, "building_code_format_warn",
-                                    localeBean.getLocale(localeId), b.getNum(), b.getBuildingSegmentId(), buildingCode));
-                        } else {
-                            BuildingCode association = new BuildingCode();
-                            association.setOrganizationId(organizationId);
-                            association.setBuildingCode(buildingCodeInt);
-                            building.getBuildingCodeList().add(association);
-                            subjectIds.add(organizationId);
-                        }
-                    }
-
-                    if (!subjectIds.isEmpty()) {
-                        building.setSubjectIds(subjectIds);
-                    }
-
-                }
-                buildingStrategy.insert(building, beginDate);
-                listener.recordProcessed(BUILDING, recordIndex);
-            }
-
-            buildingImportBean.markProcessed(imports);
-        }
-
-        listener.completeImport(BUILDING, recordIndex);
-    }
-
-    private String prepareBuildingNumber(long rowNumber, String importNumber) {
-        if (importNumber == null) {
-            throw new NullPointerException("Imported number is null. Row: " + rowNumber);
-        }
-        return BuildingNumberConverter.convert(importNumber.trim()).toUpperCase();
-    }
-
-    private String prepareBuildingCorp(String importCorp) {
-        if (Strings.isNullOrEmpty(importCorp)) {
-            return null;
-        }
-        return StringUtil.removeWhiteSpaces(StringUtil.toCyrillic(importCorp.trim())).toUpperCase();
-    }
-
-    /**
-     * ID DISTR_ID STREET_ID NUM PART GEK CODE
-     */
-    private void importBuilding2(IImportListener listener, long localeId, Date beginDate) throws ImportFileNotFoundException,
-            ImportFileReadException, ImportObjectLinkException {
+            ImportFileReadException, ImportObjectLinkException, ImportDuplicateException {
         listener.beginImport(BUILDING, getRecordCount(BUILDING));
 
         CSVReader reader = getCsvReader(BUILDING);
@@ -929,52 +767,125 @@ public class AddressImportService extends AbstractImportService {
                 recordIndex++;
 
                 //row
-                String buildingExternalId = line[0].trim();
+                String buildingAddressExternalId = line[0].trim();
                 String districtExternalId = line[1].trim();
                 String streetExternalId = line[2].trim();
                 String buildingNum = line[3].trim();
                 String buildingPart = line[4].trim();
-                Long gek = Longs.tryParse(line[5].trim());
-                String buildingCode = line.length > 6 ? line[6].trim() : null;
+                String organizationExternalId = line[5].trim();
+                String buildingCode = line.length > 6 ? line[6].trim() : "";
 
                 Long streetObjectId = streetStrategy.getObjectId(streetExternalId);
                 if (streetObjectId == null) {
                     listener.warn(BUILDING, ResourceUtil.getFormatString(RESOURCE_BUNDLE, "building_street_not_found_warn",
-                            localeBean.getLocale(localeId), buildingNum + " " + buildingPart, buildingExternalId, streetExternalId));
+                            localeBean.getLocale(localeId), buildingNum + " " + buildingPart, buildingAddressExternalId, streetExternalId));
                     continue;
                 }
 
-                Long districtId = districtStrategy.getObjectId(districtExternalId);
-                if (districtId == null) {
+                Long districtObjectId = districtStrategy.getObjectId(districtExternalId);
+                if (districtObjectId == null) {
                     throw new ImportObjectLinkException(BUILDING.getFileName(), recordIndex, districtExternalId);
                 }
 
-                Building newBuilding;
+                Building building;
                 Building oldBuilding = null;
-                DomainObject buildingAddress;
+                Long buildingId = null;
+                DomainObject buildingAddress = null;
 
-                Long buildingId = buildingStrategy.getObjectId(buildingExternalId);
+                //prepare strings
+                buildingNum = BuildingNumberConverter.convert(buildingNum).toUpperCase();
+                buildingPart = StringUtil.removeWhiteSpaces(StringUtil.toCyrillic(buildingPart)).toUpperCase();
 
-                if (buildingId == null){
-                    newBuilding = buildingStrategy.newInstance();
-                    newBuilding.setExternalId(buildingExternalId);
-                }else {
+                long time = System.currentTimeMillis();
 
+                List<Long> buildingIds = buildingStrategy.getObjectIds(streetObjectId, buildingNum, buildingPart, null,
+                        BuildingAddressStrategy.PARENT_STREET_ENTITY_ID, localeBean.getLocale(localeId));
+
+                log.info("buildingStrategy.getObjectIds: " + (System.currentTimeMillis() - time) + "ms");
+
+                if (buildingIds.size() == 1){
+                    buildingId = buildingIds.get(0);
+                }else if (buildingIds.size() > 1){
+                    throw new ImportDuplicateException(BUILDING.getFileName(), recordIndex,
+                            String.valueOf(buildingIds.get(0)), buildingAddressExternalId);
                 }
 
+                //building
+                if (buildingId == null){
+                    building = buildingStrategy.newInstance();
+                    building.getAttribute(BuildingStrategy.DISTRICT).setValueId(districtObjectId);
+                    buildingAddress = building.getPrimaryAddress();
+                }else {
+                    oldBuilding = buildingStrategy.findById(buildingId, true);
+                    building = CloneUtil.cloneObject(oldBuilding);
 
+                    //find address by external id
+                    for (DomainObject ba : building.getAllAddresses()){
+                        if (ba.getExternalId() != null && ba.getExternalId().equals(buildingAddressExternalId)){
+                            buildingAddress = ba;
+                            break;
+                        }
+                    }
+                }
 
+                //building address
+                if (buildingAddress != null) {
+                    buildingAddress.setExternalId(buildingAddressExternalId);
+                    buildingAddress.setParentEntityId(BuildingAddressStrategy.PARENT_STREET_ENTITY_ID);
+                    buildingAddress.setParentId(streetObjectId);
 
+                    final long systemLocaleId = localeBean.getSystemLocaleObject().getId();
 
+                    //building number
+                    final Attribute numberAttribute = buildingAddress.getAttribute(BuildingAddressStrategy.NUMBER);
+                    AttributeUtil.setStringValue(numberAttribute, buildingNum, localeId);
+                    if (AttributeUtil.getSystemStringCultureValue(numberAttribute) == null) {
+                        AttributeUtil.setStringValue(numberAttribute, buildingNum, systemLocaleId);
+                    }
 
+                    //building part
+                    if (!buildingPart.isEmpty()) {
+                        final Attribute corpAttribute = buildingAddress.getAttribute(BuildingAddressStrategy.CORP);
+                        AttributeUtil.setStringValue(corpAttribute, buildingPart, localeId);
+                        if (AttributeUtil.getSystemStringCultureValue(corpAttribute) == null) {
+                            AttributeUtil.setStringValue(corpAttribute, buildingPart, systemLocaleId);
+                        }
+                    }
+                }
 
+                //organization
+                Long organizationId = organizationStrategy.getObjectId(organizationExternalId);
 
+                if (organizationId != null) {
+                    if (!building.getSubjectIds().contains(organizationId)) {
+                        building.getSubjectIds().add(organizationId);
+                    }
 
+                    Integer buildingCodeInt = Ints.tryParse(buildingCode);
+                    if (buildingCodeInt != null) {
+                        BuildingCode bc = new BuildingCode(organizationId, buildingCodeInt);
 
+                        if (!building.getBuildingCodeList().contains(bc)) {
+                            building.getBuildingCodeList().add(bc);
+                        }
+                    } else {
+                        listener.warn(BUILDING, ResourceUtil.getFormatString(RESOURCE_BUNDLE, "building_code_format_warn",
+                                localeBean.getLocale(localeId), buildingNum, buildingAddressExternalId, buildingCode));
+                    }
+                }else{
+                    throw new ImportObjectLinkException(BUILDING.getFileName(), recordIndex, String.valueOf(organizationExternalId));
+                }
 
+                //save
+                if (oldBuilding == null) {
+                    buildingStrategy.insert(building, beginDate);
+                } else {
+                    buildingStrategy.update(oldBuilding, building, beginDate);
+                }
 
+                listener.recordProcessed(BUILDING, recordIndex);
             }
-        } catch (IOException | NumberFormatException e) {
+        } catch (IOException e) {
             throw new ImportFileReadException(e, BUILDING.getFileName(), recordIndex);
         } finally {
             try {
@@ -982,108 +893,6 @@ public class AddressImportService extends AbstractImportService {
             } catch (IOException e) {
                 log.error("Ошибка закрытия потока", e);
             }
-        }
-
-        final long systemLocaleId = localeBean.getSystemLocaleObject().getId();
-        recordIndex = 0;
-        final int batch = 100;
-
-        List<BuildingImport> imports;
-        while (!(imports = buildingImportBean.getBuildingImports(batch)).isEmpty()) {
-            for (BuildingImport b : imports) {
-                recordIndex += b.getBuildingSegmentImports().size();
-
-                String streetExternalId = b.getStreetId().toString();
-
-                Long streetId = streetStrategy.getObjectId(streetExternalId);
-                if (streetId == null) {
-                    listener.warn(BUILDING, ResourceUtil.getFormatString(RESOURCE_BUNDLE, "building_street_not_found_warn",
-                            localeBean.getLocale(localeId), b.getNum(), b.getBuildingSegmentId(), streetExternalId));
-                    continue;
-                }
-
-                Building building = buildingStrategy.newInstance();
-
-                //DISTRICT_ID
-                String districtExternalId = b.getDistrId().toString();
-                Long districtId = districtStrategy.getObjectId(districtExternalId);
-                if (districtId == null) {
-                    throw new ImportObjectLinkException(BUILDING.getFileName(), recordIndex, String.valueOf(b.getDistrId()));
-                }
-                building.getAttribute(BuildingStrategy.DISTRICT).setValueId(districtId);
-
-                DomainObject buildingAddress = building.getPrimaryAddress();
-
-                //STREET_ID
-                buildingAddress.setParentEntityId(BuildingAddressStrategy.PARENT_STREET_ENTITY_ID);
-                buildingAddress.setParentId(streetId);
-
-
-                //Номер дома
-                final String number = prepareBuildingNumber(recordIndex, b.getNum());
-                final Attribute numberAttribute = buildingAddress.getAttribute(BuildingAddressStrategy.NUMBER);
-                AttributeUtil.setStringValue(numberAttribute, number, localeId);
-                if (AttributeUtil.getSystemStringCultureValue(numberAttribute) == null) {
-                    AttributeUtil.setStringValue(numberAttribute, number, systemLocaleId);
-                }
-
-                //Корпус дома
-                final String corp = prepareBuildingCorp(b.getPart());
-                if (corp != null) {
-                    final Attribute corpAttribute = buildingAddress.getAttribute(BuildingAddressStrategy.CORP);
-                    AttributeUtil.setStringValue(corpAttribute, corp, localeId);
-                    if (AttributeUtil.getSystemStringCultureValue(corpAttribute) == null) {
-                        AttributeUtil.setStringValue(corpAttribute, corp, systemLocaleId);
-                    }
-                }
-
-                //Обработка пар обсл. организация - код дома
-                {
-                    Set<Long> subjectIds = new HashSet<>();
-
-                    for (BuildingSegmentImport part : b.getBuildingSegmentImports()) {
-                        if (part.getGek() == null){
-                            continue;
-                        }
-
-                        String gekId = part.getGek().toString();
-                        String buildingCode = part.getCode();
-
-                        Long organizationId = organizationStrategy.getObjectId(gekId);
-
-                        if (organizationId == null) {
-                            throw new ImportObjectLinkException(BUILDING.getFileName(), recordIndex, String.valueOf(gekId));
-                        }
-
-                        Integer buildingCodeInt = null;
-                        try {
-                            buildingCodeInt = StringUtil.parseInt(buildingCode);
-                        } catch (NumberFormatException e) {
-                            //wtf
-                        }
-
-                        if (buildingCodeInt == null) {
-                            listener.warn(BUILDING, ResourceUtil.getFormatString(RESOURCE_BUNDLE, "building_code_format_warn",
-                                    localeBean.getLocale(localeId), b.getNum(), b.getBuildingSegmentId(), buildingCode));
-                        } else {
-                            BuildingCode association = new BuildingCode();
-                            association.setOrganizationId(organizationId);
-                            association.setBuildingCode(buildingCodeInt);
-                            building.getBuildingCodeList().add(association);
-                            subjectIds.add(organizationId);
-                        }
-                    }
-
-                    if (!subjectIds.isEmpty()) {
-                        building.setSubjectIds(subjectIds);
-                    }
-
-                }
-                buildingStrategy.insert(building, beginDate);
-                listener.recordProcessed(BUILDING, recordIndex);
-            }
-
-            buildingImportBean.markProcessed(imports);
         }
 
         listener.completeImport(BUILDING, recordIndex);
