@@ -2,6 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.complitex.organization.strategy.Organization">
+    <!--<cache type="org.mybatis.caches.ehcache.EhcacheCache"/> todo fix import building cache flush-->
 
     <select id="find" resultMap="org.complitex.dictionary.entity.DomainObject.DomainObject" parameterType="DomainObjectExample">
         SELECT e.* FROM `organization` e WHERE

@@ -38,14 +38,14 @@
                     AND struc.`attribute_type_id` = ${buildingAddressStructureAT})
         WHERE b.`status` IN ('ACTIVE', 'INACTIVE') AND
             num.`value_id` IN (SELECT sc.`id` FROM `building_address_string_culture` sc WHERE sc.`value` = #{number} AND sc.`locale_id` = #{localeId}) AND
-                <choose>
-                    <when test="corp == null">
-                        corp.`value_id` IS NULL
-                    </when>
-                    <otherwise>
-                        corp.`value_id` IN (SELECT sc.`id` FROM `building_address_string_culture` sc WHERE sc.`value` = #{corp} AND sc.`locale_id` = #{localeId})
-                    </otherwise>
-                </choose>
+            <choose>
+                <when test="corp == null">
+                    corp.`value_id` IS NULL
+                </when>
+                <otherwise>
+                    corp.`value_id` IN (SELECT sc.`id` FROM `building_address_string_culture` sc WHERE sc.`value` = #{corp} AND sc.`locale_id` = #{localeId})
+                </otherwise>
+            </choose>
             AND
             <choose>
                 <when test="structure == null">
