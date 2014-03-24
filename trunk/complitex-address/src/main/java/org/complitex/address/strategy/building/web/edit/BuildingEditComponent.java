@@ -20,7 +20,6 @@ import org.apache.wicket.util.visit.IVisitor;
 import org.complitex.address.strategy.building.BuildingStrategy;
 import org.complitex.address.strategy.building.entity.Building;
 import org.complitex.address.strategy.building.entity.BuildingCode;
-import org.complitex.address.strategy.building.entity.BuildingCodeList;
 import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.strategy.IStrategy;
@@ -32,9 +31,9 @@ import org.complitex.dictionary.web.component.DomainObjectDisableAwareRenderer;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.ShowMode;
 import org.complitex.dictionary.web.component.list.AjaxRemovableListView;
+import org.complitex.dictionary.web.component.organization.OrganizationPicker;
 import org.complitex.dictionary.web.component.search.CollapsibleInputSearchComponent;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
-import org.complitex.dictionary.web.component.organization.OrganizationPicker;
 import org.complitex.organization_type.strategy.OrganizationTypeStrategy;
 
 import javax.ejb.EJB;
@@ -199,10 +198,8 @@ public class BuildingEditComponent extends AbstractComplexAttributesPanel {
         //
         //Building Code
         //
-
-        final BuildingCodeList associationList = building.getBuildingCodeList();
         if (building.getId() == null) { // new building
-            associationList.addNew();
+            building.getBuildingCodes().add(new BuildingCode());
         }
 
         final List<DomainObject> allServicingOrganizations = organizationStrategy.getAllOuterOrganizations(getLocale());
@@ -217,7 +214,7 @@ public class BuildingEditComponent extends AbstractComplexAttributesPanel {
 
         final WebMarkupContainer buildingOrganizationAssociationsContainer =
                 new WebMarkupContainer("buildingOrganizationAssociationsContainer");
-        buildingOrganizationAssociationsContainer.setVisible(!isDisabled() || !associationList.isEmpty());
+        buildingOrganizationAssociationsContainer.setVisible(!isDisabled() || !building.getBuildingCodes().isEmpty());
         add(buildingOrganizationAssociationsContainer);
 
         final WebMarkupContainer associationsUpdateContainer = new WebMarkupContainer("associationsUpdateContainer");
@@ -225,8 +222,7 @@ public class BuildingEditComponent extends AbstractComplexAttributesPanel {
         buildingOrganizationAssociationsContainer.add(associationsUpdateContainer);
 
         ListView<BuildingCode> associations =
-                new AjaxRemovableListView<BuildingCode>("associations",
-                        associationList) {
+                new AjaxRemovableListView<BuildingCode>("associations", building.getBuildingCodes()) {
 
                     @Override
                     protected void populateItem(ListItem<BuildingCode> item) {
@@ -289,7 +285,7 @@ public class BuildingEditComponent extends AbstractComplexAttributesPanel {
 
                     @Override
                     protected boolean approveRemoval(ListItem<BuildingCode> item) {
-                        return associationList.size() > 1;
+                        return building.getBuildingCodes().size() > 1;
                     }
                 };
         associationsUpdateContainer.add(associations);
@@ -297,7 +293,7 @@ public class BuildingEditComponent extends AbstractComplexAttributesPanel {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
-                associationList.addNew();
+                building.getBuildingCodes().add(new BuildingCode());
                 target.add(associationsUpdateContainer);
             }
         };
@@ -326,10 +322,15 @@ public class BuildingEditComponent extends AbstractComplexAttributesPanel {
     }
 
     public boolean isBuildingOrganizationAssociationListEmpty() {
-        return ((Building)getDomainObject()).getBuildingCodeList().isEmpty();
+        return ((Building)getDomainObject()).getBuildingCodes().isEmpty();
     }
 
     public boolean isBuildingOrganizationAssociationListHasNulls() {
-        return ((Building)getDomainObject()).getBuildingCodeList().hasNulls();
+        for (BuildingCode buildingCode : ((Building)getDomainObject()).getBuildingCodes()) {
+            if (buildingCode == null || buildingCode.getOrganizationId() == null || buildingCode.getBuildingCode() == null) {
+                return true;
+            }
+        }
+        return false;
     }
 }

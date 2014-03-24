@@ -10,6 +10,7 @@ import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.util.EjbBeanLocator;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -19,7 +20,7 @@ public class Building extends DomainObject {
     private List<DomainObject> alternativeAddresses = Lists.newArrayList();
     private DomainObject district;
     private DomainObject accompaniedAddress;
-    private BuildingCodeList buildingCodeList = new BuildingCodeList();
+    private List<BuildingCode> buildingCodes = new ArrayList<>();
 
     public Building(DomainObject copy) {
         super(copy);
@@ -64,12 +65,12 @@ public class Building extends DomainObject {
         return primaryAddress;
     }
 
-    public BuildingCodeList getBuildingCodeList() {
-        return buildingCodeList;
+    public List<BuildingCode> getBuildingCodes() {
+        return buildingCodes;
     }
 
-    public void setBuildingCodeList(BuildingCodeList buildingCodeList) {
-        this.buildingCodeList = buildingCodeList;
+    public void setBuildingCodes(List<BuildingCode> buildingCodes) {
+        this.buildingCodes = buildingCodes;
     }
 
     public Long getPrimaryStreetId() {
