@@ -796,12 +796,8 @@ public class AddressImportService extends AbstractImportService {
                 buildingNum = BuildingNumberConverter.convert(buildingNum).toUpperCase();
                 buildingPart = StringUtil.removeWhiteSpaces(StringUtil.toCyrillic(buildingPart)).toUpperCase();
 
-                long time = System.currentTimeMillis();
-
                 List<Long> buildingIds = buildingStrategy.getObjectIds(streetObjectId, buildingNum, buildingPart, null,
                         BuildingAddressStrategy.PARENT_STREET_ENTITY_ID, localeBean.getLocale(localeId));
-
-                log.info("buildingStrategy.getObjectIds: " + (System.currentTimeMillis() - time) + "ms");
 
                 if (buildingIds.size() == 1){
                     buildingId = buildingIds.get(0);
@@ -863,10 +859,17 @@ public class AddressImportService extends AbstractImportService {
 
                     Integer buildingCodeInt = Ints.tryParse(buildingCode);
                     if (buildingCodeInt != null) {
-                        BuildingCode bc = new BuildingCode(organizationId, buildingCodeInt);
+                        boolean exist = false;
 
-                        if (!building.getBuildingCodeList().contains(bc)) {
-                            building.getBuildingCodeList().add(bc);
+                        for (BuildingCode bc : building.getBuildingCodes()){
+                            if (bc.getBuildingCode().equals(buildingCodeInt) && bc.getOrganizationId().equals(organizationId)){
+                                exist = true;
+                                break;
+                            }
+                        }
+
+                        if (!exist){
+                            building.getBuildingCodes().add(new BuildingCode(organizationId, buildingCodeInt));
                         }
                     } else {
                         listener.warn(BUILDING, ResourceUtil.getFormatString(RESOURCE_BUNDLE, "building_code_format_warn",

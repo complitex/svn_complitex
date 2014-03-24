@@ -11,7 +11,6 @@ import org.complitex.address.Module;
 import org.complitex.address.resource.CommonResources;
 import org.complitex.address.strategy.building.entity.Building;
 import org.complitex.address.strategy.building.entity.BuildingCode;
-import org.complitex.address.strategy.building.entity.BuildingCodeList;
 import org.complitex.address.strategy.building.web.edit.BuildingEdit;
 import org.complitex.address.strategy.building.web.edit.BuildingEditComponent;
 import org.complitex.address.strategy.building.web.edit.BuildingValidator;
@@ -272,7 +271,7 @@ public class BuildingStrategy extends TemplateStrategy {
             building.setSubjectIds(loadSubjects(building.getPermissionId()));
 
             //load building codes
-            building.setBuildingCodeList(loadBuildingCodes(building));
+            building.setBuildingCodes(loadBuildingCodes(building));
         }
 
         return building;
@@ -441,9 +440,7 @@ public class BuildingStrategy extends TemplateStrategy {
         }
 
         //building codes
-        if (!building.getBuildingCodeList().isEmpty() && !building.getBuildingCodeList().hasNulls()) {
-            addBuildingCode(building);
-        }
+        addBuildingCode(building);
     }
 
     @Transactional
@@ -517,14 +514,23 @@ public class BuildingStrategy extends TemplateStrategy {
         Building newBuilding = (Building) newObject;
 
         //building codes
-//        if (!newBuilding.getBuildingCodeList().isEmpty() && !newBuilding.getBuildingCodeList().hasNulls()) {
-//            if (!newBuilding.getBuildingCodeList().equals(oldBuilding.getBuildingCodeList())) {
-//                addBuildingCode(newBuilding);
-//            }
-//        } else {
-//            newBuilding.removeAttribute(BUILDING_CODE);
-//        }
+        long index = 1;
+        for (Attribute a : oldBuilding.getAttributes(BUILDING_CODE)){
+            if (a.getAttributeId() > index){
+                index = a.getAttributeId();
+            }
+        }
 
+        for (BuildingCode bc : newBuilding.getBuildingCodes()){
+            if (bc.getId() == null){
+                bc.setBuildingId(newBuilding.getId());
+                saveBuildingCode(bc);
+
+                newBuilding.addAttribute(newBuildingCodeAttribute(++index, bc.getId()));
+            }
+        }
+
+        //addresses
         List<DomainObject> removedAddresses = determineRemovedAddresses(oldBuilding, newBuilding);
         List<DomainObject> addedAddresses = determineAddedAddresses(newBuilding);
         Map<DomainObject, DomainObject> updatedAddressesMap = determineUpdatedAddresses(oldBuilding, newBuilding);
@@ -654,7 +660,7 @@ public class BuildingStrategy extends TemplateStrategy {
         example.setId(objectId);
         example.setStartDate(date);
 
-        Building building = (Building) sqlSession().selectOne(NS + "." + FIND_HISTORY_OBJECT_OPERATION, example);
+        Building building = sqlSession().selectOne(NS + "." + FIND_HISTORY_OBJECT_OPERATION, example);
         if (building == null) {
             return null;
         }
@@ -670,7 +676,7 @@ public class BuildingStrategy extends TemplateStrategy {
         updateStringsForNewLocales(building);
 
         //building codes
-        building.setBuildingCodeList(loadBuildingCodes(building));
+        building.setBuildingCodes(loadBuildingCodes(building));
 
         return building;
     }
@@ -763,7 +769,7 @@ public class BuildingStrategy extends TemplateStrategy {
         return sqlSession().selectList(NS + ".selectBuildingObjectIds", params);
     }
 
-    public BuildingCodeList loadBuildingCodes(Building building) {
+    public List<BuildingCode> loadBuildingCodes(Building building) {
         List<Attribute> buildingCodeAttributes = building.getAttributes(BUILDING_CODE);
         Set<Long> buildingCodeIds = Sets.newHashSet();
         for (Attribute associationAttribute : buildingCodeAttributes) {
@@ -782,7 +788,7 @@ public class BuildingStrategy extends TemplateStrategy {
             });
         }
 
-        return new BuildingCodeList(buildingCodes);
+        return buildingCodes;
     }
 
     public List<BuildingCode> getBuildingCodes(Set<Long> buildingCodeIds) {
@@ -812,18 +818,18 @@ public class BuildingStrategy extends TemplateStrategy {
         building.removeAttribute(BUILDING_CODE);
 
         long i = 1;
-        for (BuildingCode association : building.getBuildingCodeList()) {
-            association.setBuildingId(building.getId());
-            saveBuildingCode(association);
+        for (BuildingCode buildingCode : building.getBuildingCodes()) {
+            buildingCode.setBuildingId(building.getId());
+            saveBuildingCode(buildingCode);
 
-            building.addAttribute(newBuildingCodeAttribute(i++, association.getId()));
+            building.addAttribute(newBuildingCodeAttribute(i++, buildingCode.getId()));
         }
     }
 
-    private Attribute newBuildingCodeAttribute(long attributeId, long buildingAssociationId) {
+    private Attribute newBuildingCodeAttribute(long attributeId, long buildingCodeId) {
         Attribute a = new Attribute();
         a.setAttributeTypeId(BUILDING_CODE);
-        a.setValueId(buildingAssociationId);
+        a.setValueId(buildingCodeId);
         a.setValueTypeId(BUILDING_CODE);
         a.setAttributeId(attributeId);
 
