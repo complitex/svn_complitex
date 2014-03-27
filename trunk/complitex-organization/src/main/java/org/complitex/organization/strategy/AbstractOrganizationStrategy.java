@@ -424,14 +424,6 @@ public abstract class AbstractOrganizationStrategy<T extends DomainObject> exten
         return find(example);
     }
 
-    @Override
-    public abstract Long getModuleId();
-
-    @Override
-    public DomainObject getModule(){
-        return findById(getModuleId(), true);
-    }
-
     public String displayShortNameAndCode(DomainObject organization, Locale locale) {
         final String fullName = AttributeUtil.getStringCultureValue(organization, NAME, locale);
         final String shortName = AttributeUtil.getStringCultureValue(organization, SHORT_NAME, locale);

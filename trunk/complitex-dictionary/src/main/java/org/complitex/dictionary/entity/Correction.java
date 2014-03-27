@@ -41,7 +41,6 @@ public abstract class Correction implements Serializable {
 
     private String organizationName;
     private String userOrganizationName;
-    private String moduleName;
 
     private String internalObject;
     private String displayObject;
@@ -151,14 +150,6 @@ public abstract class Correction implements Serializable {
 
     public void setUserOrganizationName(String userOrganizationName) {
         this.userOrganizationName = userOrganizationName;
-    }
-
-    public String getModuleName() {
-        return moduleName;
-    }
-
-    public void setModuleName(String moduleName) {
-        this.moduleName = moduleName;
     }
 
     public String getInternalObject() {

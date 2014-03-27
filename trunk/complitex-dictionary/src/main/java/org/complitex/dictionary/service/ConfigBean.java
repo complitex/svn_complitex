@@ -94,7 +94,7 @@ public class ConfigBean extends AbstractBean{
             if (value == null){
                 value = config.getDefaultValue();
 
-                log.warn("Нет значений в таблице настроек, а по-хорошему должны быть...");
+                log.warn("хм.. нет записи для конфигурации {} в базе данных, используем значение по умолчанию {}", config.name(), value);
             }
 
             configMap.put(config, value);
@@ -116,6 +116,16 @@ public class ConfigBean extends AbstractBean{
     public Integer getInteger(IConfig config, boolean flush){
         try {
             return Integer.valueOf(getString(config, flush));
+        } catch (NumberFormatException e) {
+            log.error("Config type error", e);
+
+            return null;
+        }
+    }
+
+    public Long getLong(IConfig config, boolean flush){
+        try {
+            return Long.valueOf(getString(config, flush));
         } catch (NumberFormatException e) {
             log.error("Config type error", e);
 

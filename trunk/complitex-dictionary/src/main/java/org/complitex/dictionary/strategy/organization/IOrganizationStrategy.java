@@ -141,10 +141,6 @@ public interface IOrganizationStrategy<T extends DomainObject> extends IStrategy
 
     List<T> getOrganizations(List<Long> types,Locale locale);
 
-    Long getModuleId();
-
-    DomainObject getModule();
-
     String displayShortNameAndCode(DomainObject organization, Locale locale);
 
     String displayShortNameAndCode(Long organizationId, Locale locale);

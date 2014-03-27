@@ -16,6 +16,7 @@ import org.complitex.correction.entity.OrganizationCorrection;
 import org.complitex.correction.service.OrganizationCorrectionBean;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.FilterWrapper;
+import org.complitex.dictionary.service.ModuleBean;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.web.component.organization.OrganizationPicker;
 import org.odlabs.wiquery.ui.dialog.Dialog;
@@ -33,6 +34,9 @@ public class OrganizationCorrectionDialog extends Panel {
 
     @EJB
     private OrganizationCorrectionBean organizationCorrectionBean;
+
+    @EJB
+    private ModuleBean moduleBean;
 
     private Dialog dialog;
     private Form<OrganizationCorrection> form;
@@ -111,8 +115,9 @@ public class OrganizationCorrectionDialog extends Panel {
         });
     }
 
-    public void open(AjaxRequestTarget target, String correction, Long organizationId, Long userOrganizationId, Long moduleId){
-        form.setModelObject(new OrganizationCorrection(null, null, correction, organizationId, userOrganizationId, moduleId));
+    public void open(AjaxRequestTarget target, String correction, Long organizationId, Long userOrganizationId){
+        form.setModelObject(new OrganizationCorrection(null, null, correction, organizationId, userOrganizationId,
+                moduleBean.getModuleId()));
 
         target.add(form);
 
