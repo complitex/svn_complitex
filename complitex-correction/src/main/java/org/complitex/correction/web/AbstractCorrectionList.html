@@ -21,7 +21,6 @@
                     <th wicket:id="codeHeader"><wicket:message key="code"/></th>
                     <th wicket:id="internalObjectHeader"><wicket:message key="internalObject"/></th>
                     <th wicket:id="userOrganizationHeader"><wicket:message key="user_organization"/></th>
-                    <th wicket:id="internalOrganizationHeader"><wicket:message key="internal_organization"/></th>
                     <th>
                         <div class="AbstractCorrectionList-nowrap">
                             <input wicket:id="reset" type="button" wicket:message="value:reset" class="btnSmall"/>
@@ -39,11 +38,6 @@
                         <div wicket:id="userOrganizationFilter"></div>
                     </td>
                     <td class="filter-td">
-                        <select wicket:id="internalOrganizationFilter">
-                            <option></option>
-                        </select>
-                    </td>
-                    <td class="filter-td">
                         <div class="AbstractCorrectionList-nowrap">
                             <input wicket:id="submit" type="submit" wicket:message="value:find" class="btnSmall default"/>
                         </div>
@@ -57,7 +51,6 @@
                     <td><span wicket:id="code"></span></td>
                     <td><span wicket:id="internalObject"></span></td>
                     <td><span wicket:id="userOrganization"></span></td>
-                    <td><span wicket:id="internalOrganization"></span></td>
                     <td align="center">
                         <a wicket:id="edit">
                             <wicket:message key="edit"/>

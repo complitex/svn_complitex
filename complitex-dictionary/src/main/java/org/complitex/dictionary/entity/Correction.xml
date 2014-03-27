@@ -22,8 +22,6 @@
                      column="organization_id"/>
         <association property="userOrganizationName" select="org.complitex.organization.strategy.Organization.selectOrganizationName"
                      column="user_organization_id"/>
-        <association property="moduleName" select="org.complitex.organization.strategy.Organization.selectOrganizationName"
-                     column="module_id"/>
     </resultMap>
 
 

@@ -342,7 +342,7 @@ public abstract class TemplatePage extends WebPage {
         getTemplateSession().putPreferenceObject(page, PreferenceKey.FILTER_OBJECT, filterObject);
     }
 
-    public Object getFilterObject(Object _default) {
+    public <T> T getFilterObject(T _default) {
         return getTemplateSession().getPreferenceObject(page, PreferenceKey.FILTER_OBJECT, _default);
     }
 

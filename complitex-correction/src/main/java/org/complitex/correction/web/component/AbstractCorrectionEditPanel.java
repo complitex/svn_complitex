@@ -1,7 +1,6 @@
 package org.complitex.correction.web.component;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -21,11 +20,9 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.entity.Correction;
 import org.complitex.dictionary.entity.DomainObject;
+import org.complitex.dictionary.service.ModuleBean;
 import org.complitex.dictionary.service.SessionBean;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
-import org.complitex.dictionary.web.component.DisableAwareDropDownChoice;
-import org.complitex.dictionary.web.component.DomainObjectDisableAwareRenderer;
-import org.complitex.dictionary.web.model.OrganizationModel;
 import org.complitex.dictionary.web.component.organization.OrganizationPicker;
 import org.complitex.organization_type.strategy.OrganizationTypeStrategy;
 import org.complitex.template.web.template.TemplateSession;
@@ -46,6 +43,9 @@ public abstract class AbstractCorrectionEditPanel<T extends Correction> extends 
 
     @EJB(name = "OrganizationStrategy")
     private IOrganizationStrategy organizationStrategy;
+
+    @EJB
+    private ModuleBean moduleBean;
 
     private Long correctionId;
 
@@ -278,37 +278,8 @@ public abstract class AbstractCorrectionEditPanel<T extends Correction> extends 
         }, OrganizationTypeStrategy.USER_ORGANIZATION_TYPE).setEnabled(isNew() && sessionBean.isAdmin()));
 
         if (isNew()) {
-            correction.setModuleId(organizationStrategy.getModuleId());
+            correction.setModuleId(moduleBean.getModuleId());
         }
-
-        final List<DomainObject> internalOrganizations = Lists.newArrayList(organizationStrategy.getModule());
-        IModel<DomainObject> internalOrganizationModel = new OrganizationModel() {
-
-            @Override
-            public Long getOrganizationId() {
-                return correction.getModuleId();
-            }
-
-            @Override
-            public void setOrganizationId(Long organizationId) {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public List<DomainObject> getOrganizations() {
-                return internalOrganizations;
-            }
-        };
-        DisableAwareDropDownChoice<DomainObject> internalOrganization = new DisableAwareDropDownChoice<>("internalOrganization",
-                internalOrganizationModel, internalOrganizations, new DomainObjectDisableAwareRenderer() {
-
-            @Override
-            public Object getDisplayValue(DomainObject object) {
-                return organizationStrategy.displayDomainObject(object, getLocale());
-            }
-        });
-        internalOrganization.setEnabled(false);
-        form.add(internalOrganization);
 
         form.add(new Label("internalObjectLabel", internalObjectLabel(getLocale())));
         form.add(internalObjectPanel("internalObject"));

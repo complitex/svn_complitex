@@ -1,7 +1,6 @@
 package org.complitex.correction.web;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -33,14 +32,11 @@ import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.util.StringUtil;
-import org.complitex.dictionary.web.component.DisableAwareDropDownChoice;
-import org.complitex.dictionary.web.component.DomainObjectDisableAwareRenderer;
 import org.complitex.dictionary.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionary.web.component.datatable.DataProvider;
+import org.complitex.dictionary.web.component.organization.OrganizationPicker;
 import org.complitex.dictionary.web.component.paging.PagingNavigator;
 import org.complitex.dictionary.web.component.scroll.ScrollBookmarkablePageLink;
-import org.complitex.dictionary.web.model.OrganizationModel;
-import org.complitex.dictionary.web.component.organization.OrganizationPicker;
 import org.complitex.organization_type.strategy.OrganizationTypeStrategy;
 import org.complitex.template.web.component.toolbar.AddItemButton;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
@@ -148,7 +144,7 @@ public abstract class AbstractCorrectionList<T extends Correction> extends Scrol
         final Form filterForm = new Form("filterForm");
         content.add(filterForm);
 
-        filterWrapper = FilterWrapper.of((T)getFilterObject(newCorrection()));
+        filterWrapper = FilterWrapper.of(getFilterObject(newCorrection()));
 
         final DataProvider<T> dataProvider = new DataProvider<T>() {
 
@@ -226,34 +222,6 @@ public abstract class AbstractCorrectionList<T extends Correction> extends Scrol
         filterForm.add(new TextField<>("codeFilter", new PropertyModel<String>(filterWrapper, "object.externalId")));
         filterForm.add(new TextField<>("internalObjectFilter", new PropertyModel<String>(filterWrapper, "object.internalObject")));
 
-        final List<DomainObject> internalOrganizations = Lists.newArrayList(organizationStrategy.getModule());
-        IModel<DomainObject> internalOrganizationModel = new OrganizationModel() {
-
-            @Override
-            public Long getOrganizationId() {
-                return filterWrapper.getObject().getModuleId();
-            }
-
-            @Override
-            public void setOrganizationId(Long organizationId) {
-                filterWrapper.getObject().setModuleId(organizationId);
-            }
-
-            @Override
-            public List<DomainObject> getOrganizations() {
-                return internalOrganizations;
-            }
-        };
-
-        filterForm.add(new DisableAwareDropDownChoice<>("internalOrganizationFilter",
-                internalOrganizationModel, internalOrganizations, new DomainObjectDisableAwareRenderer() {
-
-            @Override
-            public Object getDisplayValue(DomainObject object) {
-                return organizationStrategy.displayDomainObject(object, getLocale());
-            }
-        }).setNullValid(true));
-
         AjaxLink reset = new IndicatingAjaxLink("reset") {
 
             @Override
@@ -293,8 +261,6 @@ public abstract class AbstractCorrectionList<T extends Correction> extends Scrol
                 //user organization
                 item.add(new Label("userOrganization", correction.getUserOrganizationName()));
 
-                item.add(new Label("internalOrganization", correction.getModuleName()));
-
                 ScrollBookmarkablePageLink link = new ScrollBookmarkablePageLink<WebPage>("edit", getEditPage(),
                         getEditPageParams(correction.getId()), String.valueOf(correction.getId()));
                 link.setVisible(correction.isEditable());
@@ -318,8 +284,6 @@ public abstract class AbstractCorrectionList<T extends Correction> extends Scrol
         filterForm.add(new ArrowOrderByBorder("codeHeader", Correction.OrderBy.EXTERNAL_ID.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("internalObjectHeader", Correction.OrderBy.OBJECT.getOrderBy(), dataProvider, data, content));
         filterForm.add(new ArrowOrderByBorder("userOrganizationHeader", Correction.OrderBy.USER_ORGANIZATION.getOrderBy(), dataProvider, data, content));
-        filterForm.add(new ArrowOrderByBorder("internalOrganizationHeader", Correction.OrderBy.MODULE.getOrderBy(), dataProvider,
-                data, content));
 
         content.add(new PagingNavigator("navigator", data, getPreferencesPage() + "#" + entity, content));
     }
