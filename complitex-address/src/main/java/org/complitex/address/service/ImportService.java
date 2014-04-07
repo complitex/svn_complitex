@@ -109,7 +109,8 @@ public class ImportService {
     }
 
     private <T extends IImportFile> void processDictionary(T importFile, long localeId) throws ImportFileNotFoundException,
-            ImportObjectLinkException, ImportFileReadException, ImportDuplicateException, RootOrganizationNotFound {
+            ImportObjectLinkException, ImportFileReadException, ImportDuplicateException, RootOrganizationNotFound,
+            ImportDistrictLinkException {
         if (importFile instanceof AddressImportFile) { //Address
             addressImportService.process(importFile, dictionaryListener, localeId, DateUtil.getCurrentDate());
         } else if (importFile instanceof OrganizationImportFile){ //Organization

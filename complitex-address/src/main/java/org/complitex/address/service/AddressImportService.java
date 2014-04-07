@@ -28,10 +28,7 @@ import javax.ejb.*;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 import java.io.IOException;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.complitex.address.entity.AddressImportFile.*;
 
@@ -146,7 +143,8 @@ public class AddressImportService extends AbstractImportService {
     }
 
     public <T extends IImportFile> void process(T importFile, IImportListener listener, long localeId, Date beginDate)
-            throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException, ImportDuplicateException {
+            throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException, ImportDuplicateException,
+            ImportDistrictLinkException {
         switch ((AddressImportFile) importFile) {
             case COUNTRY:
                 importCountry(listener, localeId, beginDate);
@@ -754,7 +752,7 @@ public class AddressImportService extends AbstractImportService {
      * ID DISTR_ID STREET_ID NUM PART GEK CODE
      */
     private void importBuilding(IImportListener listener, long localeId, Date beginDate) throws ImportFileNotFoundException,
-            ImportFileReadException, ImportObjectLinkException, ImportDuplicateException {
+            ImportFileReadException, ImportObjectLinkException, ImportDuplicateException, ImportDistrictLinkException {
         listener.beginImport(BUILDING, getRecordCount(BUILDING));
 
         CSVReader reader = getCsvReader(BUILDING);
@@ -813,6 +811,18 @@ public class AddressImportService extends AbstractImportService {
                     buildingAddress = building.getPrimaryAddress();
                 }else {
                     oldBuilding = buildingStrategy.findById(buildingId, true);
+
+                    //district check
+                    if (!districtObjectId.equals(oldBuilding.getAttribute(BuildingStrategy.DISTRICT).getValueId())){
+                        java.util.Locale locale = localeBean.getSystemLocale();
+
+                        throw new ImportDistrictLinkException(
+                                districtStrategy.displayDomainObject(districtObjectId, locale),
+                                streetStrategy.displayDomainObject(streetStrategy.findById(streetObjectId, true), locale),
+                                buildingStrategy.displayDomainObject(oldBuilding, locale),
+                                BUILDING.getFileName(), recordIndex);
+                    }
+
                     building = CloneUtil.cloneObject(oldBuilding);
 
                     //find address by external id
