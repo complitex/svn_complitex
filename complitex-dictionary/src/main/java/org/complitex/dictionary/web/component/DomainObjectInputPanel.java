@@ -10,7 +10,6 @@ import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.util.string.Strings;
 import org.apache.wicket.util.visit.IVisit;
@@ -32,7 +31,6 @@ import org.complitex.dictionary.web.component.type.*;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
-import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -40,7 +38,6 @@ import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newLinkedHashMap;
-import static org.apache.wicket.util.string.Strings.isEmpty;
 import static org.complitex.dictionary.strategy.web.DomainObjectAccessUtil.canEdit;
 import static org.complitex.dictionary.util.EjbBeanLocator.getBean;
 
@@ -49,32 +46,6 @@ import static org.complitex.dictionary.util.EjbBeanLocator.getBean;
  * @author Artem
  */
 public class DomainObjectInputPanel extends Panel {
-
-    public static class SimpleTypeModel<T extends Serializable> extends Model<T> {
-
-        private StringCulture systemLocaleStringCulture;
-        private IConverter<T> converter;
-
-        public SimpleTypeModel(StringCulture systemLocaleStringCulture, IConverter<T> converter) {
-            this.systemLocaleStringCulture = systemLocaleStringCulture;
-            this.converter = converter;
-        }
-
-        @Override
-        public T getObject() {
-            if (!isEmpty(systemLocaleStringCulture.getValue())) {
-                return converter.toObject(systemLocaleStringCulture.getValue());
-            }
-            return null;
-        }
-
-        @Override
-        public void setObject(T object) {
-            if (object != null) {
-                systemLocaleStringCulture.setValue(converter.toString(object));
-            }
-        }
-    }
 
     public static final String INPUT_COMPONENT_ID = "input";
     @EJB
@@ -280,69 +251,71 @@ public class DomainObjectInputPanel extends Panel {
         final StringCulture systemLocaleStringCulture = stringBean().getSystemStringCulture(attribute.getLocalizedValues());
         switch (type) {
             case STRING: {
-                IModel<String> model = new SimpleTypeModel<String>(systemLocaleStringCulture, new StringConverter());
+                IModel<String> model = new SimpleTypeModel<>(systemLocaleStringCulture, new StringConverter());
                 input = new StringPanel(INPUT_COMPONENT_ID, model, attributeType.isMandatory(), labelModel,
                         !isHistory && canEdit(strategyName, entityTable, object));
             }
             break;
             case BIG_STRING: {
-                IModel<String> model = new SimpleTypeModel<String>(systemLocaleStringCulture, new StringConverter());
+                IModel<String> model = new SimpleTypeModel<>(systemLocaleStringCulture, new StringConverter());
                 input = new BigStringPanel(INPUT_COMPONENT_ID, model, attributeType.isMandatory(), labelModel,
                         !isHistory && canEdit(strategyName, entityTable, object));
             }
             break;
             case STRING_CULTURE: {
-                IModel<List<StringCulture>> model = new PropertyModel<List<StringCulture>>(attribute, "localizedValues");
+                IModel<List<StringCulture>> model = new PropertyModel<>(attribute, "localizedValues");
                 input = new StringCulturePanel(INPUT_COMPONENT_ID, model, attributeType.isMandatory(), labelModel,
                         !isHistory && canEdit(strategyName, entityTable, object));
             }
             break;
             case INTEGER: {
-                IModel<Integer> model = new SimpleTypeModel<Integer>(systemLocaleStringCulture, new IntegerConverter());
+                IModel<Integer> model = new SimpleTypeModel<>(systemLocaleStringCulture, new IntegerConverter());
                 input = new IntegerPanel(INPUT_COMPONENT_ID, model, attributeType.isMandatory(), labelModel,
                         !isHistory && canEdit(strategyName, entityTable, object));
             }
             break;
             case DATE: {
-                IModel<Date> model = new SimpleTypeModel<Date>(systemLocaleStringCulture, new DateConverter());
+                IModel<Date> model = new SimpleTypeModel<>(systemLocaleStringCulture, new DateConverter());
                 input = new DatePanel(INPUT_COMPONENT_ID, model, attributeType.isMandatory(), labelModel,
                         !isHistory && canEdit(strategyName, entityTable, object));
             }
             break;
             case DATE2: {
-                IModel<Date> model = new SimpleTypeModel<Date>(systemLocaleStringCulture, new DateConverter());
+                IModel<Date> model = new SimpleTypeModel<>(systemLocaleStringCulture, new DateConverter());
                 input = new Date2Panel(INPUT_COMPONENT_ID, model, attributeType.isMandatory(), labelModel,
                         !isHistory && canEdit(strategyName, entityTable, object));
             }
             break;
             case MASKED_DATE: {
-                IModel<Date> model = new SimpleTypeModel<Date>(systemLocaleStringCulture, new DateConverter());
+                IModel<Date> model = new SimpleTypeModel<>(systemLocaleStringCulture, new DateConverter());
                 input = new MaskedDateInputPanel(INPUT_COMPONENT_ID, model, attributeType.isMandatory(), labelModel,
                         !isHistory && canEdit(strategyName, entityTable, object));
             }
             break;
             case BOOLEAN: {
-                IModel<Boolean> model = new SimpleTypeModel<Boolean>(systemLocaleStringCulture, new BooleanConverter());
+                IModel<Boolean> model = new SimpleTypeModel<>(systemLocaleStringCulture, new BooleanConverter());
                 input = new BooleanPanel(INPUT_COMPONENT_ID, model, labelModel,
                         !isHistory && canEdit(strategyName, entityTable, object));
             }
             break;
             case DOUBLE: {
-                IModel<Double> model = new SimpleTypeModel<Double>(systemLocaleStringCulture, new DoubleConverter());
+                IModel<Double> model = new SimpleTypeModel<>(systemLocaleStringCulture, new DoubleConverter());
                 input = new DoublePanel(INPUT_COMPONENT_ID, model, attributeType.isMandatory(), labelModel,
                         !isHistory && canEdit(strategyName, entityTable, object));
             }
             break;
             case GENDER: {
-                IModel<Gender> model = new SimpleTypeModel<Gender>(systemLocaleStringCulture, new GenderConverter());
+                IModel<Gender> model = new SimpleTypeModel<>(systemLocaleStringCulture, new GenderConverter());
                 input = new GenderPanel(INPUT_COMPONENT_ID, model, attributeType.isMandatory(), labelModel,
                         !isHistory && canEdit(strategyName, entityTable, object));
             }
             break;
         }
+
         if (input == null) {
             throw new IllegalStateException("Input component for attribute type " + attributeType.getId() + " is not recognized.");
         }
+
         return input;
     }
 
