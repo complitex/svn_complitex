@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.dictionary.entity;
 
 import java.io.Serializable;
@@ -31,6 +27,18 @@ public class Attribute implements Serializable {
     private Date endDate;
 
     private StatusType status = StatusType.ACTIVE;
+
+    public StringCulture getStringCulture(Long localeId){
+        if (localizedValues != null){
+            for (StringCulture sc: localizedValues){
+                if (sc.getLocaleId().equals(localeId)){
+                    return sc;
+                }
+            }
+        }
+
+        return null;
+    }
 
     public Long getAttributeId() {
         return attributeId;
@@ -94,10 +102,6 @@ public class Attribute implements Serializable {
 
     public void setLocalizedValues(List<StringCulture> localizedValues) {
         this.localizedValues = localizedValues;
-    }
-
-    public void addLocalizedValue(StringCulture localizedValue) {
-        localizedValues.add(localizedValue);
     }
 
     public Long getValueTypeId() {

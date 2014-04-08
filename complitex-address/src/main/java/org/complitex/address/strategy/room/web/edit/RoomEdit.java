@@ -18,6 +18,7 @@ import org.complitex.dictionary.util.CloneUtil;
 import org.complitex.dictionary.util.DateUtil;
 import org.complitex.dictionary.util.EjbBeanLocator;
 import org.complitex.dictionary.util.ResourceUtil;
+import org.complitex.dictionary.web.component.DomainObjectComponentUtil;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.RangeNumbersPanel;
 import org.complitex.dictionary.web.component.RangeNumbersPanel.NumbersList;
@@ -70,7 +71,7 @@ public class RoomEdit extends DomainObjectEdit {
 
                         @Override
                         protected void addComplexAttributesPanelBefore(String id) {
-                            final IModel<String> labelModel = labelModel(getStrategy().getEntity().
+                            final IModel<String> labelModel = DomainObjectComponentUtil.labelModel(getStrategy().getEntity().
                                     getAttributeType(RoomStrategy.NAME).getAttributeNames(), getLocale());
                             rangeNumbersPanel = new RangeNumbersPanel(id, labelModel, numbersList);
                             rangeNumbersPanel.add(new CssAttributeBehavior("roomRangeNumberPanel"));

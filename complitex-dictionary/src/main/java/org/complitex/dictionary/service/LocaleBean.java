@@ -1,16 +1,16 @@
 package org.complitex.dictionary.service;
 
-import java.util.Collection;
+import org.complitex.dictionary.entity.Locale;
 import org.complitex.dictionary.mybatis.Transactional;
 
+import javax.annotation.PostConstruct;
 import javax.ejb.ConcurrencyManagement;
 import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.Singleton;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.annotation.PostConstruct;
-import org.complitex.dictionary.entity.Locale;
 
 /**
  *
@@ -95,5 +95,9 @@ public class LocaleBean extends AbstractBean {
 
     public java.util.Locale getSystemLocale(){
         return systemLocale;
+    }
+
+    public Long getSystemLocaleId(){
+        return systemLocaleObject.getId();
     }
 }

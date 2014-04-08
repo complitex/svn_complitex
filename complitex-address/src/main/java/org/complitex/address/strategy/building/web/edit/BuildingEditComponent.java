@@ -27,6 +27,7 @@ import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionary.strategy.web.DomainObjectAccessUtil;
+import org.complitex.dictionary.web.component.DomainObjectComponentUtil;
 import org.complitex.dictionary.web.component.DomainObjectDisableAwareRenderer;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.ShowMode;
@@ -97,7 +98,7 @@ public class BuildingEditComponent extends AbstractComplexAttributesPanel {
         attributesContainer.add(districtContainer);
 
         Label districtLabel = new Label("districtLabel",
-                DomainObjectInputPanel.labelModel(buildingStrategy.getEntity().getAttributeType(BuildingStrategy.DISTRICT).
+                DomainObjectComponentUtil.labelModel(buildingStrategy.getEntity().getAttributeType(BuildingStrategy.DISTRICT).
                         getAttributeNames(), getLocale()));
         districtContainer.add(districtLabel);
         districtSearchComponentState = new SearchComponentState() {
