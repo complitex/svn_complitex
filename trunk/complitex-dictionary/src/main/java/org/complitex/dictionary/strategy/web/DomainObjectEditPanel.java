@@ -149,7 +149,7 @@ public class DomainObjectEditPanel extends Panel {
         messages.setOutputMarkupId(true);
         add(messages);
 
-        Form<Void> form = new Form<Void>("form");
+        Form form = new Form("form");
 
         //input panel
         objectInputPanel = newInputPanel("domainObjectInputPanel", newObject, entity, strategyName, parentId, parentEntity);

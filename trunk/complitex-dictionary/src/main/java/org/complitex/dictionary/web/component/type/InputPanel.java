@@ -39,7 +39,7 @@ public class InputPanel<T> extends Panel {
     }
 
     protected void init(IModel<T> model, Class<T> type, boolean required, IModel<String> labelModel, boolean enabled, final MarkupContainer[] toUpdate, Integer size) {
-        TextField<T> textField = new TextField<T>("textField", model);
+        TextField<T> textField = new TextField<>("textField", model);
         textField.setType(type);
         textField.setEnabled(enabled);
         textField.setLabel(labelModel);

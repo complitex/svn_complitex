@@ -1,6 +1,5 @@
 package org.complitex.dictionary.web.component;
 
-import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -8,17 +7,13 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.AbstractReadOnlyModel;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.util.string.Strings;
 import org.apache.wicket.util.visit.IVisit;
 import org.apache.wicket.util.visit.IVisitor;
-import org.complitex.dictionary.converter.*;
-import org.complitex.dictionary.entity.*;
+import org.complitex.dictionary.entity.Attribute;
+import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.description.Entity;
 import org.complitex.dictionary.entity.description.EntityAttributeType;
-import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.IStrategy.SimpleObjectInfo;
 import org.complitex.dictionary.strategy.StrategyFactory;
@@ -27,19 +22,16 @@ import org.complitex.dictionary.strategy.web.DomainObjectEditPanel;
 import org.complitex.dictionary.web.component.search.CollapsibleInputSearchComponent;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
-import org.complitex.dictionary.web.component.type.*;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 import static org.complitex.dictionary.strategy.web.DomainObjectAccessUtil.canEdit;
-import static org.complitex.dictionary.util.EjbBeanLocator.getBean;
 
 /**
  *
@@ -47,7 +39,6 @@ import static org.complitex.dictionary.util.EjbBeanLocator.getBean;
  */
 public class DomainObjectInputPanel extends Panel {
 
-    public static final String INPUT_COMPONENT_ID = "input";
     @EJB
     private StrategyFactory strategyFactory;
     private SearchComponentState searchComponentState;
@@ -202,13 +193,13 @@ public class DomainObjectInputPanel extends Panel {
             protected void populateItem(ListItem<Attribute> item) {
                 Attribute attr = item.getModelObject();
                 final EntityAttributeType attributeType = attrToTypeMap.get(attr);
-                item.add(new Label("label", labelModel(attributeType.getAttributeNames(), getLocale())));
+                item.add(new Label("label", DomainObjectComponentUtil.labelModel(attributeType.getAttributeNames(), getLocale())));
                 WebMarkupContainer required = new WebMarkupContainer("required");
                 item.add(required);
                 required.setVisible(attributeType.isMandatory());
 
-                Component input = newInputComponent(entity, strategyName, object, attr, getLocale(), isHistory());
-                item.add(input);
+                item.add(DomainObjectComponentUtil.newInputComponent(entity, strategyName, object, attr,
+                        getLocale(), isHistory()));
             }
         };
     }
@@ -222,101 +213,6 @@ public class DomainObjectInputPanel extends Panel {
             }
         }
         return attributes;
-    }
-
-    private static StringCultureBean stringBean() {
-        return getBean(StringCultureBean.class);
-    }
-
-    public static IModel<String> labelModel(final List<StringCulture> attributeNames, final Locale locale) {
-        return new AbstractReadOnlyModel<String>() {
-
-            @Override
-            public String getObject() {
-                return Strings.capitalize(stringBean().displayValue(attributeNames, locale).toLowerCase(locale));
-            }
-        };
-    }
-
-    public static Component newInputComponent(String entityTable, String strategyName, DomainObject object,
-            Attribute attribute, final Locale locale, boolean isHistory) {
-        StrategyFactory strategyFactory = getBean(StrategyFactory.class);
-        IStrategy strategy = strategyFactory.getStrategy(strategyName, entityTable);
-        Entity entity = strategy.getEntity();
-        final EntityAttributeType attributeType = entity.getAttributeType(attribute.getAttributeTypeId());
-        IModel<String> labelModel = labelModel(attributeType.getAttributeNames(), locale);
-        String valueType = attributeType.getEntityAttributeValueTypes().get(0).getValueType();
-        SimpleTypes type = SimpleTypes.valueOf(valueType.toUpperCase());
-        Component input = null;
-        final StringCulture systemLocaleStringCulture = stringBean().getSystemStringCulture(attribute.getLocalizedValues());
-        switch (type) {
-            case STRING: {
-                IModel<String> model = new SimpleTypeModel<>(systemLocaleStringCulture, new StringConverter());
-                input = new StringPanel(INPUT_COMPONENT_ID, model, attributeType.isMandatory(), labelModel,
-                        !isHistory && canEdit(strategyName, entityTable, object));
-            }
-            break;
-            case BIG_STRING: {
-                IModel<String> model = new SimpleTypeModel<>(systemLocaleStringCulture, new StringConverter());
-                input = new BigStringPanel(INPUT_COMPONENT_ID, model, attributeType.isMandatory(), labelModel,
-                        !isHistory && canEdit(strategyName, entityTable, object));
-            }
-            break;
-            case STRING_CULTURE: {
-                IModel<List<StringCulture>> model = new PropertyModel<>(attribute, "localizedValues");
-                input = new StringCulturePanel(INPUT_COMPONENT_ID, model, attributeType.isMandatory(), labelModel,
-                        !isHistory && canEdit(strategyName, entityTable, object));
-            }
-            break;
-            case INTEGER: {
-                IModel<Integer> model = new SimpleTypeModel<>(systemLocaleStringCulture, new IntegerConverter());
-                input = new IntegerPanel(INPUT_COMPONENT_ID, model, attributeType.isMandatory(), labelModel,
-                        !isHistory && canEdit(strategyName, entityTable, object));
-            }
-            break;
-            case DATE: {
-                IModel<Date> model = new SimpleTypeModel<>(systemLocaleStringCulture, new DateConverter());
-                input = new DatePanel(INPUT_COMPONENT_ID, model, attributeType.isMandatory(), labelModel,
-                        !isHistory && canEdit(strategyName, entityTable, object));
-            }
-            break;
-            case DATE2: {
-                IModel<Date> model = new SimpleTypeModel<>(systemLocaleStringCulture, new DateConverter());
-                input = new Date2Panel(INPUT_COMPONENT_ID, model, attributeType.isMandatory(), labelModel,
-                        !isHistory && canEdit(strategyName, entityTable, object));
-            }
-            break;
-            case MASKED_DATE: {
-                IModel<Date> model = new SimpleTypeModel<>(systemLocaleStringCulture, new DateConverter());
-                input = new MaskedDateInputPanel(INPUT_COMPONENT_ID, model, attributeType.isMandatory(), labelModel,
-                        !isHistory && canEdit(strategyName, entityTable, object));
-            }
-            break;
-            case BOOLEAN: {
-                IModel<Boolean> model = new SimpleTypeModel<>(systemLocaleStringCulture, new BooleanConverter());
-                input = new BooleanPanel(INPUT_COMPONENT_ID, model, labelModel,
-                        !isHistory && canEdit(strategyName, entityTable, object));
-            }
-            break;
-            case DOUBLE: {
-                IModel<Double> model = new SimpleTypeModel<>(systemLocaleStringCulture, new DoubleConverter());
-                input = new DoublePanel(INPUT_COMPONENT_ID, model, attributeType.isMandatory(), labelModel,
-                        !isHistory && canEdit(strategyName, entityTable, object));
-            }
-            break;
-            case GENDER: {
-                IModel<Gender> model = new SimpleTypeModel<>(systemLocaleStringCulture, new GenderConverter());
-                input = new GenderPanel(INPUT_COMPONENT_ID, model, attributeType.isMandatory(), labelModel,
-                        !isHistory && canEdit(strategyName, entityTable, object));
-            }
-            break;
-        }
-
-        if (input == null) {
-            throw new IllegalStateException("Input component for attribute type " + attributeType.getId() + " is not recognized.");
-        }
-
-        return input;
     }
 
     protected void addComplexAttributesPanel(String id, Class<? extends AbstractComplexAttributesPanel> complexAttributesPanelClass) {
