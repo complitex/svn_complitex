@@ -3,6 +3,7 @@ package org.complitex;
 import org.apache.wicket.Application;
 import org.apache.wicket.IInitializer;
 import org.apache.wicket.SharedResources;
+import org.apache.wicket.request.resource.PackageResourceReference;
 import org.apache.wicket.util.file.Files;
 
 import java.io.File;
@@ -10,7 +11,6 @@ import java.io.FilenameFilter;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
-import org.apache.wicket.request.resource.PackageResourceReference;
 
 /**
  *
