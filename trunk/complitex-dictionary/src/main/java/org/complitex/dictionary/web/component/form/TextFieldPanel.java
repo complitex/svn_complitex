@@ -4,6 +4,7 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -13,6 +14,10 @@ public class TextFieldPanel<T> extends Panel {
     public TextFieldPanel(String id, IModel<T> model, Class type, int size) {
         super(id, model);
 
-        add(new TextField<T>("text_field", model).setType(type).add(AttributeModifier.replace("size", size)));
+        add(new TextField<>("text_field", model)
+                .setConvertEmptyInputStringToNull(true)
+                .setType(type)
+                .setLabel(Model.of(id))
+                .add(AttributeModifier.replace("size", size)));
     }
 }
