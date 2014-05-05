@@ -19,4 +19,10 @@ public abstract class DeleteItemButton extends ToolbarButton {
     public DeleteItemButton(String id) {
         super(id, new SharedResourceReference(IMAGE_SRC), TITLE_KEY);
     }
+
+    public DeleteItemButton(String id, boolean useAjax) {
+        super(id, new SharedResourceReference(IMAGE_SRC), TITLE_KEY, useAjax);
+    }
+
+
 }
