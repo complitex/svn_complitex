@@ -1,9 +1,9 @@
-package org.complitex.correction.service;
+package org.complitex.address.service;
 
-import org.complitex.correction.entity.BuildingSync;
-import org.complitex.correction.entity.DistrictSync;
-import org.complitex.correction.entity.StreetSync;
-import org.complitex.correction.entity.StreetTypeSync;
+import org.complitex.address.entity.BuildingAddressSync;
+import org.complitex.address.entity.DistrictSync;
+import org.complitex.address.entity.StreetSync;
+import org.complitex.address.entity.StreetTypeSync;
 import org.complitex.dictionary.service.AbstractBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,7 +121,7 @@ public class AddressSyncAdapter extends AbstractBean {
      * возвращаемое значение: 0 - все хорошо, -3 - неизвестный район нас.пункта, -4 - неизвестный тип улицы, -5 - неизвестная улица
      */
     @SuppressWarnings("unchecked")
-    public List<BuildingSync> getBuildingSyncs(String dataSource, String districtName, String streetTypeName,
+    public List<BuildingAddressSync> getBuildingSyncs(String dataSource, String districtName, String streetTypeName,
                                                String streetName, Date date){
         Map<String, Object> param = new HashMap<>();
 
@@ -136,6 +136,6 @@ public class AddressSyncAdapter extends AbstractBean {
             log.error("Ошибка удаленной функции получения списка домов", e);
         }
 
-        return (List<BuildingSync>) param.get("out");
+        return (List<BuildingAddressSync>) param.get("out");
     }
 }
