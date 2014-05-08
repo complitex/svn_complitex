@@ -5,11 +5,11 @@ import org.apache.wicket.markup.html.basic.MultiLineLabel;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.Model;
-import org.complitex.correction.entity.BuildingSync;
-import org.complitex.correction.entity.DistrictSync;
-import org.complitex.correction.entity.StreetSync;
-import org.complitex.correction.entity.StreetTypeSync;
-import org.complitex.correction.service.AddressSyncAdapter;
+import org.complitex.address.entity.BuildingAddressSync;
+import org.complitex.address.entity.DistrictSync;
+import org.complitex.address.entity.StreetSync;
+import org.complitex.address.entity.StreetTypeSync;
+import org.complitex.address.service.AddressSyncAdapter;
 import org.complitex.dictionary.util.StringUtil;
 
 import javax.ejb.EJB;
@@ -85,12 +85,12 @@ public class SyncTest extends WebPage {
                 }
 
                 //buildings
-                List<BuildingSync> buildingSyncs = addressSyncService.getBuildingSyncs(dataSource,
+                List<BuildingAddressSync> buildingAddressSyncs = addressSyncService.getBuildingSyncs(dataSource,
                         "Центральный", "ул", "ФРАНТИШЕКА КРАЛА", new Date());
                 if (streetSyncs != null){
                     String t = "";
 
-                    for (BuildingSync s : buildingSyncs){
+                    for (BuildingAddressSync s : buildingAddressSyncs){
                         t +=  s.getStreetExternalId() + " " + s.getExternalId() + " " + s.getName() + " "
                                 + StringUtil.emptyOnNull(s.getPart())+"\n";
                     }

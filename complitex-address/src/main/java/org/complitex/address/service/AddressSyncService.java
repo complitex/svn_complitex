@@ -1,4 +1,4 @@
-package org.complitex.correction.service;
+package org.complitex.address.service;
 
 import org.complitex.correction.entity.DistrictSync;
 import org.complitex.dictionary.entity.DictionaryConfig;
