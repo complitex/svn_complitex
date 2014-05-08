@@ -1,6 +1,6 @@
 package org.complitex.address.service;
 
-import org.complitex.correction.entity.DistrictSync;
+import org.complitex.address.entity.DistrictSync;
 import org.complitex.dictionary.entity.DictionaryConfig;
 import org.complitex.dictionary.service.ConfigBean;
 import org.complitex.dictionary.util.DateUtil;
@@ -29,10 +29,8 @@ public class AddressSyncService {
 
         List<DistrictSync> syncs = addressSyncAdapter.getDistrictSyncs(getDataSource(), cityName, cityTypeName, date);
 
-        for(DistrictSync sync : syncs){
+        //todo sync district
 
-
-        }
 
     }
 }
