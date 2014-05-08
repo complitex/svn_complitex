@@ -9,6 +9,6 @@ import org.apache.wicket.request.resource.PackageResourceReference;
  */
 public class ThemeResourceReference extends PackageResourceReference {
     public ThemeResourceReference() {
-        super(ThemeResourceReference.class, "jquery-ui-1.8.13.custom.css");
+        super(ThemeResourceReference.class, "jquery-ui-1.10.4.custom.css");
     }
 }
