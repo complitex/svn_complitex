@@ -1,5 +1,8 @@
 package org.complitex.dictionary.util;
 
+import org.joda.time.DateTime;
+import org.joda.time.Months;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -294,8 +297,10 @@ public class DateUtil {
     }
 
     public static int getDaysDiff(Date date1, Date date2) {
-
-
         return (int) Math.abs((date1.getTime() - date2.getTime()) / 86400000);
+    }
+
+    public static int getMonthDiff(Date date1, Date date2) {
+        return Months.monthsBetween(new DateTime(date1), new DateTime(date2)).getMonths();
     }
 }

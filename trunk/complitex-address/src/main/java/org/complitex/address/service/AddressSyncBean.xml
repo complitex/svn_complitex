@@ -1,5 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.complitex.address.service.AddressSyncBean">
+    <resultMap id="abstractAddressSyncResultMap" type="org.complitex.address.entity.AbstractAddressSync">
+        <id column="id" property="id"/>
+        <result column="object_id" property="objectId"/>
+        <result column="external_id" property="externalId"/>
+        <result column="name" property="name"/>
+        <result column="date" property="date"/>
+        <result column="status" property="status"/>
+    </resultMap>
+    
+    <resultMap id="districtSyncResultMap" type="org.complitex.address.entity.DistrictSync" 
+               extends="abstractAddressSyncResultMap">
+        <result column="city_object_id" property="cityObjectId"/>                
+    </resultMap>
+    
+    <resultMap id="streetTypeResultMap" type="org.complitex.address.entity.StreetTypeSync" 
+               extends="abstractAddressSyncResultMap">
+        <result column="short_name" property="shortName"/>        
+    </resultMap>
+    
+    <resultMap id="streetResultMap" type="org.complitex.address.entity.StreetSync"
+               extends="abstractAddressSyncResultMap">
+        <result column="street_type_object_id" property="streetTypeObjectId"/>
+        <result column="city_object_id" property="cityObjectId"/>
+        <result column="street_type_object_id" property="streetTypeShortName"/>
+    </resultMap>
+
+    <resultMap id="buildingAddressResultMap" type="org.complitex.address.entity.BuildingAddressSync"
+               extends="abstractAddressSyncResultMap">
+        <result column="street_type_object_id" property="streetTypeObjectId"/>
+        <result column="street_object_id" property="streetObjectId"/>
+        <result column="district_object_id" property="districtObjectId"/>
+        <result column="street_external_id" property="streetExternalId"/>
+        <result column="part" property="part"/>
+    </resultMap>
+
+    <insert id="insertDistrictSync" parameterType="org.complitex.address.entity.DistrictSync">
+
+
+
+
+    </insert>
+
 
 </mapper>
