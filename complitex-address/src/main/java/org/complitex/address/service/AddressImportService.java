@@ -813,14 +813,18 @@ public class AddressImportService extends AbstractImportService {
                     oldBuilding = buildingStrategy.findById(buildingId, true);
 
                     //district check
-                    if (!districtObjectId.equals(oldBuilding.getAttribute(BuildingStrategy.DISTRICT).getValueId())){
-                        java.util.Locale locale = localeBean.getSystemLocale();
+                    Long buildingDistrictObjectId = oldBuilding.getAttribute(BuildingStrategy.DISTRICT).getValueId();
+                    if (!districtObjectId.equals(buildingDistrictObjectId)){
+                        java.util.Locale locale = localeBean.getLocale(localeId);
 
-                        throw new ImportDistrictLinkException(
+                        listener.warn(BUILDING, ResourceUtil.getFormatString(RESOURCE_BUNDLE, "district_link_warn",
+                                locale,
                                 districtStrategy.displayDomainObject(districtObjectId, locale),
+                                districtStrategy.displayDomainObject(buildingDistrictObjectId, locale),
                                 streetStrategy.displayDomainObject(streetStrategy.findById(streetObjectId, true), locale),
                                 buildingStrategy.displayDomainObject(oldBuilding, locale),
-                                BUILDING.getFileName(), recordIndex);
+                                BUILDING.getFileName(), recordIndex));
+                        continue;
                     }
 
                     building = CloneUtil.cloneObject(oldBuilding);
