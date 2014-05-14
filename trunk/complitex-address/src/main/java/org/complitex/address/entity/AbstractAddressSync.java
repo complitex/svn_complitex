@@ -1,12 +1,15 @@
 package org.complitex.address.entity;
 
+import org.complitex.dictionary.entity.ILongId;
+
 import java.util.Date;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 04.10.13 15:54
  */
-public abstract class AbstractAddressSync {
+public abstract class AbstractAddressSync implements ILongId{
+    private Long id;
     private Long objectId;
     private String externalId;
     private String name;
@@ -15,6 +18,14 @@ public abstract class AbstractAddressSync {
     private AddressSyncStatus status;
 
     protected AbstractAddressSync() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Long getObjectId() {
