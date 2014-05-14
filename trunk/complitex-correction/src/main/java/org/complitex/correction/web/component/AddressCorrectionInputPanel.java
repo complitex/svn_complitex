@@ -1,5 +1,6 @@
 package org.complitex.correction.web.component;
 
+import com.google.common.collect.Lists;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -12,9 +13,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.complitex.address.strategy.street_type.StreetTypeStrategy;
-import org.complitex.correction.entity.BuildingCorrection;
-import org.complitex.correction.entity.DistrictCorrection;
-import org.complitex.correction.entity.StreetCorrection;
+import org.complitex.correction.entity.*;
 import org.complitex.correction.service.AddressCorrectionBean;
 import org.complitex.dictionary.entity.Correction;
 import org.complitex.dictionary.entity.DomainObject;
@@ -29,7 +28,10 @@ import org.complitex.dictionary.web.component.search.SearchComponentState;
 import org.complitex.dictionary.web.component.search.WiQuerySearchComponent;
 
 import javax.ejb.EJB;
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -84,7 +86,7 @@ public class AddressCorrectionInputPanel extends Panel {
             public String getObject() {
                 return stringBean.displayValue(entityBean.getEntity("street_type").getEntityNames(), getLocale());
             }
-        }).setVisible(!isBuilding));
+        }).setVisible(isStreet));
 
         streetContainer.add(new Label("streetLabel", new AbstractReadOnlyModel<String>() {
 
@@ -96,7 +98,7 @@ public class AddressCorrectionInputPanel extends Panel {
 
         //Building
         final WebMarkupContainer buildingContainer = new WebMarkupContainer("buildingContainer");
-        buildingContainer.setVisible(isBuilding || isApartment || isRoom);
+        buildingContainer.setVisible(isBuilding);
         add(buildingContainer);
 
         buildingContainer.add(new Label("buildingLabel", new AbstractReadOnlyModel<String>() {
@@ -114,7 +116,7 @@ public class AddressCorrectionInputPanel extends Panel {
 
         //Apartment
         final WebMarkupContainer apartmentContainer = new WebMarkupContainer("apartmentContainer");
-        apartmentContainer.setVisible(isApartment || isRoom);
+        apartmentContainer.setVisible(isApartment);
         add(apartmentContainer);
 
         apartmentContainer.add(new Label("apartmentLabel", new AbstractReadOnlyModel<String>() {
@@ -138,7 +140,13 @@ public class AddressCorrectionInputPanel extends Panel {
             }
         }));
 
-        List<String> filter = isBuilding || isApartment || isRoom ? Arrays.asList("city", "street") : Arrays.asList("city");
+        List<String> filter = isBuilding || isApartment || isRoom ? Lists.newArrayList("city", "street") : Lists.newArrayList("city");
+        if (isApartment || isRoom) {
+            filter.add("building");
+        }
+        if (isRoom) {
+            filter.add("apartment");
+        }
 
         //City
         add(new WiQuerySearchComponent("search_component", new SearchComponentState(), filter, new ISearchCallback() {
@@ -146,6 +154,8 @@ public class AddressCorrectionInputPanel extends Panel {
             public void found(Component component, Map<String, Long> ids, AjaxRequestTarget target) {
                 Long cityObjectId = ids.get("city");
                 Long streetObjectId = ids.get("street");
+                Long buildingObjectId = ids.get("building");
+                Long apartmentObjectId = ids.get("apartment");
 
                 if (correction instanceof DistrictCorrection){
                     ((DistrictCorrection) correction).setCityObjectId(cityObjectId);
@@ -153,6 +163,12 @@ public class AddressCorrectionInputPanel extends Panel {
                     ((StreetCorrection) correction).setCityObjectId(cityObjectId);
                 } else if (correction instanceof BuildingCorrection){
                     ((BuildingCorrection) correction).setStreetObjectId(streetObjectId);
+                } else if (correction instanceof ApartmentCorrection){
+                    ((ApartmentCorrection) correction).setBuildingObjectId(buildingObjectId);
+                } else if (correction instanceof RoomCorrection && apartmentObjectId != null && apartmentObjectId > 0){
+                    ((RoomCorrection) correction).setApartmentObjectId(apartmentObjectId);
+                } else if (correction instanceof RoomCorrection && buildingObjectId != null && buildingObjectId > 0){
+                    ((RoomCorrection) correction).setBuildingObjectId(buildingObjectId);
                 }
             }
         }, ShowMode.ACTIVE, true));
@@ -188,7 +204,7 @@ public class AddressCorrectionInputPanel extends Panel {
                 }
             }
         });
-        streetTypeSelect.setVisible(!isBuilding);
+        streetTypeSelect.setVisible(isStreet);
         streetContainer.add(streetTypeSelect);
 
         //Street
