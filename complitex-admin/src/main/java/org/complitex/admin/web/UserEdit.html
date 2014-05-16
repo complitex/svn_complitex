@@ -67,8 +67,8 @@
                                 <table>
                                     <tr wicket:id="userOrganizations">
                                         <td><input type="radio" wicket:id="radio"/></td>
-                                        <td><span wicket:id="picker"></span></td>
-                                        <td>
+                                        <td><div wicket:id="picker"></div></td>
+                                        <td>&#9;&#9;
                                             <a wicket:id="delete">
                                                 <wicket:message key="delete"/>
                                             </a>
@@ -80,7 +80,7 @@
                         <a wicket:id="addOrganization"><wicket:message key="add"/></a>
                     </td>
                 </tr>
-                <tr>
+                <tr wicket:id="addressContainer">
                     <th><wicket:message key="default_address"/>:</th>
                     <td><span wicket:id="searchComponent"></span>
                         <span>

@@ -1,6 +1,7 @@
 package org.complitex.admin.web;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -27,13 +28,14 @@ import org.complitex.dictionary.service.PreferenceBean;
 import org.complitex.dictionary.util.CloneUtil;
 import org.complitex.dictionary.web.component.DomainObjectInputPanel;
 import org.complitex.dictionary.web.component.ShowMode;
-import org.complitex.dictionary.web.component.organization.user.UserOrganizationPickerFactory;
-import org.complitex.dictionary.web.component.organization.user.UserOrganizationPickerParameters;
+import org.complitex.dictionary.web.component.organization.OrganizationPicker;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
 import org.complitex.dictionary.web.component.search.WiQuerySearchComponent;
+import org.complitex.organization_type.strategy.OrganizationTypeStrategy;
 import org.complitex.template.web.component.LocalePicker;
 import org.complitex.template.web.security.SecurityRole;
 import org.complitex.template.web.template.FormTemplatePage;
+import org.complitex.template.web.template.TemplatePage;
 
 import javax.ejb.EJB;
 import java.util.*;
@@ -64,15 +66,15 @@ public class UserEdit extends FormTemplatePage {
 
     public UserEdit() {
         super();
-        init(null, false);
+        init(null, false, true);
     }
 
     public UserEdit(PageParameters parameters) {
         super();
-        init(parameters.get("user_id").toOptionalLong(), "copy".equals(parameters.get("action").toString()));
+        init(parameters.get("user_id").toOptionalLong(), "copy".equals(parameters.get("action").toString()), parameters.get("using_address").toBoolean(true));
     }
 
-    private void init(Long userId, boolean copyUser) {
+    private void init(Long userId, boolean copyUser, boolean usingAddress) {
         add(new Label("title", new ResourceModel("title")));
         final FeedbackPanel messages = new FeedbackPanel("messages");
         messages.setOutputMarkupId(true);
@@ -208,9 +210,24 @@ public class UserEdit extends FormTemplatePage {
                 final UserOrganization userOrganization = item.getModelObject();
                 final ListView listView = this;
 
-                item.add(new Radio<Integer>("radio", new Model<Integer>(item.getIndex())));
-                item.add(UserOrganizationPickerFactory.create("picker", 
-                        new PropertyModel<Long>(userOrganization, "organizationObjectId"), new UserOrganizationPickerParameters(true)));
+                item.add(new Radio<>("radio", new Model<>(item.getIndex())));
+                item.add(new OrganizationPicker("picker", new IModel<String>() {
+                    @Override
+                    public String getObject() {
+                        return userOrganization.getOrganizationObjectId() == null? null :
+                                String.valueOf(userOrganization.getOrganizationObjectId());
+                    }
+
+                    @Override
+                    public void setObject(String s) {
+                        userOrganization.setOrganizationObjectId(StringUtils.isEmpty(s) ? null : Long.valueOf(s));
+                    }
+
+                    @Override
+                    public void detach() {
+
+                    }
+                }, OrganizationTypeStrategy.USER_ORGANIZATION_TYPE));
                 item.add(new AjaxLink<Void>("delete") {
 
                     @Override
@@ -236,6 +253,10 @@ public class UserEdit extends FormTemplatePage {
         });
 
         //Адрес по умолчанию
+        final WebMarkupContainer addressContainer = new WebMarkupContainer("addressContainer");
+        form.add(addressContainer);
+        addressContainer.setVisible(usingAddress);
+
         Boolean useDefaultAddressFlag = null;
         if (!copyUser) {
             Preference useDefaultAddressPreference = preferenceBean.getOrCreatePreference(userId, GLOBAL_PAGE, IS_USE_DEFAULT_STATE_KEY);
@@ -244,9 +265,12 @@ public class UserEdit extends FormTemplatePage {
             useDefaultAddressFlag = copyUseDefaultAddressFlag;
         }
         final Model<Boolean> useDefaultAddressModel = new Model<Boolean>(useDefaultAddressFlag);
-        form.add(new CheckBox("use_default_address", useDefaultAddressModel));
+        addressContainer.add(new CheckBox("use_default_address", useDefaultAddressModel));
 
-        form.add(new WiQuerySearchComponent("searchComponent", searchComponentState, SEARCH_FILTERS, null, ShowMode.ACTIVE, true));
+        addressContainer.add(usingAddress ?
+                        new WiQuerySearchComponent("searchComponent", searchComponentState, SEARCH_FILTERS, null, ShowMode.ACTIVE, true) :
+                        new Label("searchComponent", "default_address")
+        );
 
         //Сохранить
         IndicatingAjaxButton save = new IndicatingAjaxButton("save") {
@@ -424,9 +448,13 @@ public class UserEdit extends FormTemplatePage {
         if (userId != null) {
             PageParameters params = new PageParameters();
             params.set(UserList.SCROLL_PARAMETER, userId);
-            setResponsePage(UserList.class, params);
+            setResponsePage(getPageListClass(), params);
         } else {
-            setResponsePage(UserList.class);
+            setResponsePage(getPageListClass());
         }
+    }
+
+    protected Class<? extends TemplatePage> getPageListClass() {
+        return UserList.class;
     }
 }

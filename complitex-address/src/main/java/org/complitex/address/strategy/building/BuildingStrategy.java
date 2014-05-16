@@ -480,7 +480,7 @@ public class BuildingStrategy extends TemplateStrategy {
     }
 
     @Override
-    protected void fillAttributes(DomainObject object) {
+    protected void fillAttributes(String dataSource, DomainObject object) {
         List<Attribute> toAdd = Lists.newArrayList();
 
         for (EntityAttributeType attributeType : getEntity().getEntityAttributeTypes()) {
