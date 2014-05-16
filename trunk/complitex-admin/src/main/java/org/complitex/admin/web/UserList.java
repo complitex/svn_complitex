@@ -38,6 +38,7 @@ import org.complitex.template.web.component.toolbar.AddUserButton;
 import org.complitex.template.web.component.toolbar.ToolbarButton;
 import org.complitex.template.web.pages.ScrollListPage;
 import org.complitex.template.web.security.SecurityRole;
+import org.complitex.template.web.template.TemplatePage;
 
 import javax.ejb.EJB;
 import java.util.Arrays;
@@ -192,11 +193,11 @@ public class UserList extends ScrollListPage {
 
                 item.add(new BookmarkablePageLinkPanel<User>("action_edit", getString("action_edit"),
                         ScrollListBehavior.SCROLL_PREFIX + String.valueOf(user.getId()),
-                        UserEdit.class, new PageParameters().set("user_id", user.getId())));
+                        getEditPageClass(), new PageParameters().set("user_id", user.getId()).set("using_address", isUsingAddress())));
 
                 item.add(new BookmarkablePageLinkPanel<User>("action_copy", getString("action_copy"),
                         ScrollListBehavior.SCROLL_PREFIX + String.valueOf(user.getId()),
-                        UserEdit.class, new PageParameters().set("user_id", user.getId()).set("action", "copy")));
+                        getEditPageClass(), new PageParameters().set("user_id", user.getId()).set("action", "copy").set("using_address", isUsingAddress())));
             }
         };
         filterForm.add(dataView);
@@ -235,8 +236,16 @@ public class UserList extends ScrollListPage {
 
             @Override
             protected void onClick() {
-                setResponsePage(UserEdit.class);
+                setResponsePage(getEditPageClass(), new PageParameters().set("using_address", isUsingAddress()));
             }
         });
+    }
+
+    protected Class<? extends TemplatePage> getEditPageClass() {
+        return UserEdit.class;
+    }
+
+    protected boolean isUsingAddress() {
+        return true;
     }
 }
