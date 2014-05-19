@@ -91,6 +91,9 @@ public interface IStrategy {
     @Transactional
     DomainObject findById(Long id, boolean runAsAdmin);
 
+    @Transactional
+    DomainObject findById(String dataSource, Long id, boolean runAsAdmin);
+
     public Long getObjectId(String externalId);
 
     @Transactional
@@ -133,6 +136,8 @@ public interface IStrategy {
     Class<? extends WebPage> getEditPage();
 
     PageParameters getEditPageParams(Long objectId, Long parentId, String parentEntity);
+
+    Entity getEntity(String dataSource);
 
     Entity getEntity();
 

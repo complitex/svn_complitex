@@ -32,11 +32,15 @@ public class EntityBean extends AbstractBean {
      */
     private final Map<String, Entity> cache = Collections.synchronizedMap(new HashMap<String, Entity>());
 
+    public Entity getEntity(String dataSource, String entity) {
+        return loadFromDb(dataSource, entity);
+    }
+
     public Entity getEntity(String entity) {
         synchronized (cache) {
             Entity e = cache.get(entity);
             if (e == null) {
-                Entity dbEntity = loadFromDb(entity);
+                Entity dbEntity = loadFromDb(null, entity);
                 cache.put(entity, dbEntity);
                 e = dbEntity;
             }
@@ -45,13 +49,13 @@ public class EntityBean extends AbstractBean {
     }
 
     @Transactional
-    private Entity loadFromDb(String entity) {
-        return (Entity) sqlSession().selectOne(MAPPING_NAMESPACE + ".load", ImmutableMap.of("entity", entity));
+    private Entity loadFromDb(String dataSource, String entity) {
+        return (Entity) (dataSource == null? sqlSession() : sqlSession(dataSource)).selectOne(MAPPING_NAMESPACE + ".load", ImmutableMap.of("entity", entity));
     }
 
     private void updateCache(String entity) {
         synchronized (cache) {
-            cache.put(entity, loadFromDb(entity));
+            cache.put(entity, loadFromDb(null, entity));
         }
     }
 

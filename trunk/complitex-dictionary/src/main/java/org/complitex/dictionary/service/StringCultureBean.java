@@ -196,11 +196,15 @@ public class StringCultureBean extends AbstractBean {
     }
 
     public List<StringCulture> findStrings(long id, String entityTable) {
+        return findStrings(null, id, entityTable);
+    }
+
+    public List<StringCulture> findStrings(String dataSource, long id, String entityTable) {
         Map<String, Object> params = ImmutableMap.<String, Object>builder().
                 put("table", entityTable).
                 put("id", id).
                 build();
-        return sqlSession().selectList(MAPPING_NAMESPACE + ".find", params);
+        return (dataSource == null? sqlSession() : sqlSession(dataSource)).selectList(MAPPING_NAMESPACE + ".find", params);
     }
 
     public void delete(String entityTable, long objectId, Set<Long> localizedValueTypeIds) {
