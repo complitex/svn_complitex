@@ -860,7 +860,6 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     /*
      * Helper util method.
      */
-    @Transactional
     @Override
     public SearchComponentState getSearchComponentStateForParent(Long parentId, String parentEntity, Date date) {
         if (parentId != null && parentEntity != null) {

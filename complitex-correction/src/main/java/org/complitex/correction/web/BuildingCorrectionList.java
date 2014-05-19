@@ -98,12 +98,13 @@ public class BuildingCorrectionList extends AddressCorrectionList<BuildingCorrec
     @Override
     protected String displayCorrection(BuildingCorrection correction) {
         DomainObject streetDomainObject = streetStrategy.findById(correction.getStreetObjectId(), true);
+        DomainObject cityDomainObject = cityStrategy.findById(streetDomainObject.getParentId(), true);
 
-        String city = ""; //todo display city
+        String city = cityStrategy.displayDomainObject(cityDomainObject, getLocale());
 
         String street = streetStrategy.displayDomainObject(streetDomainObject, getLocale());
 
-        BuildingCorrection bc = (BuildingCorrection) correction;
-        return AddressRenderer.displayAddress(null, city, null, street, bc.getCorrection(), bc.getCorrectionCorp(), null, getLocale());
+        return AddressRenderer.displayAddress(null, city, null, street, correction.getCorrection(),
+                correction.getCorrectionCorp(), null, getLocale());
     }
 }

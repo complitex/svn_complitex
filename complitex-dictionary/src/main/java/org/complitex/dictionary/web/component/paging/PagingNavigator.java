@@ -9,7 +9,6 @@ import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigation
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.head.IHeaderResponse;
-import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -29,7 +28,6 @@ import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.entity.PreferenceKey;
 import org.complitex.dictionary.web.DictionaryFwSession;
 import org.complitex.dictionary.web.component.image.StaticImage;
-import org.complitex.resources.WebCommonResourceInitializer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,7 +65,7 @@ public class PagingNavigator extends Panel {
 
     @Override
     public void renderHead(IHeaderResponse response) {
-        response.render(JavaScriptHeaderItem.forReference(WebCommonResourceInitializer.SCROLL_JS));
+        //response.render(JavaScriptHeaderItem.forReference(WebCommonResourceInitializer.SCROLL_JS));
     }
 
     /**

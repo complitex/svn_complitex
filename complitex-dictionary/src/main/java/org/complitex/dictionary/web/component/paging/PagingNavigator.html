@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<wicket:panel>
+<wicket:panel xmlns:wicket="http://wicket.apache.org">
     <div class="PageNavigator" wicket:id="pageNavigator">
         <div class="pageBar" wicket:id="pageBar">
             <table border="0" cellspacing="5" cellpadding="0">
@@ -69,7 +69,7 @@
                             <label for="newPageNumber">
                                 <wicket:message key="PageNavigator.newPageNumberLabel"/>
                             </label>
-                            <input type="text" size="2" wicket:id="newPageNumber"/>
+                            <input type="text" size="2" wicket:id="newPageNumber" id="newPageNumber"/>
                             <input class="btnSmall" type="submit" wicket:id="goToPage" wicket:message="value:PageNavigator.goToNewPage"/>
                         </form>
                     </td>
