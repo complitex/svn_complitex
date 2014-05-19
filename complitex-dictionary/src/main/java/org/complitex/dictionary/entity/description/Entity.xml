@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.complitex.dictionary.entity.description.Entity">
-    <cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
+    <!--cache type="org.mybatis.caches.ehcache.EhcacheCache"/-->
 
     <resultMap type="org.complitex.dictionary.entity.description.Entity" id="Entity">
         <id column="entity_id" property="id"/>

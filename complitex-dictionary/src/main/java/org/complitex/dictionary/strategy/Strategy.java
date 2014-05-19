@@ -178,21 +178,29 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     }
 
     protected void loadAttributes(DomainObject object) {
+        loadAttributes(null, object);
+    }
+
+    protected void loadAttributes(String dataSource, DomainObject object) {
         Map<String, Object> params = ImmutableMap.<String, Object>builder().
                 put("table", getEntityTable()).
                 put("id", object.getId()).
                 build();
 
-        List<Attribute> attributes = sqlSession().selectList(ATTRIBUTE_NAMESPACE + "." + FIND_OPERATION, params);
-        loadStringCultures(attributes);
+        List<Attribute> attributes = (dataSource == null ? sqlSession() : sqlSession(dataSource)).selectList(ATTRIBUTE_NAMESPACE + "." + FIND_OPERATION, params);
+        loadStringCultures(dataSource, attributes);
         object.setAttributes(attributes);
     }
 
     protected void loadStringCultures(List<Attribute> attributes) {
+        loadStringCultures(null, attributes);
+    }
+
+    protected void loadStringCultures(String dataSource, List<Attribute> attributes) {
         for (Attribute attribute : attributes) {
             if (isSimpleAttribute(attribute)) {
                 if (attribute.getValueId() != null) {
-                    loadStringCultures(attribute);
+                    loadStringCultures(dataSource, attribute);
                 } else {
                     attribute.setLocalizedValues(stringBean.newStringCultures());
                 }
@@ -201,13 +209,17 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     }
 
     protected void loadStringCultures(Attribute attribute) {
-        List<StringCulture> strings = stringBean.findStrings(attribute.getValueId(), getEntityTable());
+        loadStringCultures(null, attribute);
+    }
+
+    protected void loadStringCultures(String dataSource, Attribute attribute) {
+        List<StringCulture> strings = stringBean.findStrings(dataSource, attribute.getValueId(), getEntityTable());
         attribute.setLocalizedValues(strings);
     }
 
     @Transactional
     @Override
-    public DomainObject findById(Long objectId, boolean runAsAdmin) {
+    public DomainObject findById(String dataSource, Long objectId, boolean runAsAdmin) {
         if (objectId == null){
             return null;
         }
@@ -222,18 +234,24 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
             example.setAdmin(true);
         }
 
-        DomainObject object = sqlSession().selectOne(DOMAIN_OBJECT_NAMESPACE + "." + FIND_BY_ID_OPERATION, example);
+        DomainObject object = (dataSource == null ? sqlSession(): sqlSession(dataSource)).selectOne(DOMAIN_OBJECT_NAMESPACE + "." + FIND_BY_ID_OPERATION, example);
 
         if (object != null) {
-            loadAttributes(object);
-            fillAttributes(object);
+            loadAttributes(dataSource, object);
+            fillAttributes(dataSource, object);
             updateStringsForNewLocales(object);
 
             //load subject ids
-            object.setSubjectIds(loadSubjects(object.getPermissionId()));
+            object.setSubjectIds(loadSubjects(dataSource, object.getPermissionId()));
         }
 
         return object;
+    }
+
+    @Transactional
+    @Override
+    public DomainObject findById(Long objectId, boolean runAsAdmin) {
+        return findById(null, objectId, runAsAdmin);
     }
 
     @Override
@@ -243,12 +261,17 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     }
 
     @Transactional
-    protected Set<Long> loadSubjects(long permissionId) {
+    protected Set<Long> loadSubjects(String dataSource, long permissionId) {
         if (permissionId == PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID) {
             return newHashSet(PermissionBean.VISIBLE_BY_ALL_PERMISSION_ID);
         } else {
-            return permissionBean.findSubjectIds(permissionId);
+            return permissionBean.findSubjectIds(dataSource, permissionId);
         }
+    }
+
+    @Transactional
+    protected Set<Long> loadSubjects(long permissionId) {
+        return loadSubjects(null, permissionId);
     }
 
     protected void updateStringsForNewLocales(DomainObject object) {
@@ -261,9 +284,13 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     }
 
     protected void fillAttributes(DomainObject object) {
+        fillAttributes(null, object);
+    }
+
+    protected void fillAttributes(String dataSource, DomainObject object) {
         List<Attribute> toAdd = newArrayList();
 
-        for (EntityAttributeType attributeType : getEntity().getEntityAttributeTypes()) {
+        for (EntityAttributeType attributeType : getEntity(dataSource).getEntityAttributeTypes()) {
             if (!attributeType.isObsolete()) {
                 if (object.getAttributes(attributeType.getId()).isEmpty()) {
                     if (attributeType.getEntityAttributeValueTypes().size() == 1) {
@@ -350,6 +377,11 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
      * Simple wrapper around EntityBean.getEntity for convenience.
      * @return Entity description
      */
+    @Override
+    public Entity getEntity(String dataSource) {
+        return entityBean.getEntity(dataSource, getEntityTable());
+    }
+
     @Override
     public Entity getEntity() {
         return entityBean.getEntity(getEntityTable());

@@ -43,13 +43,22 @@ public class PermissionBean extends AbstractBean{
     }
 
     @SuppressWarnings({"unchecked"})
-    public List<Permission> findPermissions(Long permissionId){
-        return sqlSession().selectList(MAPPING_NAMESPACE + ".selectPermissionsById", permissionId);
+    public List<Permission> findPermissions(String dataSource, Long permissionId) {
+        return (dataSource == null? sqlSession() : sqlSession(dataSource)).selectList(MAPPING_NAMESPACE + ".selectPermissionsById", permissionId);
+    }
+
+    @SuppressWarnings({"unchecked"})
+    public List<Permission> findPermissions(Long permissionId) {
+        return findPermissions(null, permissionId);
     }
 
     public Set<Long> findSubjectIds(Long permissionId) {
+        return findSubjectIds(null, permissionId);
+    }
+
+    public Set<Long> findSubjectIds(String dataSource, Long permissionId) {
         Set<Long> subjectIds = Sets.newHashSet();
-        for (Permission permission : findPermissions(permissionId)) {
+        for (Permission permission : findPermissions(dataSource, permissionId)) {
             subjectIds.add(permission.getObjectId());
         }
         return subjectIds;
