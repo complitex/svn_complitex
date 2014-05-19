@@ -118,7 +118,6 @@ public interface IStrategy {
         }
     }
 
-    @Transactional
     SimpleObjectInfo findParentInSearchComponent(long id, Date date);
 
     String getAttributeLabel(Attribute attribute, Locale locale);
@@ -171,7 +170,6 @@ public interface IStrategy {
 
     ISearchCallback getSearchCallback();
 
-    @Transactional
     SearchComponentState getSearchComponentStateForParent(Long parentId, String parentEntity, Date date);
 
     List<String> getSearchFilters();

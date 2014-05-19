@@ -9,7 +9,7 @@ import org.complitex.dictionary.entity.StringCulture;
 import java.util.List;
 
 /**
- *
+ *`
  * @author Artem
  */
 public class Entity implements IEntity {

@@ -27,8 +27,8 @@ import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.web.component.ShowMode;
-import org.odlabs.wiquery.ui.autocomplete.AbstractAutocompleteComponent;
-import org.odlabs.wiquery.ui.autocomplete.AutocompleteAjaxComponent;
+import org.complitex.dictionary.web.component.wiquery.autocomplete.AbstractAutocompleteComponent;
+import org.complitex.dictionary.web.component.wiquery.autocomplete.AutocompleteAjaxComponent;
 
 import javax.ejb.EJB;
 import java.io.Serializable;
