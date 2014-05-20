@@ -197,6 +197,10 @@ public class OrganizationPicker extends FormComponentPanel<DomainObject> {
                 if (organizationModel.getObject() == null) {
                     throw new IllegalStateException("Unexpected behaviour.");
                 } else {
+                    if (OrganizationPicker.this.getModelObject() != null &&
+                            !organizationModel.getObject().getId().equals(OrganizationPicker.this.getModelObject().getId())) {
+                        onUpdate(target);
+                    }
                     OrganizationPicker.this.getModel().setObject(organizationModel.getObject());
                     clearAndCloseLookupDialog(organizationModel, target, lookupDialog, content, this);
                     target.add(organizationLabel);
@@ -312,6 +316,10 @@ public class OrganizationPicker extends FormComponentPanel<DomainObject> {
     @Override
     protected void convertInput() {
         setConvertedInput(getModelObject());
+    }
+
+    protected void onUpdate(AjaxRequestTarget target) {
+
     }
 
     private class OrganizationModel extends Model<DomainObject> {
