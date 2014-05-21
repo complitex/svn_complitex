@@ -188,7 +188,13 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
                 build();
 
         List<Attribute> attributes = (dataSource == null ? sqlSession() : sqlSession(dataSource)).selectList(ATTRIBUTE_NAMESPACE + "." + FIND_OPERATION, params);
-        loadStringCultures(dataSource, attributes);
+
+        if (dataSource != null) {
+            loadStringCultures(dataSource, attributes);
+        }else{
+            loadStringCultures(attributes);
+        }
+
         object.setAttributes(attributes);
     }
 
