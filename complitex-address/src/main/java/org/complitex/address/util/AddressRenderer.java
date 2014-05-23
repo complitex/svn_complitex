@@ -1,18 +1,17 @@
 package org.complitex.address.util;
 
 import org.apache.wicket.util.string.Strings;
-import org.complitex.dictionary.util.ResourceUtil;
 import org.complitex.dictionary.util.StringUtil;
 
 import java.util.Locale;
+
+import static org.complitex.dictionary.util.ResourceUtil.getString;
 
 /**
  *
  * @author Artem
  */
-public final class
-        AddressRenderer {
-
+public final class AddressRenderer {
     private static final String RESOURCE_BUNDLE = AddressRenderer.class.getName();
 
     private AddressRenderer() {
@@ -21,9 +20,10 @@ public final class
     public static String displayBuilding(String buildingNumber, String buildingCorp, Locale locale) {
         String result = "";
         if (!Strings.isEmpty(buildingNumber)) {
-            result = buildingNumber;
+            result = getString(RESOURCE_BUNDLE, "building", locale) + " " + buildingNumber;
+
             if (!Strings.isEmpty(buildingCorp)) {
-                result += " " + ResourceUtil.getString(RESOURCE_BUNDLE, "building_corp", locale) + " " + buildingCorp;
+                result += " " + getString(RESOURCE_BUNDLE, "building_corp", locale) + " " + buildingCorp;
             }
         }
         return result;
@@ -31,14 +31,14 @@ public final class
 
     public static String displayApartment(String apartment, Locale locale) {
         if (!Strings.isEmpty(apartment)) {
-            return ResourceUtil.getString(RESOURCE_BUNDLE, "apartment", locale) + " " + apartment;
+            return getString(RESOURCE_BUNDLE, "apartment", locale) + " " + apartment;
         }
         return "";
     }
 
     public static String displayRoom(String room, Locale locale) {
         if (!Strings.isEmpty(room)) {
-            return ResourceUtil.getString(RESOURCE_BUNDLE, "room", locale) + " " + room;
+            return getString(RESOURCE_BUNDLE, "room", locale) + " " + room;
         }
         return "";
     }
@@ -67,7 +67,7 @@ public final class
         String displayStreet = displayStreet(streetType, street, locale);
         String displayBuilding = displayBuilding(buildingNumber, buildingCorp, locale);
         String displayApartment = displayApartment(apartment, locale);
-        return displayStrings(displayStreet, displayBuilding, displayApartment);
+        return displayStrings(displayStreet, displayBuilding) + " " + displayApartment;
     }
 
     public static String displayAddress(String streetType, String street, String buildingNumber, String buildingCorp, String apartment, String room, Locale locale) {
