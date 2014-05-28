@@ -65,9 +65,14 @@ public class OrganizationPicker extends FormComponentPanel<DomainObject> {
     }
 
     public OrganizationPicker(String id, final IModel<String> model, final Long organizationTypeId) {
+        this(id, model, false, null, true, organizationTypeId);
+    }
+
+    public OrganizationPicker(String id, final IModel<String> model, boolean required,
+                              IModel<String> labelModel, boolean enabled, final Long organizationTypeId) {
         super(id);
         setModel(new OrganizationModel(model));
-        init(false, null, true, organizationTypeId != null ? Arrays.asList(organizationTypeId) : null);
+        init(required, labelModel, enabled, organizationTypeId != null ? Arrays.asList(organizationTypeId) : null);
     }
 
     public OrganizationPicker(String id, Long... organizationTypeIds) {
