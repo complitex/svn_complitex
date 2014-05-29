@@ -2,8 +2,12 @@ package org.complitex.dictionary.web.component.wiquery;
 
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.odlabs.wiquery.core.javascript.JsQuery;
 import org.odlabs.wiquery.ui.core.JsScopeUiEvent;
 import org.odlabs.wiquery.ui.dialog.Dialog;
+import org.odlabs.wiquery.ui.position.PositionAlignmentOptions;
+import org.odlabs.wiquery.ui.position.PositionOptions;
+import org.odlabs.wiquery.ui.position.PositionRelation;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -34,6 +38,12 @@ public class ExtendedDialog extends Dialog{
     }
 
     protected void onClose(AjaxRequestTarget target){
-
     }
+
+    public void center(AjaxRequestTarget target){
+        target.appendJavaScript(new JsQuery(this).$().chain("dialog", "'option'", "'position'",
+                new PositionOptions().setAt(new PositionAlignmentOptions(PositionRelation.CENTER))
+                        .getJavascriptOption()).render());
+    }
+
 }
