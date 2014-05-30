@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.complitex.address.strategy.district.District">
-    <cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
+    <cache type="org.complitex.dictionary.mybatis.caches.EhcacheCache"/>
 
     <!-- permission -->
     
