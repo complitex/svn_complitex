@@ -22,6 +22,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.request.resource.PackageResourceReference;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.entity.DomainObject;
+import org.complitex.dictionary.entity.FilterWrapper;
 import org.complitex.dictionary.entity.PreferenceKey;
 import org.complitex.dictionary.service.SessionBean;
 import org.complitex.dictionary.util.ResourceUtil;
@@ -34,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
+import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.*;
 
@@ -344,6 +346,10 @@ public abstract class TemplatePage extends WebPage {
 
     public <T> T getFilterObject(T _default) {
         return getTemplateSession().getPreferenceObject(page, PreferenceKey.FILTER_OBJECT, _default);
+    }
+
+    public <T extends Serializable> IModel<FilterWrapper<T>> newFilterModel(T _default){
+        return Model.of(getFilterObject(FilterWrapper.of(_default)));
     }
 
     public final boolean isUserAuthorized() {
