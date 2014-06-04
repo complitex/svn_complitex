@@ -1,7 +1,6 @@
 package org.complitex.admin.web;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -211,23 +210,7 @@ public class UserEdit extends FormTemplatePage {
                 final ListView listView = this;
 
                 item.add(new Radio<>("radio", new Model<>(item.getIndex())));
-                item.add(new OrganizationPicker("picker", new IModel<String>() {
-                    @Override
-                    public String getObject() {
-                        return userOrganization.getOrganizationObjectId() == null? null :
-                                String.valueOf(userOrganization.getOrganizationObjectId());
-                    }
-
-                    @Override
-                    public void setObject(String s) {
-                        userOrganization.setOrganizationObjectId(StringUtils.isEmpty(s) ? null : Long.valueOf(s));
-                    }
-
-                    @Override
-                    public void detach() {
-
-                    }
-                }, OrganizationTypeStrategy.USER_ORGANIZATION_TYPE));
+                item.add(new OrganizationPicker("organizationObjectId", userOrganization, OrganizationTypeStrategy.USER_ORGANIZATION_TYPE));
                 item.add(new AjaxLink<Void>("delete") {
 
                     @Override
