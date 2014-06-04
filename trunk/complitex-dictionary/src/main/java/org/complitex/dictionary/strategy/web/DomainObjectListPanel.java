@@ -393,7 +393,26 @@ public final class DomainObjectListPanel extends Panel {
                         break;
                     }
                 }else if ("ORGANIZATION".equals(name)){
-                    filter = new OrganizationPicker("filter", filterModel, null);
+                    filter = new OrganizationPicker("filter", new IModel<Long>() {
+                        @Override
+                        public Long getObject() {
+                            return filterModel.getObject() == null? null : Long.valueOf(filterModel.getObject());
+                        }
+
+                        @Override
+                        public void setObject(Long object) {
+                            if (object != null) {
+                                filterModel.setObject(String.valueOf(object));
+                            } else {
+                                filterModel.setObject(null);
+                            }
+                        }
+
+                        @Override
+                        public void detach() {
+
+                        }
+                    }, (Long) null);
                 }
 
                 item.add(filter);

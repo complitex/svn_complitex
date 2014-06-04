@@ -17,6 +17,7 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.request.resource.PackageResourceReference;
 import org.apache.wicket.util.template.PackageTextTemplate;
 import org.apache.wicket.util.template.TextTemplate;
@@ -53,6 +54,8 @@ public class OrganizationPicker extends FormComponentPanel<DomainObject> {
     private boolean showData = false; //todo RadioGroup bug on showData = true
     private DomainObjectExample example;
 
+    private IModel<Long> outerModel;
+
     @EJB(name = IOrganizationStrategy.BEAN_NAME, beanInterface = IOrganizationStrategy.class)
     protected IOrganizationStrategy organizationStrategy;
 
@@ -64,15 +67,46 @@ public class OrganizationPicker extends FormComponentPanel<DomainObject> {
                 OrganizationPicker.class, OrganizationPicker.class.getSimpleName() + ".js")));
     }
 
-    public OrganizationPicker(String id, final IModel<String> model, final Long organizationTypeId) {
-        this(id, model, false, null, true, organizationTypeId);
+    @Override
+    protected void onBeforeRender() {
+        super.onBeforeRender();
+        if (outerModel != null && outerModel.getObject() == null && getModelObject() != null) {
+            setModelObject(null);
+        }
     }
 
-    public OrganizationPicker(String id, final IModel<String> model, boolean required,
+    public OrganizationPicker(String id, IModel<Long> modelObject, final Long organizationTypeId) {
+        this(id, modelObject, false, null, true, organizationTypeId);
+    }
+
+    public OrganizationPicker(String id, IModel<Long> modelObject, boolean required,
                               IModel<String> labelModel, boolean enabled, final Long organizationTypeId) {
         super(id);
-        setModel(new OrganizationModel(model));
+        outerModel = modelObject;
+        setModel(new Model<>(outerModel.getObject() == null? null : organizationStrategy.findById(outerModel.getObject(), true)));
+
         init(required, labelModel, enabled, organizationTypeId != null ? Arrays.asList(organizationTypeId) : null);
+    }
+
+    public OrganizationPicker(String id, Object modelObject, final Long... organizationTypeId) {
+        this(id, modelObject, false, null, true, organizationTypeId);
+    }
+
+    public OrganizationPicker(String id, Object modelObject, List<Long> organizationTypeId) {
+        this(id, modelObject, false, null, true, organizationTypeId);
+    }
+
+    public OrganizationPicker(String id, Object modelObject, boolean required,
+                              IModel<String> labelModel, boolean enabled, final Long... organizationTypeId) {
+        this(id, modelObject, required, labelModel, enabled, organizationTypeId != null ? Arrays.asList(organizationTypeId) : Collections.<Long>emptyList());
+    }
+
+    public OrganizationPicker(String id, Object modelObject, boolean required,
+                              IModel<String> labelModel, boolean enabled, final List<Long> organizationTypeId) {
+        super(id);
+        outerModel = new PropertyModel<>(modelObject, id);
+        setModel(new Model<>(outerModel.getObject() == null? null : organizationStrategy.findById(outerModel.getObject(), true)));
+        init(required, labelModel, enabled, organizationTypeId);
     }
 
     public OrganizationPicker(String id, Long... organizationTypeIds) {
@@ -206,6 +240,9 @@ public class OrganizationPicker extends FormComponentPanel<DomainObject> {
                             !organizationModel.getObject().getId().equals(OrganizationPicker.this.getModelObject().getId())) {
                         onUpdate(target);
                     }
+                    if (outerModel != null) {
+                        outerModel.setObject(organizationModel.getObject().getId());
+                    }
                     OrganizationPicker.this.getModel().setObject(organizationModel.getObject());
                     clearAndCloseLookupDialog(organizationModel, target, lookupDialog, content, this);
                     target.add(organizationLabel);
@@ -325,29 +362,5 @@ public class OrganizationPicker extends FormComponentPanel<DomainObject> {
 
     protected void onUpdate(AjaxRequestTarget target) {
 
-    }
-
-    private class OrganizationModel extends Model<DomainObject> {
-
-        private IModel<String> model;
-
-        public OrganizationModel(IModel<String> model) {
-            this.model = model;
-        }
-
-        @Override
-        public DomainObject getObject() {
-            return model.getObject() == null? null : organizationStrategy.findById(Long.valueOf(model.getObject()), true);
-        }
-
-        @Override
-        public void setObject(DomainObject object) {
-            super.setObject(object);
-            if (object != null) {
-                model.setObject(String.valueOf(object.getId()));
-            } else {
-                model.setObject(null);
-            }
-        }
     }
 }

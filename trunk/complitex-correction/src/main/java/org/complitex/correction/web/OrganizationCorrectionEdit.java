@@ -3,15 +3,13 @@ package org.complitex.correction.web;
 import org.apache.wicket.Page;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.complitex.correction.entity.OrganizationCorrection;
 import org.complitex.correction.service.OrganizationCorrectionBean;
 import org.complitex.correction.web.component.AbstractCorrectionEditPanel;
-import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.FilterWrapper;
-import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.web.component.organization.OrganizationPicker;
 import org.complitex.organization_type.strategy.OrganizationTypeStrategy;
 import org.complitex.template.web.security.SecurityRole;
@@ -30,9 +28,6 @@ public class OrganizationCorrectionEdit extends FormTemplatePage {
 
     @EJB
     private OrganizationCorrectionBean organizationCorrectionBean;
-
-    @EJB(name = IOrganizationStrategy.BEAN_NAME, beanInterface = IOrganizationStrategy.class)
-    private IOrganizationStrategy organizationStrategy;
 
     public OrganizationCorrectionEdit(PageParameters params) {
         add(new AbstractCorrectionEditPanel<OrganizationCorrection>("organization_edit_panel",
@@ -55,21 +50,8 @@ public class OrganizationCorrectionEdit extends FormTemplatePage {
 
             @Override
             protected OrganizationPicker internalObjectPanel(String id) {
-                return new OrganizationPicker(id, new Model<DomainObject>(){
-                    @Override
-                    public DomainObject getObject() {
-                        if (getCorrection().getObjectId() != null) {
-                            return organizationStrategy.findById(getCorrection().getObjectId(), true);
-                        }
-
-                        return null;
-                    }
-
-                    @Override
-                    public void setObject(DomainObject object) {
-                        getCorrection().setObjectId(object.getId());
-                    }
-                }, OrganizationTypeStrategy.SERVICING_ORGANIZATION_TYPE);
+                return new OrganizationPicker(id, new PropertyModel<Long>(getCorrection(), "objectId"),
+                        OrganizationTypeStrategy.SERVICING_ORGANIZATION_TYPE);
             }
 
             @Override

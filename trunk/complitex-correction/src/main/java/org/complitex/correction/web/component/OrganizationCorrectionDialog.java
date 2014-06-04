@@ -14,7 +14,6 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.complitex.correction.entity.OrganizationCorrection;
 import org.complitex.correction.service.OrganizationCorrectionBean;
-import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.FilterWrapper;
 import org.complitex.dictionary.service.ModuleBean;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
@@ -68,21 +67,7 @@ public class OrganizationCorrectionDialog extends Panel {
             }
         }));
 
-        form.add(new OrganizationPicker("objectId", new Model<DomainObject>() {
-            @Override
-            public DomainObject getObject() {
-                if (form.getModelObject().getObjectId() != null) {
-                    return organizationStrategy.findById(form.getModelObject().getObjectId(), true);
-                }
-
-                return null;
-            }
-
-            @Override
-            public void setObject(DomainObject object) {
-                form.getModelObject().setObjectId(object.getId());
-            }
-        }));
+        form.add(new OrganizationPicker("objectId", form.getModelObject()));
 
         form.add(new Label("correction"));
 

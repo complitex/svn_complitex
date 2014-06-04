@@ -30,7 +30,6 @@ import org.complitex.dictionary.entity.FilterWrapper;
 import org.complitex.dictionary.service.LocaleBean;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
-import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.util.StringUtil;
 import org.complitex.dictionary.web.component.datatable.ArrowOrderByBorder;
 import org.complitex.dictionary.web.component.datatable.DataProvider;
@@ -58,13 +57,8 @@ public abstract class AbstractCorrectionList<T extends Correction> extends Scrol
     @EJB
     private LocaleBean localeBean;
 
-    @EJB(name = "OrganizationStrategy")
-    private IOrganizationStrategy organizationStrategy;
-
     private String entity;
     private FilterWrapper<T> filterWrapper;
-
-    private WebMarkupContainer actionContainer;
 
     public AbstractCorrectionList(String entity) {
         this.entity = entity;
@@ -182,41 +176,9 @@ public abstract class AbstractCorrectionList<T extends Correction> extends Scrol
         dataProvider.setSort("", SortOrder.ASCENDING);
 
 
-        filterForm.add(new OrganizationPicker("organizationFilter", new IModel<DomainObject>() {
-            @Override
-            public DomainObject getObject() {
+        filterForm.add(new OrganizationPicker("object.organizationId", filterWrapper, getOrganizationTypeIds()));
 
-                return filterWrapper.getObject().getOrganizationId() != null
-                        ? organizationStrategy.findById(filterWrapper.getObject().getOrganizationId(), true)
-                        : null;
-            }
-
-            @Override
-            public void setObject(DomainObject object) {
-                filterWrapper.getObject().setOrganizationId(object.getId());
-            }
-
-            @Override
-            public void detach() {}
-        }, getOrganizationTypeIds()));
-
-        filterForm.add(new OrganizationPicker("userOrganizationFilter",
-                new IModel<DomainObject>() {
-                    @Override
-                    public DomainObject getObject() {
-                        return filterWrapper.getObject().getUserOrganizationId() != null
-                                ? organizationStrategy.findById(filterWrapper.getObject().getUserOrganizationId(), true)
-                                : null;
-                    }
-
-                    @Override
-                    public void setObject(DomainObject object) {
-                        filterWrapper.getObject().setUserOrganizationId(object.getId());
-                    }
-
-                    @Override
-                    public void detach() {}
-                }, OrganizationTypeStrategy.USER_ORGANIZATION_TYPE));
+        filterForm.add(new OrganizationPicker("object.userOrganizationId", filterWrapper, OrganizationTypeStrategy.USER_ORGANIZATION_TYPE));
 
         filterForm.add(new TextField<>("correctionFilter", new PropertyModel<String>(filterWrapper, "object.correction")));
         filterForm.add(new TextField<>("codeFilter", new PropertyModel<String>(filterWrapper, "object.externalId")));

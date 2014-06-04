@@ -19,10 +19,8 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.entity.Correction;
-import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.service.ModuleBean;
 import org.complitex.dictionary.service.SessionBean;
-import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;
 import org.complitex.dictionary.web.component.organization.OrganizationPicker;
 import org.complitex.organization_type.strategy.OrganizationTypeStrategy;
 import org.complitex.template.web.template.TemplateSession;
@@ -41,9 +39,6 @@ public abstract class AbstractCorrectionEditPanel<T extends Correction> extends 
     @EJB
     private SessionBean sessionBean;
 
-    @EJB(name = "OrganizationStrategy")
-    private IOrganizationStrategy organizationStrategy;
-
     @EJB
     private ModuleBean moduleBean;
 
@@ -53,7 +48,6 @@ public abstract class AbstractCorrectionEditPanel<T extends Correction> extends 
 
     private WebMarkupContainer form;
     private Panel correctionInputPanel;
-    private IModel<List<DomainObject>> allOuterOrganizationsModel;
 
     public AbstractCorrectionEditPanel(String id, Long correctionId) {
         super(id);
@@ -226,22 +220,7 @@ public abstract class AbstractCorrectionEditPanel<T extends Correction> extends 
         form.add(code);
 
         //Organization
-        final OrganizationPicker organization = new OrganizationPicker("organization", new IModel<DomainObject>() {
-            @Override
-            public DomainObject getObject() {
-                return correction.getOrganizationId() != null
-                        ? organizationStrategy.findById(correction.getOrganizationId(), true)
-                        : null;
-            }
-
-            @Override
-            public void setObject(DomainObject object) {
-                correction.setOrganizationId(object.getId());
-            }
-
-            @Override
-            public void detach() {}
-        }, getOrganizationTypeIds());
+        final OrganizationPicker organization = new OrganizationPicker("organizationId", correction, getOrganizationTypeIds());
         organization.setEnabled(isNew()).add();
         form.add(organization);
 
@@ -260,22 +239,8 @@ public abstract class AbstractCorrectionEditPanel<T extends Correction> extends 
         }
 
         //User Organization
-        form.add(new OrganizationPicker("userOrganization", new IModel<DomainObject>() {
-            @Override
-            public DomainObject getObject() {
-                return correction.getUserOrganizationId() != null
-                        ? organizationStrategy.findById(correction.getUserOrganizationId(), true)
-                        : null;
-            }
-
-            @Override
-            public void setObject(DomainObject object) {
-                correction.setUserOrganizationId(object.getId());
-            }
-
-            @Override
-            public void detach() {}
-        }, OrganizationTypeStrategy.USER_ORGANIZATION_TYPE).setEnabled(isNew() && sessionBean.isAdmin()));
+        form.add(new OrganizationPicker("userOrganizationId", correction, OrganizationTypeStrategy.USER_ORGANIZATION_TYPE).
+                setEnabled(isNew() && sessionBean.isAdmin()));
 
         if (isNew()) {
             correction.setModuleId(moduleBean.getModuleId());
@@ -326,4 +291,5 @@ public abstract class AbstractCorrectionEditPanel<T extends Correction> extends 
     protected List<Long> getOrganizationTypeIds(){
         return null;
     }
+
 }
