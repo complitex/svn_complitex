@@ -9,6 +9,9 @@ import java.text.MessageFormat;
 public abstract class AbstractException extends Exception{
     private boolean initial = false;
 
+    public AbstractException() {
+    }
+
     public AbstractException(boolean initial, Throwable cause, String pattern, Object... arguments) {
         super(MessageFormat.format(pattern, arguments), cause);
         this.initial = initial;

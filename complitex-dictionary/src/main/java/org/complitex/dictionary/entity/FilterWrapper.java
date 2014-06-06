@@ -18,6 +18,7 @@ public class FilterWrapper<T extends Serializable> implements Serializable{
 
     private boolean like = false;
     private boolean regexp = false;
+    private boolean required = false;
 
     private boolean admin = false;
     private String userOrganizationsString;
@@ -56,6 +57,10 @@ public class FilterWrapper<T extends Serializable> implements Serializable{
 
     public String getAsc(){
         return ascending ? "asc" : "desc";
+    }
+
+    public String getOrderLimit(){
+        return "order by `" + sortProperty + "` " + getAsc() + (count > 0 ? " limit " + first + " " + count : "");
     }
 
     public Map<String, Object> getMap() {
@@ -128,6 +133,14 @@ public class FilterWrapper<T extends Serializable> implements Serializable{
 
     public void setRegexp(boolean regexp) {
         this.regexp = regexp;
+    }
+
+    public boolean isRequired() {
+        return required;
+    }
+
+    public void setRequired(boolean required) {
+        this.required = required;
     }
 
     public boolean isAdmin() {
