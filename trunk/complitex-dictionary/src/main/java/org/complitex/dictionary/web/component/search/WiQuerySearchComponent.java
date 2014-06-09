@@ -270,6 +270,7 @@ public class WiQuerySearchComponent extends Panel {
                 WiQuerySearchComponent.this.onUpdate(target, entity);
             }
         };
+        filterComponent.getAutocompleteField().setAppendTo(getParent().getMarkupId()); //fix z-index
         filterComponent.setAutoUpdate(true);
 
         return filterComponent;
