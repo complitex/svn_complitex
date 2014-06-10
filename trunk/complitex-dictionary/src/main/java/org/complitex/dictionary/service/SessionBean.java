@@ -46,14 +46,17 @@ public class SessionBean extends AbstractBean {
 
     public boolean isAdmin() {
         final Set<GROUP_NAME> userGroups = getCurrentUserGroups();
-        return userGroups.contains(GROUP_NAME.ADMINISTRATORS);
+
+        return userGroups != null && userGroups.contains(GROUP_NAME.ADMINISTRATORS);
     }
 
     private Set<GROUP_NAME> getCurrentUserGroups() {
         final String login = sessionContext.getCallerPrincipal().getName();
         List<String> ugs = sqlSession().selectList(MAPPING_NAMESPACE + ".getUserGroups", login);
+
         if (ugs != null && !ugs.isEmpty()) {
             final Set<GROUP_NAME> userGroups = EnumSet.noneOf(GROUP_NAME.class);
+
             for (String ug : ugs) {
                 GROUP_NAME group;
                 try {
@@ -63,9 +66,11 @@ public class SessionBean extends AbstractBean {
                 }
                 userGroups.add(group);
             }
+
             return ImmutableSet.copyOf(userGroups);
         }
-        throw new IllegalStateException("User with login `" + login + "` is not member of any user group.");
+
+        return null;
     }
 
     public Long getCurrentUserId() {
