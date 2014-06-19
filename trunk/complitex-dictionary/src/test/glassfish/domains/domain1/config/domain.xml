@@ -63,11 +63,11 @@
       <property name="connectionAttributes" value=";create=true" />
     </jdbc-connection-pool>
     <jdbc-resource pool-name="eircPool" jndi-name="jdbc/eircResource"/>
-    <jdbc-connection-pool name="eircPool" jndi-name="__SYSTEM/pools/eircPool" datasource-classname="com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource" res-type="javax.sql.ConnectionPoolDataSource" allow-non-component-callers="true">
+    <jdbc-connection-pool name="eircPool" jndi-name="__SYSTEM/pools/eircPool" datasource-classname="com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource" res-type="javax.sql.ConnectionPoolDataSource" allow-non-component-callers="false">
       <property name="useUnicode" value="true"/>
-      <property name="user" value="eirc"/>
-      <property name="password" value="eirc"/>
-      <property name="url" value="jdbc:mysql://localhost:3306/eirc"/>
+      <property name="user" value="test"/>
+      <property name="password" value="test"/>
+      <property name="url" value="jdbc:mysql://192.168.1.11:3306/test"/>
       <property name="characterEncoding" value="utf8"/>
       <property name="characterResultSets" value="utf8"/>
     </jdbc-connection-pool>
