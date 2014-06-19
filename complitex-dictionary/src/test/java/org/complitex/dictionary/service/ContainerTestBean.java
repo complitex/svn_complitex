@@ -9,6 +9,7 @@ import static junit.framework.Assert.assertTrue;
  * @author Pavel Sknar
  */
 @Stateless
+
 public class ContainerTestBean {
     @EJB
     private TestBean testBean;
@@ -38,4 +39,6 @@ public class ContainerTestBean {
         testBean.deleteInNewTransaction(id);
         assertFalse("Value is exists", testBean.isExistInNewTransaction("test2"));
     }
+
+
 }

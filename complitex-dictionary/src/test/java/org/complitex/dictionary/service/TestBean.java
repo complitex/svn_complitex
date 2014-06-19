@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import org.complitex.dictionary.mybatis.Transactional;
 
 import javax.ejb.*;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -59,4 +60,69 @@ public class TestBean extends AbstractBean {
     public boolean isExistInNewTransaction(String value) {
         return sqlSession().selectOne(NS + ".isExistTest", value);
     }
+
+    public Long testInsertSimple(String value){
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("value", value);
+
+        sqlSession().insert(NS + ".insertTest", params);
+
+        return (Long)params.get("id");
+    }
+
+    public List<Long> testSelectSimple(String value){
+        return sqlSession().selectList(NS + ".selectTestId", value);
+    }
+
+    public List<Long> testSelectSimpleEx(String value){
+        List<Long> list = sqlSession().selectList(NS + ".selectTestId", value);
+
+        System.out.println(1/0);
+
+        return list;
+    }
+
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+    public List<Long> testSelectSimpleNonSupported(String value){
+        return sqlSession().selectList(NS + ".selectTestId", value);
+    }
+
+    @TransactionAttribute(TransactionAttributeType.NEVER)
+    public List<Long> testSelectSimpleNever(String value){
+        return sqlSession().selectList(NS + ".selectTestId", value);
+    }
+
+    @TransactionAttribute(TransactionAttributeType.NEVER)
+    public List<Long> testSelectSimpleNeverEx(String value){
+        List<Long> list = sqlSession().selectList(NS + ".selectTestId", value);
+
+        System.out.println(1/0);
+
+        return list;
+    }
+
+    public void testInsertTwoEx(String value){
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("value", value);
+        sqlSession().insert(NS + ".insertTest", params);
+
+        params.put("value", value + System.currentTimeMillis());
+        sqlSession().insert(NS + ".insertTest", params);
+
+        System.out.println(1/0);
+    }
+
+    @TransactionAttribute(TransactionAttributeType.NEVER)
+    public void testInsertTwoNeverEx(String value){
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("value", value);
+        sqlSession().insert(NS + ".insertTest", params);
+
+        params.put("value", value + System.currentTimeMillis());
+        sqlSession().insert(NS + ".insertTest", params);
+
+        System.out.println(1/0);
+    }
 }
+
+
