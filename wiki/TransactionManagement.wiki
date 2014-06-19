@@ -30,16 +30,15 @@ select `id` from `test` where `value` = '1403171336579'
 rollback
 }}}
 
-2. @Transactional
+2. `@Transactional`
 
+3. `@TransactionAttribute(MANDATORY)`
 
-3. @TransactionAttribute(MANDATORY)
+4. `@TransactionAttribute(REQUIRES_NEW)`
 
-4. @TransactionAttribute(REQUIRES_NEW)
+5. `@TransactionAttribute(SUPPORTS)`
 
-5. @TransactionAttribute(SUPPORTS)
-
-6. @TransactionAttribute(NOT_SUPPORTED)
+6. `@TransactionAttribute(NOT_SUPPORTED)`
 {{{
 SET autocommit=1
 SET NAMES utf8
@@ -48,7 +47,7 @@ select @@session.tx_read_only
 select `id` from `test` where `value` = '1403170708375'
 }}}
 
-7. @TransactionAttribute(NEVER)
+7. `@TransactionAttribute(NEVER)`
 select:
 {{{
 SET autocommit=1
