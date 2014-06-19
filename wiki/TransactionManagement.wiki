@@ -1,6 +1,6 @@
 #summary One-sentence summary of this page.
 
-= @TransactionManagement(CONTAINER) =
+= `@TransactionManagement(CONTAINER)` =
 
 == Один метод, один запрос ==
 
@@ -33,11 +33,11 @@ rollback
 2. @Transactional
 
 
-
 3. @TransactionAttribute(MANDATORY)
-4. @TransactionAttribute(REQUIRES_NEW)
-5. @TransactionAttribute(SUPPORTS)
 
+4. @TransactionAttribute(REQUIRES_NEW)
+
+5. @TransactionAttribute(SUPPORTS)
 
 6. @TransactionAttribute(NOT_SUPPORTED)
 {{{
@@ -95,7 +95,7 @@ insert into `test` (`value`) values ('14031727399871403172740016')
 
 == Два метода, два бина ==
 
-= @TransactionManagement(BEAN) = 
+= `@TransactionManagement(BEAN)` = 
 
 *testUserInsertTwoEx*
 {{{
