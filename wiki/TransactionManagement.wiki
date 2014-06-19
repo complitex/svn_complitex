@@ -69,10 +69,30 @@ select `id` from `test` where `value` = '1403171587358'
 
 == Один метод, два запроса ==
 
+*testInsertTwoEx*
+{{{
+SET autocommit=0
+select @@session.tx_read_only
+insert into `test` (`value`) values ('1403172113795')
+select @@session.tx_read_only
+insert into `test` (`value`) values ('14031721137951403172113823')
+rollback
+}}}
+
+*testInsertTwoNeverEx*
+
+{{{
+SET autocommit=1
+SET NAMES utf8
+SET character_set_results = NULL
+select @@session.tx_read_only
+insert into `test` (`value`) values ('1403172739987')
+select @@session.tx_read_only
+insert into `test` (`value`) values ('14031727399871403172740016')
+}}}
+
 == Два метода, один бин ==
 
 == Два метода, два бина ==
 
 = @TransactionManagement(BEAN) = 
-
-
