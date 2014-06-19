@@ -96,3 +96,25 @@ insert into `test` (`value`) values ('14031727399871403172740016')
 == Два метода, два бина ==
 
 = @TransactionManagement(BEAN) = 
+
+*testUserInsertTwoEx*
+{{{
+SET autocommit=1
+test@192.168.1.10 on test
+SET NAMES utf8
+SET character_set_results = NULL
+select @@session.tx_read_only
+insert into `test` (`value`) values ('1403174738874')
+select @@session.tx_read_only
+insert into `test` (`value`) values ('14031747388741403174738944')
+}}}
+
+*testUserInsertTwoExTr*
+{{{
+SET autocommit=0
+select @@session.tx_read_only
+insert into `test` (`value`) values ('1403175168015')
+select @@session.tx_read_only
+insert into `test` (`value`) values ('14031751680151403175168078')
+rollback
+}}}
