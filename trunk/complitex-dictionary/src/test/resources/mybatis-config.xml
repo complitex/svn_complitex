@@ -15,14 +15,14 @@
         <environment id="local">
             <transactionManager type="MANAGED"/>
             <dataSource type="JNDI">
-                <property name="data_source" value="jdbc/eircResource"/>
+                <property name="data_source" value="jdbc/junitTestResource"/>
             </dataSource>
             <!--
             <dataSource type="POOLED">
                 <property name="driver" value="com.mysql.jdbc.Driver"/>
-                <property name="url" value="jdbc:mysql://localhost:3306/eirc"/>
-                <property name="username" value="eirc"/>
-                <property name="password" value="eirc"/>
+                <property name="url" value="jdbc:mysql://localhost:3306/junitTest"/>
+                <property name="username" value="junitTest"/>
+                <property name="password" value="junitTest"/>
             </dataSource>
             -->
         </environment>

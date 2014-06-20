@@ -53,7 +53,6 @@
   <resources>
     <jdbc-resource pool-name="__TimerPool" jndi-name="jdbc/__TimerPool" object-type="system-admin" />
     <jdbc-resource pool-name="DerbyPool" jndi-name="jdbc/__default" object-type="system-all" />
-    <!--jdbc-resource pool-name="eircPool" jndi-name="jdbc/eircResource"/-->
     <jdbc-connection-pool name="__TimerPool" datasource-classname="org.apache.derby.jdbc.EmbeddedXADataSource" res-type="javax.sql.XADataSource">
       <property value="${com.sun.aas.instanceRoot}/lib/databases/ejbtimer" name="databaseName" />
       <property value=";create=true" name="connectionAttributes" />
@@ -62,12 +61,12 @@
       <property name="databaseName" value="${com.sun.aas.instanceRoot}/lib/databases/embedded_default" />
       <property name="connectionAttributes" value=";create=true" />
     </jdbc-connection-pool>
-    <jdbc-resource pool-name="eircPool" jndi-name="jdbc/eircResource"/>
-    <jdbc-connection-pool name="eircPool" jndi-name="__SYSTEM/pools/eircPool" datasource-classname="com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource" res-type="javax.sql.ConnectionPoolDataSource" allow-non-component-callers="false">
+    <jdbc-resource pool-name="junitTestPool" jndi-name="jdbc/junitTestResource"/>
+    <jdbc-connection-pool name="junitTestPool" datasource-classname="com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource" res-type="javax.sql.ConnectionPoolDataSource" allow-non-component-callers="false">
       <property name="useUnicode" value="true"/>
-      <property name="user" value="test"/>
-      <property name="password" value="test"/>
-      <property name="url" value="jdbc:mysql://192.168.1.11:3306/test"/>
+      <property name="user" value="junitTest"/>
+      <property name="password" value="junitTest"/>
+      <property name="url" value="jdbc:mysql://localhost:3306/junitTest"/>
       <property name="characterEncoding" value="utf8"/>
       <property name="characterResultSets" value="utf8"/>
     </jdbc-connection-pool>
@@ -76,7 +75,7 @@
     <server name="server" config-ref="server-config"> 
       <resource-ref ref="jdbc/__TimerPool" />
       <resource-ref ref="jdbc/__default" />
-      <resource-ref ref="jdbc/eircResource" />
+      <resource-ref ref="jdbc/junitTestResource" />
     </server>
   </servers>
  <configs>
