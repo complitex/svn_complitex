@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="complitex database" default="create-junit-test" basedir=".">
+    <property file="database.properties"/>
+
+    <target name="create-junit-test">
+        <sql driver="com.mysql.jdbc.Driver" encoding="UTF-8" url="${junit_test_url}" userid="${junit_test_username}" password="${junit_test_password}">
+            <classpath>
+                <pathelement location="${jdbc}"/>
+            </classpath>
+
+            <transaction src="complitex-dictionary-create.sql"/>
+            <transaction src="complitex-create.sql"/>
+            <transaction src="complitex-junit-test-create.sql"/>
+        </sql>
+
+        <sql driver="com.mysql.jdbc.Driver" encoding="UTF-8" url="${junit_test_url}" userid="${junit_test_username}" password="${junit_test_password}">
+            <classpath>
+                <pathelement location="${jdbc}"/>
+            </classpath>
+
+            <transaction src="complitex-insert.sql"/>
+            <transaction src="complitex-sequence.sql"/>
+        </sql>
+    </target>
+
+</project>

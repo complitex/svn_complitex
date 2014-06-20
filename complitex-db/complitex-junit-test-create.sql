@@ -1,5 +1,12 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 
+
+-- drop schema junitTest;
+-- create schema junitTest;
+-- create user 'junitTest'@'localhost' identified by 'junitTest';
+-- grant all privileges on junitTest.* to 'junitTest'@'localhost' WITH GRANT OPTION;
+-- flush privileges;
+
 -- ------------------------------
 -- Registry number
 -- ------------------------------
