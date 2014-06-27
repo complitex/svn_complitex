@@ -122,6 +122,13 @@
             </dependency>
             <dependency>
                 <groupId>org.complitex</groupId>
+                <artifactId>complitex-dictionary</artifactId>
+                <version>${project.version}</version>
+                <scope>test</scope>
+                <type>test-jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.complitex</groupId>
                 <artifactId>complitex-images</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -388,6 +395,25 @@
                     <source>1.7</source>
                     <target>1.7</target>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>test-jar-on-compile</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
 
