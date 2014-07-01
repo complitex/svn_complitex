@@ -12,7 +12,6 @@ import javax.interceptor.Interceptors;
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 09.08.2010 15:29:48
  */
-@Interceptors(TransactionalMethodInterceptor.class)
 public abstract class AbstractBean {
     protected final static String DEFAULT_ENVIRONMENT = "remote";
 
