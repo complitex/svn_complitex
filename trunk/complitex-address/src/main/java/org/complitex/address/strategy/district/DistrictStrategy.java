@@ -13,7 +13,9 @@ import org.complitex.dictionary.entity.StatusType;
 import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.mybatis.Transactional;
+import org.complitex.dictionary.service.LocaleBean;
 import org.complitex.dictionary.service.StringCultureBean;
+import org.complitex.dictionary.strategy.DomainObjectPermissionInfo;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.strategy.web.DomainObjectListPanel;
@@ -37,19 +39,21 @@ import java.util.Set;
  */
 @Stateless
 public class DistrictStrategy extends TemplateStrategy {
-
     private static final String DISTRICT_NAMESPACE = DistrictStrategy.class.getPackage().getName() + ".District";
+
     @EJB
     private StringCultureBean stringBean;
+
     @EJB
     private StrategyFactory strategyFactory;
 
-    /*
-     * Attribute type ids
-     */
     public static final long NAME = 600;
     public static final long CODE = 601;
     public static final long PARENT_ENTITY_ID = 400L;
+
+    public String getName(DomainObject object){
+        return stringBean.displayValue(object.getAttribute(NAME).getLocalizedValues(), getSystemLocale());
+    }
 
     @Override
     protected List<Long> getListAttributeTypes() {

@@ -15,7 +15,7 @@ import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.description.Entity;
 import org.complitex.dictionary.entity.description.EntityAttributeType;
 import org.complitex.dictionary.strategy.IStrategy;
-import org.complitex.dictionary.strategy.IStrategy.SimpleObjectInfo;
+import org.complitex.dictionary.strategy.SimpleObjectInfo;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionary.strategy.web.DomainObjectEditPanel;

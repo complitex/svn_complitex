@@ -4,12 +4,11 @@
  */
 package org.complitex.address.strategy.city_type;
 
-import static com.google.common.collect.Lists.*;
-import static org.apache.wicket.util.string.Strings.*;
 import org.complitex.address.resource.CommonResources;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
+import org.complitex.dictionary.service.LocaleBean;
 import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.util.ResourceUtil;
 import org.complitex.template.strategy.TemplateStrategy;
@@ -21,17 +20,23 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static org.apache.wicket.util.string.Strings.isEmpty;
+
 /**
  *
  * @author Artem
  */
 @Stateless
 public class CityTypeStrategy extends TemplateStrategy {
-
     public static final long SHORT_NAME = 1300;
     public static final long NAME = 1301;
+
     @EJB
     private StringCultureBean stringBean;
+
+    @EJB
+    private LocaleBean localeBean;
 
     @Override
     public String getEntityTable() {
@@ -41,6 +46,16 @@ public class CityTypeStrategy extends TemplateStrategy {
     @Override
     protected List<Long> getListAttributeTypes() {
         return newArrayList(NAME);
+    }
+
+    public String getShortName(Long objectId){
+        DomainObject object = findById(objectId, true);
+
+        if (object != null){
+            return stringBean.displayValue(object.getAttribute(SHORT_NAME).getLocalizedValues(), localeBean.getSystemLocale());
+        }
+
+        return null;
     }
 
     @Override

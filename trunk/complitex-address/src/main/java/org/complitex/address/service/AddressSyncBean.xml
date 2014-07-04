@@ -7,7 +7,7 @@
         <result column="external_id" property="externalId"/>
         <result column="name" property="name"/>
         <result column="date" property="date"/>
-        <result column="status" property="status"/>
+        <result column="status" property="status" typeHandler="org.complitex.dictionary.mybatis.FixedIdBaseTypeHandler"/>
     </resultMap>
     
     <resultMap id="districtSyncResultMap" type="org.complitex.address.entity.DistrictSync" 
@@ -37,11 +37,11 @@
     </resultMap>
 
     <sql id="abstractAddressSyncFilter">
-        <if test="objectId != null">and `object_id` = #{objectId}</if>
-        <if test="externalId != null">and `external_id` = #{externalId}</if>
-        <if test="name != null">and `name` = #{name}</if>
-        <if test="date != null">and `date` = #{date}</if>
-        <if test="status != null">and `status` = #{status}</if>
+        <if test="object.objectId != null">and `object_id` = #{object.objectId}</if>
+        <if test="object.externalId != null">and `external_id` = #{object.externalId}</if>
+        <if test="object.name != null">and `name` = #{object.name}</if>
+        <if test="object.date != null">and `date` = #{object.date}</if>
+        <if test="object.status != null">and `status` = #{object.status}</if>
     </sql>
 
     <sql id="abstractAddressSyncOrderLimit">
@@ -67,7 +67,7 @@
     <sql id="selectDistrictSyncWhere">
         <where>
             <include refid="abstractAddressSyncFilter"/>
-            <if test="cityObjectId != null">and `city_object_id` = #{cityObjectId}</if>
+            <if test="object.cityObjectId != null">and `city_object_id` = #{object.cityObjectId}</if>
         </where>
     </sql>
 
@@ -96,7 +96,7 @@
         delete from `street_type_sync` where `id` = #{id}
     </delete>
 
-    <select id="selectStreetTypeSync" parameterType="long" resultType="streetTypeSyncResultMap">
+    <select id="selectStreetTypeSync" parameterType="long" resultMap="streetTypeSyncResultMap">
         select * from `street_type_sync` where `id` = #{id}
     </select>
 
@@ -134,16 +134,16 @@
         delete from `street_sync` where `id` = #{id}
     </delete>
 
-    <select id="selectStreetSync" parameterType="long" resultMap="streetResultMap">
+    <select id="selectStreetSync" parameterType="long" resultMap="streetSyncResultMap">
         select * from `street_sync` where `id` = #{id}
     </select>
 
     <sql id="selectStreetSyncWhere">
         <where>
             <include refid="abstractAddressSyncFilter"/>
-            <if test="streetTypeObjectId != null">`street_type_object_id` = #{streetTypeObjectId}</if>
-            <if test="cityObjectId != null">`city_object_id` = #{cityObjectId}</if>
-            <if test="streetTypeShortName != null">`street_type_object_id` = #{streetTypeShortName}</if>
+            <if test="object.streetTypeObjectId != null">`street_type_object_id` = #{object.streetTypeObjectId}</if>
+            <if test="object.cityObjectId != null">`city_object_id` = #{object.cityObjectId}</if>
+            <if test="object.streetTypeShortName != null">`street_type_object_id` = #{object.streetTypeShortName}</if>
         </where>
     </sql>
 
@@ -174,23 +174,23 @@
         delete from `building_address_sync` where `id` = #{id}
     </delete>
 
-    <select id="selectBuildingAddressSync" parameterType="long" resultMap="buildingAddressResultMap">
+    <select id="selectBuildingAddressSync" parameterType="long" resultMap="buildingAddressSyncResultMap">
         select * from `building_address_sync` where `id` = #{id}
     </select>
 
     <sql id="selectBuildingAddressSyncWhere">
         <where>
             <include refid="abstractAddressSyncFilter"/>
-            <if test="streetTypeObjectId != null">`street_type_object_id` = #{streetTypeObjectId}</if>
-            <if test="streetObjectId != null">`street_object_id` = #{streetObjectId}</if>
-            <if test="districtObjectId != null">`district_object_id` = #{districtObjectId}</if>
-            <if test="streetExternalId != null">`street_external_id` = #{streetExternalId}</if>
-            <if test="part != null">`part` = #{part}</if>
+            <if test="object.streetTypeObjectId != null">`street_type_object_id` = #{object.streetTypeObjectId}</if>
+            <if test="object.streetObjectId != null">`street_object_id` = #{object.streetObjectId}</if>
+            <if test="object.districtObjectId != null">`district_object_id` = #{object.districtObjectId}</if>
+            <if test="object.streetExternalId != null">`street_external_id` = #{object.streetExternalId}</if>
+            <if test="object.part != null">`part` = #{part}</if>
         </where>
     </sql>
 
     <select id="selectBuildingAddressSyncList" parameterType="org.complitex.dictionary.entity.FilterWrapper"
-            resultMap="buildingAddressResultMap">
+            resultMap="buildingAddressSyncResultMap">
         select * from `building_address_sync`
         <include refid="selectBuildingAddressSyncWhere"/>
         <include refid="abstractAddressSyncOrderLimit"/>

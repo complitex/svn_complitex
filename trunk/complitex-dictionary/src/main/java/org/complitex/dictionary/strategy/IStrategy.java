@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.dictionary.strategy;
 
 import org.apache.wicket.Page;
@@ -13,7 +9,6 @@ import org.complitex.dictionary.entity.History;
 import org.complitex.dictionary.entity.description.Entity;
 import org.complitex.dictionary.entity.description.EntityAttributeType;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
-import org.complitex.dictionary.mybatis.Transactional;
 import org.complitex.dictionary.strategy.web.AbstractComplexAttributesPanel;
 import org.complitex.dictionary.strategy.web.validate.IValidator;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
@@ -26,7 +21,6 @@ import java.util.*;
  * @author Artem
  */
 public interface IStrategy {
-
     String ARCHIVE_ATTRIBUTES_OPERATION = "archiveAttributes";
     String ATTRIBUTE_NAMESPACE = "org.complitex.dictionary.entity.Attribute";
     String COUNT_OPERATION = "count";
@@ -43,38 +37,13 @@ public interface IStrategy {
     String FIND_CHILDREN_ACTIVITY_INFO_OPERATION = "findChildrenActivityInfo";
     String UPDATE_CHILDREN_ACTIVITY_OPERATION = "updateChildrenActivity";
     String DELETE_OPERATION = "delete";
-
-    public static class DomainObjectPermissionInfo {
-
-        private Long id;
-        private Long permissionId;
-
-        public Long getId() {
-            return id;
-        }
-
-        public void setId(Long id) {
-            this.id = id;
-        }
-
-        public Long getPermissionId() {
-            return permissionId;
-        }
-
-        public void setPermissionId(Long permissionId) {
-            this.permissionId = permissionId;
-        }
-    }
-
-    @Transactional
+    
     void archive(DomainObject object, Date endDate);
-
-    @Transactional
+    
     void archiveAttributes(Collection<Long> attributeTypeIds, Date endDate);
 
     void configureExample(DomainObjectExample example, Map<String, Long> ids, String searchTextInput);
-
-    @Transactional
+    
     int count(DomainObjectExample example);
 
     void disable(DomainObject object);
@@ -84,39 +53,16 @@ public interface IStrategy {
     String displayAttribute(Attribute attribute, Locale locale);
 
     void enable(DomainObject object);
-
-    @Transactional
+    
     List<? extends DomainObject> find(DomainObjectExample example);
-
-    @Transactional
+    
     DomainObject findById(Long id, boolean runAsAdmin);
-
-    @Transactional
+    
     DomainObject findById(String dataSource, Long id, boolean runAsAdmin);
 
     public Long getObjectId(String externalId);
-
-    @Transactional
+    
     DomainObject findHistoryObject(long objectId, Date date);
-
-    public static class SimpleObjectInfo {
-
-        private String entityTable;
-        private Long id;
-
-        public SimpleObjectInfo(String entityTable, Long id) {
-            this.entityTable = entityTable;
-            this.id = id;
-        }
-
-        public String getEntityTable() {
-            return entityTable;
-        }
-
-        public Long getId() {
-            return id;
-        }
-    }
 
     SimpleObjectInfo findParentInSearchComponent(long id, Date date);
 
@@ -141,11 +87,9 @@ public interface IStrategy {
     Entity getEntity();
 
     String getEntityTable();
-
-    @Transactional
+    
     List<History> getHistory(long objectId);
-
-    @Transactional
+    
     TreeSet<Date> getHistoryDates(long objectId);
 
     Class<? extends WebPage> getHistoryPage();
@@ -179,8 +123,7 @@ public interface IStrategy {
     boolean allowProceedNextSearchFilter();
 
     IValidator getValidator();
-
-    @Transactional
+    
     void insert(DomainObject object, Date insertDate);
 
     boolean isSimpleAttribute(final Attribute attribute);
@@ -188,17 +131,13 @@ public interface IStrategy {
     boolean isSimpleAttributeType(EntityAttributeType entityAttributeType);
 
     DomainObject newInstance();
-
-    @Transactional
+    
     Long performDefaultValidation(DomainObject object, Locale locale);
-
-    @Transactional
+    
     void update(DomainObject oldObject, DomainObject newObject, Date updateDate);
-
-    @Transactional
+    
     void updateAndPropagate(DomainObject oldObject, DomainObject newObject, Date updateDate);
-
-    @Transactional
+    
     void replacePermissions(DomainObjectPermissionInfo objectPermissionInfo, Set<Long> subjectIds);
 
     boolean isNeedToChangePermission(Set<Long> oldSubjectIds, Set<Long> newSubjectIds);
@@ -206,18 +145,15 @@ public interface IStrategy {
     String[] getListRoles();
 
     String[] getEditRoles();
-
-    @Transactional
+    
     void changePermissions(DomainObjectPermissionInfo objectPermissionInfo, Set<Long> addSubjectIds, Set<Long> removeSubjectIds);
 
     void changePermissionsInDistinctThread(long objectId, long permissionId, Set<Long> addSubjectIds, Set<Long> removeSubjectIds);
-
-    @Transactional
+    
     void changeChildrenActivity(long parentId, boolean enable);
 
     boolean canPropagatePermissions(DomainObject object);
-
-    @Transactional
+    
     void delete(long objectId, Locale locale) throws DeleteException;
 
     String[] getDescriptionRoles();

@@ -195,7 +195,7 @@
 
     <!-- permissions -->
 
-    <resultMap id="DomainObjectPermissionInfo" type="org.complitex.dictionary.strategy.IStrategy$DomainObjectPermissionInfo">
+    <resultMap id="DomainObjectPermissionInfo" type="org.complitex.dictionary.strategy.DomainObjectPermissionInfo">
         <id column="object_id" property="id"/>
         <result column="permission_id" property="permissionId"/>
     </resultMap>

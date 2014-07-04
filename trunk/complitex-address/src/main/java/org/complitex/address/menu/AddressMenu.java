@@ -4,21 +4,20 @@
  */
 package org.complitex.address.menu;
 
-import com.google.common.collect.Lists;
 import org.apache.wicket.Page;
-import org.complitex.template.web.template.ITemplateLink;
-import org.complitex.template.web.template.ResourceTemplateMenu;
-import org.complitex.address.resource.CommonResources;
-
-import java.util.List;
-import java.util.Locale;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.complitex.address.AddressInfoProvider;
+import org.complitex.address.resource.CommonResources;
+import org.complitex.address.web.AddressSyncPage;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.util.EjbBeanLocator;
 import org.complitex.template.web.security.SecurityRole;
+import org.complitex.template.web.template.ITemplateLink;
+import org.complitex.template.web.template.ResourceTemplateMenu;
+
+import java.util.Locale;
 
 /**
  *
@@ -26,27 +25,11 @@ import org.complitex.template.web.security.SecurityRole;
  */
 @AuthorizeInstantiation(SecurityRole.ADDRESS_MODULE_VIEW)
 public class AddressMenu extends ResourceTemplateMenu {
-
     public static final String ADDRESS_MENU_ITEM_SUFFIX = "_address_item";
 
-    private static IStrategy getStrategy(String entity) {
-        return EjbBeanLocator.getBean(StrategyFactory.class).getStrategy(entity);
-    }
-
-    private static AddressInfoProvider getAddressInfoProvider() {
-        return EjbBeanLocator.getBean(AddressInfoProvider.class);
-    }
-
-    @Override
-    public String getTitle(Locale locale) {
-        return getString(CommonResources.class, locale, "address_menu");
-    }
-
-    @Override
-    public List<ITemplateLink> getTemplateLinks(final Locale locale) {
-        List<ITemplateLink> links = Lists.newArrayList();
+    public AddressMenu() {
         for (final String addressEntity : getAddressInfoProvider().getAddressInfo().getAddresses()) {
-            links.add(new ITemplateLink() {
+            add(new ITemplateLink() {
 
                 @Override
                 public String getLabel(Locale locale) {
@@ -69,7 +52,21 @@ public class AddressMenu extends ResourceTemplateMenu {
                 }
             });
         }
-        return links;
+
+        add("address_sync_page", AddressSyncPage.class);
+    }
+
+    private static IStrategy getStrategy(String entity) {
+        return EjbBeanLocator.getBean(StrategyFactory.class).getStrategy(entity);
+    }
+
+    private static AddressInfoProvider getAddressInfoProvider() {
+        return EjbBeanLocator.getBean(AddressInfoProvider.class);
+    }
+
+    @Override
+    public String getTitle(Locale locale) {
+        return getString(CommonResources.class, locale, "address_menu");
     }
 
     @Override

@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.dictionary.entity.example;
 
 import com.google.common.collect.Maps;
@@ -44,6 +40,10 @@ public class DomainObjectExample implements Serializable {
         for (Long a : attributeTypeIds){
             attributeExamples.add(new AttributeExample(a));
         }
+    }
+
+    public DomainObjectExample(ComparisonType comparisonType) {
+        this.comparisonType = comparisonType.name();
     }
 
     public DomainObjectExample(Long id) {
@@ -139,8 +139,10 @@ public class DomainObjectExample implements Serializable {
         return parentId;
     }
 
-    public void setParentId(Long parentId) {
+    public DomainObjectExample setParentId(Long parentId) {
         this.parentId = parentId;
+
+        return this;
     }
 
     public Map<String, Object> getAdditionalParams() {

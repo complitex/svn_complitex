@@ -41,10 +41,10 @@
 
     <properties>
         <!-- wicket version -->
-        <wicket.version>6.15.0</wicket.version>
+        <wicket.version>6.16.0</wicket.version>
 
         <!-- wicketstuff inject -->
-        <wicket-stuff.version>6.15.0</wicket-stuff.version>
+        <wicket-stuff.version>6.16.0</wicket-stuff.version>
 
         <!-- wiquery version -->
         <wiquery.version>6.13.0</wiquery.version>

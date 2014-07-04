@@ -3,6 +3,7 @@ package org.complitex.dictionary.entity;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import org.complitex.dictionary.util.AttributeUtil;
 
 import java.io.Serializable;
 import java.util.*;
@@ -66,6 +67,19 @@ public class DomainObject implements Serializable {
         }));
     }
 
+    public void removeAttribute(long attributeTypeId) {
+        for (Iterator<Attribute> i = attributes.iterator(); i.hasNext();) {
+            Attribute attribute = i.next();
+            if (attribute.getAttributeTypeId().equals(attributeTypeId)) {
+                i.remove();
+            }
+        }
+    }
+
+    public void setAttribute(Long attributeTypeId, String name, Long localeId){
+        AttributeUtil.setStringValue(getAttribute(attributeTypeId), name, localeId);
+    }
+
     public Date getEndDate() {
         return endDate;
     }
@@ -108,15 +122,6 @@ public class DomainObject implements Serializable {
 
     public List<Attribute> getAttributes() {
         return attributes;
-    }
-
-    public void removeAttribute(long attributeTypeId) {
-        for (Iterator<Attribute> i = attributes.iterator(); i.hasNext();) {
-            Attribute attribute = i.next();
-            if (attribute.getAttributeTypeId().equals(attributeTypeId)) {
-                i.remove();
-            }
-        }
     }
 
     public void setAttributes(List<Attribute> attributes) {
