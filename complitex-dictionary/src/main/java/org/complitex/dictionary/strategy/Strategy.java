@@ -46,22 +46,34 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
 
     private static final int PERMISSIONS_CHILDREN_BATCH = 500;
     private static final int ACTIVITY_CHILDREN_BATCH = 5000;
+
     @EJB
     private StrategyFactory strategyFactory;
+
     @EJB
     private SequenceBean sequenceBean;
+
     @EJB
     private StringCultureBean stringBean;
+
     @EJB
     private EntityBean entityBean;
+
     @EJB
     private LocaleBean localeBean;
+
     @EJB
     private SessionBean sessionBean;
+
     @EJB
     private PermissionBean permissionBean;
+
     @EJB
     private LogBean logBean;
+
+    public Locale getSystemLocale(){
+        return localeBean.getSystemLocale();
+    }
 
     @Override
     public boolean isSimpleAttributeType(EntityAttributeType entityAttributeType) {

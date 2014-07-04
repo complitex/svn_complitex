@@ -10,6 +10,7 @@ import org.complitex.address.strategy.city.web.edit.CityTypeComponent;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.AttributeExample;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
+import org.complitex.dictionary.service.LocaleBean;
 import org.complitex.dictionary.service.StringCultureBean;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
@@ -34,16 +35,14 @@ import java.util.Map;
  */
 @Stateless
 public class CityStrategy extends TemplateStrategy {
-
     private static final String CITY_NAMESPACE = CityStrategy.class.getPackage().getName() + ".City";
+
     @EJB
     private StringCultureBean stringBean;
+
     @EJB
     private StrategyFactory strategyFactory;
 
-    /*
-     * Attribute type ids
-     */
     public static final long NAME = 400;
     public static final long CITY_TYPE = 401;
     public static final long PARENT_ENTITY_ID = 700L;
@@ -69,6 +68,10 @@ public class CityStrategy extends TemplateStrategy {
             return cityTypeName + " " + cityName;
         }
         return cityName;
+    }
+
+    public String getName(DomainObject object){
+        return getName(object, getSystemLocale());
     }
 
     public String getName(DomainObject object, Locale locale){

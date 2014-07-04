@@ -9,11 +9,11 @@ import org.complitex.dictionary.mybatis.IFixedIdType;
  */
 @FixedIdTypeHandler
 public enum AddressSyncStatus implements IFixedIdType{
-    DEFAULT(0L);
+    DEFAULT(0), LOCAL(1), NEW_NAME(2), DUPLICATE(3), ARCHIVAL(4);
 
     private Long id;
 
-    AddressSyncStatus(Long id) {
+    AddressSyncStatus(long id) {
         this.id = id;
     }
 

@@ -8,7 +8,7 @@ import org.apache.wicket.util.string.Strings;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.mybatis.Transactional;
 import org.complitex.dictionary.strategy.IStrategy;
-import org.complitex.dictionary.strategy.IStrategy.SimpleObjectInfo;
+import org.complitex.dictionary.strategy.SimpleObjectInfo;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.web.component.search.SearchComponentState;
 

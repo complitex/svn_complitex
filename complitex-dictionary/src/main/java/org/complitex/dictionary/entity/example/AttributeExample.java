@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.complitex.dictionary.entity.example;
 
 import java.io.Serializable;
@@ -20,6 +16,11 @@ public class AttributeExample implements Serializable {
 
     public AttributeExample(Long attributeTypeId) {
         this.attributeTypeId = attributeTypeId;
+    }
+
+    public AttributeExample(Long attributeTypeId, String value) {
+        this.attributeTypeId = attributeTypeId;
+        this.value = value;
     }
 
     public Long getAttributeTypeId() {

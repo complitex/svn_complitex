@@ -1,6 +1,6 @@
 package org.complitex.dictionary.service;
 
-import com.beust.jcommander.internal.Maps;
+import com.google.common.collect.Maps;
 
 import javax.annotation.Resource;
 import javax.ejb.Stateless;

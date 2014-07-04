@@ -10,6 +10,7 @@ import org.complitex.correction.service.AddressCorrectionBean;
 import org.complitex.dictionary.entity.Correction;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.strategy.IStrategy;
+import org.complitex.dictionary.strategy.SimpleObjectInfo;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.web.component.ShowMode;
 import org.complitex.dictionary.web.component.search.ISearchCallback;
@@ -69,7 +70,7 @@ public abstract class AddressCorrectionEditPanel<T extends Correction> extends A
         SearchComponentState componentState = new SearchComponentState();
         if (!isNew()) {
             long objectId = correction.getObjectId();
-            IStrategy.SimpleObjectInfo info = getStrategy(entity).findParentInSearchComponent(objectId, null);
+            SimpleObjectInfo info = getStrategy(entity).findParentInSearchComponent(objectId, null);
             if (info != null) {
                 componentState = getStrategy(entity).getSearchComponentStateForParent(info.getId(), info.getEntityTable(), null);
                 componentState.put(entity, findObject(objectId, entity));

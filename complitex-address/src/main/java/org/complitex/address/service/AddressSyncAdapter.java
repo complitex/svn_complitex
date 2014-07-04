@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +38,7 @@ public class AddressSyncAdapter extends AbstractBean {
      * возвращаемое значение: 0 - все хорошо, -1 - неизвестный тип нас.пункта, -2 - неизвестный нас.пункт
      */
     @SuppressWarnings("unchecked")
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public List<DistrictSync> getDistrictSyncs(String dataSource, String cityName, String cityTypeName, Date date){
         Map<String, Object> param = new HashMap<>();
 
@@ -48,6 +51,8 @@ public class AddressSyncAdapter extends AbstractBean {
         } catch (Exception e) {
             log.error("Ошибка удаленной функции получения списка районов", e);
         }
+
+        log.info("getDistrictSyncs: " + param);
 
         return (List<DistrictSync>) param.get("out");
     }
@@ -63,6 +68,7 @@ public class AddressSyncAdapter extends AbstractBean {
      * возвращаемое значение: 0 - все хорошо, -1 - ошибка
      */
     @SuppressWarnings("unchecked")
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public List<StreetTypeSync> getStreetTypeSyncs(String dataSource){
         Map<String, Object> param = new HashMap<>();
 
@@ -71,6 +77,8 @@ public class AddressSyncAdapter extends AbstractBean {
         } catch (Exception e) {
             log.error("Ошибка удаленной функции получения списка типов улиц", e);
         }
+
+        log.info("getStreetTypeSyncs: " + param);
 
         return (List<StreetTypeSync>) param.get("out");
     }
@@ -89,6 +97,7 @@ public class AddressSyncAdapter extends AbstractBean {
      * возвращаемое значение: 0 - все хорошо, -1 - неизвестный тип нас.пункта, -2 - неизвестный нас.пункт
      */
     @SuppressWarnings("unchecked")
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public List<StreetSync> getStreetSyncs(String dataSource, String cityName, String cityTypeName, Date date){
         Map<String, Object> param = new HashMap<>();
 
@@ -101,6 +110,8 @@ public class AddressSyncAdapter extends AbstractBean {
         } catch (Exception e) {
             log.error("Ошибка удаленной функции получения списка улиц", e);
         }
+
+        log.info("getStreetSyncs: " + param);
 
         return (List<StreetSync>) param.get("out");
     }
@@ -121,6 +132,7 @@ public class AddressSyncAdapter extends AbstractBean {
      * возвращаемое значение: 0 - все хорошо, -3 - неизвестный район нас.пункта, -4 - неизвестный тип улицы, -5 - неизвестная улица
      */
     @SuppressWarnings("unchecked")
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public List<BuildingAddressSync> getBuildingSyncs(String dataSource, String districtName, String streetTypeName,
                                                String streetName, Date date){
         Map<String, Object> param = new HashMap<>();
@@ -135,6 +147,8 @@ public class AddressSyncAdapter extends AbstractBean {
         } catch (Exception e) {
             log.error("Ошибка удаленной функции получения списка домов", e);
         }
+
+        log.info("getBuildingSyncs: " + param);
 
         return (List<BuildingAddressSync>) param.get("out");
     }

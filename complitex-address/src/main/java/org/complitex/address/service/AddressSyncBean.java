@@ -4,12 +4,14 @@ import org.complitex.address.entity.AbstractAddressSync;
 import org.complitex.dictionary.entity.FilterWrapper;
 import org.complitex.dictionary.service.AbstractBean;
 
+import javax.ejb.Stateless;
 import java.util.List;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
  *         Date: 28.04.2014 23:45
  */
+@Stateless
 public class AddressSyncBean extends AbstractBean {
     public final static String NS = AddressSyncBean.class.getName();
 

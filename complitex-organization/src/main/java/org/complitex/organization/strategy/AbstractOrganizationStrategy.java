@@ -14,6 +14,7 @@ import org.complitex.dictionary.service.LocaleBean;
 import org.complitex.dictionary.service.PermissionBean;
 import org.complitex.dictionary.service.SequenceBean;
 import org.complitex.dictionary.strategy.DeleteException;
+import org.complitex.dictionary.strategy.DomainObjectPermissionInfo;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.strategy.organization.IOrganizationStrategy;

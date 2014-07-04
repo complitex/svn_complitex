@@ -46,6 +46,7 @@ public class OrganizationCorrectionDialog extends Panel {
         dialog = new Dialog("dialog");
         dialog.setTitle(new ResourceModel("title"));
         dialog.setWidth(500);
+        dialog.setModal(true);
         add(dialog);
 
         form = new Form<>("form", new CompoundPropertyModel<>(Model.of(new OrganizationCorrection())));
