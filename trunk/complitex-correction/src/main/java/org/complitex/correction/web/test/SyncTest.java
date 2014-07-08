@@ -43,7 +43,7 @@ public class SyncTest extends WebPage {
         form.add(new Button("test"){
             @Override
             public void onSubmit() {
-                String dataSource = "jdbc/osznconnection_remote_resource";
+                String dataSource = "jdbc/osznconnectionRemoteResource";
 
                 //districts
                 List<DistrictSync> districtSyncs = addressSyncService.getDistrictSyncs(

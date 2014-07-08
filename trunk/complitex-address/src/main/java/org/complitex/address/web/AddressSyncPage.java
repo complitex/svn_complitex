@@ -4,6 +4,7 @@ import org.apache.wicket.authroles.authorization.strategies.role.annotations.Aut
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.ResourceModel;
 import org.complitex.address.web.component.DistrictSyncPanel;
+import org.complitex.dictionary.web.component.ajax.AjaxFeedbackPanel;
 import org.complitex.template.web.security.SecurityRole;
 import org.complitex.template.web.template.TemplatePage;
 
@@ -16,6 +17,9 @@ public class AddressSyncPage extends TemplatePage {
     public AddressSyncPage() {
         add(new Label("title",  new ResourceModel("title")));
 
-        add(new DistrictSyncPanel("districtSyncPanel"));
+        AjaxFeedbackPanel messages = new AjaxFeedbackPanel("messages");
+        add(messages);
+
+        add(new DistrictSyncPanel("districtSyncPanel", messages));
     }
 }
