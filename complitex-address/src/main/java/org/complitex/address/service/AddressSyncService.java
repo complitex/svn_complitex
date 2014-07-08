@@ -11,6 +11,8 @@ import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.service.ConfigBean;
 import org.complitex.dictionary.service.LocaleBean;
 import org.complitex.dictionary.util.DateUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
@@ -24,6 +26,8 @@ import java.util.List;
  */
 @Singleton
 public class AddressSyncService {
+    private Logger log = LoggerFactory.getLogger(getClass());
+
     @EJB
     private AddressSyncBean addressSyncBean;
 
@@ -50,98 +54,116 @@ public class AddressSyncService {
     }
 
     @Asynchronous
-    public void syncDistricts(){
+    public void syncDistricts(ISyncListener<DistrictSync> listener){
         Date date = DateUtil.getCurrentDate();
         Long localeId = localeBean.getSystemLocaleId();
 
         List<? extends DomainObject> cities = cityStrategy.find(new DomainObjectExample());
 
         for (DomainObject city : cities){
-            String cityName = cityStrategy.getName(city);
-            String cityTypeName = cityTypeStrategy.getShortName(city.getAttribute(CityStrategy.CITY_TYPE).getValueId());
+            try {
+                String cityName = cityStrategy.getName(city);
+                String cityTypeName = cityTypeStrategy.getShortName(city.getAttribute(CityStrategy.CITY_TYPE).getValueId());
 
-            List<DistrictSync> districtSyncs = addressSyncAdapter.getDistrictSyncs(getDataSource(), cityName,
-                    cityTypeName, date);
+                List<DistrictSync> districtSyncs = addressSyncAdapter.getDistrictSyncs(getDataSource(), cityName,
+                        cityTypeName, date);
 
-            if (districtSyncs == null){
-                continue;
-            }
+                listener.onBegin(cityTypeName + " " + cityName); //todo status
 
-            List<? extends DomainObject> districts = districtStrategy.find(new DomainObjectExample()
-                    .setParentId(city.getId()));
-
-            for (DistrictSync districtSync : districtSyncs){
-                for (DomainObject district : districts){
-                    String districtName = districtStrategy.getName(district);
-
-                    //все норм
-                    if (districtSync.getExternalId().equals(district.getExternalId())
-                            && districtSync.getName().equals(districtName)){
-                        districtSync.setStatus(AddressSyncStatus.LOCAL);
-
-                        break;
-                    }
-
-                    //новое название
-                    if (districtSync.getExternalId().equals(district.getExternalId())){
-                        districtSync.setStatus(AddressSyncStatus.NEW_NAME);
-
-                        addressSyncBean.save(districtSync);
-
-                        break;
-                    }
-
-                    //дубликат
-                    if (districtSync.getName().equals(districtName)){
-                        districtSync.setStatus(AddressSyncStatus.DUPLICATE);
-
-                        addressSyncBean.save(districtSync);
-
-                        break;
-                    }
-                }
-
-                if (districtSync.getStatus() == null){
-                    DomainObject district = districtStrategy.newInstance();
-
-                    district.setParentId(city.getId());
-                    district.setExternalId(districtSync.getExternalId());
-                    district.setAttribute(DistrictStrategy.NAME, districtSync.getName(), localeId);
-
-                    districtStrategy.insert(district, date);
-                }
-            }
-
-            for (DomainObject district : districts){
-                if (district.getExternalId() == null){
+                if (districtSyncs == null){
                     continue;
                 }
 
-                String districtName = districtStrategy.getName(district);
+                List<? extends DomainObject> districts = districtStrategy.find(new DomainObjectExample()
+                        .setParentId(city.getId()));
 
                 for (DistrictSync districtSync : districtSyncs){
-                    boolean archive = true;
+                    for (DomainObject district : districts){
+                        String districtName = districtStrategy.getName(district);
 
-                    if (districtSync.getExternalId().equals(district.getExternalId())
-                            && districtSync.getName().equals(districtName)){
+                        //все норм
+                        if (districtSync.getExternalId().equals(district.getExternalId())
+                                && districtSync.getName().equals(districtName)){
+                            districtSync.setStatus(AddressSyncStatus.LOCAL);
 
-                        archive = false;
+                            break;
+                        }
+
+                        //новое название
+                        if (districtSync.getExternalId().equals(district.getExternalId())){
+                            districtSync.setStatus(AddressSyncStatus.NEW_NAME);
+
+                            addressSyncBean.save(districtSync);
+
+                            break;
+                        }
+
+                        //дубликат
+                        if (districtSync.getName().equals(districtName)){
+                            districtSync.setStatus(AddressSyncStatus.DUPLICATE);
+
+                            addressSyncBean.save(districtSync);
+
+                            break;
+                        }
                     }
 
-                    //архив
-                    if (archive){
-                        DistrictSync ds = new DistrictSync();
-                        ds.setObjectId(district.getId());
-                        ds.setExternalId(district.getExternalId());
-                        ds.setCityObjectId(district.getParentId());
-                        ds.setName(districtName);
-                        ds.setDate(date);
-                        ds.setStatus(AddressSyncStatus.ARCHIVAL);
+                    if (districtSync.getStatus() == null){
+                        DomainObject district = districtStrategy.newInstance();
 
-                        addressSyncBean.save(ds);
+                        district.setParentId(city.getId());
+                        district.setExternalId(districtSync.getExternalId());
+                        district.setAttribute(DistrictStrategy.NAME, districtSync.getName(), localeId);
+
+                        districtStrategy.insert(district, date);
+
+                        districtSync.setStatus(AddressSyncStatus.NEW);
+                    }
+
+                    listener.onProcessed(districtSync);
+                }
+
+                for (DomainObject district : districts){
+                    if (district.getExternalId() == null){
+                        continue;
+                    }
+
+                    String districtName = districtStrategy.getName(district);
+
+                    for (DistrictSync districtSync : districtSyncs){
+                        boolean archive = true;
+
+                        if (districtSync.getExternalId().equals(district.getExternalId())
+                                && districtSync.getName().equals(districtName)){
+
+                            archive = false;
+                        }
+
+                        //архив
+                        if (archive){
+                            DistrictSync ds = new DistrictSync();
+                            ds.setObjectId(district.getId());
+                            ds.setExternalId(district.getExternalId());
+                            ds.setCityObjectId(district.getParentId());
+                            ds.setName(districtName);
+                            ds.setDate(date);
+                            ds.setStatus(AddressSyncStatus.ARCHIVAL);
+
+                            addressSyncBean.save(ds);
+
+                            listener.onProcessed(ds);
+                        }
                     }
                 }
+            } catch (Exception e) {
+                listener.onError(e.getMessage()); //todo initial message
+
+                log.error("Ошибка синхронизации района", e);
             }
         }
+
+        listener.onDone();
     }
+
+
 }
