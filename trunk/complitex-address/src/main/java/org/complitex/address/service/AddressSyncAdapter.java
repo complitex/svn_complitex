@@ -4,6 +4,7 @@ import org.complitex.address.entity.BuildingAddressSync;
 import org.complitex.address.entity.DistrictSync;
 import org.complitex.address.entity.StreetSync;
 import org.complitex.address.entity.StreetTypeSync;
+import org.complitex.dictionary.entity.Cursor;
 import org.complitex.dictionary.service.AbstractBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,12 +40,13 @@ public class AddressSyncAdapter extends AbstractBean {
      */
     @SuppressWarnings("unchecked")
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public List<DistrictSync> getDistrictSyncs(String dataSource, String cityName, String cityTypeName, Date date){
+    public Cursor<DistrictSync> getDistrictSyncs(String dataSource, String cityName, String cityTypeName, Date date){
         Map<String, Object> param = new HashMap<>();
 
         param.put("cityName", cityName);
         param.put("cityTypeName", cityTypeName);
         param.put("date", date);
+        param.put("okCode", 0);
 
         try {
             sqlSession(dataSource).selectOne(NS + ".selectDistrictSyncs", param);
@@ -54,7 +56,7 @@ public class AddressSyncAdapter extends AbstractBean {
 
         log.info("getDistrictSyncs: " + param);
 
-        return (List<DistrictSync>) param.get("out");
+        return new Cursor<>((Integer)param.get("resultCode"), (List<DistrictSync>) param.get("out"));
     }
 
     /**
@@ -69,8 +71,9 @@ public class AddressSyncAdapter extends AbstractBean {
      */
     @SuppressWarnings("unchecked")
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public List<StreetTypeSync> getStreetTypeSyncs(String dataSource){
+    public Cursor<StreetTypeSync> getStreetTypeSyncs(String dataSource){
         Map<String, Object> param = new HashMap<>();
+        param.put("okCode", 0);
 
         try {
             sqlSession(dataSource).selectOne(NS + ".selectStreetTypeSyncs", param);
@@ -80,7 +83,7 @@ public class AddressSyncAdapter extends AbstractBean {
 
         log.info("getStreetTypeSyncs: " + param);
 
-        return (List<StreetTypeSync>) param.get("out");
+        return new Cursor<>((Integer)param.get("resultCode"), (List<StreetTypeSync>) param.get("out"));
     }
 
     /**
@@ -98,12 +101,13 @@ public class AddressSyncAdapter extends AbstractBean {
      */
     @SuppressWarnings("unchecked")
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public List<StreetSync> getStreetSyncs(String dataSource, String cityName, String cityTypeName, Date date){
+    public Cursor<StreetSync> getStreetSyncs(String dataSource, String cityName, String cityTypeName, Date date){
         Map<String, Object> param = new HashMap<>();
 
         param.put("cityName", cityName);
         param.put("cityTypeName", cityTypeName);
         param.put("date", date);
+        param.put("okCode", 0);
 
         try {
             sqlSession(dataSource).selectOne(NS + ".selectStreetSyncs", param);
@@ -113,7 +117,7 @@ public class AddressSyncAdapter extends AbstractBean {
 
         log.info("getStreetSyncs: " + param);
 
-        return (List<StreetSync>) param.get("out");
+        return new Cursor<>((Integer)param.get("resultCode"), (List<StreetSync>) param.get("out"));
     }
 
     /**
@@ -133,7 +137,7 @@ public class AddressSyncAdapter extends AbstractBean {
      */
     @SuppressWarnings("unchecked")
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public List<BuildingAddressSync> getBuildingSyncs(String dataSource, String districtName, String streetTypeName,
+    public Cursor<BuildingAddressSync> getBuildingSyncs(String dataSource, String districtName, String streetTypeName,
                                                String streetName, Date date){
         Map<String, Object> param = new HashMap<>();
 
@@ -141,6 +145,7 @@ public class AddressSyncAdapter extends AbstractBean {
         param.put("streetName", streetName);
         param.put("streetTypeName", streetTypeName);
         param.put("date", date);
+        param.put("okCode", 0);
 
         try {
             sqlSession(dataSource).selectOne(NS + ".selectBuildingSyncs", param);
@@ -150,6 +155,6 @@ public class AddressSyncAdapter extends AbstractBean {
 
         log.info("getBuildingSyncs: " + param);
 
-        return (List<BuildingAddressSync>) param.get("out");
+        return new Cursor<>((Integer)param.get("resultCode"), (List<BuildingAddressSync>) param.get("out"));
     }
 }
