@@ -5,11 +5,13 @@ import org.complitex.address.entity.DistrictSync;
 import org.complitex.address.strategy.city.CityStrategy;
 import org.complitex.address.strategy.city_type.CityTypeStrategy;
 import org.complitex.address.strategy.district.DistrictStrategy;
+import org.complitex.dictionary.entity.Cursor;
 import org.complitex.dictionary.entity.DictionaryConfig;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.service.ConfigBean;
 import org.complitex.dictionary.service.LocaleBean;
+import org.complitex.dictionary.service.exception.AbstractException;
 import org.complitex.dictionary.util.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,19 +67,19 @@ public class AddressSyncService {
                 String cityName = cityStrategy.getName(city);
                 String cityTypeName = cityTypeStrategy.getShortName(city.getAttribute(CityStrategy.CITY_TYPE).getValueId());
 
-                List<DistrictSync> districtSyncs = addressSyncAdapter.getDistrictSyncs(getDataSource(), cityName,
+                Cursor<DistrictSync> districtSyncs = addressSyncAdapter.getDistrictSyncs(getDataSource(), cityName,
                         cityTypeName, date);
 
-                listener.onBegin(cityTypeName + " " + cityName); //todo status
+                listener.onBegin(cityTypeName + " " + cityName + " [" + districtSyncs.getResultCode() + "]");
 
-                if (districtSyncs == null){
+                if (districtSyncs.getList() == null){
                     continue;
                 }
 
                 List<? extends DomainObject> districts = districtStrategy.find(new DomainObjectExample()
                         .setParentId(city.getId()));
 
-                for (DistrictSync districtSync : districtSyncs){
+                for (DistrictSync districtSync : districtSyncs.getList()){
                     for (DomainObject district : districts){
                         String districtName = districtStrategy.getName(district);
 
@@ -100,7 +102,9 @@ public class AddressSyncService {
 
                         //дубликат
                         if (districtSync.getName().equals(districtName)){
+                            districtSync.setCityObjectId(city.getId());
                             districtSync.setStatus(AddressSyncStatus.DUPLICATE);
+                            districtSync.setDate(date);
 
                             addressSyncBean.save(districtSync);
 
@@ -130,7 +134,7 @@ public class AddressSyncService {
 
                     String districtName = districtStrategy.getName(district);
 
-                    for (DistrictSync districtSync : districtSyncs){
+                    for (DistrictSync districtSync : districtSyncs.getList()){
                         boolean archive = true;
 
                         if (districtSync.getExternalId().equals(district.getExternalId())
@@ -156,7 +160,7 @@ public class AddressSyncService {
                     }
                 }
             } catch (Exception e) {
-                listener.onError(e.getMessage()); //todo initial message
+                listener.onError(new AbstractException(e, "Ошибка синхронизации района"){}.getMessage()); //todo initial message
 
                 log.error("Ошибка синхронизации района", e);
             }

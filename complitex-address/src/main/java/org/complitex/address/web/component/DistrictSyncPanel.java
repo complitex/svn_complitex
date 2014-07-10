@@ -30,8 +30,12 @@ public class DistrictSyncPanel extends Panel {
     @EJB
     private AddressSyncService addressSyncService;
 
+    private boolean lockSync = false;
+
     public DistrictSyncPanel(String id, final Component toUpdate) {
         super(id);
+
+        setOutputMarkupId(true);
 
         add(new FilteredDataTable<DistrictSync>("table", DistrictSync.class,
                 "cityObjectId", "objectId", "externalId", "name", "date") {
@@ -48,6 +52,11 @@ public class DistrictSyncPanel extends Panel {
 
         add(new AjaxLink("districtSync") {
             @Override
+            public boolean isVisible() {
+                return !lockSync;
+            }
+
+            @Override
             public void onClick(final AjaxRequestTarget target) {
                 final AtomicInteger stop = new AtomicInteger(-1);
 
@@ -59,6 +68,8 @@ public class DistrictSyncPanel extends Panel {
                         }else {
                             stop(target);
                         }
+
+                        target.add(DistrictSyncPanel.this);
                     }
                 };
                 toUpdate.add(timer);
@@ -72,6 +83,8 @@ public class DistrictSyncPanel extends Panel {
                     public void onBegin(String name) {
                         ThreadContext.restore(threadContext);
                         getSession().info(String.format(getString("districtSync.onBegin"), name));
+
+                        lockSync = true;
                     }
 
                     @Override
@@ -92,6 +105,8 @@ public class DistrictSyncPanel extends Panel {
                         getSession().info(String.format(getString("districtSync.onDone")));
 
                         stop.set(5);
+
+                        lockSync = false;
                     }
                 });
             }

@@ -64,8 +64,13 @@ public class CursorResultSetHandler implements ResultSetHandler {
             if (parameterMapping.getMode() == ParameterMode.OUT || parameterMapping.getMode() == ParameterMode.INOUT) {
                 if (ResultSet.class.equals(parameterMapping.getJavaType())) {
                     Integer resultCode = (Integer) metaParam.getValue("resultCode");
+                    Integer okCode = (Integer) metaParam.getValue("okCode");
 
-                    if (resultCode != null && resultCode > 0) {
+                    if (okCode == null){
+                        okCode = 1;
+                    }
+
+                    if (resultCode != null && resultCode >= okCode) {
                         try {
                             Method m = defaultResultSetHandler.getClass().getDeclaredMethod("handleRefCursorOutputParameter",
                                     ResultSet.class, ParameterMapping.class, MetaObject.class);

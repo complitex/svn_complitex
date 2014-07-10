@@ -10,11 +10,11 @@ import org.complitex.address.entity.DistrictSync;
 import org.complitex.address.entity.StreetSync;
 import org.complitex.address.entity.StreetTypeSync;
 import org.complitex.address.service.AddressSyncAdapter;
+import org.complitex.dictionary.entity.Cursor;
 import org.complitex.dictionary.util.StringUtil;
 
 import javax.ejb.EJB;
 import java.util.Date;
-import java.util.List;
 
 /**
  * @author Anatoly A. Ivanov java@inheaven.ru
@@ -46,13 +46,13 @@ public class SyncTest extends WebPage {
                 String dataSource = "jdbc/osznconnectionRemoteResource";
 
                 //districts
-                List<DistrictSync> districtSyncs = addressSyncService.getDistrictSyncs(
+                Cursor<DistrictSync> districtSyncs = addressSyncService.getDistrictSyncs(
                         dataSource,
                         "Тверь", "г", new Date());
                 if (districtSyncs != null) {
                     String t = "";
 
-                    for (DistrictSync d : districtSyncs){
+                    for (DistrictSync d : districtSyncs.getList()){
                         t += d.getExternalId() + " " + d.getName();
                     }
 
@@ -60,11 +60,11 @@ public class SyncTest extends WebPage {
                 }
 
                 //street types
-                List<StreetTypeSync> streetTypeSyncs = addressSyncService.getStreetTypeSyncs(dataSource);
+                Cursor<StreetTypeSync> streetTypeSyncs = addressSyncService.getStreetTypeSyncs(dataSource);
                 if (streetTypeSyncs != null) {
                     String t = "";
 
-                    for (StreetTypeSync s : streetTypeSyncs){
+                    for (StreetTypeSync s : streetTypeSyncs.getList()){
                         t += s.getExternalId() + " " +s.getShortName() + " " + s.getName() + "\n";
                     }
 
@@ -72,12 +72,12 @@ public class SyncTest extends WebPage {
                 }
 
                 //streets
-                List<StreetSync> streetSyncs = addressSyncService.getStreetSyncs(dataSource,
+                Cursor<StreetSync> streetSyncs = addressSyncService.getStreetSyncs(dataSource,
                         "Тверь", "г", new Date());
                 if (streetSyncs != null){
                     String t = "";
 
-                    for (StreetSync s : streetSyncs){
+                    for (StreetSync s : streetSyncs.getList()){
                         t += s.getExternalId() + " " + s.getStreetTypeShortName() + " " + s.getName() + "\n";
                     }
 
@@ -85,12 +85,12 @@ public class SyncTest extends WebPage {
                 }
 
                 //buildings
-                List<BuildingAddressSync> buildingAddressSyncs = addressSyncService.getBuildingSyncs(dataSource,
+                Cursor<BuildingAddressSync> buildingAddressSyncs = addressSyncService.getBuildingSyncs(dataSource,
                         "Центральный", "ул", "ФРАНТИШЕКА КРАЛА", new Date());
                 if (streetSyncs != null){
                     String t = "";
 
-                    for (BuildingAddressSync s : buildingAddressSyncs){
+                    for (BuildingAddressSync s : buildingAddressSyncs.getList()){
                         t +=  s.getStreetExternalId() + " " + s.getExternalId() + " " + s.getName() + " "
                                 + StringUtil.emptyOnNull(s.getPart())+"\n";
                     }
