@@ -50,8 +50,10 @@ public class PreferenceBean extends AbstractBean{
     public void save(Preference preference){
         if (preference.getId() == null){
             sqlSession().insert(MAPPING_NAMESPACE + ".insertPreference", preference);
-        }else{
+        } else if (preference.getValue() != null) {
             sqlSession().update(MAPPING_NAMESPACE + ".updatePreference", preference);
+        } else {
+            sqlSession().delete(MAPPING_NAMESPACE + ".deletePreference", preference);
         }
     }
 

@@ -27,4 +27,8 @@
         update `preference` set `user_id` = #{userId}, `page` = #{page}, `key` = #{key}, `value` = #{value}
             where `id` = #{id}
     </update>
+
+    <delete id="deletePreference" parameterType="org.complitex.dictionary.entity.Preference">
+        delete from `preference` where `id` = #{id}
+    </delete>
 </mapper>
