@@ -85,6 +85,10 @@ public class DictionaryFwSession extends WebSession {
             if (store) {
                 sessionStorage.save(preference);
             }
+
+            if (value == null) {
+                getPreferenceMap(page).remove(key);
+            }
         }
 
         preference.setObject(object);
