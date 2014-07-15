@@ -27,6 +27,7 @@ public class AjaxFeedbackPanel extends FeedbackPanel {
         super(id, filter);
 
         setOutputMarkupId(true);
+        setOutputMarkupPlaceholderTag(true);
 
         add(new AjaxLink<Void>("clean") {
 

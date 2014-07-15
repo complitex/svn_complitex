@@ -42,6 +42,13 @@ public class DomainObjectExample implements Serializable {
         }
     }
 
+    public DomainObjectExample setParent(String parentEntity, Long parentId){
+        this.parentEntity = parentEntity;
+        this.parentId = parentId;
+
+        return this;
+    }
+
     public DomainObjectExample(ComparisonType comparisonType) {
         this.comparisonType = comparisonType.name();
     }
@@ -139,10 +146,8 @@ public class DomainObjectExample implements Serializable {
         return parentId;
     }
 
-    public DomainObjectExample setParentId(Long parentId) {
+    public void setParentId(Long parentId) {
         this.parentId = parentId;
-
-        return this;
     }
 
     public Map<String, Object> getAdditionalParams() {

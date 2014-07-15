@@ -38,7 +38,7 @@ public class DistrictSyncPanel extends Panel {
         setOutputMarkupId(true);
 
         add(new FilteredDataTable<DistrictSync>("table", DistrictSync.class,
-                "cityObjectId", "objectId", "externalId", "name", "date") {
+                "cityObjectId", "objectId", "externalId", "name", "date", "status") {
             @Override
             public List<DistrictSync> getList(FilterWrapper<DistrictSync> filterWrapper) {
                 return addressSyncBean.getList(DistrictSync.class, filterWrapper);
@@ -58,9 +58,13 @@ public class DistrictSyncPanel extends Panel {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
+                if (lockSync){
+                    return;
+                }
+
                 final AtomicInteger stop = new AtomicInteger(-1);
 
-                final AjaxSelfUpdatingTimerBehavior timer = new AjaxSelfUpdatingTimerBehavior(Duration.seconds(1)){
+                toUpdate.add(new AjaxSelfUpdatingTimerBehavior(Duration.seconds(1)){
                     @Override
                     protected void onPostProcessTarget(AjaxRequestTarget target) {
                         if (stop.get() > 0){
@@ -71,8 +75,7 @@ public class DistrictSyncPanel extends Panel {
 
                         target.add(DistrictSyncPanel.this);
                     }
-                };
-                toUpdate.add(timer);
+                });
 
                 target.add(toUpdate);
 
