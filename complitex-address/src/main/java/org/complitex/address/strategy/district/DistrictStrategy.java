@@ -219,4 +219,13 @@ public class DistrictStrategy extends TemplateStrategy {
     public String[] getListRoles() {
         return new String[]{SecurityRole.ADDRESS_MODULE_VIEW};
     }
+
+    @Override
+    public DomainObject newInstance() {
+        DomainObject object =  super.newInstance();
+
+        object.setParentEntityId(PARENT_ENTITY_ID);
+
+        return object;
+    }
 }

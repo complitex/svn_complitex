@@ -2,9 +2,11 @@ package org.complitex.address.service;
 
 import org.complitex.address.entity.AddressSyncStatus;
 import org.complitex.address.entity.DistrictSync;
+import org.complitex.address.entity.StreetTypeSync;
 import org.complitex.address.strategy.city.CityStrategy;
 import org.complitex.address.strategy.city_type.CityTypeStrategy;
 import org.complitex.address.strategy.district.DistrictStrategy;
+import org.complitex.address.strategy.street_type.StreetTypeStrategy;
 import org.complitex.dictionary.entity.Cursor;
 import org.complitex.dictionary.entity.DictionaryConfig;
 import org.complitex.dictionary.entity.DomainObject;
@@ -51,6 +53,9 @@ public class AddressSyncService {
     @EJB
     private DistrictStrategy districtStrategy;
 
+    @EJB
+    private StreetTypeStrategy streetTypeStrategy;
+
     private String getDataSource(){
         return configBean.getString(DictionaryConfig.SYNC_DATA_SOURCE);
     }
@@ -77,7 +82,7 @@ public class AddressSyncService {
                 }
 
                 List<? extends DomainObject> districts = districtStrategy.find(new DomainObjectExample()
-                        .setParentId(city.getId()));
+                        .setParent("city", city.getId()));
 
                 for (DistrictSync districtSync : districtSyncs.getList()){
                     for (DomainObject district : districts){
@@ -86,6 +91,9 @@ public class AddressSyncService {
                         //все норм
                         if (districtSync.getExternalId().equals(district.getExternalId())
                                 && districtSync.getName().equals(districtName)){
+                            districtSync.setObjectId(district.getId());
+                            districtSync.setCityObjectId(city.getId());
+                            districtSync.setDate(date);
                             districtSync.setStatus(AddressSyncStatus.LOCAL);
 
                             break;
@@ -93,6 +101,9 @@ public class AddressSyncService {
 
                         //новое название
                         if (districtSync.getExternalId().equals(district.getExternalId())){
+                            districtSync.setObjectId(district.getId());
+                            districtSync.setCityObjectId(city.getId());
+                            districtSync.setDate(date);
                             districtSync.setStatus(AddressSyncStatus.NEW_NAME);
 
                             addressSyncBean.save(districtSync);
@@ -102,9 +113,10 @@ public class AddressSyncService {
 
                         //дубликат
                         if (districtSync.getName().equals(districtName)){
+                            districtSync.setObjectId(district.getId());
                             districtSync.setCityObjectId(city.getId());
-                            districtSync.setStatus(AddressSyncStatus.DUPLICATE);
                             districtSync.setDate(date);
+                            districtSync.setStatus(AddressSyncStatus.DUPLICATE);
 
                             addressSyncBean.save(districtSync);
 
@@ -134,39 +146,50 @@ public class AddressSyncService {
 
                     String districtName = districtStrategy.getName(district);
 
-                    for (DistrictSync districtSync : districtSyncs.getList()){
-                        boolean archive = true;
+                    boolean archive = true;
 
+                    for (DistrictSync districtSync : districtSyncs.getList()){
                         if (districtSync.getExternalId().equals(district.getExternalId())
-                                && districtSync.getName().equals(districtName)){
+                                || districtSync.getName().equals(districtName)){
 
                             archive = false;
+
+                            break;
                         }
+                    }
 
-                        //архив
-                        if (archive){
-                            DistrictSync ds = new DistrictSync();
-                            ds.setObjectId(district.getId());
-                            ds.setExternalId(district.getExternalId());
-                            ds.setCityObjectId(district.getParentId());
-                            ds.setName(districtName);
-                            ds.setDate(date);
-                            ds.setStatus(AddressSyncStatus.ARCHIVAL);
+                    //архив
+                    if (archive){
+                        DistrictSync ds = new DistrictSync();
+                        ds.setObjectId(district.getId());
+                        ds.setExternalId(district.getExternalId());
+                        ds.setCityObjectId(district.getParentId());
+                        ds.setName(districtName);
+                        ds.setDate(date);
+                        ds.setStatus(AddressSyncStatus.ARCHIVAL);
 
-                            addressSyncBean.save(ds);
+                        addressSyncBean.save(ds);
 
-                            listener.onProcessed(ds);
-                        }
+                        listener.onProcessed(ds);
                     }
                 }
             } catch (Exception e) {
-                listener.onError(new AbstractException(e, "Ошибка синхронизации района"){}.getMessage()); //todo initial message
+                listener.onError(new AbstractException(e, "Ошибка синхронизации района"){}.getMessage());
 
                 log.error("Ошибка синхронизации района", e);
             }
         }
 
         listener.onDone();
+    }
+
+    @Asynchronous
+    public void syncStreetType(ISyncListener<StreetTypeSync> listener){
+        Date date = DateUtil.getCurrentDate();
+        Long localeId = localeBean.getSystemLocaleId();
+
+        List<? extends DomainObject> streetTypes = streetTypeStrategy.find(new DomainObjectExample());
+
     }
 
 

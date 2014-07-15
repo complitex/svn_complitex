@@ -1,6 +1,5 @@
 package org.complitex.dictionary.web.component.datatable;
 
-import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxNavigationToolbar;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.HeadersToolbar;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -10,6 +9,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.filter.TextF
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.complitex.dictionary.entity.FilterWrapper;
+import org.complitex.dictionary.web.component.paging.AjaxNavigationToolbar;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -35,6 +35,8 @@ public abstract class FilteredDataTable<T extends Serializable> extends Panel im
         }
 
         DataTable<T, String> table = new DataTable<>("table", columns, provider, 10);
+        table.setOutputMarkupId(true);
+
         table.addTopToolbar(new HeadersToolbar<>(table, provider));
         table.addTopToolbar(new FilterToolbar(table, form, provider));
         table.addBottomToolbar(new AjaxNavigationToolbar(table));
