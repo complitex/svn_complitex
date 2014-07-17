@@ -12,6 +12,8 @@ import org.complitex.address.entity.DistrictSync;
 import org.complitex.address.service.AddressSyncBean;
 import org.complitex.address.service.AddressSyncService;
 import org.complitex.address.service.ISyncListener;
+import org.complitex.dictionary.entity.Cursor;
+import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.FilterWrapper;
 import org.complitex.dictionary.web.component.datatable.FilteredDataTable;
 
@@ -83,9 +85,9 @@ public class DistrictSyncPanel extends Panel {
                     private ThreadContext threadContext = ThreadContext.get(false);
 
                     @Override
-                    public void onBegin(String name) {
+                    public void onBegin(DomainObject parent, Cursor<DistrictSync> cursor) {
                         ThreadContext.restore(threadContext);
-                        getSession().info(String.format(getString("districtSync.onBegin"), name));
+                        getSession().info(String.format(getString("districtSync.onBegin"), parent.getId())); //todo name
 
                         lockSync = true;
                     }
