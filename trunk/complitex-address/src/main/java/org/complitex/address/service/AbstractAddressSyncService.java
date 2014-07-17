@@ -56,8 +56,6 @@ public abstract class AbstractAddressSyncService<T extends AbstractAddressSync> 
                 List<? extends DomainObject> objects = getObjects(parent);
 
                 for (T sync : cursor.getList()) {
-                    sync.setDate(date);
-
                     for (DomainObject object : objects) {
                         sync.setObjectId(object.getId());
 
@@ -76,7 +74,11 @@ public abstract class AbstractAddressSyncService<T extends AbstractAddressSync> 
 
                             setParent(sync, parent);
 
-                            addressSyncBean.save(sync);
+                            if (addressSyncBean.isExist(sync)) {
+                                sync.setDate(date);
+
+                                addressSyncBean.save(sync);
+                            }
 
                             break;
                         }
@@ -87,7 +89,11 @@ public abstract class AbstractAddressSyncService<T extends AbstractAddressSync> 
 
                             setParent(sync, parent);
 
-                            addressSyncBean.save(sync);
+                            if (addressSyncBean.isExist(sync)) {
+                                sync.setDate(date);
+
+                                addressSyncBean.save(sync);
+                            }
 
                             break;
                         }
@@ -99,7 +105,10 @@ public abstract class AbstractAddressSyncService<T extends AbstractAddressSync> 
 
                         setParent(sync, parent);
 
-                        addressSyncBean.save(sync);
+                        if (addressSyncBean.isExist(sync)) {
+                            sync.setDate(date);
+                            addressSyncBean.save(sync);
+                        }
                     }
 
                     listener.onProcessed(sync);
@@ -136,7 +145,11 @@ public abstract class AbstractAddressSyncService<T extends AbstractAddressSync> 
 
                         setParent(s, parent);
 
-                        addressSyncBean.save(s);
+                        if (addressSyncBean.isExist(s)) {
+                            s.setDate(date);
+
+                            addressSyncBean.save(s);
+                        }
 
                         listener.onProcessed(s);
                     }

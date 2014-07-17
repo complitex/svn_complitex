@@ -33,6 +33,10 @@ public class AddressSyncBean extends AbstractBean {
         return sqlSession().selectOne(NS + ".select"  + objectClass.getSimpleName() + "Count", filterWrapper);
     }
 
+    public <T extends AbstractAddressSync> boolean isExist(T addressSync){
+        return (Long) sqlSession().selectOne(NS + ".select"  + addressSync.getClass().getSimpleName() + "Count", FilterWrapper.of(addressSync)) == 0;
+    }
+
     public <T extends AbstractAddressSync> void delete(Class<T> objectClass, Long id){
         sqlSession().delete(NS + ".delete" + objectClass.getSimpleName(), id);
     }
