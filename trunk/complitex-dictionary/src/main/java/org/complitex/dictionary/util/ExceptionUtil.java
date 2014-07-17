@@ -24,4 +24,8 @@ public class ExceptionUtil {
 
         return e.getMessage();
     }
+
+    public static String getCauseMessage(Exception e){
+        return getCauseMessage(e, false);
+    }
 }

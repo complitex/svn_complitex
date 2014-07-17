@@ -3,12 +3,19 @@ package org.complitex.address.service;
 import org.complitex.address.entity.AbstractAddressSync;
 import org.complitex.address.entity.AddressSyncStatus;
 import org.complitex.dictionary.entity.Cursor;
+import org.complitex.dictionary.entity.DictionaryConfig;
 import org.complitex.dictionary.entity.DomainObject;
+import org.complitex.dictionary.service.ConfigBean;
+import org.complitex.dictionary.util.DateUtil;
+import org.complitex.dictionary.util.ExceptionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ejb.Asynchronous;
+import javax.ejb.EJB;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Anatoly Ivanov
@@ -17,10 +24,28 @@ import java.util.List;
 public abstract class AbstractAddressSyncService<T extends AbstractAddressSync> {
     private Logger log = LoggerFactory.getLogger(getClass());
 
-    public void sync(ISyncListener<T> listener, Date date){
+    @EJB
+    private ConfigBean configBean;
+
+    @EJB
+    private AddressSyncBean addressSyncBean;
+
+    private AtomicBoolean lockSync = new AtomicBoolean(false);
+
+    @Asynchronous
+    public void sync(ISyncListener<T> listener){
+        if (lockSync.get()){
+            return;
+        }
+
         try {
+            //lock sync
+            lockSync.set(true);
+
+            Date date = DateUtil.getCurrentDate();
+
             for (DomainObject parent : getParentObjects()) {
-                Cursor<T> cursor = getAddressSyncs(parent);
+                Cursor<T> cursor = getAddressSyncs(parent, date);
 
                 listener.onBegin(parent, cursor);
 
@@ -31,7 +56,11 @@ public abstract class AbstractAddressSyncService<T extends AbstractAddressSync> 
                 List<? extends DomainObject> objects = getObjects(parent);
 
                 for (T sync : cursor.getList()) {
+                    sync.setDate(date);
+
                     for (DomainObject object : objects) {
+                        sync.setObjectId(object.getId());
+
                         String name = getName(object);
 
                         //все норм
@@ -43,35 +72,34 @@ public abstract class AbstractAddressSyncService<T extends AbstractAddressSync> 
 
                         //новое название
                         if (sync.getExternalId().equals(object.getExternalId())) {
-                            sync.setObjectId(object.getId());
-                            sync.setDate(date);
                             sync.setStatus(AddressSyncStatus.NEW_NAME);
 
-                            populateAddressSync(parent, sync);
+                            setParent(sync, parent);
 
-                            save(sync);
+                            addressSyncBean.save(sync);
 
                             break;
                         }
 
                         //дубликат
                         if (sync.getName().equals(name)) {
-                            sync.setObjectId(sync.getId());
-                            sync.setDate(date);
                             sync.setStatus(AddressSyncStatus.DUPLICATE);
 
-                            populateAddressSync(parent, sync);
+                            setParent(sync, parent);
 
-                            save(sync);
+                            addressSyncBean.save(sync);
 
                             break;
                         }
                     }
 
+                    //новый
                     if (sync.getStatus() == null) {
-                        insertNewObject(parent, sync);
-
                         sync.setStatus(AddressSyncStatus.NEW);
+
+                        setParent(sync, parent);
+
+                        addressSyncBean.save(sync);
                     }
 
                     listener.onProcessed(sync);
@@ -82,13 +110,13 @@ public abstract class AbstractAddressSyncService<T extends AbstractAddressSync> 
                         continue;
                     }
 
-                    String districtName = getName(object);
+                    String name = getName(object);
 
                     boolean archive = true;
 
                     for (T sync : cursor.getList()) {
                         if (sync.getExternalId().equals(object.getExternalId())
-                                || sync.getName().equals(districtName)) {
+                                || sync.getName().equals(name)) {
 
                             archive = false;
 
@@ -98,34 +126,51 @@ public abstract class AbstractAddressSyncService<T extends AbstractAddressSync> 
 
                     //архив
                     if (archive) {
-                        T s = insertArchivalSync(object);
+                        T s = newSync();
+
+                        s.setObjectId(object.getId());
+                        s.setExternalId(object.getExternalId());
+                        s.setName(name);
+                        s.setDate(date);
+                        s.setStatus(AddressSyncStatus.ARCHIVAL);
+
+                        setParent(s, parent);
+
+                        addressSyncBean.save(s);
 
                         listener.onProcessed(s);
                     }
                 }
             }
         } catch (Exception e) {
-            //listener.onError(new AbstractException(e, "Ошибка синхронизации"){}.getMessage()); todo log
+            listener.onError(ExceptionUtil.getCauseMessage(e, true));
 
             log.error("Ошибка синхронизации", e);
         } finally {
+            //unlock sync
+            lockSync.set(false);
+
             listener.onDone();
         }
     }
 
-    public abstract List<? extends DomainObject> getParentObjects();
+    public boolean isLockSync(){
+        return lockSync.get();
+    }
 
-    public abstract Cursor<T> getAddressSyncs(DomainObject parent);
+    protected String getDataSource(){
+        return configBean.getString(DictionaryConfig.SYNC_DATA_SOURCE);
+    }
 
-    public abstract List<? extends DomainObject> getObjects(DomainObject parent);
+    protected abstract List<? extends DomainObject> getParentObjects();
 
-    public abstract String getName(DomainObject object);
+    protected abstract Cursor<T> getAddressSyncs(DomainObject parent, Date date);
 
-    public abstract void populateAddressSync(DomainObject parent, T sync);
+    protected abstract List<? extends DomainObject> getObjects(DomainObject parent);
 
-    public abstract void save(T sync);
+    protected abstract String getName(DomainObject object);
 
-    public abstract void insertNewObject(DomainObject parent, T sync);
+    protected abstract void setParent(T sync, DomainObject parent);
 
-    public abstract T insertArchivalSync(DomainObject object);
+    protected abstract T newSync();
 }
