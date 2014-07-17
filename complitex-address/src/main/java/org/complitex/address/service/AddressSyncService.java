@@ -2,7 +2,6 @@ package org.complitex.address.service;
 
 import org.complitex.address.entity.AddressSyncStatus;
 import org.complitex.address.entity.DistrictSync;
-import org.complitex.address.entity.StreetTypeSync;
 import org.complitex.address.strategy.city.CityStrategy;
 import org.complitex.address.strategy.city_type.CityTypeStrategy;
 import org.complitex.address.strategy.district.DistrictStrategy;
@@ -75,7 +74,7 @@ public class AddressSyncService {
                 Cursor<DistrictSync> districtSyncs = addressSyncAdapter.getDistrictSyncs(getDataSource(), cityName,
                         cityTypeName, date);
 
-                listener.onBegin(cityTypeName + " " + cityName + " [" + districtSyncs.getResultCode() + "]");
+                listener.onBegin(city, districtSyncs);
 
                 if (districtSyncs.getList() == null){
                     continue;
@@ -182,15 +181,5 @@ public class AddressSyncService {
 
         listener.onDone();
     }
-
-    @Asynchronous
-    public void syncStreetType(ISyncListener<StreetTypeSync> listener){
-        Date date = DateUtil.getCurrentDate();
-        Long localeId = localeBean.getSystemLocaleId();
-
-        List<? extends DomainObject> streetTypes = streetTypeStrategy.find(new DomainObjectExample());
-
-    }
-
 
 }
