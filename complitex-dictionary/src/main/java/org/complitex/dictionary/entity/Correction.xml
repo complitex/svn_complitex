@@ -15,16 +15,13 @@
         <result column="user_organization_id" property="userOrganizationId"/>
         <result column="module_id" property="moduleId"/>
 
-        <!--wtf with status-->
-        <result column="status" property="status" typeHandler="org.complitex.dictionary.mybatis.FixedIdBaseTypeHandler"/>
+        <result column="status" property="status"/>
 
         <association property="organizationName" select="org.complitex.organization.strategy.Organization.selectOrganizationName"
                      column="organization_id"/>
         <association property="userOrganizationName" select="org.complitex.organization.strategy.Organization.selectOrganizationName"
                      column="user_organization_id"/>
     </resultMap>
-
-
 
     <insert id="insertCorrection" parameterType="org.complitex.dictionary.entity.Correction"
             keyProperty="id" useGeneratedKeys="true">

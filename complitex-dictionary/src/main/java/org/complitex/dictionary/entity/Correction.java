@@ -47,7 +47,7 @@ public abstract class Correction implements Serializable {
 
     private boolean editable = true;
 
-    private CorrectionStatus status = CorrectionStatus.LOCAL;
+    private Integer status = 0;
 
     public abstract String getEntity();
 
@@ -176,11 +176,11 @@ public abstract class Correction implements Serializable {
         this.editable = editable;
     }
 
-    public CorrectionStatus getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(CorrectionStatus status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 }
