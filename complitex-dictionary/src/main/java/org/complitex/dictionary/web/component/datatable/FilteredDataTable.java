@@ -31,7 +31,13 @@ public abstract class FilteredDataTable<T extends Serializable> extends Panel im
         List<IColumn<T, String>> columns = new ArrayList<>();
 
         for (String field : fields){
-            columns.add(new TextFilteredPropertyColumn<T, FilterWrapper<T>, String>(new ResourceModel(field), field, field));
+            IColumn<T, String> column = newColumn(field);
+
+            if (column == null){
+                column = new TextFilteredPropertyColumn<T, FilterWrapper<T>, String>(new ResourceModel(field), field, field);
+            }
+
+            columns.add(column);
         }
 
         DataTable<T, String> table = new DataTable<>("table", columns, provider, 10);
@@ -42,5 +48,9 @@ public abstract class FilteredDataTable<T extends Serializable> extends Panel im
         table.addBottomToolbar(new AjaxNavigationToolbar(table));
 
         form.add(table);
+    }
+
+    public IColumn<T, String> newColumn(String field){
+        return null;
     }
 }
