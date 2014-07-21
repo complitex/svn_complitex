@@ -15,7 +15,6 @@ import java.util.Locale;
  *         Date: 21.07.2014 19:52
  */
 public class EnumColumn<T, Y extends Enum<Y>> extends ChoiceFilteredPropertyColumn<T, Y, String> {
-    private Locale locale;
     private EnumChoiceRenderer<Y> enumChoiceRenderer;
 
     public EnumColumn(IModel<String> displayModel, String propertyExpression, Class<? extends Y> enumClass, Locale locale) {

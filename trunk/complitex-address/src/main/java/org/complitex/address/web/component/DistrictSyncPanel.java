@@ -19,6 +19,7 @@ import org.complitex.address.web.component.datatable.CityColumn;
 import org.complitex.dictionary.entity.Cursor;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.FilterWrapper;
+import org.complitex.dictionary.web.component.datatable.FilteredActionColumn;
 import org.complitex.dictionary.web.component.datatable.FilteredDataTable;
 
 import javax.ejb.EJB;
@@ -44,7 +45,7 @@ public class DistrictSyncPanel extends Panel {
         setOutputMarkupId(true);
 
         add(new FilteredDataTable<DistrictSync>("table", DistrictSync.class,
-                "cityObjectId", "objectId", "externalId", "name", "date", "status") {
+                "cityObjectId", "objectId", "externalId", "name", "date", "status", "action") {
             @Override
             public List<DistrictSync> getList(FilterWrapper<DistrictSync> filterWrapper) {
                 return addressSyncBean.getList(DistrictSync.class, filterWrapper);
@@ -59,10 +60,14 @@ public class DistrictSyncPanel extends Panel {
             public IColumn<DistrictSync, String> newColumn(String field) {
                 if ("cityObjectId".equals(field)){
                     return new CityColumn<>(new ResourceModel(field), "cityObjectId", getLocale());
+                }else if ("action".equals(field)){
+                    return new FilteredActionColumn<>(new ResourceModel("add"), new ResourceModel("add"));
                 }
 
                 return super.newColumn(field);
             }
+
+
         });
 
         add(new AjaxLink("districtSync") {
