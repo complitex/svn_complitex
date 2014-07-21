@@ -50,6 +50,8 @@ public interface IStrategy {
 
     String displayDomainObject(DomainObject object, Locale locale);
 
+    String displayDomainObject(Long objectId, Locale locale);
+
     String displayAttribute(Attribute attribute, Locale locale);
 
     void enable(DomainObject object);

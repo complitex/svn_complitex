@@ -18,11 +18,11 @@ public class FilteredDataProvider<T extends Serializable> extends SortableDataPr
     private FilterWrapper<T> filterWrapper;
     private IFilterBean<T> filterBean;
 
-    public FilteredDataProvider(IFilterBean<T> filterBean, Class<T> filterClass) {
+    public FilteredDataProvider(IFilterBean<T> filterBean, Class<T> objectClass) {
         this.filterBean = filterBean;
 
         try {
-            filterWrapper = FilterWrapper.of(filterClass.newInstance());
+            filterWrapper = FilterWrapper.of(objectClass.newInstance());
         } catch (InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         }
