@@ -76,6 +76,11 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
     }
 
     @Override
+    public String displayDomainObject(Long objectId, Locale locale) {
+        return displayDomainObject(findById(objectId, true), locale);
+    }
+
+    @Override
     public boolean isSimpleAttributeType(EntityAttributeType entityAttributeType) {
         return entityAttributeType.getEntityAttributeValueTypes().size() == 1
                 && SimpleTypes.isSimpleType(entityAttributeType.getEntityAttributeValueTypes().get(0).getValueType());

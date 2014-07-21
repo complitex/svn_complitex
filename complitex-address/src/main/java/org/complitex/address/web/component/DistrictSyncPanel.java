@@ -6,13 +6,16 @@ import org.apache.wicket.ThreadContext;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.AjaxSelfUpdatingTimerBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.util.time.Duration;
 import org.complitex.address.entity.DistrictSync;
 import org.complitex.address.service.AddressSyncBean;
 import org.complitex.address.service.DistrictSyncService;
 import org.complitex.address.service.ISyncListener;
 import org.complitex.address.strategy.city.CityStrategy;
+import org.complitex.address.web.component.datatable.CityColumn;
 import org.complitex.dictionary.entity.Cursor;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.FilterWrapper;
@@ -50,6 +53,15 @@ public class DistrictSyncPanel extends Panel {
             @Override
             public Long getCount(FilterWrapper<DistrictSync> filterWrapper) {
                 return addressSyncBean.getCount(DistrictSync.class, filterWrapper);
+            }
+
+            @Override
+            public IColumn<DistrictSync, String> newColumn(String field) {
+                if ("cityObjectId".equals(field)){
+                    return new CityColumn<>(new ResourceModel(field), "cityObjectId", getLocale());
+                }
+
+                return super.newColumn(field);
             }
         });
 

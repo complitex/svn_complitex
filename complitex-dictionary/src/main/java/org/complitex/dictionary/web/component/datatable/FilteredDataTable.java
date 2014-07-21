@@ -1,5 +1,6 @@
 package org.complitex.dictionary.web.component.datatable;
 
+import org.apache.commons.lang.reflect.FieldUtils;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.HeadersToolbar;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -12,6 +13,7 @@ import org.complitex.dictionary.entity.FilterWrapper;
 import org.complitex.dictionary.web.component.paging.AjaxNavigationToolbar;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,10 +22,10 @@ import java.util.List;
  *         Date: 001 01.07.14 17:06
  */
 public abstract class FilteredDataTable<T extends Serializable> extends Panel implements IFilterBean<T>{
-    public FilteredDataTable(String id, Class<T> filterClass, String... fields) {
+    public FilteredDataTable(String id, Class<T> objectClass, String... fields) {
         super(id);
 
-        FilteredDataProvider<T> provider = new FilteredDataProvider<>(this, filterClass);
+        FilteredDataProvider<T> provider = new FilteredDataProvider<>(this, objectClass);
 
         FilterForm<T> form = new FilterForm<>("form", provider);
         add(form);
@@ -34,7 +36,14 @@ public abstract class FilteredDataTable<T extends Serializable> extends Panel im
             IColumn<T, String> column = newColumn(field);
 
             if (column == null){
-                column = new TextFilteredPropertyColumn<T, FilterWrapper<T>, String>(new ResourceModel(field), field, field);
+                Field f = FieldUtils.getField(objectClass, field, true);
+
+                if (f.getType().isEnum()){
+                    //noinspection unchecked
+                    column = new EnumColumn(new ResourceModel(field), field, f.getType(), getLocale());
+                }else {
+                    column = new TextFilteredPropertyColumn<T, FilterWrapper<T>, String>(new ResourceModel(field), field, field);
+                }
             }
 
             columns.add(column);
