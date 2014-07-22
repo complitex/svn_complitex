@@ -6,6 +6,7 @@ import org.complitex.dictionary.entity.Cursor;
 import org.complitex.dictionary.entity.DictionaryConfig;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.service.ConfigBean;
+import org.complitex.dictionary.service.LocaleBean;
 import org.complitex.dictionary.util.DateUtil;
 import org.complitex.dictionary.util.ExceptionUtil;
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -30,7 +32,20 @@ public abstract class AbstractAddressSyncService<T extends AbstractAddressSync> 
     @EJB
     private AddressSyncBean addressSyncBean;
 
+
+    @EJB
+    private LocaleBean localeBean;
+
+
     private AtomicBoolean lockSync = new AtomicBoolean(false);
+
+    public Long getLocaleId(Locale locale){
+        return localeBean.convert(locale).getId();
+    }
+
+    public Long getSystemLocaleId(){
+        return localeBean.getSystemLocaleId();
+    }
 
     @Asynchronous
     public void sync(ISyncListener<T> listener){

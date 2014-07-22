@@ -607,19 +607,9 @@ public abstract class Strategy extends AbstractBean implements IStrategy {
             }
         }
 
-        boolean needToUpdateObject = false;
-
-        //parent comparison
-        Long oldParentId = oldObject.getParentId();
-        Long oldParentEntityId = oldObject.getParentEntityId();
-        Long newParentId = newObject.getParentId();
-        Long newParentEntityId = newObject.getParentEntityId();
-
-        if (!Numbers.isEqual(oldParentId, newParentId) || !Numbers.isEqual(oldParentEntityId, newParentEntityId)) {
-            needToUpdateObject = true;
-        }
-
-        if (needToUpdateObject) {
+        if (!Objects.equals(oldObject.getParentId(), newObject.getParentId())
+                || !Objects.equals(oldObject.getParentEntityId(), newObject.getParentEntityId())
+                || (!Objects.equals(oldObject.getExternalId(), newObject.getExternalId()))) {
             oldObject.setStatus(StatusType.ARCHIVE);
             oldObject.setEndDate(updateDate);
             sqlSession().update(DOMAIN_OBJECT_NAMESPACE + "." + UPDATE_OPERATION, new Parameter(getEntityTable(), oldObject));

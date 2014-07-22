@@ -8,33 +8,44 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.filter.Filte
 import org.apache.wicket.extensions.markup.html.repeater.data.table.filter.IFilteredColumn;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.IModel;
 import org.complitex.dictionary.web.component.ajax.AjaxLinkPanel;
-import org.complitex.dictionary.web.component.wiquery.DialogPanel;
-import org.odlabs.wiquery.ui.dialog.AjaxDialogButton;
+
+import java.util.List;
 
 /**
  * @author Anatoly Ivanov
  *         Date: 21.07.2014 22:10
  */
 public class FilteredActionColumn<T> implements IColumn<T, String>, IFilteredColumn<T, String> {
-    private DialogPanel dialogPanel;
-    private IModel<String> actionModel;
-    private IModel<String> messageModel;
+    private ActionDialogPanel<T> actionDialogPanel;
 
-    public FilteredActionColumn(IModel<String> actionModel, IModel<String> messageModel) {
-        this.actionModel = actionModel;
-        this.messageModel = messageModel;
+    private List<AbstractAction<T>> actions;
+
+    public FilteredActionColumn(List<AbstractAction<T>> actions) {
+        this.actions = actions;
     }
 
     @Override
-    public void populateItem(Item<ICellPopulator<T>> cellItem, String componentId, IModel<T> rowModel) {
-        cellItem.add(new AjaxLinkPanel(componentId, actionModel) {
-            @Override
-            public void onClick(AjaxRequestTarget target) {
-                dialogPanel.getDialog().open(target);
-            }
-        });
+    public void populateItem(Item<ICellPopulator<T>> cellItem, String componentId, final IModel<T> rowModel) {
+        RepeatingView repeatingView = new RepeatingView(componentId);
+
+        for (final AbstractAction<T> action : actions){
+            repeatingView.add(new AjaxLinkPanel(repeatingView.newChildId(), action.getNameModel()) {
+                @Override
+                public void onClick(AjaxRequestTarget target) {
+                    actionDialogPanel.open(target, action, rowModel);
+                }
+
+                @Override
+                public boolean isVisible() {
+                    return action.isVisible(rowModel);
+                }
+            });
+        }
+
+        cellItem.add(repeatingView);
     }
 
     @Override
@@ -58,15 +69,6 @@ public class FilteredActionColumn<T> implements IColumn<T, String>, IFilteredCol
 
     @Override
     public Component getFilter(String componentId, FilterForm<?> form) {
-        dialogPanel = new DialogPanel(componentId, actionModel, messageModel);
-
-        dialogPanel.getDialog().setButtons(new AjaxDialogButton("OK") {
-            @Override
-            protected void onButtonClicked(AjaxRequestTarget target) {
-                dialogPanel.getDialog().close(target);
-            }
-        });
-
-        return dialogPanel;
+        return actionDialogPanel = new ActionDialogPanel<>(componentId);
     }
 }
