@@ -32,7 +32,6 @@ public abstract class AbstractAddressSyncService<T extends AbstractAddressSync> 
     @EJB
     private AddressSyncBean addressSyncBean;
 
-
     @EJB
     private LocaleBean localeBean;
 

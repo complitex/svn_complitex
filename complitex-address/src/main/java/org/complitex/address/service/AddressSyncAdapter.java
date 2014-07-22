@@ -48,11 +48,7 @@ public class AddressSyncAdapter extends AbstractBean {
         param.put("date", date);
         param.put("okCode", 0);
 
-        try {
-            sqlSession(dataSource).selectOne(NS + ".selectDistrictSyncs", param);
-        } catch (Exception e) {
-            log.error("Ошибка удаленной функции получения списка районов", e);
-        }
+        sqlSession(dataSource).selectOne(NS + ".selectDistrictSyncs", param);
 
         log.info("getDistrictSyncs: " + param);
 

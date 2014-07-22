@@ -22,10 +22,9 @@ import org.complitex.dictionary.entity.Cursor;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.FilterWrapper;
 import org.complitex.dictionary.util.ResourceUtil;
+import org.complitex.dictionary.web.component.datatable.AbstractAction;
 import org.complitex.dictionary.web.component.datatable.FilteredActionColumn;
 import org.complitex.dictionary.web.component.datatable.FilteredDataTable;
-import org.complitex.dictionary.web.component.datatable.AbstractAction;
-import org.complitex.dictionary.web.component.form.EnumChoiceRenderer;
 
 import javax.ejb.EJB;
 import java.util.ArrayList;
@@ -154,7 +153,7 @@ public class DistrictSyncPanel extends Panel {
 
                 getSession().info(getString("districtSync.start"));
 
-                target.add(toUpdate);
+                target.add(DistrictSyncPanel.this, toUpdate);
 
                 districtSyncService.sync(new ISyncListener<DistrictSync>() {
                     private ThreadContext threadContext = ThreadContext.get(true);
@@ -186,14 +185,14 @@ public class DistrictSyncPanel extends Panel {
                     }
                 });
 
-                toUpdate.add(new AjaxSelfUpdatingTimerBehavior(Duration.seconds(1)){
+                DistrictSyncPanel.this.add(new AjaxSelfUpdatingTimerBehavior(Duration.seconds(1)) {
                     @Override
                     protected void onPostProcessTarget(AjaxRequestTarget target) {
-                        if (!districtSyncService.isLockSync()){
+                        if (!districtSyncService.isLockSync()) {
                             stop(target);
                         }
 
-                        target.add(DistrictSyncPanel.this);
+                        target.add(toUpdate);
                     }
                 });
             }
