@@ -7,13 +7,13 @@ import org.complitex.address.strategy.district.DistrictStrategy;
 import org.complitex.dictionary.entity.Cursor;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
-import org.complitex.dictionary.service.LocaleBean;
 import org.complitex.dictionary.util.AttributeUtil;
 import org.complitex.dictionary.util.CloneUtil;
 
+import javax.ejb.ConcurrencyManagement;
+import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
-import javax.xml.crypto.dom.DOMCryptoContext;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -23,6 +23,7 @@ import java.util.Locale;
  * Date: 17.07.2014 23:34
  */
 @Singleton
+@ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 public class DistrictSyncService extends AbstractAddressSyncService<DistrictSync>{
     @EJB
     private CityStrategy cityStrategy;
