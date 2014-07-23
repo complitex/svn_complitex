@@ -86,6 +86,9 @@ public class DistrictSyncService extends AbstractAddressSyncService<DistrictSync
                     getSystemLocaleId());
         }
 
+        AttributeUtil.setStringValue(domainObject.getAttribute(DistrictStrategy.CODE), districtSync.getExternalId(),
+                getSystemLocaleId());
+
         districtStrategy.insert(domainObject, districtSync.getDate());
 
         addressSyncBean.delete(DistrictSync.class, districtSync.getId());
@@ -113,6 +116,14 @@ public class DistrictSyncService extends AbstractAddressSyncService<DistrictSync
                 getLocaleId(locale));
 
         districtStrategy.update(oldObject, newObject, districtSync.getDate());
+
+        addressSyncBean.delete(DistrictSync.class, districtSync.getId());
+    }
+
+    public void archive(DistrictSync districtSync){
+        DomainObject object = districtStrategy.findById(districtSync.getObjectId(), true);
+
+        districtStrategy.archive(object, districtSync.getDate());
 
         addressSyncBean.delete(DistrictSync.class, districtSync.getId());
     }

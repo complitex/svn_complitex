@@ -21,9 +21,9 @@ import java.util.List;
 public class FilteredActionColumn<T> implements IColumn<T, String>, IFilteredColumn<T, String> {
     private ActionDialogPanel<T> actionDialogPanel;
 
-    private List<AbstractAction<T>> actions;
+    private List<Action<T>> actions;
 
-    public FilteredActionColumn(List<AbstractAction<T>> actions) {
+    public FilteredActionColumn(List<Action<T>> actions) {
         this.actions = actions;
     }
 
@@ -31,7 +31,7 @@ public class FilteredActionColumn<T> implements IColumn<T, String>, IFilteredCol
     public void populateItem(Item<ICellPopulator<T>> cellItem, String componentId, final IModel<T> rowModel) {
         RepeatingView repeatingView = new RepeatingView(componentId);
 
-        for (final AbstractAction<T> action : actions){
+        for (final Action<T> action : actions){
             repeatingView.add(new AjaxLinkPanel(repeatingView.newChildId(), action.getNameModel()) {
                 @Override
                 public void onClick(AjaxRequestTarget target) {

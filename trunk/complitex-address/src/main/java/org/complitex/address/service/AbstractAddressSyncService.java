@@ -71,8 +71,6 @@ public abstract class AbstractAddressSyncService<T extends AbstractAddressSync> 
 
                 for (T sync : cursor.getList()) {
                     for (DomainObject object : objects) {
-                        sync.setObjectId(object.getId());
-
                         String name = getName(object);
 
                         //все норм
@@ -84,6 +82,7 @@ public abstract class AbstractAddressSyncService<T extends AbstractAddressSync> 
 
                         //новое название
                         if (sync.getExternalId().equals(object.getExternalId())) {
+                            sync.setObjectId(object.getId());
                             sync.setStatus(AddressSyncStatus.NEW_NAME);
 
                             setParent(sync, parent);
@@ -99,6 +98,7 @@ public abstract class AbstractAddressSyncService<T extends AbstractAddressSync> 
 
                         //дубликат
                         if (sync.getName().equals(name)) {
+                            sync.setObjectId(object.getId());
                             sync.setStatus(AddressSyncStatus.DUPLICATE);
 
                             setParent(sync, parent);
@@ -153,7 +153,7 @@ public abstract class AbstractAddressSyncService<T extends AbstractAddressSync> 
 
                         s.setObjectId(object.getId());
                         s.setExternalId(object.getExternalId());
-                        s.setName(name);
+                        s.setName("");
                         s.setDate(date);
                         s.setStatus(AddressSyncStatus.ARCHIVAL);
 
