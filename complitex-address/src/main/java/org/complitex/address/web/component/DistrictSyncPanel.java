@@ -18,17 +18,20 @@ import org.complitex.address.service.DistrictSyncService;
 import org.complitex.address.service.ISyncListener;
 import org.complitex.address.strategy.city.CityStrategy;
 import org.complitex.address.web.component.datatable.CityColumn;
+import org.complitex.address.web.component.datatable.DistrictColumn;
 import org.complitex.dictionary.entity.Cursor;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.FilterWrapper;
 import org.complitex.dictionary.util.ResourceUtil;
-import org.complitex.dictionary.web.component.datatable.AbstractAction;
+import org.complitex.dictionary.web.component.datatable.Action;
 import org.complitex.dictionary.web.component.datatable.FilteredActionColumn;
 import org.complitex.dictionary.web.component.datatable.FilteredDataTable;
 
 import javax.ejb.EJB;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Anatoly Ivanov
@@ -49,8 +52,93 @@ public class DistrictSyncPanel extends Panel {
 
         setOutputMarkupId(true);
 
+        //column map
+        Map<String, IColumn<DistrictSync, String>> columnMap = new HashMap<>();
+        columnMap.put("cityObjectId", new CityColumn<DistrictSync>(new ResourceModel("cityObjectId"),
+                "cityObjectId", getLocale()));
+
+        columnMap.put("objectId", new DistrictColumn<DistrictSync>(new ResourceModel("objectId"),
+                "objectId", getLocale()));
+
+        //actions
+        List<Action<DistrictSync>> actions = new ArrayList<>();
+        actions.add(new Action<DistrictSync>("add", "districtSync.add") {
+            @Override
+            public void onAction(AjaxRequestTarget target, IModel<DistrictSync> model) {
+                districtSyncService.addObject(model.getObject(), getLocale());
+
+                getSession().info(String.format(getString("districtSync.added"), model.getObject().getName()));
+                target.add(DistrictSyncPanel.this, toUpdate);
+            }
+
+            @Override
+            public boolean isVisible(IModel<DistrictSync> model) {
+                return AddressSyncStatus.NEW.equals(model.getObject().getStatus());
+            }
+        });
+
+        actions.add(new Action<DistrictSync>("update", "districtSync.duplicate") {
+            @Override
+            public void onAction(AjaxRequestTarget target, IModel<DistrictSync> model) {
+                districtSyncService.updateExternalId(model.getObject());
+
+                getSession().info(String.format(getString("districtSync.duplicated"), model.getObject().getName()));
+                target.add(DistrictSyncPanel.this, toUpdate);
+            }
+
+            @Override
+            public boolean isVisible(IModel<DistrictSync> model) {
+                return AddressSyncStatus.DUPLICATE.equals(model.getObject().getStatus());
+            }
+        });
+
+        actions.add(new Action<DistrictSync>("update", "districtSync.new_name") {
+            @Override
+            public void onAction(AjaxRequestTarget target, IModel<DistrictSync> model) {
+                districtSyncService.updateName(model.getObject(), getLocale());
+
+                getSession().info(String.format(getString("districtSync.new_named"), model.getObject().getName()));
+                target.add(DistrictSyncPanel.this, toUpdate);
+            }
+
+            @Override
+            public boolean isVisible(IModel<DistrictSync> model) {
+                return AddressSyncStatus.NEW_NAME.equals(model.getObject().getStatus());
+            }
+        });
+
+        actions.add(new Action<DistrictSync>("archive", "districtSync.archive") {
+            @Override
+            public void onAction(AjaxRequestTarget target, IModel<DistrictSync> model) {
+                districtSyncService.archive(model.getObject());
+
+                getSession().info(String.format(getString("districtSync.archived"), model.getObject().getName()));
+                target.add(DistrictSyncPanel.this, toUpdate);
+            }
+
+            @Override
+            public boolean isVisible(IModel<DistrictSync> model) {
+                return AddressSyncStatus.ARCHIVAL.equals(model.getObject().getStatus());
+            }
+        });
+
+        actions.add(new Action<DistrictSync>("remove", "districtSync.remove") {
+            @Override
+            public void onAction(AjaxRequestTarget target, IModel<DistrictSync> model) {
+                addressSyncBean.delete(DistrictSync.class, model.getObject().getId());
+
+                getSession().info(String.format(getString("districtSync.removed"), model.getObject().getName()));
+                target.add(DistrictSyncPanel.this, toUpdate);
+            }
+
+            @Override
+            public boolean isVisible(IModel<DistrictSync> model) {
+                return true;
+            }
+        });
+
         add(new FilteredDataTable<DistrictSync>("table", DistrictSync.class,
-                "cityObjectId", "objectId", "externalId", "name", "date", "status", "action") {
+                columnMap, actions, "cityObjectId", "objectId", "externalId", "name", "date", "status") {
             @Override
             public List<DistrictSync> getList(FilterWrapper<DistrictSync> filterWrapper) {
                 return addressSyncBean.getList(DistrictSync.class, filterWrapper);
@@ -59,83 +147,6 @@ public class DistrictSyncPanel extends Panel {
             @Override
             public Long getCount(FilterWrapper<DistrictSync> filterWrapper) {
                 return addressSyncBean.getCount(DistrictSync.class, filterWrapper);
-            }
-
-            @Override
-            public IColumn<DistrictSync, String> newColumn(String field) {
-                if ("cityObjectId".equals(field)){
-                    return new CityColumn<>(new ResourceModel(field), "cityObjectId", getLocale());
-                }else if ("action".equals(field)){
-                    List<AbstractAction<DistrictSync>> actions = new ArrayList<>();
-
-                    actions.add(new AbstractAction<DistrictSync>(new ResourceModel("add"),
-                            new ResourceModel("districtSync.add")) {
-                        @Override
-                        public void onAction(AjaxRequestTarget target, IModel<DistrictSync> model) {
-                            districtSyncService.addObject(model.getObject(), getLocale());
-
-                            getSession().info(String.format(getString("districtSync.added"), model.getObject().getName()));
-                            target.add(DistrictSyncPanel.this, toUpdate);
-                        }
-
-                        @Override
-                        public boolean isVisible(IModel<DistrictSync> model) {
-                            return AddressSyncStatus.NEW.equals(model.getObject().getStatus());
-                        }
-                    });
-
-                    actions.add(new AbstractAction<DistrictSync>(new ResourceModel("update"),
-                            new ResourceModel("districtSync.update")) {
-                        @Override
-                        public void onAction(AjaxRequestTarget target, IModel<DistrictSync> model) {
-                            districtSyncService.updateExternalId(model.getObject());
-
-                            getSession().info(String.format(getString("districtSync.updated"), model.getObject().getName()));
-                            target.add(DistrictSyncPanel.this, toUpdate);
-                        }
-
-                        @Override
-                        public boolean isVisible(IModel<DistrictSync> model) {
-                            return AddressSyncStatus.DUPLICATE.equals(model.getObject().getStatus());
-                        }
-                    });
-
-                    actions.add(new AbstractAction<DistrictSync>(new ResourceModel("update"),
-                            new ResourceModel("districtSync.update")) {
-                        @Override
-                        public void onAction(AjaxRequestTarget target, IModel<DistrictSync> model) {
-                            districtSyncService.updateName(model.getObject(), getLocale());
-
-                            getSession().info(String.format(getString("districtSync.updated"), model.getObject().getName()));
-                            target.add(DistrictSyncPanel.this, toUpdate);
-                        }
-
-                        @Override
-                        public boolean isVisible(IModel<DistrictSync> model) {
-                            return AddressSyncStatus.NEW_NAME.equals(model.getObject().getStatus());
-                        }
-                    });
-
-                    actions.add(new AbstractAction<DistrictSync>(new ResourceModel("remove"),
-                            new ResourceModel("districtSync.remove")) {
-                        @Override
-                        public void onAction(AjaxRequestTarget target, IModel<DistrictSync> model) {
-                            addressSyncBean.delete(DistrictSync.class, model.getObject().getId());
-
-                            getSession().info(String.format(getString("districtSync.removed"), model.getObject().getName()));
-                            target.add(DistrictSyncPanel.this, toUpdate);
-                        }
-
-                        @Override
-                        public boolean isVisible(IModel<DistrictSync> model) {
-                            return true;
-                        }
-                    });
-
-                    return new FilteredActionColumn<>(actions);
-                }
-
-                return super.newColumn(field);
             }
         });
 

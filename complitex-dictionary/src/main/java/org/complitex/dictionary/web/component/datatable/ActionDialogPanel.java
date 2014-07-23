@@ -15,7 +15,7 @@ import org.odlabs.wiquery.ui.dialog.Dialog;
 public class ActionDialogPanel<T> extends Panel{
     private Dialog dialog;
 
-    private AbstractAction<T> action;
+    private Action<T> action;
     private IModel<T> model;
 
     private Label message;
@@ -47,7 +47,7 @@ public class ActionDialogPanel<T> extends Panel{
         });
     }
 
-    public void open(AjaxRequestTarget target, AbstractAction<T> action, IModel<T> model){
+    public void open(AjaxRequestTarget target, Action<T> action, IModel<T> model){
         this.action = action;
         this.model = model;
 

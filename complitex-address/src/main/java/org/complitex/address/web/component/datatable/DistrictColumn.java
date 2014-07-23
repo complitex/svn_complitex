@@ -12,19 +12,21 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.complitex.address.strategy.city.CityStrategy;
+import org.complitex.address.strategy.district.DistrictStrategy;
+import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.util.EjbBeanLocator;
 
 import java.util.Locale;
 
 /**
  * @author Anatoly Ivanov
- *         Date: 21.07.2014 18:49
+ * Date: 023 23.07.14 17:59
  */
-public class CityColumn<T> extends AbstractColumn<T, String> implements IFilteredColumn<T, String> {
+public class DistrictColumn<T> extends AbstractColumn<T, String> implements IFilteredColumn<T, String> {
     private Locale locale;
     private String propertyExpression;
 
-    public CityColumn(IModel<String> displayModel, String propertyExpression, Locale locale) {
+    public DistrictColumn(IModel<String> displayModel, String propertyExpression, Locale locale) {
         super(displayModel);
 
         this.propertyExpression = propertyExpression;
@@ -32,7 +34,7 @@ public class CityColumn<T> extends AbstractColumn<T, String> implements IFiltere
     }
 
     @Override
-    public Component getFilter(String componentId, FilterForm form) {
+    public Component getFilter(String componentId, FilterForm<?> form) {
         return new TextFilter<>(componentId, Model.of(""), form);
     }
 
@@ -40,10 +42,14 @@ public class CityColumn<T> extends AbstractColumn<T, String> implements IFiltere
     public void populateItem(Item<ICellPopulator<T>> cellItem, String componentId, IModel<T> rowModel) {
         String name = "";
 
-        Long cityObjectId = new PropertyModel<Long>(rowModel, propertyExpression).getObject();
+        Long districtObjectId = new PropertyModel<Long>(rowModel, propertyExpression).getObject();
 
-        if (cityObjectId != null){
-            name = EjbBeanLocator.getBean(CityStrategy.class).displayDomainObject(cityObjectId, locale);
+        if (districtObjectId != null){
+            DistrictStrategy districtStrategy = EjbBeanLocator.getBean(DistrictStrategy.class);
+
+            DomainObject object = districtStrategy.findById(districtObjectId, true);
+
+            name = object!= null ? districtStrategy.displayDomainObject(districtObjectId, locale) : "Не найден";
         }
 
         cellItem.add(new Label(componentId, Model.of(name)));

@@ -15,14 +15,17 @@ import org.complitex.dictionary.web.component.paging.AjaxNavigationToolbar;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Anatoly Ivanov
  *         Date: 001 01.07.14 17:06
  */
 public abstract class FilteredDataTable<T extends Serializable> extends Panel implements IFilterBean<T>{
-    public FilteredDataTable(String id, Class<T> objectClass, String... fields) {
+    public FilteredDataTable(String id, Class<T> objectClass, Map<String, IColumn<T, String>> columnMap,
+                             List<Action<T>> actions, String... fields) {
         super(id);
 
         FilteredDataProvider<T> provider = new FilteredDataProvider<>(this, objectClass);
@@ -33,7 +36,7 @@ public abstract class FilteredDataTable<T extends Serializable> extends Panel im
         List<IColumn<T, String>> columns = new ArrayList<>();
 
         for (String field : fields){
-            IColumn<T, String> column = newColumn(field);
+            IColumn<T, String> column = columnMap.get(field);
 
             if (column == null){
                 Field f = FieldUtils.getField(objectClass, field, true);
@@ -49,6 +52,10 @@ public abstract class FilteredDataTable<T extends Serializable> extends Panel im
             columns.add(column);
         }
 
+        if (!actions.isEmpty()){
+            columns.add(new FilteredActionColumn<>(actions));
+        }
+
         DataTable<T, String> table = new DataTable<>("table", columns, provider, 10);
         table.setOutputMarkupId(true);
 
@@ -57,9 +64,5 @@ public abstract class FilteredDataTable<T extends Serializable> extends Panel im
         table.addBottomToolbar(new AjaxNavigationToolbar(table));
 
         form.add(table);
-    }
-
-    public IColumn<T, String> newColumn(String field){
-        return null;
     }
 }
