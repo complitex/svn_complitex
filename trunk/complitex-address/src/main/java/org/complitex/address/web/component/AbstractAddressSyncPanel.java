@@ -9,18 +9,12 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.util.time.Duration;
 import org.complitex.address.entity.AbstractAddressSync;
 import org.complitex.address.entity.AddressSyncStatus;
-import org.complitex.address.entity.DistrictSync;
 import org.complitex.address.service.AbstractAddressSyncService;
 import org.complitex.address.service.AddressSyncBean;
-import org.complitex.address.service.DistrictSyncService;
 import org.complitex.address.service.ISyncListener;
-import org.complitex.address.strategy.city.CityStrategy;
-import org.complitex.address.web.component.datatable.CityColumn;
-import org.complitex.address.web.component.datatable.DistrictColumn;
 import org.complitex.dictionary.entity.Cursor;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.FilterWrapper;
@@ -30,7 +24,6 @@ import org.complitex.dictionary.web.component.datatable.FilteredDataTable;
 
 import javax.ejb.EJB;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,27 +35,19 @@ public abstract class AbstractAddressSyncPanel<T extends AbstractAddressSync> ex
     @EJB
     private AddressSyncBean addressSyncBean;
 
-    public AbstractAddressSyncPanel(String id, final Class<T> syncClass, final Component toUpdate, String... fields) {
+    public AbstractAddressSyncPanel(String id, final Component toUpdate, final Class<T> syncClass, String[] fields) {
         super(id);
 
         setOutputMarkupId(true);
 
-        //column map
-        Map<String, IColumn<T, String>> columnMap = new HashMap<>();
-        columnMap.put("cityObjectId", new CityColumn<T>(new ResourceModel("cityObjectId"),
-                "cityObjectId", getLocale()));
-
-        columnMap.put("objectId", new DistrictColumn<T>(new ResourceModel("objectId"),
-                "objectId", getLocale()));
-
         //actions
         List<Action<T>> actions = new ArrayList<>();
-        actions.add(new Action<T>("add", "districtSync.add") {
+        actions.add(new Action<T>("add", "object.add") {
             @Override
             public void onAction(AjaxRequestTarget target, IModel<T> model) {
                 getAddressSyncService().save(model.getObject(), getLocale());
 
-                getSession().info(String.format(getString("districtSync.added"), model.getObject().getName()));
+                getSession().info(String.format(getString("object.added"), model.getObject().getName()));
                 target.add(AbstractAddressSyncPanel.this, toUpdate);
             }
 
@@ -72,12 +57,12 @@ public abstract class AbstractAddressSyncPanel<T extends AbstractAddressSync> ex
             }
         });
 
-        actions.add(new Action<T>("update", "districtSync.duplicate") {
+        actions.add(new Action<T>("update", "object.duplicate") {
             @Override
             public void onAction(AjaxRequestTarget target, IModel<T> model) {
                 getAddressSyncService().update(model.getObject(), getLocale());
 
-                getSession().info(String.format(getString("districtSync.duplicated"), model.getObject().getName()));
+                getSession().info(String.format(getString("object.duplicated"), model.getObject().getName()));
                 target.add(AbstractAddressSyncPanel.this, toUpdate);
             }
 
@@ -87,12 +72,12 @@ public abstract class AbstractAddressSyncPanel<T extends AbstractAddressSync> ex
             }
         });
 
-        actions.add(new Action<T>("update", "districtSync.new_name") {
+        actions.add(new Action<T>("update", "object.new_name") {
             @Override
             public void onAction(AjaxRequestTarget target, IModel<T> model) {
                 getAddressSyncService().update(model.getObject(), getLocale());
 
-                getSession().info(String.format(getString("districtSync.new_named"), model.getObject().getName()));
+                getSession().info(String.format(getString("object.new_named"), model.getObject().getName()));
                 target.add(AbstractAddressSyncPanel.this, toUpdate);
             }
 
@@ -102,12 +87,12 @@ public abstract class AbstractAddressSyncPanel<T extends AbstractAddressSync> ex
             }
         });
 
-        actions.add(new Action<T>("archive", "districtSync.archive") {
+        actions.add(new Action<T>("archive", "object.archive") {
             @Override
             public void onAction(AjaxRequestTarget target, IModel<T> model) {
                 getAddressSyncService().archive(model.getObject());
 
-                getSession().info(String.format(getString("districtSync.archived"), model.getObject().getName()));
+                getSession().info(String.format(getString("object.archived"), model.getObject().getName()));
                 target.add(AbstractAddressSyncPanel.this, toUpdate);
             }
 
@@ -117,12 +102,12 @@ public abstract class AbstractAddressSyncPanel<T extends AbstractAddressSync> ex
             }
         });
 
-        actions.add(new Action<T>("remove", "districtSync.remove") {
+        actions.add(new Action<T>("remove", "object.remove") {
             @Override
             public void onAction(AjaxRequestTarget target, IModel<T> model) {
                 addressSyncBean.delete(syncClass, model.getObject().getId());
 
-                getSession().info(String.format(getString("districtSync.removed"), model.getObject().getName()));
+                getSession().info(String.format(getString("object.removed"), model.getObject().getName()));
                 target.add(AbstractAddressSyncPanel.this, toUpdate);
             }
 
@@ -132,8 +117,7 @@ public abstract class AbstractAddressSyncPanel<T extends AbstractAddressSync> ex
             }
         });
 
-        add(new FilteredDataTable<T>("table", syncClass,
-                columnMap, actions, "cityObjectId", "objectId", "externalId", "name", "date", "status") {
+        add(new FilteredDataTable<T>("table", syncClass, getColumnMap(), actions, fields) {
             @Override
             public List<T> getList(FilterWrapper<T> filterWrapper) {
                 return addressSyncBean.getList(syncClass, filterWrapper);
@@ -145,7 +129,7 @@ public abstract class AbstractAddressSyncPanel<T extends AbstractAddressSync> ex
             }
         });
 
-        add(new AjaxLink("districtSync") {
+        add(new AjaxLink("sync") {
             @Override
             public boolean isVisible() {
                 return !getAddressSyncService().isLockSync();
@@ -157,7 +141,7 @@ public abstract class AbstractAddressSyncPanel<T extends AbstractAddressSync> ex
                     return;
                 }
 
-                getSession().info(getString("districtSync.start"));
+                getSession().info(getString("object.start"));
 
                 target.add(AbstractAddressSyncPanel.this, toUpdate);
 
@@ -167,13 +151,13 @@ public abstract class AbstractAddressSyncPanel<T extends AbstractAddressSync> ex
                     @Override
                     public void onBegin(DomainObject parent, Cursor<T> cursor) {
                         ThreadContext.restore(threadContext);
-                        getSession().info(String.format(getString("districtSync.onBegin"), parent.getId()));
+                        getSession().info(String.format(getString("object.onBegin"), getName(parent)));
                     }
 
                     @Override
                     public void onProcessed(T sync) {
                         ThreadContext.restore(threadContext);
-                        getSession().info(String.format(getString("districtSync.onProcessed"), sync.getName(),
+                        getSession().info(String.format(getString("object.onProcessed"), sync.getName(),
                                 ResourceUtil.getString(sync.getStatus().getClass().getName(), sync.getStatus().name(),
                                         getLocale())));
                     }
@@ -187,7 +171,7 @@ public abstract class AbstractAddressSyncPanel<T extends AbstractAddressSync> ex
                     @Override
                     public void onDone() {
                         ThreadContext.restore(threadContext);
-                        getSession().info(String.format(getString("districtSync.onDone")));
+                        getSession().info(String.format(getString("object.onDone")));
                     }
                 });
 
@@ -206,4 +190,8 @@ public abstract class AbstractAddressSyncPanel<T extends AbstractAddressSync> ex
     }
 
     protected abstract AbstractAddressSyncService<T> getAddressSyncService();
+
+    protected abstract Map<String, IColumn<T, String>> getColumnMap();
+
+    protected abstract String getName(DomainObject parent);
 }
