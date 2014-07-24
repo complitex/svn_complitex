@@ -71,11 +71,7 @@ public class AddressSyncAdapter extends AbstractBean {
         Map<String, Object> param = new HashMap<>();
         param.put("okCode", 0);
 
-        try {
-            sqlSession(dataSource).selectOne(NS + ".selectStreetTypeSyncs", param);
-        } catch (Exception e) {
-            log.error("Ошибка удаленной функции получения списка типов улиц", e);
-        }
+        sqlSession(dataSource).selectOne(NS + ".selectStreetTypeSyncs", param);
 
         log.info("getStreetTypeSyncs: " + param);
 
