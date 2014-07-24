@@ -59,12 +59,12 @@ public class DistrictSyncService extends AbstractAddressSyncService<DistrictSync
     }
 
     @Override
-    public String getName(DomainObject object) {
-        return districtStrategy.getName(object);
+    protected boolean isEqualNames(DistrictSync sync, DomainObject object) {
+        return sync.getName().equals(districtStrategy.getName(object));
     }
 
     @Override
-    public void setParent(DistrictSync sync, DomainObject parent) {
+    public void onSave(DistrictSync sync, DomainObject parent) {
         sync.setCityObjectId(parent.getId());
     }
 
@@ -73,7 +73,7 @@ public class DistrictSyncService extends AbstractAddressSyncService<DistrictSync
         return new DistrictSync();
     }
 
-    public void addObject(DistrictSync districtSync, Locale locale){
+    public void save(DistrictSync districtSync, Locale locale){
         DomainObject domainObject = districtStrategy.newInstance();
         domainObject.setExternalId(districtSync.getExternalId());
         domainObject.setParentId(districtSync.getCityObjectId());
@@ -94,29 +94,19 @@ public class DistrictSyncService extends AbstractAddressSyncService<DistrictSync
         addressSyncBean.delete(DistrictSync.class, districtSync.getId());
     }
 
-    public void updateExternalId(DistrictSync districtSync){
+    public void update(DistrictSync districtSync, Locale locale){
         DomainObject oldObject = districtStrategy.findById(districtSync.getObjectId(), true);
-
-        DomainObject newObject = CloneUtil.cloneObject(oldObject);
-        newObject.setExternalId(districtSync.getExternalId());
-        AttributeUtil.setStringValue(newObject.getAttribute(DistrictStrategy.CODE), districtSync.getExternalId(),
-                getSystemLocaleId());
-
-        districtStrategy.update(oldObject, newObject, districtSync.getDate());
-
-        addressSyncBean.delete(DistrictSync.class, districtSync.getId());
-    }
-
-    public void updateName(DistrictSync districtSync, Locale locale){
-        DomainObject oldObject = districtStrategy.findById(districtSync.getObjectId(), true);
-
         DomainObject newObject = CloneUtil.cloneObject(oldObject);
 
         AttributeUtil.setStringValue(newObject.getAttribute(DistrictStrategy.NAME), districtSync.getName(),
                 getLocaleId(locale));
 
-        districtStrategy.update(oldObject, newObject, districtSync.getDate());
+        newObject.setExternalId(districtSync.getExternalId());
 
+        AttributeUtil.setStringValue(newObject.getAttribute(DistrictStrategy.CODE), districtSync.getExternalId(),
+                getSystemLocaleId());
+
+        districtStrategy.update(oldObject, newObject, districtSync.getDate());
         addressSyncBean.delete(DistrictSync.class, districtSync.getId());
     }
 
