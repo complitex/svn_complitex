@@ -209,7 +209,7 @@ public abstract class AbstractAddressSyncService<T extends AbstractAddressSync> 
 
     protected abstract T newSync();
 
-    public abstract void save(T districtSync, Locale locale);
+    public abstract void insert(T districtSync, Locale locale);
 
     public abstract void update(T districtSync, Locale locale);
 

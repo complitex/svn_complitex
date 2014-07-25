@@ -62,7 +62,7 @@ public class StreetTypeSyncService extends AbstractAddressSyncService<StreetType
     }
 
     @Override
-    public void save(StreetTypeSync sync, Locale locale) {
+    public void insert(StreetTypeSync sync, Locale locale) {
         DomainObject domainObject = streetTypeStrategy.newInstance();
         domainObject.setExternalId(sync.getExternalId());
 
@@ -82,7 +82,6 @@ public class StreetTypeSyncService extends AbstractAddressSyncService<StreetType
 
         streetTypeStrategy.insert(domainObject, sync.getDate());
         addressSyncBean.delete(StreetTypeSync.class, sync.getId());
-
     }
 
     @Override
