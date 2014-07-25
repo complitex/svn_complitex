@@ -45,7 +45,7 @@ public abstract class AbstractAddressSyncPanel<T extends AbstractAddressSync> ex
         actions.add(new Action<T>("add", "object.add") {
             @Override
             public void onAction(AjaxRequestTarget target, IModel<T> model) {
-                getAddressSyncService().save(model.getObject(), getLocale());
+                getAddressSyncService().insert(model.getObject(), getLocale());
 
                 getSession().info(String.format(getString("object.added"), model.getObject().getName()));
                 target.add(AbstractAddressSyncPanel.this, toUpdate);

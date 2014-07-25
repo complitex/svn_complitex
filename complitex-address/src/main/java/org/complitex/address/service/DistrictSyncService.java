@@ -73,7 +73,7 @@ public class DistrictSyncService extends AbstractAddressSyncService<DistrictSync
         return new DistrictSync();
     }
 
-    public void save(DistrictSync sync, Locale locale){
+    public void insert(DistrictSync sync, Locale locale){
         DomainObject domainObject = districtStrategy.newInstance();
         domainObject.setExternalId(sync.getExternalId());
         domainObject.setParentId(sync.getCityObjectId());
