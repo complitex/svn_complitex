@@ -73,48 +73,46 @@ public class DistrictSyncService extends AbstractAddressSyncService<DistrictSync
         return new DistrictSync();
     }
 
-    public void save(DistrictSync districtSync, Locale locale){
+    public void save(DistrictSync sync, Locale locale){
         DomainObject domainObject = districtStrategy.newInstance();
-        domainObject.setExternalId(districtSync.getExternalId());
-        domainObject.setParentId(districtSync.getCityObjectId());
+        domainObject.setExternalId(sync.getExternalId());
+        domainObject.setParentId(sync.getCityObjectId());
 
         //todo simplify setting name
-        AttributeUtil.setStringValue(domainObject.getAttribute(DistrictStrategy.NAME), districtSync.getName(),
+        AttributeUtil.setStringValue(domainObject.getAttribute(DistrictStrategy.NAME), sync.getName(),
                 getLocaleId(locale));
         if (AttributeUtil.getSystemStringCultureValue(domainObject.getAttribute(DistrictStrategy.NAME)) == null) {
-            AttributeUtil.setStringValue(domainObject.getAttribute(DistrictStrategy.NAME), districtSync.getName(),
+            AttributeUtil.setStringValue(domainObject.getAttribute(DistrictStrategy.NAME), sync.getName(),
                     getSystemLocaleId());
         }
 
-        AttributeUtil.setStringValue(domainObject.getAttribute(DistrictStrategy.CODE), districtSync.getExternalId(),
+        AttributeUtil.setStringValue(domainObject.getAttribute(DistrictStrategy.CODE), sync.getExternalId(),
                 getSystemLocaleId());
 
-        districtStrategy.insert(domainObject, districtSync.getDate());
+        districtStrategy.insert(domainObject, sync.getDate());
 
-        addressSyncBean.delete(DistrictSync.class, districtSync.getId());
+        addressSyncBean.delete(DistrictSync.class, sync.getId());
     }
 
-    public void update(DistrictSync districtSync, Locale locale){
-        DomainObject oldObject = districtStrategy.findById(districtSync.getObjectId(), true);
+    public void update(DistrictSync sync, Locale locale){
+        DomainObject oldObject = districtStrategy.findById(sync.getObjectId(), true);
         DomainObject newObject = CloneUtil.cloneObject(oldObject);
 
-        AttributeUtil.setStringValue(newObject.getAttribute(DistrictStrategy.NAME), districtSync.getName(),
+        AttributeUtil.setStringValue(newObject.getAttribute(DistrictStrategy.NAME), sync.getName(),
                 getLocaleId(locale));
 
-        newObject.setExternalId(districtSync.getExternalId());
+        newObject.setExternalId(sync.getExternalId());
 
-        AttributeUtil.setStringValue(newObject.getAttribute(DistrictStrategy.CODE), districtSync.getExternalId(),
+        AttributeUtil.setStringValue(newObject.getAttribute(DistrictStrategy.CODE), sync.getExternalId(),
                 getSystemLocaleId());
 
-        districtStrategy.update(oldObject, newObject, districtSync.getDate());
-        addressSyncBean.delete(DistrictSync.class, districtSync.getId());
+        districtStrategy.update(oldObject, newObject, sync.getDate());
+        addressSyncBean.delete(DistrictSync.class, sync.getId());
     }
 
-    public void archive(DistrictSync districtSync){
-        DomainObject object = districtStrategy.findById(districtSync.getObjectId(), true);
+    public void archive(DistrictSync sync){
+        districtStrategy.archive(districtStrategy.findById(sync.getObjectId(), true), sync.getDate());
 
-        districtStrategy.archive(object, districtSync.getDate());
-
-        addressSyncBean.delete(DistrictSync.class, districtSync.getId());
+        addressSyncBean.delete(DistrictSync.class, sync.getId());
     }
 }

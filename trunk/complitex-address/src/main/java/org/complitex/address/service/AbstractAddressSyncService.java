@@ -205,9 +205,7 @@ public abstract class AbstractAddressSyncService<T extends AbstractAddressSync> 
 
     protected abstract boolean isEqualNames(T sync, DomainObject object);
 
-    protected void onSave(T sync, DomainObject parent){
-
-    }
+    protected abstract void onSave(T sync, DomainObject parent);
 
     protected abstract T newSync();
 

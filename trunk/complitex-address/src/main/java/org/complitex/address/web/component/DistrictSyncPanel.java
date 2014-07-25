@@ -7,8 +7,6 @@ import org.complitex.address.entity.DistrictSync;
 import org.complitex.address.service.AbstractAddressSyncService;
 import org.complitex.address.service.DistrictSyncService;
 import org.complitex.address.strategy.city.CityStrategy;
-import org.complitex.address.web.component.datatable.CityColumn;
-import org.complitex.address.web.component.datatable.DistrictColumn;
 import org.complitex.dictionary.entity.DomainObject;
 
 import javax.ejb.EJB;
