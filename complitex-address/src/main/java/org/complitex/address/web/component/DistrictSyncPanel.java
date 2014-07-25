@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Anatoly Ivanov
+ * @author Anatoly Ivanov
  * Date: 25.07.2014 2:49
  */
 public class DistrictSyncPanel extends AbstractAddressSyncPanel<DistrictSync> {
