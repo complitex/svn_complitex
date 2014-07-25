@@ -103,7 +103,7 @@
     <sql id="selectStreetTypeSyncWhere">
         <where>
             <include refid="abstractAddressSyncFilter"/>
-            <if test="shortName != null">`short_name` = #{shortName}</if>
+            <if test="object.shortName != null">and `short_name` = #{object.shortName}</if>
         </where>
     </sql>
 
@@ -141,9 +141,9 @@
     <sql id="selectStreetSyncWhere">
         <where>
             <include refid="abstractAddressSyncFilter"/>
-            <if test="object.streetTypeObjectId != null">`street_type_object_id` = #{object.streetTypeObjectId}</if>
-            <if test="object.cityObjectId != null">`city_object_id` = #{object.cityObjectId}</if>
-            <if test="object.streetTypeShortName != null">`street_type_object_id` = #{object.streetTypeShortName}</if>
+            <if test="object.streetTypeObjectId != null">and `street_type_object_id` = #{object.streetTypeObjectId}</if>
+            <if test="object.cityObjectId != null">and `city_object_id` = #{object.cityObjectId}</if>
+            <if test="object.streetTypeShortName != null">and `street_type_object_id` = #{object.streetTypeShortName}</if>
         </where>
     </sql>
 
@@ -181,11 +181,11 @@
     <sql id="selectBuildingAddressSyncWhere">
         <where>
             <include refid="abstractAddressSyncFilter"/>
-            <if test="object.streetTypeObjectId != null">`street_type_object_id` = #{object.streetTypeObjectId}</if>
-            <if test="object.streetObjectId != null">`street_object_id` = #{object.streetObjectId}</if>
-            <if test="object.districtObjectId != null">`district_object_id` = #{object.districtObjectId}</if>
-            <if test="object.streetExternalId != null">`street_external_id` = #{object.streetExternalId}</if>
-            <if test="object.part != null">`part` = #{part}</if>
+            <if test="object.streetTypeObjectId != null">and `street_type_object_id` = #{object.streetTypeObjectId}</if>
+            <if test="object.streetObjectId != null">and `street_object_id` = #{object.streetObjectId}</if>
+            <if test="object.districtObjectId != null">and `district_object_id` = #{object.districtObjectId}</if>
+            <if test="object.streetExternalId != null">and `street_external_id` = #{object.streetExternalId}</if>
+            <if test="object.part != null">and `part` = #{part}</if>
         </where>
     </sql>
 

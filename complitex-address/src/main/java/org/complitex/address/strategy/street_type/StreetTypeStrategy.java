@@ -61,12 +61,17 @@ public class StreetTypeStrategy extends TemplateStrategy {
         return getShortName(object, getSystemLocale());
     }
 
+    public String getName(DomainObject object, Locale locale){
+        return stringBean.displayValue(object.getAttribute(NAME).getLocalizedValues(), locale);
+    }
+
     public String getName(DomainObject object){
         return stringBean.displayValue(object.getAttribute(NAME).getLocalizedValues(), getSystemLocale());
     }
 
+    @Deprecated
     public String displayFullName(DomainObject streetTypeObject, Locale locale) {
-        return stringBean.displayValue(streetTypeObject.getAttribute(NAME).getLocalizedValues(), locale);
+        return getName(streetTypeObject, locale);
     }
 
     @Override

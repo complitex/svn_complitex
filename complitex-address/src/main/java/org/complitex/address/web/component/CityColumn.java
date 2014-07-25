@@ -1,4 +1,4 @@
-package org.complitex.address.web.component.datatable;
+package org.complitex.address.web.component;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
