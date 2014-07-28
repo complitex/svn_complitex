@@ -1,7 +1,10 @@
 package org.complitex.dictionary.mybatis.caches;
 
+import com.google.common.collect.Sets;
 import org.apache.ibatis.cache.Cache;
+import org.complitex.dictionary.util.EjbBeanLocator;
 
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 
@@ -15,7 +18,7 @@ public class EhcacheCache implements Cache {
     private org.mybatis.caches.ehcache.EhcacheCache ehcacheCache;
 
     private String id;
-
+    private Set<String> tableNames = Sets.newConcurrentHashSet();
 
     /**
      * @param id
@@ -23,6 +26,10 @@ public class EhcacheCache implements Cache {
     public EhcacheCache(String id) {
         this.id = id;
         ehcacheCache = new org.mybatis.caches.ehcache.EhcacheCache(id + "." + counter.incrementAndGet());
+    }
+
+    public String getInnerId() {
+        return ehcacheCache.getId();
     }
 
     @Override
@@ -52,11 +59,19 @@ public class EhcacheCache implements Cache {
 
     @Override
     public void clear() {
+        EhcacheTableService ehcacheTableService = EjbBeanLocator.getBean(EhcacheTableService.class);
+        for (String tableName : tableNames) {
+            ehcacheTableService.clearCache(tableName);
+        }
         ehcacheCache.clear();
     }
 
     @Override
     public ReadWriteLock getReadWriteLock() {
         return ehcacheCache.getReadWriteLock();
+    }
+
+    public void addTable(String tableName) {
+        tableNames.add(tableName);
     }
 }
