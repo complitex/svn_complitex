@@ -6,16 +6,19 @@ import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.executor.SimpleExecutor;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
-import org.apache.ibatis.plugin.*;
+import org.apache.ibatis.plugin.Intercepts;
+import org.apache.ibatis.plugin.Invocation;
+import org.apache.ibatis.plugin.Plugin;
+import org.apache.ibatis.plugin.Signature;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.complitex.dictionary.mybatis.caches.EhcacheCache;
 import org.complitex.dictionary.mybatis.caches.EhcacheTableService;
+import org.complitex.dictionary.mybatis.plugin.util.ExcludeNamespacePlugin;
 import org.complitex.dictionary.util.EjbBeanLocator;
 
 import javax.ejb.EJB;
 import java.util.List;
-import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,7 +29,7 @@ import java.util.regex.Pattern;
         type= Executor.class,
         method = "query",
         args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class})})
-public class SelectStatementPlugin implements Interceptor {
+public class SelectStatementPluginExclude extends ExcludeNamespacePlugin {
     private final static int MAPPED_STATEMENT_INDEX = 0;
     private final static int PARAMETER_INDEX = 1;
     private final static int ROW_BOUNDS_INDEX = 2;
@@ -41,7 +44,7 @@ public class SelectStatementPlugin implements Interceptor {
         MappedStatement ms = (MappedStatement)invocation.getArgs()[MAPPED_STATEMENT_INDEX];
         EhcacheCache mscache = (EhcacheCache)ms.getCache();
 
-        if (mscache == null) {
+        if (mscache == null || namespaces.contains(mscache.getId())) {
             return invocation.proceed();
         }
 
@@ -81,8 +84,4 @@ public class SelectStatementPlugin implements Interceptor {
         return Plugin.wrap(target, this);
     }
 
-    @Override
-    public void setProperties(Properties properties) {
-
-    }
 }
