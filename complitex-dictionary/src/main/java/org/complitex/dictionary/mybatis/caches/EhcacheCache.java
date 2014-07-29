@@ -1,10 +1,11 @@
 package org.complitex.dictionary.mybatis.caches;
 
-import com.google.common.collect.Sets;
 import org.apache.ibatis.cache.Cache;
 import org.complitex.dictionary.util.EjbBeanLocator;
 
+import java.util.Collections;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 
@@ -18,7 +19,7 @@ public class EhcacheCache implements Cache {
     private org.mybatis.caches.ehcache.EhcacheCache ehcacheCache;
 
     private String id;
-    private Set<String> tableNames = Sets.newConcurrentHashSet();
+    private Set<String> tableNames = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
     /**
      * @param id

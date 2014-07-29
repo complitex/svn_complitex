@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.complitex.address.service.AddressSyncAdapter">
-    <resultMap id="districtSyncCursorResultMap" type="org.complitex.address.entity.DistrictSync">
+    <resultMap id="districtSyncCursorResultMap" type="org.complitex.address.entity.AddressSync">
         <result column="c_code" property="externalId"/>
         <result column="c_name" property="name"/>
     </resultMap>
 
-    <resultMap id="streetTypeSyncCursorResultMap" type="org.complitex.address.entity.StreetTypeSync">
+    <resultMap id="streetTypeSyncCursorResultMap" type="org.complitex.address.entity.AddressSync">
         <result column="id" property="externalId"/>
-        <result column="c_short_name" property="shortName"/>
+        <result column="c_short_name" property="additionalName"/>
         <result column="c_name" property="name"/>
     </resultMap>
 
-    <resultMap id="streetSyncCursorResultMap" type="org.complitex.address.entity.StreetSync">
+    <resultMap id="streetSyncCursorResultMap" type="org.complitex.address.entity.AddressSync">
         <result column="c_code" property="externalId"/>
-        <result column="c_short_name" property="streetTypeShortName"/>
+        <result column="c_short_name" property="additionalName"/>
         <result column="c_name" property="name"/>
     </resultMap>
 
-    <resultMap id="buildingSyncCursorResultMap" type="org.complitex.address.entity.BuildingAddressSync">
-        <result column="c_code" property="streetExternalId"/>
+    <resultMap id="buildingSyncCursorResultMap" type="org.complitex.address.entity.AddressSync">
+        <result column="c_code" property="additionalExternalId"/>
         <result column="id" property="externalId"/>
         <result column="c_name" property="name"/>
-        <result column="c_part" property="part"/>
+        <result column="c_part" property="additionalName"/>
     </resultMap>
 
     <select id="selectDistrictSyncs" statementType="CALLABLE" parameterType="map">

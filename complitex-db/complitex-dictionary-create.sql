@@ -1172,114 +1172,40 @@ CREATE TABLE `organization_import` (
 ) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Вспомогательная таблица для импорта организаций';
 
 -- ------------------------------
---  District Sync
+--  Address Sync
+-- ------------------------------
+
+DROP TABLE IF EXISTS `address_sync`;
+CREATE TABLE `address_sync`(
+  `id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'Идентификатор адресного элемента синхронизации',
+  `object_id` BIGINT(20) COMMENT 'Идентификатор адресного объекта',
+  `parent_object_id` BIGINT(20) COMMENT 'Идентификатор родительского адресного объекта',
+  `external_id` VARCHAR(20) NOT NULL COMMENT 'Код адресного объекта (ID)',
+  `additional_external_id` VARCHAR(20) COMMENT 'Код адресного объекта (ID)',
+  `name` VARCHAR(100) NOT NULL COMMENT 'Название адресного элемента',
+  `additional_name` VARCHAR(20) COMMENT 'Дополнительное название адресного элемента',
+  `type` INTEGER NOT NULL COMMENT 'Тип адресного элемента синхронизации',
+  `status` INTEGER NOT NULL COMMENT 'Статус синхронизации',
+  `date` DATETIME NOT NULL COMMENT 'Дата актуальности',
+  PRIMARY KEY (`id`),
+  KEY `key_object_id` (`object_id`),
+  KEY `key_parent_object_id` (`parent_object_id`),
+  KEY `key_external_id` (`external_id`),
+  KEY `key_additional_external_id` (`additional_external_id`),
+  KEY `key_name` (`name`),
+  KEY `key_additional_name` (`additional_name`),
+  KEY `key_type` (`type`),
+  KEY `key_status` (`status`),
+  KEY `key_date` (`date`)
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Синхронизация адресного элемента';
+
+-- ------------------------------
+--  DROP Sync
 -- ------------------------------
 
 DROP TABLE IF EXISTS `district_sync`;
-CREATE TABLE `district_sync` (
-  `id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'Идентификатор синхронизации района',
-  `object_id` BIGINT(20) COMMENT 'Идентификатор объекта района',
-  `city_object_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор объекта города',
-  `external_id` VARCHAR(20) NOT NULL COMMENT 'Код района (ID)',
-  `name` VARCHAR(100) NOT NULL COMMENT 'Название района',
-  `date` DATETIME NOT NULL COMMENT 'Дата актуальности',
-  `status` INTEGER NOT NULL COMMENT 'Статус синхронизации',
-  PRIMARY KEY (`id`),
-  KEY `key_city_object_id` (`city_object_id`),
-  KEY `key_object_id` (`object_id`),
-  KEY `key_external_id` (`external_id`),
-  KEY `key_name` (`name`),
-  KEY `key_date` (`date`),
-  KEY `key_status` (`status`),
-  CONSTRAINT `fk_district_sync__city` FOREIGN KEY (`city_object_id`) REFERENCES `city` (`object_id`),
-  CONSTRAINT `fk_district_sync__district` FOREIGN KEY (`object_id`) REFERENCES `district` (`object_id`)
-) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Синхронизация районов';
-
--- ------------------------------
---  Street Type Sync
--- ------------------------------
-
 DROP TABLE IF EXISTS `street_type_sync`;
-CREATE TABLE `street_type_sync`(
-  `id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'Идентификатор синхронизации типа улицы',
-  `object_id` BIGINT(20) COMMENT 'Идентификатор объекта типа улицы',
-  `external_id` VARCHAR(20) NOT NULL COMMENT 'Код типа улицы (ID)',
-  `name` VARCHAR(100) NOT NULL COMMENT 'Название типа улицы',
-  `short_name` VARCHAR(20) NOT NULL COMMENT 'Короткое название типа улицы',
-  `date` DATETIME NOT NULL COMMENT 'Дата актуальности',
-  `status` INTEGER NOT NULL COMMENT 'Статус синхронизации',
-  PRIMARY KEY (`id`),
-  KEY `key_object_id` (`object_id`),
-  KEY `key_external_id` (`external_id`),
-  KEY `key_name` (`name`),
-  KEY `key_short_name` (`short_name`),
-  KEY `key_date` (`date`),
-  KEY `key_status` (`status`),
-  CONSTRAINT `fk_street_type_sync__street_type` FOREIGN KEY (`object_id`) REFERENCES `street_type` (`object_id`)
-) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Синхронизация типов улиц';
-
--- ------------------------------
---  Street Sync
--- ------------------------------
-
 DROP TABLE IF EXISTS `street_sync`;
-CREATE TABLE `street_sync`(
-  `id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'Идентификатор синхронизации улицы',
-  `object_id` BIGINT(20) COMMENT 'Идентификатор объекта улица',
-  `street_type_object_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор объекта тип улицы',
-  `city_object_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор объекта город',
-  `external_id` VARCHAR(20) NOT NULL COMMENT 'Код улицы (ID)',
-  `name` VARCHAR(100) NOT NULL COMMENT 'Название типа улицы',
-  `street_type_short_name` VARCHAR(20) NOT NULL COMMENT 'Тип улицы (краткое название)',
-  `date` DATETIME NOT NULL COMMENT 'Дата актуальности',
-  `status` INTEGER NOT NULL COMMENT 'Статус синхронизации',
-  PRIMARY KEY (`id`),
-  KEY `key_object_id` (`object_id`),
-  KEY `key_street_type_object_id` (`street_type_object_id`),
-  KEY `key_city_object_id` (`city_object_id`),
-  KEY `key_external_id` (`external_id`),
-  KEY `key_name` (`name`),
-  KEY `key_street_type_short_name` (`street_type_short_name`),
-  KEY `key_date` (`date`),
-  KEY `key_status` (`status`),
-  CONSTRAINT `fk_street_sync__street` FOREIGN KEY (`object_id`) REFERENCES `street` (`object_id`),
-  CONSTRAINT `fk_street_sync__street_type` FOREIGN KEY (`street_type_object_id`) REFERENCES `street_type` (`object_id`),
-  CONSTRAINT `fk_street_sync__city` FOREIGN KEY (`city_object_id`) REFERENCES `city` (`object_id`)
-) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Синхронизация улиц';
-
--- ------------------------------
---  Building Address Sync
--- ------------------------------
-
 DROP TABLE IF EXISTS `building_address_sync`;
-CREATE TABLE `building_address_sync`(
-  `id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'Идентификатор синхронизации дома',
-  `object_id` BIGINT(20) COMMENT 'Идентификатор объекта дом',
-  `street_type_object_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор объекта тип улицы',
-  `street_object_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор объекта улица',
-  `district_object_id` BIGINT(20) NOT NULL COMMENT 'Идентификатор объекта район',
-  `external_id` VARCHAR(20) NOT NULL COMMENT 'Код дома (ID)',
-  `street_external_id` VARCHAR(20) NOT NULL COMMENT 'Код улицы (ID)',
-  `name` VARCHAR(20) NOT NULL COMMENT 'Номер дома',
-  `part` VARCHAR(20) NOT NULL COMMENT 'Номер корпуса',
-  `date` DATETIME NOT NULL COMMENT 'Дата актуальности',
-  `status` INTEGER NOT NULL COMMENT 'Статус синхронизации',
-  PRIMARY KEY (`id`),
-  KEY `key_object_id` (`object_id`),
-  KEY `key_street_type_object_id` (`street_type_object_id`),
-  KEY `key_street_object_id` (`street_object_id`),
-  KEY `key_district_object_id` (`district_object_id`),
-  KEY `key_external_id` (`external_id`),
-  KEY `key_street_external_id` (`street_external_id`),
-  KEY `key_name` (`name`),
-  KEY `key_part` (`part`),
-  KEY `key_date` (`date`),
-  KEY `key_status` (`status`),
-  CONSTRAINT `fk_building_address_sync__building_address` FOREIGN KEY (`object_id`) REFERENCES `building_address` (`object_id`),
-  CONSTRAINT `fk_building_address_sync__street_type` FOREIGN KEY (`street_type_object_id`) REFERENCES `street_type` (`object_id`),
-  CONSTRAINT `fk_building_address_sync__street` FOREIGN KEY (`street_object_id`) REFERENCES `street` (`object_id`),
-  CONSTRAINT `fk_building_address_sync__district` FOREIGN KEY (`district_object_id`) REFERENCES `district` (`object_id`)
- )ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT 'Синхронизация домов';
-
 
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
