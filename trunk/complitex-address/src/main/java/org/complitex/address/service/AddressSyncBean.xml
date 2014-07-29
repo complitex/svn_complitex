@@ -1,205 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.complitex.address.service.AddressSyncBean">
-    <resultMap id="abstractAddressSyncResultMap" type="org.complitex.address.entity.AbstractAddressSync">
+    <resultMap id="addressSyncResultMap" type="org.complitex.address.entity.AddressSync">
         <id column="id" property="id"/>
         <result column="object_id" property="objectId"/>
+        <result column="parent_object_id" property="parentObjectId"/>
         <result column="external_id" property="externalId"/>
+        <result column="additional_external_id" property="additionalExternalId"/>
         <result column="name" property="name"/>
+        <result column="additional_name" property="additionalName"/>
+        <result column="type" property="type"/>
+        <result column="status" property="status"/>
         <result column="date" property="date"/>
-        <result column="status" property="status" typeHandler="org.complitex.dictionary.mybatis.FixedIdBaseTypeHandler"/>
-    </resultMap>
-    
-    <resultMap id="districtSyncResultMap" type="org.complitex.address.entity.DistrictSync" 
-               extends="abstractAddressSyncResultMap">
-        <result column="city_object_id" property="cityObjectId"/>                
-    </resultMap>
-    
-    <resultMap id="streetTypeSyncResultMap" type="org.complitex.address.entity.StreetTypeSync"
-               extends="abstractAddressSyncResultMap">
-        <result column="short_name" property="shortName"/>        
-    </resultMap>
-    
-    <resultMap id="streetSyncResultMap" type="org.complitex.address.entity.StreetSync"
-               extends="abstractAddressSyncResultMap">
-        <result column="street_type_object_id" property="streetTypeObjectId"/>
-        <result column="city_object_id" property="cityObjectId"/>
-        <result column="street_type_object_id" property="streetTypeShortName"/>
     </resultMap>
 
-    <resultMap id="buildingAddressSyncResultMap" type="org.complitex.address.entity.BuildingAddressSync"
-               extends="abstractAddressSyncResultMap">
-        <result column="street_type_object_id" property="streetTypeObjectId"/>
-        <result column="street_object_id" property="streetObjectId"/>
-        <result column="district_object_id" property="districtObjectId"/>
-        <result column="street_external_id" property="streetExternalId"/>
-        <result column="part" property="part"/>
-    </resultMap>
-
-    <sql id="abstractAddressSyncFilter">
-        <if test="object.objectId != null">and `object_id` = #{object.objectId}</if>
-        <if test="object.externalId != null">and `external_id` = #{object.externalId}</if>
-        <if test="object.name != null">and `name` = #{object.name}</if>
-        <if test="object.date != null">and `date` = #{object.date}</if>
-        <if test="object.status != null">and `status` = #{object.status}</if>
-    </sql>
-
-    <sql id="abstractAddressSyncOrderLimit">
-        order by ${sortProperty} ${asc} <if test="count > 0">limit ${first},${count}</if>
-    </sql>
-
-    <!--District Sync-->
-
-    <insert id="insertDistrictSync" parameterType="org.complitex.address.entity.DistrictSync"
+    <insert id="insertAddressSync" parameterType="org.complitex.address.entity.AddressSync"
             useGeneratedKeys="true" keyProperty="id">
-        insert into `district_sync` (`object_id`, `external_id`, `name`, `date`, `status`, `city_object_id`)
-          values (#{objectId}, #{externalId}, #{name}, #{date}, #{status}, #{cityObjectId})
+        insert into `address_sync` (`object_id`, `parent_object_id`, `external_id`, `additional_external_id`, `name`, `additional_name`, `type`,
+          `status`, `date`)
+        values (#{objectId}, #{parentObjectId}, #{externalId}, #{additionalExternalId},  #{name}, #{additionalName},
+          #{type}, #{status}, #{date})
     </insert>
 
-    <delete id="deleteDistrictSync" parameterType="long">
-        delete from `district_sync` where `id` = #{id}
+    <delete id="deleteAddressSync" parameterType="long">
+        delete from `address_sync` where `id` = #{id}
     </delete>
 
-    <select id="selectDistrictSync" parameterType="long" resultMap="districtSyncResultMap">
-        select * from `district_sync` where `id` = #{id}
+    <select id="selectDistrictSync" parameterType="long" resultMap="addressSyncResultMap">
+        select * from `address_sync` where `id` = #{id}
     </select>
 
     <sql id="selectDistrictSyncWhere">
         <where>
-            <include refid="abstractAddressSyncFilter"/>
-            <if test="object.cityObjectId != null">and `city_object_id` = #{object.cityObjectId}</if>
+            <if test="object.objectId != null">and `object_id` = #{object.objectId}</if>
+            <if test="object.parentObjectId != null">and `parent_object_id` = #{object.parentObjectId}</if>
+            <if test="object.externalId != null">and `external_id` = #{object.externalId}</if>
+            <if test="object.additionalExternalId != null">and `additional_external_id` = #{object.additionalExternalId}</if>
+            <if test="object.name != null">and `name` = #{object.name}</if>
+            <if test="object.additionalName != null">and `additional_name` = #{object.additionalName}</if>
+            <if test="object.type != null">and `type` = #{object.type}</if>
+            <if test="object.status != null">and `status` = #{object.status}</if>
+            <if test="object.date != null">and `date` = #{object.date}</if>
         </where>
     </sql>
 
-    <select id="selectDistrictSyncList" parameterType="org.complitex.dictionary.entity.FilterWrapper"
-            resultMap="districtSyncResultMap">
-        select * from `district_sync`
-        <include refid="selectDistrictSyncWhere"/>
-        <include refid="abstractAddressSyncOrderLimit"/>
+    <select id="selectAddressSyncList" parameterType="org.complitex.dictionary.entity.FilterWrapper"
+            resultMap="addressSyncResultMap">
+        select * from `address_sync` <include refid="selectDistrictSyncWhere"/> ${orderLimit}
     </select>
 
-    <select id="selectDistrictSyncCount" parameterType="org.complitex.dictionary.entity.FilterWrapper"
-            resultType="long">
-        select count(1) from `district_sync`
-        <include refid="selectDistrictSyncWhere"/>
-    </select>
-
-    <!--Street Type Sync-->
-
-    <insert id="insertStreetTypeSync" parameterType="org.complitex.address.entity.StreetTypeSync"
-            useGeneratedKeys="true" keyProperty="id">
-        insert into `street_type_sync` (`object_id`, `external_id`, `name`, `date`, `status`, `short_name`)
-          values (#{objectId}, #{externalId}, #{name}, #{date}, #{status}, #{shortName})
-    </insert>
-
-    <delete id="deleteStreetTypeSync" parameterType="long">
-        delete from `street_type_sync` where `id` = #{id}
-    </delete>
-
-    <select id="selectStreetTypeSync" parameterType="long" resultMap="streetTypeSyncResultMap">
-        select * from `street_type_sync` where `id` = #{id}
-    </select>
-
-    <sql id="selectStreetTypeSyncWhere">
-        <where>
-            <include refid="abstractAddressSyncFilter"/>
-            <if test="object.shortName != null">and `short_name` = #{object.shortName}</if>
-        </where>
-    </sql>
-
-    <select id="selectStreetTypeSyncList" parameterType="org.complitex.dictionary.entity.FilterWrapper"
-            resultMap="streetTypeSyncResultMap">
-        select * from `street_type_sync`
-        <include refid="selectStreetTypeSyncWhere"/>
-        <include refid="abstractAddressSyncOrderLimit"/>
-    </select>
-
-    <select id="selectStreetTypeSyncCount" parameterType="org.complitex.dictionary.entity.FilterWrapper"
-            resultType="long">
-        select count(1) from `street_type_sync`
-        <include refid="selectStreetTypeSyncWhere"/>
-    </select>
-
-    <!--Street Sync-->
-
-    <insert id="insertStreetSync" parameterType="org.complitex.address.entity.StreetSync"
-            useGeneratedKeys="true" keyProperty="id">
-        insert into `street_sync` (`object_id`, `external_id`, `name`, `date`, `status`, `street_type_object_id`,
-          `city_object_id`, `street_type_object_id`)
-        values (#{objectId}, #{externalId}, #{name}, #{date}, #{status}, #{streetTypeObjectId}, #{cityObjectId},
-          #{streetTypeShortName})
-    </insert>
-
-    <delete id="deleteStreetSync" parameterType="long">
-        delete from `street_sync` where `id` = #{id}
-    </delete>
-
-    <select id="selectStreetSync" parameterType="long" resultMap="streetSyncResultMap">
-        select * from `street_sync` where `id` = #{id}
-    </select>
-
-    <sql id="selectStreetSyncWhere">
-        <where>
-            <include refid="abstractAddressSyncFilter"/>
-            <if test="object.streetTypeObjectId != null">and `street_type_object_id` = #{object.streetTypeObjectId}</if>
-            <if test="object.cityObjectId != null">and `city_object_id` = #{object.cityObjectId}</if>
-            <if test="object.streetTypeShortName != null">and `street_type_object_id` = #{object.streetTypeShortName}</if>
-        </where>
-    </sql>
-
-    <select id="selectStreetSyncList" parameterType="org.complitex.dictionary.entity.FilterWrapper"
-            resultMap="streetSyncResultMap">
-        select * from `street_sync`
-        <include refid="selectStreetSyncWhere"/>
-        <include refid="abstractAddressSyncOrderLimit"/>
-    </select>
-
-    <select id="selectStreetSyncCount" parameterType="org.complitex.dictionary.entity.FilterWrapper"
-            resultType="long">
-        select count(1) from `street_sync`
-        <include refid="selectStreetSyncWhere"/>
-    </select>
-
-    <!--Building Sync-->
-
-    <insert id="insertBuildingAddressSync" parameterType="org.complitex.address.entity.BuildingAddressSync"
-            useGeneratedKeys="true" keyProperty="id">
-        insert into `building_address_sync` (`object_id`, `external_id`, `name`, `date`, `status`,
-          `street_type_object_id`, `street_object_id`, `district_object_id`, `street_external_id`, `part`)
-        values (#{objectId}, #{externalId}, #{name}, #{date}, #{status}, #{streetTypeObjectId}, #{streetObjectId},
-          #{districtObjectId}, #{streetExternalId}, #{part})
-    </insert>
-
-    <delete id="deleteBuildingAddressSync" parameterType="long">
-        delete from `building_address_sync` where `id` = #{id}
-    </delete>
-
-    <select id="selectBuildingAddressSync" parameterType="long" resultMap="buildingAddressSyncResultMap">
-        select * from `building_address_sync` where `id` = #{id}
-    </select>
-
-    <sql id="selectBuildingAddressSyncWhere">
-        <where>
-            <include refid="abstractAddressSyncFilter"/>
-            <if test="object.streetTypeObjectId != null">and `street_type_object_id` = #{object.streetTypeObjectId}</if>
-            <if test="object.streetObjectId != null">and `street_object_id` = #{object.streetObjectId}</if>
-            <if test="object.districtObjectId != null">and `district_object_id` = #{object.districtObjectId}</if>
-            <if test="object.streetExternalId != null">and `street_external_id` = #{object.streetExternalId}</if>
-            <if test="object.part != null">and `part` = #{part}</if>
-        </where>
-    </sql>
-
-    <select id="selectBuildingAddressSyncList" parameterType="org.complitex.dictionary.entity.FilterWrapper"
-            resultMap="buildingAddressSyncResultMap">
-        select * from `building_address_sync`
-        <include refid="selectBuildingAddressSyncWhere"/>
-        <include refid="abstractAddressSyncOrderLimit"/>
-    </select>
-
-    <select id="selectBuildingAddressSyncCount" parameterType="org.complitex.dictionary.entity.FilterWrapper"
-            resultType="long">
-        select * from `building_address_sync`
-        <include refid="selectBuildingAddressSyncWhere"/>
+    <select id="selectAddressSyncCount" parameterType="org.complitex.dictionary.entity.FilterWrapper" resultType="long">
+        select count(1) from `address_sync` <include refid="selectDistrictSyncWhere"/>
     </select>
 </mapper>
 

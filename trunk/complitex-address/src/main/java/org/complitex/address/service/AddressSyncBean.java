@@ -1,6 +1,6 @@
 package org.complitex.address.service;
 
-import org.complitex.address.entity.AbstractAddressSync;
+import org.complitex.address.entity.AddressSync;
 import org.complitex.dictionary.entity.FilterWrapper;
 import org.complitex.dictionary.service.AbstractBean;
 
@@ -15,29 +15,29 @@ import java.util.List;
 public class AddressSyncBean extends AbstractBean {
     public final static String NS = AddressSyncBean.class.getName();
 
-    public <T extends AbstractAddressSync> void save(T addressSync){
+    public void save(AddressSync addressSync){
         if (addressSync.getId() == null){
-            sqlSession().insert(NS + ".insert" + addressSync.getClass().getSimpleName(), addressSync);
+            sqlSession().insert("insertAddressSync", addressSync);
         }
     }
 
-    public <T extends AbstractAddressSync> T getObject(Class<T> objectClass, Long id){
-        return sqlSession().selectOne(NS + ".select" + objectClass.getSimpleName(), id);
+    public AddressSync getObject(Long id){
+        return sqlSession().selectOne(NS + ".selectAddressSync", id);
     }
 
-    public <T extends AbstractAddressSync> List<T> getList(Class<T> objectClass, FilterWrapper<T> filterWrapper){
-        return sqlSession().selectList(NS + ".select" + objectClass.getSimpleName() + "List", filterWrapper);
+    public List<AddressSync> getList(FilterWrapper<AddressSync> filterWrapper){
+        return sqlSession().selectList(NS + ".selectAddressSyncList", filterWrapper);
     }
 
-    public <T extends AbstractAddressSync> Long getCount(Class<T> objectClass, FilterWrapper<T> filterWrapper){
-        return sqlSession().selectOne(NS + ".select"  + objectClass.getSimpleName() + "Count", filterWrapper);
+    public Long getCount(FilterWrapper<AddressSync> filterWrapper){
+        return sqlSession().selectOne(NS + ".selectAddressSyncCount", filterWrapper);
     }
 
-    public <T extends AbstractAddressSync> boolean isExist(T addressSync){
-        return (Long) sqlSession().selectOne(NS + ".select"  + addressSync.getClass().getSimpleName() + "Count", FilterWrapper.of(addressSync)) == 0;
+    public boolean isExist(AddressSync addressSync){
+        return getCount(FilterWrapper.of(addressSync)) == 0;
     }
 
-    public <T extends AbstractAddressSync> void delete(Class<T> objectClass, Long id){
-        sqlSession().delete(NS + ".delete" + objectClass.getSimpleName(), id);
+    public void delete(Long id){
+        sqlSession().delete(NS + ".deleteAddressSync", id);
     }
 }
