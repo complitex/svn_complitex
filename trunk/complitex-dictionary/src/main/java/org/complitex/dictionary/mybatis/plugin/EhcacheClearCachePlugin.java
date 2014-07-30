@@ -1,5 +1,6 @@
 package org.complitex.dictionary.mybatis.plugin;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
@@ -9,7 +10,6 @@ import org.apache.ibatis.plugin.Plugin;
 import org.apache.ibatis.plugin.Signature;
 import org.complitex.dictionary.mybatis.caches.EhcacheCache;
 import org.complitex.dictionary.mybatis.caches.EhcacheTableService;
-import org.complitex.dictionary.mybatis.plugin.util.ExcludeNamespacePlugin;
 
 import javax.ejb.EJB;
 import java.util.regex.Matcher;
@@ -39,8 +39,12 @@ public class EhcacheClearCachePlugin extends ExcludeNamespacePlugin {
         if (mscache == null || namespaces.contains(mscache.getId())) {
             return invocation.proceed();
         }
+        String environmentId = ms.getConfiguration().getEnvironment().getId();
+        if (!StringUtils.equals(environmentId, mscache.getEnvironmentId())) {
+            return invocation.proceed();
+        }
         Object parameterObject = invocation.getArgs()[PARAMETER_INDEX];
-        BoundSql boundSql = ms.getBoundSql(parameterObject);  // ms.getResource();
+        BoundSql boundSql = ms.getBoundSql(parameterObject);
         String tableName = getTableFromQuery(boundSql);
         if (tableName != null) {
 
