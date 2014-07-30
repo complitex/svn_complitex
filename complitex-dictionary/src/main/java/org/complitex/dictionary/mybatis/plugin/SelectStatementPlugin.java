@@ -14,7 +14,6 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.complitex.dictionary.mybatis.caches.EhcacheCache;
 import org.complitex.dictionary.mybatis.caches.EhcacheTableService;
-import org.complitex.dictionary.mybatis.plugin.util.ExcludeNamespacePlugin;
 import org.complitex.dictionary.util.EjbBeanLocator;
 
 import javax.ejb.EJB;
@@ -47,6 +46,9 @@ public class SelectStatementPlugin extends ExcludeNamespacePlugin {
         if (mscache == null || namespaces.contains(mscache.getId())) {
             return invocation.proceed();
         }
+
+        String environmentId = ms.getConfiguration().getEnvironment().getId();
+        mscache.setEnvironmentId(environmentId);
 
         Object parameterObject = invocation.getArgs()[PARAMETER_INDEX];
         RowBounds rowBounds = (RowBounds)invocation.getArgs()[ROW_BOUNDS_INDEX];

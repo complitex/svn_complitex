@@ -1,4 +1,4 @@
-package org.complitex.dictionary.mybatis.plugin.util;
+package org.complitex.dictionary.mybatis.plugin;
 
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
