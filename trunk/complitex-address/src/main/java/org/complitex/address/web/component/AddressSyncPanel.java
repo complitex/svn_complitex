@@ -17,10 +17,11 @@ import org.complitex.address.entity.AddressSyncStatus;
 import org.complitex.address.service.AddressSyncBean;
 import org.complitex.address.service.AddressSyncService;
 import org.complitex.address.service.IAddressSyncListener;
+import org.complitex.address.strategy.city.CityStrategy;
 import org.complitex.dictionary.entity.Cursor;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.FilterWrapper;
-import org.complitex.dictionary.util.ResourceUtil;
+import org.complitex.dictionary.util.EjbBeanLocator;
 import org.complitex.dictionary.web.component.datatable.Action;
 import org.complitex.dictionary.web.component.datatable.EnumColumn;
 import org.complitex.dictionary.web.component.datatable.FilteredDataTable;
@@ -171,17 +172,28 @@ public class AddressSyncPanel extends Panel {
                     private ThreadContext threadContext = ThreadContext.get(true);
 
                     @Override
-                    public void onBegin(DomainObject parent, Cursor<AddressSync> cursor) {
+                    public void onBegin(DomainObject parent, AddressEntity type, Cursor<AddressSync> cursor) {
                         ThreadContext.restore(threadContext);
-                        getSession().info(String.format(getString("object.onBegin"), parent));
+
+                        String name = "";
+                        int count = cursor.getList() != null ? cursor.getList().size() : 0;
+
+                        if (parent != null){
+                            if (type.equals(AddressEntity.DISTRICT)){
+                                name = EjbBeanLocator.getBean(CityStrategy.class).displayDomainObject(parent, getLocale());
+                            }
+                        }
+
+                        getSession().info(String.format(getString(type.name() + ".onBegin"), name, count));
                     }
 
                     @Override
                     public void onProcessed(AddressSync sync) {
-                        ThreadContext.restore(threadContext);
-                        getSession().info(String.format(getString(sync.getType().name() + ".onProcessed"),
-                                sync.getName(), ResourceUtil.getString(sync.getStatus().getClass().getName(),
-                                        sync.getStatus().name(), getLocale())));
+//                        todo add stats
+//                        ThreadContext.restore(threadContext);
+//                        getSession().info(String.format(getString(sync.getType().name() + ".onProcessed"),
+//                                sync.getName(), ResourceUtil.getString(sync.getStatus().getClass().getName(),
+//                                        sync.getStatus().name(), getLocale())));
                     }
 
                     @Override
@@ -191,9 +203,9 @@ public class AddressSyncPanel extends Panel {
                     }
 
                     @Override
-                    public void onDone() {
+                    public void onDone(AddressEntity type) {
                         ThreadContext.restore(threadContext);
-                        getSession().info(String.format(getString("object.onDone")));
+                        getSession().info(String.format(getString(type.name() + ".onDone")));
                     }
                 });
 

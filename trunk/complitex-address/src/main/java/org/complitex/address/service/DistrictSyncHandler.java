@@ -70,13 +70,6 @@ public class DistrictSyncHandler implements IAddressSyncHandler {
         return sync.getName().equals(districtStrategy.getName(object));
     }
 
-    @Override
-    public void onSave(AddressSync sync, DomainObject parent) {
-        sync.setParentObjectId(parent.getId());
-        sync.setType(AddressEntity.DISTRICT);
-    }
-
-
     public void insert(AddressSync sync, Locale locale){
         DomainObject domainObject = districtStrategy.newInstance();
         domainObject.setExternalId(sync.getExternalId());
