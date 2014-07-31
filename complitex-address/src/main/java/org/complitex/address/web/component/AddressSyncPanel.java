@@ -36,8 +36,8 @@ import java.util.Map;
  *         Date: 024 24.06.14 17:57
  */
 public class AddressSyncPanel extends Panel {
-    private final static String[] FIELDS = {"objectId", "parentObjectId", "externalId", "additionalExternalId",
-            "name", "additionalName", "type", "status", "date"};
+    private final static String[] FIELDS = {"name", "additionalName", "objectId", "parentObjectId", "externalId",
+            "additionalExternalId", "type", "status", "date"};
 
     @EJB
     private AddressSyncBean addressSyncBean;
@@ -134,6 +134,8 @@ public class AddressSyncPanel extends Panel {
 
         Map<String, IColumn<AddressSync, String>> columnMap = new HashMap<>();
 
+        columnMap.put("objectId", new AddressSyncObjectColumn(new ResourceModel("objectId"), getLocale()));
+        columnMap.put("parentObjectId", new AddressSyncParentColumn(new ResourceModel("parentObjectId"), getLocale()));
         columnMap.put("type", new EnumColumn<AddressSync, AddressEntity>(new ResourceModel("type"), "type", AddressEntity.class, getLocale()));
         columnMap.put("status", new EnumColumn<AddressSync, AddressSyncStatus>(new ResourceModel("status"), "status", AddressSyncStatus.class, getLocale()));
 
