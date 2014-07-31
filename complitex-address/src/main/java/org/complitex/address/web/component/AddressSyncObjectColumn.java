@@ -10,7 +10,12 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.complitex.address.entity.AddressEntity;
 import org.complitex.address.entity.AddressSync;
+import org.complitex.address.strategy.district.DistrictStrategy;
+import org.complitex.address.strategy.street_type.StreetTypeStrategy;
+import org.complitex.dictionary.entity.DictionaryObject;
+import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.strategy.IStrategy;
 import org.complitex.dictionary.strategy.StrategyFactory;
 import org.complitex.dictionary.util.EjbBeanLocator;
@@ -43,9 +48,16 @@ public class AddressSyncObjectColumn extends AbstractColumn<AddressSync, String>
         String objectName = "";
 
         if (addressSync.getObjectId() != null){
-            IStrategy strategy = EjbBeanLocator.getBean(StrategyFactory.class).getStrategy(addressSync.getType().getEntityTable());
+            if (addressSync.getType().equals(AddressEntity.STREET_TYPE)){
+                StreetTypeStrategy strategy = EjbBeanLocator.getBean(StreetTypeStrategy.class);
 
-            objectName = strategy.displayDomainObject(addressSync.getObjectId(), locale);
+                DomainObject domainObject = strategy.findById(addressSync.getObjectId(), true);
+                objectName = strategy.getName(domainObject) + " (" + strategy.getShortName(domainObject) + ")";
+            }else {
+                IStrategy strategy = EjbBeanLocator.getBean(StrategyFactory.class).getStrategy(addressSync.getType().getEntityTable());
+
+                objectName = strategy.displayDomainObject(addressSync.getObjectId(), locale);
+            }
         }
 
         cellItem.add(new Label(componentId, Model.of(objectName)));

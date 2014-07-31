@@ -24,8 +24,6 @@ public interface IAddressSyncHandler {
 
     boolean isEqualNames(AddressSync sync, DomainObject object);
 
-    void onSave(AddressSync sync, DomainObject parent);
-
     void insert(AddressSync sync, Locale locale);
 
     void update(AddressSync sync, Locale locale);

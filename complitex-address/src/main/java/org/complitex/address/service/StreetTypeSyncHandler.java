@@ -61,15 +61,6 @@ public class StreetTypeSyncHandler implements IAddressSyncHandler {
     }
 
     @Override
-    public void onSave(AddressSync sync, DomainObject parent) {
-        if (sync.getAdditionalName() == null){
-            sync.setAdditionalName("");
-        }
-
-        sync.setType(AddressEntity.STREET_TYPE);
-    }
-
-    @Override
     public void insert(AddressSync sync, Locale locale) {
         DomainObject domainObject = streetTypeStrategy.newInstance();
         domainObject.setExternalId(sync.getExternalId());

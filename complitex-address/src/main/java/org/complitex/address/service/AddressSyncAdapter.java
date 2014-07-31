@@ -49,15 +49,7 @@ public class AddressSyncAdapter extends AbstractBean {
 
         log.info("getDistrictSyncs: " + param);
 
-        List<AddressSync> list = (List<AddressSync>) param.get("out");
-
-        if (list != null){
-            for (AddressSync sync : list){
-                sync.setType(AddressEntity.DISTRICT);
-            }
-        }
-
-        return new Cursor<>((Integer)param.get("resultCode"), list);
+        return new Cursor<>((Integer)param.get("resultCode"), (List<AddressSync>) param.get("out"));
     }
 
     /**
@@ -80,15 +72,7 @@ public class AddressSyncAdapter extends AbstractBean {
 
         log.info("getStreetTypeSyncs: " + param);
 
-        List<AddressSync> list = (List<AddressSync>) param.get("out");
-
-        if (list != null){
-            for (AddressSync sync : list){
-                sync.setType(AddressEntity.STREET_TYPE);
-            }
-        }
-
-        return new Cursor<>((Integer)param.get("resultCode"), list);
+        return new Cursor<>((Integer)param.get("resultCode"), (List<AddressSync>) param.get("out"));
     }
 
     /**

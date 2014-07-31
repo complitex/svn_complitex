@@ -33,6 +33,11 @@ public class FilteredDataProvider<T extends Serializable> extends SortableDataPr
         filterWrapper.setFirst(first);
         filterWrapper.setCount(count);
 
+        if (getSort() != null) {
+            filterWrapper.setAscending(getSort().isAscending());
+            filterWrapper.setSortProperty(getSort().getProperty());
+        }
+
         return filterBean.getList(filterWrapper).iterator();
     }
 

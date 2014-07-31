@@ -38,8 +38,8 @@ public class AddressSyncService {
 
     @Asynchronous
     public void syncAll(IAddressSyncListener listener){
-        sync(listener, EjbBeanLocator.getBean(DistrictSyncHandler.class));
-        sync(listener, EjbBeanLocator.getBean(StreetTypeSyncHandler.class));
+        sync(listener, AddressEntity.DISTRICT);
+        sync(listener, AddressEntity.STREET_TYPE);
     }
 
     private IAddressSyncHandler getHandler(AddressEntity type){
@@ -66,7 +66,7 @@ public class AddressSyncService {
         getHandler(sync.getType()).archive(sync);
     }
 
-    private void sync(IAddressSyncListener listener, IAddressSyncHandler handler){
+    private void sync(IAddressSyncListener listener, AddressEntity type){
         if (lockSync.get()){
             return;
         }
@@ -75,14 +75,14 @@ public class AddressSyncService {
             //lock sync
             lockSync.set(true);
 
-            List<? extends DomainObject> parents = handler.getParentObjects();
+            List<? extends DomainObject> parents = getHandler(type).getParentObjects();
 
             if (parents != null){
                 for (DomainObject parent : parents) {
-                    sync(parent, handler, listener);
+                    sync(parent, type, listener);
                 }
             }else{
-                sync(null, handler, listener);
+                sync(null, type, listener);
             }
         } catch (Exception e) {
             log.error("Ошибка синхронизации", e);
@@ -94,16 +94,18 @@ public class AddressSyncService {
             //unlock sync
             lockSync.set(false);
 
-            listener.onDone();
+            listener.onDone(type);
         }
     }
 
-    private void sync(DomainObject parent, IAddressSyncHandler handler, IAddressSyncListener listener){
+    private void sync(DomainObject parent,  AddressEntity type, IAddressSyncListener listener){
+        IAddressSyncHandler handler = getHandler(type);
+
         Date date = DateUtil.getCurrentDate();
 
         Cursor<AddressSync> cursor = handler.getAddressSyncs(parent, date);
 
-        listener.onBegin(parent, cursor);
+        listener.onBegin(parent, type, cursor);
 
         if (cursor.getList() == null) {
             return;
@@ -112,9 +114,15 @@ public class AddressSyncService {
         List<? extends DomainObject> objects = handler.getObjects(parent);
 
         for (AddressSync sync : cursor.getList()) {
+            if (parent != null){
+                sync.setParentObjectId(parent.getId());
+            }
+            sync.setType(type);
+
             for (DomainObject object : objects) {
                 //все норм
                 if (sync.getExternalId().equals(object.getExternalId()) && handler.isEqualNames(sync, object)) {
+                    sync.setObjectId(object.getId());
                     sync.setStatus(AddressSyncStatus.LOCAL);
 
                     break;
@@ -125,11 +133,8 @@ public class AddressSyncService {
                     sync.setObjectId(object.getId());
                     sync.setStatus(AddressSyncStatus.NEW_NAME);
 
-                    handler.onSave(sync, parent);
-
                     if (addressSyncBean.isExist(sync)) {
                         sync.setDate(date);
-
                         addressSyncBean.save(sync);
                     }
 
@@ -141,11 +146,8 @@ public class AddressSyncService {
                     sync.setObjectId(object.getId());
                     sync.setStatus(AddressSyncStatus.DUPLICATE);
 
-                    handler.onSave(sync, parent);
-
                     if (addressSyncBean.isExist(sync)) {
                         sync.setDate(date);
-
                         addressSyncBean.save(sync);
                     }
 
@@ -156,8 +158,6 @@ public class AddressSyncService {
             //новый
             if (sync.getStatus() == null) {
                 sync.setStatus(AddressSyncStatus.NEW);
-
-                handler.onSave(sync, parent);
 
                 if (addressSyncBean.isExist(sync)) {
                     sync.setDate(date);
@@ -188,13 +188,15 @@ public class AddressSyncService {
             if (archive) {
                 AddressSync s = new AddressSync();
 
+                if (parent != null){
+                    s.setParentObjectId(parent.getId());
+                }
+
                 s.setObjectId(object.getId());
                 s.setExternalId(object.getExternalId());
                 s.setName("");
-                s.setDate(date);
+                s.setType(type);
                 s.setStatus(AddressSyncStatus.ARCHIVAL);
-
-                handler.onSave(s, parent);
 
                 if (addressSyncBean.isExist(s)) {
                     s.setDate(date);
