@@ -1,6 +1,5 @@
 package org.complitex.dictionary.mybatis.plugin;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
@@ -9,9 +8,7 @@ import org.apache.ibatis.plugin.Invocation;
 import org.apache.ibatis.plugin.Plugin;
 import org.apache.ibatis.plugin.Signature;
 import org.complitex.dictionary.mybatis.caches.EhcacheCache;
-import org.complitex.dictionary.mybatis.caches.EhcacheTableService;
 
-import javax.ejb.EJB;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,26 +26,19 @@ public class EhcacheClearCachePlugin extends ExcludeNamespacePlugin {
 
     private final static Pattern PATTERN = Pattern.compile("(?i)(insert\\s+into|update|delete\\s+from)\\s+['|`|\"]?(?<table>\\w+)\\W+");
 
-    @EJB
-    private EhcacheTableService ehcacheTableService;
-
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
         MappedStatement ms = (MappedStatement)invocation.getArgs()[MAPPED_STATEMENT_INDEX];
         EhcacheCache mscache = (EhcacheCache)ms.getCache();
-        if (mscache == null || namespaces.contains(mscache.getId())) {
-            return invocation.proceed();
-        }
-        String environmentId = ms.getConfiguration().getEnvironment().getId();
-        if (!StringUtils.equals(environmentId, mscache.getEnvironmentId())) {
+        if (mscache == null || !ms.isFlushCacheRequired() || namespaces.contains(mscache.getId())) {
             return invocation.proceed();
         }
         Object parameterObject = invocation.getArgs()[PARAMETER_INDEX];
         BoundSql boundSql = ms.getBoundSql(parameterObject);
         String tableName = getTableFromQuery(boundSql);
         if (tableName != null) {
-
-            mscache.addTable(tableName);
+            String environmentId = ms.getConfiguration().getEnvironment().getId();
+            mscache.addDependTableForClear(environmentId + "." + tableName);
         }
         return invocation.proceed();
     }

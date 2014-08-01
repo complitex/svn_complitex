@@ -1,11 +1,9 @@
 package org.complitex.dictionary.mybatis.caches;
 
+import com.google.common.collect.Sets;
 import org.apache.ibatis.cache.Cache;
-import org.complitex.dictionary.util.EjbBeanLocator;
 
-import java.util.Collections;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 
@@ -19,8 +17,7 @@ public class EhcacheCache implements Cache {
     private org.mybatis.caches.ehcache.EhcacheCache ehcacheCache;
 
     private String id;
-    private String environmentId;
-    private Set<String> tableNames = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+    private Set<String> dependTableNames = Sets.newHashSet();
     
     /**
      * @param id
@@ -61,10 +58,10 @@ public class EhcacheCache implements Cache {
 
     @Override
     public void clear() {
-        EhcacheTableService ehcacheTableService = EjbBeanLocator.getBean(EhcacheTableService.class);
-        for (String tableName : tableNames) {
-            ehcacheTableService.clearCache(tableName);
+        for (String tableName : dependTableNames) {
+            EhcacheTableUtil.clearCache(tableName);
         }
+        dependTableNames.clear();
         ehcacheCache.clear();
     }
 
@@ -73,15 +70,9 @@ public class EhcacheCache implements Cache {
         return ehcacheCache.getReadWriteLock();
     }
 
-    public void addTable(String tableName) {
-        tableNames.add(tableName);
-    }
-
-    public String getEnvironmentId() {
-        return environmentId;
-    }
-
-    public void setEnvironmentId(String environmentId) {
-        this.environmentId = environmentId;
+    public void addDependTableForClear(String tableName) {
+        getReadWriteLock().writeLock().lock();
+        dependTableNames.add(tableName);
+        getReadWriteLock().writeLock().unlock();
     }
 }
