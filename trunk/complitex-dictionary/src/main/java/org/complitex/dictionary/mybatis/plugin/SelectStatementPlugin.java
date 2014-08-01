@@ -13,10 +13,8 @@ import org.apache.ibatis.plugin.Signature;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.complitex.dictionary.mybatis.caches.EhcacheCache;
-import org.complitex.dictionary.mybatis.caches.EhcacheTableService;
-import org.complitex.dictionary.util.EjbBeanLocator;
+import org.complitex.dictionary.mybatis.caches.EhcacheTableUtil;
 
-import javax.ejb.EJB;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,9 +33,6 @@ public class SelectStatementPlugin extends ExcludeNamespacePlugin {
 
     private final static Pattern PATTERN = Pattern.compile("(?i)(from|join)\\s+['|`|\"]?(?<table>\\w+)\\W+");
 
-    @EJB
-    private EhcacheTableService ehcacheTableService;
-
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
         MappedStatement ms = (MappedStatement)invocation.getArgs()[MAPPED_STATEMENT_INDEX];
@@ -46,9 +41,6 @@ public class SelectStatementPlugin extends ExcludeNamespacePlugin {
         if (mscache == null || namespaces.contains(mscache.getId())) {
             return invocation.proceed();
         }
-
-        String environmentId = ms.getConfiguration().getEnvironment().getId();
-        mscache.setEnvironmentId(environmentId);
 
         Object parameterObject = invocation.getArgs()[PARAMETER_INDEX];
         RowBounds rowBounds = (RowBounds)invocation.getArgs()[ROW_BOUNDS_INDEX];
@@ -69,23 +61,22 @@ public class SelectStatementPlugin extends ExcludeNamespacePlugin {
             return invocation.proceed();
         }
 
-        List<String> tables = getTablesFromQuery(boundSql);
+        String environmentId = ms.getConfiguration().getEnvironment().getId();
+        List<String> tables = getTablesFromQuery(environmentId, boundSql);
 
         if (!tables.isEmpty()) {
-            EhcacheTableService ehcacheTableService = EjbBeanLocator.getBean(EhcacheTableService.class);
-
-            ehcacheTableService.addCaches(tables, mscache.getInnerId(), cacheKey);
+            EhcacheTableUtil.addCaches(tables, mscache.getInnerId(), cacheKey);
         }
 
         return invocation.proceed();
     }
 
-    private List<String> getTablesFromQuery(BoundSql boundSql) {
+    private List<String> getTablesFromQuery(String prefix, BoundSql boundSql) {
         Matcher matcher = PATTERN.matcher(boundSql.getSql());
         int idx = 0;
         List<String> result = Lists.newArrayList();
         while (matcher.find(idx)) {
-            result.add(matcher.group("table"));
+            result.add(prefix + "." + matcher.group("table"));
             idx = matcher.end();
         }
         return result;
