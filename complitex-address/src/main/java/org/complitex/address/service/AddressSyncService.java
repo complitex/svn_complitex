@@ -40,6 +40,8 @@ public class AddressSyncService {
     public void syncAll(IAddressSyncListener listener){
         sync(listener, AddressEntity.DISTRICT);
         sync(listener, AddressEntity.STREET_TYPE);
+        sync(listener, AddressEntity.STREET);
+        sync(listener, AddressEntity.BUILDING);
     }
 
     private IAddressSyncHandler getHandler(AddressEntity type){
@@ -48,6 +50,10 @@ public class AddressSyncService {
                 return EjbBeanLocator.getBean(DistrictSyncHandler.class);
             case STREET_TYPE:
                 return EjbBeanLocator.getBean(StreetTypeSyncHandler.class);
+            case STREET:
+                return EjbBeanLocator.getBean(StreetSyncHandler.class);
+            case BUILDING:
+                return EjbBeanLocator.getBean(BuildingSyncHandler.class);
 
             default:
                 throw new IllegalArgumentException();

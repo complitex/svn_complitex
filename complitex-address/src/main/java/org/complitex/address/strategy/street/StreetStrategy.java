@@ -7,6 +7,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.util.string.Strings;
 import org.complitex.address.resource.CommonResources;
 import org.complitex.address.strategy.street.web.edit.StreetTypeComponent;
+import org.complitex.address.strategy.street_type.StreetTypeStrategy;
 import org.complitex.dictionary.entity.Attribute;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.AttributeExample;
@@ -48,14 +49,19 @@ import static org.complitex.dictionary.util.StringUtil.toCyrillic;
  */
 @Stateless
 public class StreetStrategy extends TemplateStrategy {
-
     private static final String NS = StreetStrategy.class.getPackage().getName() + ".Street";
+
     @EJB
     private StringCultureBean stringBean;
+
     @EJB
     private StrategyFactory strategyFactory;
+
     @EJB
     private LocaleBean localeBean;
+
+    @EJB
+    private StreetTypeStrategy streetTypeStrategy;
 
     /*
      * Attribute type ids
@@ -110,14 +116,26 @@ public class StreetStrategy extends TemplateStrategy {
     @Override
     public String displayDomainObject(DomainObject object, Locale locale) {
         String streetName = getName(object, locale);
-        Long streetTypeId = getStreetType(object);
+        String streetTypeName = getStreetTypeShortName(object, locale);
+
+        return streetTypeName != null ? streetTypeName + " " + streetName : streetName;
+
+    }
+
+    public String getStreetTypeShortName(DomainObject domainObject, Locale locale){
+        Long streetTypeId = getStreetType(domainObject);
+
         if (streetTypeId != null) {
-            IStrategy streetTypeStrategy = strategyFactory.getStrategy("street_type");
             DomainObject streetType = streetTypeStrategy.findById(streetTypeId, true);
-            String streetTypeName = streetTypeStrategy.displayDomainObject(streetType, locale);
-            return streetTypeName + " " + streetName;
+
+            return streetTypeStrategy.getShortName(streetType, locale);
         }
-        return streetName;
+
+        return null;
+    }
+
+    public String getStreetTypeShortName(DomainObject domainObject){
+        return getStreetTypeShortName(domainObject, localeBean.getSystemLocale());
     }
 
     @Override
@@ -261,10 +279,12 @@ public class StreetStrategy extends TemplateStrategy {
 
     public String getName(Long streetId) {
         DomainObject streetObject = findById(streetId, true);
-        if (streetObject != null) {
-            return getName(streetObject, localeBean.getSystemLocale());
-        }
-        return null;
+
+        return streetObject != null ? getName(streetObject) : null;
+    }
+
+    public String getName(DomainObject streetObject){
+        return getName(streetObject, localeBean.getSystemLocale());
     }
 
     public String getName(DomainObject street, Locale locale) {

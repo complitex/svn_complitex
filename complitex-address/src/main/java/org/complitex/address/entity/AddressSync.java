@@ -1,5 +1,6 @@
 package org.complitex.address.entity;
 
+import com.google.common.base.Objects;
 import org.complitex.dictionary.entity.ILongId;
 
 import java.util.Date;
@@ -98,5 +99,21 @@ public class AddressSync implements ILongId {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).omitNullValues()
+                .add("id", id)
+                .add("objectId", objectId)
+                .add("parentObjectId", parentObjectId)
+                .add("externalId", externalId)
+                .add("additionalExternalId", additionalExternalId)
+                .add("name", name)
+                .add("additionalName", additionalName)
+                .add("type", type)
+                .add("status", status)
+                .add("date", date)
+                .toString();
     }
 }
