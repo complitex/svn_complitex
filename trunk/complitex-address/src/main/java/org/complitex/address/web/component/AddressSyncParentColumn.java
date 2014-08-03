@@ -13,8 +13,7 @@ import org.apache.wicket.model.Model;
 import org.complitex.address.entity.AddressEntity;
 import org.complitex.address.entity.AddressSync;
 import org.complitex.address.strategy.city.CityStrategy;
-import org.complitex.dictionary.strategy.IStrategy;
-import org.complitex.dictionary.strategy.StrategyFactory;
+import org.complitex.address.strategy.street.StreetStrategy;
 import org.complitex.dictionary.util.EjbBeanLocator;
 
 import java.util.Locale;
@@ -45,8 +44,12 @@ public class AddressSyncParentColumn extends AbstractColumn<AddressSync, String>
         String objectName = "";
 
         if (addressSync.getParentObjectId() != null){
-            if (addressSync.getType().equals(AddressEntity.DISTRICT)){
+            if (addressSync.getType().equals(AddressEntity.DISTRICT) || addressSync.getType().equals(AddressEntity.STREET)){
                 objectName = EjbBeanLocator.getBean(CityStrategy.class).displayDomainObject(addressSync.getParentObjectId(), locale);
+            }else if (addressSync.getType().equals(AddressEntity.BUILDING) ){
+                objectName = EjbBeanLocator.getBean(StreetStrategy.class).displayDomainObject(addressSync.getParentObjectId(), locale);
+            }else {
+                objectName = addressSync.getParentObjectId() + "";
             }
         }
 

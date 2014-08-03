@@ -18,13 +18,17 @@ import org.complitex.address.service.AddressSyncBean;
 import org.complitex.address.service.AddressSyncService;
 import org.complitex.address.service.IAddressSyncListener;
 import org.complitex.address.strategy.city.CityStrategy;
+import org.complitex.address.strategy.street.StreetStrategy;
 import org.complitex.dictionary.entity.Cursor;
 import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.FilterWrapper;
 import org.complitex.dictionary.util.EjbBeanLocator;
+import org.complitex.dictionary.util.ExceptionUtil;
 import org.complitex.dictionary.web.component.datatable.Action;
 import org.complitex.dictionary.web.component.datatable.EnumColumn;
 import org.complitex.dictionary.web.component.datatable.FilteredDataTable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import java.util.ArrayList;
@@ -37,6 +41,8 @@ import java.util.Map;
  *         Date: 024 24.06.14 17:57
  */
 public class AddressSyncPanel extends Panel {
+    private Logger log = LoggerFactory.getLogger(AddressSyncPanel.class);
+
     private final static String[] FIELDS = {"name", "additionalName", "objectId", "parentObjectId", "externalId",
             "additionalExternalId", "type", "status", "date"};
 
@@ -56,10 +62,17 @@ public class AddressSyncPanel extends Panel {
         actions.add(new Action<AddressSync>("add", "object.add") {
             @Override
             public void onAction(AjaxRequestTarget target, IModel<AddressSync> model) {
-                addressSyncService.insert(model.getObject(), getLocale());
+                try {
+                    addressSyncService.insert(model.getObject(), getLocale());
 
-                getSession().info(String.format(getString(model.getObject().getType().name() + ".added"),
-                        model.getObject().getName()));
+                    getSession().info(String.format(getString(model.getObject().getType().name() + ".added"),
+                            model.getObject().getName()));
+                } catch (Exception e) {
+                    log.error(e.getMessage(), e);
+
+                    getSession().error(ExceptionUtil.getCauseMessage(e, true));
+                }
+
                 target.add(AddressSyncPanel.this, toUpdate);
             }
 
@@ -179,8 +192,10 @@ public class AddressSyncPanel extends Panel {
                         int count = cursor.getList() != null ? cursor.getList().size() : 0;
 
                         if (parent != null){
-                            if (type.equals(AddressEntity.DISTRICT)){
+                            if (type.equals(AddressEntity.DISTRICT) || type.equals(AddressEntity.STREET)){
                                 name = EjbBeanLocator.getBean(CityStrategy.class).displayDomainObject(parent, getLocale());
+                            }else if (type.equals(AddressEntity.BUILDING)){
+                                name = EjbBeanLocator.getBean(StreetStrategy.class).displayDomainObject(parent, getLocale());
                             }
                         }
 

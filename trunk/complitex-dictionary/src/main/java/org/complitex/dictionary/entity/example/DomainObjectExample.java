@@ -49,6 +49,13 @@ public class DomainObjectExample implements Serializable {
         return this;
     }
 
+    public DomainObjectExample addAttribute(Long attributeTypeId, String value){
+        attributeExamples.add(new AttributeExample(attributeTypeId, value));
+
+        return this;
+    }
+
+
     public DomainObjectExample(ComparisonType comparisonType) {
         this.comparisonType = comparisonType.name();
     }
@@ -158,11 +165,13 @@ public class DomainObjectExample implements Serializable {
         this.additionalParams = additionalParams;
     }
 
-    public void addAdditionalParam(String key, Object value) {
+    public DomainObjectExample addAdditionalParam(String key, Object value) {
         if (additionalParams == null) {
             additionalParams = Maps.newHashMap();
         }
         additionalParams.put(key, value);
+
+        return this;
     }
 
     public <T> T getAdditionalParam(String key) {
