@@ -127,10 +127,24 @@
 
     <select id="find" resultMap="org.complitex.dictionary.entity.DomainObject.DomainObject" parameterType="DomainObjectExample">
         SELECT e.*
-        FROM `${table}` e WHERE
+        FROM `building_address` e
+        <if test="additionalParams.districtId != null">
+            left join `building_attribute` ba on (ba.`status` = 'ACTIVE' and ba.`attribute_type_id` = 501
+              and ba.`value_id` = e.`object_id`)
+            left join `building` b on (b.`object_id` = ba.`object_id`)
+            left join `building_attribute` d on (d.`status` = 'ACTIVE' and d.`attribute_type_id` = 500)
+        </if>
+
+        WHERE
+
         <include refid="org.complitex.dictionary.entity.DomainObject.statusFilter"/>
         <include refid="org.complitex.dictionary.entity.DomainObject.permissionFilter"/>
         <include refid="org.complitex.dictionary.entity.DomainObject.filter"/>
+
+        <if test="additionalParams.districtId != null">
+            and ba.`value_id` = e.`object_id` and d.`value_id` = #{additionalParams.districtId}
+        </if>
+
         <include refid="org.complitex.address.strategy.building_address.BuildingAddress.orderBy"/>
         <include refid="org.complitex.dictionary.entity.DomainObject.limit"/>
     </select>

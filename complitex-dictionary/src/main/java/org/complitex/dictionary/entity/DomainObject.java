@@ -78,6 +78,10 @@ public class DomainObject implements Serializable {
         }
     }
 
+    public String getStringValue(Long attributeTypeId){
+        return getAttribute(attributeTypeId).getStringValue();
+    }
+
     public void setStringValue(Long attributeTypeId, String value, Locale locale){
         getAttribute(attributeTypeId).setStringValue(value, Locales.getLocaleId(locale));
     }

@@ -9,10 +9,7 @@ import org.complitex.address.strategy.building.entity.Building;
 import org.complitex.address.strategy.building_address.BuildingAddressStrategy;
 import org.complitex.address.strategy.district.DistrictStrategy;
 import org.complitex.address.strategy.street.StreetStrategy;
-import org.complitex.dictionary.entity.Attribute;
-import org.complitex.dictionary.entity.Cursor;
-import org.complitex.dictionary.entity.DictionaryConfig;
-import org.complitex.dictionary.entity.DomainObject;
+import org.complitex.dictionary.entity.*;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.service.ConfigBean;
 import org.complitex.dictionary.service.LocaleBean;
@@ -23,6 +20,11 @@ import org.complitex.dictionary.util.CloneUtil;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.util.*;
+import java.util.Locale;
+
+import static org.complitex.address.strategy.building_address.BuildingAddressStrategy.CORP;
+import static org.complitex.address.strategy.building_address.BuildingAddressStrategy.DISTRICT_ID;
+import static org.complitex.address.strategy.building_address.BuildingAddressStrategy.NUMBER;
 
 /**
  * @author Anatoly Ivanov
@@ -48,55 +50,54 @@ public class BuildingSyncHandler implements IAddressSyncHandler {
     @EJB
     private BuildingStrategy buildingStrategy;
 
+    @EJB
+    private BuildingAddressStrategy buildingAddressStrategy;
+
     @Override
     public Cursor<AddressSync> getAddressSyncs(final DomainObject parent, Date date) {
-        List<? extends DomainObject> domainObjects = districtStrategy.find(new DomainObjectExample()
-                .setParent("city", parent.getParentId()));
-
-        for (DomainObject domainObject : domainObjects){
-            Cursor<AddressSync> cursor = addressSyncAdapter.getBuildingSyncs(
+            return addressSyncAdapter.getBuildingSyncs(
                     configBean.getString(DictionaryConfig.SYNC_DATA_SOURCE),
-                    districtStrategy.getName(domainObject),
-                    streetStrategy.getStreetTypeShortName(parent),
-                    streetStrategy.getName(parent),
-                    date);
-
-            if (cursor.getList() != null){
-                return new Cursor<>(cursor.getResultCode(), new ArrayList<>(Collections2.filter(cursor.getList(),
-                        new Predicate<AddressSync>() {
-                            @Override
-                            public boolean apply(AddressSync sync) {
-                                return sync.getAdditionalExternalId().equals(parent.getExternalId());
-                            }
-                        })));
-            }
-        }
-
-        return new Cursor<>(null, null);
+                    districtStrategy.getName(parent),
+                    "", "", date);
     }
 
     @Override
     public List<? extends DomainObject> getObjects(DomainObject parent) {
-        return buildingStrategy.find(new DomainObjectExample().addAdditionalParam(BuildingStrategy.STREET, parent.getId()));
+        return buildingAddressStrategy.find(new DomainObjectExample().addAdditionalParam(DISTRICT_ID, parent.getId()));
     }
 
     @Override
     public List<? extends DomainObject> getParentObjects() {
-        return streetStrategy.find(new DomainObjectExample());
+        return districtStrategy.find(new DomainObjectExample());
     }
 
     @Override
     public boolean isEqualNames(AddressSync sync, DomainObject object) {
-        Building building = (Building) object;
+        DomainObject streetObject = streetStrategy.findById(object.getParentId(), true);
 
-        return sync.getName().equals(building.getAccompaniedNumber(Locales.getSystemLocale()))
-                && Objects.equals(sync.getAdditionalName(), building.getAccompaniedCorp(Locales.getSystemLocale()));
+        return sync.getName().equals(object.getStringValue(NUMBER))
+                && Objects.equals(sync.getAdditionalName(), object.getStringValue(CORP))
+                && streetObject.getExternalId().equals(sync.getAdditionalExternalId());
+    }
+
+    @Override
+    public Long getParentId(AddressSync sync, DomainObject parent) {
+        Long objectId = streetStrategy.getObjectId(sync.getAdditionalExternalId());
+
+        if (objectId != null){
+            DomainObject streetObject = streetStrategy.findById(objectId, true);
+
+            if (streetObject != null){
+                return streetObject.getId();
+            }
+        }
+
+        return NOT_FOUND_ID;
     }
 
     @Override
     public void insert(AddressSync sync, Locale locale) {
         Building building = buildingStrategy.newInstance();
-        building.setExternalId(sync.getExternalId());
 
         DomainObject buildingAddress = building.getPrimaryAddress();
 
@@ -105,11 +106,11 @@ public class BuildingSyncHandler implements IAddressSyncHandler {
         buildingAddress.setParentId(sync.getParentObjectId());
 
         //building number
-        buildingAddress.setStringValue(BuildingAddressStrategy.NUMBER, sync.getName(), locale);
+        buildingAddress.setStringValue(NUMBER, sync.getName(), locale);
 
         //building part
         if (sync.getAdditionalName() != null) {
-            buildingAddress.setStringValue(BuildingAddressStrategy.CORP, sync.getAdditionalName(), locale);
+            buildingAddress.setStringValue(CORP, sync.getAdditionalName(), locale);
         }
 
         buildingStrategy.insert(building, sync.getDate());
@@ -118,17 +119,15 @@ public class BuildingSyncHandler implements IAddressSyncHandler {
 
     @Override
     public void update(AddressSync sync, Locale locale) {
-        Building oldObject = buildingStrategy.findById(sync.getObjectId(), true);
-        Building newObject = CloneUtil.cloneObject(oldObject);
-
-        DomainObject buildingAddress = newObject.getPrimaryAddress();
+        DomainObject oldObject = buildingAddressStrategy.findById(sync.getObjectId(), true);
+        DomainObject newObject = CloneUtil.cloneObject(oldObject);
 
         //building number
-        buildingAddress.setStringValue(BuildingAddressStrategy.NUMBER, sync.getName(), locale);
+        newObject.setStringValue(NUMBER, sync.getName(), locale);
 
         //building part
         if (sync.getAdditionalName() != null) {
-            buildingAddress.setStringValue(BuildingAddressStrategy.CORP, sync.getAdditionalName(), locale);
+            newObject.setStringValue(CORP, sync.getAdditionalName(), locale);
         }
 
         buildingStrategy.update(oldObject, newObject, sync.getDate());

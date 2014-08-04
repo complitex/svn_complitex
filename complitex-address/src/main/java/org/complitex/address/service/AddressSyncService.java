@@ -21,6 +21,7 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static javax.ejb.ConcurrencyManagementType.BEAN;
+import static org.complitex.address.service.IAddressSyncHandler.NOT_FOUND_ID;
 
 /**
  * @author Anatoly Ivanov
@@ -127,9 +128,13 @@ public class AddressSyncService {
         List<? extends DomainObject> objects = handler.getObjects(parent);
 
         for (AddressSync sync : cursor.getList()) {
-            if (parent != null){
-                sync.setParentObjectId(parent.getId());
+            Long parentId = handler.getParentId(sync, parent);
+
+            if (NOT_FOUND_ID.equals(parentId)){
+                continue;
             }
+
+            sync.setParentObjectId(parentId);
             sync.setType(type);
 
             for (DomainObject object : objects) {

@@ -18,6 +18,7 @@ import org.complitex.address.service.AddressSyncBean;
 import org.complitex.address.service.AddressSyncService;
 import org.complitex.address.service.IAddressSyncListener;
 import org.complitex.address.strategy.city.CityStrategy;
+import org.complitex.address.strategy.district.DistrictStrategy;
 import org.complitex.address.strategy.street.StreetStrategy;
 import org.complitex.dictionary.entity.Cursor;
 import org.complitex.dictionary.entity.DomainObject;
@@ -195,7 +196,7 @@ public class AddressSyncPanel extends Panel {
                             if (type.equals(AddressEntity.DISTRICT) || type.equals(AddressEntity.STREET)){
                                 name = EjbBeanLocator.getBean(CityStrategy.class).displayDomainObject(parent, getLocale());
                             }else if (type.equals(AddressEntity.BUILDING)){
-                                name = EjbBeanLocator.getBean(StreetStrategy.class).displayDomainObject(parent, getLocale());
+                                name = EjbBeanLocator.getBean(DistrictStrategy.class).displayDomainObject(parent, getLocale());
                             }
                         }
 

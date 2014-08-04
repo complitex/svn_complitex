@@ -85,6 +85,7 @@ public class BuildingStrategy extends TemplateStrategy {
     public static final String STRUCTURE = "structure";
     public static final String STREET = "street";
     private static final String CITY = "city";
+
     public static final long PARENT_ENTITY_ID = 1500L;
     @EJB
     private StringCultureBean stringBean;
@@ -103,7 +104,6 @@ public class BuildingStrategy extends TemplateStrategy {
     }
 
     @Override
-    @Transactional
     public List<Building> find(DomainObjectExample example) {
         if (example.getId() != null && example.getId() <= 0) {
             return Collections.emptyList();
@@ -111,11 +111,13 @@ public class BuildingStrategy extends TemplateStrategy {
 
         example.setTable(getEntityTable());
         prepareExampleForPermissionCheck(example);
+
         List<Building> buildings = Lists.newArrayList();
 
         if (example.getId() != null) {
             boolean buildingFound = false;
             Building building = findById(example.getId(), false);
+
             if (building != null) {
                 buildingFound = true;
                 Long streetId = example.getAdditionalParam(STREET);
@@ -141,8 +143,8 @@ public class BuildingStrategy extends TemplateStrategy {
                 buildings.add(building);
             }
         } else {
-            DomainObjectExample addressExample = createAddressExample(example);
-            List<? extends DomainObject> addresses = buildingAddressStrategy.find(addressExample);
+            List<? extends DomainObject> addresses = buildingAddressStrategy.find(createAddressExample(example));
+
             for (DomainObject address : addresses) {
                 example.addAdditionalParam("buildingAddressId", address.getId());
                 List<Building> result = sqlSession().selectList(NS + "." + FIND_OPERATION, example);
@@ -182,6 +184,7 @@ public class BuildingStrategy extends TemplateStrategy {
         String structure = buildingExample.getAdditionalParam(STRUCTURE);
 
         DomainObjectExample addressExample = new DomainObjectExample();
+
         addressExample.setAsc(buildingExample.isAsc());
         addressExample.setComparisonType(buildingExample.getComparisonType());
         addressExample.setLocaleId(buildingExample.getLocaleId());
@@ -192,21 +195,18 @@ public class BuildingStrategy extends TemplateStrategy {
         addressExample.setAdmin(buildingExample.isAdmin());
         addressExample.setUserPermissionString(sessionBean.getPermissionString("building_address"));
 
-        AttributeExample numberExample = new AttributeExample(BuildingAddressStrategy.NUMBER);
-        numberExample.setValue(number);
-        addressExample.addAttributeExample(numberExample);
-        AttributeExample corpExample = new AttributeExample(BuildingAddressStrategy.CORP);
-        corpExample.setValue(corp);
-        addressExample.addAttributeExample(corpExample);
-        AttributeExample structureExample = new AttributeExample(BuildingAddressStrategy.STRUCTURE);
-        structureExample.setValue(structure);
-        addressExample.addAttributeExample(structureExample);
+        addressExample.addAttributeExample(new AttributeExample(BuildingAddressStrategy.NUMBER, number));
+        addressExample.addAttributeExample(new AttributeExample(BuildingAddressStrategy.CORP, corp));
+        addressExample.addAttributeExample(new AttributeExample(BuildingAddressStrategy.STRUCTURE, structure));
+
         Map<String, Long> ids = Maps.newHashMap();
         Long streetId = buildingExample.getAdditionalParam(STREET);
         ids.put("street", streetId);
         Long cityId = buildingExample.getAdditionalParam(CITY);
         ids.put("city", cityId);
+
         buildingAddressStrategy.configureExample(addressExample, ids, null);
+
         return addressExample;
     }
 

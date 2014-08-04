@@ -74,6 +74,11 @@ public class StreetSyncHandler implements IAddressSyncHandler {
     }
 
     @Override
+    public Long getParentId(AddressSync sync, DomainObject parent) {
+        return parent.getId();
+    }
+
+    @Override
     public void insert(AddressSync sync, Locale locale) {
         DomainObject newObject = streetStrategy.newInstance();
         newObject.setExternalId(sync.getExternalId());

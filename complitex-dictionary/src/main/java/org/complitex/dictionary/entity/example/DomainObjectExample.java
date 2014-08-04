@@ -55,6 +55,12 @@ public class DomainObjectExample implements Serializable {
         return this;
     }
 
+    public DomainObjectExample addAttribute(Long attributeTypeId, Long valueId){
+        attributeExamples.add(new AttributeExample(attributeTypeId, valueId));
+
+        return this;
+    }
+
 
     public DomainObjectExample(ComparisonType comparisonType) {
         this.comparisonType = comparisonType.name();

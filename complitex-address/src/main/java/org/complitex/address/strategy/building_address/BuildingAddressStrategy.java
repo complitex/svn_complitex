@@ -33,8 +33,8 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
  */
 @Stateless
 public class BuildingAddressStrategy extends TemplateStrategy {
-
     private static final String BUILDING_ADDRESS_NAMESPACE = BuildingAddressStrategy.class.getPackage().getName() + ".BuildingAddress";
+
     public static final long NUMBER = 1500;
     public static final long CORP = 1501;
     public static final long STRUCTURE = 1502;
@@ -42,7 +42,11 @@ public class BuildingAddressStrategy extends TemplateStrategy {
     /**
      * It indicates default sorting by combination of number, corp and structure
      */
+
     public static final long DEFAULT_ORDER_BY_ID = -1;
+
+    public static final String DISTRICT_ID = "districtId";
+
     @EJB
     private BuildingStrategy buildingStrategy;
 
@@ -66,6 +70,7 @@ public class BuildingAddressStrategy extends TemplateStrategy {
             }
             number.setValue(searchTextInput);
         }
+
         Long streetId = ids.get("street");
         if (streetId != null && streetId > 0) {
             example.setParentId(streetId);
@@ -92,6 +97,7 @@ public class BuildingAddressStrategy extends TemplateStrategy {
         prepareExampleForPermissionCheck(example);
 
         List<DomainObject> objects = sqlSession().selectList(BUILDING_ADDRESS_NAMESPACE + "." + FIND_OPERATION, example);
+
         for (DomainObject object : objects) {
             loadAttributes(object);
             //load subject ids
