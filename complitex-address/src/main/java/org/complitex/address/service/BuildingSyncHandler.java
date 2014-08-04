@@ -1,5 +1,8 @@
 package org.complitex.address.service;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Iterables;
 import org.complitex.address.entity.AddressSync;
 import org.complitex.address.strategy.building.BuildingStrategy;
 import org.complitex.address.strategy.building.entity.Building;
@@ -19,10 +22,7 @@ import org.complitex.dictionary.util.CloneUtil;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Anatoly Ivanov
@@ -49,7 +49,7 @@ public class BuildingSyncHandler implements IAddressSyncHandler {
     private BuildingStrategy buildingStrategy;
 
     @Override
-    public Cursor<AddressSync> getAddressSyncs(DomainObject parent, Date date) {
+    public Cursor<AddressSync> getAddressSyncs(final DomainObject parent, Date date) {
         List<? extends DomainObject> domainObjects = districtStrategy.find(new DomainObjectExample()
                 .setParent("city", parent.getParentId()));
 
@@ -62,7 +62,13 @@ public class BuildingSyncHandler implements IAddressSyncHandler {
                     date);
 
             if (cursor.getList() != null){
-                return cursor;
+                return new Cursor<>(cursor.getResultCode(), new ArrayList<>(Collections2.filter(cursor.getList(),
+                        new Predicate<AddressSync>() {
+                            @Override
+                            public boolean apply(AddressSync sync) {
+                                return sync.getAdditionalExternalId().equals(parent.getExternalId());
+                            }
+                        })));
             }
         }
 
