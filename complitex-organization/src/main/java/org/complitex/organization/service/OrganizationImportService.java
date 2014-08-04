@@ -20,10 +20,7 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.io.IOException;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 import static org.complitex.dictionary.strategy.organization.IOrganizationStrategy.*;
 import static org.complitex.organization.entity.OrganizationImportFile.ORGANIZATION;
@@ -46,7 +43,7 @@ public class OrganizationImportService extends AbstractImportService {
     /**
      * ID CODE SHORT_NAME NAME HLEVEL
      */
-    public void process(IImportListener listener, long localeId, Date beginDate)
+    public void process(IImportListener listener, Locale locale, Date beginDate)
             throws ImportFileNotFoundException, ImportFileReadException, RootOrganizationNotFound {
 
         organizationImportBean.delete();
@@ -127,28 +124,15 @@ public class OrganizationImportService extends AbstractImportService {
             }
 
             //code
-            AttributeUtil.setStringValue(newObject.getAttribute(CODE),
-                    organization.getCode().toUpperCase(), localeId);
-            if (AttributeUtil.getSystemStringCultureValue(newObject.getAttribute(CODE)) == null) {
-                AttributeUtil.setStringValue(newObject.getAttribute(CODE),
-                        organization.getCode().toUpperCase(), systemLocaleId);
-            }
+            newObject.setStringValue(CODE, organization.getCode().toUpperCase(), locale);
+
 
             //short name
-            AttributeUtil.setStringValue(newObject.getAttribute(SHORT_NAME),
-                    organization.getShortName().toUpperCase(), localeId);
-            if (AttributeUtil.getSystemStringCultureValue(newObject.getAttribute(SHORT_NAME)) == null) {
-                AttributeUtil.setStringValue(newObject.getAttribute(SHORT_NAME),
-                        organization.getShortName().toUpperCase(), systemLocaleId);
-            }
+            newObject.setStringValue(SHORT_NAME, organization.getShortName().toUpperCase(), locale);
 
             //full name
-            AttributeUtil.setStringValue(newObject.getAttribute(NAME),
-                    organization.getFullName().toUpperCase(), localeId);
-            if (AttributeUtil.getSystemStringCultureValue(newObject.getAttribute(NAME)) == null) {
-                AttributeUtil.setStringValue(newObject.getAttribute(NAME),
-                        organization.getFullName().toUpperCase(), systemLocaleId);
-            }
+            newObject.setStringValue(NAME, organization.getFullName().toUpperCase(), locale);
+
 
             //parent
             Long parentId = organization.getHlevel();

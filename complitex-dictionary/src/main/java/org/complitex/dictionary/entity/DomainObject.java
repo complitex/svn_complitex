@@ -3,10 +3,12 @@ package org.complitex.dictionary.entity;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.complitex.dictionary.util.AttributeUtil;
+import org.complitex.dictionary.service.Locales;
+
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.Locale;
 
 /**
  *
@@ -76,8 +78,16 @@ public class DomainObject implements Serializable {
         }
     }
 
-    public void setAttribute(Long attributeTypeId, String name, Long localeId){
-        AttributeUtil.setStringValue(getAttribute(attributeTypeId), name, localeId);
+    public void setStringValue(Long attributeTypeId, String value, Locale locale){
+        getAttribute(attributeTypeId).setStringValue(value, Locales.getLocaleId(locale));
+    }
+
+    public void setStringValue(Long attributeTypeId, String value){
+        setStringValue(attributeTypeId, value, Locales.getSystemLocale());
+    }
+
+    public void setLongValue(Long attributeTypeId, Long value){
+        getAttribute(attributeTypeId).setValueId(value);
     }
 
     public Date getEndDate() {

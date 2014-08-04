@@ -236,5 +236,17 @@ public class AddressSyncPanel extends Panel {
                 });
             }
         });
+
+        add(new AjaxLink("cancel") {
+            @Override
+            public boolean isVisible() {
+                return addressSyncService.isLockSync();
+            }
+
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                addressSyncService.cancelSync();
+            }
+        });
     }
 }

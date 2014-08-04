@@ -13,6 +13,7 @@ import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.service.ConfigBean;
 import org.complitex.dictionary.service.LocaleBean;
+import org.complitex.dictionary.service.Locales;
 import org.complitex.dictionary.util.AttributeUtil;
 import org.complitex.dictionary.util.CloneUtil;
 
@@ -31,9 +32,6 @@ import java.util.Objects;
 public class BuildingSyncHandler implements IAddressSyncHandler {
     @EJB
     private ConfigBean configBean;
-
-    @EJB
-    private LocaleBean localeBean;
 
     @EJB
     private AddressSyncAdapter addressSyncAdapter;
@@ -85,8 +83,8 @@ public class BuildingSyncHandler implements IAddressSyncHandler {
     public boolean isEqualNames(AddressSync sync, DomainObject object) {
         Building building = (Building) object;
 
-        return sync.getName().equals(building.getAccompaniedNumber(localeBean.getSystemLocale()))
-                && Objects.equals(sync.getAdditionalName(), building.getAccompaniedCorp(localeBean.getSystemLocale()));
+        return sync.getName().equals(building.getAccompaniedNumber(Locales.getSystemLocale()))
+                && Objects.equals(sync.getAdditionalName(), building.getAccompaniedCorp(Locales.getSystemLocale()));
     }
 
     @Override
@@ -100,23 +98,12 @@ public class BuildingSyncHandler implements IAddressSyncHandler {
         buildingAddress.setParentEntityId(BuildingAddressStrategy.PARENT_STREET_ENTITY_ID);
         buildingAddress.setParentId(sync.getParentObjectId());
 
-        Long systemLocaleId = localeBean.getSystemLocaleObject().getId();
-        Long localeId = localeBean.convert(locale).getId();
-
         //building number
-        final Attribute numberAttribute = buildingAddress.getAttribute(BuildingAddressStrategy.NUMBER);
-        AttributeUtil.setStringValue(numberAttribute, sync.getName(), localeId);
-        if (AttributeUtil.getSystemStringCultureValue(numberAttribute) == null) {
-            AttributeUtil.setStringValue(numberAttribute, sync.getName(), systemLocaleId);
-        }
+        buildingAddress.setStringValue(BuildingAddressStrategy.NUMBER, sync.getName(), locale);
 
         //building part
         if (sync.getAdditionalName() != null) {
-            final Attribute corpAttribute = buildingAddress.getAttribute(BuildingAddressStrategy.CORP);
-            AttributeUtil.setStringValue(corpAttribute, sync.getAdditionalName(), localeId);
-            if (AttributeUtil.getSystemStringCultureValue(corpAttribute) == null) {
-                AttributeUtil.setStringValue(corpAttribute, sync.getAdditionalName(), systemLocaleId);
-            }
+            buildingAddress.setStringValue(BuildingAddressStrategy.CORP, sync.getAdditionalName(), locale);
         }
 
         buildingStrategy.insert(building, sync.getDate());
@@ -130,27 +117,12 @@ public class BuildingSyncHandler implements IAddressSyncHandler {
 
         DomainObject buildingAddress = newObject.getPrimaryAddress();
 
-        buildingAddress.setExternalId(sync.getExternalId());
-        buildingAddress.setParentEntityId(BuildingAddressStrategy.PARENT_STREET_ENTITY_ID);
-        buildingAddress.setParentId(sync.getParentObjectId());
-
-        Long systemLocaleId = localeBean.getSystemLocaleObject().getId();
-        Long localeId = localeBean.convert(locale).getId();
-
         //building number
-        final Attribute numberAttribute = buildingAddress.getAttribute(BuildingAddressStrategy.NUMBER);
-        AttributeUtil.setStringValue(numberAttribute, sync.getName(), localeId);
-        if (AttributeUtil.getSystemStringCultureValue(numberAttribute) == null) {
-            AttributeUtil.setStringValue(numberAttribute, sync.getName(), systemLocaleId);
-        }
+        buildingAddress.setStringValue(BuildingAddressStrategy.NUMBER, sync.getName(), locale);
 
         //building part
         if (sync.getAdditionalName() != null) {
-            final Attribute corpAttribute = buildingAddress.getAttribute(BuildingAddressStrategy.CORP);
-            AttributeUtil.setStringValue(corpAttribute, sync.getAdditionalName(), localeId);
-            if (AttributeUtil.getSystemStringCultureValue(corpAttribute) == null) {
-                AttributeUtil.setStringValue(corpAttribute, sync.getAdditionalName(), systemLocaleId);
-            }
+            buildingAddress.setStringValue(BuildingAddressStrategy.CORP, sync.getAdditionalName(), locale);
         }
 
         buildingStrategy.update(oldObject, newObject, sync.getDate());

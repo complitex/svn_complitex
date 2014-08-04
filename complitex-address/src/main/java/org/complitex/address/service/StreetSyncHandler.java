@@ -11,6 +11,7 @@ import org.complitex.dictionary.entity.DomainObject;
 import org.complitex.dictionary.entity.example.DomainObjectExample;
 import org.complitex.dictionary.service.ConfigBean;
 import org.complitex.dictionary.service.LocaleBean;
+import org.complitex.dictionary.service.Locales;
 import org.complitex.dictionary.util.AttributeUtil;
 import org.complitex.dictionary.util.CloneUtil;
 
@@ -43,9 +44,6 @@ public class StreetSyncHandler implements IAddressSyncHandler {
 
     @EJB
     private StreetTypeStrategy streetTypeStrategy;
-
-    @EJB
-    private LocaleBean localeBean;
 
     @EJB
     private AddressSyncBean addressSyncBean;
@@ -81,11 +79,7 @@ public class StreetSyncHandler implements IAddressSyncHandler {
         newObject.setExternalId(sync.getExternalId());
 
         //name
-        final String name = sync.getName();
-        AttributeUtil.setStringValue(newObject.getAttribute(StreetStrategy.NAME), name, localeBean.convert(locale).getId());
-        if (AttributeUtil.getSystemStringCultureValue(newObject.getAttribute(StreetStrategy.NAME)) == null) {
-            AttributeUtil.setStringValue(newObject.getAttribute(StreetStrategy.NAME), name, localeBean.getSystemLocaleId());
-        }
+        newObject.setStringValue(StreetStrategy.NAME, sync.getName(), locale);
 
         //CITY_ID
         newObject.setParentEntityId(StreetStrategy.PARENT_ENTITY_ID);
@@ -97,7 +91,7 @@ public class StreetSyncHandler implements IAddressSyncHandler {
         if (streetTypes.isEmpty()) {
             throw new RuntimeException("StreetType not found: " + sync.getAdditionalName());
         }
-        newObject.getAttribute(StreetStrategy.STREET_TYPE).setValueId(streetTypes.get(0).getId());
+        newObject.setLongValue(StreetStrategy.STREET_TYPE, streetTypes.get(0).getId());
 
         streetStrategy.insert(newObject, sync.getDate());
         addressSyncBean.delete(sync.getId());
@@ -108,7 +102,7 @@ public class StreetSyncHandler implements IAddressSyncHandler {
         DomainObject oldObject = streetStrategy.findById(sync.getObjectId(), true);
         DomainObject newObject = CloneUtil.cloneObject(oldObject);
 
-        AttributeUtil.setStringValue(newObject.getAttribute(StreetStrategy.NAME), sync.getName(), localeBean.convert(locale).getId());
+        newObject.setStringValue(StreetStrategy.NAME, sync.getName(), locale);
 
         List<? extends DomainObject> streetTypes = streetTypeStrategy.find(new DomainObjectExample()
                 .addAttribute(StreetTypeStrategy.SHORT_NAME, sync.getAdditionalName()));

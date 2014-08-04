@@ -1,9 +1,10 @@
 package org.complitex.dictionary.entity;
 
+import org.complitex.dictionary.service.Locales;
+
 import java.io.Serializable;
 
 public class StringCulture implements Serializable {
-
     private Long id;
     private Long localeId;
     private String value;
@@ -11,6 +12,10 @@ public class StringCulture implements Serializable {
     public StringCulture(Long localeId, String value) {
         this.localeId = localeId;
         this.value = value;
+    }
+
+    public boolean isSystemLocale(){
+        return Locales.getSystemLocaleId().equals(localeId);
     }
 
     public Long getId() {

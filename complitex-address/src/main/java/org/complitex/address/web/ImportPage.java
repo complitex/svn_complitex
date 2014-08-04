@@ -88,7 +88,7 @@ public class ImportPage extends TemplatePage {
             @Override
             public void onSubmit() {
                 if (!importService.isProcessing()) {
-                    importService.process(dictionaryModel.getObject(), localeBean.convert(localeModel.getObject()).getId());
+                    importService.process(dictionaryModel.getObject(), localeModel.getObject());
                     container.add(newTimer());
                 }
             }
