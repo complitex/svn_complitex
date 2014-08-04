@@ -93,14 +93,14 @@
         insert into `district_correction`(`city_object_id`, `object_id`, `external_id`, `correction`, `begin_date`, `end_date`,
                                           `organization_id`, `user_organization_id`, `module_id`, `status`)
           values (#{cityObjectId}, #{objectId}, #{externalId}, #{correction}, #{beginDate}, #{endDate},
-                  #{organizationId}, #{userOrganizationId}, #{moduleId}, #{status.id})
+                  #{organizationId}, #{userOrganizationId}, #{moduleId}, #{status})
     </insert>
 
     <update id="updateDistrictCorrection" parameterType="org.complitex.correction.entity.DistrictCorrection">
         update `district_correction` set `city_object_id` = #{cityObjectId}, `object_id` = #{objectId},
             `external_id` = #{externalId}, `correction` = #{correction},
             `begin_date` = #{beginDate}, `end_date` = #{endDate}, `organization_id` = #{organizationId},
-            `user_organization_id` = #{userOrganizationId}, `module_id` = #{moduleId}, `status` = #{status.id}
+            `user_organization_id` = #{userOrganizationId}, `module_id` = #{moduleId}, `status` = #{status}
         where `id` = #{id}
     </update>
 
@@ -155,7 +155,7 @@
                                         `correction`, `begin_date`, `end_date`, `organization_id`,
                                         `user_organization_id`, `module_id`, `status`)
             VALUES (#{cityObjectId}, #{streetTypeObjectId}, #{objectId}, #{externalId}, #{correction},
-                    #{beginDate}, #{endDate}, #{organizationId}, #{userOrganizationId}, #{moduleId}, #{status.id})
+                    #{beginDate}, #{endDate}, #{organizationId}, #{userOrganizationId}, #{moduleId}, #{status})
     </insert>
 
 
@@ -207,7 +207,7 @@
         insert into `building_correction`(`street_object_id`, `object_id`, `external_id`,  `correction`, `correction_corp`,
           `begin_date`, `end_date`, `organization_id`, `user_organization_id`, `module_id`, `status`)
         values (#{streetObjectId}, #{objectId}, #{externalId}, #{correction}, #{correctionCorp}, #{beginDate}, #{endDate},
-           #{organizationId}, #{userOrganizationId}, #{moduleId}, #{status.id})
+           #{organizationId}, #{userOrganizationId}, #{moduleId}, #{status})
     </insert>
 
     <update id="updateBuildingCorrection" parameterType="org.complitex.correction.entity.BuildingCorrection">
