@@ -16,6 +16,8 @@ import java.util.List;
  *         Date: 30.07.2014 0:08
  */
 public interface IAddressSyncHandler {
+    Long NOT_FOUND_ID = -1L;
+
     Cursor<AddressSync> getAddressSyncs(DomainObject parent, Date date);
 
     List<? extends DomainObject> getObjects(DomainObject parent);
@@ -23,6 +25,8 @@ public interface IAddressSyncHandler {
     List<? extends DomainObject> getParentObjects();
 
     boolean isEqualNames(AddressSync sync, DomainObject object);
+
+    Long getParentId(AddressSync sync, DomainObject parent);
 
     void insert(AddressSync sync, Locale locale);
 

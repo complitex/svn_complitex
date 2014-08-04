@@ -50,6 +50,10 @@ public class Attribute implements Serializable {
         }
     }
 
+    public String getStringValue(){
+        return getStringCulture(Locales.getSystemLocaleId()).getValue();
+    }
+
     public Long getAttributeId() {
         return attributeId;
     }
