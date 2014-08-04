@@ -28,9 +28,6 @@ public class StreetTypeSyncHandler implements IAddressSyncHandler {
     private ConfigBean configBean;
 
     @EJB
-    private LocaleBean localeBean;
-
-    @EJB
     private StreetTypeStrategy streetTypeStrategy;
 
     @EJB
@@ -66,18 +63,11 @@ public class StreetTypeSyncHandler implements IAddressSyncHandler {
         domainObject.setExternalId(sync.getExternalId());
 
         //name
-        final String name = sync.getName();
-        AttributeUtil.setStringValue(domainObject.getAttribute(StreetTypeStrategy.NAME), name, localeBean.convert(locale).getId());
-        if (AttributeUtil.getSystemStringCultureValue(domainObject.getAttribute(StreetTypeStrategy.NAME)) == null) {
-            AttributeUtil.setStringValue(domainObject.getAttribute(StreetTypeStrategy.NAME), name, localeBean.getSystemLocaleId());
-        }
+        domainObject.setStringValue(StreetTypeStrategy.NAME, sync.getName(), locale);
 
         //short name
-        final String shortName = sync.getAdditionalName();
-        AttributeUtil.setStringValue(domainObject.getAttribute(StreetTypeStrategy.SHORT_NAME), shortName, localeBean.convert(locale).getId());
-        if (AttributeUtil.getSystemStringCultureValue(domainObject.getAttribute(StreetTypeStrategy.SHORT_NAME)) == null) {
-            AttributeUtil.setStringValue(domainObject.getAttribute(StreetTypeStrategy.SHORT_NAME), shortName, localeBean.getSystemLocaleId());
-        }
+        domainObject.setStringValue(StreetTypeStrategy.SHORT_NAME, sync.getAdditionalName(), locale);
+
 
         streetTypeStrategy.insert(domainObject, sync.getDate());
         addressSyncBean.delete(sync.getId());
@@ -88,8 +78,11 @@ public class StreetTypeSyncHandler implements IAddressSyncHandler {
         DomainObject oldObject = streetTypeStrategy.findById(sync.getObjectId(), true);
         DomainObject newObject = CloneUtil.cloneObject(oldObject);
 
-        AttributeUtil.setStringValue(newObject.getAttribute(StreetTypeStrategy.NAME), sync.getName(), localeBean.convert(locale).getId());
-        AttributeUtil.setStringValue(newObject.getAttribute(StreetTypeStrategy.SHORT_NAME), sync.getAdditionalName(), localeBean.convert(locale).getId());
+        //name
+        newObject.setStringValue(StreetTypeStrategy.NAME, sync.getName(), locale);
+
+        //short name
+        newObject.setStringValue(StreetTypeStrategy.SHORT_NAME, sync.getAdditionalName(), locale);
 
         streetTypeStrategy.update(oldObject, newObject, sync.getDate());
         addressSyncBean.delete(sync.getId());

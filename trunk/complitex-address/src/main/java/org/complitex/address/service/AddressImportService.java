@@ -29,6 +29,7 @@ import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 import java.io.IOException;
 import java.util.*;
+import java.util.Locale;
 
 import static org.complitex.address.entity.AddressImportFile.*;
 
@@ -45,9 +46,6 @@ public class AddressImportService extends AbstractImportService {
 
     @Resource
     private UserTransaction userTransaction;
-
-    @EJB
-    private LocaleBean localeBean;
 
     @EJB
     private CountryStrategy countryStrategy;
@@ -142,39 +140,39 @@ public class AddressImportService extends AbstractImportService {
         errorMessage = null;
     }
 
-    public <T extends IImportFile> void process(T importFile, IImportListener listener, long localeId, Date beginDate)
+    public <T extends IImportFile> void process(T importFile, IImportListener listener, Locale locale, Date beginDate)
             throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException, ImportDuplicateException,
             ImportDistrictLinkException {
         switch ((AddressImportFile) importFile) {
             case COUNTRY:
-                importCountry(listener, localeId, beginDate);
+                importCountry(listener, locale, beginDate);
                 break;
             case REGION:
-                importRegion(listener, localeId, beginDate);
+                importRegion(listener, locale, beginDate);
                 break;
             case CITY_TYPE:
-                importCityType(listener, localeId, beginDate);
+                importCityType(listener, locale, beginDate);
                 break;
             case CITY:
-                importCity(listener, localeId, beginDate);
+                importCity(listener, locale, beginDate);
                 break;
             case DISTRICT:
-                importDistrict(listener, localeId, beginDate);
+                importDistrict(listener, locale, beginDate);
                 break;
             case STREET_TYPE:
-                importStreetType(listener, localeId, beginDate);
+                importStreetType(listener, locale, beginDate);
                 break;
             case STREET:
-                importStreet(listener, localeId, beginDate);
+                importStreet(listener, locale, beginDate);
                 break;
             case BUILDING:
-                importBuilding(listener, localeId, beginDate);
+                importBuilding(listener, locale, beginDate);
                 break;
         }
     }
 
     @Asynchronous
-    public <T extends IImportFile> void process(List<T> addressFiles, long localeId, Date beginDate) {
+    public <T extends IImportFile> void process(List<T> addressFiles, Locale locale, Date beginDate) {
         if (processing) {
             return;
         }
@@ -187,7 +185,7 @@ public class AddressImportService extends AbstractImportService {
             for (T t : addressFiles) {
                 userTransaction.begin();
 
-                process(t, listener, localeId, beginDate);
+                process(t, listener, locale, beginDate);
 
                 userTransaction.commit();
             }
@@ -216,13 +214,12 @@ public class AddressImportService extends AbstractImportService {
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    public void importCountry(IImportListener listener, long localeId, Date beginDate)
+    public void importCountry(IImportListener listener, Locale locale, Date beginDate)
             throws ImportFileNotFoundException, ImportFileReadException {
         listener.beginImport(COUNTRY, getRecordCount(COUNTRY));
 
         CSVReader reader = getCsvReader(COUNTRY);
 
-        final long systemLocaleId = localeBean.getSystemLocaleObject().getId();
         int recordIndex = 0;
 
         try {
@@ -250,11 +247,7 @@ public class AddressImportService extends AbstractImportService {
                 }
 
                 //name
-                final String name = line[1].trim().toUpperCase();
-                AttributeUtil.setStringValue(newObject.getAttribute(CountryStrategy.NAME), name, localeId);
-                if (AttributeUtil.getSystemStringCultureValue(newObject.getAttribute(CountryStrategy.NAME)) == null) {
-                    AttributeUtil.setStringValue(newObject.getAttribute(CountryStrategy.NAME), name, systemLocaleId);
-                }
+                newObject.setStringValue(CountryStrategy.NAME, line[1].trim().toUpperCase(), locale);
 
                 if (oldObject == null) {
                     countryStrategy.insert(newObject, beginDate);
@@ -283,13 +276,12 @@ public class AddressImportService extends AbstractImportService {
      * @throws ImportFileReadException
      * @throws ImportObjectLinkException
      */
-    public void importRegion(IImportListener listener, long localeId, Date beginDate)
+    public void importRegion(IImportListener listener, Locale locale, Date beginDate)
             throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
         listener.beginImport(REGION, getRecordCount(REGION));
 
         CSVReader reader = getCsvReader(REGION);
 
-        final long systemLocaleId = localeBean.getSystemLocaleObject().getId();
         int recordIndex = 0;
 
         try {
@@ -317,11 +309,7 @@ public class AddressImportService extends AbstractImportService {
                 }
 
                 //name
-                final String name = line[2].trim().toUpperCase();
-                AttributeUtil.setStringValue(newObject.getAttribute(RegionStrategy.NAME), name, localeId);
-                if (AttributeUtil.getSystemStringCultureValue(newObject.getAttribute(RegionStrategy.NAME)) == null) {
-                    AttributeUtil.setStringValue(newObject.getAttribute(RegionStrategy.NAME), name, systemLocaleId);
-                }
+                newObject.setStringValue(RegionStrategy.NAME, line[2].trim().toUpperCase(), locale);
 
                 //COUNTRY_ID
                 Long countryId = countryStrategy.getObjectId(line[1].trim());
@@ -357,13 +345,12 @@ public class AddressImportService extends AbstractImportService {
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    public void importCityType(IImportListener listener, long localeId, Date beginDate)
+    public void importCityType(IImportListener listener, Locale locale, Date beginDate)
             throws ImportFileNotFoundException, ImportFileReadException {
         listener.beginImport(CITY_TYPE, getRecordCount(CITY_TYPE));
 
         CSVReader reader = getCsvReader(CITY_TYPE);
 
-        final long systemLocaleId = localeBean.getSystemLocaleObject().getId();
         int recordIndex = 0;
 
         try {
@@ -391,19 +378,10 @@ public class AddressImportService extends AbstractImportService {
                 }
 
                 //name
-                final String name = line[2].trim().toUpperCase();
-                AttributeUtil.setStringValue(newObject.getAttribute(CityTypeStrategy.NAME), name, localeId);
-                if (AttributeUtil.getSystemStringCultureValue(newObject.getAttribute(CityTypeStrategy.NAME)) == null) {
-                    AttributeUtil.setStringValue(newObject.getAttribute(CityTypeStrategy.NAME), name, systemLocaleId);
-                }
+                newObject.setStringValue(CityTypeStrategy.NAME, line[2].trim().toUpperCase(), locale);
 
                 //short name
-                final String shortName = line[1].trim().toUpperCase();
-                AttributeUtil.setStringValue(newObject.getAttribute(CityTypeStrategy.SHORT_NAME),
-                        shortName, localeId);
-                if (AttributeUtil.getSystemStringCultureValue(newObject.getAttribute(CityTypeStrategy.SHORT_NAME)) == null) {
-                    AttributeUtil.setStringValue(newObject.getAttribute(CityTypeStrategy.SHORT_NAME), shortName, systemLocaleId);
-                }
+                newObject.setStringValue(CityTypeStrategy.SHORT_NAME, line[1].trim().toUpperCase(), locale);
 
                 if (oldObject == null) {
                     cityTypeStrategy.insert(newObject, beginDate);
@@ -431,13 +409,12 @@ public class AddressImportService extends AbstractImportService {
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    public void importCity(IImportListener listener, long localeId, Date beginDate)
+    public void importCity(IImportListener listener, Locale locale, Date beginDate)
             throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
         listener.beginImport(CITY, getRecordCount(CITY));
 
         CSVReader reader = getCsvReader(CITY);
 
-        final long systemLocaleId = localeBean.getSystemLocaleObject().getId();
         int recordIndex = 0;
 
         try {
@@ -465,11 +442,7 @@ public class AddressImportService extends AbstractImportService {
                 }
 
                 //name
-                final String name = line[3].trim().toUpperCase();
-                AttributeUtil.setStringValue(newObject.getAttribute(CityStrategy.NAME), name, localeId);
-                if (AttributeUtil.getSystemStringCultureValue(newObject.getAttribute(CityStrategy.NAME)) == null) {
-                    AttributeUtil.setStringValue(newObject.getAttribute(CityStrategy.NAME), name, systemLocaleId);
-                }
+                newObject.setStringValue(CityStrategy.NAME, line[3].trim().toUpperCase(), locale);
 
                 //REGION_ID
                 Long regionId = regionStrategy.getObjectId(line[1].trim());
@@ -512,13 +485,12 @@ public class AddressImportService extends AbstractImportService {
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    public void importDistrict(IImportListener listener, long localeId, Date beginDate)
+    public void importDistrict(IImportListener listener, Locale locale, Date beginDate)
             throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException {
         listener.beginImport(DISTRICT, getRecordCount(DISTRICT));
 
         CSVReader reader = getCsvReader(DISTRICT);
 
-        final long systemLocaleId = localeBean.getSystemLocaleObject().getId();
         int recordIndex = 0;
 
         try {
@@ -546,11 +518,7 @@ public class AddressImportService extends AbstractImportService {
                 }
 
                 //name
-                final String name = line[3].trim().toUpperCase();
-                AttributeUtil.setStringValue(newObject.getAttribute(DistrictStrategy.NAME), name, localeId);
-                if (AttributeUtil.getSystemStringCultureValue(newObject.getAttribute(DistrictStrategy.NAME)) == null) {
-                    AttributeUtil.setStringValue(newObject.getAttribute(DistrictStrategy.NAME), name, systemLocaleId);
-                }
+                newObject.setStringValue(DistrictStrategy.NAME, line[3].trim().toUpperCase(), locale);
 
                 //CITY_ID
                 Long cityId = cityStrategy.getObjectId(line[1].trim());
@@ -561,8 +529,7 @@ public class AddressImportService extends AbstractImportService {
                 newObject.setParentId(cityId);
 
                 //Код района
-                AttributeUtil.setStringValue(newObject.getAttribute(DistrictStrategy.CODE),
-                        line[2].trim().toUpperCase(), systemLocaleId);
+                newObject.setStringValue(DistrictStrategy.CODE, line[2].trim().toUpperCase());
 
                 if (oldObject == null) {
                     districtStrategy.insert(newObject, beginDate);
@@ -590,13 +557,12 @@ public class AddressImportService extends AbstractImportService {
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    public void importStreetType(IImportListener listener, long localeId, Date beginDate)
+    public void importStreetType(IImportListener listener, Locale locale, Date beginDate)
             throws ImportFileNotFoundException, ImportFileReadException {
         listener.beginImport(STREET_TYPE, getRecordCount(STREET_TYPE));
 
         CSVReader reader = getCsvReader(STREET_TYPE);
 
-        final long systemLocaleId = localeBean.getSystemLocaleObject().getId();
         int recordIndex = 0;
 
         try {
@@ -624,18 +590,10 @@ public class AddressImportService extends AbstractImportService {
                 }
 
                 //name
-                final String name = line[2].trim().toUpperCase();
-                AttributeUtil.setStringValue(newObject.getAttribute(StreetTypeStrategy.NAME), name, localeId);
-                if (AttributeUtil.getSystemStringCultureValue(newObject.getAttribute(StreetTypeStrategy.NAME)) == null) {
-                    AttributeUtil.setStringValue(newObject.getAttribute(StreetTypeStrategy.NAME), name, systemLocaleId);
-                }
+                newObject.setStringValue(StreetTypeStrategy.NAME, line[2].trim().toUpperCase(), locale);
 
                 //short name
-                final String shortName = line[1].trim().toUpperCase();
-                AttributeUtil.setStringValue(newObject.getAttribute(StreetTypeStrategy.SHORT_NAME), shortName, localeId);
-                if (AttributeUtil.getSystemStringCultureValue(newObject.getAttribute(StreetTypeStrategy.SHORT_NAME)) == null) {
-                    AttributeUtil.setStringValue(newObject.getAttribute(StreetTypeStrategy.SHORT_NAME), shortName, systemLocaleId);
-                }
+                newObject.setStringValue(StreetTypeStrategy.SHORT_NAME, line[1].trim().toUpperCase(), locale);
 
                 if (oldObject == null) {
                     streetTypeStrategy.insert(newObject, beginDate);
@@ -663,13 +621,12 @@ public class AddressImportService extends AbstractImportService {
      * @throws ImportFileNotFoundException
      * @throws ImportFileReadException
      */
-    public void importStreet(IImportListener listener, long localeId, Date beginDate)
+    public void importStreet(IImportListener listener, Locale locale, Date beginDate)
             throws ImportFileNotFoundException, ImportFileReadException, ImportObjectLinkException, ImportDuplicateException {
         listener.beginImport(STREET, getRecordCount(STREET));
 
         CSVReader reader = getCsvReader(STREET);
 
-        final long systemLocaleId = localeBean.getSystemLocaleObject().getId();
         int recordIndex = 0;
 
         try {
@@ -697,11 +654,7 @@ public class AddressImportService extends AbstractImportService {
                 }
 
                 //name
-                final String name = line[3].trim().toUpperCase();
-                AttributeUtil.setStringValue(newObject.getAttribute(StreetStrategy.NAME), name, localeId);
-                if (AttributeUtil.getSystemStringCultureValue(newObject.getAttribute(StreetStrategy.NAME)) == null) {
-                    AttributeUtil.setStringValue(newObject.getAttribute(StreetStrategy.NAME), name, systemLocaleId);
-                }
+                newObject.setStringValue(StreetStrategy.NAME, line[3].trim().toUpperCase(), locale);
 
                 //CITY_ID
                 Long cityId = cityStrategy.getObjectId(line[1].trim());
@@ -719,12 +672,12 @@ public class AddressImportService extends AbstractImportService {
                 newObject.getAttribute(StreetStrategy.STREET_TYPE).setValueId(streetTypeId);
 
                 // сначала ищем улицу в системе с таким названием, типом и родителем(городом)
-                final Long existingStreetId = streetStrategy.performDefaultValidation(newObject, localeBean.getSystemLocale());
+                final Long existingStreetId = streetStrategy.performDefaultValidation(newObject, Locales.getSystemLocale());
                 if (existingStreetId != null) {  // нашли дубликат
                     DomainObject existingStreet = streetStrategy.findById(existingStreetId, true);
                     String existingStreetExternalId = existingStreet.getExternalId();
                     listener.warn(STREET, ResourceUtil.getFormatString(RESOURCE_BUNDLE, "street_duplicate_warn",
-                            localeBean.getLocale(localeId),
+                            locale,
                             line[3], externalId, existingStreetId, existingStreetExternalId));
                 } else {
                     if (oldObject == null) {
@@ -751,7 +704,7 @@ public class AddressImportService extends AbstractImportService {
     /**
      * ID DISTR_ID STREET_ID NUM PART GEK CODE
      */
-    private void importBuilding(IImportListener listener, long localeId, Date beginDate) throws ImportFileNotFoundException,
+    private void importBuilding(IImportListener listener, Locale locale, Date beginDate) throws ImportFileNotFoundException,
             ImportFileReadException, ImportObjectLinkException, ImportDuplicateException, ImportDistrictLinkException {
         listener.beginImport(BUILDING, getRecordCount(BUILDING));
 
@@ -776,7 +729,7 @@ public class AddressImportService extends AbstractImportService {
                 Long streetObjectId = streetStrategy.getObjectId(streetExternalId);
                 if (streetObjectId == null) {
                     listener.warn(BUILDING, ResourceUtil.getFormatString(RESOURCE_BUNDLE, "building_street_not_found_warn",
-                            localeBean.getLocale(localeId), buildingNum + " " + buildingPart, buildingAddressExternalId, streetExternalId));
+                            locale, buildingNum + " " + buildingPart, buildingAddressExternalId, streetExternalId));
                     continue;
                 }
 
@@ -795,7 +748,7 @@ public class AddressImportService extends AbstractImportService {
                 buildingPart = StringUtil.removeWhiteSpaces(StringUtil.toCyrillic(buildingPart)).toUpperCase();
 
                 List<Long> buildingIds = buildingStrategy.getObjectIds(streetObjectId, buildingNum, buildingPart, null,
-                        BuildingAddressStrategy.PARENT_STREET_ENTITY_ID, localeBean.getLocale(localeId));
+                        BuildingAddressStrategy.PARENT_STREET_ENTITY_ID, locale);
 
                 if (buildingIds.size() == 1){
                     buildingId = buildingIds.get(0);
@@ -815,8 +768,6 @@ public class AddressImportService extends AbstractImportService {
                     //district check
                     Long buildingDistrictObjectId = oldBuilding.getAttribute(BuildingStrategy.DISTRICT).getValueId();
                     if (!districtObjectId.equals(buildingDistrictObjectId)){
-                        java.util.Locale locale = localeBean.getLocale(localeId);
-
                         listener.warn(BUILDING, ResourceUtil.getFormatString(RESOURCE_BUNDLE, "district_link_warn",
                                 locale,
                                 districtStrategy.displayDomainObject(districtObjectId, locale),
@@ -844,22 +795,12 @@ public class AddressImportService extends AbstractImportService {
                     buildingAddress.setParentEntityId(BuildingAddressStrategy.PARENT_STREET_ENTITY_ID);
                     buildingAddress.setParentId(streetObjectId);
 
-                    final long systemLocaleId = localeBean.getSystemLocaleObject().getId();
-
                     //building number
-                    final Attribute numberAttribute = buildingAddress.getAttribute(BuildingAddressStrategy.NUMBER);
-                    AttributeUtil.setStringValue(numberAttribute, buildingNum, localeId);
-                    if (AttributeUtil.getSystemStringCultureValue(numberAttribute) == null) {
-                        AttributeUtil.setStringValue(numberAttribute, buildingNum, systemLocaleId);
-                    }
+                    buildingAddress.setStringValue(BuildingAddressStrategy.NUMBER, buildingNum, locale);
 
                     //building part
                     if (!buildingPart.isEmpty()) {
-                        final Attribute corpAttribute = buildingAddress.getAttribute(BuildingAddressStrategy.CORP);
-                        AttributeUtil.setStringValue(corpAttribute, buildingPart, localeId);
-                        if (AttributeUtil.getSystemStringCultureValue(corpAttribute) == null) {
-                            AttributeUtil.setStringValue(corpAttribute, buildingPart, systemLocaleId);
-                        }
+                        buildingAddress.setStringValue(BuildingAddressStrategy.CORP, buildingPart, locale);
                     }
                 }
 
@@ -887,7 +828,7 @@ public class AddressImportService extends AbstractImportService {
                         }
                     } else {
                         listener.warn(BUILDING, ResourceUtil.getFormatString(RESOURCE_BUNDLE, "building_code_format_warn",
-                                localeBean.getLocale(localeId), buildingNum, buildingAddressExternalId, buildingCode));
+                                locale, buildingNum, buildingAddressExternalId, buildingCode));
                     }
                 }else{
                     throw new ImportObjectLinkException(BUILDING.getFileName(), recordIndex, String.valueOf(organizationExternalId));

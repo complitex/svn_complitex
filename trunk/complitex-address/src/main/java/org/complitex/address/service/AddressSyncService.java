@@ -36,6 +36,8 @@ public class AddressSyncService {
 
     private AtomicBoolean lockSync = new AtomicBoolean(false);
 
+    private AtomicBoolean cancelSync = new AtomicBoolean(false);
+
     @Asynchronous
     public void syncAll(IAddressSyncListener listener){
         sync(listener, AddressEntity.DISTRICT);
@@ -80,12 +82,17 @@ public class AddressSyncService {
         try {
             //lock sync
             lockSync.set(true);
+            cancelSync.set(false);
 
             List<? extends DomainObject> parents = getHandler(type).getParentObjects();
 
             if (parents != null){
                 for (DomainObject parent : parents) {
                     sync(parent, type, listener);
+
+                    if (cancelSync.get()){
+                        break;
+                    }
                 }
             }else{
                 sync(null, type, listener);
@@ -213,6 +220,10 @@ public class AddressSyncService {
                 listener.onProcessed(s);
             }
         }
+    }
+
+    public void cancelSync(){
+        cancelSync.set(true);
     }
 
     public boolean isLockSync(){

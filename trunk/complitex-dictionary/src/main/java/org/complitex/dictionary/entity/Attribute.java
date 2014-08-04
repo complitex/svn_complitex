@@ -1,5 +1,7 @@
 package org.complitex.dictionary.entity;
 
+import org.complitex.dictionary.service.Locales;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -38,6 +40,14 @@ public class Attribute implements Serializable {
         }
 
         return null;
+    }
+
+    public void setStringValue(String value, long localeId){
+        for (StringCulture string : getLocalizedValues()) {
+            if (string.getLocaleId().equals(localeId) || (string.isSystemLocale() && string.getValue() == null)) {
+                string.setValue(value);
+            }
+        }
     }
 
     public Long getAttributeId() {

@@ -30,9 +30,6 @@ public class DistrictSyncHandler implements IAddressSyncHandler {
     private ConfigBean configBean;
 
     @EJB
-    private LocaleBean localeBean;
-
-    @EJB
     private AddressSyncBean addressSyncBean;
 
     @EJB
@@ -72,22 +69,13 @@ public class DistrictSyncHandler implements IAddressSyncHandler {
 
     public void insert(AddressSync sync, Locale locale){
         DomainObject domainObject = districtStrategy.newInstance();
+
         domainObject.setExternalId(sync.getExternalId());
         domainObject.setParentId(sync.getParentObjectId());
-
-        //todo simplify setting name
-        AttributeUtil.setStringValue(domainObject.getAttribute(DistrictStrategy.NAME), sync.getName(),
-                localeBean.convert(locale).getId());
-        if (AttributeUtil.getSystemStringCultureValue(domainObject.getAttribute(DistrictStrategy.NAME)) == null) {
-            AttributeUtil.setStringValue(domainObject.getAttribute(DistrictStrategy.NAME), sync.getName(),
-                    localeBean.getSystemLocaleId());
-        }
-
-        AttributeUtil.setStringValue(domainObject.getAttribute(DistrictStrategy.CODE), sync.getExternalId(),
-                localeBean.getSystemLocaleId());
+        domainObject.setStringValue(DistrictStrategy.NAME, sync.getName(), locale);
+        domainObject.setStringValue(DistrictStrategy.CODE, sync.getExternalId());
 
         districtStrategy.insert(domainObject, sync.getDate());
-
         addressSyncBean.delete(sync.getId());
     }
 
@@ -95,13 +83,9 @@ public class DistrictSyncHandler implements IAddressSyncHandler {
         DomainObject oldObject = districtStrategy.findById(sync.getObjectId(), true);
         DomainObject newObject = CloneUtil.cloneObject(oldObject);
 
-        AttributeUtil.setStringValue(newObject.getAttribute(DistrictStrategy.NAME), sync.getName(),
-                localeBean.convert(locale).getId());
-
         newObject.setExternalId(sync.getExternalId());
-
-        AttributeUtil.setStringValue(newObject.getAttribute(DistrictStrategy.CODE), sync.getExternalId(),
-                localeBean.getSystemLocaleId());
+        newObject.setStringValue(DistrictStrategy.NAME, sync.getName(), locale);
+        newObject.setStringValue(DistrictStrategy.CODE, sync.getExternalId());
 
         districtStrategy.update(oldObject, newObject, sync.getDate());
         addressSyncBean.delete(sync.getId());

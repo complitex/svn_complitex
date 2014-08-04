@@ -73,12 +73,4 @@ public final class AttributeUtil {
     private static StringCultureBean stringBean() {
         return EjbBeanLocator.getBean(StringCultureBean.class);
     }
-
-    public static void setStringValue(Attribute attribute, String value, long localeId) {
-        for (StringCulture string : attribute.getLocalizedValues()) {
-            if (string.getLocaleId().equals(localeId)) {
-                string.setValue(value);
-            }
-        }
-    }
 }
