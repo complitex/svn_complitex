@@ -1,13 +1,9 @@
 package org.complitex.dictionary.entity.example;
 
-import com.google.common.collect.Maps;
 import org.complitex.dictionary.web.component.ShowMode;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
@@ -26,7 +22,7 @@ public class DomainObjectExample implements Serializable {
     private String parentEntity;
     private Long parentId;
     private Date startDate;
-    private Map<String, Object> additionalParams;
+    private Map<String, Object> additionalParams = new HashMap<>();
     private String comparisonType = ComparisonType.LIKE.name();
     private List<AttributeExample> attributeExamples = new ArrayList<AttributeExample>();
     private String status = ShowMode.ALL.name();
@@ -172,9 +168,6 @@ public class DomainObjectExample implements Serializable {
     }
 
     public DomainObjectExample addAdditionalParam(String key, Object value) {
-        if (additionalParams == null) {
-            additionalParams = Maps.newHashMap();
-        }
         additionalParams.put(key, value);
 
         return this;
