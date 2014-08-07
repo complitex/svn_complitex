@@ -20,6 +20,7 @@ public abstract class EhcacheTableUtil {
 
     public static void addCache(String tableName, String cacheName, CacheKey key) {
         CacheManager cacheManager = CacheManager.getInstance();
+        // TODO Must be synchronized
         if (!cacheManager.cacheExists(tableName)) {
             cacheManager.addCache(tableName);
         }
